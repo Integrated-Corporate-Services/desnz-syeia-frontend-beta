@@ -1,0 +1,56 @@
+import React, { useState } from 'react';
+import { getInitialSections, updateSectionStatus } from '../utils/taskListUtils';
+
+const TaskList: React.FC = () => {
+  const [sections, setSections] = useState(getInitialSections());
+
+  // Example: update status handler
+  const handleStatusUpdate = (sectionIdx: number, itemIdx: number, newStatus: string) => {
+    setSections(updateSectionStatus(sections, sectionIdx, itemIdx, newStatus));
+  };
+
+  const statusClass = (status: string) => {
+    if (status === 'Completed') return 'govuk-tag govuk-tag--green';
+    if (status === 'Not completed') return 'govuk-tag govuk-tag--blue';
+    if (status === 'Cannot start yet') return 'govuk-tag govuk-tag--grey';
+    return '';
+  };
+
+  return (
+    <div className="govuk-width-container">
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+        <span className="govuk-caption-l">NPOWER LIMITED</span>
+        <h1 className="govuk-heading-l">Section 37 application</h1>
+        <button className="govuk-button govuk-button--warning" type="button">
+          Delete application
+        </button>
+        {sections.map((section, idx) => (
+          <div key={section.title} style={{ marginTop: '2rem' }}>
+            <h2 className="govuk-heading-m">{idx + 1}. {section.title}</h2>
+            <table className="govuk-table">
+              <tbody className="govuk-table__body">
+                {section.items.map((item, itemIdx) => (
+                  <tr className="govuk-table__row" key={item.name}>
+                    <td className="govuk-table__cell">
+                      <a className="govuk-link" href={item.link}>{item.name}</a>
+                    </td>
+                    <td className="govuk-table__cell" style={{ textAlign: 'right' }}>
+                      {item.status && (
+                        <span className={statusClass(item.status)}>{item.status}</span>
+                      )}
+                   
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+    </div>
+    </div>
+  );
+};
+
+export default TaskList;

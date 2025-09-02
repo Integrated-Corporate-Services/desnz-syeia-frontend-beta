@@ -6,7 +6,7 @@ import Workbasket from './pages/Workbasket';
 import React from 'react';
 import NetworkOperatorDetails from './pages/NetworkOperatorDetails';
 import NetworkOperatorContactDetails from './pages/NetworkOperatorContactDetails';
-
+import TaskList from './pages/task-list';
 
 const BackButton =()=> {
   const navigate = useNavigate();
@@ -18,6 +18,7 @@ const App = () => (
 <div className="govuk-width-container"><BackButton/></div>
 <Routes>
             <Route path="/" element={<Workbasket />} />
+            <Route path="/task-list" element={<TaskList />} />
             <Route path="/network-operator-details" element={<NetworkOperatorDetails />} />
             <Route path="/network-operator-contact-details" element={<NetworkOperatorContactDetails />} />
         </Routes>

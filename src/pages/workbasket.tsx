@@ -12,7 +12,7 @@ const Workbasket = () => (<main className="govuk-width-container">
       <GridCol setWidth="one-third" className="govuk-!-text-align-right">
             <Button
                 as={Link}
-                to="/network-operator-details"
+                to="/task-list"
             >
                 Start new application
             </Button> 
