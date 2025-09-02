@@ -1,58 +1,103 @@
-import React, { useEffect, useState } from 'react'
-import { Button, InputField, H1, Radio, SearchBox, Select, TextArea, Checkbox, DateField, ErrorSummary, FileUpload, FormGroup, ListItem, GlobalStyle, GridCol, GridRow, H2, Paragraph, Panel, H3, RelatedItems, UnorderedList, SkipLink, LoadingBox, PhaseBanner, Breadcrumbs } from "govuk-react"
-import { Link, useNavigate, useLocation } from "react-router-dom";
 
-const NetwotkOperatorDetails = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const appId = params.get('appId');
-  //const [location, setLocation] = useState('');
+import React, { useState } from 'react';
 
-  // 🔹 One object to store all fields
-  const [formData, setFormData] = useState({
-    desnzReference: '',
-    operatorReference: '',
-  });
+const NetworkOperatorDetails = () => {
+  const [networkOperatorReference, setNetworkOperatorReference] = useState('ooo');
+  const [networkOperator, setNetworkOperator] = useState('83124');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleReferenceChange = (e) => {
+    setNetworkOperatorReference(e.target.value);
+  };
+
+  const handleOperatorChange = (e) => {
+    setNetworkOperator(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // TODO: handle form submission
   };
 
   return (
-    <main className="govuk-width-container">
-        <h1 className="govuk-heading-l" id="basic">
-          Network Operator Details
-        </h1>
-        <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="desnzReference">
-            DESNZ Reference
-          </label>
-          <input className="govuk-input govuk-input--width-20" id="desnzReference" name="desnzReference" type="text" value={formData.desnzReference} onChange={handleChange} />
-        </div>
-        <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="operator">
-            Network operator's reference
-          </label>
-          <input className="govuk-input govuk-input--width-20" id="operator" name="operator" type="text" value={formData.operatorReference} onChange={handleChange} />
+    <div className="govuk-grid-row">
+    <div className="govuk-width-container">
+      <a href="#" className="govuk-back-link">&lt; Back</a>
+        <h1 className="govuk-heading-xl">Network operator details</h1>
+        <form method="post" data-module="fds-html-form" onSubmit={handleSubmit}>
+          {/* CSRF token placeholder */}
+          <input type="hidden" name="_csrf" value="UgomoCIrWPeL364VTL72d77f-RjzzYZMUPWrgo1Af_jFUijLYW5CmBQZaJGm5pkgeJPCE4fu1HnC-uVhY82fse4kSJz0Ykuv" />
 
-        </div>
-        <GridRow>
-          <GridCol setWidth="one-third" className="govuk-!-text-align-left">
-            <Button
-                as={Link}
-                to="/network-operator-contact-details"
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="networkOperatorReference-inputValue">
+              Network operator's reference
+            </label>
+            <input
+              className="govuk-input"
+              id="networkOperatorReference-inputValue"
+              name="networkOperatorReference.inputValue"
+              type="text"
+              value={networkOperatorReference}
+              maxLength={4000}
+              onChange={handleReferenceChange}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="networkOperator" id="selector-networkOperator-label">
+              Who is the contact in the network operator organisation for this application?
+            </label>
+            <div id="networkOperator-hint" className="govuk-hint">
+              The section 37 consent will be issued in the name of the person selected here
+            </div>
+            <select
+              id="networkOperator"
+              name="networkOperator"
+              className="govuk-select"
+              aria-describedby="networkOperator-hint"
+              value={networkOperator}
+              onChange={handleOperatorChange}
+              style={{ width: '100%' }}
             >
-                Next
-            </Button> 
-          </GridCol>
-        </GridRow>
-    </main>
-  );
-}; // Closing brace for FormWithConditionalRendering
+              <option value="" disabled>Select one...</option>
+              <option value="83124">Mr Tree Lopping Consent Npower User</option>
+              <option value="83112">Mr Section 37 Consent Npower User</option>
+            </select>
+          </div>
 
-export default NetwotkOperatorDetails
+          <details className="govuk-details govuk-!-margin-bottom-4" data-module="govuk-details">
+            <summary className="govuk-details__summary">
+              <span className="govuk-details__summary-text">The contact is not listed</span>
+            </summary>
+            <div className="govuk-details__text">
+              <p className="govuk-body">
+                The contact must have a user account on EIP and be in the "Electricity Company: S37 Application Editor" or
+                "Electricity Company: S37 Application Submitter" roles in the network operator team.
+              </p>
+              <p className="govuk-body">
+                The network operator team can be updated from the company contacts link on the left side menu on the
+                workbasket. Only the team coordinator for the network operator organisation can update the team.
+              </p>
+            </div>
+          </details>
+
+          <button
+            type="submit"
+            data-module="govuk-button"
+            className="govuk-button"
+            value="Save and continue"
+            name="Save and continue"
+            data-prevent-double-click="true"
+            data-fds-disable-on-submit="false"
+            data-govuk-button-init=""
+            style={{ backgroundColor: '#00703c', color: '#fff', width: 'auto', minWidth: '180px', fontWeight: 700 }}
+          >
+            Save and continue
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default NetworkOperatorDetails;
