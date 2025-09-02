@@ -2,10 +2,10 @@ import { MemoryRouter, Routes, Route, Link, BrowserRouter } from 'react-router-d
 import { BackLink, Footer, TopNav } from 'govuk-react';
 import Crown from '@govuk-react/icon-crown'
 import { useNavigate } from 'react-router-dom';
-import Workbasket from './pages/workbasket';
+import Workbasket from './pages/Workbasket';
 import React from 'react';
-import NetworkOperatorDetails from './pages/networkOperatorDetails';
-import NetworkOperatorContactDetails from './pages/networkOperatorContactDetails copy';
+import NetworkOperatorDetails from './pages/NetworkOperatorDetails';
+import NetworkOperatorContactDetails from './pages/NetworkOperatorContactDetails';
 
 
 const BackButton =()=> {
