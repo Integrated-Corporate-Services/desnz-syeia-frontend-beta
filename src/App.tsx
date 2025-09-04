@@ -4,7 +4,7 @@ import Crown from '@govuk-react/icon-crown'
 import { useNavigate } from 'react-router-dom';
 import Workbasket from './pages/Workbasket';
 import React from 'react';
-import NetworkOperatorDetails from './pages/NetworkOperatorDetails';
+import NetworkOperatorDetails from './pages/networkOperatorDetails';
 import NetworkOperatorContactDetails from './pages/NetworkOperatorContactDetails';
 import TaskList from './pages/task-list';
 

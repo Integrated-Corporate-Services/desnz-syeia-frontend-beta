@@ -1,27 +1,48 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiService } from '../redux/services/api-service';
 
 const NetworkOperatorDetails = () => {
   const [networkOperatorReference, setNetworkOperatorReference] = useState('ooo');
-  const [networkOperator, setNetworkOperator] = useState('83124');
+  const [networkOperator, setNetworkOperator] = useState('');
+  const [options, setOptions] = useState<{ value: string; label: string }[]>([]);
+  // Replace with actual personId as needed
+  const personId = '44444444-4444-4444-4444-444444444444';
 
-  const handleReferenceChange = (e) => {
+  useEffect(() => {
+    apiService.getNetworkOperatorByPerson(personId)
+      .then(data => {
+        const orgOptions = Array.isArray(data)
+          ? data.map((item: { organisation_name: string }) => ({
+              value: item.organisation_name,
+              label: item.organisation_name
+            }))
+          : [];
+        setOptions(orgOptions);
+        if (orgOptions.length > 0) setNetworkOperator(orgOptions[0].value);
+      })
+      .catch((err) => {
+        setOptions([]);
+        setNetworkOperator('');
+      });
+  }, [personId]);
+
+  const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNetworkOperatorReference(e.target.value);
   };
 
-  const handleOperatorChange = (e) => {
+  const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setNetworkOperator(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: handle form submission
   };
 
   return (
     <div className="govuk-grid-row">
-    <div className="govuk-width-container">
-      <a href="#" className="govuk-back-link">&lt; Back</a>
+      <div className="govuk-width-container">
+        <a href="#" className="govuk-back-link">&lt; Back</a>
         <h1 className="govuk-heading-xl">Network operator details</h1>
         <form method="post" data-module="fds-html-form" onSubmit={handleSubmit}>
           {/* CSRF token placeholder */}
@@ -60,8 +81,9 @@ const NetworkOperatorDetails = () => {
               style={{ width: '100%' }}
             >
               <option value="" disabled>Select one...</option>
-              <option value="83124">Mr Tree Lopping Consent Npower User</option>
-              <option value="83112">Mr Section 37 Consent Npower User</option>
+              {options.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </div>
 
