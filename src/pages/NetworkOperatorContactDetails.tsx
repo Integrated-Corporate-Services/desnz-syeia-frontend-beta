@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Button, InputField, H1, Radio, SearchBox, Select, TextArea, Checkbox, DateField, ErrorSummary, FileUpload, FormGroup, ListItem, GlobalStyle, GridCol, GridRow, H2, Paragraph, Panel, H3, RelatedItems, UnorderedList, SkipLink, LoadingBox, PhaseBanner, Breadcrumbs } from "govuk-react"
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useApplicationStore } from '../store/useApplicationStore';
 
 const NetworkOperatorContactDetails = () => {
+  const application = useApplicationStore(state => state.application);
+  const organisation = useApplicationStore(state => state.organisation);
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -28,6 +31,8 @@ const NetworkOperatorContactDetails = () => {
         <h1 className="govuk-heading-l" id="network">
           Network Operator Contact Details
         </h1>
+        <h2>Application: {application?.project_name}</h2>
+        <h3>Organisation: {organisation?.organisation_name}</h3>
 
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="networkOperatorContactAddress">

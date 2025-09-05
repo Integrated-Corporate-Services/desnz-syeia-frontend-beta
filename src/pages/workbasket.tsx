@@ -1,23 +1,73 @@
-import React, { useState } from 'react'
-import {Button, InputField, H1, Radio, SearchBox, Select, TextArea, Checkbox, DateField, ErrorSummary, FileUpload, FormGroup, ListItem, GlobalStyle, GridCol, GridRow, H2, Paragraph, Panel, H3, RelatedItems, UnorderedList, SkipLink, LoadingBox, PhaseBanner, Breadcrumbs} from "govuk-react"
-import { Link } from "react-router-dom";
-// Removed duplicate import of Link
+import React, { useEffect } from 'react';
+import { useApplicationStore } from '../store/useApplicationStore';
+import { useNavigate } from 'react-router-dom';
+import { Button, H1, GridCol, GridRow, GlobalStyle } from "govuk-react";
 
-const Workbasket = () => (<main className="govuk-width-container">
-  <GlobalStyle />
-    <GridRow>
-      <GridCol setWidth="two-thirds">
-        <H1 className='govuk-heading-l'>Workbasket</H1>
-      </GridCol>
-      <GridCol setWidth="one-third" className="govuk-!-text-align-right">
-            <Button
-                as={Link}
-                to="/task-list"
-            >
-                Start new application
-            </Button> 
-      </GridCol>
-    </GridRow>
-        </main>
-)
-export default Workbasket
+const Workbasket = () => {
+  const created_by = '44444444-4444-4444-4444-444444444444'; // get from auth/session
+  const applications = useApplicationStore((state) => state.applications);
+  const loadApplications = useApplicationStore((state) => state.loadApplications);
+  const startApplication = useApplicationStore((state) => state.startApplication);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadApplications(created_by);
+  }, [created_by, loadApplications]);
+
+  const handleStart = async () => {
+    const initialData = {
+      type: 'S37',
+      operator_ref: '',
+      project_name: '',
+      project_desc: '',
+      status: 'draft',
+      created_by: created_by,
+      created_at: new Date().toISOString(),
+      submitted_at: undefined
+    };
+    const app = await startApplication(initialData);
+    navigate(`/network-operator-details?id=${app.application_id}`);
+  };
+
+  return (
+    <main className="govuk-width-container">
+      <GlobalStyle />
+      <GridRow>
+        <GridCol setWidth="two-thirds">
+          <H1 className='govuk-heading-l'>Workbasket</H1>
+        </GridCol>
+        <GridCol setWidth="one-third" className="govuk-!-text-align-right">
+          <Button onClick={handleStart}>
+            Start new application
+          </Button>
+        </GridCol>
+      </GridRow>
+      {applications.length > 0 ? (
+        <div>
+          <h2>Your Draft Applications</h2>
+          {applications
+            .filter(app => app.status && app.status.toLowerCase() === 'draft')
+            .map(app => (
+              <div key={app.application_id}>
+                <a
+                  href="#"
+                  onClick={e => {
+                    e.preventDefault();
+                    navigate(`/task-list?id=${app.application_id}`);
+                  }}
+                  style={{ color: '#1d70b8', textDecoration: 'underline', cursor: 'pointer' }}
+                >
+                  {app.project_name || 'Untitled Draft'}
+                </a>
+                <span style={{ marginLeft: 8, color: '#666' }}>({app.status})</span>
+              </div>
+            ))}
+        </div>
+      ) : (
+        <p>No applications found.</p>
+      )}
+    </main>
+  );
+};
+
+export default Workbasket;
