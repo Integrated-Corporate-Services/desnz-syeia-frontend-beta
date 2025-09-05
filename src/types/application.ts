@@ -8,13 +8,11 @@ export type Application = {
   created_by: string;
   created_at: string;
   submitted_at: string;
-  application_party?: ApplicationParty; // Optional field for merged backend response
+  application_party?: ApplicationParty | undefined; // Optional field for merged backend response
 };
 
 
 export type ApplicationParty = {
-  party_id: string;
-  application_id: string;
   party_type: string;
   organisation_name: string;
   line1: string;
@@ -22,4 +20,10 @@ export type ApplicationParty = {
   city?: string;
   postcode?: string;
   country?: string;
+  email?: string;
+  phone?: string;
+  organisation_id?: string;
+  person_id?: string;
+  contact_id?: string;
+  is_primary: boolean;
 };

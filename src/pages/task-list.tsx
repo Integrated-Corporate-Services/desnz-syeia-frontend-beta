@@ -24,7 +24,7 @@ const TaskList: React.FC = () => {
 
   const statusClass = (status: string) => {
     if (status === 'Completed') return 'govuk-tag govuk-tag--green';
-    if (status === 'Not completed') return 'govuk-tag govuk-tag--blue';
+    if (status === 'Incomplete') return 'govuk-tag govuk-tag--blue';
     if (status === 'Cannot start yet') return 'govuk-tag govuk-tag--grey';
     return '';
   };

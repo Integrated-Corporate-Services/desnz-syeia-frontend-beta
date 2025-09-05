@@ -14,19 +14,9 @@ const Workbasket = () => {
     loadApplications(created_by);
   }, [created_by, loadApplications]);
 
-  const handleStart = async () => {
-    const initialData = {
-      type: 'S37',
-      operator_ref: '',
-      project_name: '',
-      project_desc: '',
-      status: 'draft',
-      created_by: created_by,
-      created_at: new Date().toISOString(),
-      submitted_at: undefined
-    };
-    const app = await startApplication(initialData);
-    navigate(`/network-operator-details?id=${app.application_id}`);
+  const handleStart = () => {
+    // Just navigate, do not create a DB record yet
+    navigate('/network-operator-details');
   };
 
   return (

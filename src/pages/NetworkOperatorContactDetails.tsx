@@ -26,6 +26,7 @@ const NetworkOperatorContactDetails = () => {
         created_by: '44444444-4444-4444-4444-444444444444',
         role: 'Applicant',
         is_primary: true,
+        created_at: new Date().toISOString(),
       };
       app = await useApplicationStore.getState().startApplication(newAppData);
     }

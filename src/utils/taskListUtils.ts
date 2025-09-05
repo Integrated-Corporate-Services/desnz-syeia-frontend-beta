@@ -9,31 +9,31 @@ export function getInitialSections(): TaskListSection[] {
       title: 'Applicant details',
       items: [
         { name: 'Network operator details', status: 'Completed', link: '/network-operator-details' },
-        { name: 'Network operator contact details', status: 'Not completed', link: '/network-operator-contact-details' },
+        { name: 'Network operator contact details', status: 'Completed', link: '/network-operator-contact-details' },
       ],
     },
     {
       title: 'Project details',
       items: [
-        { name: 'Project overview', status: 'Not completed', link: '/project-overview' },
-        { name: 'Asset information', status: 'Completed', link: '/asset-information' },
+        { name: 'Project overview', status: 'Incomplete', link: '/project-overview' },
+        { name: 'Asset information', status: 'Incomplete', link: '/asset-information' },
       ],
     },
     {
       title: 'Location',
       items: [
-        { name: 'Route', status: 'Not completed', link: '/route' },
-        { name: 'Works overview', status: 'Completed', link: '/works-overview' },
+        { name: 'Route', status: 'Incomplete', link: '/route' },
+        { name: 'Works overview', status: 'Incomplete', link: '/works-overview' },
         { name: 'Sensitive area checks', status: 'Cannot start yet', link: '/sensitive-area-checks' },
         { name: 'Sensitive area review', status: 'Cannot start yet', link: '/sensitive-area-review' },
-        { name: 'Parishes', status: 'Completed', link: '/parishes' },
+        { name: 'Parishes', status: 'Incomplete', link: '/parishes' },
       ],
     },
     {
       title: 'Supporting information',
       items: [
-        { name: 'Supporting questions', status: 'Not completed', link: '/supporting-questions' },
-        { name: 'EIA fees', status: 'Completed', link: '/eia-fees' },
+        { name: 'Supporting questions', status: 'Incomplete', link: '/supporting-questions' },
+        { name: 'EIA fees', status: 'Incomplete', link: '/eia-fees' },
       ],
     },
     {
