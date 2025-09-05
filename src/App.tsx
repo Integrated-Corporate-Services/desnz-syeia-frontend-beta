@@ -1,27 +1,23 @@
-import { MemoryRouter, Routes, Route, Link, BrowserRouter } from 'react-router-dom';
-import { BackLink, Footer, TopNav } from 'govuk-react';
-import Crown from '@govuk-react/icon-crown'
-import { useNavigate } from 'react-router-dom';
-import Workbasket from './pages/workbasket';
+
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
+import Workbasket from './pages/Workbasket';
+import TaskList from './pages/task-list';
 import NetworkOperatorDetails from './pages/networkOperatorDetails';
 import NetworkOperatorContactDetails from './pages/NetworkOperatorContactDetails';
-import TaskList from './pages/task-list';
 
-const BackButton =()=> {
-  const navigate = useNavigate();
-  return <BackLink  href="#" onClick={()=>navigate(-1)} className="govuk-back-link" />
-};
 const App = () => (
-<BrowserRouter basename="/">
-<TopNav company={<TopNav.Anchor href="https://example.com" target="new"><TopNav.IconTitle icon={<Crown height="32" width="36"/>}>GOV.UK</TopNav.IconTitle></TopNav.Anchor>} />
-<div className="govuk-width-container"><BackButton/></div>
-<Routes>
-            <Route path="/" element={<Workbasket />} />
-            <Route path="/task-list" element={<TaskList />} />
-            <Route path="/network-operator-details" element={<NetworkOperatorDetails />} />
-            <Route path="/network-operator-contact-details" element={<NetworkOperatorContactDetails />} />
-        </Routes>
-        <Footer />
-    </BrowserRouter>)
+  <BrowserRouter basename="/">
+    <MainLayout>
+      <Routes>
+        <Route path="/" element={<Workbasket />} />
+        <Route path="/task-list" element={<TaskList />} />
+        <Route path="/network-operator-details" element={<NetworkOperatorDetails />} />
+        <Route path="/network-operator-contact-details" element={<NetworkOperatorContactDetails />} />
+      </Routes>
+    </MainLayout>
+  </BrowserRouter>
+);
+
 export default App;

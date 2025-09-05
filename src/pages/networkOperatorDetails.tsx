@@ -8,6 +8,7 @@ const NetworkOperatorDetails = () => {
   const [options, setOptions] = useState<any[]>([]);
   const [networkOperatorReference, setNetworkOperatorReference] = useState('');
   const [selectedOrganisation, setSelectedOrganisation] = useState<any | null>(null);
+  const [selectedOrgName, setSelectedOrgName] = useState<string>('');
 
   const application = useApplicationStore(state => state.application);
   const setOrganisation = useApplicationStore(state => state.setOrganisation);
@@ -26,20 +27,11 @@ const NetworkOperatorDetails = () => {
     }
   }, [appId, application, fetchAndSetApplication]);
 
-  // Fetch application, then dropdown options, then verify and set selected organisation
+
+  // Always fetch dropdown options on mount, and bind selected org if application exists
   useEffect(() => {
     let isMounted = true;
-    const fetchData = async () => {
-      let app = application;
-      // Fetch application if not loaded
-      if (!app && appId) {
-        await fetchAndSetApplication(appId);
-        // Re-fetch from store after update
-        app = useApplicationStore.getState().application;
-      }
-      if (!app) return;
-      if (!isMounted) return;
-      setNetworkOperatorReference(app.operator_ref || '');
+    const fetchOptionsAndBind = async () => {
       // Fetch dropdown options
       let orgOptions: any[] = [];
       try {
@@ -50,43 +42,41 @@ const NetworkOperatorDetails = () => {
       }
       if (!isMounted) return;
       setOptions(orgOptions);
-      // Now verify and set selected organisation
-      const partyOrgName = app.application_party && app.application_party.organisation_name;
-      if (partyOrgName && orgOptions.length > 0) {
-        const org = orgOptions.find(
-          opt =>
-            opt.organisation_name &&
-            partyOrgName &&
-            opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
-        );
-        if (org) {
-          setSelectedOrganisation(org);
-          setOrganisation(org);
-        } else {
-          setSelectedOrganisation(null);
-          setOrganisation(null);
+
+      // If application exists, set reference and selected org
+      if (application) {
+        setNetworkOperatorReference(application.operator_ref || '');
+        const partyOrgName = application.application_party && application.application_party.organisation_name;
+        if (partyOrgName && orgOptions.length > 0) {
+          const org = orgOptions.find(
+            opt =>
+              opt.organisation_name &&
+              partyOrgName &&
+              opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
+          );
+          if (org) {
+            setSelectedOrganisation(org);
+            setOrganisation(org);
+          } else {
+            setSelectedOrganisation(null);
+            setOrganisation(null);
+          }
         }
       }
     };
-    
-    fetchData();
+    fetchOptionsAndBind();
     return () => { isMounted = false; };
-  }, [emailId, appId, application, fetchAndSetApplication, setOrganisation]);
+  }, [emailId, application, setOrganisation]);
 
 
 
     // Debug logging to help diagnose dropdown selection issue
   useEffect(() => {
-    console.log('application:', application);
-    if (application) {
-      console.log('application.application_party:', application.application_party);
+    // Remove broken debug logic and only set selectedOrgName if application changes
+    if (application && application.application_party && application.application_party.organisation_name) {
+      setSelectedOrgName(application.application_party.organisation_name);
     }
-    console.log('options:', options);
-    if (application && application.application_party) {
-      console.log('partyOrgName:', application.application_party.organisation_name);
-    }
-    console.log('selectedOrganisation:', selectedOrganisation);
-  }, [application, options, selectedOrganisation]);
+  }, [application]);
 
 
 
@@ -95,79 +85,129 @@ const NetworkOperatorDetails = () => {
   };
 
   const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedName = e.target.value;
-    const org = options.find(opt => opt.organisation_name === selectedName);
-    setSelectedOrganisation(org || null);
-    if (org) setOrganisation(org);
+  const selectedName = e.target.value;
+  setSelectedOrgName(selectedName);
+  const org = options.find(opt => opt.organisation_name === selectedName);
+  setSelectedOrganisation(org || null);
+  if (org) setOrganisation(org);
+  else setOrganisation(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!application || !selectedOrganisation) return;
-    await saveNetworkOperator({
-      application_id: application.application_id,
+    let app = application;
+    // If no application, create it in backend
+    if (!app || !app.application_id) {
+      // Use minimal required fields for new application
+      const newAppData = {
+        type: 'S37',
+        operator_ref: networkOperatorReference,
+        project_name: selectedOrganisation?.organisation_name || 'Untitled',
+        project_desc: '',
+        status: 'Draft',
+        created_by: '44444444-4444-4444-4444-444444444444', // Replace with real user id
+      };
+      app = await useApplicationStore.getState().startApplication(newAppData);
+    }
+    useApplicationStore.getState().setApplication({
+      application_id: app.application_id,
+      type: app.type || '',
       operator_ref: networkOperatorReference,
-      role: 'applicant',
-      organisation_id: selectedOrganisation.organisation_id,
-      person_id: selectedOrganisation.person_id,
-      contact_id: selectedOrganisation.party_contact_id,
-      is_primary: true,
+      project_name: app.project_name || '',
+      project_desc: app.project_desc || '',
+      status: app.status || '',
+      created_by: app.created_by || '',
+      created_at: app.created_at || '',
+      submitted_at: app.submitted_at || '',
+      application_party: {
+        party_type: (app?.application_party?.party_type ?? ''),
+        organisation_name: selectedOrganisation?.organisation_name || '',
+        line1: selectedOrganisation?.line1 || '',
+        line2: selectedOrganisation?.line2 || '',
+        city: selectedOrganisation?.city || '',
+        postcode: selectedOrganisation?.postcode || '',
+        country: selectedOrganisation?.country || '',
+        email: selectedOrganisation?.email || '',
+        phone: selectedOrganisation?.phone || '',
+        organisation_id: selectedOrganisation?.organisation_id,
+        person_id: selectedOrganisation?.person_id,
+        contact_id: selectedOrganisation?.party_contact_id,
+        is_primary: true,
+      },
     });
-    navigate('/task-list?id=' + application.application_id);
+    navigate('/network-operator-contact-details');
   };
 
   // Button label logic
-  const showSave = Boolean(networkOperatorReference && selectedOrganisation);
+  // Button label logic: show 'Save and continue' if application object with values is available on initial load
+  const [initialShowSave, setInitialShowSave] = useState(false);
+  useEffect(() => {
+    // Only run on initial mount
+    if (application && application.application_id) {
+      setInitialShowSave(true);
+    } else {
+      setInitialShowSave(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div className="govuk-grid-row">
-      <div className="govuk-width-container">
-        <a href="#" className="govuk-back-link">&lt; Back</a>
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <h1 className="govuk-heading-xl">Network operator details</h1>
-          {application ? (
-            <form method="post" data-module="fds-html-form" onSubmit={handleSubmit} className="govuk-form-group">
-              {/* CSRF token placeholder */}
-              <input type="hidden" name="_csrf" value="UgomoCIrWPeL364VTL72d77f-RjzzYZMUPWrgo1Af_jFUijLYW5CmBQZaJGm5pkgeJPCE4fu1HnC-uVhY82fse4kSJz0Ykuv" />
+    <div className="govuk-width-container">
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item" aria-current="false">
+            <a className="govuk-breadcrumbs__link" href="/task-list">Task list</a>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator details</li>
+        </ol>
+      </nav>
+      <main className="govuk-main-wrapper" id="main-content" role="main">
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <h1 className="govuk-heading-xl">Network operator details</h1>
+            <form method="post" data-module="fds-html-form" onSubmit={handleSubmit}>
+              <input type="hidden" name="_csrf" value="1cS2IlJvS27qI0DJG9gL3gIaaY-sywG0StstzDKXCdG3BVpy5qXQEmVbLlfHQiL9KfU_5mEqRO6b-DmZf-8U-Ar2PrPTNW4T" />
 
               <div className="govuk-form-group">
-                <label className="govuk-label govuk-label--m" htmlFor="networkOperatorReference-inputValue">
+                <label className="govuk-label" htmlFor="networkOperatorReference-inputValue">
                   Network operator's reference
                 </label>
                 <input
-                  className="govuk-input govuk-!-width-one-half"
+                  className="govuk-input"
                   id="networkOperatorReference-inputValue"
-                  name="networkOperatorReference"
+                  name="networkOperatorReference.inputValue"
                   type="text"
                   value={networkOperatorReference}
+                  maxLength={4000}
                   onChange={handleReferenceChange}
-                  autoComplete="off"
+                  style={{ width: '100%' }}
                 />
-                <span className="govuk-hint">
-                  The section 37 consent will be issued in the name of the person selected here
-                </span>
               </div>
 
               <div className="govuk-form-group">
-                <label className="govuk-label govuk-label--m" htmlFor="networkOperator">
-                  Network operator
+                <label className="govuk-label" htmlFor="networkOperator" id="selector-networkOperator-label">
+                  Who is the contact in the network operator organisation for this application?
                 </label>
+                <div id="networkOperator-hint" className="govuk-hint">
+                  The section 37 consent will be issued in the name of the person selected here
+                </div>
                 <select
                   id="networkOperator"
                   name="networkOperator"
-                  className="govuk-select govuk-!-width-one-half"
-                  value={selectedOrganisation ? selectedOrganisation.organisation_name : ''}
+                  className="govuk-select"
+                  style={{ width: '100%' }}
+                  value={selectedOrgName}
                   onChange={handleOperatorChange}
                   required
                 >
                   <option value="" disabled>Select one...</option>
                   {options.map(opt => (
-                    <option key={opt.organisation_name} value={opt.organisation_name}>{opt.organisation_name}</option>
+                    <option key={opt.organisation_id || opt.organisation_name} value={opt.organisation_name}>{opt.organisation_name}</option>
                   ))}
                 </select>
               </div>
 
-              <details className="govuk-details govuk-!-margin-bottom-4" data-module="govuk-details">
+              <details className="govuk-details" data-module="govuk-details">
                 <summary className="govuk-details__summary">
                   <span className="govuk-details__summary-text">The contact is not listed</span>
                 </summary>
@@ -187,21 +227,19 @@ const NetworkOperatorDetails = () => {
                 type="submit"
                 data-module="govuk-button"
                 className="govuk-button"
-                value={showSave ? 'Save and continue' : 'Continue'}
-                name={showSave ? 'Save and continue' : 'Continue'}
+                value={initialShowSave ? 'Save and continue' : 'Continue'}
+                name={initialShowSave ? 'Save and continue' : 'Continue'}
                 data-prevent-double-click="true"
                 data-fds-disable-on-submit="false"
                 data-govuk-button-init=""
                 style={{ backgroundColor: '#00703c', color: '#fff', width: 'auto', minWidth: '180px', fontWeight: 700 }}
               >
-                {showSave ? 'Save and continue' : 'Continue'}
+                {initialShowSave ? 'Save and continue' : 'Continue'}
               </button>
             </form>
-          ) : (
-            <p>Loading application...</p>
-          )}
-        </main>
-      </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
