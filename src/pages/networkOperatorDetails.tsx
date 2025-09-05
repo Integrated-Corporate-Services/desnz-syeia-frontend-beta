@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api-service';
 import { useApplicationStore } from '../store/useApplicationStore';
@@ -8,11 +9,11 @@ const NetworkOperatorDetails = () => {
   const [options, setOptions] = useState<any[]>([]);
   const [networkOperatorReference, setNetworkOperatorReference] = useState('');
   const [selectedOrganisation, setSelectedOrganisation] = useState<any | null>(null);
-  const [selectedOrgName, setSelectedOrgName] = useState<string>('');
+  const [selectedOrgName, setSelectedOrgName] = useState('');
+  const [errors, setErrors] = useState<{ reference?: string; organisation?: string }>({});
 
   const application = useApplicationStore(state => state.application);
   const setOrganisation = useApplicationStore(state => state.setOrganisation);
-  const saveNetworkOperator = useApplicationStore(state => state.saveNetworkOperator);
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,12 +28,10 @@ const NetworkOperatorDetails = () => {
     }
   }, [appId, application, fetchAndSetApplication]);
 
-
-  // Always fetch dropdown options on mount, and bind selected org if application exists
+  // Fetch dropdown options and bind application data
   useEffect(() => {
     let isMounted = true;
     const fetchOptionsAndBind = async () => {
-      // Fetch dropdown options
       let orgOptions: any[] = [];
       try {
         const data = await apiService.getNetworkOperatorByEmail(emailId);
@@ -43,24 +42,20 @@ const NetworkOperatorDetails = () => {
       if (!isMounted) return;
       setOptions(orgOptions);
 
-      // If application exists, set reference and selected org
+      // Bind application data to form fields
       if (application) {
-        setNetworkOperatorReference(application.operator_ref || '');
-        const partyOrgName = application.application_party && application.application_party.organisation_name;
+        if (application.operator_ref !== undefined && application.operator_ref !== null) {
+          setNetworkOperatorReference(application.operator_ref);
+        }
+        const partyOrgName = application.application_party?.organisation_name;
         if (partyOrgName && orgOptions.length > 0) {
           const org = orgOptions.find(
             opt =>
               opt.organisation_name &&
-              partyOrgName &&
               opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
           );
-          if (org) {
-            setSelectedOrganisation(org);
-            setOrganisation(org);
-          } else {
-            setSelectedOrganisation(null);
-            setOrganisation(null);
-          }
+          setSelectedOrganisation(org || null);
+          setOrganisation(org || null);
         }
       }
     };
@@ -68,44 +63,46 @@ const NetworkOperatorDetails = () => {
     return () => { isMounted = false; };
   }, [emailId, application, setOrganisation]);
 
-
-
-    // Debug logging to help diagnose dropdown selection issue
+  // Keep selectedOrgName in sync with application
   useEffect(() => {
-    // Remove broken debug logic and only set selectedOrgName if application changes
-    if (application && application.application_party && application.application_party.organisation_name) {
+    if (application?.application_party?.organisation_name) {
       setSelectedOrgName(application.application_party.organisation_name);
     }
   }, [application]);
-
-
 
   const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNetworkOperatorReference(e.target.value);
   };
 
   const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  const selectedName = e.target.value;
-  setSelectedOrgName(selectedName);
-  const org = options.find(opt => opt.organisation_name === selectedName);
-  setSelectedOrganisation(org || null);
-  if (org) setOrganisation(org);
-  else setOrganisation(null);
+    const selectedName = e.target.value;
+    setSelectedOrgName(selectedName);
+    const org = options.find(opt => opt.organisation_name === selectedName);
+    setSelectedOrganisation(org || null);
+    setOrganisation(org || null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: { reference?: string; organisation?: string } = {};
+    if (!networkOperatorReference.trim()) {
+      newErrors.reference = 'Network operator reference is required.';
+    }
+    if (!selectedOrgName.trim()) {
+      newErrors.organisation = 'Please select a network operator organisation.';
+    }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     let app = application;
-    // If no application, create it in backend
     if (!app || !app.application_id) {
-      // Use minimal required fields for new application
       const newAppData = {
         type: 'S37',
         operator_ref: networkOperatorReference,
         project_name: selectedOrganisation?.organisation_name || 'Untitled',
         project_desc: '',
         status: 'Draft',
-        created_by: '44444444-4444-4444-4444-444444444444', // Replace with real user id
+        created_by: '44444444-4444-4444-4444-444444444444',
       };
       app = await useApplicationStore.getState().startApplication(newAppData);
     }
@@ -120,7 +117,7 @@ const NetworkOperatorDetails = () => {
       created_at: app.created_at || '',
       submitted_at: app.submitted_at || '',
       application_party: {
-        party_type: (app?.application_party?.party_type ?? ''),
+        party_type: app?.application_party?.party_type ?? '',
         organisation_name: selectedOrganisation?.organisation_name || '',
         line1: selectedOrganisation?.line1 || '',
         line2: selectedOrganisation?.line2 || '',
@@ -135,7 +132,7 @@ const NetworkOperatorDetails = () => {
         is_primary: true,
       },
     });
-    navigate('/network-operator-contact-details');
+    navigate(`/network-operator-contact-details?id=${app.application_id}`);
   };
 
   // Button label logic
@@ -156,7 +153,7 @@ const NetworkOperatorDetails = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a className="govuk-breadcrumbs__link" href="/task-list">Task list</a>
+            <a className="govuk-breadcrumbs__link" href={`/task-list?id=${application?.application_id || ''}`}>Task list</a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator details</li>
         </ol>
@@ -181,7 +178,12 @@ const NetworkOperatorDetails = () => {
                   maxLength={4000}
                   onChange={handleReferenceChange}
                   style={{ width: '100%' }}
+                  aria-invalid={!!errors.reference}
+                  aria-describedby={errors.reference ? 'networkOperatorReference-error' : undefined}
                 />
+                {errors.reference && (
+                  <span className="govuk-error-message" id="networkOperatorReference-error">{errors.reference}</span>
+                )}
               </div>
 
               <div className="govuk-form-group">
@@ -198,6 +200,8 @@ const NetworkOperatorDetails = () => {
                   style={{ width: '100%' }}
                   value={selectedOrgName}
                   onChange={handleOperatorChange}
+                  aria-invalid={!!errors.organisation}
+                  aria-describedby={errors.organisation ? 'networkOperator-error' : undefined}
                   required
                 >
                   <option value="" disabled>Select one...</option>
@@ -205,6 +209,9 @@ const NetworkOperatorDetails = () => {
                     <option key={opt.organisation_id || opt.organisation_name} value={opt.organisation_name}>{opt.organisation_name}</option>
                   ))}
                 </select>
+                {errors.organisation && (
+                  <span className="govuk-error-message" id="networkOperator-error">{errors.organisation}</span>
+                )}
               </div>
 
               <details className="govuk-details" data-module="govuk-details">

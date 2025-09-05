@@ -13,10 +13,7 @@ const NetworkOperatorContactDetails = () => {
   const handleContactDetailsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let app = application;
-    // If no application or no application_id, create it in backend
     if (!app || !app.application_id) {
-      console.log('Creating new application in backend');
-      console.log('Application operator_ref:', application);
       const newAppData = {
         type: 'S37',
         operator_ref: application?.operator_ref || '',
@@ -32,14 +29,14 @@ const NetworkOperatorContactDetails = () => {
     }
     await useApplicationStore.getState().saveNetworkOperator({
       application_id: app.application_id,
+      operator_ref: app.operator_ref,
       organisation_id: party?.organisation_id,
       person_id: party?.person_id,
       contact_id: party?.contact_id,
       role: 'Applicant',
       is_primary: true,
-      
     });
-    navigate('/task-list');
+    navigate(`/task-list?id=${app.application_id}`);
   };
 
   return (
@@ -48,7 +45,7 @@ const NetworkOperatorContactDetails = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <a className="govuk-breadcrumbs__link" href="/task-list">Task list</a>
+              <a className="govuk-breadcrumbs__link" href={`/task-list?id=${application?.application_id || ''}`}>Task list</a>
             </li>
             <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator contact details</li>
           </ol>
