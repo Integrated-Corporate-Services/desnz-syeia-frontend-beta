@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
-const MainLayout = ({ children }) => (
+type MainLayoutProps = {
+  children: ReactNode;
+};
+
+
+const MainLayout = ({ children }: MainLayoutProps) => (
   <>
     {/* Header */}
     <header className="govuk-header govuk-header--full-width-border" data-module="govuk-header" data-govuk-header-init="">
@@ -14,7 +19,7 @@ const MainLayout = ({ children }) => (
           <span className="govuk-header__service-name">UK Energy Portal</span>
           <div>
             <span className="govuk-header__service-name govuk-!-margin-right-3" style={{ fontWeight: 'unset' }}>
-              Apply for a Necessary Wayleave
+              Section 37 Consent
             </span>
           </div>
         </div>
@@ -27,13 +32,14 @@ const MainLayout = ({ children }) => (
           <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
             <ul className="govuk-service-navigation__list" id="navigation">
               <li className="govuk-service-navigation__item">
-                <a className="govuk-service-navigation__link" href="/applications.html">Applications</a>
+                <a className="govuk-service-navigation__link" href={`${import.meta.env.BASE_URL}applications.html`}>Applications</a>
               </li>
               <li className="govuk-service-navigation__item">
-                <a className="govuk-service-navigation__link" href="/notifications.html">Notifications <span id="notifications" className="moj-notification-badge">2</span></a>
+                <a className="govuk-service-navigation__link" href={`${import.meta.env.BASE_URL}notifications.html`}>  Notifications 
+                  <span id="notifications" className="moj-notification-badge">2</span></a>
               </li>
               <li className="govuk-service-navigation__item">
-                <a className="govuk-service-navigation__link" href="../signin.html">Sign out</a>
+                <a className="govuk-service-navigation__link" href={`${import.meta.env.BASE_URL}signin.html`}>Sign out</a>
               </li>
             </ul>
           </nav>

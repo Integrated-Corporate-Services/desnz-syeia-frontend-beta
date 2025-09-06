@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api-service';
 import { useApplicationStore } from '../store/useApplicationStore';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { SECTIONS, SUBSECTIONS } from '../constants/sections';
+import { Link } from 'react-router-dom';
 
 const NetworkOperatorDetails = () => {
   const [options, setOptions] = useState<any[]>([]);
@@ -47,7 +49,7 @@ const NetworkOperatorDetails = () => {
         if (application.operator_ref !== undefined && application.operator_ref !== null) {
           setNetworkOperatorReference(application.operator_ref);
         }
-        const partyOrgName = application.application_party?.organisation_name;
+        const partyOrgName = application.application_parties?.[0]?.organisation_name;
         if (partyOrgName && orgOptions.length > 0) {
           const org = orgOptions.find(
             opt =>
@@ -65,8 +67,8 @@ const NetworkOperatorDetails = () => {
 
   // Keep selectedOrgName in sync with application
   useEffect(() => {
-    if (application?.application_party?.organisation_name) {
-      setSelectedOrgName(application.application_party.organisation_name);
+    if (application?.application_parties?.[0]?.organisation_name) {
+      setSelectedOrgName(application.application_parties[0].organisation_name);
     }
   }, [application]);
 
@@ -82,58 +84,85 @@ const NetworkOperatorDetails = () => {
     setOrganisation(org || null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors: { reference?: string; organisation?: string } = {};
-    if (!networkOperatorReference.trim()) {
-      newErrors.reference = 'Network operator reference is required.';
-    }
-    if (!selectedOrgName.trim()) {
-      newErrors.organisation = 'Please select a network operator organisation.';
-    }
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  const newErrors: { reference?: string; organisation?: string } = {};
+  if (!networkOperatorReference.trim()) {
+    newErrors.reference = 'Network operator reference is required.';
+  }
+  if (!selectedOrgName.trim()) {
+    newErrors.organisation = 'Please select a network operator organisation.';
+  }
+  setErrors(newErrors);
+  if (Object.keys(newErrors).length > 0) return;
 
-    let app = application;
-    if (!app || !app.application_id) {
-      const newAppData = {
-        type: 'S37',
-        operator_ref: networkOperatorReference,
-        project_name: selectedOrganisation?.organisation_name || 'Untitled',
-        project_desc: '',
-        status: 'Draft',
-        created_by: '44444444-4444-4444-4444-444444444444',
-      };
-      app = await useApplicationStore.getState().startApplication(newAppData);
-    }
-    useApplicationStore.getState().setApplication({
-      application_id: app.application_id,
-      type: app.type || '',
+  let app = application;
+  if (!app || !app.application_id) {
+    const newAppData = {
+      type: 'S37',
       operator_ref: networkOperatorReference,
-      project_name: app.project_name || '',
-      project_desc: app.project_desc || '',
-      status: app.status || '',
-      created_by: app.created_by || '',
-      created_at: app.created_at || '',
-      submitted_at: app.submitted_at || '',
-      application_party: {
-        party_type: app?.application_party?.party_type ?? '',
-        organisation_name: selectedOrganisation?.organisation_name || '',
-        line1: selectedOrganisation?.line1 || '',
-        line2: selectedOrganisation?.line2 || '',
-        city: selectedOrganisation?.city || '',
-        postcode: selectedOrganisation?.postcode || '',
-        country: selectedOrganisation?.country || '',
-        email: selectedOrganisation?.email || '',
-        phone: selectedOrganisation?.phone || '',
-        organisation_id: selectedOrganisation?.organisation_id,
-        person_id: selectedOrganisation?.person_id,
-        contact_id: selectedOrganisation?.party_contact_id,
-        is_primary: true,
-      },
-    });
-    navigate(`/network-operator-contact-details?id=${app.application_id}`);
-  };
+      project_name: selectedOrganisation?.organisation_name || 'Untitled',
+      project_desc: '',
+      status: 'Draft',
+      created_by: '44444444-4444-4444-4444-444444444444',
+      created_at: new Date().toISOString(),
+      submitted_at: undefined,
+    };
+    try {
+      app = await useApplicationStore.getState().startApplication(newAppData);
+    } catch (err) {
+      setErrors({ reference: 'Failed to create application. Please try again.' });
+      return;
+    }
+  }
+
+  // Check again after attempting to create
+  if (!app || !app.application_id) {
+    setErrors({ reference: 'Application ID is missing. Please try again.' });
+    return;
+  }
+
+  useApplicationStore.getState().setApplication({
+    application_id: app.application_id,
+    type: app.type || '',
+    operator_ref: networkOperatorReference,
+    project_name: app.project_name || '',
+    project_desc: app.project_desc || '',
+    status: app.status || '',
+    created_by: app.created_by || '',
+    created_at: app.created_at || '',
+    submitted_at: app.submitted_at || '',
+    application_parties: [{
+      party_type: 'Applicant',
+      organisation_name: selectedOrganisation?.organisation_name || '',
+      line1: selectedOrganisation?.line1 || '',
+      line2: selectedOrganisation?.line2 || '',
+      city: selectedOrganisation?.city || '',
+      postcode: selectedOrganisation?.postcode || '',
+      country: selectedOrganisation?.country || '',
+      email: selectedOrganisation?.email || '',
+      phone: selectedOrganisation?.phone || '',
+      organisation_id: selectedOrganisation?.organisation_id,
+      person_id: selectedOrganisation?.person_id,
+      contact_id: selectedOrganisation?.party_contact_id,
+      is_primary: true,
+    }],
+  });
+
+  try {
+    await apiService.updateApplicationProgress(
+      app.application_id,
+      SECTIONS.APPLICANT_DETAILS,
+      SUBSECTIONS.NETWORK_OPERATOR_DETAILS,
+      true
+    );
+  } catch (err) {
+    setErrors({ reference: 'Failed to update progress. Please try again.' });
+    return;
+  }
+
+  navigate(`/network-operator-contact-details?id=${app.application_id}`);
+};
 
   // Button label logic
   // Button label logic: show 'Save and continue' if application object with values is available on initial load
@@ -153,7 +182,7 @@ const NetworkOperatorDetails = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a className="govuk-breadcrumbs__link" href={`/task-list?id=${application?.application_id || ''}`}>Task list</a>
+            <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${application?.application_id || ''}`}>Task list</Link>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator details</li>
         </ol>

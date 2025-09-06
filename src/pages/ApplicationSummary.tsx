@@ -1,15 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { getInitialSections, updateSectionStatus } from '../utils/taskListUtils';
+import { getInitialSections } from '../utils/taskListUtils';
 import { useLocation, Link } from 'react-router-dom';
 import { useApplicationStore } from '../store/useApplicationStore';
+import { apiService } from '../services/api-service';
 
 const TaskList: React.FC = () => {
-  const [sections, setSections] = useState(getInitialSections());
+  const [sections] = useState(getInitialSections());
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const application = useApplicationStore(state => state.application);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const appId = params.get('id');
+  const [progress, setProgress] = useState<
+    { section_name: string; subsection_name: string; is_completed: boolean }[]
+  >([]);
+
+  useEffect(() => {
+    if (application?.application_id) {
+      apiService.fetchApplicationProgress(application.application_id)
+        .then(setProgress)
+        .catch(console.error);
+    }
+  }, [application?.application_id]);
 
   useEffect(() => {
     if (appId) {
@@ -17,17 +29,13 @@ const TaskList: React.FC = () => {
     }
   }, [appId, fetchAndSetApplication]);
 
-  // Example: update status handler
-  const handleStatusUpdate = (sectionIdx: number, itemIdx: number, newStatus: string) => {
-    setSections(updateSectionStatus(sections, sectionIdx, itemIdx, newStatus));
-  };
-
-  const statusClass = (status: string) => {
-    if (status === 'Completed') return 'govuk-tag govuk-tag--green';
-    if (status === 'Incomplete') return 'govuk-tag govuk-tag--blue';
-    if (status === 'Cannot start yet') return 'govuk-tag govuk-tag--grey';
-    return '';
-  };
+  const isSubsectionCompleted = (sectionTitle: string, itemName: string) =>
+    progress.some(
+      p =>
+        p.section_name === sectionTitle &&
+        p.subsection_name === itemName &&
+        p.is_completed
+    );
 
   return (
     <div className="govuk-width-container">
@@ -37,7 +45,8 @@ const TaskList: React.FC = () => {
             <>
               <span className="govuk-caption-l">{application.operator_ref || 'NPOWER LIMITED'}</span>
               <h1 className="govuk-heading-l">{application.project_name || 'Section 37 application'}</h1>
-              <p>Status: {application.status}</p>
+              <p className="govuk-hint">Complete the following sections in order to create and submit your application</p>
+
             </>
           ) : (
             <p>Loading application...</p>
@@ -50,7 +59,7 @@ const TaskList: React.FC = () => {
               <h2 className="govuk-heading-m">{idx + 1}. {section.title}</h2>
               <table className="govuk-table">
                 <tbody className="govuk-table__body">
-                  {section.items.map((item, itemIdx) => (
+                  {section.items.map((item) => (
                     <tr className="govuk-table__row" key={item.name}>
                       <td className="govuk-table__cell">
                         {appId ? (
@@ -60,9 +69,11 @@ const TaskList: React.FC = () => {
                         )}
                       </td>
                       <td className="govuk-table__cell" style={{ textAlign: 'right' }}>
-                        {item.status && (
-                          <span className={statusClass(item.status)}>{item.status}</span>
-                        )}
+                        <span className={isSubsectionCompleted(section.title, item.name)
+                          ? 'govuk-tag govuk-tag--green'
+                          : 'govuk-tag govuk-tag--blue'}>
+                          {isSubsectionCompleted(section.title, item.name) ? 'Completed' : 'Incomplete'}
+                        </span>
                       </td>
                     </tr>
                   ))}

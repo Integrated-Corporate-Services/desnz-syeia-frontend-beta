@@ -17,7 +17,7 @@ docker build -t desnz-syeia-frontend-beta ./desnz-syeia-frontend-beta
 docker run -p 5173:5173 desnz-syeia-frontend-beta
 
 # URL
-http://localhost:5173/
+http://localhost:5173/syeia
 
 
 

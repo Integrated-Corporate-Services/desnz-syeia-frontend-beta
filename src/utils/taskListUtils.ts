@@ -1,6 +1,6 @@
 export type TaskListSection = {
   title: string;
-  items: { name: string; status: string; link: string }[];
+  items: { name: string; link: string }[];
 };
 
 export function getInitialSections(): TaskListSection[] {
@@ -8,45 +8,45 @@ export function getInitialSections(): TaskListSection[] {
     {
       title: 'Applicant details',
       items: [
-        { name: 'Network operator details', status: 'Completed', link: '/network-operator-details' },
-        { name: 'Network operator contact details', status: 'Completed', link: '/network-operator-contact-details' },
+        { name: 'Network operator details', link: '/network-operator-details' },
+        { name: 'Network operator contact details', link: '/network-operator-contact-details' },
       ],
     },
     {
       title: 'Project details',
       items: [
-        { name: 'Project overview', status: 'Incomplete', link: '/project-overview' },
-        { name: 'Asset information', status: 'Incomplete', link: '/asset-information' },
+        { name: 'Project overview',  link: '/project-overview' },
+        { name: 'Asset information',  link: '/asset-information' },
       ],
     },
     {
       title: 'Location',
       items: [
-        { name: 'Route', status: 'Incomplete', link: '/route' },
-        { name: 'Works overview', status: 'Incomplete', link: '/works-overview' },
-        { name: 'Sensitive area checks', status: 'Cannot start yet', link: '/sensitive-area-checks' },
-        { name: 'Sensitive area review', status: 'Cannot start yet', link: '/sensitive-area-review' },
-        { name: 'Parishes', status: 'Incomplete', link: '/parishes' },
+        { name: 'Route', link: '/route' },
+        { name: 'Works overview',  link: '/works-overview' },
+        { name: 'Sensitive area checks',  link: '/sensitive-area-checks' },
+        { name: 'Sensitive area review',  link: '/sensitive-area-review' },
+        { name: 'Parishes',  link: '/parishes' },
       ],
     },
     {
       title: 'Supporting information',
       items: [
-        { name: 'Supporting questions', status: 'Incomplete', link: '/supporting-questions' },
-        { name: 'EIA fees', status: 'Incomplete', link: '/eia-fees' },
+        { name: 'Supporting questions',  link: '/supporting-questions' },
+        { name: 'EIA fees',  link: '/eia-fees' },
       ],
     },
     {
       title: 'Consultations',
       items: [
-        { name: 'Consultations', status: 'Cannot start yet', link: '/consultations' },
-        { name: 'Post consultation actions', status: 'Cannot start yet', link: '/post-consultation-actions' },
+        { name: 'Consultations',  link: '/consultations' },
+        { name: 'Post consultation actions', link: '/post-consultation-actions' },
       ],
     },
     {
       title: 'Review and submit',
       items: [
-        { name: 'Submit application', status: '', link: '/submit-application' },
+        { name: 'Submit application', link: '/submit-application' },
       ],
     },
   ];

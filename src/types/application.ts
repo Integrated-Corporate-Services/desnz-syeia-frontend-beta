@@ -8,7 +8,7 @@ export type Application = {
   created_by: string;
   created_at: string;
   submitted_at: string;
-  application_party?: ApplicationParty | undefined; // Optional field for merged backend response
+  application_parties?: ApplicationParty[]; // Optional field for merged backend response
 };
 
 
