@@ -2,17 +2,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApplicationStore } from '../store/useApplicationStore';
-import { apiService } from '../services/api-service';
-import { SECTIONS, SUBSECTIONS } from '../constants/sections';
-import { Link } from 'react-router-dom';
 
 const NetworkOperatorContactDetails = () => {
   const [contactDetailsConfirmed, setContactDetailsConfirmed] = useState('true');
   const navigate = useNavigate();
   const application = useApplicationStore(state => state.application);
- // const party = application?.application_party;
-  const parties = application?.application_parties || [];
-  const party = parties.find(p => p.party_type === 'Applicant');
+  const party = application?.application_party;
+
   // Handles the form submit for contact details
   const handleContactDetailsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,12 +36,6 @@ const NetworkOperatorContactDetails = () => {
       role: 'Applicant',
       is_primary: true,
     });
-    await apiService.updateApplicationProgress(
-      app.application_id,
-      SECTIONS.APPLICANT_DETAILS, // section title (must match your task list)
-      SUBSECTIONS.NETWORK_OPERATOR_CONTACT_DETAILS, // subsection title (must match your task list)
-      true
-    );
     navigate(`/task-list?id=${app.application_id}`);
   };
 
@@ -55,7 +45,7 @@ const NetworkOperatorContactDetails = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${application?.application_id || ''}`}>Task list</Link>
+              <a className="govuk-breadcrumbs__link" href={`/task-list?id=${application?.application_id || ''}`}>Task list</a>
             </li>
             <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator contact details</li>
           </ol>
