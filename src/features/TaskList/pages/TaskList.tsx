@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getInitialSections, updateSectionStatus } from '../utils/taskListUtils';
+import { getInitialSections, updateSectionStatus } from '../../../utils/taskListUtils';
 import { useLocation, Link } from 'react-router-dom';
-import { useApplicationStore } from '../store/useApplicationStore';
+import { useApplicationStore } from '../../../store/useApplicationStore';
 
 const TaskList: React.FC = () => {
   const [sections, setSections] = useState(getInitialSections());
@@ -37,7 +37,6 @@ const TaskList: React.FC = () => {
             <>
               <span className="govuk-caption-l">{application.operator_ref || 'NPOWER LIMITED'}</span>
               <h1 className="govuk-heading-l">{application.project_name || 'Section 37 application'}</h1>
-              <p>Status: {application.status}</p>
             </>
           ) : (
             <p>Loading application...</p>
@@ -60,9 +59,15 @@ const TaskList: React.FC = () => {
                         )}
                       </td>
                       <td className="govuk-table__cell" style={{ textAlign: 'right' }}>
-                        {item.status && (
-                          <span className={statusClass(item.status)}>{item.status}</span>
-                        )}
+                        <span className={
+                          item.status === 'Completed'
+                            ? 'govuk-tag govuk-tag--green'
+                            : item.status === 'Cannot start yet'
+                            ? 'govuk-tag govuk-tag--grey'
+                            : 'govuk-tag govuk-tag--blue'
+                        }>
+                          {item.status}
+                        </span>
                       </td>
                     </tr>
                   ))}

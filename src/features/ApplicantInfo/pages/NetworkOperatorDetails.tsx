@@ -1,9 +1,9 @@
-
-
 import React, { useState, useEffect } from 'react';
-import { apiService } from '../services/api-service';
-import { useApplicationStore } from '../store/useApplicationStore';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useApplicationStore } from '../../../store/useApplicationStore';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { CONTENT } from '../../../constants/content';
+import { networkOperatorApiService } from '../../../services/networkOperatorApiService';
+
 
 const NetworkOperatorDetails = () => {
   const [options, setOptions] = useState<any[]>([]);
@@ -34,7 +34,7 @@ const NetworkOperatorDetails = () => {
     const fetchOptionsAndBind = async () => {
       let orgOptions: any[] = [];
       try {
-        const data = await apiService.getNetworkOperatorByEmail(emailId);
+        const data = await networkOperatorApiService.getNetworkOperatorByEmail(emailId);
         orgOptions = Array.isArray(data) ? data : [];
       } catch {
         orgOptions = [];
@@ -153,7 +153,9 @@ const NetworkOperatorDetails = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a className="govuk-breadcrumbs__link" href={`/task-list?id=${application?.application_id || ''}`}>Task list</a>
+            <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${application?.application_id || ''}`}>
+              {CONTENT.networkOperatorContact.breadcrumb.taskList}
+            </Link>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator details</li>
         </ol>

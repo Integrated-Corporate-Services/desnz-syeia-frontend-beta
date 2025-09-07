@@ -1,13 +1,8 @@
 /// <reference types="vite/client" />
 const API_URL = import.meta.env.API_URL;
 
-export const apiService = {
-  // To fetch network operator by email
-  getNetworkOperatorByEmail: async (emailId: string) => {
-    const response = await fetch(`/api/network-operator-by-email/${emailId}`);
-    if (!response.ok) throw new Error('Failed to fetch network operator details');
-    return response.json();
-  },
+export const applicationApiService = {
+
   // Fetch applications for a user
   fetchApplicationsByUser: async (created_by: string) => {
     const response = await fetch(`/api/applications?created_by=${created_by}`);
@@ -27,11 +22,12 @@ export const apiService = {
     return response.json();
   },
   saveNetworkOperator: async (data: any) => {
-    const response = await fetch('/api/applications/save-network-operator', {
+    const response = await fetch('/api/applications/network-operators', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
     return response.json();
   },
+  
 };

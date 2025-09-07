@@ -1,6 +1,6 @@
 // vite.config.js
 export default {
-    base: '/',
+    base: '/syeia/',
     server: {
       host: true,
       port: 5173,

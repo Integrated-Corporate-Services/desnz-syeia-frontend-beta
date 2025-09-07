@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useApplicationStore } from '../store/useApplicationStore';
+import { Link, useNavigate } from 'react-router-dom';
+import { useApplicationStore } from '../../../store/useApplicationStore';
+import { CONTENT } from '../../../constants/content';
 
 const NetworkOperatorContactDetails = () => {
   const [contactDetailsConfirmed, setContactDetailsConfirmed] = useState('true');
@@ -45,7 +46,9 @@ const NetworkOperatorContactDetails = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <a className="govuk-breadcrumbs__link" href={`/task-list?id=${application?.application_id || ''}`}>Task list</a>
+              <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${application?.application_id || ''}`}>
+                {CONTENT.networkOperatorContact.breadcrumb.taskList}
+              </Link>
             </li>
             <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator contact details</li>
           </ol>
