@@ -1,7 +1,4 @@
-import React from 'react';
-import logo from '../assets/images/DESNZ_logo.png';
 import '../constants/content'; 
-import { CONTENT } from '../constants/content';
 import Header from './component/Header';
 import ServiceNavigation from './component/ServiceNavigation';
 import Footer from './component/Footer';

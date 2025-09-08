@@ -1,4 +1,5 @@
 import { CONTENT } from '../../constants/content';
+import DESNZLogo from '../../assets/DESNZ_logo.png';
 import React from 'react';
 import { BASE_URL } from '../../constants/routes';
 
@@ -7,7 +8,7 @@ const Header = () => (
     <div className="govuk-header__container govuk-width-container">
       <div className="govuk-header__logo">
       <a href="/" className="govuk-header__link">
-        <img src="/assets/images/DESNZ_logo.png" alt="Department for Energy Security and Net Zero" style={{ display: 'block', width: '160px' }} />
+        <img src={DESNZLogo} alt="Department for Energy Security and Net Zero" style={{ display: 'block', width: '160px' }} />
       </a>
     </div>
       <div className="govuk-header__content">
