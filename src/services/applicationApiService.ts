@@ -29,5 +29,16 @@ export const applicationApiService = {
     });
     return response.json();
   },
+
+  submitApplication: async (applicationId: string) => {
+    const res = await fetch(`/api/applications/${applicationId}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to submit application');
+    }
+    return res.json();
+  },
   
 };
