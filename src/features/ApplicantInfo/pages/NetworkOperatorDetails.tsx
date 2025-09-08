@@ -130,6 +130,7 @@ const NetworkOperatorDetails = () => {
         person_id: selectedOrganisation?.person_id,
         contact_id: selectedOrganisation?.party_contact_id,
         is_primary: true,
+        contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? false,
       },
     });
     navigate(`/network-operator-contact-details?id=${app.application_id}`);

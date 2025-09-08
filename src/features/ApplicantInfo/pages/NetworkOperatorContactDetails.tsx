@@ -5,10 +5,18 @@ import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from '../../../constants/content';
 
 const NetworkOperatorContactDetails = () => {
-  const [contactDetailsConfirmed, setContactDetailsConfirmed] = useState('true');
-  const navigate = useNavigate();
   const application = useApplicationStore(state => state.application);
   const party = application?.application_party;
+  const [contactIsConfirmed, setContactIsConfirmed] = useState(
+    typeof party?.contact_isconfirmed === 'boolean' ? party.contact_isconfirmed : true
+  );
+  const navigate = useNavigate();
+  // Keep radio value in sync with store if application/party changes
+  React.useEffect(() => {
+    if (party && typeof party.contact_isconfirmed === 'boolean') {
+      setContactIsConfirmed(party.contact_isconfirmed);
+    }
+  }, [party?.contact_isconfirmed]);
 
   // Handles the form submit for contact details
   const handleContactDetailsSubmit = async (e: React.FormEvent) => {
@@ -36,6 +44,7 @@ const NetworkOperatorContactDetails = () => {
       contact_id: party?.contact_id,
       role: 'Applicant',
       is_primary: true,
+      contact_isconfirmed: contactIsConfirmed,
     });
     navigate(`/task-list?id=${app.application_id}`);
   };
@@ -96,42 +105,38 @@ const NetworkOperatorContactDetails = () => {
                   <fieldset className="govuk-fieldset">
                     <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                       <h2 className="govuk-fieldset__heading">
-                        Are all contacts details available and correct?
+                        Are all contact details available and correct?
                       </h2>
                     </legend>
                     <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios" data-govuk-radios-init="">
                       <div className="govuk-radios__item">
                         <input
                           className="govuk-radios__input"
-                          id="contactDetailsConfirmed"
-                          name="contactDetailsConfirmed"
+                          id="contactIsConfirmed-yes"
+                          name="contactIsConfirmed"
                           type="radio"
-                          value="true"
-                          checked={contactDetailsConfirmed === 'true'}
-                          onChange={() => setContactDetailsConfirmed('true')}
+                          checked={contactIsConfirmed === true}
+                          onChange={() => setContactIsConfirmed(true)}
                         />
-                        <label className="govuk-label govuk-radios__label" htmlFor="contactDetailsConfirmed">
+                        <label className="govuk-label govuk-radios__label" htmlFor="contactIsConfirmed-yes">
                           Yes
                         </label>
                       </div>
                       <div className="govuk-radios__item">
                         <input
                           className="govuk-radios__input"
-                          id="contactDetailsConfirmed-no"
-                          name="contactDetailsConfirmed"
+                          id="contactIsConfirmed-no"
+                          name="contactIsConfirmed"
                           type="radio"
-                          value="false"
-                          aria-controls="contactDetailsConfirmed-no-hidden"
-                          aria-expanded={contactDetailsConfirmed === 'false'}
-                          checked={contactDetailsConfirmed === 'false'}
-                          onChange={() => setContactDetailsConfirmed('false')}
+                          checked={contactIsConfirmed === false}
+                          onChange={() => setContactIsConfirmed(false)}
                         />
-                        <label className="govuk-label govuk-radios__label" htmlFor="contactDetailsConfirmed-no">
+                        <label className="govuk-label govuk-radios__label" htmlFor="contactIsConfirmed-no">
                           No
                         </label>
                       </div>
-                      {contactDetailsConfirmed === 'false' && (
-                        <div className="govuk-radios__conditional" id="contactDetailsConfirmed-no-hidden">
+                      {contactIsConfirmed === false && (
+                        <div className="govuk-radios__conditional" id="contactIsConfirmed-no-hidden">
                           <p className="govuk-body">
                             If any of the contact details are not correct or missing then the contact person must update their account details on EIP. You will not be allowed to submit the application until all details are provided and correct.
                           </p>

@@ -1,3 +1,4 @@
+import React from 'react';
 import '../constants/content'; 
 import Header from './component/Header';
 import ServiceNavigation from './component/ServiceNavigation';
