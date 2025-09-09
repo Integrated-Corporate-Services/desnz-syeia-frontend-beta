@@ -17,6 +17,7 @@ type State = {
   startApplication: (applicationData: Partial<Application>) => Promise<Application>;
   fetchAndSetApplication: (id: string) => Promise<void>;
   saveNetworkOperator: (data: any) => Promise<void>;
+  submitApplication: (applicationId: string) => Promise<any>;
 };
 
 export const useApplicationStore = create<State>((set) => ({
@@ -46,4 +47,7 @@ export const useApplicationStore = create<State>((set) => ({
       applicationParty: result.application_party
     });
   },
+  submitApplication: async (applicationId: string) => {
+    return await applicationApiService.submitApplication(applicationId);
+  }
 }));
