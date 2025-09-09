@@ -19,7 +19,7 @@ const NetworkOperatorDetails = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const appId = params.get('id');
-  const emailId = 'jane.doe@alphanet.co.uk';
+  const emailId = 'jane.doe@nationalgrid.co.uk';
 
   // Fetch application if not loaded
   useEffect(() => {
