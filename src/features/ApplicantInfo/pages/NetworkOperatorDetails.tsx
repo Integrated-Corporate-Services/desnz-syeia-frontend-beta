@@ -1,3 +1,5 @@
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import type { AuthUser } from '../../../types/auth';
 import React, { useState, useEffect } from 'react';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -19,7 +21,8 @@ const NetworkOperatorDetails = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const appId = params.get('id');
-  const emailId = 'jane.doe@nationalgrid.co.uk';
+  const { user } = useAuthUserContext();
+  const emailId = (user as AuthUser)?.email;
 
   // Fetch application if not loaded
   useEffect(() => {
@@ -34,8 +37,12 @@ const NetworkOperatorDetails = () => {
     const fetchOptionsAndBind = async () => {
       let orgOptions: any[] = [];
       try {
-        const data = await networkOperatorApiService.getNetworkOperatorByEmail(emailId);
-        orgOptions = Array.isArray(data) ? data : [];
+        if (typeof emailId === 'string' && emailId) {
+          const data = await networkOperatorApiService.getNetworkOperatorByEmail(emailId);
+          orgOptions = Array.isArray(data) ? data : [];
+        } else {
+          orgOptions = [];
+        }
       } catch {
         orgOptions = [];
       }
@@ -102,7 +109,7 @@ const NetworkOperatorDetails = () => {
         project_name: selectedOrganisation?.organisation_name || 'Untitled',
         project_desc: '',
         status: 'Draft',
-        created_by: '44444444-4444-4444-4444-444444444444',
+  created_by: (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '',
       };
       app = await useApplicationStore.getState().startApplication(newAppData);
     }

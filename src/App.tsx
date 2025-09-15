@@ -1,13 +1,18 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
+
 import MainLayout from './layouts/MainLayout';
 import AppRouter from './routes/AppRouter';
+import { AuthUserProvider } from './context/AuthUserContext';
+
 
 const App = () => (
   <BrowserRouter basename="/syeia/">
-    <MainLayout>
-      <AppRouter />
-    </MainLayout>
+    <AuthUserProvider>
+      <MainLayout>
+        <AppRouter />
+      </MainLayout>
+    </AuthUserProvider>
   </BrowserRouter>
 );
 

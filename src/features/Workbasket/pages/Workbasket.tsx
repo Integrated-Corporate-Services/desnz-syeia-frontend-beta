@@ -2,19 +2,25 @@ import React, { useEffect } from 'react';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useNavigate } from 'react-router-dom';
 import ApplicationTable from '../component/ApplicationTable';
-import { DEMO_CREATED_BY } from '../../../constants/demo';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import type { AuthUser } from '../../../types/auth';
 import { ROUTES } from '../../../constants/routes';
 import StartNewApplicationButton from '../../../components/StartNewApplicationButton';
 
 const Workbasket = () => {
   // TODO: get from auth/session
-  const created_by = DEMO_CREATED_BY;
+  const { user } = useAuthUserContext();
+  const created_by = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
+  console.log('Workbasket user:', user);
+  console.log('Workbasket created_by:', created_by);
   const applications = useApplicationStore((state) => state.applications);
   const loadApplications = useApplicationStore((state) => state.loadApplications);
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadApplications(created_by);
+    if (created_by && typeof created_by === 'string') {
+      loadApplications(created_by);
+    }
   }, [created_by, loadApplications]);
 
   const handleStart = () => {
