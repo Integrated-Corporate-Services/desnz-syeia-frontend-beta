@@ -84,3 +84,8 @@ export const CONTENT = {
   },
 
 };
+
+export const APPLICATION_SUBMITTED = {
+  title: "Application submitted",
+  body: "Your application has been submitted successfully. You will receive a confirmation email shortly.",
+};

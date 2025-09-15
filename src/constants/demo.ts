@@ -1,2 +1,3 @@
-export const DEMO_CREATED_BY = '44444444-4444-4444-4444-444444444444';
-export const DEMO_EMAIL_ID = 'jane.doe@nationalgrid.co.uk';
+// Demo user constants (default test user)
+export const DEMO_USER_ID = '44444444-4444-4444-4444-444444444444';
+export const DEMO_USER_EMAIL = 'jane.doe@nationalgrid.co.uk';

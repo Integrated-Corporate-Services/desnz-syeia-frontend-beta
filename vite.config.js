@@ -7,6 +7,7 @@ export default {
       open: true,
       proxy: {
         '/api': process.env.API_URL || 'http://localhost:3000/',
+        '/auth': 'http://localhost:3000'
       }
     }
   };

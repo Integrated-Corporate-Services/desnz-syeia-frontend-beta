@@ -1,3 +1,5 @@
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import type { AuthUser } from '../../../types/auth';
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,6 +19,8 @@ const NetworkOperatorContactDetails = () => {
       setContactIsConfirmed(party.contact_isconfirmed);
     }
   }, [party?.contact_isconfirmed]);
+  const { user } = useAuthUserContext();
+  const created_by = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
 
   // Handles the form submit for contact details
   const handleContactDetailsSubmit = async (e: React.FormEvent) => {
@@ -29,7 +33,7 @@ const NetworkOperatorContactDetails = () => {
         project_name: party?.organisation_name || 'Untitled',
         project_desc: '',
         status: 'Draft',
-        created_by: '44444444-4444-4444-4444-444444444444',
+        created_by,
         role: 'Applicant',
         is_primary: true,
         created_at: new Date().toISOString(),
