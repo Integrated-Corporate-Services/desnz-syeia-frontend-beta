@@ -2,8 +2,6 @@ export type Application = {
   application_id: string;
   type: string;
   operator_ref: string;
-  project_name: string;
-  project_desc: string;
   status: string;
   created_by: string;
   created_at: string;

@@ -106,8 +106,6 @@ const NetworkOperatorDetails = () => {
       const newAppData = {
         type: 'S37',
         operator_ref: networkOperatorReference,
-        project_name: selectedOrganisation?.organisation_name || 'Untitled',
-        project_desc: '',
         status: 'Draft',
   created_by: (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '',
       };
@@ -117,8 +115,6 @@ const NetworkOperatorDetails = () => {
       application_id: app.application_id,
       type: app.type || '',
       operator_ref: networkOperatorReference,
-      project_name: app.project_name || '',
-      project_desc: app.project_desc || '',
       status: app.status || '',
       created_by: app.created_by || '',
       created_at: app.created_at || '',

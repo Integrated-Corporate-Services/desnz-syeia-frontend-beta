@@ -22,8 +22,6 @@ const NetworkOperatorContactDetails = () => {
       const newAppData = {
         type: 'S37',
         operator_ref: application?.operator_ref || '',
-        project_name: party?.organisation_name || 'Untitled',
-        project_desc: '',
         status: 'Draft',
         created_by,
         role: 'Applicant',

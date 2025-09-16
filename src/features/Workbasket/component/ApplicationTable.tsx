@@ -5,7 +5,6 @@ type Application = {
   application_id: string;
   operator_ref: string;
   type: string;
-  project_name: string;
   operator_name?: string;
   status: string;
   created_at: string;

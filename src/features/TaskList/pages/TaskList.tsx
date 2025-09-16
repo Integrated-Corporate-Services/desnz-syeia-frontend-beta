@@ -59,7 +59,7 @@ const TaskList: React.FC = () => {
           {application ? (
             <>
               <span className="govuk-caption-l">{application.operator_ref || 'NPOWER LIMITED'}</span>
-              <h1 className="govuk-heading-l">{application.project_name || 'Section 37 application'}</h1>
+              <h1 className="govuk-heading-l">Section 37 application</h1>
             </>
           ) : (
             <p>Loading application...</p>
