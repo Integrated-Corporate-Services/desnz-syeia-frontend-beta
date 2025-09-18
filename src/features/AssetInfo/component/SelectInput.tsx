@@ -1,16 +1,10 @@
+
 import React from 'react';
+import { CommonInputProps } from '../../../types/form';
 
-interface SelectInputProps {
-  id: string;
-  name: string;
-  label: string;
-  value: string;
-  error?: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: { value: string; label: string }[];
-}
 
-const SelectInput: React.FC<SelectInputProps> = ({ id, name, label, value, error, onChange, options }) => (
+
+const SelectInput: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, options = [] }) => (
   <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}> 
     <label className="govuk-label govuk-!-margin-top-3" htmlFor={id}>{label}</label>
     {error && (

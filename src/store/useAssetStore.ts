@@ -24,6 +24,7 @@ export interface AssetDetails {
   isExistingAsset: boolean;
   generalComments: string;
   lineVoltage: string;
+  lineType: string;
 }
 
 interface AssetStoreState {

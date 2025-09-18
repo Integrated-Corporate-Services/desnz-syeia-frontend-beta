@@ -1,19 +1,11 @@
+
 import React from 'react';
+import { CommonInputProps } from '../../../types/form';
 
 
-interface NumberInputProps {
-  id: string;
-  name: string;
-  label: string;
-  value: string;
-  error?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  widthClass?: string;
-  inlineLabel?: boolean;
-  labelClassName?: string;
-}
 
-const NumberInput: React.FC<NumberInputProps> = ({ id, name, label, value, error, onChange, widthClass, inlineLabel, labelClassName }) => (
+
+const NumberInput: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, widthClass, inlineLabel, labelClassName }) => (
   <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}
     style={inlineLabel ? { display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 0 } : {}}>
     {inlineLabel ? (

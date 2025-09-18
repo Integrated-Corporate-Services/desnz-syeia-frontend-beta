@@ -7,7 +7,7 @@ import RadioGroup from '../component/RadioGroup';
 import SelectInput from '../component/SelectInput';
 import TextArea from '../component/TextArea';
 import { ERROR_MESSAGES } from '../../../constants/error';
-import { LINE_VOLTAGE_OPTIONS } from '../../../constants/content';
+import { VOLTAGE_CLASS_OPTIONS, LINE_CLASS_OPTIONS } from '../../../constants/asset';
 
 const initialState = {
   referenceNumber: '',
@@ -23,6 +23,7 @@ const initialState = {
   removingEquipmentDescription: '',
   worksOnExistingAsset: '',
   generalComments: '',
+  lineType: '',
   lineVoltage: '',
 };
 
@@ -59,16 +60,17 @@ const AssetInformationForm: React.FC = () => {
         referenceNumber: asset.standardSpecificationReferenceNumber || '',
         lineLength: asset.lineLength?.toString() || '',
         lineLengthUnit: 'metres',
-  addingPoles: asset.poles?.hasAddOrReplace ? 'yes' : 'no',
-  polesAdded: asset.poles?.add?.toString() || '',
-  polesReplaced: asset.poles?.replace?.toString() || '',
-  constructionDescription: asset.poles?.description || '',
-  addingOverheadLines: asset.overheadLines?.hasAddOrReplace ? 'yes' : 'no',
-  overheadLinesDescription: asset.overheadLines?.description || '',
-  removingEquipment: asset.equipmentRemoval?.isRemoving ? 'yes' : 'no',
-  removingEquipmentDescription: asset.equipmentRemoval?.description || '',
+        addingPoles: asset.poles?.hasAddOrReplace ? 'yes' : 'no',
+        polesAdded: asset.poles?.add?.toString() || '',
+        polesReplaced: asset.poles?.replace?.toString() || '',
+        constructionDescription: asset.poles?.description || '',
+        addingOverheadLines: asset.overheadLines?.hasAddOrReplace ? 'yes' : 'no',
+        overheadLinesDescription: asset.overheadLines?.description || '',
+        removingEquipment: asset.equipmentRemoval?.isRemoving ? 'yes' : 'no',
+        removingEquipmentDescription: asset.equipmentRemoval?.description || '',
         worksOnExistingAsset: asset.isExistingAsset ? 'yes' : 'no',
         generalComments: asset.generalComments || '',
+        lineType: asset.lineType || '',
         lineVoltage: asset.lineVoltage || '',
       });
     }
@@ -87,6 +89,7 @@ const AssetInformationForm: React.FC = () => {
     if (!data.addingOverheadLines) newErrors.addingOverheadLines = 'Select yes if you are adding or replacing overhead lines';
     if (!data.removingEquipment) newErrors.removingEquipment = 'Select yes if you are adding or removing existing equipment';
     if (!data.worksOnExistingAsset) newErrors.worksOnExistingAsset = 'Select yes if works are to be carried out on an existing asset';
+    if (!data.lineType) newErrors.lineType = 'Select the line type';
     if (!data.lineVoltage) newErrors.lineVoltage = 'Select the line voltage';
     return newErrors;
   };
@@ -301,6 +304,25 @@ const AssetInformationForm: React.FC = () => {
           />
         </div>
 
+
+        {/* Line type */}
+        <div className="govuk-!-margin-bottom-6">
+          <SelectInput
+            id="lineType"
+            name="lineType"
+            label="Line type"
+            value={form.lineType}
+            error={errors.lineType}
+            onChange={handleChange}
+            options={[
+              { value: '', label: 'Select an option' },
+              ...LINE_CLASS_OPTIONS
+                .filter(opt => opt.code !== form.lineType)
+                .map(opt => ({ value: opt.code, label: opt.label }))
+            ]}
+          />
+        </div>
+
         {/* Line voltage */}
         <div className="govuk-!-margin-bottom-6">
           <SelectInput
@@ -310,7 +332,12 @@ const AssetInformationForm: React.FC = () => {
             value={form.lineVoltage}
             error={errors.lineVoltage}
             onChange={handleChange}
-            options={LINE_VOLTAGE_OPTIONS}
+            options={[
+              { value: '', label: 'Select an option' },
+              ...VOLTAGE_CLASS_OPTIONS
+                .filter(opt => opt.code !== form.lineVoltage)
+                .map(opt => ({ value: opt.code, label: opt.label }))
+            ]}
           />
         </div>
 

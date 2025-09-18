@@ -1,19 +1,11 @@
+
 import React from 'react';
+import { CommonInputProps } from '../../../types/form';
 
 
-interface TextAreaProps {
-  id: string;
-  name: string;
-  label: string;
-  value: string;
-  error?: string;
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  maxLength?: number;
-  showCount?: boolean;
-  style?: React.CSSProperties;
-}
 
-const TextArea: React.FC<TextAreaProps> = ({ id, name, label, value, error, onChange, maxLength, showCount, style }) => {
+
+const TextArea: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, maxLength, showCount, style }) => {
   const count = value.length;
   return (
     <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>

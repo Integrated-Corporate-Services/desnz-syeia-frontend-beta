@@ -1,17 +1,7 @@
 import React from 'react';
+import { CommonInputProps } from '../../../types/form';
 
-interface RadioGroupProps {
-  id: string;
-  name: string;
-  label: string;
-  value: string;
-  error?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  options: { value: string; label: string }[];
-  children?: React.ReactNode;
-}
-
-const RadioGroup: React.FC<RadioGroupProps> = ({ id, name, label, value, error, onChange, options, children }) => (
+const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, options = [], children }) => (
   <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
     <fieldset className="govuk-fieldset">
       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">{label}</legend>
