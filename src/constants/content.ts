@@ -55,7 +55,7 @@ export const CONTENT = {
         href: "/feedback",
       },
     ],
-    licenceDescription: "All content is available under the",
+    licenceDescription: "All content is available under the ",
     licence: {
       text: "Open Government Licence v3.0",
       href: "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
