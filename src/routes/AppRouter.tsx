@@ -6,6 +6,7 @@ import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/Netwo
 import Workbasket from '../features/Workbasket/pages/Workbasket';
 import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitted';
 import SignInPage from '../features/SignIn/SignInPage';
+import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 
 
 // Real authentication check using backend /api/user endpoint
@@ -51,7 +52,8 @@ const AppRouter: React.FC = () => {
       <Route path="/task-list" element={<TaskList />} />
       <Route path="/network-operator-details" element={<NetworkOperatorDetails />} />
       <Route path="/network-operator-contact-details" element={<NetworkOperatorContactDetails />} />
-      <Route path="/application-submitted" element={<ApplicationSubmitted />} />
+  <Route path="/application-submitted" element={<ApplicationSubmitted />} />
+  <Route path="/asset-information" element={<AssetInformationForm />} />
     </Routes>
   );
 };

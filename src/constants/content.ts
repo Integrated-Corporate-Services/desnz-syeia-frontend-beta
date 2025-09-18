@@ -89,3 +89,12 @@ export const APPLICATION_SUBMITTED = {
   title: "Application submitted",
   body: "Your application has been submitted successfully. You will receive a confirmation email shortly.",
 };
+
+export const LINE_VOLTAGE_OPTIONS = [
+  { value: '11kV', label: '11 kV' },
+  { value: '33kV', label: '33 kV' },
+  { value: '66kV', label: '66 kV' },
+  { value: '132kV', label: '132 kV' },
+  { value: '275kV', label: '275 kV' },
+  { value: '400kV', label: '400 kV' },
+];

@@ -1,10 +1,15 @@
-import React from 'react';
 import '../constants/content'; 
 import Header from './component/Header';
 import ServiceNavigation from './component/ServiceNavigation';
 import Footer from './component/Footer';
 
-const MainLayout = ({ children }) => (
+import React, { ReactNode } from 'react';
+
+interface MainLayoutProps {
+  children: ReactNode;
+}
+
+const MainLayout = ({ children }: MainLayoutProps) => (
   <>
     <Header />
     <ServiceNavigation />
