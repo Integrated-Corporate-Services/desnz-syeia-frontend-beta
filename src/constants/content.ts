@@ -1,6 +1,40 @@
 import { Breadcrumbs } from "govuk-react";
 
 export const CONTENT = {
+  MAX_DESCRIPTION_LENGTH: 4000,
+  months: [
+    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+  ],
+  projectOverview: {
+    breadcrumb: {
+      taskList: "Task list",
+      current: "Project overview",
+    },
+    heading: "Project overview",
+    projectName: "Project name",
+    projectDescription: "Project description",
+    projectDescriptionHint: "You can enter up to 4000 characters",
+    infoDetailsSummary: "What type of information should be provided",
+    infoDetailsText: "You need to explain why this consent is needed. Include information about any wider projects it is related to, a summary of what work is being done and why.",
+    tallestPoleHeight: "What is the height of the tallest proposed pole?",
+    tallestPoleHeightSuffix: "metres",
+    planReference: "Plan reference",
+    workStartDatesKnown: "Do you know when you are intending to start work on this development?",
+    earliestWorkStartDate: "What is the earliest expected start date for the development?",
+    latestWorkStartDate: "What is the latest expected start date for the development?",
+    planInformationDocuments: "Plan information documents",
+    planDetailsSummary: "What information should be included in the plan",
+    planDetailsText: "Upload a plan which clearly shows the proposed overhead line and where it connects to the network. Please ensure that the line you are applying for is shown in a different colour to the rest of the network.",
+    relatedApplications: "Have you submitted any other applications on EIP related to this project of work?",
+    relatedApplicationsHint: "Only applications that have been provided a Distributed Network Operator reference and are for the same Distributed Network Operator can be associated with this application.",
+    relatedApplicationsTable: "Related applications",
+    relatedApplicationsActions: "Actions",
+    relatedApplicationsNone: "No items have been added yet.",
+    relatedApplicationsSearch: "Search for Section 37 and Wayleave applications by the developer or network operator reference",
+    relatedCpo: "Have you submitted a CPO which is related to this project of work?",
+    relatedCpoDetails: "Provide the details of the related CPO",
+    saveAndContinue: "Save and continue",
+  },
   header : {
     serviceName: "Submit your Energy Infrastructure Application",
     section: "Section 37 Consent",
@@ -21,7 +55,7 @@ export const CONTENT = {
         href: "/feedback",
       },
     ],
-    licenceDescription: "All content is available under the",
+    licenceDescription: "All content is available under the ",
     licence: {
       text: "Open Government Licence v3.0",
       href: "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
@@ -82,7 +116,7 @@ export const CONTENT = {
       noDetails2: "The contact can update their details by logging into their account on EIP and going to the 'Update My Details' link shown in the left hand menu on the workbasket page.",
     },
   },
-
+  
 };
 
 export const APPLICATION_SUBMITTED = {
