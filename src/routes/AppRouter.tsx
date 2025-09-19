@@ -7,7 +7,7 @@ import Workbasket from '../features/Workbasket/pages/Workbasket';
 import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitted';
 import SignInPage from '../features/SignIn/SignInPage';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
-import ProjectOverview from '../features/ApplicantInfo/pages/ProjectOverview';
+import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
 
 
 // Real authentication check using backend /api/user endpoint

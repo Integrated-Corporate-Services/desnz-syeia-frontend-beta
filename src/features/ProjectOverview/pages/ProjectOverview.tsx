@@ -3,7 +3,12 @@ import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from "../../../constants/content";
 import { Link } from "react-router-dom";
 
-const formatNumberWithCommas = (num: number) => num.toLocaleString();
+
+import NumberInput from '../component/NumberInput';
+import TextArea from '../component/TextArea';
+import TextInput from '../component/TextInput';
+import RadioGroup from '../component/RadioGroup';
+
 
 const ProjectOverview = () => {
 	const [formState, setFormState] = useState({
@@ -152,51 +157,28 @@ const ProjectOverview = () => {
 						}
 						// ...existing submit logic...
 					}}>
-						<div className={`govuk-form-group${fieldErrors?.projectName ? " govuk-form-group--error" : ""}`}>
-							<label className="govuk-label" htmlFor="projectName-inputValue">
-								{projectOverview.projectName}
-							</label>
-							{fieldErrors?.projectName && (
-								<p id="projectName-inputValue-error" className="govuk-error-message">
-									<span className="govuk-visually-hidden">Error:</span> {fieldErrors.projectName}
-								</p>
-							)}
-							<input
-								className={`govuk-input${fieldErrors?.projectName ? " govuk-input--error" : ""}`}
-								id="projectName-inputValue"
-								name="projectName.inputValue"
-								type="text"
-								value={formState.projectName}
-								maxLength={4000}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, projectName: e.target.value }))}
-								aria-describedby={fieldErrors?.projectName ? "projectName-inputValue-error" : undefined}
-							/>
-						</div>
+						<TextInput
+							label={projectOverview.projectName}
+							id="projectName-inputValue"
+							name="projectName.inputValue"
+							value={formState.projectName}
+							error={fieldErrors?.projectName}
+							maxLength={4000}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, projectName: e.target.value }))}
+						/>
 
 								{/* Project Description */}
-					<div className={`govuk-form-group govuk-character-count${fieldErrors?.projectDescription ? " govuk-form-group--error" : ""}`} data-module="govuk-character-count" data-maxlength="4000">
-						<label className="govuk-label" htmlFor="projectDescription-inputValue">
-							{projectOverview.projectDescription}
-						</label>
-						{fieldErrors?.projectDescription && (
-							<p id="projectDescription-inputValue-error" className="govuk-error-message">
-								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.projectDescription}
-							</p>
-						)}
-						<textarea
-							className={`govuk-textarea govuk-js-character-count${fieldErrors?.projectDescription ? " govuk-textarea--error" : ""}`}
-							id="projectDescription-inputValue"
-							name="projectDescription.inputValue"
-							rows={5}
-							maxLength={MAX_DESCRIPTION_LENGTH}
-							value={formState.projectDescription}
-							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, projectDescription: e.target.value }))}
-							aria-describedby={fieldErrors?.projectDescription ? "projectDescription-inputValue-error projectDescription-inputValue-info" : "projectDescription-inputValue-info"}
-						></textarea>
-						<div id="projectDescription-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to 4000 characters</div>
-						<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You have {formatNumberWithCommas(remainingChars)} characters remaining</div>
-						<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {formatNumberWithCommas(remainingChars)} characters remaining</div>
-					</div>
+					<TextArea
+						label={projectOverview.projectDescription}
+						id="projectDescription-inputValue"
+						name="projectDescription.inputValue"
+						value={formState.projectDescription}
+						error={fieldErrors?.projectDescription}
+						maxLength={MAX_DESCRIPTION_LENGTH}
+						infoId="projectDescription-inputValue-info"
+						remainingChars={remainingChars}
+						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, projectDescription: e.target.value }))}
+					/>
 
 								{/* Details: What type of information should be provided */}
 								<details className="govuk-details">
@@ -211,30 +193,16 @@ const ProjectOverview = () => {
 								</details>
 
 								{/* Tallest Pole Height */}
-								<div className={`govuk-form-group${fieldErrors?.tallestPoleHeight ? " govuk-form-group--error" : ""}`}> 
-									<label className="govuk-label" htmlFor="tallestPoleHeight-inputValue">
-										{projectOverview.tallestPoleHeight}
-										<span className="govuk-visually-hidden">{projectOverview.tallestPoleHeightSuffix}</span>
-									</label>
-									{fieldErrors?.tallestPoleHeight && (
-										<p id="tallestPoleHeight-inputValue-error" className="govuk-error-message">
-											<span className="govuk-visually-hidden">Error:</span> {fieldErrors.tallestPoleHeight}
-										</p>
-									)}
-									<div className="govuk-input__wrapper">
-										<input 
-											className={`govuk-input govuk-input--width-4${fieldErrors?.tallestPoleHeight ? " govuk-input--error" : ""}`}
-											id="tallestPoleHeight-inputValue"
-											name="tallestPoleHeight.inputValue"
-											type="text"
-											maxLength={4000}
-											value={formState.tallestPoleHeight}
-											onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, tallestPoleHeight: e.target.value }))}
-											aria-describedby={fieldErrors?.tallestPoleHeight ? "tallestPoleHeight-inputValue-error" : undefined}
-										/>
-										<div className="govuk-input__suffix" aria-hidden="true">{projectOverview.tallestPoleHeightSuffix}</div>
-									</div>
-								</div>
+								<NumberInput
+									label={projectOverview.tallestPoleHeight}
+									suffix={projectOverview.tallestPoleHeightSuffix}
+									id="tallestPoleHeight-inputValue"
+									name="tallestPoleHeight.inputValue"
+									value={formState.tallestPoleHeight}
+									error={fieldErrors?.tallestPoleHeight}
+									maxLength={4000}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, tallestPoleHeight: e.target.value }))}
+								/>
 
 								{/* Plan Reference */}
 					<div className={`govuk-form-group${fieldErrors?.planReference ? " govuk-form-group--error" : ""}`}> 
@@ -528,55 +496,47 @@ const ProjectOverview = () => {
 								</div>
 
 								{/* Related CPO */}
-								<div className={`govuk-form-group${fieldErrors?.hasRelatedCpo ? " govuk-form-group--error" : ""}`}>
-									<fieldset className="govuk-fieldset" aria-describedby={fieldErrors?.hasRelatedCpo ? "hasRelatedCpo-error" : undefined}>
-										<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-											<h2 className="govuk-fieldset__heading">{projectOverview.relatedCpo}</h2>
-										</legend>
-										{fieldErrors?.hasRelatedCpo && (
-											<p id="hasRelatedCpo-error" className="govuk-error-message">
-												<span className="govuk-visually-hidden">Error:</span> {fieldErrors.hasRelatedCpo}
-											</p>
-										)}
-										<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
-											<div className="govuk-radios__item">
-												<input className="govuk-radios__input" id="hasRelatedCpo" name="hasRelatedCpo" type="radio" value="true" checked={formState.hasRelatedCpo === "true"} onChange={() => setFormState(prev => ({ ...prev, hasRelatedCpo: "true" }))} aria-controls="hasRelatedCpo-hidden" aria-expanded={formState.hasRelatedCpo === "true" ? "true" : "false"} />
-												<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedCpo">Yes</label>
+								<RadioGroup
+									id="hasRelatedCpo"
+									name="hasRelatedCpo"
+									legend={projectOverview.relatedCpo}
+									options={[{
+										value: "true",
+										label: "Yes",
+										conditionalRender: (
+											<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
+												<label className="govuk-label" htmlFor="relatedCpoDetails-inputValue">
+													{projectOverview.relatedCpoDetails}
+												</label>
+												{fieldErrors?.relatedCpoDetails && (
+													<p id="relatedCpoDetails-inputValue-error" className="govuk-error-message">
+														<span className="govuk-visually-hidden">Error:</span> {fieldErrors.relatedCpoDetails}
+													</p>
+												)}
+												<textarea
+													className={`govuk-textarea govuk-js-character-count${fieldErrors?.relatedCpoDetails ? " govuk-textarea--error" : ""}`}
+													id="relatedCpoDetails-inputValue"
+													name="relatedCpoDetails.inputValue"
+													rows={5}
+													maxLength={MAX_DESCRIPTION_LENGTH}
+													value={formState.relatedCpoDetails}
+													onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }))}
+													aria-describedby={fieldErrors?.relatedCpoDetails ? "relatedCpoDetails-inputValue-error relatedCpoDetails-inputValue-info" : "relatedCpoDetails-inputValue-info"}
+												></textarea>
+												<div id="relatedCpoDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
+												<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You have {remainingCpoChars} characters remaining</div>
+												<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {remainingCpoChars} characters remaining</div>
 											</div>
-											{formState.hasRelatedCpo === "true" && (
-												<div className="govuk-radios__conditional" id="hasRelatedCpo-hidden">
-													<div className={`govuk-form-group govuk-character-count${fieldErrors?.relatedCpoDetails ? " govuk-form-group--error" : ""}`} data-module="govuk-character-count" data-maxlength="4000">
-														<label className="govuk-label" htmlFor="relatedCpoDetails-inputValue">
-															{projectOverview.relatedCpoDetails}
-														</label>
-														{fieldErrors?.relatedCpoDetails && (
-															<p id="relatedCpoDetails-inputValue-error" className="govuk-error-message">
-																<span className="govuk-visually-hidden">Error:</span> {fieldErrors.relatedCpoDetails}
-															</p>
-														)}
-														<textarea
-															className={`govuk-textarea govuk-js-character-count${fieldErrors?.relatedCpoDetails ? " govuk-textarea--error" : ""}`}
-															id="relatedCpoDetails-inputValue"
-															name="relatedCpoDetails.inputValue"
-															rows={5}
-															maxLength={MAX_DESCRIPTION_LENGTH}
-															value={formState.relatedCpoDetails}
-															onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }))}
-															aria-describedby={fieldErrors?.relatedCpoDetails ? "relatedCpoDetails-inputValue-error relatedCpoDetails-inputValue-info" : "relatedCpoDetails-inputValue-info"}
-														></textarea>
-														<div id="relatedCpoDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to 4000 characters</div>
-														<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You have {formatNumberWithCommas(remainingCpoChars)} characters remaining</div>
-														<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {formatNumberWithCommas(remainingCpoChars)} characters remaining</div>
-													</div>
-												</div>
-											)}
-											<div className="govuk-radios__item">
-												<input className="govuk-radios__input" id="hasRelatedCpo-no" name="hasRelatedCpo" type="radio" value="false" checked={formState.hasRelatedCpo === "false"} onChange={() => setFormState(prev => ({ ...prev, hasRelatedCpo: "false" }))} />
-												<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedCpo-no">No</label>
-											</div>
-										</div>
-									</fieldset>
-								</div>
+										),
+									}, {
+										value: "false",
+										label: "No",
+									}]}
+									value={formState.hasRelatedCpo}
+									error={fieldErrors?.hasRelatedCpo}
+									onChange={(val: string) => setFormState(prev => ({ ...prev, hasRelatedCpo: val }))}
+									ariaControls={["hasRelatedCpo-hidden", "hasRelatedCpo-no-hidden"]}
+								/>
 
 								<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue">
 									{projectOverview.saveAndContinue}
