@@ -32,6 +32,7 @@ type FormErrors = Partial<Record<keyof typeof initialState, string>>;
 const AssetInformationForm: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [submitted, setSubmitted] = useState(false);
   const { assets, loading, error, fetchAssets } = useAssetStore();
 
 
@@ -86,13 +87,27 @@ const AssetInformationForm: React.FC = () => {
 
   const validate = (data: typeof initialState): FormErrors => {
     const newErrors: FormErrors = {};
-    if (!data.referenceNumber.trim()) newErrors.referenceNumber = ERROR_MESSAGES.REFERENCE_REQUIRED || 'Enter the asset reference';
-    if (!data.lineLength.trim()) newErrors.lineLength = 'Enter the line length';
-    if (!data.addingPoles) newErrors.addingPoles = 'Select yes if you are adding or replacing poles';
-    if (!data.addingOverheadLines) newErrors.addingOverheadLines = 'Select yes if you are adding or replacing overhead lines';
-    if (!data.removingEquipment) newErrors.removingEquipment = 'Select yes if you are adding or removing existing equipment';
-    if (!data.worksOnExistingAsset) newErrors.worksOnExistingAsset = 'Select yes if works are to be carried out on an existing asset';
+    if (!data.referenceNumber.trim()) newErrors.referenceNumber = 'Enter the asset reference';
     if (!data.lineType) newErrors.lineType = 'Select the line type';
+    if (!data.lineLength.trim()) newErrors.lineLength = 'Enter the line length';
+    if (!data.addingPoles) {
+      newErrors.addingPoles = 'Select yes if you are adding or replacing poles';
+    } else if (data.addingPoles === 'yes') {
+      if (!data.polesAdded.trim()) newErrors.polesAdded = 'Enter how many new poles you are adding';
+      if (!data.polesReplaced.trim()) newErrors.polesReplaced = 'Enter how many poles you are replacing';
+      if (!data.constructionDescription.trim()) newErrors.constructionDescription = 'Enter details about the poles you are adding or replacing';
+    }
+    if (!data.addingOverheadLines) {
+      newErrors.addingOverheadLines = 'Select yes if you are adding or replacing overhead lines';
+    } else if (data.addingOverheadLines === 'yes') {
+      if (!data.overheadLinesDescription.trim()) newErrors.overheadLinesDescription = 'Enter details about overhead lines that will be added or replaced';
+    }
+    if (!data.removingEquipment) {
+      newErrors.removingEquipment = 'Select yes if you are adding or removing existing equipment';
+    } else if (data.removingEquipment === 'yes') {
+      if (!data.removingEquipmentDescription.trim()) newErrors.removingEquipmentDescription = 'Enter details about existing equipment that will be removed';
+    }
+    if (!data.worksOnExistingAsset) newErrors.worksOnExistingAsset = 'Select yes if works are to be carried out on an existing asset';
     if (!data.lineVoltage) newErrors.lineVoltage = 'Select the line voltage';
     return newErrors;
   };
@@ -120,7 +135,7 @@ const AssetInformationForm: React.FC = () => {
       {loading && <div className="govuk-body">Loading asset details...</div>}
       {error && <div className="govuk-error-message">{error}</div>}
       <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
-        {Object.keys(errors).length > 0 && (
+        {submitted && Object.keys(errors).length > 0 && (
           <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary" style={{ marginBottom: '2rem' }}>
             <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
             <div className="govuk-error-summary__body">
@@ -166,11 +181,16 @@ const AssetInformationForm: React.FC = () => {
           />
         </div>
 
-        <div className="govuk-!-margin-bottom-6" style={{ maxWidth: 320 }}>
+        <div className={`govuk-form-group govuk-!-margin-bottom-6${errors.lineLength ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 320 }}>
           <label className="govuk-label govuk-!-font-size-19" htmlFor="lineLength">Line length</label>
+          {errors.lineLength && (
+            <span className="govuk-error-message">
+              <span className="govuk-visually-hidden">Error:</span> {errors.lineLength}
+            </span>
+          )}
           <div className="govuk-input__wrapper">
             <input
-              className="govuk-input govuk-input--width-5"
+              className={`govuk-input govuk-input--width-5${errors.lineLength ? ' govuk-input--error' : ''}`}
               id="lineLength"
               name="lineLength"
               type="number"
@@ -180,11 +200,6 @@ const AssetInformationForm: React.FC = () => {
             />
             <span className="govuk-input__suffix" id="lineLength-suffix">metres</span>
           </div>
-          {errors.lineLength && (
-            <span className="govuk-error-message">
-              <span className="govuk-visually-hidden">Error:</span> {errors.lineLength}
-            </span>
-          )}
         </div>
 
         {/* Adding or replacing poles */}
@@ -201,7 +216,7 @@ const AssetInformationForm: React.FC = () => {
               { value: 'no', label: 'No' },
             ]}
           >
-            <div className="govuk-!-margin-bottom-4" style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.polesAdded ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <NumberInput
                 id="polesAdded"
                 name="polesAdded"
@@ -209,9 +224,10 @@ const AssetInformationForm: React.FC = () => {
                 value={form.polesAdded}
                 onChange={handleChange}
                 widthClass="govuk-input--width-20"
+                error={errors.polesAdded}
               />
             </div>
-            <div className="govuk-!-margin-bottom-4" style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.polesReplaced ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <NumberInput
                 id="polesReplaced"
                 name="polesReplaced"
@@ -219,9 +235,10 @@ const AssetInformationForm: React.FC = () => {
                 value={form.polesReplaced}
                 onChange={handleChange}
                 widthClass="govuk-input--width-20"
+                error={errors.polesReplaced}
               />
             </div>
-            <div className="govuk-!-margin-bottom-4" style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.constructionDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
                 id="constructionDescription"
                 name="constructionDescription"
@@ -231,6 +248,7 @@ const AssetInformationForm: React.FC = () => {
                 maxLength={4000}
                 showCount
                 style={{ width: '100%', maxWidth: 600 }}
+                error={errors.constructionDescription}
               />
             </div>
           </RadioGroup>
@@ -250,7 +268,7 @@ const AssetInformationForm: React.FC = () => {
               { value: 'no', label: 'No' },
             ]}
           >
-            <div className="govuk-!-margin-bottom-4" style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.overheadLinesDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
                 id="overheadLinesDescription"
                 name="overheadLinesDescription"
@@ -260,6 +278,7 @@ const AssetInformationForm: React.FC = () => {
                 maxLength={4000}
                 showCount
                 style={{ width: '100%', maxWidth: 600 }}
+                error={errors.overheadLinesDescription}
               />
             </div>
           </RadioGroup>
@@ -279,7 +298,7 @@ const AssetInformationForm: React.FC = () => {
               { value: 'no', label: 'No' },
             ]}
           >
-            <div className="govuk-!-margin-bottom-4" style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.removingEquipmentDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
                 id="removingEquipmentDescription"
                 name="removingEquipmentDescription"
@@ -289,6 +308,7 @@ const AssetInformationForm: React.FC = () => {
                 maxLength={4000}
                 showCount
                 style={{ width: '100%', maxWidth: 600 }}
+                error={errors.removingEquipmentDescription}
               />
             </div>
           </RadioGroup>
