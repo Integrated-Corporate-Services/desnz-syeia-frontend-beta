@@ -32,7 +32,6 @@ type FormErrors = Partial<Record<keyof typeof initialState, string>>;
 const AssetInformationForm: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [submitted, setSubmitted] = useState(false);
   const { assets, loading, error, fetchAssets } = useAssetStore();
 
 
@@ -70,8 +69,12 @@ const AssetInformationForm: React.FC = () => {
         removingEquipmentDescription: asset.equipmentRemoval?.description || '',
         worksOnExistingAsset: asset.isExistingAsset ? 'yes' : 'no',
         generalComments: asset.generalComments || '',
-        lineType: asset.lineType || '',
-        lineVoltage: asset.lineVoltage || '',
+        lineType: typeof asset.lineType === 'object' && asset.lineType !== null
+          ? (asset.lineType as { code?: string }).code || ''
+          : asset.lineType || '',
+        lineVoltage: typeof asset.lineVoltage === 'object' && asset.lineVoltage !== null
+          ? (asset.lineVoltage as { code?: string }).code || ''
+          : asset.lineVoltage || '',
       });
     }
   }, [assets]);
@@ -144,6 +147,22 @@ const AssetInformationForm: React.FC = () => {
             error={errors.referenceNumber}
             onChange={handleChange}
             widthClass="govuk-input--width-20"
+          />
+        </div>
+
+        {/* Line type */}
+        <div className="govuk-!-margin-bottom-6">
+          <SelectInput
+            id="lineType"
+            name="lineType"
+            label="Line type"
+            value={form.lineType}
+            error={errors.lineType}
+            onChange={handleChange}
+            options={[
+              { value: '', label: 'Select an option' },
+              ...LINE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))
+            ]}
           />
         </div>
 
@@ -304,25 +323,6 @@ const AssetInformationForm: React.FC = () => {
           />
         </div>
 
-
-        {/* Line type */}
-        <div className="govuk-!-margin-bottom-6">
-          <SelectInput
-            id="lineType"
-            name="lineType"
-            label="Line type"
-            value={form.lineType}
-            error={errors.lineType}
-            onChange={handleChange}
-            options={[
-              { value: '', label: 'Select an option' },
-              ...LINE_CLASS_OPTIONS
-                .filter(opt => opt.code !== form.lineType)
-                .map(opt => ({ value: opt.code, label: opt.label }))
-            ]}
-          />
-        </div>
-
         {/* Line voltage */}
         <div className="govuk-!-margin-bottom-6">
           <SelectInput
@@ -334,9 +334,7 @@ const AssetInformationForm: React.FC = () => {
             onChange={handleChange}
             options={[
               { value: '', label: 'Select an option' },
-              ...VOLTAGE_CLASS_OPTIONS
-                .filter(opt => opt.code !== form.lineVoltage)
-                .map(opt => ({ value: opt.code, label: opt.label }))
+              ...VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))
             ]}
           />
         </div>
