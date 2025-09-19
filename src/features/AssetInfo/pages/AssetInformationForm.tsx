@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAssetStore } from '../../../store/useAssetStore';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import NumberInput from '../component/NumberInput';
 import RadioGroup from '../component/RadioGroup';
@@ -8,6 +8,7 @@ import SelectInput from '../component/SelectInput';
 import TextArea from '../component/TextArea';
 import { ERROR_MESSAGES } from '../../../constants/error';
 import { VOLTAGE_CLASS_OPTIONS, LINE_CLASS_OPTIONS } from '../../../constants/asset';
+import { createAsset } from '../../../services/asset-service';
 
 const initialState = {
   referenceNumber: '',
@@ -34,6 +35,7 @@ const AssetInformationForm: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const { assets, loading, error, fetchAssets } = useAssetStore();
+  const navigate = useNavigate();
 
 
   // Get applicationId from URL params or query string
@@ -126,8 +128,46 @@ const AssetInformationForm: React.FC = () => {
       }, 0);
       return;
     }
-    // Submit logic here
-    alert('Form submitted!');
+    // Map form data to AssetRequest
+    const assetPayload = {
+      applicationId: effectiveApplicationId,
+      assets: [
+        {
+          assetId: '', // backend will generate
+          assetType: 's37', // or other, if needed
+          assetReference: form.referenceNumber,
+          description: '', // add if needed
+          standardSpecificationReferenceNumber: form.referenceNumber,
+          lineLength: parseFloat(form.lineLength),
+          typeOfLine: form.lineType,
+          poles: {
+            hasAddOrReplace: form.addingPoles === 'yes',
+            add: parseInt(form.polesAdded) || 0,
+            replace: parseInt(form.polesReplaced) || 0,
+            description: form.constructionDescription,
+          },
+          overheadLines: {
+            hasAddOrReplace: form.addingOverheadLines === 'yes',
+            description: form.overheadLinesDescription,
+          },
+          equipmentRemoval: {
+            isRemoving: form.removingEquipment === 'yes',
+            description: form.removingEquipmentDescription,
+          },
+          isExistingAsset: form.worksOnExistingAsset === 'yes',
+          generalComments: form.generalComments,
+          lineVoltage: form.lineVoltage,
+        },
+      ],
+    };
+    createAsset(assetPayload)
+      .then(() => {
+        fetchAssets(effectiveApplicationId);
+        navigate(`/task-list?id=${effectiveApplicationId}`);
+      })
+      .catch((err: any) => {
+        setErrors({ generalComments: err.message || 'Failed to save asset' });
+      });
   };
 
   return (
