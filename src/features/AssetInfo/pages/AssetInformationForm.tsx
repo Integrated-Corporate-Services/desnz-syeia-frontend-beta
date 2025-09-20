@@ -7,7 +7,8 @@ import RadioGroup from '../component/RadioGroup';
 import SelectInput from '../component/SelectInput';
 import TextArea from '../component/TextArea';
 import { ERROR_MESSAGES } from '../../../constants/error';
-import { VOLTAGE_CLASS_OPTIONS, LINE_CLASS_OPTIONS } from '../../../constants/asset';
+import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
+import { VOLTAGE_CLASS_OPTIONS, TYPE_OF_LINE_ENUM, LINE_TYPE_LABELS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
 
 const initialState = {
@@ -72,9 +73,9 @@ const AssetInformationForm: React.FC = () => {
         removingEquipmentDescription: asset.equipmentRemoval?.description || '',
         worksOnExistingAsset: asset.isExistingAsset ? 'yes' : 'no',
         generalComments: asset.generalComments || '',
-        lineType: typeof asset.lineType === 'object' && asset.lineType !== null
-          ? (asset.lineType as { code?: string }).code || ''
-          : asset.lineType || '',
+        lineType: typeof asset.typeOfLine === 'object' && asset.typeOfLine !== null
+          ? (asset.typeOfLine as { code?: string }).code || ''
+          : asset.typeOfLine || '',
         lineVoltage: typeof asset.lineVoltage === 'object' && asset.lineVoltage !== null
           ? (asset.lineVoltage as { code?: string }).code || ''
           : asset.lineVoltage || '',
@@ -89,28 +90,33 @@ const AssetInformationForm: React.FC = () => {
 
   const validate = (data: typeof initialState): FormErrors => {
     const newErrors: FormErrors = {};
-    if (!data.referenceNumber.trim()) newErrors.referenceNumber = 'Enter the asset reference';
-    if (!data.lineType) newErrors.lineType = 'Select the line type';
-    if (!data.lineLength.trim()) newErrors.lineLength = 'Enter the line length';
+    if (!data.referenceNumber.trim()) newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumber;
+    if (!data.lineType) newErrors.lineType = ASSET_ERROR_MESSAGES.lineType;
+    if (!data.lineLength.trim()) newErrors.lineLength = ASSET_ERROR_MESSAGES.lineLength;
     if (!data.addingPoles) {
-      newErrors.addingPoles = 'Select yes if you are adding or replacing poles';
+      newErrors.addingPoles = ASSET_ERROR_MESSAGES.addingPoles;
     } else if (data.addingPoles === 'yes') {
-      if (!data.polesAdded.trim()) newErrors.polesAdded = 'Enter how many new poles you are adding';
-      if (!data.polesReplaced.trim()) newErrors.polesReplaced = 'Enter how many poles you are replacing';
-      if (!data.constructionDescription.trim()) newErrors.constructionDescription = 'Enter details about the poles you are adding or replacing';
+      if (!data.polesAdded.trim()) newErrors.polesAdded = ASSET_ERROR_MESSAGES.polesAdded;
+      if (!data.polesReplaced.trim()) newErrors.polesReplaced = ASSET_ERROR_MESSAGES.polesReplaced;
+      if (!data.constructionDescription.trim()) newErrors.constructionDescription = ASSET_ERROR_MESSAGES.constructionDescription;
     }
     if (!data.addingOverheadLines) {
-      newErrors.addingOverheadLines = 'Select yes if you are adding or replacing overhead lines';
+      newErrors.addingOverheadLines = ASSET_ERROR_MESSAGES.addingOverheadLines;
     } else if (data.addingOverheadLines === 'yes') {
-      if (!data.overheadLinesDescription.trim()) newErrors.overheadLinesDescription = 'Enter details about overhead lines that will be added or replaced';
+      if (!data.overheadLinesDescription.trim()) newErrors.overheadLinesDescription = ASSET_ERROR_MESSAGES.overheadLinesDescription;
     }
     if (!data.removingEquipment) {
-      newErrors.removingEquipment = 'Select yes if you are adding or removing existing equipment';
+      newErrors.removingEquipment = ASSET_ERROR_MESSAGES.removingEquipment;
     } else if (data.removingEquipment === 'yes') {
-      if (!data.removingEquipmentDescription.trim()) newErrors.removingEquipmentDescription = 'Enter details about existing equipment that will be removed';
+      if (!data.removingEquipmentDescription.trim()) newErrors.removingEquipmentDescription = ASSET_ERROR_MESSAGES.removingEquipmentDescription;
     }
-    if (!data.worksOnExistingAsset) newErrors.worksOnExistingAsset = 'Select yes if works are to be carried out on an existing asset';
-    if (!data.lineVoltage) newErrors.lineVoltage = 'Select the line voltage';
+    if (!data.worksOnExistingAsset) newErrors.worksOnExistingAsset = ASSET_ERROR_MESSAGES.worksOnExistingAsset;
+    const allowedVoltages = VOLTAGE_CLASS_OPTIONS.map(opt => opt.code);
+    if (!data.lineVoltage) {
+      newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltage;
+    } else if (!allowedVoltages.includes(data.lineVoltage)) {
+      newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltageInvalid;
+    }
     return newErrors;
   };
 
@@ -166,7 +172,7 @@ const AssetInformationForm: React.FC = () => {
         navigate(`/task-list?id=${effectiveApplicationId}`);
       })
       .catch((err: any) => {
-        setErrors({ generalComments: err.message || 'Failed to save asset' });
+  setErrors({ generalComments: err.message || ASSET_ERROR_MESSAGES.generalCommentsFailed });
       });
   };
 
@@ -216,7 +222,7 @@ const AssetInformationForm: React.FC = () => {
             onChange={handleChange}
             options={[
               { value: '', label: 'Select an option' },
-              ...LINE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))
+              ...TYPE_OF_LINE_ENUM.map((opt: string) => ({ value: opt, label: LINE_TYPE_LABELS[opt] }))
             ]}
           />
         </div>
