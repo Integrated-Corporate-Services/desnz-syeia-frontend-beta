@@ -17,6 +17,12 @@ const TaskList: React.FC = () => {
   const appId = params.get('id');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (appId) {
+      fetchAndSetApplication(appId);
+    }
+  }, [appId, fetchAndSetApplication]);
+
   // Example: update status handler
   const handleStatusUpdate = (sectionIdx: number, itemIdx: number, newStatus: string) => {
     setSections(updateSectionStatus(sections, sectionIdx, itemIdx, newStatus));
