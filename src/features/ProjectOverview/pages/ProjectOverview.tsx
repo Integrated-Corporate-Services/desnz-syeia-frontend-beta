@@ -107,54 +107,65 @@ const ProjectOverview = () => {
 							   (projectData.latestWorkStartDateMonth && projectData.latestWorkStartDateMonth !== "") ||
 							   (projectData.latestWorkStartDateYear && projectData.latestWorkStartDateYear !== "")
 						   );
-						   setFormState({
-							   applicationFormId: projectData.applicationFormId ?? "",
-							   projectId: projectData.projectId ?? "",
-							   applicationId: projectData.applicationId ?? "",
-							   createdBy: projectData.createdBy ?? "",
-							 
-							   projectName: projectData.projectName ?? "",
-							   projectDescription: projectData.projectDescription ?? "",
-							   tallestPoleHeight: projectData.tallestPoleHeight ?? "",
-							   planReference: projectData.planReference ?? "",
-							   areWorkStartDatesKnown: hasStartDates ? "true" : (projectData.areWorkStartDatesKnown ?? ""),
-							   earliestWorkStartDateMonth: monthNumToName(projectData.earliestWorkStartDateMonth ?? ""),
-							   earliestWorkStartDateYear: projectData.earliestWorkStartDateYear ?? "",
-							   latestWorkStartDateMonth: monthNumToName(projectData.latestWorkStartDateMonth ?? ""),
-							   latestWorkStartDateYear: projectData.latestWorkStartDateYear ?? "",
-							   hasRelatedApplications: projectData.hasRelatedApplications ?? "",
-							   relatedApplications: Array.isArray(projectData.relatedApplications) ? projectData.relatedApplications : [],
-							   // If cpoField has a value, set hasRelatedCpo to 'true', else fallback to projectData.hasRelatedCpo
-							   hasRelatedCpo: cpoField && cpoField.trim() !== '' ? 'true' : (projectData.hasRelatedCpo ?? ''),
-							   relatedCpoDetails: cpoField,
-							   eipDetails: projectData.eipDetails ?? "",
-							   uploadedFiles: Array.isArray(projectData.uploadedFiles)
-								   ? projectData.uploadedFiles.map(f => ({
-									   id: f.id || '',
-									   storage_provider: f.storage_provider || '',
-									   s3_key: f.s3_key || '',
-									   bucket_name: f.bucket_name || '',
-									   virtual_folder: f.virtual_folder || '',
-									   filename: f.filename || '',
-									   file_content_type: f.file_content_type || '',
-									   file_size_bytes: f.file_size_bytes || 0,
-									   uploaded_at_timestamp: f.uploaded_at_timestamp || '',
-									   description: f.description || ''
-								   }))
-								   : [],
-							   documents: Array.isArray(projectData.documents)
-								   ? projectData.documents.map(d => ({
-									   documentId: d.documentId || '',
-									   applicationId: d.applicationId || '',
-									   fileId: d.fileId || '',
-									   category: d.category || '',
-									   title: d.title || '',
-									   virtual_folder: d.virtual_folder || '',
-									   addedBy: d.addedBy || '',
-									   addedAt: d.addedAt || ''
-								   }))
-								   : []
-						   });
+						 setFormState({
+							 applicationFormId: projectData.applicationFormId ?? "",
+							 projectId: projectData.projectId ?? "",
+							 applicationId: projectData.applicationId ?? "",
+							 createdBy: projectData.createdBy ?? "",
+
+							 projectName: projectData.projectName ?? "",
+							 projectDescription: projectData.projectDescription ?? "",
+							 tallestPoleHeight: projectData.tallestPoleHeight ?? "",
+							 planReference: projectData.planReference ?? "",
+							 // Convert boolean to string for radio fields
+							 areWorkStartDatesKnown: hasStartDates
+								 ? "true"
+								 : (typeof projectData.areWorkStartDatesKnown === 'boolean'
+									 ? String(projectData.areWorkStartDatesKnown)
+									 : (projectData.areWorkStartDatesKnown ?? "")),
+							 earliestWorkStartDateMonth: monthNumToName(projectData.earliestWorkStartDateMonth ?? ""),
+							 earliestWorkStartDateYear: projectData.earliestWorkStartDateYear ?? "",
+							 latestWorkStartDateMonth: monthNumToName(projectData.latestWorkStartDateMonth ?? ""),
+							 latestWorkStartDateYear: projectData.latestWorkStartDateYear ?? "",
+							 hasRelatedApplications: typeof projectData.hasRelatedApplications === 'boolean'
+								 ? String(projectData.hasRelatedApplications)
+								 : (projectData.hasRelatedApplications ?? ""),
+							 relatedApplications: Array.isArray(projectData.relatedApplications) ? projectData.relatedApplications : [],
+							 // If cpoField has a value, set hasRelatedCpo to 'true', else fallback to projectData.hasRelatedCpo
+							 hasRelatedCpo: cpoField && cpoField.trim() !== ''
+								 ? 'true'
+								 : (typeof projectData.hasRelatedCpo === 'boolean'
+									 ? String(projectData.hasRelatedCpo)
+									 : (projectData.hasRelatedCpo ?? '')),
+							 relatedCpoDetails: cpoField,
+							 eipDetails: projectData.eipDetails ?? "",
+							 uploadedFiles: Array.isArray(projectData.uploadedFiles)
+								 ? projectData.uploadedFiles.map(f => ({
+									 id: f.id || '',
+									 storage_provider: f.storage_provider || '',
+									 s3_key: f.s3_key || '',
+									 bucket_name: f.bucket_name || '',
+									 virtual_folder: f.virtual_folder || '',
+									 filename: f.filename || '',
+									 file_content_type: f.file_content_type || '',
+									 file_size_bytes: f.file_size_bytes || 0,
+									 uploaded_at_timestamp: f.uploaded_at_timestamp || '',
+									 description: f.description || ''
+								 }))
+								 : [],
+							 documents: Array.isArray(projectData.documents)
+								 ? projectData.documents.map(d => ({
+									 documentId: d.documentId || '',
+									 applicationId: d.applicationId || '',
+									 fileId: d.fileId || '',
+									 category: d.category || '',
+									 title: d.title || '',
+									 virtual_folder: d.virtual_folder || '',
+									 addedBy: d.addedBy || '',
+									 addedAt: d.addedAt || ''
+								 }))
+								 : []
+						 });
 					   }
 				   }, [projectData]);
 
@@ -173,21 +184,21 @@ const ProjectOverview = () => {
 						<li className="govuk-breadcrumbs__list-item" aria-current="page">{projectOverview.breadcrumb.current}</li>
 					</ol>
 				</nav>
-				<main className="govuk-main-wrapper" id="main-content" role="main">
-					<h1 className="govuk-heading-xl">{projectOverview.heading}</h1>
-					{errors.length > 0 && (
-						<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
-							<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
-							<div className="govuk-error-summary__body">
-								<ul className="govuk-list govuk-error-summary__list">
-									{errors.map((err, idx) => (
-										<li key={idx} dangerouslySetInnerHTML={{ __html: err }} />
-									))}
-								</ul>
-							</div>
-						</div>
-					)}
-					<form method="post" onSubmit={e => {
+				   <main className="govuk-main-wrapper" id="main-content" role="main">
+					   <h1 className="govuk-heading-xl">{projectOverview.heading}</h1>
+					   {errors.length > 0 && (
+						   <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} style={{ marginBottom: '2rem', maxWidth: 600 }}>
+							   <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+							   <div className="govuk-error-summary__body">
+								   <ul className="govuk-list govuk-error-summary__list">
+									   {errors.map((err, idx) => (
+										   <li key={idx} dangerouslySetInnerHTML={{ __html: err }} />
+									   ))}
+								   </ul>
+							   </div>
+						   </div>
+					   )}
+					   <form method="post" onSubmit={e => {
 						e.preventDefault();
 						const newErrors: string[] = [];
 						const newFieldErrors: Record<string, string> = {};
@@ -287,71 +298,80 @@ const ProjectOverview = () => {
 							window.scrollTo({ top: 0, behavior: "smooth" });
 							return;
 						}
-						   // Save logic: convert month names to numbers for backend, always send relatedCpoDetails as string
-							  // If applicationFormId is empty string, set to null for backend
-							   // Always ensure applicationId is set (from store or URL param)
-							const applicationIdForSave = applicationId;
-							const payload = {
-								...formState,
-								applicationId: applicationIdForSave,
-								createdBy: user?.user_id || '',
-								applicationFormId: formState.applicationFormId === '' ? undefined : formState.applicationFormId,
-								earliestWorkStartDateMonth: formState.earliestWorkStartDateMonth ? monthNameToNum(formState.earliestWorkStartDateMonth) : '',
-								latestWorkStartDateMonth: formState.latestWorkStartDateMonth ? monthNameToNum(formState.latestWorkStartDateMonth) : '',
-								uploadedFiles: (formState.uploadedFiles || []).map(f => ({
-									id: f.id,
-									storage_provider: f.storage_provider,
-									s3_key: f.s3_key,
-									bucket_name: f.bucket_name,
-									virtual_folder: f.virtual_folder,
-									filename: f.filename,
-									file_content_type: f.file_content_type,
-									file_size_bytes: f.file_size_bytes,
-									uploaded_at_timestamp: f.uploaded_at_timestamp,
-									description: f.description
-								})),
-								// Always send relatedCpoDetails as string (not object)
-								relatedCpoDetails: typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
-									? formState.relatedCpoDetails.field || ''
-									: (formState.relatedCpoDetails || '')
-							};
-							saveProjectOverview(payload)
-								.then((response: any) => {
-									// Try to get application id from backend response, fallback to payload/params/query string
-									const redirectId =
-										response?.project?.application_id ||
-										response?.application_overview?.application_id ||
-										applicationIdForSave ||
-										'';
-									navigate(`/task-list?id=${redirectId}`);
-								})
-								.catch((err: any) => {
-									setErrors([err.message || 'Failed to save project overview']);
-								});
+							 // Save logic: convert month names to numbers for backend, always send relatedCpoDetails as string
+							 // If applicationFormId is empty string, set to null for backend
+							 // Always ensure applicationId is set (from store or URL param)
+							 const applicationIdForSave = applicationId;
+							 // If areWorkStartDatesKnown is 'false', clear the month/year fields
+							 const shouldClearDates = formState.areWorkStartDatesKnown === "false";
+							 const payload = {
+								 ...formState,
+								 applicationId: applicationIdForSave,
+								 createdBy: user?.user_id || '',
+								 applicationFormId: formState.applicationFormId === '' ? undefined : formState.applicationFormId,
+								 earliestWorkStartDateMonth: shouldClearDates ? '' : (formState.earliestWorkStartDateMonth ? monthNameToNum(formState.earliestWorkStartDateMonth) : ''),
+								 earliestWorkStartDateYear: shouldClearDates ? '' : (formState.earliestWorkStartDateYear || ''),
+								 latestWorkStartDateMonth: shouldClearDates ? '' : (formState.latestWorkStartDateMonth ? monthNameToNum(formState.latestWorkStartDateMonth) : ''),
+								 latestWorkStartDateYear: shouldClearDates ? '' : (formState.latestWorkStartDateYear || ''),
+								 uploadedFiles: (formState.uploadedFiles || []).map(f => ({
+									 id: f.id,
+									 storage_provider: f.storage_provider,
+									 s3_key: f.s3_key,
+									 bucket_name: f.bucket_name,
+									 virtual_folder: f.virtual_folder,
+									 filename: f.filename,
+									 file_content_type: f.file_content_type,
+									 file_size_bytes: f.file_size_bytes,
+									 uploaded_at_timestamp: f.uploaded_at_timestamp,
+									 description: f.description
+								 })),
+								 // Always send relatedCpoDetails as string (not object)
+								 relatedCpoDetails: typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
+									 ? formState.relatedCpoDetails.field || ''
+									 : (formState.relatedCpoDetails || '')
+							 };
+							 saveProjectOverview(payload)
+								 .then((response: any) => {
+									 // Try to get application id from backend response, fallback to payload/params/query string
+									 const redirectId =
+										 response?.project?.application_id ||
+										 response?.application_overview?.application_id ||
+										 applicationIdForSave ||
+										 '';
+									 navigate(`/task-list?id=${redirectId}`);
+								 })
+								 .catch((err: any) => {
+									 setErrors([err.message || 'Failed to save project overview']);
+								 });
 						return;
 					}}>
-						<TextInput
-							label={projectOverview.projectName}
-							id="projectName-inputValue"
-							name="projectName.inputValue"
-							value={formState.projectName}
-							error={fieldErrors?.projectName}
-							maxLength={4000}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, projectName: e.target.value }))}
-						/>
 
-								{/* Project Description */}
-					<TextArea
-						label={projectOverview.projectDescription}
-						id="projectDescription-inputValue"
-						name="projectDescription.inputValue"
-						value={formState.projectDescription}
-						error={fieldErrors?.projectDescription}
-						maxLength={MAX_DESCRIPTION_LENGTH}
-						infoId="projectDescription-inputValue-info"
-						remainingChars={remainingChars}
-						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, projectDescription: e.target.value }))}
-					/>
+						   <div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 600 }}>
+							   <TextInput
+								   label={projectOverview.projectName}
+								   id="projectName-inputValue"
+								   name="projectName.inputValue"
+								   value={formState.projectName}
+								   error={fieldErrors?.projectName}
+								   maxLength={4000}
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, projectName: e.target.value }))}
+							   />
+						   </div>
+
+						   {/* Project Description */}
+						   <div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 600 }}>
+							   <TextArea
+								   label={projectOverview.projectDescription}
+								   id="projectDescription-inputValue"
+								   name="projectDescription.inputValue"
+								   value={formState.projectDescription}
+								   error={fieldErrors?.projectDescription}
+								   maxLength={MAX_DESCRIPTION_LENGTH}
+								   infoId="projectDescription-inputValue-info"
+								   remainingChars={remainingChars}
+								   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, projectDescription: e.target.value }))}
+							   />
+						   </div>
 
 								{/* Details: What type of information should be provided */}
 								<details className="govuk-details">
@@ -366,53 +386,56 @@ const ProjectOverview = () => {
 								</details>
 
 								{/* Tallest Pole Height */}
-								<NumberInput
-									label={projectOverview.tallestPoleHeight}
-									suffix={projectOverview.tallestPoleHeightSuffix}
-									id="tallestPoleHeight-inputValue"
-									name="tallestPoleHeight.inputValue"
-									value={formState.tallestPoleHeight}
-									error={fieldErrors?.tallestPoleHeight}
-									maxLength={4000}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, tallestPoleHeight: e.target.value }))}
-								/>
+
+						   <div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 320 }}>
+							   <NumberInput
+								   label={projectOverview.tallestPoleHeight}
+								   suffix={projectOverview.tallestPoleHeightSuffix}
+								   id="tallestPoleHeight-inputValue"
+								   name="tallestPoleHeight.inputValue"
+								   value={formState.tallestPoleHeight}
+								   error={fieldErrors?.tallestPoleHeight}
+								   maxLength={4000}
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, tallestPoleHeight: e.target.value }))}
+							   />
+						   </div>
 
 								{/* Plan Reference */}
-					<div className={`govuk-form-group${fieldErrors?.planReference ? " govuk-form-group--error" : ""}`}> 
-						<label className="govuk-label" htmlFor="planReference-inputValue">
-							{projectOverview.planReference}
-						</label>
-						{fieldErrors?.planReference && (
-							<p id="planReference-inputValue-error" className="govuk-error-message">
-								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.planReference}
-							</p>
-						)}
-						<input 
-							className={`govuk-input${fieldErrors?.planReference ? " govuk-input--error" : ""}`}
-							id="planReference-inputValue"
-							name="planReference.inputValue"
-							type="text"
-							maxLength={4000}
-							value={formState.planReference}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, planReference: e.target.value }))}
-							aria-describedby={fieldErrors?.planReference ? "planReference-inputValue-error" : undefined}
-						/>
-					</div>
+					   <div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.planReference ? " govuk-form-group--error" : ""}`} style={{ maxWidth: 600 }}>
+						   <label className="govuk-label" htmlFor="planReference-inputValue">
+							   {projectOverview.planReference}
+						   </label>
+						   {fieldErrors?.planReference && (
+							   <p id="planReference-inputValue-error" className="govuk-error-message">
+								   <span className="govuk-visually-hidden">Error:</span> {fieldErrors.planReference}
+							   </p>
+						   )}
+						   <input 
+							   className={`govuk-input${fieldErrors?.planReference ? " govuk-input--error" : ""}`}
+							   id="planReference-inputValue"
+							   name="planReference.inputValue"
+							   type="text"
+							   maxLength={4000}
+							   value={formState.planReference}
+							   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, planReference: e.target.value }))}
+							   aria-describedby={fieldErrors?.planReference ? "planReference-inputValue-error" : undefined}
+						   />
+					   </div>
 
 								{/* Work Start Dates Known */}
-								<div className={`govuk-form-group${fieldErrors?.areWorkStartDatesKnown ? " govuk-form-group--error" : ""}`}> 
-									<fieldset className="govuk-fieldset" aria-describedby={fieldErrors?.areWorkStartDatesKnown ? "areWorkStartDatesKnown-error" : undefined}>
-										<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-											<h2 className="govuk-fieldset__heading">
-												{projectOverview.workStartDatesKnown}
-											</h2>
-										</legend>
-										{fieldErrors?.areWorkStartDatesKnown && (
-											<p id="areWorkStartDatesKnown-error" className="govuk-error-message">
-												<span className="govuk-visually-hidden">Error:</span> {fieldErrors.areWorkStartDatesKnown}
-											</p>
-										)}
-										<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
+								   <div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.areWorkStartDatesKnown ? " govuk-form-group--error" : ""}`} style={{ maxWidth: 600 }}>
+									   <fieldset className="govuk-fieldset" aria-describedby={fieldErrors?.areWorkStartDatesKnown ? "areWorkStartDatesKnown-error" : undefined}>
+										   <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+											   <h2 className="govuk-fieldset__heading">
+												   {projectOverview.workStartDatesKnown}
+											   </h2>
+										   </legend>
+										   {fieldErrors?.areWorkStartDatesKnown && (
+											   <p id="areWorkStartDatesKnown-error" className="govuk-error-message">
+												   <span className="govuk-visually-hidden">Error:</span> {fieldErrors.areWorkStartDatesKnown}
+											   </p>
+										   )}
+										   <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 											<div className="govuk-radios__item">
 												<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} onChange={() => setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }))} aria-controls="areWorkStartDatesKnown-hidden" aria-expanded={formState.areWorkStartDatesKnown === "true" ? "true" : "false"} />
 												<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown">Yes</label>
@@ -585,20 +608,20 @@ const ProjectOverview = () => {
 								</details>
 
 								{/* Related Applications */}
-								<div className={`govuk-form-group${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`}> 
-									<fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()}>
-										<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-											<h2 className="govuk-fieldset__heading">{projectOverview.relatedApplications}</h2>
-										</legend>
-										<div className="govuk-hint" id="fieldset-5-hint">
-											{projectOverview.relatedApplicationsHint}
-										</div>
-										{fieldErrors?.hasRelatedApplications && (
-											<p id="hasRelatedApplications-error" className="govuk-error-message">
-												<span className="govuk-visually-hidden">Error:</span> {fieldErrors.hasRelatedApplications}
-											</p>
-										)}
-										<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
+								   <div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`} style={{ maxWidth: 600 }}>
+									   <fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()}>
+										   <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+											   <h2 className="govuk-fieldset__heading">{projectOverview.relatedApplications}</h2>
+										   </legend>
+										   <div className="govuk-hint" id="fieldset-5-hint">
+											   {projectOverview.relatedApplicationsHint}
+										   </div>
+										   {fieldErrors?.hasRelatedApplications && (
+											   <p id="hasRelatedApplications-error" className="govuk-error-message">
+												   <span className="govuk-visually-hidden">Error:</span> {fieldErrors.hasRelatedApplications}
+											   </p>
+										   )}
+										   <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 											<div className="govuk-radios__item">
 												<input className="govuk-radios__input" id="hasRelatedApplications" name="hasRelatedApplications" type="radio" value="true" checked={formState.hasRelatedApplications === "true"} onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }))} aria-controls="hasRelatedApplications-hidden" aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"} />
 												<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
