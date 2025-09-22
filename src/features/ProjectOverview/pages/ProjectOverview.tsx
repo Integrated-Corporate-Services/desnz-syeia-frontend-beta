@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useProjectStore } from '../../../store/useProjectStore';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from "../../../constants/content";
 import { Link } from "react-router-dom";
@@ -10,35 +12,161 @@ import TextInput from '../component/TextInput';
 import RadioGroup from '../component/RadioGroup';
 
 
+import { ProjectOverviewModel } from '../../../types/projectOverview';
+import { useAuthUser } from '../../../hooks/useAuthUser';
+
+const emptyProjectOverview: ProjectOverviewModel = {
+	applicationFormId: "",
+	projectName: "",
+	projectDescription: "",
+	tallestPoleHeight: "",
+	planReference: "",
+	areWorkStartDatesKnown: "",
+	earliestWorkStartDateMonth: "",
+	earliestWorkStartDateYear: "",
+	latestWorkStartDateMonth: "",
+	latestWorkStartDateYear: "",
+	hasRelatedApplications: "",
+	relatedApplications: [],
+	hasRelatedCpo: "",
+	relatedCpoDetails: "",
+	eipDetails: "",
+	uploadedFiles: [],
+	documents: [],
+	projectId: "",
+	applicationId: "",
+	createdBy: "",
+};
+
 const ProjectOverview = () => {
-	const [formState, setFormState] = useState({
-		areWorkStartDatesKnown: "",
-		hasRelatedApplications: "",
-		hasRelatedCpo: "",
-		projectDescription: "",
-		relatedCpoDetails: "",
-		eipDetails: "",
-		projectName: "",
-		tallestPoleHeight: "",
-		planReference: "",
-		earliestWorkStartDateMonth: "",
-		earliestWorkStartDateYear: "",
-		latestWorkStartDateMonth: "",
-		latestWorkStartDateYear: ""
-	});
+	const params = useParams();
+	const navigate = useNavigate();
+	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const application = useApplicationStore(state => state.application);
-
+	const { user } = useAuthUser();
+	// Helper to get applicationId from store, params, or query string
+	const getApplicationId = () => {
+		if (application?.application_id) return application.application_id;
+		if (params.applicationId) return params.applicationId;
+		if (params.id) return params.id;
+		if (typeof window !== 'undefined') {
+			const searchParams = new URLSearchParams(window.location.search);
+			const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+			if (idFromQuery) return idFromQuery;
+		}
+		return '';
+	};
+	const applicationId = getApplicationId();
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
+	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview, fetchProjectList, projectList } = useProjectStore();
 	const remainingChars = MAX_DESCRIPTION_LENGTH - formState.projectDescription.length;
-	const remainingCpoChars = MAX_DESCRIPTION_LENGTH - formState.relatedCpoDetails.length;
+	const getRelatedCpoDetailsString = (val: typeof formState.relatedCpoDetails) =>
+		typeof val === 'string' ? val : (val && typeof val.field === 'string' ? val.field : '');
+	const relatedCpoDetailsStr = getRelatedCpoDetailsString(formState.relatedCpoDetails);
+	const remainingCpoChars = MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length;
+
+	// Fetch project overview and project list on mount
+	useEffect(() => {
+		if (applicationId) {
+			fetchProjectOverview(applicationId);
+		}
+		fetchProjectList();
+	}, [applicationId, fetchProjectOverview, fetchProjectList]);
+
+
+	// Bind fetched data to form fields (flat model)
+			// Helper to convert '01' to 'January', etc.
+			const monthNumToName = (num: string) => {
+				if (!num) return "";
+				const idx = parseInt(num, 10) - 1;
+				return idx >= 0 && idx < months.length ? months[idx] : num;
+			};
+			// Helper to convert 'January' to '01', etc.
+			const monthNameToNum = (name: string) => {
+				const idx = months.findIndex(m => m.toUpperCase() === name.toUpperCase());
+				return idx >= 0 ? ("0" + (idx + 1)).slice(-2) : name;
+			};
+
+				   useEffect(() => {
+					   if (projectData) {
+						   const forms = projectData.forms || {};
+						   // Handle CPO details: support both string and object (with 'field')
+						   let cpoField = '';
+						   if (typeof projectData.relatedCpoDetails === 'object' && projectData.relatedCpoDetails !== null) {
+							   cpoField = projectData.relatedCpoDetails.field ?? '';
+						   } else if (typeof projectData.relatedCpoDetails === 'string') {
+							   cpoField = projectData.relatedCpoDetails;
+						   } else if (forms['project_CPO']?.data?.field) {
+							   cpoField = forms['project_CPO'].data.field;
+						   }
+						   const hasStartDates = !!(
+							   (projectData.earliestWorkStartDateMonth && projectData.earliestWorkStartDateMonth !== "") ||
+							   (projectData.earliestWorkStartDateYear && projectData.earliestWorkStartDateYear !== "") ||
+							   (projectData.latestWorkStartDateMonth && projectData.latestWorkStartDateMonth !== "") ||
+							   (projectData.latestWorkStartDateYear && projectData.latestWorkStartDateYear !== "")
+						   );
+						   setFormState({
+							   applicationFormId: projectData.applicationFormId ?? "",
+							   projectId: projectData.projectId ?? "",
+							   applicationId: projectData.applicationId ?? "",
+							   createdBy: projectData.createdBy ?? "",
+							 
+							   projectName: projectData.projectName ?? "",
+							   projectDescription: projectData.projectDescription ?? "",
+							   tallestPoleHeight: projectData.tallestPoleHeight ?? "",
+							   planReference: projectData.planReference ?? "",
+							   areWorkStartDatesKnown: hasStartDates ? "true" : (projectData.areWorkStartDatesKnown ?? ""),
+							   earliestWorkStartDateMonth: monthNumToName(projectData.earliestWorkStartDateMonth ?? ""),
+							   earliestWorkStartDateYear: projectData.earliestWorkStartDateYear ?? "",
+							   latestWorkStartDateMonth: monthNumToName(projectData.latestWorkStartDateMonth ?? ""),
+							   latestWorkStartDateYear: projectData.latestWorkStartDateYear ?? "",
+							   hasRelatedApplications: projectData.hasRelatedApplications ?? "",
+							   relatedApplications: Array.isArray(projectData.relatedApplications) ? projectData.relatedApplications : [],
+							   // If cpoField has a value, set hasRelatedCpo to 'true', else fallback to projectData.hasRelatedCpo
+							   hasRelatedCpo: cpoField && cpoField.trim() !== '' ? 'true' : (projectData.hasRelatedCpo ?? ''),
+							   relatedCpoDetails: cpoField,
+							   eipDetails: projectData.eipDetails ?? "",
+							   uploadedFiles: Array.isArray(projectData.uploadedFiles)
+								   ? projectData.uploadedFiles.map(f => ({
+									   id: f.id || '',
+									   storage_provider: f.storage_provider || '',
+									   s3_key: f.s3_key || '',
+									   bucket_name: f.bucket_name || '',
+									   virtual_folder: f.virtual_folder || '',
+									   filename: f.filename || '',
+									   file_content_type: f.file_content_type || '',
+									   file_size_bytes: f.file_size_bytes || 0,
+									   uploaded_at_timestamp: f.uploaded_at_timestamp || '',
+									   description: f.description || ''
+								   }))
+								   : [],
+							   documents: Array.isArray(projectData.documents)
+								   ? projectData.documents.map(d => ({
+									   documentId: d.documentId || '',
+									   applicationId: d.applicationId || '',
+									   fileId: d.fileId || '',
+									   category: d.category || '',
+									   title: d.title || '',
+									   virtual_folder: d.virtual_folder || '',
+									   addedBy: d.addedBy || '',
+									   addedAt: d.addedAt || ''
+								   }))
+								   : []
+						   });
+					   }
+				   }, [projectData]);
+
 	return (
 			<div className="govuk-width-container">
 				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 					<ol className="govuk-breadcrumbs__list">
 						<li className="govuk-breadcrumbs__list-item">
-							<Link className="govuk-breadcrumbs__link" to={`/task-list?id=${application?.application_id || ''}`}>
+							<Link
+								className="govuk-breadcrumbs__link"
+								to={`/task-list?id=${applicationId}`}
+							>
 								{projectOverview.breadcrumb.taskList}
 							</Link>
 						</li>
@@ -75,11 +203,11 @@ const ProjectOverview = () => {
 							newErrors.push('<a href="#tallestPoleHeight-inputValue">Enter the height of the tallest pole</a>');
 							newFieldErrors.tallestPoleHeight = "Enter the height of the tallest pole";
 						} else {
-							// Check for more than one decimal place
+							// Check for more than two decimal places
 							const val = formState.tallestPoleHeight.trim();
-							if (/^\d+\.\d{2,}$/.test(val)) {
-								newErrors.push('<a href="#tallestPoleHeight-inputValue">Enter at most 1 decimal place for the pole height</a>');
-								newFieldErrors.tallestPoleHeight = "Enter at most 1 decimal place for the pole height";
+							if (/^\d+\.\d{3,}$/.test(val)) {
+								newErrors.push('<a href="#tallestPoleHeight-inputValue">Enter at most 2 decimal places for the pole height</a>');
+								newFieldErrors.tallestPoleHeight = "Enter at most 2 decimal places for the pole height";
 							}
 						}
 						if (!formState.planReference?.trim()) {
@@ -140,22 +268,67 @@ const ProjectOverview = () => {
 							newFieldErrors.hasRelatedCpo = "Select yes if there is a related CPO";
 						}
 						// Related CPO details validation
-						if (formState.hasRelatedCpo === "true" && !formState.relatedCpoDetails?.trim()) {
-							newErrors.push('<a href="#relatedCpoDetails-inputValue">Enter the details of the related CPO</a>');
-							newFieldErrors.relatedCpoDetails = "Enter the details of the related CPO";
-						}
-						// EIP details validation
-						if (!formState.eipDetails?.trim()) {
-							newErrors.push('<a href="#eipDetails-inputValue">Enter the EIP details related to this project</a>');
-							newFieldErrors.eipDetails = "Enter the EIP details related to this project";
-						}
+						   if (formState.hasRelatedCpo === "true" && !getRelatedCpoDetailsString(formState.relatedCpoDetails).trim()) {
+							   newErrors.push('<a href="#relatedCpoDetails-inputValue">Enter the details of the related CPO</a>');
+							   newFieldErrors.relatedCpoDetails = "Enter the details of the related CPO";
+						   }
+												// EIP details validation: only required if both related applications and related CPO are not 'No'
+												if (
+													!formState.eipDetails?.trim() &&
+													formState.hasRelatedApplications !== "false" &&
+													formState.hasRelatedCpo !== "false"
+												) {
+													newErrors.push('<a href="#eipDetails-inputValue">Enter the EIP details related to this project</a>');
+													newFieldErrors.eipDetails = "Enter the EIP details related to this project";
+												}
 						setErrors(newErrors);
 						setFieldErrors(newFieldErrors);
 						if (newErrors.length > 0) {
 							window.scrollTo({ top: 0, behavior: "smooth" });
 							return;
 						}
-						// ...existing submit logic...
+						   // Save logic: convert month names to numbers for backend, always send relatedCpoDetails as string
+							  // If applicationFormId is empty string, set to null for backend
+							   // Always ensure applicationId is set (from store or URL param)
+							const applicationIdForSave = applicationId;
+							const payload = {
+								...formState,
+								applicationId: applicationIdForSave,
+								createdBy: user?.user_id || '',
+								applicationFormId: formState.applicationFormId === '' ? undefined : formState.applicationFormId,
+								earliestWorkStartDateMonth: formState.earliestWorkStartDateMonth ? monthNameToNum(formState.earliestWorkStartDateMonth) : '',
+								latestWorkStartDateMonth: formState.latestWorkStartDateMonth ? monthNameToNum(formState.latestWorkStartDateMonth) : '',
+								uploadedFiles: (formState.uploadedFiles || []).map(f => ({
+									id: f.id,
+									storage_provider: f.storage_provider,
+									s3_key: f.s3_key,
+									bucket_name: f.bucket_name,
+									virtual_folder: f.virtual_folder,
+									filename: f.filename,
+									file_content_type: f.file_content_type,
+									file_size_bytes: f.file_size_bytes,
+									uploaded_at_timestamp: f.uploaded_at_timestamp,
+									description: f.description
+								})),
+								// Always send relatedCpoDetails as string (not object)
+								relatedCpoDetails: typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
+									? formState.relatedCpoDetails.field || ''
+									: (formState.relatedCpoDetails || '')
+							};
+							saveProjectOverview(payload)
+								.then((response: any) => {
+									// Try to get application id from backend response, fallback to payload/params/query string
+									const redirectId =
+										response?.project?.application_id ||
+										response?.application_overview?.application_id ||
+										applicationIdForSave ||
+										'';
+									navigate(`/task-list?id=${redirectId}`);
+								})
+								.catch((err: any) => {
+									setErrors([err.message || 'Failed to save project overview']);
+								});
+						return;
 					}}>
 						<TextInput
 							label={projectOverview.projectName}
@@ -261,19 +434,19 @@ const ProjectOverview = () => {
 																<div className="govuk-date-input__item">
 																	<div className={`govuk-form-group${fieldErrors?.earliestWorkStartDate ? " govuk-form-group--error" : ""}`}> 
 																		<label className="govuk-label" htmlFor="earliestWorkStartDate-month">Month</label>
-																		<select 
-																			className={`govuk-select${fieldErrors?.earliestWorkStartDate ? " govuk-select--error" : ""}`}
-																			id="earliestWorkStartDate-month"
-																			name="earliestWorkStartDate.month"
-																			aria-describedby={fieldErrors?.earliestWorkStartDate ? "earliestWorkStartDate-error" : undefined}
-																			value={formState.earliestWorkStartDateMonth || ""}
-																			onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }))}
-																		>
-																			<option value="" disabled>Select one...</option>
-																			{months.map((m) => (
-																				<option key={m} value={m.toUpperCase()}>{m}</option>
-																			))}
-																		</select>
+																							<select 
+																								className={`govuk-select${fieldErrors?.earliestWorkStartDate ? " govuk-select--error" : ""}`}
+																								id="earliestWorkStartDate-month"
+																								name="earliestWorkStartDate.month"
+																								aria-describedby={fieldErrors?.earliestWorkStartDate ? "earliestWorkStartDate-error" : undefined}
+																								value={formState.earliestWorkStartDateMonth || ""}
+																								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }))}
+																							>
+																								<option value="" disabled>Select one...</option>
+																								{months.map((m) => (
+																									<option key={m} value={m}>{m}</option>
+																								))}
+																							</select>
 																	</div>
 																</div>
 																<div className="govuk-date-input__item">
@@ -308,19 +481,19 @@ const ProjectOverview = () => {
 																<div className="govuk-date-input__item">
 																	<div className={`govuk-form-group${fieldErrors?.latestWorkStartDate ? " govuk-form-group--error" : ""}`}> 
 																		<label className="govuk-label" htmlFor="latestWorkStartDate-month">Month</label>
-																		<select 
-																			className={`govuk-select${fieldErrors?.latestWorkStartDate ? " govuk-select--error" : ""}`}
-																			id="latestWorkStartDate-month"
-																			name="latestWorkStartDate.month"
-																			aria-describedby={fieldErrors?.latestWorkStartDate ? "latestWorkStartDate-error" : undefined}
-																			value={formState.latestWorkStartDateMonth || ""}
-																			onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }))}
-																		>
-																			<option value="" disabled>Select one...</option>
-																			{months.map((m) => (
-																				<option key={m} value={m.toUpperCase()}>{m}</option>
-																			))}
-																		</select>
+																							<select 
+																								className={`govuk-select${fieldErrors?.latestWorkStartDate ? " govuk-select--error" : ""}`}
+																								id="latestWorkStartDate-month"
+																								name="latestWorkStartDate.month"
+																								aria-describedby={fieldErrors?.latestWorkStartDate ? "latestWorkStartDate-error" : undefined}
+																								value={formState.latestWorkStartDateMonth || ""}
+																								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }))}
+																							>
+																								<option value="" disabled>Select one...</option>
+																								{months.map((m) => (
+																									<option key={m} value={m}>{m}</option>
+																								))}
+																							</select>
 																	</div>
 																</div>
 																<div className="govuk-date-input__item">
@@ -519,8 +692,8 @@ const ProjectOverview = () => {
 													name="relatedCpoDetails.inputValue"
 													rows={5}
 													maxLength={MAX_DESCRIPTION_LENGTH}
-													value={formState.relatedCpoDetails}
-													onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }))}
+													   value={relatedCpoDetailsStr}
+													   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }))}
 													aria-describedby={fieldErrors?.relatedCpoDetails ? "relatedCpoDetails-inputValue-error relatedCpoDetails-inputValue-info" : "relatedCpoDetails-inputValue-info"}
 												></textarea>
 												<div id="relatedCpoDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>

@@ -3,8 +3,9 @@ import { getProjectOverview, saveProjectOverview, listProjects } from '../servic
 import type { ProjectOverviewModel } from '../types/projectOverview';
 
 
+
 type ProjectStoreState = {
-  projectOverview: ProjectOverviewModel | null;
+  projectOverview: (ProjectOverviewModel & { forms?: Record<string, any> }) | null;
   projectList: ProjectOverviewModel[];
   loading: boolean;
   error: string | null;
