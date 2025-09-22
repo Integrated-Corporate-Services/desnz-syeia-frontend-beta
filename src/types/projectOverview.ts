@@ -1,5 +1,7 @@
 // src/types/projectOverview.ts
 
+import { SearchableDropdownOption } from "../components/SearchableDropdown";
+
 export interface RelatedApplication {
   applicationId: string;
   reference: string;
@@ -44,7 +46,8 @@ export interface ProjectOverviewModel {
   latestWorkStartDateMonth: string;
   latestWorkStartDateYear: string;
   hasRelatedApplications: string;
-  relatedApplications: RelatedApplication[];
+  //relatedApplications: RelatedApplication[];
+  relatedApplications: SearchableDropdownOption[];
   hasRelatedCpo: string;
   relatedCpoDetails: string | { field: string };
   eipDetails: string;

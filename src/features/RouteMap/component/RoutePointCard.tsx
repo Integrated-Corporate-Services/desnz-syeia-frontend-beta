@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RoutePoint } from './SensitiveAreaCheckMap';
+import { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
 
 interface RoutePointCardProps {
   point: RoutePoint;

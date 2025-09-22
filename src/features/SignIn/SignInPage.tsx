@@ -12,29 +12,6 @@ const SignInPage: React.FC = () => {
           <h1 className="govuk-heading-xl">
             Submit your Energy Infrastructure Application
           </h1>
-          <aside role="complementary">
-            <nav aria-label="Pages in this guide" role="navigation">
-              <h2>Contents</h2>
-              <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-                <li style={{ marginBottom: '0.5em' }}>
-                  <span style={{ marginRight: 8 }}>—</span>
-                  <a href="overview.html" style={{ textDecoration: 'underline', color: '#1d70b8' }}>Overview</a>
-                </li>
-                <li style={{ marginBottom: '0.5em' }}>
-                  <span style={{ marginRight: 8 }}>—</span>
-                  Section 37 applications
-                </li>
-                <li style={{ marginBottom: '0.5em' }}>
-                  <span style={{ marginRight: 8 }}>—</span>
-                  <a href="necessary-wayleave-applications.html" style={{ textDecoration: 'underline', color: '#4c2c92' }}>Necessary Wayleave applications</a>
-                </li>
-                <li style={{ marginBottom: '0.5em' }}>
-                  <span style={{ marginRight: 8 }}>—</span>
-                  <a href="treelopping-applications.html" style={{ textDecoration: 'underline', color: '#1d70b8' }}>Treelopping applications</a>
-                </li>
-              </ul>
-            </nav>
-          </aside>
         </div>
       </div>
 
@@ -42,9 +19,9 @@ const SignInPage: React.FC = () => {
         <div className="govuk-grid-column-two-thirds">
           <hr style={{ margin: '2rem 0' }} />
           <h2 className="govuk-heading-l">Section 37 applications</h2>
-          <p>
+          <label className="govuk-label">
             Apply for consent under Section 37 of the Electricity Act 1989 to install or change overhead electric lines. This includes applications for new lines or alterations to existing lines.
-          </p>
+          </label>
           <button
             onClick={handleSignIn}
             className="govuk-button govuk-button--start"

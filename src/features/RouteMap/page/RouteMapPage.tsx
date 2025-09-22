@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import SensitiveAreaCheckMap, { RoutePoint } from '../component/SensitiveAreaCheckMap';
+import SensitiveAreaCheckMap, { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
 import RoutePointCard from '../component/RoutePointCard';
+import { Route } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { submitRoutePoints } from '../../../services/routeMapService';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: { children: React.ReactNode }) {
@@ -19,11 +24,37 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-const SensitiveAreaCheckPage: React.FC = () => {
+const RouteMapPage: React.FC = () => {
   const [points, setPoints] = useState<RoutePoint[]>([
     { easting: '', northing: '' }
   ]);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { applicationId } = useParams<{ applicationId: string }>();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const queryId = queryParams.get('id');
+  const effectiveApplicationId = applicationId || queryId || '';
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setSubmitError(null);
+    if (!effectiveApplicationId) {
+      setSubmitError('No application ID found in URL or query string.');
+      setSubmitting(false);
+      return;
+    }
+    try {
+      await submitRoutePoints(effectiveApplicationId, points);
+      navigate(`/task-list?id=${effectiveApplicationId}`);
+    } catch (err) {
+      setSubmitError('Failed to submit route points. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleAddPoint = (idx: number, direction: 'before' | 'after') => {
     setPoints(prev => {
@@ -80,7 +111,17 @@ const SensitiveAreaCheckPage: React.FC = () => {
           </div>
           {/* Call to action buttons */}
           <div className="govuk-!-static-margin-top-6">
-            <a href="../consultation/map-search.html" className="govuk-button">Submit and continue</a>
+            <button
+              className="govuk-button"
+              type="button"
+              onClick={handleSubmit}
+              disabled={submitting}
+            >
+              {submitting ? 'Submitting...' : 'Submit and continue'}
+            </button>
+            {submitError && (
+              <div className="govuk-error-message govuk-!-margin-top-2">{submitError}</div>
+            )}
           </div>
         </div>
       </div>
@@ -88,4 +129,4 @@ const SensitiveAreaCheckPage: React.FC = () => {
   );
 };
 
-export default SensitiveAreaCheckPage;
+export default RouteMapPage;

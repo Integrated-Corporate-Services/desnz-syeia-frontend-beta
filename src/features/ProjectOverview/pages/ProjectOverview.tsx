@@ -6,14 +6,16 @@ import { CONTENT } from "../../../constants/content";
 import { Link } from "react-router-dom";
 
 
-import NumberInput from '../component/NumberInput';
-import TextArea from '../component/TextArea';
-import TextInput from '../component/TextInput';
-import RadioGroup from '../component/RadioGroup';
+import TextInput from "../component/TextInput";
+import TextArea from "../component/TextArea";
+import NumberInput from "../component/NumberInput";
+import RadioGroup from "../component/RadioGroup";
+import PlanInformationUpload from "../component/PlanInformationUpload";
 
 
 import { ProjectOverviewModel } from '../../../types/projectOverview';
 import { useAuthUser } from '../../../hooks/useAuthUser';
+import SearchableDropdown from "../../../components/SearchableDropdown";
 
 const emptyProjectOverview: ProjectOverviewModel = {
 	applicationFormId: "",
@@ -42,6 +44,7 @@ const ProjectOverview = () => {
 	const params = useParams();
 	const navigate = useNavigate();
 	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
+	const [dropdownValue, setDropdownValue] = useState<string>('');
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const application = useApplicationStore(state => state.application);
@@ -549,49 +552,12 @@ const ProjectOverview = () => {
 								{/* Plan Information Documents */}
 								<div className="govuk-form-group">
 									<fieldset className="govuk-fieldset">
-										<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-											<h2 className="govuk-fieldset__heading">{projectOverview.planInformationDocuments}</h2>
-										</legend>
-										<div className="fds-file-upload govuk-form-group govuk-!-margin-bottom-0" data-module="fds-file-upload-container">
-											<div className="fds-file-upload-dropzone" data-module="fds-file-upload-dropzone">
-												<div className="fds-file-upload-dropzone__content">
-													<div className="fds-file-upload-dropzone__text">
-														Drag and drop your documents here, or
-														<input
-															id="planInformationDocuments"
-															className="fds-file-upload-dropzone__hidden-input"
-															type="file"
-															name="file"
-															tabIndex={-1}
-															data-module="fds-file-upload"
-															data-form-name="planInformationDocuments"
-															data-form-field-id-name="uploadedFileId"
-															data-form-field-instant-name="uploadedFileInstant"
-															data-form-field-name-name="uploadedFileName"
-															data-form-field-size-name="uploadedFileSize"
-															data-form-field-description-name="uploadedFileDescription"
-															data-form-data='{"_csrf": "fnpm6DpTz4YMKa3A31C_i32nfCJSVtAcZxfildIqlO6zSJc1Gk0AjQxnrrchSMjxun2LuRjBURtrZ7UxUy7Q9rNO8d-Gf_NU"}'
-															data-url="/eip/section-37/84e7bced-21f6-48d4-8aae-a06145de20f9/project-details/plan-information/documents/upload"
-															data-delete-url="/eip/section-37/84e7bced-21f6-48d4-8aae-a06145de20f9/project-details/plan-information/documents/delete/"
-															data-download-url="/eip/section-37/84e7bced-21f6-48d4-8aae-a06145de20f9/project-details/plan-information/documents/download/"
-															data-file-description="true"
-															data-file-description-character-count="false"
-															data-file-description-maxlength=""
-															upload-file-max-size="52428800"
-															accept=".bmp, .doc, .docx, .jpeg, .jpg, .pdf, .png, .txt, .xls, .xlsx"
-															data-sequential-uploads="false"
-															multiple
-														/>
-														<label htmlFor="planInformationDocuments" tabIndex={0} className="fds-file-upload-dropzone__link" role="link">
-															<span className="fds-file-upload-dropzone__link-error govuk-visually-hidden"></span>
-															choose a file
-															<span className="govuk-visually-hidden"> for Section-37 plan information file upload</span>
-														</label>
-													</div>
-												</div>
-											</div>
-											<div className="fds-file-upload-list" data-module="fds-file-upload-list"></div>
-										</div>
+										{/* {application && ( */}
+											<PlanInformationUpload
+												application={application}
+												title={projectOverview.planInformationDocuments}
+											/>
+										{/* )} */}
 									</fieldset>
 								</div>
 
@@ -608,78 +574,83 @@ const ProjectOverview = () => {
 								</details>
 
 								{/* Related Applications */}
-								   <div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`} style={{ maxWidth: 600 }}>
-									   <fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()}>
-										   <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-											   <h2 className="govuk-fieldset__heading">{projectOverview.relatedApplications}</h2>
-										   </legend>
-										   <div className="govuk-hint" id="fieldset-5-hint">
-											   {projectOverview.relatedApplicationsHint}
-										   </div>
-										   {fieldErrors?.hasRelatedApplications && (
-											   <p id="hasRelatedApplications-error" className="govuk-error-message">
-												   <span className="govuk-visually-hidden">Error:</span> {fieldErrors.hasRelatedApplications}
-											   </p>
-										   )}
-										   <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
+								<div className={`govuk-form-group${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`}> 
+									<fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()}>
+										<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+											<h2 className="govuk-fieldset__heading">{projectOverview.relatedApplications}</h2>
+										</legend>
+										<div className="govuk-hint" id="fieldset-5-hint">
+											{projectOverview.relatedApplicationsHint}
+										</div>
+										{fieldErrors?.hasRelatedApplications && (
+											<p id="hasRelatedApplications-error" className="govuk-error-message">
+												<span className="govuk-visually-hidden">Error:</span> {fieldErrors.hasRelatedApplications}
+											</p>
+										)}
+										<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 											<div className="govuk-radios__item">
 												<input className="govuk-radios__input" id="hasRelatedApplications" name="hasRelatedApplications" type="radio" value="true" checked={formState.hasRelatedApplications === "true"} onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }))} aria-controls="hasRelatedApplications-hidden" aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"} />
 												<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 											</div>
 											{formState.hasRelatedApplications === "true" && (
 												<div className="govuk-radios__conditional" id="hasRelatedApplications-hidden">
-													<table className="govuk-table" id="fds-add-to-list-table">
-														<thead className="govuk-table__head">
-														</thead>
-														<tbody className="govuk-table__body">
-															<tr>
-																<td colSpan={2}>
-																	<div className="govuk-inset-text">{projectOverview.relatedApplicationsNone}</div>
-																</td>
-															</tr>
-														</tbody>
-													</table>
+																<table className="govuk-table" id="fds-add-to-list-table">
+																	<thead className="govuk-table__head">
+																		<tr>
+																			<th className="govuk-table__header">Related applications</th>
+																			<th className="govuk-table__header">Actions</th>
+																		</tr>
+																	</thead>
+																	<tbody className="govuk-table__body">
+																		{formState.relatedApplications.length === 0 ? (
+																			<tr>
+																				<td colSpan={2}>
+																					<div className="govuk-inset-text">{projectOverview.relatedApplicationsNone}</div>
+																				</td>
+																			</tr>
+																		) : (
+																			formState.relatedApplications.map((app, idx) => (
+																				<tr key={app.value}>
+																					<td>{app.label}</td>
+																					<td>
+																						<button
+																							type="button"
+																							className="govuk-link"
+																							onClick={() => setFormState(prev => ({
+																								...prev,
+																								relatedApplications: prev.relatedApplications.filter((_, i) => i !== idx)
+																							}))}
+																						>Remove</button>
+																					</td>
+																				</tr>
+																			))
+																		)}
+																	</tbody>
+																</table>
 													<div className="govuk-form-group govuk-form-group--error">
-														<label className="govuk-label" htmlFor="relatedApplicationSelect" id="selector-relatedApplicationSelect-label">
-															{projectOverview.relatedApplicationsSearch}
-														</label>
+																		{/* Label is now rendered by SearchableDropdown, so remove duplicate here */}
 														<p id="relatedApplicationSelect-error" className="govuk-error-message" style={{display: 'none'}}>
 															<span className="govuk-visually-hidden">Error:</span> Add one or more related applications
 														</p>
-														<div className="fds-search-selector__input">
-															<select
-																id="relatedApplicationSelect"
-																name="relatedApplicationSelect"
-																style={{ width: "100%" }}
-																className="select2-hidden-accessible"
-																data-add-to-list="true"
-																data-add-to-list-id="fds-add-to-list-table"
-																data-module="fds-search-selector"
-																data-selector-request-delay="250"
-																data-selector-rest-url="/eip/api/section-37/related-applications/search"
-																data-selector-min-input-length="1"
-																data-selector-has-error="true"
-																data-select2-id="relatedApplicationSelect"
-																tabIndex={-1}
-																aria-hidden="true"
-															>
-																{/* Options should be dynamically loaded by select2 */}
-															</select>
-															<span className="select2 select2-container select2-container--default" dir="ltr" data-select2-id="1" style={{ width: "100%" }}>
-																<span className="selection">
-																	<span className="select2-selection select2-selection--single relatedApplicationSelect-container fds-search-selector--error" role="combobox" aria-haspopup="true" aria-expanded="false" tabIndex={0} aria-disabled="false" aria-labelledby="selector-relatedApplicationSelect-label select2-relatedApplicationSelect-container">
-																		<span className="select2-selection__rendered" id="select2-relatedApplicationSelect-container" role="textbox" aria-readonly="true"></span>
-																		<span className="select2-selection__arrow" role="presentation">
-																			<svg xmlns="http://www.w3.org/2000/svg" width="8" height="5" viewBox="0 0 8 5" aria-hidden="true" focusable="false">
-																				<path fill="currentColor" d="M0 0h8L4 5z"></path>
-																			</svg>
-																		</span>
-																	</span>
-																</span>
-																<span className="dropdown-wrapper" aria-hidden="true"></span>
-															</span>
-															<span id="selector-relatedApplicationSelect-aria" className="govuk-visually-hidden"></span>
-														</div>
+														
+														<SearchableDropdown
+															label={projectOverview.relatedApplicationsSearch}
+															value={dropdownValue}
+															onChange={(value, option) => {
+																if (option && !formState.relatedApplications.some(app => app.value === option.value)) {
+																	setFormState(prev => ({
+																		...prev,
+																		relatedApplications: [...prev.relatedApplications, option]
+																	}));
+																}
+																setDropdownValue('');
+															}}
+															fetchOptions={async (input) => {
+																const response = await fetch(`/eip/api/section-37/related-applications/search?query=${input}`);
+																const data = await response.json();
+																return data.map((item: { id: string; name: string }) => ({ label: item.name, value: item.id }));
+															}}
+														/>
 													</div>
 												</div>
 											)}

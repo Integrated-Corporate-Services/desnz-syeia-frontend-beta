@@ -3,23 +3,19 @@ import { getInitialSections, updateSectionStatus } from '../../../utils/taskList
 import { useLocation, Link } from 'react-router-dom';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useNavigate } from 'react-router-dom';
+import { getSensitiveAreaCheckStatus } from '../../../services/sensitiveAreaStatusService';
 
 const TaskList: React.FC = () => {
   const [sections, setSections] = useState(getInitialSections());
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ inProgress: boolean; completed: number; total: number } | null>(null);
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const application = useApplicationStore(state => state.application);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const appId = params.get('id');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, fetchAndSetApplication]);
 
   // Example: update status handler
   const handleStatusUpdate = (sectionIdx: number, itemIdx: number, newStatus: string) => {
@@ -54,6 +50,14 @@ const TaskList: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      {sensitiveAreaStatus && sensitiveAreaStatus.inProgress && (
+        <div style={{ border: '4px solid #2074c7', background: '#eaf4fb', padding: '1rem', marginBottom: '2rem' }}>
+          <strong>Sensitive area checks in progress</strong>
+          <div style={{ marginTop: 8 }}>
+            {`${sensitiveAreaStatus.completed} of ${sensitiveAreaStatus.total} checks completed. You can refresh this page to track the progress`}
+          </div>
+        </div>
+      )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           {application ? (
@@ -67,16 +71,6 @@ const TaskList: React.FC = () => {
           <button className="govuk-button govuk-button--warning" type="button">
             Delete application
           </button>
-          {/*{application && (
-            <button
-              className="govuk-button"
-              type="button"
-              onClick={handleSubmit}
-              disabled={submitting}
-            >
-              {submitting ? 'Submitting...' : 'Submit application'}
-            </button>
-          )}*/}
           {submitError && (
             <div className="govuk-error-message">{submitError}</div>
           )}

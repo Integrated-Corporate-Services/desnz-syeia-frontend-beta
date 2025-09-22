@@ -22,9 +22,9 @@ export function getInitialSections(): TaskListSection[] {
     {
       title: 'Location',
       items: [
-        { name: 'Route', status: 'Incomplete', link: '/route' },
+        { name: 'Route', status: 'Incomplete', link: '/route-map' },
         { name: 'Works overview', status: 'Incomplete', link: '/works-overview' },
-        { name: 'Sensitive area checks', status: 'Cannot start yet', link: '/sensitive-area-checks' },
+        { name: 'Sensitive area checks', status: 'Cannot start yet', link: '/sensitive-area-check' },
         { name: 'Sensitive area review', status: 'Cannot start yet', link: '/sensitive-area-review' },
         { name: 'Parishes', status: 'Incomplete', link: '/parishes' },
       ],
