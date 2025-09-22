@@ -48,6 +48,7 @@ const ProjectOverview = () => {
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const application = useApplicationStore(state => state.application);
+	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
 	const { user } = useAuthUser();
 	// Helper to get applicationId from store, params, or query string
 	const getApplicationId = () => {
@@ -62,6 +63,13 @@ const ProjectOverview = () => {
 		return '';
 	};
 	const applicationId = getApplicationId();
+
+useEffect(() => {
+	// Only fetch if application is null and applicationId is available
+	if (application === null && applicationId) {
+		fetchAndSetApplication(applicationId);
+	}
+}, [applicationId]);
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
 	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview, fetchProjectList, projectList } = useProjectStore();
 	const remainingChars = MAX_DESCRIPTION_LENGTH - formState.projectDescription.length;
@@ -552,12 +560,12 @@ const ProjectOverview = () => {
 								{/* Plan Information Documents */}
 								<div className="govuk-form-group">
 									<fieldset className="govuk-fieldset">
-										{/* {application && ( */}
+										{application && (
 											<PlanInformationUpload
 												application={application}
 												title={projectOverview.planInformationDocuments}
 											/>
-										{/* )} */}
+										)}
 									</fieldset>
 								</div>
 
