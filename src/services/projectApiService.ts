@@ -16,8 +16,9 @@ export const saveProjectOverview = async (data: any) => {
   return response.json();
 };
 
-export const listProjects = async () => {
-  const response = await fetch('/api/projects/');
+// Fetch all projects except the given applicationId
+export const listProjects = async (applicationId: string) => {
+  const response = await fetch(`/api/project?applicationId=${applicationId}`);
   if (!response.ok) throw new Error('Failed to fetch project list');
   return response.json();
 };

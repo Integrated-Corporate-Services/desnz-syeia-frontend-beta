@@ -3,8 +3,15 @@
 import { SearchableDropdownOption } from "../components/SearchableDropdown";
 
 export interface RelatedApplication {
-  applicationId: string;
-  reference: string;
+  relatedApplicationId: string;
+  projectId?: string;
+  applicationRelationId?: string;
+  project_name?: string;
+  operator_ref?: string;
+  value?: string;
+  relationType?: string;
+  details?: string;
+  createdAt?: string;
 }
 
 export interface UploadedFile {
@@ -46,8 +53,7 @@ export interface ProjectOverviewModel {
   latestWorkStartDateMonth: string;
   latestWorkStartDateYear: string;
   hasRelatedApplications: string;
-  //relatedApplications: RelatedApplication[];
-  relatedApplications: SearchableDropdownOption[];
+  relatedApplications: RelatedApplication[];
   hasRelatedCpo: string;
   relatedCpoDetails: string | { field: string };
   eipDetails: string;
