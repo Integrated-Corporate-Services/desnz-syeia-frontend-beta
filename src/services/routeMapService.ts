@@ -17,3 +17,10 @@ export async function submitRoutePoints(applicationId: string, points: RoutePoin
     routes,
   });
 }
+
+export async function getRoutesWithPoints(applicationId: string) {
+  if (!applicationId) throw new Error('applicationId is required');
+  const res = await axios.get(`/api/applications/${applicationId}/route`);
+  return res.data;
+}
+

@@ -25,18 +25,29 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 }
 
 const RouteMapPage: React.FC = () => {
-  const [points, setPoints] = useState<RoutePoint[]>([
-    { easting: '', northing: '' }
-  ]);
+  const location = useLocation();
+  const [points, setPoints] = useState<RoutePoint[]>(() => {
+    const prefillPoints = location.state?.gridPoints;
+    return Array.isArray(prefillPoints) && prefillPoints.length > 0
+      ? prefillPoints
+      : [{ easting: '', northing: '' }];
+  });
+
+  React.useEffect(() => {
+    const prefillPoints = location.state?.gridPoints;
+    if (Array.isArray(prefillPoints) && prefillPoints.length > 0) {
+      setPoints(prefillPoints);
+    }
+  }, [location.state?.gridPoints]);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { applicationId } = useParams<{ applicationId: string }>();
-  const location = useLocation();
+  const { applicationId: paramId } = useParams<{ applicationId: string }>();
   const queryParams = new URLSearchParams(location.search);
   const queryId = queryParams.get('id');
-  const effectiveApplicationId = applicationId || queryId || '';
+  const stateId = location.state?.applicationId;
+  const effectiveApplicationId = paramId || queryId || stateId || '';
 
   const handleSubmit = async () => {
     setSubmitting(true);

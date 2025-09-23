@@ -3,7 +3,8 @@ export type TaskListSection = {
   items: { name: string; status: string; link: string }[];
 };
 
-export function getInitialSections(): TaskListSection[] {
+export function getInitialSections(applicationId?: string): TaskListSection[] {
+  const routeLink = applicationId ? `/route-overview/${applicationId}` : '/route-overview/:applicationId';
   return [
     {
       title: 'Applicant details',
@@ -22,7 +23,7 @@ export function getInitialSections(): TaskListSection[] {
     {
       title: 'Location',
       items: [
-        { name: 'Route', status: 'Incomplete', link: '/route-map' },
+        { name: 'Route', status: 'Incomplete', link: routeLink },
         { name: 'Works overview', status: 'Incomplete', link: '/works-overview' },
         { name: 'Sensitive area checks', status: 'Cannot start yet', link: '/sensitive-area-check' },
         { name: 'Sensitive area review', status: 'Cannot start yet', link: '/sensitive-area-review' },

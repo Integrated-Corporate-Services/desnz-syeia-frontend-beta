@@ -6,12 +6,17 @@ import { useNavigate } from 'react-router-dom';
 import { getSensitiveAreaCheckStatus } from '../../../services/sensitiveAreaStatusService';
 
 const TaskList: React.FC = () => {
-  const [sections, setSections] = useState(getInitialSections());
+  const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
+  const application = useApplicationStore(state => state.application);
+  const [sections, setSections] = useState(getInitialSections(application?.application_id));
+  useEffect(() => {
+    if (application?.application_id) {
+      setSections(getInitialSections(application.application_id));
+    }
+  }, [application?.application_id]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ inProgress: boolean; completed: number; total: number } | null>(null);
-  const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
-  const application = useApplicationStore(state => state.application);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const appId = params.get('id');
