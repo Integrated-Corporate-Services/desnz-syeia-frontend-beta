@@ -39,7 +39,6 @@ export const RouteOverviewPage: React.FC = () => {
       </div>
       {loading && <div>Loading routes...</div>}
       {error && <div style={{ color: 'red' }}>Error: {error}</div>}
-      {!loading && !error && routes.length === 0 && <div>No routes found.</div>}
       {!loading && !error && routes.length > 0 && (
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-one-half">
@@ -144,7 +143,7 @@ export const RouteOverviewPage: React.FC = () => {
       {routes.length === 0 ? (
         <button
           style={{ marginBottom: '2rem', background: '#00703c', color: 'white', fontWeight: 600, fontSize: '1.1rem', padding: '0.5rem 2rem', border: 'none', borderRadius: 4 }}
-          onClick={() => navigate('/route-map')}
+          onClick={() => navigate('/route-map', { state: { applicationId } })}
         >
           Add route
         </button>
