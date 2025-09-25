@@ -139,12 +139,12 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
   };
 
   return (
-  <div style={{ maxWidth: 700 }}>
+    <div style={{ maxWidth: 700 }}>
       {title && <h2 style={{ marginBottom: 24 }}>{title}</h2>}
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
-  style={{ border: '2px dashed #b1b4b6', background: '#fafafa', padding: 24, marginBottom: 32, textAlign: 'center', cursor: 'pointer', fontSize: '1.25rem', width: '100%', color: '#0b0c0c', boxSizing: 'border-box', maxWidth: 700 }}
+        style={{ border: '2px dashed #b1b4b6', background: '#fafafa', padding: 24, marginBottom: 32, textAlign: 'center', cursor: 'pointer', fontSize: '1.25rem', width: '100%', color: '#0b0c0c', boxSizing: 'border-box', maxWidth: 700 }}
         aria-label="Drag and drop your documents here"
         onClick={() => fileInputRef.current?.click()}
       >
@@ -165,38 +165,27 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
             <div key={file.name + idx} style={{ border: '4px solid #b1b4b6', background: '#fff', marginBottom: 24, padding: 16, boxSizing: 'border-box', width: '100%', maxWidth: 700 }}>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
                 <span style={{ background: '#f3f2f1', fontWeight: 'bold', padding: '2px 4px', fontSize: '1.15rem', lineHeight: '1.5', borderBottom: '4px solid #b1b4b6', boxShadow: 'none', color: '#0b0c0c' }}>{file.name}</span>
-                <span style={{ marginLeft: 8, color: '#505a5f', fontSize: '1.1rem' }}>- {Math.round(file.size/1024)} kB</span>
+                <span style={{ marginLeft: 8, color: '#505a5f', fontSize: '1.1rem' }}>- {Math.round(file.size / 1024)} kB</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveFile(idx)}
                   style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#1d70b8', textDecoration: 'underline', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 400 }}
                 >Remove file</button>
-      {removeIdx !== null && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', border: '4px solid #b1b4b6', padding: 32, minWidth: 340, maxWidth: 400, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', position: 'relative' }}>
-            <button onClick={cancelRemoveFile} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#222', fontWeight: 700, fontSize: 18, textDecoration: 'underline', backgroundColor: '#ffeb3b' }}>Close</button>
-            <div style={{ marginBottom: 24, fontSize: '1.15rem', color: '#0b0c0c', fontWeight: 500 }}>
-              Are you sure you want to remove <span style={{ fontWeight: 700 }}>{files[removeIdx]?.name}</span>?
-            </div>
-            <div style={{ display: 'flex', gap: 16 }}>
-              <button onClick={confirmRemoveFile} style={{ background: '#00703c', color: '#fff', fontWeight: 700, fontSize: 16, border: 'none', padding: '8px 24px', borderRadius: 2, cursor: 'pointer' }}>Remove</button>
-              <button onClick={cancelRemoveFile} style={{ background: '#f3f2f1', color: '#222', fontWeight: 700, fontSize: 16, border: 'none', padding: '8px 24px', borderRadius: 2, cursor: 'pointer' }}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+                {removeIdx !== null && (
+                  <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: '#fff', border: '4px solid #b1b4b6', padding: 32, minWidth: 340, maxWidth: 400, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', position: 'relative' }}>
+                      <button onClick={cancelRemoveFile} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#222', fontWeight: 700, fontSize: 18, textDecoration: 'underline', backgroundColor: '#ffeb3b' }}>Close</button>
+                      <div style={{ marginBottom: 24, fontSize: '1.15rem', color: '#0b0c0c', fontWeight: 500 }}>
+                        Are you sure you want to remove <span style={{ fontWeight: 700 }}>{files[removeIdx]?.name}</span>?
+                      </div>
+                      <div style={{ display: 'flex', gap: 16 }}>
+                        <button onClick={confirmRemoveFile} style={{ background: '#00703c', color: '#fff', fontWeight: 700, fontSize: 16, border: 'none', padding: '8px 24px', borderRadius: 2, cursor: 'pointer' }}>Remove</button>
+                        <button onClick={cancelRemoveFile} style={{ background: '#f3f2f1', color: '#222', fontWeight: 700, fontSize: 16, border: 'none', padding: '8px 24px', borderRadius: 2, cursor: 'pointer' }}>Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              {/*
-              <label htmlFor={`desc-${idx}`} style={{ display: 'block', fontWeight: 700, marginBottom: 4, fontSize: '1.1rem', color: '#0b0c0c' }}>File description</label>
-              <textarea
-                id={`desc-${idx}`}
-                value={descriptions[idx] || ''}
-                onChange={e => handleDescriptionChange(idx, e.target.value)}
-                style={{ width: '100%', minHeight: 60, fontSize: '1.1rem', border: '2px solid #0b0c0c', padding: 6, resize: 'vertical', marginBottom: 0, color: '#0b0c0c' }}
-                aria-label={`Description for ${file.name}`}
-              />
-              */}
-              {/* Do not show upload status/errors in UI; only log them */}
             </div>
           ))}
         </div>

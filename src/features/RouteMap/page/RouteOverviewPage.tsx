@@ -17,11 +17,6 @@ export const RouteOverviewPage: React.FC = () => {
     navigate('/route-map', { state: { gridPoints, applicationId } });
   };
 
-  const handleDelete = (routeId: string) => {
-    // Implement delete logic here
-    alert(`Delete route ${routeId}`);
-  };
-
   return (
     <div style={{ padding: '2rem' }}>
       <h1 style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1.05, marginBottom: '1.5rem', letterSpacing: '-1px' }}>
@@ -68,64 +63,44 @@ export const RouteOverviewPage: React.FC = () => {
                     >
                       Edit
                     </button>
-                    <button
-                      type="button"
-                      style={{
-                        color: '#1d70b8', // GOV.UK blue
-                        background: 'none',
-                        border: 'none',
-                        textDecoration: 'underline',
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        fontSize: '1rem',
-                        outline: 'none'
-                      }}
-                      onMouseOver={e => (e.currentTarget.style.color = '#003078')}
-                      onMouseOut={e => (e.currentTarget.style.color = '#1d70b8')}
-                      onFocus={e => (e.currentTarget.style.textDecoration = 'none')}
-                      onBlur={e => (e.currentTarget.style.textDecoration = 'underline')}
-                      onClick={() => handleDelete(route.routeId)}
-                    >
-                      Delete
-                    </button>
                   </span>
                 </div>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1.15rem', background: '#fff' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid #bbb' }}>
-                        <th style={{ textAlign: 'left', padding: '1rem 1.5rem', fontWeight: 700, fontSize: '1.15rem', borderRight: '1px solid #eee' }}>Easting</th>
-                        <th style={{ textAlign: 'left', padding: '1rem 1.5rem', fontWeight: 700, fontSize: '1.15rem' }}>Northing</th>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1.15rem', background: '#fff' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #bbb' }}>
+                      <th style={{ textAlign: 'left', padding: '1rem 1.5rem', fontWeight: 700, fontSize: '1.15rem', borderRight: '1px solid #eee' }}>Easting</th>
+                      <th style={{ textAlign: 'left', padding: '1rem 1.5rem', fontWeight: 700, fontSize: '1.15rem' }}>Northing</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {route.gridPoints.map((pt: any, i: number) => (
+                      <tr key={i} style={{ background: '#fff' }}>
+                        <td
+                          style={{
+                            padding: '1rem 1.5rem',
+                            borderRight: '1px solid #eee',
+                            background: '#fff',
+                            borderBottom: i === route.gridPoints.length - 1 ? 'none' : '1px solid #eee',
+                            borderLeft: '1px solid transparent'
+                          }}
+                        >
+                          {pt.easting}
+                        </td>
+                        <td
+                          style={{
+                            padding: '1rem 1.5rem',
+                            background: '#fff',
+                            borderBottom: i === route.gridPoints.length - 1 ? 'none' : '1px solid #eee',
+                            borderRight: '1px solid transparent',
+                            borderLeft: '1px solid #eee'
+                          }}
+                        >
+                          {pt.northing}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {route.gridPoints.map((pt: any, i: number) => (
-                        <tr key={i} style={{ background: '#fff' }}>
-                          <td
-                            style={{
-                              padding: '1rem 1.5rem',
-                              borderRight: '1px solid #eee',
-                              background: '#fff',
-                              borderBottom: i === route.gridPoints.length - 1 ? 'none' : '1px solid #eee',
-                              borderLeft: '1px solid transparent'
-                            }}
-                          >
-                            {pt.easting}
-                          </td>
-                          <td
-                            style={{
-                              padding: '1rem 1.5rem',
-                              background: '#fff',
-                              borderBottom: i === route.gridPoints.length - 1 ? 'none' : '1px solid #eee',
-                              borderRight: '1px solid transparent',
-                              borderLeft: '1px solid #eee'
-                            }}
-                          >
-                            {pt.northing}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ))}
           </div>
@@ -134,8 +109,8 @@ export const RouteOverviewPage: React.FC = () => {
             <SensitiveAreaCheckMap
               points={routes.length > 0 ? routes[0].gridPoints : []}
               selectedIdx={null}
-              setPoints={() => {}}
-              setSelectedIdx={() => {}}
+              setPoints={() => { }}
+              setSelectedIdx={() => { }}
             />
           </div>
         </div>
