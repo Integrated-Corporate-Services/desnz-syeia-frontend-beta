@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import SensitiveAreaCheckMap, { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
 import RoutePointCard from '../component/RoutePointCard';
-import { Route } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
