@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { startSensitiveAreaCheck } from '../../../services/sensitiveAreaService';
+import { getRoutesWithPoints } from '../../../services/routeMapService';
 import SensitiveAreaCheckMap, { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
 
 const SensitiveAreaPage: React.FC = () => {
@@ -15,16 +16,21 @@ const SensitiveAreaPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const navigate = useNavigate();
-  // Support multiple routes
-  const [routes, setRoutes] = useState([
-    {
-      routeName: 'Route A',
-      gridPoints: [
-        { easting: '600000', northing: '300000' },
-        { easting: '610000', northing: '310000' }
-      ]
+  // Support multiple routes, initially empty
+  const [routes, setRoutes] = useState<any[]>([]);
+
+  // Fetch routes for the application when available
+  useEffect(() => {
+    async function fetchRoutes() {
+      try {
+        const data = await getRoutesWithPoints(effectiveApplicationId);
+        setRoutes(data.routes || []);
+      } catch (err) {
+        // Optionally handle error
+      }
     }
-  ]);
+    if (effectiveApplicationId) fetchRoutes();
+  }, [effectiveApplicationId]);
 
   const handleStartCheck = async () => {
     setLoading(true);
@@ -66,18 +72,27 @@ const SensitiveAreaPage: React.FC = () => {
         {/* {result && <div className="govuk-!-margin-top-4"><pre>{JSON.stringify(result, null, 2)}</pre></div>} */}
       </div>
       <div className="govuk-grid-column-one-half">
-        {/* Show all routes on the map */}
-        {routes.map((route, idx) => (
-          <div key={idx} style={{ marginBottom: 24 }}>
-            <h3>{route.routeName}</h3>
-            <SensitiveAreaCheckMap
-              points={route.gridPoints}
-              selectedIdx={null}
-              setPoints={() => {}}
-              setSelectedIdx={() => {}}
-            />
-          </div>
-        ))}
+        {/* Always show the map. If routes exist, show points; otherwise, show empty map. */}
+        {routes.length > 0 ? (
+          routes.map((route, idx) => (
+            <div key={idx} style={{ marginBottom: 24 }}>
+              <h3>{route.routeName}</h3>
+              <SensitiveAreaCheckMap
+                points={route.gridPoints}
+                selectedIdx={null}
+                setPoints={() => {}}
+                setSelectedIdx={() => {}}
+              />
+            </div>
+          ))
+        ) : (
+          <SensitiveAreaCheckMap
+            points={[]}
+            selectedIdx={null}
+            setPoints={() => {}}
+            setSelectedIdx={() => {}}
+          />
+        )}
       </div>
     </div>
   );
