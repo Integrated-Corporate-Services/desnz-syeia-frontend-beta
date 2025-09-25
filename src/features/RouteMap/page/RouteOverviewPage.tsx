@@ -105,9 +105,11 @@ export const RouteOverviewPage: React.FC = () => {
             ))}
           </div>
           <div className="govuk-grid-column-one-half">
-            {/* Use SensitiveAreaCheckMap to display route points visually, as in RouteMapPage */}
             <SensitiveAreaCheckMap
-              points={routes.length > 0 ? routes[0].gridPoints : []}
+              points={routes.length > 0 ? routes[0].gridPoints.map((pt: any) => ({
+                easting: String(pt.easting),
+                northing: String(pt.northing)
+              })) : []}
               selectedIdx={null}
               setPoints={() => { }}
               setSelectedIdx={() => { }}
