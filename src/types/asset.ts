@@ -1,4 +1,5 @@
 export interface AssetPoles {
+  workItemId?: string | null;
   hasAddOrReplace: boolean;
   add: number;
   replace: number;
@@ -6,11 +7,13 @@ export interface AssetPoles {
 }
  
 export interface AssetOverheadLines {
+  workItemId?: string | null;
   hasAddOrReplace: boolean;
   description: string;
 }
  
 export interface AssetEquipmentRemoval {
+  workItemId?: string | null;
   isRemoving: boolean;
   description: string;
 }

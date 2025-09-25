@@ -13,8 +13,15 @@ export const fetchAssetDetails = async (applicationId: string) => {
 };
 
 // Service to create asset(s) via POST
+
 import type { AssetRequest } from '../types/asset';
 export const createAsset = async (payload: AssetRequest) => {
   const response = await axios.post('/api/applications/assets', payload);
+  return response.data;
+};
+
+// Service to update asset(s) via PUT
+export const updateAsset = async (payload: AssetRequest) => {
+  const response = await axios.put('/api/applications/assets', payload);
   return response.data;
 };

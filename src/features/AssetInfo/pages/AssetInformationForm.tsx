@@ -6,12 +6,12 @@ import NumberInput from '../component/NumberInput';
 import RadioGroup from '../component/RadioGroup';
 import SelectInput from '../component/SelectInput';
 import TextArea from '../component/TextArea';
-import { ERROR_MESSAGES } from '../../../constants/error';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { VOLTAGE_CLASS_OPTIONS, TYPE_OF_LINE_ENUM, LINE_TYPE_LABELS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
 
 const initialState = {
+  assetId: '',
   referenceNumber: '',
   lineLength: '',
   lineLengthUnit: 'metres',
@@ -27,6 +27,9 @@ const initialState = {
   generalComments: '',
   lineType: '',
   lineVoltage: '',
+  overheadLinesWorkItemId: '',
+  assetPolesWorkItemId: '',
+  assetEquipmentRemovalWorkItemId: ''
 };
 
 type FormErrors = Partial<Record<keyof typeof initialState, string>>;
@@ -35,12 +38,27 @@ const AssetInformationForm: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
-  const { assets, loading, error, fetchAssets } = useAssetStore();
+  const { assets, loading, error, fetchAssets, updateAsset } = useAssetStore();
   const navigate = useNavigate();
 
 
   // Get applicationId from URL params or query string
-  const { applicationId } = useParams<{ applicationId: string }>();
+ 
+    const params = useParams();
+ 
+const getApplicationId = () => {
+        if (params.applicationId) return params.applicationId;
+        if (params.id) return params.id;
+        if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+            if (idFromQuery) return idFromQuery;
+        }
+        return '';
+    };
+    const applicationId = getApplicationId();
+ 
+ 
   const location = useLocation();
   // Try to get ?id=... from query string if not present in params
   const queryParams = new URLSearchParams(location.search);
@@ -60,6 +78,7 @@ const AssetInformationForm: React.FC = () => {
     if (assets && assets.length > 0) {
       const asset = assets[0];
       setForm({
+        assetId: asset.assetId || '',
         referenceNumber: asset.standardSpecificationReferenceNumber || '',
         lineLength: asset.lineLength?.toString() || '',
         lineLengthUnit: 'metres',
@@ -79,6 +98,9 @@ const AssetInformationForm: React.FC = () => {
         lineVoltage: typeof asset.lineVoltage === 'object' && asset.lineVoltage !== null
           ? (asset.lineVoltage as { code?: string }).code || ''
           : asset.lineVoltage || '',
+        overheadLinesWorkItemId: asset.overheadLines?.workItemId || '',
+        assetPolesWorkItemId: asset.poles?.workItemId || '',
+        assetEquipmentRemovalWorkItemId: asset.equipmentRemoval?.workItemId || ''
       });
     }
   }, [assets]);
@@ -135,11 +157,12 @@ const AssetInformationForm: React.FC = () => {
       return;
     }
     // Map form data to AssetRequest
+    //const asset = assets && assets[0] ? assets[0] : {};
     const assetPayload = {
       applicationId: effectiveApplicationId,
       assets: [
         {
-          assetId: '', // backend will generate
+          assetId: form.assetId || '',
           assetType: 's37', // or other, if needed
           assetReference: form.referenceNumber,
           description: '', // add if needed
@@ -151,14 +174,17 @@ const AssetInformationForm: React.FC = () => {
             add: parseInt(form.polesAdded) || 0,
             replace: parseInt(form.polesReplaced) || 0,
             description: form.constructionDescription,
+            workItemId: typeof form.assetPolesWorkItemId === 'string' ? form.assetPolesWorkItemId : ''
           },
           overheadLines: {
             hasAddOrReplace: form.addingOverheadLines === 'yes',
             description: form.overheadLinesDescription,
+            workItemId: typeof form.overheadLinesWorkItemId === 'string' ? form.overheadLinesWorkItemId : ''
           },
           equipmentRemoval: {
             isRemoving: form.removingEquipment === 'yes',
             description: form.removingEquipmentDescription,
+            workItemId: typeof form.assetEquipmentRemovalWorkItemId === 'string' ? form.assetEquipmentRemovalWorkItemId : ''
           },
           isExistingAsset: form.worksOnExistingAsset === 'yes',
           generalComments: form.generalComments,
@@ -166,14 +192,27 @@ const AssetInformationForm: React.FC = () => {
         },
       ],
     };
-    createAsset(assetPayload)
-      .then(() => {
-        fetchAssets(effectiveApplicationId);
-        navigate(`/task-list?id=${effectiveApplicationId}`);
-      })
-      .catch((err: any) => {
-  setErrors({ generalComments: err.message || ASSET_ERROR_MESSAGES.generalCommentsFailed });
-      });
+    if (assets && assets[0]?.assetId) {
+      // Update existing asset
+      updateAsset(assetPayload)
+        .then(() => {
+          fetchAssets(effectiveApplicationId);
+          navigate(`/task-list?id=${effectiveApplicationId}`);
+        })
+        .catch((err: any) => {
+          setErrors({ generalComments: err.message || ASSET_ERROR_MESSAGES.generalCommentsFailed });
+        });
+    } else {
+      // Create new asset
+      createAsset(assetPayload)
+        .then(() => {
+          fetchAssets(effectiveApplicationId);
+          navigate(`/task-list?id=${effectiveApplicationId}`);
+        })
+        .catch((err: any) => {
+          setErrors({ generalComments: err.message || ASSET_ERROR_MESSAGES.generalCommentsFailed });
+        });
+    }
   };
 
   return (
