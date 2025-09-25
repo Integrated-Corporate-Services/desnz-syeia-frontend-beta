@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export interface RoutePoint {
   easting: string;
@@ -25,47 +27,27 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
   }
 
   useEffect(() => {
-    const leafletCss = document.createElement('link');
-    leafletCss.rel = 'stylesheet';
-    leafletCss.href = 'https://unpkg.com/leaflet/dist/leaflet.css';
-    document.head.appendChild(leafletCss);
-
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet/dist/leaflet.js';
-    script.async = true;
-    script.onload = () => {
-      // @ts-expect-error: Leaflet is loaded globally
-      const L = window.L;
-      if (mapRef.current && L) {
-        if (mapInstance.current) return;
-        const map = L.map(mapRef.current).setView([54.5, -3.5], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-        mapInstance.current = map;
-        map.on('click', function (e: any) {
-          if (selectedIdx !== null) {
-            const lat = e.latlng.lat;
-            const lng = e.latlng.lng;
-            const northing = Math.round((lat - 49.5) * 111000 + 50000);
-            const easting = Math.round((lng + 7.5) * 70000 + 50000);
-            setPoints(prev => prev.map((pt, i) => i === selectedIdx ? { easting: String(easting), northing: String(northing) } : pt));
-          }
-        });
-      }
-    };
-    document.body.appendChild(script);
-    return () => {
-      document.head.removeChild(leafletCss);
-      document.body.removeChild(script);
-    };
+    if (mapRef.current && !mapInstance.current) {
+      const map = L.map(mapRef.current).setView([54.5, -3.5], 6);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      mapInstance.current = map;
+      map.on('click', function (e: L.LeafletMouseEvent) {
+        if (selectedIdx !== null) {
+          const lat = e.latlng.lat;
+          const lng = e.latlng.lng;
+          const northing = Math.round((lat - 49.5) * 111000 + 50000);
+          const easting = Math.round((lng + 7.5) * 70000 + 50000);
+          setPoints(prev => prev.map((pt, i) => i === selectedIdx ? { easting: String(easting), northing: String(northing) } : pt));
+        }
+      });
+    }
   }, [selectedIdx, setPoints]);
 
   useEffect(() => {
-    // @ts-expect-error: Leaflet is loaded globally
-    const L = window.L;
     const map = mapInstance.current;
-    if (map && L) {
+    if (map) {
       if (polylineRef.current) {
         map.removeLayer(polylineRef.current);
       }
@@ -103,7 +85,7 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
       if (safeLatLngs.length >= 2) {
         try {
           polylineRef.current = L.polyline(safeLatLngs, {
-            color: 'red', // Use a more visible color
+            color: 'yellow', // Use a more visible color
             weight: 6,    // Make the line thicker
             opacity: 0.9,
             pane: 'overlayPane' // Ensure polyline is above markers
