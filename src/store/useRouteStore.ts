@@ -1,8 +1,14 @@
 import { create } from 'zustand';
 import { getRoutesWithPoints } from '../services/routeMapService';
 
+export interface Route {
+  id: string;
+  name: string;
+  gridPoints: Array<{ easting: number; northing: number }>;
+}
+
 interface RouteState {
-  routes: any[];
+  routes: Route[];
   loading: boolean;
   error: string | null;
   fetchRoutes: (applicationId: string) => Promise<void>;
