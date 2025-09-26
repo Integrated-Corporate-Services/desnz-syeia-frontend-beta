@@ -8,6 +8,7 @@ import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitte
 import SignInPage from '../features/SignIn/SignInPage';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
+import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 
 
 
@@ -57,6 +58,7 @@ const AppRouter: React.FC = () => {
   <Route path="/asset-information" element={<AssetInformationForm />} />
       <Route path="/application-submitted" element={<ApplicationSubmitted />} />
       <Route path="/project-overview" element={<ProjectOverview />} />
+      <Route path="/eia-fees" element={<EIAFeesForm />} />
     </Routes>
   );
 };
