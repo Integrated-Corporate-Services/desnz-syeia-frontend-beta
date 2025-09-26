@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import TextInput from '../component/TextInput';
@@ -40,6 +40,15 @@ const AssetInformationForm: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const { assets, loading, error, fetchAssets, updateAsset } = useAssetStore();
   const navigate = useNavigate();
+  // Ref for first error field
+  const firstErrorRef = useRef<HTMLInputElement | null>(null);
+
+  // Focus the first error field when errors change
+  useEffect(() => {
+    if (submitted && Object.keys(errors).length > 0 && firstErrorRef.current) {
+      firstErrorRef.current.focus();
+    }
+  }, [errors, submitted]);
 
 
   // Get applicationId from URL params or query string
@@ -148,12 +157,6 @@ const getApplicationId = () => {
     const validationErrors = validate(form);
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
-      setTimeout(() => {
-        const firstErrorField = document.querySelector('.govuk-form-group--error input, .govuk-form-group--error select, .govuk-form-group--error textarea');
-        if (firstErrorField) {
-          (firstErrorField as HTMLElement).focus();
-        }
-      }, 0);
       return;
     }
     // Map form data to AssetRequest
@@ -247,6 +250,7 @@ const getApplicationId = () => {
             error={errors.referenceNumber}
             onChange={handleChange}
             widthClass="govuk-input--width-20"
+            ref={errors.referenceNumber ? firstErrorRef : undefined}
           />
         </div>
 
@@ -282,6 +286,7 @@ const getApplicationId = () => {
               value={form.lineLength}
               onChange={handleChange}
               aria-describedby="lineLength-suffix"
+              ref={!errors.referenceNumber && errors.lineLength ? firstErrorRef : undefined}
             />
             <span className="govuk-input__suffix" id="lineLength-suffix">metres</span>
           </div>

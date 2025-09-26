@@ -17,6 +17,9 @@ const ServiceNavigation = () => {
   const isOnSignIn = location.pathname === '/signin';
   const isOnWorkbasket = workbasketPaths.includes(location.pathname);
 
+  // Use environment variable for logout URL
+  const logoutUrl = import.meta.env.VITE_LOGOUT_URL || 'http://localhost:3000/logout';
+
   if (isOnSignIn) return null;
 
   return (
@@ -40,7 +43,7 @@ const ServiceNavigation = () => {
                   <button
                     className="govuk-service-navigation__link"
                     style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer' }}
-                    onClick={() => window.location.href = 'http://localhost:3000/logout'}
+                    onClick={() => window.location.href = logoutUrl}
                   >
                     Logout
                   </button>

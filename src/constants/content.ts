@@ -1,4 +1,3 @@
-import { Breadcrumbs } from "govuk-react";
 
 export const CONTENT = {
   MAX_DESCRIPTION_LENGTH: 4000,
