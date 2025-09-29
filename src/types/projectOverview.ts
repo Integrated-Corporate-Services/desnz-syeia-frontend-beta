@@ -23,8 +23,7 @@ export interface UploadedFile {
   filename: string;
   file_content_type: string;
   file_size_bytes: number;
-  uploaded_at_timestamp: string;
-  description?: string;
+  uploaded_at_timestamp: string
 }
 
 export interface ProjectDocument {
@@ -36,6 +35,7 @@ export interface ProjectDocument {
   virtual_folder?: string;
   addedBy: string;
   addedAt: string;
+  description?: string;
 }
 
 export interface ProjectOverviewModel {
