@@ -1,17 +1,37 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import RouteMapPage from '../features/RouteMap/page/RouteMapPage';
-import SensitiveAreaPage from '../features/sensitiveArea/page/SensitiveAreaPage';
-import SensitiveAreaReviewPage from '../features/sensitiveArea/page/SensitiveAreaReviewPage';
-import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { ROUTE_CONFIG } from '../constants/routes';
+
+const useAuth = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  useEffect(() => {
+    setIsAuthenticated(true);
+  }, []);
+  return isAuthenticated;
+};
 
 const SandboxRouter: React.FC = () => {
+  const isAuthenticated = useAuth();
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Routes>
-      <Route path="/route-overview/:applicationId" element={<RouteOverviewPage />} />
-      <Route path="/route-map" element={<RouteMapPage />} />
-      <Route path="/sensitive-area-check" element={<SensitiveAreaPage />} />
-      <Route path="/sensitive-area-review" element={<SensitiveAreaReviewPage />} />
+      {ROUTE_CONFIG.map(({ path, component: Component, auth }) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            auth
+              ? isAuthenticated
+                ? <Component />
+                : <Navigate to="/signin" replace />
+              : <Component />
+          }
+        />
+      ))}
     </Routes>
   );
 };

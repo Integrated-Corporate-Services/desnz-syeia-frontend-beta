@@ -23,7 +23,7 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
     {
       title: 'Location',
       items: [
-        { name: 'Route', status: 'Incomplete', link: routeLink },
+        { name: 'Route', status: 'Incomplete', link: '/route-overview' },
         { name: 'Works overview', status: 'Incomplete', link: '/works-overview' },
         { name: 'Sensitive area checks', status: 'Cannot start yet', link: '/sensitive-area-check' },
         { name: 'Sensitive area review', status: 'Cannot start yet', link: '/sensitive-area-review' },
