@@ -227,8 +227,7 @@ const ProjectOverview = () => {
 						filename: f.filename || '',
 						file_content_type: f.file_content_type || '',
 						file_size_bytes: f.file_size_bytes || 0,
-						uploaded_at_timestamp: f.uploaded_at_timestamp || '',
-						description: f.description || ''
+						uploaded_at_timestamp: f.uploaded_at_timestamp			
 					}))
 					: [],
 				documents: Array.isArray(projectData.documents)
@@ -240,7 +239,8 @@ const ProjectOverview = () => {
 						title: d.title || '',
 						virtual_folder: d.virtual_folder || '',
 						addedBy: d.addedBy || '',
-						addedAt: d.addedAt || ''
+						addedAt: d.addedAt || '',
+						description: d.description
 					}))
 					: []
 			});
@@ -403,8 +403,8 @@ const ProjectOverview = () => {
 							filename: f.filename,
 							file_content_type: f.file_content_type,
 							file_size_bytes: f.file_size_bytes,
-							uploaded_at_timestamp: f.uploaded_at_timestamp,
-							description: f.description
+							uploaded_at_timestamp: f.uploaded_at_timestamp
+							
 						})),
 						// Always send relatedCpoDetails as string (not object)
 						relatedCpoDetails: typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
