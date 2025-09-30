@@ -1,5 +1,4 @@
 /// <reference types="vite/client" />
-const API_URL = import.meta.env.API_URL;
 
 export const networkOperatorApiService = {
   // To fetch network operator by email
