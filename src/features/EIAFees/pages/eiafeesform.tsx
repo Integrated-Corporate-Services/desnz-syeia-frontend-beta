@@ -1,12 +1,39 @@
+
 import React, { useState } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { createEiaFee } from "../../../services/eiafeesservice";
 import RadioGroup from "../component/RadioGroup";
+// Import application store/context if available
+import { useApplicationStore } from "../../../store/useApplicationStore";
+
 
 const EIAFeesForm: React.FC = () => {
+	const navigate = useNavigate();
+	const params = useParams();
+	const location = useLocation();
+	// Always call hooks unconditionally
+	const application = useApplicationStore((state) => state.application);
+	// Helper to get applicationId from store, params, or query string (mirroring ProjectOverview)
+	const getApplicationId = () => {
+		if (application && application.application_id) return application.application_id;
+		if (params.applicationId) return params.applicationId;
+		if (params.id) return params.id;
+		if (typeof window !== 'undefined') {
+			const searchParams = new URLSearchParams(location.search);
+			const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+			if (idFromQuery) return idFromQuery;
+		}
+		return '';
+	};
+	const applicationId = getApplicationId();
 	const [form, setForm] = useState({
 		isEiaDevelopment: "",
 		confirmedEiaFee: "",
 	});
 	const [errors, setErrors] = useState<{ field: string; message: string }[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [success, setSuccess] = useState(false);
+	const [apiError, setApiError] = useState<string | null>(null);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -15,24 +42,61 @@ const EIAFeesForm: React.FC = () => {
 			[name]: value,
 		}));
 		setErrors([]);
+		setApiError(null);
+		setSuccess(false);
 	};
 
-
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		const newErrors: { field: string; message: string }[] = [];
-		// Validation: require user to select yes/no, then require 'No'
+		// Validation logic:
+		// - If not selected, error
+		// - If yes/yes: valid
+		// - If yes/no: error (should have selected 'No' to EIA question)
+		// - If no: valid
 		if (!form.isEiaDevelopment) {
 			newErrors.push({ field: "isEiaDevelopment", message: "Select yes or no to the Environmental Impact Assessment question" });
-		} else if (form.isEiaDevelopment !== "false") {
-			newErrors.push({ field: "isEiaDevelopment", message: "Select no to the Environmental Impact Assessment question" });
-		}
-		if (form.isEiaDevelopment === "true" && !form.confirmedEiaFee) {
-			newErrors.push({ field: "confirmedEiaFee", message: "Select yes or no to confirm the EIA fee" });
+		} else if (form.isEiaDevelopment === "true") {
+			if (!form.confirmedEiaFee) {
+				newErrors.push({ field: "confirmedEiaFee", message: "Select yes or no to confirm the EIA fee" });
+			} else if (form.confirmedEiaFee === "false") {
+				newErrors.push({ field: "isEiaDevelopment", message: "Select no to the Environmental Impact Assessment question" });
+			}
 		}
 		setErrors(newErrors);
+		setApiError(null);
+		setSuccess(false);
 		if (newErrors.length === 0) {
-			// Submit logic here
+			setLoading(true);
+			try {
+				// Compose payload for backend
+				const payload = {
+					eia_id: crypto.randomUUID(),
+					application_id: applicationId,
+					is_eia_development: form.isEiaDevelopment === "true",
+					requires_full_eia: form.isEiaDevelopment === "true" && form.confirmedEiaFee === "true",
+					screening_only: form.isEiaDevelopment === "false",
+					created_at: new Date().toISOString(),
+					updated_at: new Date().toISOString(),
+					created_by: "system",
+					updated_by: "system",
+				};
+				await createEiaFee(payload);
+				setSuccess(true);
+				setForm({ isEiaDevelopment: "", confirmedEiaFee: "" });
+				// Redirect to tasklist page after success
+				const redirectId = payload.application_id;
+				navigate(`/syeia/task-list?id=${redirectId}`);
+			} catch (err) {
+				// Try to extract error message if possible
+				if (typeof err === 'object' && err && 'response' in err && (err as any).response?.data?.errors) {
+					setErrors((err as any).response.data.errors.map((msg: string) => ({ field: "form", message: msg })));
+				} else {
+					setApiError("Failed to submit EIA Fees. Please try again.");
+				}
+			} finally {
+				setLoading(false);
+			}
 		}
 	};
 
@@ -44,6 +108,22 @@ const EIAFeesForm: React.FC = () => {
 
 	return (
 		<div className="govuk-width-container">
+			{success && (
+				<div className="govuk-notification-banner govuk-notification-banner--success" role="alert">
+					<div className="govuk-notification-banner__header">
+						<h2 className="govuk-notification-banner__title">Success</h2>
+					</div>
+					<div className="govuk-notification-banner__content">
+						EIA Fees submitted successfully.
+					</div>
+				</div>
+			)}
+			{apiError && (
+				<div className="govuk-error-summary" role="alert">
+					<h2 className="govuk-error-summary__title">There is a problem</h2>
+					<div className="govuk-error-summary__body">{apiError}</div>
+				</div>
+			)}
 			<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 				<ol className="govuk-breadcrumbs__list">
 					<li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -118,6 +198,7 @@ const EIAFeesForm: React.FC = () => {
 								data-prevent-double-click="true"
 								data-fds-disable-on-submit="false"
 								data-govuk-button-init=""
+								disabled={loading}
 							>
 								Save and continue
 							</button>
