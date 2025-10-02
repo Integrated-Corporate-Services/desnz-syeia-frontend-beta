@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { createEiaFee } from "../../../services/eiafeesservice";
 import RadioGroup from "../component/RadioGroup";
 // Import application store/context if available
 import { useApplicationStore } from "../../../store/useApplicationStore";
@@ -50,10 +49,6 @@ const EIAFeesForm: React.FC = () => {
 		e.preventDefault();
 		const newErrors: { field: string; message: string }[] = [];
 		// Validation logic:
-		// - If not selected, error
-		// - If yes/yes: valid
-		// - If yes/no: error (should have selected 'No' to EIA question)
-		// - If no: valid
 		if (!form.isEiaDevelopment) {
 			newErrors.push({ field: "isEiaDevelopment", message: "Select yes or no to the Environmental Impact Assessment question" });
 		} else if (form.isEiaDevelopment === "true") {
@@ -71,29 +66,34 @@ const EIAFeesForm: React.FC = () => {
 			try {
 				// Compose payload for backend
 				const payload = {
-					eia_id: crypto.randomUUID(),
-					application_id: applicationId,
-					is_eia_development: form.isEiaDevelopment === "true",
-					requires_full_eia: form.isEiaDevelopment === "true" && form.confirmedEiaFee === "true",
-					screening_only: form.isEiaDevelopment === "false",
-					created_at: new Date().toISOString(),
-					updated_at: new Date().toISOString(),
-					created_by: "system",
-					updated_by: "system",
+					eiaId: crypto.randomUUID(),
+					applicationId: applicationId,
+					isEiaDevelopment: form.isEiaDevelopment === "true",
+					requiresFullEia: form.isEiaDevelopment === "true" && form.confirmedEiaFee === "true",
+					screeningOnly: form.isEiaDevelopment === "false",
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString(),
+					createdBy: "system",
+					updatedBy: "system",
 				};
-				await createEiaFee(payload);
-				setSuccess(true);
-				setForm({ isEiaDevelopment: "", confirmedEiaFee: "" });
-				// Redirect to tasklist page after success
-				const redirectId = payload.application_id;
-				navigate(`/syeia/task-list?id=${redirectId}`);
-			} catch (err) {
-				// Try to extract error message if possible
-				if (typeof err === 'object' && err && 'response' in err && (err as any).response?.data?.errors) {
-					setErrors((err as any).response.data.errors.map((msg: string) => ({ field: "form", message: msg })));
+				// Direct POST to backend
+				const response = await fetch("http://localhost:3000/api/eia-fees", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(payload)
+				});
+				const result = await response.json();
+				if (response.ok) {
+					setSuccess(true);
+					setForm({ isEiaDevelopment: "", confirmedEiaFee: "" });
+					// Redirect to tasklist page after success
+					const redirectId = payload.applicationId;
+					navigate(`/task-list?id=${redirectId}`);
 				} else {
-					setApiError("Failed to submit EIA Fees. Please try again.");
+					setApiError(result.message || "Failed to submit EIA Fees. Please try again.");
 				}
+			} catch (err) {
+				setApiError("Failed to submit EIA Fees. Please try again.");
 			} finally {
 				setLoading(false);
 			}
