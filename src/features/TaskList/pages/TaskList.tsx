@@ -48,9 +48,6 @@ const TaskList: React.FC = () => {
     setSubmitError(null);
     try {
       await submitApplication(application.application_id);
-      // Optionally: redirect or show a success message here
-      //alert('Application submitted successfully!');
-      // After successful submit:
       navigate('/application-submitted');
     } catch (err) {
       setSubmitError('Failed to submit application. Please try again.');
