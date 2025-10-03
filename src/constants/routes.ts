@@ -22,7 +22,7 @@ export const ROUTE_CONFIG = [
     layout: false
   },
   {
-    path: '/workbasket/',
+    path: '/workbasket',
     component: Workbasket,
     auth: true,
     layout: true

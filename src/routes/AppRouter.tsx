@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SignInPage from '../features/SignIn/SignInPage';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ROUTE_CONFIG } from '../constants/routes';
 
@@ -25,22 +26,19 @@ const useAuth = () => {
 
 
 const AppRouter: React.FC = () => {
-  const isAuthenticated = useAuth();
-
-  if (isAuthenticated === null) {
-    // Optionally show a loading spinner while checking auth
-    return <div>Loading...</div>;
-  }
+  //const isAuthenticated = useAuth();
+  const isAuthenticated = false; // DNS always leads to signin
 
   return (
     <Routes>
-      {ROUTE_CONFIG.map(({ path, component: Component, auth }) => (
-        <Route key={path} path={path}
-          element={
-            auth ? isAuthenticated ? <Component /> : <Navigate to="/signin" replace />: <Component />
-          }
-        />
-      ))}
+      {ROUTE_CONFIG.map(({ path, component: Component, auth }) => {
+        // If root or /signin, always show SignInPage
+        if (path === '/' || path === '/signin') {
+          return <Route key={path} path={path} element={<SignInPage />} />;
+        }
+        // Allow all other pages to work normally
+        return <Route key={path} path={path} element={<Component />} />;
+      })}
     </Routes>
   );
 };

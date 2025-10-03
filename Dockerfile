@@ -10,6 +10,8 @@ RUN npm install
 #  Copy everything now, not just /src
 COPY . .
 
+RUN npm run build
+
 #  Expose the port that Vite runs on
 EXPOSE 5173
 
