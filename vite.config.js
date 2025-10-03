@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
         '/auth': env.API_URL
       },
       allowedHosts: [
-        "eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/frontend"
+        "eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com"
       ]
     }
   };
