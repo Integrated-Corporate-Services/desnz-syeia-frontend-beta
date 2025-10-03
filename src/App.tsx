@@ -35,7 +35,7 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <BrowserRouter basename="/">
+  <BrowserRouter basename="/frontend">
     <AppContent />
   </BrowserRouter>
 );
