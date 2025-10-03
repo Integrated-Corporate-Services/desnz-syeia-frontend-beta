@@ -2,7 +2,7 @@ import React from 'react';
 
 const SignInPage: React.FC = () => {
   const handleSignIn = () => {
-    window.location.href = 'http://localhost:3000/auth/login';
+    window.location.href = 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login';
   };
 
   return (
