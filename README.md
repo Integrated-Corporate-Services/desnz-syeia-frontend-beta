@@ -1,6 +1,8 @@
 # desnz-syeia-frontend-beta
 Frontend codebase for the DESNZ-SYEIA beta project.
 
+## run with env variables
+.\run-frontend.ps1 local
 
 # Run Without Docker
 

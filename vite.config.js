@@ -11,7 +11,10 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': env.API_URL,
         '/auth': env.API_URL
-      }
+      },
+      allowedHosts: [
+        "eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com"
+      ]
     }
   };
 });
