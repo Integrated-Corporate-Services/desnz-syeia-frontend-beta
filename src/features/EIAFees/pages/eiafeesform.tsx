@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import RadioGroup from "../component/RadioGroup";
+import CheckboxGroup from "../component/CheckboxGroup";
 // Import application store/context if available
 import { useApplicationStore } from "../../../store/useApplicationStore";
 
@@ -28,8 +29,9 @@ const EIAFeesForm: React.FC = () => {
   // State for fetched EIA Fees
   const [eiaFees, setEiaFees] = useState<any>(null);
   const [form, setForm] = useState({
-    isEiaDevelopment: "",
-    confirmedEiaFee: "",
+  isEiaDevelopment: false,
+  requiresFullEia: "",
+  screeningOnly: "",
   });
   const [errors, setErrors] = useState<{ field: string; message: string }[]>(
     []
@@ -60,17 +62,18 @@ const EIAFeesForm: React.FC = () => {
   useEffect(() => {
     if (eiaFees) {
       setForm({
-        isEiaDevelopment: eiaFees.isEiaDevelopment ? "true" : "false",
-        confirmedEiaFee: eiaFees.requiresFullEia ? "true" : "false",
+        isEiaDevelopment: !!eiaFees.isEiaDevelopment,
+        requiresFullEia: eiaFees.requiresFullEia ? "true" : "false",
+        screeningOnly: eiaFees.screeningOnly ? "true" : "false",
       });
     }
   }, [eiaFees]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
     setErrors([]);
     setApiError(null);
@@ -81,21 +84,21 @@ const EIAFeesForm: React.FC = () => {
     e.preventDefault();
     const newErrors: { field: string; message: string }[] = [];
     // Validation logic:
-    if (!form.isEiaDevelopment) {
+    if (!form.requiresFullEia) {
       newErrors.push({
-        field: "isEiaDevelopment",
+        field: "requiresFullEia",
         message:
           "Select yes or no to the Environmental Impact Assessment question",
       });
-    } else if (form.isEiaDevelopment === "true") {
-      if (!form.confirmedEiaFee) {
+    } else if (form.requiresFullEia === "true") {
+      if (!form.screeningOnly) {
         newErrors.push({
-          field: "confirmedEiaFee",
+          field: "screeningOnly",
           message: "Select yes or no to confirm the EIA fee",
         });
-      } else if (form.confirmedEiaFee === "false") {
+      } else if (form.screeningOnly === "false") {
         newErrors.push({
-          field: "isEiaDevelopment",
+          field: "requiresFullEia",
           message: "Select no to the Environmental Impact Assessment question",
         });
       }
@@ -120,10 +123,9 @@ const EIAFeesForm: React.FC = () => {
         };
         const payload: EiaPayload = {
           applicationId: applicationId,
-          isEiaDevelopment: form.isEiaDevelopment === "true",
-          requiresFullEia:
-            form.isEiaDevelopment === "true" && form.confirmedEiaFee === "true",
-          screeningOnly: form.isEiaDevelopment === "false",
+          isEiaDevelopment: form.isEiaDevelopment,
+          requiresFullEia: form.requiresFullEia === "true", // maps first question
+          screeningOnly: form.screeningOnly === "true", // maps second question
           updatedAt: new Date().toISOString(),
           updatedBy: "system",
         };
@@ -149,7 +151,7 @@ const EIAFeesForm: React.FC = () => {
         const result = await response.json();
         if (response.ok) {
           setSuccess(true);
-          setForm({ isEiaDevelopment: "", confirmedEiaFee: "" });
+          setForm({ isEiaDevelopment: false, requiresFullEia: "", screeningOnly: "" });
           // Redirect to tasklist page after success
           const redirectId = payload.applicationId;
           navigate(`/task-list?id=${redirectId}`);
@@ -234,6 +236,8 @@ const EIAFeesForm: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl">EIA fees</h1>
+
+            <CheckboxGroup isEiaDevelopment={form.isEiaDevelopment} onChange={handleChange} />
             <form
               method="post"
               data-module="fds-html-form"
@@ -258,13 +262,6 @@ const EIAFeesForm: React.FC = () => {
                       : undefined
                   }
                 >
-                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-                    <h2 className="govuk-fieldset__heading">
-                      Do you consider that the proposed development will have a
-                      likely significant effect on the environment and therefore
-                      will be subject to an Environmental Impact Assessment?
-                    </h2>
-                  </legend>
                   {hasError("isEiaDevelopment") && (
                     <p
                       id="isEiaDevelopment-error"
@@ -279,15 +276,17 @@ const EIAFeesForm: React.FC = () => {
                   )}
                 </fieldset>
                 <RadioGroup
-                  isEiaDevelopment={form.isEiaDevelopment}
-                  confirmedEiaFee={form.confirmedEiaFee}
+                  requiresFullEia={form.requiresFullEia}
+                  screeningOnly={form.screeningOnly}
                   onChange={handleChange}
+                  errorMessage={getErrorMessage("requiresFullEia")}
+                  screeningErrorMessage={getErrorMessage("screeningOnly")}
                 />
               </div>
-              {form.isEiaDevelopment === "true" && (
+              {form.screeningOnly === "true" && (
                 <div
                   className={`govuk-form-group${
-                    hasError("confirmedEiaFee")
+                    hasError("screeningOnly")
                       ? " govuk-form-group--error"
                       : ""
                   }`}
@@ -295,18 +294,18 @@ const EIAFeesForm: React.FC = () => {
                   <fieldset
                     className="govuk-fieldset"
                     aria-describedby={
-                      hasError("confirmedEiaFee")
-                        ? "confirmedEiaFee-error"
+                      hasError("screeningOnly")
+                        ? "screeningOnly-error"
                         : undefined
                     }
                   >
-                    {hasError("confirmedEiaFee") && (
+                    {hasError("screeningOnly") && (
                       <p
-                        id="confirmedEiaFee-error"
+                        id="screeningOnly-error"
                         className="govuk-error-message"
                       >
                         <span className="govuk-visually-hidden">Error:</span>{" "}
-                        {getErrorMessage("confirmedEiaFee")}
+                        {getErrorMessage("screeningOnly")}
                       </p>
                     )}
                   </fieldset>
