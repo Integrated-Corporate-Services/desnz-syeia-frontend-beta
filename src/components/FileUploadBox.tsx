@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { getPresignedUrls, uploadFileToS3 } from '../services/s3ApiService';
+import { FileUploadResponse } from '../types/FileUploadResponse';
 
 export interface FileUploadBoxProps {
   title?: string;
   prefix?: string;
-  onUploadComplete?: (results: Array<{ filename: string; status: string; description: string }>) => void;
+  onUploadComplete?: (results: FileUploadResponse[]) => void;
 }
 
 const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', prefix = '', onUploadComplete }) => {
@@ -131,7 +132,19 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
         setStatuses([...newStatuses]);
       }
       if (onUploadComplete) {
-        onUploadComplete(uploadFiles.map((f, i) => ({ filename: prefix ? `${prefix}/${f.name}` : f.name, status: newStatuses[i], description: uploadDescriptions[i] })));
+        console.log(data);
+        console.log("test here")
+        // Map presigned URL response to include contentType and fileSize
+        const uploadResults = data.urls.map((urlObj: any, i: number) => ({
+          filename: urlObj.filename,
+          status: newStatuses[i],
+          description: uploadDescriptions[i],
+          contentType: urlObj.contentType,
+          fileSize: urlObj.fileSize,
+          bucketName: urlObj.bucketName,
+          url: urlObj.url
+        }));
+        onUploadComplete(uploadResults);
       }
     } catch (err) {
       setStatuses(Array(uploadFiles.length).fill('Error: ' + (err instanceof Error ? err.message : String(err))));

@@ -232,15 +232,15 @@ const ProjectOverview = () => {
 					: [],
 				documents: Array.isArray(projectData.documents)
 					? projectData.documents.map(d => ({
-						documentId: d.documentId || '',
-						applicationId: d.applicationId || '',
-						fileId: d.fileId || '',
+						document_id: d.document_id || '',
+						application_id: d.application_id || '',
+						file_id: d.file_id || '',
 						category: d.category || '',
 						title: d.title || '',
 						virtual_folder: d.virtual_folder || '',
-						addedBy: d.addedBy || '',
-						addedAt: d.addedAt || '',
-						description: d.description
+						added_by: d.added_by || '',
+						added_at: d.added_at || '',
+						description: d.description || ''
 					}))
 					: []
 			});
@@ -413,6 +413,19 @@ const ProjectOverview = () => {
 						// Remove applicationRelationId from relatedApplications for backend validation
 						relatedApplications: Array.isArray(formState.relatedApplications)
 							? formState.relatedApplications.map(({ applicationRelationId, ...rest }) => rest)
+							: [],
+						documents: Array.isArray(formState.documents)
+							? formState.documents.map(d => ({
+								document_id: d.document_id || '',
+								application_id: d.application_id || '',
+								file_id: d.file_id || '',
+								category: d.category || '',
+								title: d.title || '',
+								virtual_folder: d.virtual_folder || '',
+								added_by: d.added_by || '',
+								added_at: d.added_at || '',
+								description: d.description || ''
+							}))
 							: [],
 					};
 					saveProjectOverview(payload)
@@ -634,11 +647,13 @@ const ProjectOverview = () => {
 					{/* Plan Information Documents */}
 					<div className="govuk-form-group">
 						<fieldset className="govuk-fieldset">
-							{application && (
+							{application ? (
 								<PlanInformationUpload
 									application={application}
 									title={projectOverview.planInformationDocuments}
 								/>
+							) : (
+								<div className="govuk-inset-text">Application data is not available. Please reload the page or check your connection.</div>
 							)}
 						</fieldset>
 					</div>
