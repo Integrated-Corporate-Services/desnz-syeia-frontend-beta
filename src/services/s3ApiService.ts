@@ -1,6 +1,6 @@
 // S3 API Service for presigned URL and upload
 export async function getPresignedUrls(files: { filename: string; contentType: string }[]) {
-  const res = await fetch('/api/upload/presigned-url', {
+  const res = await fetch('/backend/api/upload/presigned-url', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ files })
