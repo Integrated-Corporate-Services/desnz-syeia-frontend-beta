@@ -4,7 +4,7 @@ import axios from 'axios';
 export const fetchAssetDetails = async (applicationId: string) => {
   try {
     console.log('Fetching asset details for applicationId:', applicationId);
-    const response = await axios.get(`/api/applications/${applicationId}/assets`);
+  const response = await axios.get(`/backend/api/applications/${applicationId}/assets`);
     return response.data;
   } catch (error) {
     console.error('Error fetching asset details:', error);
@@ -16,12 +16,12 @@ export const fetchAssetDetails = async (applicationId: string) => {
 
 import type { AssetRequest } from '../types/asset';
 export const createAsset = async (payload: AssetRequest) => {
-  const response = await axios.post('/api/applications/assets', payload);
+  const response = await axios.post('/backend/api/applications/assets', payload);
   return response.data;
 };
 
 // Service to update asset(s) via PUT
 export const updateAsset = async (payload: AssetRequest) => {
-  const response = await axios.put('/api/applications/assets', payload);
+  const response = await axios.put('/backend/api/applications/assets', payload);
   return response.data;
 };
