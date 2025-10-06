@@ -107,24 +107,45 @@ const EIAFeesForm: React.FC = () => {
       setLoading(true);
       try {
         // Compose payload for backend
-        const payload = {
-          eiaId: crypto.randomUUID(),
+        type EiaPayload = {
+          applicationId: string;
+          isEiaDevelopment: boolean;
+          requiresFullEia: boolean;
+          screeningOnly: boolean;
+          updatedAt: string;
+          updatedBy: string;
+          eiaId?: string;
+          createdAt?: string;
+          createdBy?: string;
+        };
+        const payload: EiaPayload = {
           applicationId: applicationId,
           isEiaDevelopment: form.isEiaDevelopment === "true",
           requiresFullEia:
             form.isEiaDevelopment === "true" && form.confirmedEiaFee === "true",
           screeningOnly: form.isEiaDevelopment === "false",
-          createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          createdBy: "system",
           updatedBy: "system",
         };
-        // Direct POST to backend
-        const response = await fetch("http://localhost:3000/api/eia-fees", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+        let response;
+        if (eiaFees && eiaFees.eiaFeeId) {
+          // Update existing EIA Fee
+          response = await fetch(`http://localhost:3000/api/eia-fees/${eiaFees.eiaFeeId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+        } else {
+          // Create new EIA Fee
+          payload.eiaId = crypto.randomUUID();
+          payload.createdAt = new Date().toISOString();
+          payload.createdBy = "system";
+          response = await fetch("http://localhost:3000/api/eia-fees", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+        }
         const result = await response.json();
         if (response.ok) {
           setSuccess(true);
@@ -137,7 +158,7 @@ const EIAFeesForm: React.FC = () => {
             result.message || "Failed to submit EIA Fees. Please try again."
           );
         }
-      } catch (err) {
+      } catch {
         setApiError("Failed to submit EIA Fees. Please try again.");
       } finally {
         setLoading(false);
