@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSupportingInfoStore } from "../../../store/useSupportingInfoStore";
 import TextAreaField from "../../../components/commonFormFields/TextAreaField";
 import { Button } from "govuk-react";
@@ -17,6 +17,7 @@ const errorFields = [
 ];
 
 const SupportingInfo: React.FC = () => {
+  const navigate = useNavigate();
   // Get logged-in user ID
   const { user } = useAuthUser();
   const userId = user?.user_id;
@@ -44,6 +45,7 @@ const getApplicationId = () => {
 
   const [wayleaves, setWayleaves] = useState<string>("");
   const [regulations, setRegulations] = useState<boolean>(false);
+  const [wayleavesReason, setWayleavesReason] = useState<string>("");
   const [supportingDocs, setSupportingDocs] = useState<string>("");
   const [comments, setComments] = useState<string>("");
   const [files, setFiles] = useState<{ filename: string; status: string; description: string }[]>([]);
@@ -53,6 +55,7 @@ const getApplicationId = () => {
 
   // refs for scrolling
   const wayleavesRef = useRef<HTMLInputElement>(null);
+  const wayleavesReasonRef = useRef<HTMLTextAreaElement>(null);
   const regulationsRef = useRef<HTMLInputElement>(null);
   const supportingDocsRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -74,8 +77,9 @@ const getApplicationId = () => {
         documents
       } = supportingInfo;
 
-      setWayleaves(wayleaves_obtained ? "yes" : "no");
-      setRegulations(esqcr_2002_compliance_confirmed);
+  setWayleaves(wayleaves_obtained ? "yes" : "no");
+  setRegulations(esqcr_2002_compliance_confirmed);
+  setWayleavesReason(supportingInfo.wayleaves_not_obtained_reason || "");
       setSupportingDocs(has_additional_supporting_documents ? "yes" : "no");
       setComments(applicant_supporting_comments || "");
 
@@ -97,6 +101,9 @@ const getApplicationId = () => {
   const validate = () => {
     const errs: { key: string; message: string }[] = [];
     if (!wayleaves) errs.push({ key: "wayleaves", message: "Select yes if all wayleaves have been obtained" });
+    if (wayleaves === "no" && !wayleavesReason.trim()) {
+      errs.push({ key: "wayleavesReason", message: "Please provide a reason why wayleaves have not been obtained" });
+    }
     if (!regulations) errs.push({ key: "regulations", message: "Confirm that the works will comply with regulations" });
     if (!supportingDocs) errs.push({ key: "supportingDocs", message: "Select yes if this application has supporting documents" });
     return errs;
@@ -114,14 +121,27 @@ const getApplicationId = () => {
     if (errs.length === 0) {
       const data = {
         application_id: applicationId!,
-        wayleaves_obtained: wayleaves === "yes",
+  wayleaves_obtained: wayleaves === "yes",
+  wayleaves_not_obtained_reason: wayleaves === "no" ? wayleavesReason : null,
         esqcr_2002_compliance_confirmed: regulations,
         has_additional_supporting_documents: supportingDocs === "yes",
         applicant_supporting_comments: comments,
         uploaded_files: latestUploadedFiles,
         documents: latestProjectDocuments,
       };
-      await saveSupportingInfo(data);
+      try {
+        const response: any = await saveSupportingInfo(data);
+        // Try to get application id from backend response, fallback to local applicationId
+        const redirectId =
+          response?.application_id ||
+          response?.application?.application_id ||
+          response?.application_overview?.application_id ||
+          applicationId ||
+          '';
+        navigate(`/task-list?id=${redirectId}`);
+      } catch (err: any) {
+        setErrors([{ key: 'save', message: err?.message || 'Failed to save supporting information' }]);
+      }
     } else {
       const firstError = errs[0].key;
       if (firstError === "wayleaves" && wayleavesRef.current) wayleavesRef.current.focus();
@@ -132,6 +152,7 @@ const getApplicationId = () => {
 
   const handleErrorClick = (key: string) => {
     if (key === "wayleaves" && wayleavesRef.current) wayleavesRef.current.focus();
+    if (key === "wayleavesReason" && wayleavesReasonRef.current) wayleavesReasonRef.current.focus();
     if (key === "regulations" && regulationsRef.current) regulationsRef.current.focus();
     if (key === "supportingDocs" && supportingDocsRef.current) supportingDocsRef.current.focus();
   };
@@ -139,7 +160,7 @@ const getApplicationId = () => {
   const hasError = (key: string) => errors.some(e => e.key === key);
 
   return (
-  <div className="" style={{ maxWidth: 700}}>
+  <div className="govuk-body" style={{ maxWidth: 700, fontSize: '19px', lineHeight: '1.31579' }}>
   <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
   <ol className="govuk-breadcrumbs__list">
     <li className="govuk-breadcrumbs__list-item">
@@ -160,6 +181,7 @@ const getApplicationId = () => {
           aria-labelledby="error-summary-title"
           tabIndex={-1}
           style={{ marginBottom: 32 }}
+          data-module="govuk-error-summary"
         >
           <h2 className="govuk-error-summary__title" id="error-summary-title">
             There is a problem
@@ -176,7 +198,15 @@ const getApplicationId = () => {
                       handleErrorClick(err.key);
                     }}
                   >
-                    {err.message}
+                    {err.key === "wayleavesReason"
+                      ? "Enter details about why wayleaves have not been obtained"
+                      : err.key === "wayleaves"
+                      ? "Select yes if all wayleaves have been obtained"
+                      : err.key === "regulations"
+                      ? "Confirm that the works will comply with regulations"
+                      : err.key === "supportingDocs"
+                      ? "Select yes if this application has supporting documents"
+                      : err.message}
                   </a>
                 </li>
               ))}
@@ -186,24 +216,22 @@ const getApplicationId = () => {
       )}
 
     
-  <h1 className="govuk-heading-xl" style={{ marginBottom: 32 }}>Supporting information</h1>
+  <h1 className="govuk-heading-xl" style={{ marginBottom: 32, fontSize: '2.5rem', lineHeight: '1.1' }}>Supporting information</h1>
 
-      <fieldset
-        className={`govuk-fieldset govuk-form-group${hasError("wayleaves") ? " govuk-form-group--error" : ""}`}
-        style={{ marginBottom: 32, paddingBottom: 8 }}
+      <div
+        className={`govuk-form-group${hasError("wayleaves") ? " govuk-form-group--error" : ""}`}
+        style={hasError("wayleaves") ? { borderLeft: '4px solid #d4351c', paddingLeft: 12 } : {}}
       >
-        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-          Have all wayleaves been obtained?
-        </legend>
-        <div>
+        <fieldset className="govuk-fieldset">
+          <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+            <h2 className="govuk-fieldset__heading">Have all wayleaves been obtained?</h2>
+          </legend>
           {hasError("wayleaves") && (
-            <span
-              className="govuk-error-message govuk-form-group--error"
-            >
+            <span className="govuk-error-message" id="wayleaves-error">
               <span className="govuk-visually-hidden">Error:</span> Select yes if all wayleaves have been obtained
             </span>
           )}
-          <div className="govuk-radios">
+          <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
             <div className="govuk-radios__item">
               <input
                 className="govuk-radios__input"
@@ -214,6 +242,7 @@ const getApplicationId = () => {
                 checked={wayleaves === "yes"}
                 onChange={() => setWayleaves("yes")}
                 ref={wayleavesRef}
+                aria-describedby={hasError("wayleaves") ? "wayleaves-error" : undefined}
               />
               <label className="govuk-label govuk-radios__label" htmlFor="wayleaves-yes">
                 Yes
@@ -228,28 +257,56 @@ const getApplicationId = () => {
                 value="no"
                 checked={wayleaves === "no"}
                 onChange={() => setWayleaves("no")}
+                aria-describedby={hasError("wayleaves") ? "wayleaves-error" : undefined}
               />
               <label className="govuk-label govuk-radios__label" htmlFor="wayleaves-no">
                 No
               </label>
             </div>
+            {wayleaves === "no" && (
+              <div className="govuk-radios__conditional" id="haveAllWayleavesBeenObtained-no-hidden">
+                <div className={`govuk-form-group${hasError("wayleavesReason") ? " govuk-form-group--error" : ''}` }>
+                  <label className="govuk-label" htmlFor="wayleavesNotObtainedComments-inputValue">
+                    Why have all wayleaves not been obtained?
+                  </label>
+                  {hasError("wayleavesReason") && (
+                    <p id="wayleavesNotObtainedComments-inputValue-error" className="govuk-error-message">
+                      <span className="govuk-visually-hidden">Error:</span> Enter details about why wayleaves have not been obtained
+                    </p>
+                  )}
+                  <textarea
+                    className={`govuk-textarea${hasError("wayleavesReason") ? " govuk-textarea--error" : ''}`}
+                    id="wayleavesNotObtainedComments-inputValue"
+                    name="wayleavesNotObtainedComments.inputValue"
+                    rows={5}
+                    ref={wayleavesReasonRef}
+                    value={wayleavesReason}
+                    onChange={e => setWayleavesReason(e.target.value)}
+                    aria-describedby={hasError("wayleavesReason") ? "wayleavesNotObtainedComments-inputValue-error" : undefined}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      </fieldset>
+        </fieldset>
+      </div>
 
       <fieldset
         className={`govuk-fieldset govuk-form-group${hasError("regulations") ? " govuk-form-group--error" : ""}`}
-        style={{ marginBottom: 32, paddingBottom: 8 }}
+        style={{
+          marginBottom: 32,
+          paddingBottom: 8,
+          borderLeft: hasError("regulations") ? '4px solid #d4351c' : undefined,
+          paddingLeft: hasError("regulations") ? 12 : undefined
+        }}
+        aria-describedby={hasError("regulations") ? "regulations-error" : undefined}
       >
-        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m" style={{ fontSize: '1.1875rem', lineHeight: '1.31579' }}>
           I confirm that the works will comply with The Electricity Safety, Quality and Continuity Regulations 2002
         </legend>
         <div>
           {hasError("regulations") && (
-            <span
-              className="govuk-error-message govuk-form-group--error"
-              style={{ display: "block", borderLeft: "4px solid #d4351c", paddingLeft: "10px" }}
-            >
+            <span className="govuk-error-message" id="regulations-error">
               <span className="govuk-visually-hidden">Error:</span> Confirm that the works will comply with regulations
             </span>
           )}
@@ -282,13 +339,25 @@ const getApplicationId = () => {
         />
       </div>
 
-  <fieldset className="govuk-fieldset govuk-form-group" style={{ marginBottom: 32, paddingBottom: 8 }}>
-  <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-    <h2 className="govuk-fieldset__heading">
+  <fieldset className={`govuk-fieldset govuk-form-group${hasError("supportingDocs") ? " govuk-form-group--error" : ""}`}
+    style={{
+      marginBottom: 32,
+      paddingBottom: 8,
+      borderLeft: hasError("supportingDocs") ? '4px solid #d4351c' : undefined,
+      paddingLeft: hasError("supportingDocs") ? 12 : undefined
+    }}
+    aria-describedby={hasError("supportingDocs") ? "supportingDocs-error" : undefined}>
+  <legend className="govuk-fieldset__legend govuk-fieldset__legend--s" style={{ fontSize: '1.125rem', lineHeight: '1.31579' }}>
+    <h2 className="govuk-fieldset__heading" style={{ fontSize: '1.125rem', lineHeight: '1.31579' }}>
       Do you have any further supporting documents to provide?
     </h2>
   </legend>
 
+  {hasError("supportingDocs") && (
+    <span className="govuk-error-message" id="supportingDocs-error">
+      <span className="govuk-visually-hidden">Error:</span> Select yes if this application has supporting documents
+    </span>
+  )}
   <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios" style={{ marginTop: 8 }}>
     <div className="govuk-radios__item">
       <input
@@ -308,9 +377,11 @@ const getApplicationId = () => {
     </div>
 
     {supportingDocs === "yes" && (
-      <div className="govuk-radios__conditional" id="hasSupportingDocuments-hidden">
+      <div className="govuk-radios__conditional govuk-form-group govuk-form-group--error" id="hasSupportingDocuments-hidden">
+        <label className="govuk-label" style={{ fontWeight: 600 }}>
+          Upload supporting information documents
+        </label>
         <FileUploadBox
-          title="Upload supporting documents"
           prefix={`supporting-docs/${applicationId}`}
           onUploadComplete={(results: FileUploadResponse[]) => {
             console.log('Upload results:', results);
