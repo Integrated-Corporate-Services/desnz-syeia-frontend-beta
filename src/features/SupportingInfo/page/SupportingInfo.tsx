@@ -7,34 +7,27 @@ import FileUploadBox from '../../../components/FileUploadBox';
 import { UploadedFile, ProjectDocument } from '../../../types/fileUpload';
 import { FileUploadResponse } from '../../../types/FileUploadResponse';
 import "../../../styles/_file_upload.scss";
-import {FILE_CATEGORIES} from '../../../constants/fileCategoryConstants';
+import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 
-const errorFields = [
-  { key: "wayleaves", id: "wayleaves-yes" },
-  { key: "regulations", id: "regulations-yes" },
-  { key: "supportingDocs", id: "supportingDocs-yes" },
-];
+
+// --- Helpers ---
 
 const SupportingInfo: React.FC = () => {
   const navigate = useNavigate();
-  // Get logged-in user ID
   const { user } = useAuthUser();
   const userId = user?.user_id;
-  console.log('Logged in userId:', userId);
-   const params = useParams();
- 
-const getApplicationId = () => {
-        if (params.applicationId) return params.applicationId;
-        if (params.id) return params.id;
-        if (typeof window !== 'undefined') {
-            const searchParams = new URLSearchParams(window.location.search);
-            const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-            if (idFromQuery) return idFromQuery;
-        }
-        return '';
-    };
-    const applicationId = getApplicationId();
+  const params = useParams();
+  const applicationId = (() => {
+    if (params.applicationId) return params.applicationId;
+    if (params.id) return params.id;
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+      if (idFromQuery) return idFromQuery;
+    }
+    return '';
+  })();
   const {
     supportingInfo,
     fetchSupportingInfo,
@@ -48,7 +41,7 @@ const getApplicationId = () => {
   const [wayleavesReason, setWayleavesReason] = useState<string>("");
   const [supportingDocs, setSupportingDocs] = useState<string>("");
   const [comments, setComments] = useState<string>("");
-  const [files, setFiles] = useState<{ filename: string; status: string; description: string }[]>([]);
+  // Removed unused files state
   const [errors, setErrors] = useState<{ key: string; message: string }[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [projectDocuments, setProjectDocuments] = useState<ProjectDocument[]>([]);
@@ -59,8 +52,6 @@ const getApplicationId = () => {
   const regulationsRef = useRef<HTMLInputElement>(null);
   const supportingDocsRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-  console.log('Params:', params);
-  console.log('Derived applicationId:', applicationId);
     if (applicationId) {
       fetchSupportingInfo(applicationId);
     }
@@ -77,20 +68,31 @@ const getApplicationId = () => {
         documents
       } = supportingInfo;
 
-  setWayleaves(wayleaves_obtained ? "yes" : "no");
-  setRegulations(esqcr_2002_compliance_confirmed);
-  setWayleavesReason(supportingInfo.wayleaves_not_obtained_reason || "");
+      setWayleaves(wayleaves_obtained ? "yes" : "no");
+      setRegulations(esqcr_2002_compliance_confirmed);
+      setWayleavesReason(supportingInfo.wayleaves_not_obtained_reason || "");
       setSupportingDocs(has_additional_supporting_documents ? "yes" : "no");
       setComments(applicant_supporting_comments || "");
 
-      // If uploaded_files is already in UploadedFile[] format, set it directly
-      if (Array.isArray(uploaded_files) && uploaded_files.length > 0 && uploaded_files[0].filename && uploaded_files[0].file_content_type) {
+      // If uploaded_files is already in UploadedFile[] format, set it directly (with bounds check)
+      if (
+        Array.isArray(uploaded_files) &&
+        uploaded_files.length > 0 &&
+        uploaded_files[0] &&
+        uploaded_files[0].filename &&
+        uploaded_files[0].file_content_type
+      ) {
         setUploadedFiles(uploaded_files as UploadedFile[]);
       } else {
         setUploadedFiles([]);
       }
-      // If documents is already in ProjectDocument[] format, set it directly
-      if (Array.isArray(documents) && documents.length > 0 && documents[0].title) {
+      // If documents is already in ProjectDocument[] format, set it directly (with bounds check)
+      if (
+        Array.isArray(documents) &&
+        documents.length > 0 &&
+        documents[0] &&
+        documents[0].title
+      ) {
         setProjectDocuments(documents as ProjectDocument[]);
       } else {
         setProjectDocuments([]);
@@ -121,8 +123,8 @@ const getApplicationId = () => {
     if (errs.length === 0) {
       const data = {
         application_id: applicationId!,
-  wayleaves_obtained: wayleaves === "yes",
-  wayleaves_not_obtained_reason: wayleaves === "no" ? wayleavesReason : null,
+        wayleaves_obtained: wayleaves === "yes",
+        wayleaves_not_obtained_reason: wayleaves === "no" ? wayleavesReason : undefined,
         esqcr_2002_compliance_confirmed: regulations,
         has_additional_supporting_documents: supportingDocs === "yes",
         applicant_supporting_comments: comments,
@@ -384,35 +386,8 @@ const getApplicationId = () => {
         <FileUploadBox
           prefix={`supporting-docs/${applicationId}`}
           onUploadComplete={(results: FileUploadResponse[]) => {
-            console.log('Upload results:', results);
-            // Use FileUploadResponse object directly for mapping
-            const filesMapped: UploadedFile[] = results.map(fileResp => ({
-              id: '',
-              storage_provider: 's3',
-              s3_key: fileResp.filename,
-              bucket_name: fileResp.bucketName,
-              virtual_folder: fileResp.filename,
-              filename: fileResp.filename.split('/').pop() || fileResp.filename,
-              file_content_type: fileResp.contentType,
-              file_size_bytes: fileResp.fileSize ?? 0,
-              uploaded_at_timestamp: new Date().toISOString()
-            }));
-            setUploadedFiles(filesMapped);
-
-            // Example: get userId from localStorage or context
-            const docsMapped: ProjectDocument[] = results.map(fileResp => ({
-              document_id: '',
-              application_id: applicationId,
-              file_id: '',
-              category: FILE_CATEGORIES.SUPPORT_INFO,
-              subCategory: '',
-              title: fileResp.filename.split('/').pop() || fileResp.filename,
-              virtual_folder: fileResp.filename,
-              added_by: userId ?? '', // Ensure added_by is always a string
-              added_at: new Date().toISOString(),
-              description: fileResp.description ?? '' // Ensure description is always a string
-            }));
-            setProjectDocuments(docsMapped);
+            setUploadedFiles(mapFileUploadResponsesToFiles(results));
+            setProjectDocuments(mapFileUploadResponsesToDocuments(results, applicationId, userId));
           }}
         />
       </div>
@@ -441,9 +416,42 @@ const getApplicationId = () => {
         </Button>
       </div>
 
-    
     </div>
   );
 };
 
 export default SupportingInfo;
+
+// --- Helpers ---
+function mapFileUploadResponsesToFiles(results: FileUploadResponse[]): UploadedFile[] {
+  return results.map((fileResp) => ({
+    id: '',
+    storage_provider: 's3',
+    s3_key: fileResp.filename,
+    bucket_name: fileResp.bucketName,
+    virtual_folder: fileResp.filename,
+    filename: fileResp.filename.split('/').pop() || fileResp.filename,
+    file_content_type: fileResp.contentType,
+    file_size_bytes: fileResp.fileSize ?? 0,
+    uploaded_at_timestamp: new Date().toISOString(),
+  }));
+}
+
+function mapFileUploadResponsesToDocuments(
+  results: FileUploadResponse[],
+  applicationId: string,
+  userId: string | undefined
+): ProjectDocument[] {
+  return results.map((fileResp) => ({
+    document_id: '',
+    application_id: applicationId,
+    file_id: '',
+    category: FILE_CATEGORIES.SUPPORT_INFO,
+    subCategory: '',
+    title: fileResp.filename.split('/').pop() || fileResp.filename,
+    virtual_folder: fileResp.filename,
+    added_by: userId ?? '',
+    added_at: new Date().toISOString(),
+    description: fileResp.description ?? 'No description provided',
+  }));
+}
