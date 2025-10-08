@@ -4,7 +4,15 @@ import RadioGroup from "../component/RadioGroup";
 import CheckboxGroup from "../component/CheckboxGroup";
 // Import application store/context if available
 import { useApplicationStore } from "../../../store/useApplicationStore";
-import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
+
+// Helper to get CSRF token from cookie
+function getCsrfToken() {
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(/(?:^|; )_csrf=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+  return '';
+}
 
 const EIAFeesForm: React.FC = () => {
   const navigate = useNavigate();
@@ -132,9 +140,7 @@ const EIAFeesForm: React.FC = () => {
           updatedAt: new Date().toISOString(),
           updatedBy: "system",
         };
-        console.log('Updating existing EIA Fee with ID:', eiaFees.eiaFeeId);
         if (eiaFees && eiaFees.eiaFeeId) {
-          console.log('Updating existing EIA Fee with ID:', eiaFees.eiaFeeId);
           // Update existing EIA Fee using store (PUT)
           await updateEiaFees({
             eiaFeeId: eiaFees.eiaFeeId,
@@ -197,7 +203,7 @@ const EIAFeesForm: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
             <a
               className="govuk-breadcrumbs__link"
-              href="/eip/section-37/84e7bced-21f6-48d4-8aae-a06145de20f9/task-list"
+              href={`/frontend/task-list?id=${applicationId}`}
             >
               Task list
             </a>
@@ -244,7 +250,7 @@ const EIAFeesForm: React.FC = () => {
               <input
                 type="hidden"
                 name="_csrf"
-                value="QVa2_-t9zkYyU_MYv7Pase5wFjZdJPqXmsZ2Of1IH8CZwNlOdWeHmtoe-ncfNsMvi57u19hHO1RsEMq6rvQSW8V7LaSooewo"
+                value={getCsrfToken()}
               />
               <div
                 className={`govuk-form-group${

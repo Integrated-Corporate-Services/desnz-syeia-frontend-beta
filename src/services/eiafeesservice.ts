@@ -1,7 +1,46 @@
 // src/services/eiafeesservice.ts
 
+
+// EIA Fees type
+export interface EiaFees {
+  eiaFeeId?: string;
+  eiaId?: string;
+  applicationId: string;
+  isEiaDevelopment: boolean;
+  requiresFullEia: boolean;
+  screeningOnly: boolean;
+  createdAt?: string;
+  updatedAt: string;
+  createdBy?: string;
+  updatedBy: string;
+}
+
+// Payload for creating EIA Fee
+export interface CreateEiaFeePayload {
+  eiaId: string;
+  applicationId: string;
+  isEiaDevelopment: boolean;
+  requiresFullEia: boolean;
+  screeningOnly: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
+}
+
+// Payload for updating EIA Fee
+export interface UpdateEiaFeePayload {
+  eiaFeeId: string;
+  applicationId: string;
+  isEiaDevelopment: boolean;
+  requiresFullEia: boolean;
+  screeningOnly: boolean;
+  updatedAt: string;
+  updatedBy: string;
+}
+
 // Service to fetch EIA Fees details from the backend
-export const fetchEiaFeesDetails = async (applicationId: string) => {
+export const fetchEiaFeesDetails = async (applicationId: string): Promise<EiaFees> => {
   try {
     const response = await fetch(`/backend/api/applications/${applicationId}/eia-fees`);
     if (!response.ok) throw new Error('Failed to fetch EIA Fees details');
@@ -13,60 +52,29 @@ export const fetchEiaFeesDetails = async (applicationId: string) => {
 };
 
 // Service to create EIA Fee via POST
-export const createEiaFee = async (payload: any) => {
-  // Accepts snake_case or camelCase, but always sends camelCase to backend
-  const camelPayload = {
-      eiaId: payload.eia_id || payload.eiaId,
-      applicationId: payload.application_id || payload.applicationId,
-      isEiaDevelopment: payload.is_eia_development ?? payload.isEiaDevelopment,
-      requiresFullEia: payload.requires_full_eia ?? payload.requiresFullEia,
-      screeningOnly: payload.screening_only ?? payload.screeningOnly,
-      createdAt: payload.created_at || payload.createdAt,
-      updatedAt: payload.updated_at || payload.updatedAt,
-      createdBy: payload.created_by || payload.createdBy,
-      updatedBy: payload.updated_by || payload.updatedBy,
-  };
+export const createEiaFee = async (payload: CreateEiaFeePayload): Promise<EiaFees> => {
   const response = await fetch('/backend/api/applications/eia-fees', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(camelPayload),
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
   });
   if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || 'Failed to create EIA Fee');
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to create EIA Fee');
   }
   return response.json();
 };
 
 // Service to update EIA Fee via PUT
-export const updateEiaFee = async (payload: any) => {
-  // Only send allowed fields for PUT
-  const {
-    eiaFeeId,
-    applicationId,
-    isEiaDevelopment,
-    requiresFullEia,
-    screeningOnly,
-    updatedAt,
-    updatedBy
-  } = payload;
-  const putPayload = {
-    eiaFeeId,
-    applicationId,
-    isEiaDevelopment,
-    requiresFullEia,
-    screeningOnly,
-    updatedAt,
-    updatedBy
-  };
+export const updateEiaFee = async (payload: UpdateEiaFeePayload): Promise<EiaFees> => {
   const response = await fetch('/backend/api/applications/eia-fees', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(putPayload),
+    body: JSON.stringify(payload),
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

@@ -1,48 +1,67 @@
-import { fetchEiaFeesDetails, createEiaFee, updateEiaFee } from '../services/eiafeesservice';
+
+import { fetchEiaFeesDetails, createEiaFee, updateEiaFee, CreateEiaFeePayload, UpdateEiaFeePayload } from '../services/eiafeesservice';
+import { EiaFees } from '../types/eiaFees';
 import { create } from 'zustand';
 
+
 interface EiaFeesState {
-	eiaFees: any | null;
-	loading: boolean;
-	error: string | null;
-	fetchEiaFees: (applicationId: string) => Promise<void>;
-	createEiaFees: (payload: any) => Promise<void>;
-	updateEiaFees: (payload: any) => Promise<void>;
+  eiaFees: EiaFees | null;
+  loading: boolean;
+  error: string | null;
+  fetchEiaFees: (applicationId: string) => Promise<void>;
+  createEiaFees: (payload: CreateEiaFeePayload) => Promise<void>;
+  updateEiaFees: (payload: UpdateEiaFeePayload) => Promise<void>;
 }
 
 export const useEiaFeesStore = create<EiaFeesState>((set) => ({
-	eiaFees: null,
-	loading: false,
-	error: null,
+  eiaFees: null,
+  loading: false,
+  error: null,
 
-	fetchEiaFees: async (applicationId: string) => {
-		set({ loading: true, error: null });
-			try {
-				const data = await fetchEiaFeesDetails(applicationId);
-				// Set eiaFees to the first item in the array, not the whole response
-				set({ eiaFees: data && Array.isArray(data.eiaFees) ? data.eiaFees[0] : null, loading: false });
-			} catch (error: any) {
-				set({ error: error.message || 'Failed to fetch EIA Fees', loading: false });
-			}
-	},
+  fetchEiaFees: async (applicationId: string) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await fetchEiaFeesDetails(applicationId);
+      // If backend returns an array, extract first item; else use data directly
+      if (Array.isArray(data)) {
+        set({ eiaFees: data[0] ?? null, loading: false });
+      } else {
+        set({ eiaFees: data as EiaFees, loading: false });
+      }
+    } catch (error: unknown) {
+      let message = 'Failed to fetch EIA Fees';
+      if (error && typeof error === 'object' && 'message' in error && typeof (error as { message?: string }).message === 'string') {
+        message = (error as { message?: string }).message!;
+      }
+      set({ error: message, loading: false });
+    }
+  },
 
-	createEiaFees: async (payload: any) => {
-		set({ loading: true, error: null });
-		try {
-			const data = await createEiaFee(payload);
-			set({ eiaFees: data, loading: false });
-		} catch (error: any) {
-			set({ error: error.message || 'Failed to create EIA Fee', loading: false });
-		}
-	},
+  createEiaFees: async (payload: CreateEiaFeePayload) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await createEiaFee(payload);
+      set({ eiaFees: data, loading: false });
+    } catch (error: unknown) {
+      let message = 'Failed to create EIA Fee';
+      if (error && typeof error === 'object' && 'message' in error && typeof (error as { message?: string }).message === 'string') {
+        message = (error as { message?: string }).message!;
+      }
+      set({ error: message, loading: false });
+    }
+  },
 
-	updateEiaFees: async (payload: any) => {
-		set({ loading: true, error: null });
-		try {
-			const data = await updateEiaFee(payload);
-			set({ eiaFees: data, loading: false });
-		} catch (error: any) {
-			set({ error: error.message || 'Failed to update EIA Fee', loading: false });
-		}
-	},
+  updateEiaFees: async (payload: UpdateEiaFeePayload) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await updateEiaFee(payload);
+      set({ eiaFees: data, loading: false });
+    } catch (error: unknown) {
+      let message = 'Failed to update EIA Fee';
+      if (error && typeof error === 'object' && 'message' in error && typeof (error as { message?: string }).message === 'string') {
+        message = (error as { message?: string }).message!;
+      }
+      set({ error: message, loading: false });
+    }
+  },
 }));
