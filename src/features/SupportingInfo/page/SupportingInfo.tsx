@@ -41,7 +41,6 @@ const SupportingInfo: React.FC = () => {
   const [wayleavesReason, setWayleavesReason] = useState<string>("");
   const [supportingDocs, setSupportingDocs] = useState<string>("");
   const [comments, setComments] = useState<string>("");
-  // Removed unused files state
   const [errors, setErrors] = useState<{ key: string; message: string }[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [projectDocuments, setProjectDocuments] = useState<ProjectDocument[]>([]);

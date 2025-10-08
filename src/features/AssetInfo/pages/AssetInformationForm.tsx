@@ -227,8 +227,8 @@ const getApplicationId = () => {
 							className="govuk-breadcrumbs__link"
 							to={`/task-list?id=${applicationId}`}
 						>
-Task list						
-</Link>
+              Task list
+            </Link>
 					</li>
 					<li className="govuk-breadcrumbs__list-item" aria-current="page">Asset information</li>
 				</ol>
