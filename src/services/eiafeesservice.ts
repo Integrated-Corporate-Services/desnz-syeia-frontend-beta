@@ -3,7 +3,7 @@
 // Service to fetch EIA Fees details from the backend
 export const fetchEiaFeesDetails = async (applicationId: string) => {
   try {
-    const response = await fetch(`/api/eia-fees?applicationId=${applicationId}`);
+    const response = await fetch(`/backend/api/applications/${applicationId}/eia-fees`);
     if (!response.ok) throw new Error('Failed to fetch EIA Fees details');
     return await response.json();
   } catch (error) {
@@ -26,7 +26,7 @@ export const createEiaFee = async (payload: any) => {
       createdBy: payload.created_by || payload.createdBy,
       updatedBy: payload.updated_by || payload.updatedBy,
   };
-  const response = await fetch('/api/eia-fees', {
+  const response = await fetch('/backend/api/applications/eia-fees', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
@@ -42,12 +42,31 @@ export const createEiaFee = async (payload: any) => {
 
 // Service to update EIA Fee via PUT
 export const updateEiaFee = async (payload: any) => {
-  const response = await fetch('/api/eia-fees', {
+  // Only send allowed fields for PUT
+  const {
+    eiaFeeId,
+    applicationId,
+    isEiaDevelopment,
+    requiresFullEia,
+    screeningOnly,
+    updatedAt,
+    updatedBy
+  } = payload;
+  const putPayload = {
+    eiaFeeId,
+    applicationId,
+    isEiaDevelopment,
+    requiresFullEia,
+    screeningOnly,
+    updatedAt,
+    updatedBy
+  };
+  const response = await fetch('/backend/api/applications/eia-fees', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(putPayload),
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

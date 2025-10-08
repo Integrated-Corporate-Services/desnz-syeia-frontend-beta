@@ -4,6 +4,7 @@ import RadioGroup from "../component/RadioGroup";
 import CheckboxGroup from "../component/CheckboxGroup";
 // Import application store/context if available
 import { useApplicationStore } from "../../../store/useApplicationStore";
+import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
 
 const EIAFeesForm: React.FC = () => {
   const navigate = useNavigate();
@@ -27,11 +28,23 @@ const EIAFeesForm: React.FC = () => {
   const applicationId = getApplicationId();
 
   // State for fetched EIA Fees
-  const [eiaFees, setEiaFees] = useState<any>(null);
-  const [form, setForm] = useState({
-  isEiaDevelopment: false,
-  requiresFullEia: "",
-  screeningOnly: "",
+  const eiaFees = useEiaFeesStore((state) => state.eiaFees);
+  const fetchEiaFees = useEiaFeesStore((state) => state.fetchEiaFees);
+  const createEiaFees = useEiaFeesStore((state) => state.createEiaFees);
+  const updateEiaFees = useEiaFeesStore((state) => state.updateEiaFees);
+  type FormState = {
+    isEiaDevelopment: boolean;
+    requiresFullEia: string;
+    screeningOnly: string;
+    eiaFeeId?: string;
+    applicationId?: string;
+  };
+  const [form, setForm] = useState<FormState>({
+    isEiaDevelopment: false,
+    requiresFullEia: "",
+    screeningOnly: "",
+    eiaFeeId: undefined,
+    applicationId: undefined,
   });
   const [errors, setErrors] = useState<{ field: string; message: string }[]>(
     []
@@ -43,20 +56,8 @@ const EIAFeesForm: React.FC = () => {
   // Fetch EIA Fees on mount
   useEffect(() => {
     if (!applicationId) return;
-    const fetchFees = async () => {
-      try {
-        const res = await fetch(
-          `http://localhost:3000/api/eia-fees/application/${applicationId}`
-        );
-        if (!res.ok) return;
-        const data = await res.json();
-  setEiaFees(data && Array.isArray(data.eiaFees) ? data.eiaFees[0] : null);
-      } catch (err) {
-        // Optionally handle error
-      }
-    };
-    fetchFees();
-  }, [applicationId]);
+    fetchEiaFees(applicationId);
+  }, [applicationId, fetchEiaFees]);
 
   // Populate form when EIA Fees are loaded
   useEffect(() => {
@@ -65,6 +66,8 @@ const EIAFeesForm: React.FC = () => {
         isEiaDevelopment: !!eiaFees.isEiaDevelopment,
         requiresFullEia: eiaFees.requiresFullEia ? "true" : "false",
         screeningOnly: eiaFees.screeningOnly ? "true" : "false",
+        eiaFeeId: eiaFees.eiaFeeId,
+        applicationId: eiaFees.applicationId,
       });
     }
   }, [eiaFees]);
@@ -129,37 +132,31 @@ const EIAFeesForm: React.FC = () => {
           updatedAt: new Date().toISOString(),
           updatedBy: "system",
         };
-        let response;
+        console.log('Updating existing EIA Fee with ID:', eiaFees.eiaFeeId);
         if (eiaFees && eiaFees.eiaFeeId) {
-          // Update existing EIA Fee
-          response = await fetch(`http://localhost:3000/api/eia-fees/${eiaFees.eiaFeeId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+          console.log('Updating existing EIA Fee with ID:', eiaFees.eiaFeeId);
+          // Update existing EIA Fee using store (PUT)
+          await updateEiaFees({
+            eiaFeeId: eiaFees.eiaFeeId,
+            applicationId: payload.applicationId,
+            isEiaDevelopment: payload.isEiaDevelopment,
+            requiresFullEia: payload.requiresFullEia,
+            screeningOnly: payload.screeningOnly,
+            updatedAt: payload.updatedAt,
+            updatedBy: payload.updatedBy
           });
         } else {
-          // Create new EIA Fee
+          // Create new EIA Fee using store (POST)
           payload.eiaId = crypto.randomUUID();
           payload.createdAt = new Date().toISOString();
           payload.createdBy = "system";
-          response = await fetch("http://localhost:3000/api/eia-fees", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+          await createEiaFees(payload);
         }
-        const result = await response.json();
-        if (response.ok) {
-          setSuccess(true);
-          setForm({ isEiaDevelopment: false, requiresFullEia: "", screeningOnly: "" });
-          // Redirect to tasklist page after success
-          const redirectId = payload.applicationId;
-          navigate(`/task-list?id=${redirectId}`);
-        } else {
-          setApiError(
-            result.message || "Failed to submit EIA Fees. Please try again."
-          );
-        }
+        setSuccess(true);
+        setForm({ isEiaDevelopment: false, requiresFullEia: "", screeningOnly: "" });
+        // Redirect to tasklist page after success
+        const redirectId = payload.applicationId;
+        navigate(`/task-list?id=${redirectId}`);
       } catch {
         setApiError("Failed to submit EIA Fees. Please try again.");
       } finally {
