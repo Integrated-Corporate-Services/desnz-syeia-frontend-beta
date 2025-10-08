@@ -11,14 +11,14 @@ export interface UploadedFile {
 }
 
 export interface ProjectDocument {
-  document_id: string;
-  application_id: string;
-  file_id: string;
+  documentId: string;
+  applicationId: string;
+  fileId: string;
   category: string;
   subCategory?: string;
   title?: string;
-  virtual_folder?: string;
-  added_by: string;
-  added_at: string;
+  virtualFolder?: string;
+  addedBy: string;
+  addedAt: string;
   description?: string;
 }

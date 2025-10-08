@@ -401,6 +401,7 @@ const SupportingInfo: React.FC = () => {
         value="false"
         checked={supportingDocs === "no"}
         onChange={() => setSupportingDocs("no")}
+        ref={supportingDocsRef}
       />
       <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments-no">
         No
@@ -442,15 +443,15 @@ function mapFileUploadResponsesToDocuments(
   userId: string | undefined
 ): ProjectDocument[] {
   return results.map((fileResp) => ({
-    document_id: '',
-    application_id: applicationId,
-    file_id: '',
+    documentId: '',
+    applicationId: applicationId,
+    fileId: '',
     category: FILE_CATEGORIES.SUPPORT_INFO,
     subCategory: '',
     title: fileResp.filename.split('/').pop() || fileResp.filename,
-    virtual_folder: fileResp.filename,
-    added_by: userId ?? '',
-    added_at: new Date().toISOString(),
+    virtualFolder: fileResp.filename,
+    addedBy: userId ?? '',
+    addedAt: new Date().toISOString(),
     description: fileResp.description ?? 'No description provided',
   }));
 }
