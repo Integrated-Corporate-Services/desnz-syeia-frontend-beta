@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import SignInPage from '../features/SignIn/SignInPage';
+import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
+import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
+import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
+
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ROUTE_CONFIG } from '../constants/routes';
 

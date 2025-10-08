@@ -1,6 +1,6 @@
 import React, { useState, useEffect,useRef } from 'react';
 import { useAssetStore } from '../../../store/useAssetStore';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import NumberInput from '../component/NumberInput';
 import RadioGroup from '../component/RadioGroup';
@@ -220,8 +220,19 @@ const getApplicationId = () => {
 
   return (
   <div className="govuk-width-container">
-      {loading && <div className="govuk-body">Loading asset details...</div>}
-      {error && <div className="govuk-error-message">{error}</div>}
+<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+				<ol className="govuk-breadcrumbs__list">
+					<li className="govuk-breadcrumbs__list-item">
+						<Link
+							className="govuk-breadcrumbs__link"
+							to={`/task-list?id=${applicationId}`}
+						>
+              Task list
+            </Link>
+					</li>
+					<li className="govuk-breadcrumbs__list-item" aria-current="page">Asset information</li>
+				</ol>
+			</nav>
       <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
         {submitted && Object.keys(errors).length > 0 && (
           <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary" style={{ marginBottom: '2rem', maxWidth: 600 }}>

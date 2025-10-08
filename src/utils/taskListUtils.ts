@@ -33,7 +33,7 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
     {
       title: 'Supporting information',
       items: [
-        { name: 'Supporting questions', status: 'Incomplete', link: '/supporting-questions' },
+        { name: 'Supporting questions', status: 'Incomplete', link: '/supporting-info' },
         { name: 'EIA fees', status: 'Incomplete', link: '/eia-fees' },
       ],
     },

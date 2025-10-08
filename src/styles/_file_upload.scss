@@ -1,0 +1,131 @@
+.fds-file-upload-dropzone {
+  border: 2px dashed #b1b4b6; /* govuk-colour("mid-grey") */
+  background: #f3f2f1; /* govuk-colour("light-grey") */
+  text-align: center;
+  font-size: 1.2em;
+  color: #0b0c0c; /* govuk-colour("black") */
+  transition: background 0.2s;
+  margin-bottom: 20px; /* govuk-spacing(3) */
+  box-sizing: border-box;
+
+  &--hidden {
+    display: none;
+  }
+
+  &__content {
+    padding: 2em;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+
+    &--hover {
+      background: #d1d1d1;
+    }
+  }
+
+  &__text {
+    &--hover {
+      pointer-events: none;
+    }
+    font-size: 19px;
+    line-height: 19px;
+  }
+
+  &__extensions {
+    width: 100%;
+
+    &--hover {
+      pointer-events: none;
+    }
+
+    margin-top: 20px; /* govuk-spacing(3) */
+
+    .govuk-hint {
+      margin-bottom: 0;
+    }
+  }
+
+  &__hidden-input {
+    display: none;
+  }
+
+  &__link {
+    display: inline;
+    font-weight: inherit;
+    text-decoration: underline;
+    color: #005ea5; /* $govuk-link-colour */
+    cursor: pointer;
+    padding: 0;
+    background: transparent;
+
+    &:hover {
+      color: #2b8cc4; /* $govuk-link-hover-colour */
+    }
+
+    &:focus {
+      outline: 3px solid #ffdd00; /* govuk-focused-text */
+    }
+  }
+}
+
+.fds-file-upload-item {
+  display: flex;
+  flex-flow: column;
+  margin-bottom: 20px; /* govuk-responsive-margin(3, "bottom") */
+  border: 5px solid #b1b4b6; /* govuk-colour("mid-grey") */
+  padding: 1em;
+  font-size: 19px;
+  line-height: 19px;
+
+  &--error {
+    border-color: #d4351c; /* $govuk-error-colour */
+  }
+
+  &__filename {
+    word-break: break-all;
+  }
+
+  &__extra-info,
+  &__progress {
+    margin-left: .3em;
+  }
+
+  &__error {
+    color: #d4351c; /* $govuk-error-colour */
+    font-weight: bold;
+    margin-top: 10px; /* govuk-responsive-margin(2, "top") */
+    margin-bottom: 0;
+  }
+
+  &__file-info-wrapper {
+    display: flex;
+  }
+
+  &__info {
+    .govuk-form-group {
+      margin-top: 20px; /* govuk-responsive-margin(3, "top") */
+      margin-bottom: 0;
+    }
+
+    .govuk-textarea {
+      margin-bottom: 0;
+
+      &--file-upload-character-count {
+        margin-bottom: 10px; /* govuk-responsive-margin(1, "bottom") */
+      }
+    }
+
+    .govuk-character-count {
+      margin-bottom: 0;
+    }
+  }
+
+  &__delete-link {
+    margin-left: auto;
+  }
+
+  &--hidden {
+    display: none;
+  }
+}
