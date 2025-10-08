@@ -32,7 +32,7 @@ const ServiceNavigation = () => {
                 <li className="govuk-service-navigation__item">
                   {!isOnWorkbasket && (
                     <a className="govuk-service-navigation__link" 
-                      href={`${BASE_URL}workbasket/`}>
+                      href={`${BASE_URL}/workbasket`}>
                       {CONTENT.serviceNav[0].text}
                     </a>
                   )}
