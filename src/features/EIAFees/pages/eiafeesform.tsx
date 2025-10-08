@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import RadioGroup from "../component/RadioGroup";
 import CheckboxGroup from "../component/CheckboxGroup";
-// Import application store/context if available
 import { useApplicationStore } from "../../../store/useApplicationStore";
+import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
 
 // Helper to get CSRF token from cookie
 function getCsrfToken() {
@@ -153,13 +153,29 @@ const EIAFeesForm: React.FC = () => {
           });
         } else {
           // Create new EIA Fee using store (POST)
-          payload.eiaId = crypto.randomUUID();
-          payload.createdAt = new Date().toISOString();
-          payload.createdBy = "system";
-          await createEiaFees(payload);
+          const eiaId = crypto.randomUUID();
+          const createdAt = new Date().toISOString();
+          const createdBy = "system";
+          await createEiaFees({
+            eiaId,
+            applicationId: payload.applicationId,
+            isEiaDevelopment: payload.isEiaDevelopment,
+            requiresFullEia: payload.requiresFullEia,
+            screeningOnly: payload.screeningOnly,
+            createdAt,
+            updatedAt: payload.updatedAt,
+            createdBy,
+            updatedBy: payload.updatedBy
+          });
         }
         setSuccess(true);
-        setForm({ isEiaDevelopment: false, requiresFullEia: "", screeningOnly: "" });
+        setForm({
+          isEiaDevelopment: false,
+          requiresFullEia: "",
+          screeningOnly: "",
+          eiaFeeId: undefined,
+          applicationId: undefined,
+        });
         // Redirect to tasklist page after success
         const redirectId = payload.applicationId;
         navigate(`/task-list?id=${redirectId}`);
