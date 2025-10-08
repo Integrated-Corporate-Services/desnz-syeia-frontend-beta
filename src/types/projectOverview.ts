@@ -1,7 +1,8 @@
 // src/types/projectOverview.ts
 
 import { SearchableDropdownOption } from "../components/SearchableDropdown";
-
+import { UploadedFile } from "./fileUpload";
+import { ProjectDocument } from "./fileUpload";
 export interface RelatedApplication {
   relatedApplicationId: string;
   projectId?: string;
@@ -14,29 +15,7 @@ export interface RelatedApplication {
   createdAt?: string;
 }
 
-export interface UploadedFile {
-  id: string;
-  storage_provider: string;
-  s3_key: string;
-  bucket_name: string;
-  virtual_folder: string;
-  filename: string;
-  file_content_type: string;
-  file_size_bytes: number;
-  uploaded_at_timestamp: string;
-  description?: string;
-}
 
-export interface ProjectDocument {
-  documentId: string;
-  applicationId: string;
-  fileId: string;
-  category: string;
-  title?: string;
-  virtual_folder?: string;
-  addedBy: string;
-  addedAt: string;
-}
 
 export interface ProjectOverviewModel {
   applicationFormId?: string;

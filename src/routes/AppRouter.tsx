@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import TaskList from '../features/TaskList/pages/TaskList';
-import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOperatorDetails';
-import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
-import Workbasket from '../features/Workbasket/pages/Workbasket';
-import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitted';
 import SignInPage from '../features/SignIn/SignInPage';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
+<<<<<<< HEAD
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
+=======
+import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
+>>>>>>> develop
 
-
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { ROUTE_CONFIG } from '../constants/routes';
 
 // Real authentication check using backend /api/user endpoint
 const useAuth = () => {
@@ -35,21 +34,17 @@ const useAuth = () => {
 
 
 const AppRouter: React.FC = () => {
-  const isAuthenticated = useAuth();
-
-  if (isAuthenticated === null) {
-    // Optionally show a loading spinner while checking auth
-    return <div>Loading...</div>;
-  }
+  //const isAuthenticated = useAuth();
+  const isAuthenticated = false; // DNS always leads to signin
 
   return (
     <Routes>
-      <Route path="/signin" element={<SignInPage />} />
-      <Route
-        path="/workbasket/"
-        element={
-          isAuthenticated ? <Workbasket /> : <Navigate to="/signin" replace />
+      {ROUTE_CONFIG.map(({ path, component: Component, auth }) => {
+        // If root or /signin, always show SignInPage
+        if (path === '/' || path === '/signin') {
+          return <Route key={path} path={path} element={<SignInPage />} />;
         }
+<<<<<<< HEAD
       />
       <Route path="/" element={<Navigate to="/workbasket/" replace />} />
       <Route path="/task-list" element={<TaskList />} />
@@ -59,6 +54,11 @@ const AppRouter: React.FC = () => {
       <Route path="/application-submitted" element={<ApplicationSubmitted />} />
       <Route path="/project-overview" element={<ProjectOverview />} />
       <Route path="/eia-fees" element={<EIAFeesForm />} />
+=======
+        // Allow all other pages to work normally
+        return <Route key={path} path={path} element={<Component />} />;
+      })}
+>>>>>>> develop
     </Routes>
   );
 };

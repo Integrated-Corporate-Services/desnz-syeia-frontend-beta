@@ -227,20 +227,20 @@ const ProjectOverview = () => {
 						filename: f.filename || '',
 						file_content_type: f.file_content_type || '',
 						file_size_bytes: f.file_size_bytes || 0,
-						uploaded_at_timestamp: f.uploaded_at_timestamp || '',
-						description: f.description || ''
+						uploaded_at_timestamp: f.uploaded_at_timestamp			
 					}))
 					: [],
 				documents: Array.isArray(projectData.documents)
 					? projectData.documents.map(d => ({
-						documentId: d.documentId || '',
-						applicationId: d.applicationId || '',
-						fileId: d.fileId || '',
+						document_id: d.document_id || '',
+						application_id: d.application_id || '',
+						file_id: d.file_id || '',
 						category: d.category || '',
 						title: d.title || '',
 						virtual_folder: d.virtual_folder || '',
-						addedBy: d.addedBy || '',
-						addedAt: d.addedAt || ''
+						added_by: d.added_by || '',
+						added_at: d.added_at || '',
+						description: d.description || ''
 					}))
 					: []
 			});
@@ -403,8 +403,8 @@ const ProjectOverview = () => {
 							filename: f.filename,
 							file_content_type: f.file_content_type,
 							file_size_bytes: f.file_size_bytes,
-							uploaded_at_timestamp: f.uploaded_at_timestamp,
-							description: f.description
+							uploaded_at_timestamp: f.uploaded_at_timestamp
+							
 						})),
 						// Always send relatedCpoDetails as string (not object)
 						relatedCpoDetails: typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
@@ -413,6 +413,19 @@ const ProjectOverview = () => {
 						// Remove applicationRelationId from relatedApplications for backend validation
 						relatedApplications: Array.isArray(formState.relatedApplications)
 							? formState.relatedApplications.map(({ applicationRelationId, ...rest }) => rest)
+							: [],
+						documents: Array.isArray(formState.documents)
+							? formState.documents.map(d => ({
+								document_id: d.document_id || '',
+								application_id: d.application_id || '',
+								file_id: d.file_id || '',
+								category: d.category || '',
+								title: d.title || '',
+								virtual_folder: d.virtual_folder || '',
+								added_by: d.added_by || '',
+								added_at: d.added_at || '',
+								description: d.description || ''
+							}))
 							: [],
 					};
 					saveProjectOverview(payload)
@@ -634,11 +647,13 @@ const ProjectOverview = () => {
 					{/* Plan Information Documents */}
 					<div className="govuk-form-group">
 						<fieldset className="govuk-fieldset">
-							{application && (
+							{application ? (
 								<PlanInformationUpload
 									application={application}
 									title={projectOverview.planInformationDocuments}
 								/>
+							) : (
+								<div className="govuk-inset-text">Application data is not available. Please reload the page or check your connection.</div>
 							)}
 						</fieldset>
 					</div>
