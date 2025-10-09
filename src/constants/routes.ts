@@ -6,13 +6,13 @@ import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitte
 import SignInPage from '../features/SignIn/SignInPage';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
-import NotFound from '../features/NotFound/NotFound';
-
 import RouteMapPage from '../features/RouteMap/page/RouteMapPage';
 import SensitiveAreaPage from '../features/sensitiveArea/page/SensitiveAreaPage';
 import SensitiveAreaReviewPage from '../features/sensitiveArea/page/SensitiveAreaReviewPage';
 import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
 import ComingSoon from '../features/NotFound/ComingSoon';
+import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
+import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 
 export const ROUTE_CONFIG = [
   {
@@ -106,14 +106,14 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path: '/supporting-questions',
-    component: ComingSoon,
+    path: '/supporting-info',
+    component: SupportingInfo,
     auth: true,
     layout: true
   },
   {
     path: '/eia-fees',
-    component: ComingSoon,
+    component: EIAFeesForm,
     auth: true,
     layout: true
   },
