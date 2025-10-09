@@ -16,7 +16,7 @@ export function useAuthUser() {
       setLoading(false);
       return;
     }
-    fetch('/auth/user', { credentials: 'include' })
+    fetch('/backend/auth/user', { credentials: 'include' })
       .then(async (res) => {
         if (res.ok) return res.json();
         throw new Error('Not authenticated');

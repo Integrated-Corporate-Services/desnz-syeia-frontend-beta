@@ -33,7 +33,13 @@ export const fetchEiaFeesDetails = async (applicationId: string): Promise<EiaFee
   try {
     const response = await fetch(`/backend/api/applications/${applicationId}/eia-fees`);
     if (!response.ok) throw new Error('Failed to fetch EIA Fees details');
-    return await response.json();
+    const data = await response.json();
+    // If backend returns { applicationId, eiaFees: [ ... ] }, flatten to first eiaFees item
+    if (data && Array.isArray(data.eiaFees)) {
+      return { ...data.eiaFees[0], applicationId: data.applicationId };
+    }
+    // If backend returns a flat object, just return it
+    return data;
   } catch (error) {
     console.error('Error fetching EIA Fees details:', error);
     throw error;

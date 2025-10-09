@@ -103,7 +103,9 @@ const ProjectOverview = () => {
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const application = useApplicationStore(state => state.application);
 	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
-	const { user } = useAuthUser();
+	 const { user } = useAuthUser();
+	  const userId = user?.user_id;
+	  console.log('Authenticated user ID:', userId);
 	// Helper to get applicationId from store, params, or query string
 	const getApplicationId = () => {
 		if (application?.application_id) return application.application_id;
@@ -232,14 +234,14 @@ const ProjectOverview = () => {
 					: [],
 				documents: Array.isArray(projectData.documents)
 					? projectData.documents.map(d => ({
-						document_id: d.document_id || '',
-						application_id: d.application_id || '',
-						file_id: d.file_id || '',
+						documentId: d.documentId  || '',
+						applicationId: d.applicationId || '',
+						fileId: d.fileId  || '',
 						category: d.category || '',
 						title: d.title || '',
-						virtual_folder: d.virtual_folder || '',
-						added_by: d.added_by || '',
-						added_at: d.added_at || '',
+						virtualFolder: d.virtualFolder  || '',
+						addedBy: d.addedBy  || '',
+						addedAt: d.addedAt  || '',
 						description: d.description || ''
 					}))
 					: []
@@ -388,7 +390,7 @@ const ProjectOverview = () => {
 					const payload = {
 						...formState,
 						applicationId: applicationIdForSave,
-						createdBy: user?.user_id || '',
+						createdBy: userId || '',
 						applicationFormId: formState.applicationFormId === '' ? undefined : formState.applicationFormId,
 						earliestWorkStartDateMonth: shouldClearDates ? '' : (formState.earliestWorkStartDateMonth ? monthNameToNum(formState.earliestWorkStartDateMonth) : ''),
 						earliestWorkStartDateYear: shouldClearDates ? '' : (formState.earliestWorkStartDateYear || ''),
@@ -416,14 +418,14 @@ const ProjectOverview = () => {
 							: [],
 						documents: Array.isArray(formState.documents)
 							? formState.documents.map(d => ({
-								document_id: d.document_id || '',
-								application_id: d.application_id || '',
-								file_id: d.file_id || '',
+								documentId: d.documentId || '',
+								applicationId: d.applicationId || '',
+								fileId: d.fileId || '',
 								category: d.category || '',
 								title: d.title || '',
-								virtual_folder: d.virtual_folder || '',
-								added_by: d.added_by || '',
-								added_at: d.added_at || '',
+								virtualFolder: d.virtualFolder || '',
+								addedBy: d.addedBy || '',
+								addedAt: d.addedAt || '',
 								description: d.description || ''
 							}))
 							: [],
