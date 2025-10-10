@@ -13,6 +13,8 @@ import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
 import ComingSoon from '../features/NotFound/ComingSoon';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
+import PaymentPage from '../features/Payments/pages/PaymentPage';
+import PaymentCallback from '../features/Payments/pages/PaymentCallback';
 
 export const ROUTE_CONFIG = [
   {
@@ -127,6 +129,18 @@ export const ROUTE_CONFIG = [
     path: '/post-consultation-actions',
     component: ComingSoon,
     auth: true,
+    layout: true
+  },
+  {
+    path: '/payment',
+    component: PaymentPage,
+    auth: true,
+    layout: true
+  },
+  {
+  path: '/payment/callback',
+    component: PaymentCallback,
+    auth: false,
     layout: true
   },
   {

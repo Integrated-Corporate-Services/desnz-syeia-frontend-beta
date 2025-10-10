@@ -45,7 +45,19 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
       ],
     },
     {
-      title: 'Review and submit',
+      title: 'Review',
+      items: [
+        { name: 'Review application', status: '', link: '/review-application' },
+      ],
+    },
+    {
+      title: 'Pay',
+      items: [
+        { name: 'Payment', status: 'Not started', link: '/payment' },
+      ],
+    },
+    {
+      title: 'Submit',
       items: [
         { name: 'Submit application', status: '', link: '/submit-application' },
       ],
