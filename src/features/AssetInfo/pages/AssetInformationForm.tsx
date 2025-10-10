@@ -252,6 +252,7 @@ const getApplicationId = () => {
         )}
         <h1 className="govuk-heading-l">Asset information</h1>
 
+        {/* Standard specification reference number */}
         <div className="govuk-!-margin-bottom-6" style={{ maxWidth: 480 }}>
           <TextInput
             id="referenceNumber"
@@ -265,22 +266,54 @@ const getApplicationId = () => {
           />
         </div>
 
-        {/* Line type */}
+
+        {/* Type of Line */}
+        <div className="govuk-!-margin-bottom-6">
+          <RadioGroup
+            id="addingOverheadLines"
+            label="Type of Line"
+            name="addingOverheadLines"
+            value={form.addingOverheadLines}
+            error={errors.addingOverheadLines}
+            onChange={handleChange}
+            options={[
+              { value: 'distribution', label: 'Distribution' },
+              { value: 'transmission', label: 'Transmission' },
+            ]}
+          >
+            <div className={`govuk-form-group${errors.overheadLinesDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+              <TextArea
+                id="overheadLinesDescription"
+                name="overheadLinesDescription"
+                label="TORI/NOI code for this project (optional)"
+                value={form.overheadLinesDescription}
+                onChange={handleChange}
+                maxLength={4000}
+                showCount
+                style={{ width: '100%', maxWidth: 600 }}
+                error={errors.overheadLinesDescription}
+              />
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Line voltage */}
         <div className="govuk-!-margin-bottom-6">
           <SelectInput
-            id="lineType"
-            name="lineType"
-            label="Line type"
-            value={form.lineType}
-            error={errors.lineType}
+            id="lineVoltage"
+            name="lineVoltage"
+            label="Line voltage"
+            value={form.lineVoltage}
+            error={errors.lineVoltage}
             onChange={handleChange}
             options={[
               { value: '', label: 'Select an option' },
-              ...TYPE_OF_LINE_ENUM.map((opt: string) => ({ value: opt, label: LINE_TYPE_LABELS[opt] }))
+              ...VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))
             ]}
           />
         </div>
 
+        {/* Line Length */}
         <div className={`govuk-form-group govuk-!-margin-bottom-6${errors.lineLength ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 320 }}>
           <label className="govuk-label govuk-!-font-size-19" htmlFor="lineLength">Line length</label>
           {errors.lineLength && (
@@ -301,163 +334,6 @@ const getApplicationId = () => {
             />
             <span className="govuk-input__suffix" id="lineLength-suffix">metres</span>
           </div>
-        </div>
-
-        {/* Adding or replacing poles */}
-        <div className="govuk-!-margin-bottom-6">
-          <RadioGroup
-            id="addingPoles"
-            label="Are you adding or replacing any poles?"
-            name="addingPoles"
-            value={form.addingPoles}
-            error={errors.addingPoles}
-            onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
-          >
-            <div className={`govuk-form-group${errors.polesAdded ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <NumberInput
-                id="polesAdded"
-                name="polesAdded"
-                label="How many poles are you adding?"
-                value={form.polesAdded}
-                onChange={handleChange}
-                widthClass="govuk-input--width-20"
-                error={errors.polesAdded}
-              />
-            </div>
-            <div className={`govuk-form-group${errors.polesReplaced ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <NumberInput
-                id="polesReplaced"
-                name="polesReplaced"
-                label="How many are you replacing?"
-                value={form.polesReplaced}
-                onChange={handleChange}
-                widthClass="govuk-input--width-20"
-                error={errors.polesReplaced}
-              />
-            </div>
-            <div className={`govuk-form-group${errors.constructionDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <TextArea
-                id="constructionDescription"
-                name="constructionDescription"
-                label="Provide a description of the construction works and methods of work"
-                value={form.constructionDescription}
-                onChange={handleChange}
-                maxLength={4000}
-                showCount
-                style={{ width: '100%', maxWidth: 600 }}
-                error={errors.constructionDescription}
-              />
-            </div>
-          </RadioGroup>
-        </div>
-
-        {/* Adding or replacing overhead lines */}
-        <div className="govuk-!-margin-bottom-6">
-          <RadioGroup
-            id="addingOverheadLines"
-            label="Are you adding or replacing any overhead lines?"
-            name="addingOverheadLines"
-            value={form.addingOverheadLines}
-            error={errors.addingOverheadLines}
-            onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
-          >
-            <div className={`govuk-form-group${errors.overheadLinesDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <TextArea
-                id="overheadLinesDescription"
-                name="overheadLinesDescription"
-                label="Provide a description of the construction works and methods of work"
-                value={form.overheadLinesDescription}
-                onChange={handleChange}
-                maxLength={4000}
-                showCount
-                style={{ width: '100%', maxWidth: 600 }}
-                error={errors.overheadLinesDescription}
-              />
-            </div>
-          </RadioGroup>
-        </div>
-
-        {/* Removing equipment */}
-        <div className="govuk-!-margin-bottom-6">
-          <RadioGroup
-            id="removingEquipment"
-            label="Are you removing any existing equipment as part of this project?"
-            name="removingEquipment"
-            value={form.removingEquipment}
-            error={errors.removingEquipment}
-            onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
-          >
-            <div className={`govuk-form-group${errors.removingEquipmentDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <TextArea
-                id="removingEquipmentDescription"
-                name="removingEquipmentDescription"
-                label="Provide a description of the construction works and methods of work"
-                value={form.removingEquipmentDescription}
-                onChange={handleChange}
-                maxLength={4000}
-                showCount
-                style={{ width: '100%', maxWidth: 600 }}
-                error={errors.removingEquipmentDescription}
-              />
-            </div>
-          </RadioGroup>
-        </div>
-
-        {/* Works on existing asset */}
-        <div className="govuk-!-margin-bottom-6">
-          <RadioGroup
-            id="worksOnExistingAsset"
-            label="Are the works to be carried out on an existing asset?"
-            name="worksOnExistingAsset"
-            value={form.worksOnExistingAsset}
-            error={errors.worksOnExistingAsset}
-            onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
-          />
-        </div>
-
-        {/* General comments */}
-        <div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
-          <TextArea
-            id="generalComments"
-            name="generalComments"
-            label="General comments (optional)"
-            value={form.generalComments}
-            onChange={handleChange}
-            maxLength={4000}
-            showCount
-          />
-        </div>
-
-        {/* Line voltage */}
-        <div className="govuk-!-margin-bottom-6">
-          <SelectInput
-            id="lineVoltage"
-            name="lineVoltage"
-            label="Line voltage"
-            value={form.lineVoltage}
-            error={errors.lineVoltage}
-            onChange={handleChange}
-            options={[
-              { value: '', label: 'Select an option' },
-              ...VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))
-            ]}
-          />
         </div>
 
         <details className="govuk-details govuk-!-margin-top-2 govuk-!-margin-bottom-6" data-module="govuk-details">
