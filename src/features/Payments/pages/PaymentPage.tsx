@@ -17,7 +17,21 @@ export default function PaymentPage() {
     setError('');
     try {
       const result = await createPayment(amount, applicationId, description);
-      window.location.href = result._links.next_url.href;
+      // Store localId/paymentId in sessionStorage for callback/result page
+      if (result.localId) {
+        sessionStorage.setItem('paymentLocalId', result.localId);
+      }
+      if (result.payment_id) {
+        sessionStorage.setItem('paymentId', result.payment_id);
+      }
+      // Redirect to GOV.UK Pay
+      if (result.next_url) {
+        window.location.href = result.next_url;
+      } else if (result._links && result._links.next_url && result._links.next_url.href) {
+        window.location.href = result._links.next_url.href;
+      } else {
+        setError('No redirect URL received from payment API');
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
