@@ -2,34 +2,20 @@ import React, { useState, useEffect,useRef } from 'react';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
-import NumberInput from '../component/NumberInput';
 import RadioGroup from '../component/RadioGroup';
 import SelectInput from '../component/SelectInput';
 import TextArea from '../component/TextArea';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
-import { VOLTAGE_CLASS_OPTIONS, TYPE_OF_LINE_ENUM, LINE_TYPE_LABELS } from '../../../constants/asset';
+import { VOLTAGE_CLASS_OPTIONS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
 
 const initialState = {
   assetId: '',
   referenceNumber: '',
-  lineLength: '',
-  lineLengthUnit: 'metres',
-  addingPoles: '',
-  polesAdded: '',
-  polesReplaced: '',
-  constructionDescription: '',
-  addingOverheadLines: '',
-  overheadLinesDescription: '',
-  removingEquipment: '',
-  removingEquipmentDescription: '',
-  worksOnExistingAsset: '',
-  generalComments: '',
   lineType: '',
+  lineTypeDescription: '',
   lineVoltage: '',
-  overheadLinesWorkItemId: '',
-  assetPolesWorkItemId: '',
-  assetEquipmentRemovalWorkItemId: ''
+  lineLength: '',
 };
 
 type FormErrors = Partial<Record<keyof typeof initialState, string>>;
@@ -89,66 +75,30 @@ const getApplicationId = () => {
       setForm({
         assetId: asset.assetId || '',
         referenceNumber: asset.standardSpecificationReferenceNumber || '',
-        lineLength: asset.lineLength?.toString() || '',
-        lineLengthUnit: 'metres',
-        addingPoles: asset.poles?.hasAddOrReplace ? 'yes' : 'no',
-        polesAdded: asset.poles?.add?.toString() || '',
-        polesReplaced: asset.poles?.replace?.toString() || '',
-        constructionDescription: asset.poles?.description || '',
-        addingOverheadLines: asset.overheadLines?.hasAddOrReplace ? 'yes' : 'no',
-        overheadLinesDescription: asset.overheadLines?.description || '',
-        removingEquipment: asset.equipmentRemoval?.isRemoving ? 'yes' : 'no',
-        removingEquipmentDescription: asset.equipmentRemoval?.description || '',
-        worksOnExistingAsset: asset.isExistingAsset ? 'yes' : 'no',
-        generalComments: asset.generalComments || '',
+        lineTypeDescription: asset.lineTypeDescription || '',
         lineType: typeof asset.typeOfLine === 'object' && asset.typeOfLine !== null
           ? (asset.typeOfLine as { code?: string }).code || ''
           : asset.typeOfLine || '',
         lineVoltage: typeof asset.lineVoltage === 'object' && asset.lineVoltage !== null
           ? (asset.lineVoltage as { code?: string }).code || ''
           : asset.lineVoltage || '',
-        overheadLinesWorkItemId: asset.overheadLines?.workItemId || '',
-        assetPolesWorkItemId: asset.poles?.workItemId || '',
-        assetEquipmentRemovalWorkItemId: asset.equipmentRemoval?.workItemId || ''
+        lineLength: asset.lineLength?.toString() || '',
       });
     }
   }, [assets]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm((prev: typeof initialState) => ({ ...prev, [name]: value }));
+  const { name, value } = e.target;
+  setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const validate = (data: typeof initialState): FormErrors => {
-    const newErrors: FormErrors = {};
-    if (!data.referenceNumber.trim()) newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumber;
-    if (!data.lineType) newErrors.lineType = ASSET_ERROR_MESSAGES.lineType;
-    if (!data.lineLength.trim()) newErrors.lineLength = ASSET_ERROR_MESSAGES.lineLength;
-    if (!data.addingPoles) {
-      newErrors.addingPoles = ASSET_ERROR_MESSAGES.addingPoles;
-    } else if (data.addingPoles === 'yes') {
-      if (!data.polesAdded.trim()) newErrors.polesAdded = ASSET_ERROR_MESSAGES.polesAdded;
-      if (!data.polesReplaced.trim()) newErrors.polesReplaced = ASSET_ERROR_MESSAGES.polesReplaced;
-      if (!data.constructionDescription.trim()) newErrors.constructionDescription = ASSET_ERROR_MESSAGES.constructionDescription;
-    }
-    if (!data.addingOverheadLines) {
-      newErrors.addingOverheadLines = ASSET_ERROR_MESSAGES.addingOverheadLines;
-    } else if (data.addingOverheadLines === 'yes') {
-      if (!data.overheadLinesDescription.trim()) newErrors.overheadLinesDescription = ASSET_ERROR_MESSAGES.overheadLinesDescription;
-    }
-    if (!data.removingEquipment) {
-      newErrors.removingEquipment = ASSET_ERROR_MESSAGES.removingEquipment;
-    } else if (data.removingEquipment === 'yes') {
-      if (!data.removingEquipmentDescription.trim()) newErrors.removingEquipmentDescription = ASSET_ERROR_MESSAGES.removingEquipmentDescription;
-    }
-    if (!data.worksOnExistingAsset) newErrors.worksOnExistingAsset = ASSET_ERROR_MESSAGES.worksOnExistingAsset;
-    const allowedVoltages = VOLTAGE_CLASS_OPTIONS.map(opt => opt.code);
-    if (!data.lineVoltage) {
-      newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltage;
-    } else if (!allowedVoltages.includes(data.lineVoltage)) {
-      newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltageInvalid;
-    }
-    return newErrors;
+  const newErrors: FormErrors = {};
+  if (!data.referenceNumber.trim()) newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumber;
+  if (!data.lineType) newErrors.lineType = ASSET_ERROR_MESSAGES.lineType;
+  if (!data.lineLength.trim()) newErrors.lineLength = ASSET_ERROR_MESSAGES.lineLength;
+  if (!data.lineVoltage) newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltage;
+  return newErrors;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -165,33 +115,12 @@ const getApplicationId = () => {
       applicationId: effectiveApplicationId,
       assets: [
         {
-          assetId: form.assetId || '',
-          assetType: 's37', // or other, if needed
-          assetReference: form.referenceNumber,
-          description: '', // add if needed
+          assetType: 's37',
           standardSpecificationReferenceNumber: form.referenceNumber,
-          lineLength: parseFloat(form.lineLength),
           typeOfLine: form.lineType,
-          poles: {
-            hasAddOrReplace: form.addingPoles === 'yes',
-            add: parseInt(form.polesAdded) || 0,
-            replace: parseInt(form.polesReplaced) || 0,
-            description: form.constructionDescription,
-            workItemId: typeof form.assetPolesWorkItemId === 'string' ? form.assetPolesWorkItemId : ''
-          },
-          overheadLines: {
-            hasAddOrReplace: form.addingOverheadLines === 'yes',
-            description: form.overheadLinesDescription,
-            workItemId: typeof form.overheadLinesWorkItemId === 'string' ? form.overheadLinesWorkItemId : ''
-          },
-          equipmentRemoval: {
-            isRemoving: form.removingEquipment === 'yes',
-            description: form.removingEquipmentDescription,
-            workItemId: typeof form.assetEquipmentRemovalWorkItemId === 'string' ? form.assetEquipmentRemovalWorkItemId : ''
-          },
-          isExistingAsset: form.worksOnExistingAsset === 'yes',
-          generalComments: form.generalComments,
+          lineTypeDescription: form.lineTypeDescription,
           lineVoltage: form.lineVoltage,
+          lineLength: parseFloat(form.lineLength),
         },
       ],
     };
@@ -270,31 +199,31 @@ const getApplicationId = () => {
         {/* Type of Line */}
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
-            id="addingOverheadLines"
+            id="lineType"
             label="Type of Line"
-            name="addingOverheadLines"
-            value={form.addingOverheadLines}
-            error={errors.addingOverheadLines}
+            name="lineType"
+            value={form.lineType}
+            error={errors.lineType}
             onChange={handleChange}
             options={[
               { value: 'distribution', label: 'Distribution' },
               { value: 'transmission', label: 'Transmission' },
             ]}
-          >
-            <div className={`govuk-form-group${errors.overheadLinesDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+          />
+          {form.lineType === 'transmission' && (
+            <div className="govuk-!-margin-top-2" style={{ maxWidth: 600 }}>
               <TextArea
-                id="overheadLinesDescription"
-                name="overheadLinesDescription"
+                id="lineTypeDescription"
+                name="lineTypeDescription"
                 label="TORI/NOI code for this project (optional)"
-                value={form.overheadLinesDescription}
+                value={form.lineTypeDescription}
                 onChange={handleChange}
                 maxLength={4000}
                 showCount
                 style={{ width: '100%', maxWidth: 600 }}
-                error={errors.overheadLinesDescription}
               />
             </div>
-          </RadioGroup>
+          )}
         </div>
 
         {/* Line voltage */}
