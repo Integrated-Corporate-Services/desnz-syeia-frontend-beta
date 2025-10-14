@@ -40,13 +40,14 @@ const ServiceNavigation = () => {
               </div>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <li className="govuk-service-navigation__item">
+                  {/*<
                   <button
                     className="govuk-service-navigation__link"
                     style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer' }}
                     onClick={() => window.location.href = logoutUrl}
                   >
                     Logout
-                  </button>
+                  </button>*/}
                 </li>
               </div>
               {/*<li className="govuk-service-navigation__item">
