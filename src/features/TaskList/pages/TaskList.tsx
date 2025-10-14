@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { getInitialSections, updateSectionStatus } from '../../../utils/taskListUtils';
 import { useLocation, Link } from 'react-router-dom';
+import RouteEntry from '../../RouteMap/page/RouteEntry';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useNavigate } from 'react-router-dom';
 import { getSensitiveAreaCheckStatus } from '../../../services/sensitiveAreaStatusService';
 
 const TaskList: React.FC = () => {
+  // ...existing code...
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const application = useApplicationStore(state => state.application);
   const [sections, setSections] = useState(getInitialSections(application?.application_id));
@@ -100,7 +102,13 @@ const TaskList: React.FC = () => {
                           {submitting ? 'Submitting...' : 'Submit application'}
                         </button>
                       ) : appId ? (
-                        <Link className="govuk-link" to={`${item.link}?id=${appId}`}>{item.name}</Link>
+                        item.name === 'Route' ? (
+                          <RouteEntry applicationId={appId || ''}>
+                            <Link className="govuk-link" to={`${item.link}?id=${appId}`}>{item.name}</Link>
+                          </RouteEntry>
+                        ) : (
+                          <Link className="govuk-link" to={`${item.link}?id=${appId}`}>{item.name}</Link>
+                        )
                       ) : (
                         <span className="govuk-link govuk-link--disabled">{item.name}</span>
                       )}

@@ -57,8 +57,8 @@ const RouteMapPage: React.FC = () => {
       return;
     }
     try {
-      await submitRoutePoints(effectiveApplicationId, points);
-      navigate(`/task-list?id=${effectiveApplicationId}`);
+  await submitRoutePoints(effectiveApplicationId, points);
+  navigate(`/route-overview/${effectiveApplicationId}`);
     } catch (err) {
       setSubmitError('Failed to submit route points. Please try again.');
     } finally {
@@ -89,51 +89,81 @@ const RouteMapPage: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-full-width">
-          <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Create a route</h1>
-          <div className="govuk-inset-text">
-            You can <a href="#" className="govuk-link">read the guidance on adding a route</a>
-          </div>
+      <div className="govuk-width-container">
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb" style={{ marginBottom: '2rem' }}>
+          <ol className="govuk-breadcrumbs__list">
+            <li className="govuk-breadcrumbs__list-item">
+              <a className="govuk-breadcrumbs__link" href={`/frontend/task-list?id=${effectiveApplicationId}`}>Task list</a>
+            </li>
+            <li className="govuk-breadcrumbs__list-item" aria-current="page">Route A</li>
+          </ol>
+        </nav>
+        <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-grid-row">
-            <div className="govuk-grid-column-one-half">
-              {points.map((point, idx) => (
-                <RoutePointCard
-                  key={idx}
-                  point={point}
-                  idx={idx}
-                  onAddBefore={() => handleAddPoint(idx, 'before')}
-                  onAddAfter={() => handleAddPoint(idx, 'after')}
-                  onRemove={() => handleRemovePoint(idx)}
-                  onChange={(field, value) => handleChange(idx, field, value)}
-                  onFocus={() => setSelectedIdx(idx)}
-                />
-              ))}
-            </div>
-            <div className="govuk-grid-column-one-half">
-              <SensitiveAreaCheckMap
-                points={points}
-                selectedIdx={selectedIdx}
-                setPoints={setPoints}
-                setSelectedIdx={setSelectedIdx}
-              />
+            <div className="govuk-grid-column-full">
+              <h1 className="govuk-heading-xl">Route A</h1>
+              <div className="govuk-inset-text">
+                You can{' '}
+                <a
+                  href={`/frontend/route-guidance?id=${effectiveApplicationId}`}
+                  className="govuk-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  read the guidance on adding a route.
+                </a>
+              </div>
+              <div className="govuk-grid-row">
+                <div className="govuk-grid-column-one-half">
+                  <form method="post" data-module="fds-html-form">
+                    {/* Hidden CSRF or other fields can go here if needed */}
+                    <div data-module="eip-add-route" className="eip-add-route">
+                      {points.map((point, idx) => (
+                        <RoutePointCard
+                          key={idx}
+                          point={point}
+                          idx={idx}
+                          onAddBefore={() => handleAddPoint(idx, 'before')}
+                          onAddAfter={() => handleAddPoint(idx, 'after')}
+                          onRemove={() => handleRemovePoint(idx)}
+                          onChange={(field, value) => handleChange(idx, field, value)}
+                          onFocus={() => setSelectedIdx(idx)}
+                        />
+                      ))}
+                    </div>
+                    <div className="govuk-!-static-margin-top-6">
+                      <button
+                        className="govuk-button"
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={submitting}
+                      >
+                        {submitting ? 'Submitting...' : 'Submit'}
+                      </button>
+                      {submitError && (
+                        <div className="govuk-error-message govuk-!-margin-top-2">{submitError}</div>
+                      )}
+                    </div>
+                  </form>
+                </div>
+                <div className="govuk-grid-column-one-half eip-sticky-column">
+                  {/* Removed IE warning message */}
+                  <div data-module="eip-hide-if-ie">
+                    <div className="eip-map__container">
+                      <SensitiveAreaCheckMap
+                        points={points}
+                        selectedIdx={selectedIdx}
+                        setPoints={setPoints}
+                        setSelectedIdx={setSelectedIdx}
+                        routeName={location.state?.routeName || 'Route'}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          {/* Call to action buttons */}
-          <div className="govuk-!-static-margin-top-6">
-            <button
-              className="govuk-button"
-              type="button"
-              onClick={handleSubmit}
-              disabled={submitting}
-            >
-              {submitting ? 'Submitting...' : 'Submit and continue'}
-            </button>
-            {submitError && (
-              <div className="govuk-error-message govuk-!-margin-top-2">{submitError}</div>
-            )}
-          </div>
-        </div>
+        </main>
       </div>
     </ErrorBoundary>
   );

@@ -12,9 +12,10 @@ interface SensitiveAreaCheckMapProps {
   selectedIdx: number | null;
   setPoints: React.Dispatch<React.SetStateAction<RoutePoint[]>>;
   setSelectedIdx: React.Dispatch<React.SetStateAction<number | null>>;
+  routeName?: string;
 }
 
-const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, selectedIdx, setPoints, setSelectedIdx }) => {
+const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, selectedIdx, setPoints, setSelectedIdx, routeName }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const polylineRef = useRef<any>(null);
@@ -68,18 +69,41 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
       // Defensive: do not draw polyline or bounds if any latlng is undefined or not finite
       const safeLatLngs = latlngs.filter(([lat, lng]) => isFinite(lat) && isFinite(lng));
 
-      // Always show numbered markers for each valid point
-      markersRef.current = latlngs.map((latlng, idx) => {
-        const marker = L.marker(latlng, {
+      // Show routeName as marker label for each valid point (no background, not all caps, GOV.UK style)
+      const markerLabel = routeName || 'Route';
+      markersRef.current = latlngs.map((latlng) => {
+          const marker = L.marker(latlng, {
+            icon: L.divIcon({
+              className: 'custom-marker',
+              html: `<span class="govuk-body govuk-!-font-weight-bold" style="color: #0b0c0c; font-size: 18px; line-height: 1.1; padding: 0; border: none; background: none; box-shadow: none; white-space: nowrap; text-shadow: 2px 2px 4px #fff, 0 0 2px #fff;">${markerLabel}</span>`,
+              iconSize: undefined,
+              iconAnchor: [24, 32],
+            })
+          }).addTo(map);
+          return marker;
+        });
+
+      // Add a small, single-line label to the middle of the route if there are at least 2 points
+      let routeLabelMarker: L.Marker | null = null;
+      if (latlngs.length >= 2) {
+        const midIdx = Math.floor(latlngs.length / 2);
+        const midLatLng = latlngs.length % 2 === 0
+          ? [
+              (latlngs[midIdx - 1][0] + latlngs[midIdx][0]) / 2,
+              (latlngs[midIdx - 1][1] + latlngs[midIdx][1]) / 2
+            ]
+          : latlngs[midIdx];
+        routeLabelMarker = L.marker(midLatLng as [number, number], {
+          interactive: false,
           icon: L.divIcon({
-            className: 'custom-marker',
-            html: `<div style='background: #1976d2; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${idx + 1}</div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
+            className: 'route-label',
+            html: `<span class="govuk-body" style="text-shadow: 2px 2px 4px #fff, 0 0 2px #fff;">${routeName || 'Route'}</span>`,
+            iconSize: undefined,
+            iconAnchor: [50, 12],
           })
         }).addTo(map);
-        return marker;
-      });
+        markersRef.current.push(routeLabelMarker);
+      }
 
       // Draw the route polyline if there are at least 2 valid points
       if (safeLatLngs.length >= 2) {
@@ -92,13 +116,22 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
           }).addTo(map);
           const bounds = L.latLngBounds(safeLatLngs);
           if (bounds.isValid()) {
-            map.fitBounds(bounds);
+            map.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
           }
         } catch {
           // Silently ignore fitBounds errors
         }
+        // Zoom to the most recently selected/updated point if available
+        if (typeof selectedIdx === 'number' && safeLatLngs[selectedIdx]) {
+          map.setView(safeLatLngs[selectedIdx], 15);
+        } else if (safeLatLngs.length > 0) {
+          map.setView(safeLatLngs[safeLatLngs.length - 1], 15);
+        }
       } else if (safeLatLngs.length === 1) {
-        map.setView(safeLatLngs[0], 12);
+        map.setView(safeLatLngs[0], 15);
+      } else {
+        // Default zoom out for empty/invalid
+        map.setView([54.5, -3.5], 6);
       }
     }
   }, [points]);

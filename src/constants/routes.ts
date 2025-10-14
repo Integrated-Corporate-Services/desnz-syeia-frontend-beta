@@ -13,6 +13,7 @@ import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
 import ComingSoon from '../features/NotFound/ComingSoon';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
+import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
 
 export const ROUTE_CONFIG = [
   {
@@ -76,8 +77,20 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
+    path: '/route-overview/:applicationId',
+    component: RouteOverviewPage,
+    auth: true,
+    layout: true
+  },
+  {
     path: '/route-map',
     component: RouteMapPage,
+    auth: true,
+    layout: true
+  },
+    {
+    path: '/route-guidance',
+    component: RouteGuidancePage,
     auth: true,
     layout: true
   },
