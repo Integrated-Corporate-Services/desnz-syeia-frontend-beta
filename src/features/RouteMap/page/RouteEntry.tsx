@@ -7,7 +7,6 @@ interface RouteEntryProps {
   children: React.ReactNode;
 }
 
-
 import { getRoutesWithPoints } from '../../../services/routeMapService';
 
 const RouteEntry: React.FC<RouteEntryProps> = ({ applicationId, children }) => {

@@ -1,33 +1,85 @@
 import React from 'react';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import RouteDeletedBanner from '../component/RouteDeletedBanner';
 import { useRouteStore } from '../../../store/useRouteStore';
 
 export const RouteOverviewPage: React.FC = () => {
   const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
   const { applicationId } = useParams<{ applicationId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const store = useRouteStore();
-  const routes = Array.isArray(store?.routes) ? store.routes : [];
+  let routes = Array.isArray(store?.routes) ? store.routes : [];
+  // Sort routes by routeName (A, B, C, ...)
+  routes = [...routes].sort((a, b) => {
+    const getLetter = (r: any) => {
+      if (!r.routeName) return '';
+      const match = r.routeName.match(/Route\s+([A-Z])/i);
+      return match ? match[1].toUpperCase() : '';
+    };
+    const aLetter = getLetter(a);
+    const bLetter = getLetter(b);
+    if (aLetter && bLetter) return aLetter.localeCompare(bLetter);
+    if (aLetter) return -1;
+    if (bLetter) return 1;
+    return 0;
+  });
   const loading = store?.loading;
   const error = store?.error;
   const fetchRoutes = store?.fetchRoutes;
+  // Banner state
+  const [showBanner, setShowBanner] = React.useState<{ routeName: string } | null>(null);
+
+  React.useEffect(() => {
+    if (location.state && location.state.routeDeletedName) {
+      setShowBanner({ routeName: location.state.routeDeletedName });
+  // Remove state from history so banner doesn't persist on refresh
+  navigate(location.pathname, { replace: true, state: undefined });
+    }
+  }, [location, navigate]);
 
   React.useEffect(() => {
     if (applicationId && fetchRoutes) fetchRoutes(applicationId);
   }, [applicationId, fetchRoutes]);
 
-  const handleEdit = (gridPoints: any[]) => {
-    navigate('/route-map', { state: { gridPoints, applicationId } });
+
+  // Helper to get next route name (A, B, C, ...)
+  const getNextRouteName = () => {
+    if (!routes.length) return 'Route A';
+    // Find highest letter used
+    const usedLetters = routes
+      .map(r => r.routeName)
+      .filter((name): name is string => typeof name === 'string')
+      .map(name => name.replace('Route ', ''));
+    let maxCharCode = 64; // 'A' - 1
+    usedLetters.forEach(l => {
+      if (l.length === 1) {
+        const code = l.charCodeAt(0);
+        if (code > maxCharCode) maxCharCode = code;
+      }
+    });
+    return `Route ${String.fromCharCode(maxCharCode + 1)}`;
+  };
+
+  const handleEdit = (gridPoints: any[], routeName?: string) => {
+    navigate('/route-map', { state: { gridPoints, applicationId, routeName } });
   };
 
   const handleDelete = (routeIdx: number) => {
-    // TODO: Implement delete logic
-    alert('Delete route not implemented');
+    // Navigate to RouteDeletePage with route details
+    if (!routes[routeIdx]) return;
+    navigate('/route-delete', {
+      state: {
+        routeName: routes[routeIdx].routeName || 'Route',
+        gridPoints: routes[routeIdx].gridPoints,
+        applicationId,
+        route_id: routes[routeIdx].route_id,
+      },
+    });
   };
 
-  const hasRoute = routes.length > 0 && routes[0] && Array.isArray(routes[0].gridPoints);
-  const gridPoints = hasRoute ? routes[0].gridPoints : [];
+  const hasRoute = routes.length > 0 && routes.some(r => Array.isArray(r.gridPoints) && r.gridPoints.length > 0);
 
   return (
     <div className="govuk-width-container">
@@ -49,6 +101,7 @@ export const RouteOverviewPage: React.FC = () => {
         </ol>
       </nav>
       <main className="govuk-main-wrapper" id="main-content" role="main">
+        {showBanner && <RouteDeletedBanner routeName={showBanner.routeName} />}
         <h1 className="govuk-heading-xl">Route overview</h1>
         <div className="govuk-inset-text" style={{ maxWidth: 700 }}>
           <p className="govuk-body">Any changes made to the route will require you to:</p>
@@ -63,47 +116,60 @@ export const RouteOverviewPage: React.FC = () => {
         {hasRoute && (
           <div className="govuk-grid-row" style={{ marginBottom: '2rem' }}>
             <div className="govuk-grid-column-one-half">
-              <div className="govuk-summary-card" id="route-1-summary">
-                <div className="govuk-summary-card__title-wrapper" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h2 className="govuk-summary-card__title">Route A</h2>
-                  <ul className="govuk-summary-card__actions" style={{ display: 'flex', gap: 8, margin: 0, padding: 0, listStyle: 'none' }}>
-                    <li className="govuk-summary-card__action">
-                      <a className="govuk-link" href="#" onClick={e => { e.preventDefault(); handleEdit(gridPoints); }}>Edit<span className="govuk-visually-hidden"> route a</span></a>
-                    </li>
-                    <li className="govuk-summary-card__action">
-                      <a className="govuk-link" href="#" onClick={e => { e.preventDefault(); handleDelete(0); }}>Delete<span className="govuk-visually-hidden"> route a</span></a>
-                    </li>
-                  </ul>
-                </div>
-                <div className="govuk-summary-card__content">
-                  <table className="govuk-table">
-                    <thead className="govuk-table__head">
-                      <tr className="govuk-table__row">
-                        <th className="govuk-table__header">Easting</th>
-                        <th className="govuk-table__header">Northing</th>
-                      </tr>
-                    </thead>
-                    <tbody className="govuk-table__body">
-                      {gridPoints.map((pt: any, i: number) => (
-                        <tr className="govuk-table__row" key={i}>
-                          <td className="govuk-table__cell">{pt.easting}</td>
-                          <td className="govuk-table__cell">{pt.northing}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              {routes.map((route, idx) => (
+                Array.isArray(route.gridPoints) && route.gridPoints.length > 0 && (
+                  <div className="govuk-summary-card" id={`route-summary-${idx}`} key={route.route_id || idx} style={{ marginBottom: '2rem' }}>
+                    <div className="govuk-summary-card__title-wrapper" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h2 className="govuk-summary-card__title">{route.routeName || `Route ${String.fromCharCode(65 + idx)}`}</h2>
+                      <ul className="govuk-summary-card__actions" style={{ display: 'flex', gap: 8, margin: 0, padding: 0, listStyle: 'none' }}>
+                        <li className="govuk-summary-card__action">
+                          <a className="govuk-link" href="#" onClick={e => { e.preventDefault(); handleEdit(route.gridPoints, route.routeName); }}>Edit<span className="govuk-visually-hidden"> {route.routeName}</span></a>
+                        </li>
+                        <li className="govuk-summary-card__action">
+                          <a className="govuk-link" href="#" onClick={e => { e.preventDefault(); handleDelete(idx); }}>Delete<span className="govuk-visually-hidden"> {route.routeName}</span></a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="govuk-summary-card__content">
+                      <table className="govuk-table">
+                        <thead className="govuk-table__head">
+                          <tr className="govuk-table__row">
+                            <th className="govuk-table__header">Easting</th>
+                            <th className="govuk-table__header">Northing</th>
+                          </tr>
+                        </thead>
+                        <tbody className="govuk-table__body">
+                          {route.gridPoints.map((pt: any, i: number) => (
+                            <tr className="govuk-table__row" key={i}>
+                              <td className="govuk-table__cell">{pt.easting}</td>
+                              <td className="govuk-table__cell">{pt.northing}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )
+              ))}
             </div>
             <div className="govuk-grid-column-one-half">
-              <div style={{ width: 466, height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff', margin: '0 auto' }}>
-                <SensitiveAreaCheckMap
-                  points={gridPoints.map((pt: any) => ({ easting: String(pt.easting), northing: String(pt.northing) }))}
-                  selectedIdx={null}
-                  setPoints={() => { }}
-                  setSelectedIdx={() => { }}
-                />
-              </div>
+              {/* Show map for the first route with gridPoints */}
+              {(() => {
+                const firstRoute = routes.find(r => Array.isArray(r.gridPoints) && r.gridPoints.length > 0);
+                if (!firstRoute) return null;
+                return (
+                  <div style={{ width: 466, height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff', margin: '0 auto' }}>
+                    <SensitiveAreaCheckMap
+                      points={firstRoute.gridPoints.map((pt: any) => ({ easting: String(pt.easting), northing: String(pt.northing) }))}
+                      selectedIdx={null}
+                      setPoints={() => { }}
+                      setSelectedIdx={() => { }}
+                      routeName={firstRoute.routeName}
+                      mode="overview"
+                    />
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}
@@ -112,7 +178,8 @@ export const RouteOverviewPage: React.FC = () => {
             <form onSubmit={e => {
               e.preventDefault();
               if (spurChoice === 'now') {
-                navigate('/route-map', { state: { gridPoints, applicationId } });
+                // Start a fresh route map for the next route (do not pass gridPoints)
+                navigate('/route-map', { state: { applicationId, routeName: getNextRouteName(), isNewRoute: true } });
               } else if (spurChoice === 'later') {
                 navigate('/route-map', { state: { applicationId } });
               } else {

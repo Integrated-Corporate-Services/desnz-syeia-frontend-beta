@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 export interface RoutePoint {
   easting: string;
   northing: string;
+  pointId?: string;
 }
 
 interface SensitiveAreaCheckMapProps {
@@ -13,9 +14,11 @@ interface SensitiveAreaCheckMapProps {
   setPoints: React.Dispatch<React.SetStateAction<RoutePoint[]>>;
   setSelectedIdx: React.Dispatch<React.SetStateAction<number | null>>;
   routeName?: string;
+  routeId?: string;
+  mode?: 'overview' | 'edit'; // overview: project overview, edit: route map
 }
 
-const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, selectedIdx, setPoints, setSelectedIdx, routeName }) => {
+const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, selectedIdx, setPoints, setSelectedIdx, routeName, mode = 'overview' }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const polylineRef = useRef<any>(null);
@@ -69,21 +72,36 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
       // Defensive: do not draw polyline or bounds if any latlng is undefined or not finite
       const safeLatLngs = latlngs.filter(([lat, lng]) => isFinite(lat) && isFinite(lng));
 
-      // Show routeName as marker label for each valid point (no background, not all caps, GOV.UK style)
-      const markerLabel = routeName || 'Route';
-      markersRef.current = latlngs.map((latlng) => {
+
+      // Markers and labels
+      markersRef.current = [];
+      if (mode === 'edit') {
+        // Show the number of each point at its location, matching the user's input points
+        latlngs.forEach((latlng, i) => {
           const marker = L.marker(latlng, {
             icon: L.divIcon({
               className: 'custom-marker',
-              html: `<span class="govuk-body govuk-!-font-weight-bold" style="color: #0b0c0c; font-size: 18px; line-height: 1.1; padding: 0; border: none; background: none; box-shadow: none; white-space: nowrap; text-shadow: 2px 2px 4px #fff, 0 0 2px #fff;">${markerLabel}</span>`,
-              iconSize: undefined,
-              iconAnchor: [24, 32],
+              html: `<span style="font-size: 15px; color: #111; background: none; border: none; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0px 1px 0 #fff, 1px 0px 0 #fff, 0px -1px 0 #fff, -1px 0px 0 #fff;">${i + 1}</span>`
             })
           }).addTo(map);
-          return marker;
+          markersRef.current.push(marker);
         });
+      }
+      if (mode === 'overview') {
+        // Only X marker at the end
+        if (latlngs.length > 1) {
+          const lastLatLng = latlngs[latlngs.length - 1];
+          const xMarker = L.marker(lastLatLng, {
+            icon: L.divIcon({
+              className: 'custom-marker',
+              html: `<span style="color: #003078; font-size: 15px; background: none; border: none; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0px 1px 0 #fff, 1px 0px 0 #fff, 0px -1px 0 #fff, -1px 0px 0 #fff;">&#10005;</span>`
+            })
+          }).addTo(map);
+          markersRef.current.push(xMarker);
+        }
+      }
 
-      // Add a small, single-line label to the middle of the route if there are at least 2 points
+      // Add route name label to the middle of the route if there are at least 2 points
       let routeLabelMarker: L.Marker | null = null;
       if (latlngs.length >= 2) {
         const midIdx = Math.floor(latlngs.length / 2);
@@ -97,7 +115,7 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
           interactive: false,
           icon: L.divIcon({
             className: 'route-label',
-            html: `<span class="govuk-body" style="text-shadow: 2px 2px 4px #fff, 0 0 2px #fff;">${routeName || 'Route'}</span>`,
+            html: `<span class=\"govuk-body\" style=\"font-size: 15px; color: #111; white-space: nowrap; display: inline-block; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0px 1px 0 #fff, 1px 0px 0 #fff, 0px -1px 0 #fff, -1px 0px 0 #fff;\">${routeName || 'Route'}</span>`,
             iconSize: undefined,
             iconAnchor: [50, 12],
           })
@@ -108,24 +126,35 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
       // Draw the route polyline if there are at least 2 valid points
       if (safeLatLngs.length >= 2) {
         try {
-          polylineRef.current = L.polyline(safeLatLngs, {
-            color: 'yellow', // Use a more visible color
-            weight: 6,    // Make the line thicker
-            opacity: 0.9,
-            pane: 'overlayPane' // Ensure polyline is above markers
-          }).addTo(map);
+          if (mode === 'edit') {
+            // Yellow border (thicker) under blue line
+            L.polyline(safeLatLngs, {
+              color: 'yellow',
+              weight: 10,
+              opacity: 1,
+              pane: 'overlayPane',
+            }).addTo(map);
+            polylineRef.current = L.polyline(safeLatLngs, {
+              color: '#1d70b8', // GOV blue
+              weight: 5,
+              opacity: 1,
+              pane: 'overlayPane',
+            }).addTo(map);
+          } else {
+            // Overview: just blue line
+            polylineRef.current = L.polyline(safeLatLngs, {
+              color: '#1d70b8',
+              weight: 5,
+              opacity: 1,
+              pane: 'overlayPane',
+            }).addTo(map);
+          }
           const bounds = L.latLngBounds(safeLatLngs);
           if (bounds.isValid()) {
-            map.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+            map.fitBounds(bounds, { padding: [10, 10], maxZoom: 18 });
           }
         } catch {
           // Silently ignore fitBounds errors
-        }
-        // Zoom to the most recently selected/updated point if available
-        if (typeof selectedIdx === 'number' && safeLatLngs[selectedIdx]) {
-          map.setView(safeLatLngs[selectedIdx], 15);
-        } else if (safeLatLngs.length > 0) {
-          map.setView(safeLatLngs[safeLatLngs.length - 1], 15);
         }
       } else if (safeLatLngs.length === 1) {
         map.setView(safeLatLngs[0], 15);

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getInitialSections, updateSectionStatus } from '../../../utils/taskListUtils';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import RouteEntry from '../../RouteMap/page/RouteEntry';
+import RouteDeletedBanner from '../../RouteMap/component/RouteDeletedBanner';
 import { useApplicationStore } from '../../../store/useApplicationStore';
-import { useNavigate } from 'react-router-dom';
+
 import { getSensitiveAreaCheckStatus } from '../../../services/sensitiveAreaStatusService';
 
 const TaskList: React.FC = () => {
@@ -20,9 +21,24 @@ const TaskList: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ inProgress: boolean; completed: number; total: number } | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Show RouteDeletedBanner for one render after redirect, then clear state
+  const [showBanner, setShowBanner] = useState(false);
+  const [deletedRouteName, setDeletedRouteName] = useState<string | null>(null);
+  useEffect(() => {
+    if (location.state && location.state.routeDeletedName) {
+      setShowBanner(true);
+      setDeletedRouteName(location.state.routeDeletedName);
+      // Clear the state after first render
+      setTimeout(() => {
+        navigate(location.pathname + location.search, { replace: true, state: undefined });
+      }, 0);
+    }
+  }, [location, navigate]);
   const params = new URLSearchParams(location.search);
   const appId = params.get('id');
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (appId) {
@@ -60,6 +76,10 @@ const TaskList: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      {/* Show RouteDeletedBanner for one render after redirect */}
+      {showBanner && deletedRouteName && (
+        <RouteDeletedBanner routeName={deletedRouteName} />
+      )}
       {sensitiveAreaStatus && sensitiveAreaStatus.inProgress && (
         <div style={{ border: '4px solid #2074c7', background: '#eaf4fb', padding: '1rem', marginBottom: '2rem' }}>
           <strong>Sensitive area checks in progress</strong>

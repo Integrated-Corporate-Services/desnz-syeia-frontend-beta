@@ -4,6 +4,7 @@ import { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
 interface RoutePointCardProps {
   point: RoutePoint;
   idx: number;
+  error?: string;
   onAddBefore: () => void;
   onAddAfter: () => void;
   onRemove: () => void;
@@ -20,6 +21,7 @@ function isValidGridValue(val: string) {
 const RoutePointCard: React.FC<RoutePointCardProps> = ({
   point,
   idx,
+  error,
   onAddBefore,
   onAddAfter,
   onRemove,
@@ -33,7 +35,7 @@ const RoutePointCard: React.FC<RoutePointCardProps> = ({
   const showError = (!eastingValid && eastingTouched) || (!northingValid && northingTouched);
 
   return (
-    <div className="govuk-summary-card">
+    <div className={`govuk-summary-card${error ? ' fds-summary-card--error' : ''}`}>
       <div className="govuk-summary-card__title-wrapper">
         <h2 className="govuk-summary-card__title">Point {idx + 1}</h2>
         <ul className="govuk-summary-card__actions">
@@ -49,10 +51,10 @@ const RoutePointCard: React.FC<RoutePointCardProps> = ({
         </ul>
       </div>
       <div className="govuk-summary-card__content">
-        {showError && (
-          <div className="govuk-error-summary govuk-!-margin-bottom-2" role="alert">
-            <strong>You must enter exactly 6 numbers</strong>
-          </div>
+        {error && (
+          <p className="govuk-error-message fds-summary-list__error-message">
+            <span className="govuk-visually-hidden">Error:</span> {error}
+          </p>
         )}
         <dl className="govuk-summary-list">
           <div className="govuk-summary-list__row">

@@ -14,6 +14,7 @@ import ComingSoon from '../features/NotFound/ComingSoon';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
+import RouteDeletePage from '../features/RouteMap/page/RouteDeletePage';
 
 export const ROUTE_CONFIG = [
   {
@@ -85,6 +86,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/route-map',
     component: RouteMapPage,
+    auth: true,
+    layout: true
+  },
+    {
+    path: '/route-delete',
+    component: RouteDeletePage,
     auth: true,
     layout: true
   },
