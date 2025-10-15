@@ -3,12 +3,16 @@ import { fetchAssetDetails, updateAsset as updateAssetService } from '../service
 import { AssetRequest } from '../types/asset';
 
 export interface AssetDetails {
+  [x: string]: any;
+  excavationWorks: any;
   assetId: string;
   assetReference: string;
   description: string;
   standardSpecificationReferenceNumber: string;
   lineLength: number;
   poles: {
+    chemicalCoatings: string;
+    materials: string;
     workItemId: string;
     hasAddOrReplace: boolean;
     add: number;

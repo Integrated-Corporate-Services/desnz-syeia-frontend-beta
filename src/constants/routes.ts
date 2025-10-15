@@ -13,6 +13,7 @@ import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
 import ComingSoon from '../features/NotFound/ComingSoon';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
+import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
 
 export const ROUTE_CONFIG = [
   {
@@ -95,7 +96,7 @@ export const ROUTE_CONFIG = [
   },
   {
     path: '/works-overview',
-    component: ComingSoon,
+    component: WorksOverview,
     auth: true,
     layout: true
   },
