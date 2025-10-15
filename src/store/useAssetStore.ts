@@ -5,7 +5,7 @@ import { AssetRequest } from '../types/asset';
 export interface AssetDetails {
   assetId: string;
   assetReference: string;
-  lineTypeDescription: string;
+  tori_noi?: string;
   standardSpecificationReferenceNumber: string;
   lineLength: number;
   lineVoltage: string;

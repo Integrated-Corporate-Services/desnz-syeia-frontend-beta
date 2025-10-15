@@ -13,7 +13,7 @@ const initialState = {
   assetId: '',
   referenceNumber: '',
   lineType: '',
-  lineTypeDescription: '',
+  tori_noi: '',
   lineVoltage: '',
   lineLength: '',
 };
@@ -75,7 +75,7 @@ const getApplicationId = () => {
       setForm({
         assetId: asset.assetId || '',
         referenceNumber: asset.standardSpecificationReferenceNumber || '',
-        lineTypeDescription: asset.lineTypeDescription || '',
+        tori_noi: asset.tori_noi || '',
         lineType: typeof asset.typeOfLine === 'object' && asset.typeOfLine !== null
           ? (asset.typeOfLine as { code?: string }).code || ''
           : asset.typeOfLine || '',
@@ -110,17 +110,23 @@ const getApplicationId = () => {
       return;
     }
     // Map form data to AssetRequest
-    //const asset = assets && assets[0] ? assets[0] : {};
+    // Backend requires assetReference, poles, overheadLines, equipmentRemoval, isExistingAsset
     const assetPayload = {
       applicationId: effectiveApplicationId,
       assets: [
         {
+          assetId: form.assetId,
           assetType: 's37',
           standardSpecificationReferenceNumber: form.referenceNumber,
           typeOfLine: form.lineType,
-          lineTypeDescription: form.lineTypeDescription,
+          tori_noi: form.tori_noi,
           lineVoltage: form.lineVoltage,
           lineLength: parseFloat(form.lineLength),
+          assetReference: '', // Default empty string
+          poles: { hasAddOrReplace: false, add: 0, replace: 0, description: '' },
+          overheadLines: { hasAddOrReplace: false, description: '' },
+          equipmentRemoval: { isRemoving: false, description: '' },
+          isExistingAsset: false,
         },
       ],
     };
@@ -131,8 +137,8 @@ const getApplicationId = () => {
           fetchAssets(effectiveApplicationId);
           navigate(`/task-list?id=${effectiveApplicationId}`);
         })
-        .catch((err: any) => {
-          setErrors({ generalComments: err.message || ASSET_ERROR_MESSAGES.generalCommentsFailed });
+        .catch(() => {
+          setErrors({ assetId: '', referenceNumber: '', lineType: '', tori_noi: '', lineVoltage: '', lineLength: '' });
         });
     } else {
       // Create new asset
@@ -141,8 +147,8 @@ const getApplicationId = () => {
           fetchAssets(effectiveApplicationId);
           navigate(`/task-list?id=${effectiveApplicationId}`);
         })
-        .catch((err: any) => {
-          setErrors({ generalComments: err.message || ASSET_ERROR_MESSAGES.generalCommentsFailed });
+        .catch(() => {
+          setErrors({ assetId: '', referenceNumber: '', lineType: '', tori_noi: '', lineVoltage: '', lineLength: '' });
         });
     }
   };
@@ -213,10 +219,10 @@ const getApplicationId = () => {
           {form.lineType === 'transmission' && (
             <div className="govuk-!-margin-top-2" style={{ maxWidth: 600 }}>
               <TextArea
-                id="lineTypeDescription"
-                name="lineTypeDescription"
+                id="tori_noi"
+                name="tori_noi"
                 label="TORI/NOI code for this project (optional)"
-                value={form.lineTypeDescription}
+                value={form.tori_noi}
                 onChange={handleChange}
                 maxLength={4000}
                 showCount
