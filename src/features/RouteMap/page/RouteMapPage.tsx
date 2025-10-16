@@ -51,9 +51,10 @@ const RouteMapPage: React.FC = () => {
   const { routes, loading, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRouteStore();
   // If coming from add new route, use blank state and provided routeName
   const isNewRoute = location.state?.isNewRoute;
+  const route_Id = location.state?.route_id;
   const initialRouteName = location.state?.routeName || 'Route A';
   const [points, setPoints] = useState<RoutePoint[]>([{ easting: '', northing: '' }]);
-  const [routeId, setRouteId] = useState<string | undefined>(undefined);
+  const [routeId, setRouteId] = useState<string | undefined>(route_Id);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -78,22 +79,25 @@ const RouteMapPage: React.FC = () => {
       setPoints([{ easting: '', northing: '', point_id: '' }]);
       return;
     }
-    if (routes && routes.length > 0 && Array.isArray(routes[0].gridPoints) && routes[0].gridPoints.length > 0) {
-      setRouteId(routes[0].route_id);
-      setRouteName(routes[0].routeName || 'Route A');
-      setPoints(
-        routes[0].gridPoints.map((pt: any) => ({
-          easting: String(pt.easting ?? ''),
-          northing: String(pt.northing ?? ''),
-          point_id: pt.point_id,
-        }))
-      );
-    } else {
-      setRouteId('');
-      setRouteName('Route A');
-      setPoints([{ easting: '', northing: '', point_id: '' }]);
+    if (routes && routes.length > 0) {
+      const foundRoute = routes.find(r => r.route_id === routeId);
+      if (foundRoute) {
+        setRouteId(foundRoute.route_id);
+        setRouteName(foundRoute.routeName || 'Route A');
+        setPoints(
+          foundRoute.gridPoints.map((pt: any) => ({
+            easting: String(pt.easting ?? ''),
+            northing: String(pt.northing ?? ''),
+            point_id: pt.point_id,
+          }))
+        );
+        return;
+      }
     }
-  }, [routes, isNewRoute, initialRouteName]);
+    setRouteId('');
+    setRouteName('Route A');
+    setPoints([{ easting: '', northing: '', point_id: '' }]);
+  }, [routes, isNewRoute, initialRouteName, routeId]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -276,7 +280,7 @@ const RouteMapPage: React.FC = () => {
                         selectedIdx={selectedIdx}
                         setPoints={setPoints}
                         setSelectedIdx={setSelectedIdx}
-                        routeName={location.state?.routeName || 'Route'}
+                        routeName={routeName}
                         mode="edit"
                       />
                     </div>

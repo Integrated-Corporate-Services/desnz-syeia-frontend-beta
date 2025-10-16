@@ -62,19 +62,21 @@ export const RouteOverviewPage: React.FC = () => {
     return `Route ${String.fromCharCode(maxCharCode + 1)}`;
   };
 
-  const handleEdit = (gridPoints: any[], routeName?: string) => {
-    navigate('/route-map', { state: { gridPoints, applicationId, routeName } });
+  const handleEdit = (route_id: string | number) => {
+    const route = routes.find(r => r.route_id === route_id);
+    if (!route) return;
+    navigate('/route-map', { state: { route_id: route.route_id, gridPoints: route.gridPoints, applicationId, routeName: route.routeName } });
   };
 
-  const handleDelete = (routeIdx: number) => {
-    // Navigate to RouteDeletePage with route details
-    if (!routes[routeIdx]) return;
+  const handleDelete = (route_id: string | number) => {
+    const route = routes.find(r => r.route_id === route_id);
+    if (!route) return;
     navigate('/route-delete', {
       state: {
-        routeName: routes[routeIdx].routeName || 'Route',
-        gridPoints: routes[routeIdx].gridPoints,
+        routeName: route.routeName || 'Route',
+        gridPoints: route.gridPoints,
         applicationId,
-        route_id: routes[routeIdx].route_id,
+        route_id: route.route_id,
       },
     });
   };
@@ -123,10 +125,10 @@ export const RouteOverviewPage: React.FC = () => {
                       <h2 className="govuk-summary-card__title">{route.routeName || `Route ${String.fromCharCode(65 + idx)}`}</h2>
                       <ul className="govuk-summary-card__actions" style={{ display: 'flex', gap: 8, margin: 0, padding: 0, listStyle: 'none' }}>
                         <li className="govuk-summary-card__action">
-                          <a className="govuk-link" href="#" onClick={e => { e.preventDefault(); handleEdit(route.gridPoints, route.routeName); }}>Edit<span className="govuk-visually-hidden"> {route.routeName}</span></a>
+                          <a className="govuk-link" href="#" onClick={e => { e.preventDefault(); handleEdit(route.route_id || idx); }}>Edit<span className="govuk-visually-hidden"> {route.routeName}</span></a>
                         </li>
                         <li className="govuk-summary-card__action">
-                          <a className="govuk-link" href="#" onClick={e => { e.preventDefault(); handleDelete(idx); }}>Delete<span className="govuk-visually-hidden"> {route.routeName}</span></a>
+                          <a className="govuk-link" href="#" onClick={e => { e.preventDefault(); handleDelete(route.route_id || idx); }}>Delete<span className="govuk-visually-hidden"> {route.routeName}</span></a>
                         </li>
                       </ul>
                     </div>
@@ -154,22 +156,15 @@ export const RouteOverviewPage: React.FC = () => {
             </div>
             <div className="govuk-grid-column-one-half">
               {/* Show map for the first route with gridPoints */}
-              {(() => {
-                const firstRoute = routes.find(r => Array.isArray(r.gridPoints) && r.gridPoints.length > 0);
-                if (!firstRoute) return null;
-                return (
-                  <div style={{ width: 466, height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff', margin: '0 auto' }}>
-                    <SensitiveAreaCheckMap
-                      points={firstRoute.gridPoints.map((pt: any) => ({ easting: String(pt.easting), northing: String(pt.northing) }))}
-                      selectedIdx={null}
-                      setPoints={() => { }}
-                      setSelectedIdx={() => { }}
-                      routeName={firstRoute.routeName}
-                      mode="overview"
-                    />
-                  </div>
-                );
-              })()}
+              <div style={{ width: 466, height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff', margin: '0 auto' }}>
+                <SensitiveAreaCheckMap
+                  routes={routes.filter(r => Array.isArray(r.gridPoints) && r.gridPoints.length > 0).map(r => ({
+                    points: r.gridPoints.map((pt: any) => ({ easting: String(pt.easting), northing: String(pt.northing) })),
+                    routeName: r.routeName
+                  }))}
+                  mode="overview"
+                />
+              </div>
             </div>
           </div>
         )}
