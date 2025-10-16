@@ -32,11 +32,13 @@ interface SensitiveAreaCheckMapProps {
 }
 
 const ROUTE_COLOR = '#1d70b8'; // GOV blue
+const MARKER_COLOR = '#010103ff';
 
 const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, selectedIdx, setPoints, setSelectedIdx, routeName, mode = 'overview', routes }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
-  const polylineRef = useRef<any>(null);
+  // Track all polylines for multi-route
+  const polylineRefs = useRef<L.Polyline[]>([]);
   const markersRef = useRef<any[]>([]);
 
   // Accurate OSGB36 (British National Grid) to WGS84 conversion using proj4
@@ -57,10 +59,10 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
         if (selectedIdx !== null) {
           const lat = e.latlng.lat;
           const lng = e.latlng.lng;
-          const northing = Math.round((lat - 49.5) * 111000 + 50000);
-          const easting = Math.round((lng + 7.5) * 70000 + 50000);
+          // Accurate conversion from WGS84 lat/lng to OSGB36 easting/northing using proj4
+          const [easting, northing] = proj4('WGS84', 'EPSG:27700', [lng, lat]);
           if (setPoints) {
-            setPoints(prev => prev.map((pt, i) => i === selectedIdx ? { easting: String(easting), northing: String(northing) } : pt));
+            setPoints(prev => prev.map((pt, i) => i === selectedIdx ? { easting: String(Math.round(easting)), northing: String(Math.round(northing)) } : pt));
           }
         }
       });
@@ -70,9 +72,12 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
   useEffect(() => {
     const map = mapInstance.current;
     if (map) {
-      if (polylineRef.current) {
-        map.removeLayer(polylineRef.current);
+      // Remove all polylines
+      if (polylineRefs.current.length) {
+        polylineRefs.current.forEach(poly => map.removeLayer(poly));
+        polylineRefs.current = [];
       }
+      // Remove all markers
       if (markersRef.current.length) {
         markersRef.current.forEach(marker => map.removeLayer(marker));
         markersRef.current = [];
@@ -90,8 +95,8 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
 
       allRoutes.forEach((route, routeIdx) => {
         function isValidNumber(val: string) {
-          const num = Number(val);
-          return val !== '' && !isNaN(num) && isFinite(num) && num >= 100000;
+          // Accepts 6 digit numbers, including leading zeros, in range 000001-999999
+          return /^\d{6}$/.test(val) && Number(val) >= 1 && Number(val) <= 999999;
         }
         const validPoints = route.points.filter(pt => isValidNumber(pt.easting) && isValidNumber(pt.northing));
         const latlngs = validPoints
@@ -118,7 +123,7 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
               const xMarker = L.marker(latlng, {
                 icon: L.divIcon({
                   className: 'custom-marker',
-                  html: `<span style="color: #010103ff; font-size: 12px; font-weight: bold; background: none; border: none;">&#10005;</span>`
+                  html: `<span style="color: ${MARKER_COLOR}; font-size: 12px; font-weight: bold; background: none; border: none;">&#10005;</span>`
                 })
               }).addTo(map);
               markersRef.current.push(xMarker);
@@ -179,12 +184,13 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
         if (safeLatLngs.length >= 2) {
           try {
             // Always draw only the blue line, no yellow border
-            polylineRef.current = L.polyline(safeLatLngs, {
+            const poly = L.polyline(safeLatLngs, {
               color: ROUTE_COLOR,
               weight: 5,
               opacity: 1,
               pane: 'overlayPane',
             }).addTo(map);
+            polylineRefs.current.push(poly);
           } catch {
             // Silently ignore fitBounds errors
           }
@@ -203,7 +209,7 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
         map.setView([54.5, -3.5], 6);
       }
     }
-  }, [points]);
+  }, [points, routes, mode, routeName, selectedIdx]);
 
   return <div style={{ height: 500, width: '100%' }} ref={mapRef} id="map" />;
 };
