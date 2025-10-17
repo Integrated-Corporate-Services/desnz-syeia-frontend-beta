@@ -6,6 +6,9 @@ import { useRouteStore } from '../../../store/useRouteStore';
 
 export const RouteOverviewPage: React.FC = () => {
   const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
+  const [details, setDetails] = React.useState('');
+  const [formError, setFormError] = React.useState<string | null>(null);
+  const detailsRef = React.useRef<HTMLTextAreaElement>(null);
   const { applicationId } = useParams<{ applicationId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -105,13 +108,37 @@ export const RouteOverviewPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         {showBanner && <RouteDeletedBanner routeName={showBanner.routeName} />}
         <h1 className="govuk-heading-xl">Route overview</h1>
-        <div className="govuk-inset-text" style={{ maxWidth: 700 }}>
-          <p className="govuk-body">Any changes made to the route will require you to:</p>
-          <ol className="govuk-list govuk-list--number">
-            <li>Run the sensitive area checks again</li>
-            <li>Upload new plan information</li>
-            <li>Reconsult or provide updated information to consultees if consultations are open</li>
-          </ol>
+        {formError && (
+          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ border: '4px solid #d4351c', background: '#fff', marginBottom: 24 }}>
+            <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+            <ul className="govuk-list govuk-error-summary__list">
+              <li>
+                <a
+                  href="#routeJustification"
+                  className="govuk-link govuk-error-message"
+                  onClick={e => {
+                    e.preventDefault();
+                    detailsRef.current?.focus();
+                    detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
+                  {formError}
+                </a>
+              </li>
+            </ul>
+          </div>
+        )}
+        <p className="govuk-body" style={{ maxWidth: 700 }}>
+          Any changes to the route will require you to run the sensitive area checks again, upload new plan information, and reconsult or provide updated information to consultees if consultations are open.
+        </p>
+        <div className="govuk-inset-text" style={{ maxWidth: 700, marginTop: 12 }}>
+          <a
+            className="govuk-link"
+            href={applicationId ? `/route-guidance?id=${applicationId}` : '/route-guidance'}
+           
+          >
+            Read the guidance on adding a route or a route spur
+          </a>
         </div>
         {loading && <div>Loading routes...</div>}
         {error && <div style={{ color: 'red' }}>Error: {error}</div>}
@@ -149,6 +176,10 @@ export const RouteOverviewPage: React.FC = () => {
                           ))}
                         </tbody>
                       </table>
+                      {route.disconnectedroute_justification && (
+                        <div >      <span className="govuk-body">{route.disconnectedroute_justification}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )
@@ -169,45 +200,76 @@ export const RouteOverviewPage: React.FC = () => {
           </div>
         )}
         <div className="govuk-grid-row">
-          <div className="govuk-grid-column-one-half">
-            <form onSubmit={e => {
-              e.preventDefault();
-              if (spurChoice === 'now') {
-                // Start a fresh route map for the next route (do not pass gridPoints)
-                navigate('/route-map', { state: { applicationId, routeName: getNextRouteName(), isNewRoute: true } });
-              } else if (spurChoice === 'later') {
-                navigate('/route-map', { state: { applicationId } });
-              } else {
-                navigate('/task-list');
-              }
-            }}>
+          <div className="govuk-grid-column-three-quarters">
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                if (spurChoice === 'notconnected' && !details.trim()) {
+                  setFormError('Enter a justification for the additional route');
+                  setTimeout(() => {
+                    detailsRef.current?.focus();
+                  }, 0);
+                  return;
+                }
+                setFormError(null);
+                if (spurChoice === 'spur' || spurChoice === 'notconnected') {
+                  navigate('/route-map', { state: { applicationId, routeName: getNextRouteName(), isNewRoute: true, details: spurChoice === 'notconnected' ? details : undefined } });
+                } else  {
+                  navigate(`/task-list?id=${applicationId || ''}`);
+                }
+              }}
+              noValidate
+            >
               <div className="govuk-form-group">
                 <fieldset className="govuk-fieldset" aria-describedby="fieldset-1-hint">
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                     <h2 className="govuk-fieldset__heading">
-                      Do you want to add another route spur?
+                      Do you want to add another route?
                     </h2>
                   </legend>
                   <div className="govuk-hint" id="fieldset-1-hint">
-                    If your route has a spur off the main route, you will need to add another route spur
+                    If you have a line off the main route, you will need to add a route spur. If your routes do not connect, you need to provide justification for including it in this application.
                   </div>
                   <div className="govuk-radios">
                     <div className="govuk-radios__item">
-                      <input className="govuk-radios__input" id="addRouteRadioOption" name="addRouteRadioOption" type="radio" value="now" checked={spurChoice === 'now'} onChange={() => setSpurChoice('now')} />
+                      <input className="govuk-radios__input" id="addRouteRadioOption" name="addRouteRadioOption" type="radio" value="spur" checked={spurChoice === 'spur'} onChange={() => setSpurChoice('spur')} />
                       <label className="govuk-label govuk-radios__label" htmlFor="addRouteRadioOption">
-                        Yes, I want to add one now
+                        Yes, I want to add a spur connected to the main route
                       </label>
                     </div>
                     <div className="govuk-radios__item">
-                      <input className="govuk-radios__input" id="addRouteRadioOption-2" name="addRouteRadioOption" type="radio" value="later" checked={spurChoice === 'later'} onChange={() => setSpurChoice('later')} />
+                      <input className="govuk-radios__input" id="addRouteRadioOption-2" name="addRouteRadioOption" type="radio" value="notconnected" checked={spurChoice === 'notconnected'} onChange={() => setSpurChoice('notconnected')} />
                       <label className="govuk-label govuk-radios__label" htmlFor="addRouteRadioOption-2">
-                        Yes, I want to add one later
+                        Yes, I want to add another route not connected to the main route
                       </label>
                     </div>
+                    {spurChoice === 'notconnected' && (
+                      <div className={`govuk-inset-text${formError ? ' govuk-form-group--error' : ''}`} style={{ marginLeft: 0, marginTop: 8, borderLeft: formError ? '4px solid #d4351c' : undefined }}>
+                        <label htmlFor="routeDetails" className="govuk-label govuk-visually-hidden">
+                          Explain why this additional route should be included with the main route of this application
+                        </label>
+                        <span className="govuk-body" style={{ display: 'block', marginBottom: 4 }}>
+                          Explain why this additional route should be included with the main route of this application
+                        </span>
+                        <span className="govuk-error-message" style={{ color: '#d4351c', display: formError ? 'block' : 'none', marginBottom: 4 }}>
+                          {formError}
+                        </span>
+                        <textarea
+                          id="routeDetails"
+                          className="govuk-textarea"
+                          style={{ width: '100%', minHeight: 100, border: formError ? '2px solid #d4351c' : undefined }}
+                          ref={detailsRef}
+                          value={details}
+                          onChange={e => setDetails(e.target.value)}
+                          aria-describedby={formError ? 'routeDetails-error' : undefined}
+                          aria-invalid={!!formError}
+                        />
+                      </div>
+                    )}
                     <div className="govuk-radios__item">
                       <input className="govuk-radios__input" id="addRouteRadioOption-3" name="addRouteRadioOption" type="radio" value="no" checked={spurChoice === 'no'} onChange={() => setSpurChoice('no')} />
                       <label className="govuk-label govuk-radios__label" htmlFor="addRouteRadioOption-3">
-                        No, I have added all the routes
+                        No
                       </label>
                     </div>
                   </div>

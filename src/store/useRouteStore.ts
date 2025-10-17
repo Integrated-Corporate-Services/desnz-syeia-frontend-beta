@@ -2,9 +2,10 @@ import { create } from 'zustand';
 import { getRoutesWithPoints, createRouteWithPoints, saveRoutesWithPoints, deleteRoutePoints, deleteRoute } from '../services/routeMapService';
 
 export interface Route {
-  route_id?: string; 
-  routeName?: string; 
+  route_id?: string;
+  routeName?: string;
   gridPoints: Array<{ easting: number; northing: number; point_id?: string; route_id?: string }>;
+  disconnectedroute_justification?: string;
 }
 
 interface RouteState {

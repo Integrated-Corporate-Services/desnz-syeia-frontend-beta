@@ -51,10 +51,10 @@ const RouteMapPage: React.FC = () => {
   const { routes, loading, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRouteStore();
   // If coming from add new route, use blank state and provided routeName
   const isNewRoute = location.state?.isNewRoute;
-  const route_Id = location.state?.route_id;
   const initialRouteName = location.state?.routeName || 'Route A';
+  const details = location.state?.details || '';
   const [points, setPoints] = useState<RoutePoint[]>([{ easting: '', northing: '' }]);
-  const [routeId, setRouteId] = useState<string | undefined>(route_Id);
+  const [routeId, setRouteId] = useState<string | undefined>(undefined);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -79,25 +79,22 @@ const RouteMapPage: React.FC = () => {
       setPoints([{ easting: '', northing: '', point_id: '' }]);
       return;
     }
-    if (routes && routes.length > 0) {
-      const foundRoute = routes.find(r => r.route_id === routeId);
-      if (foundRoute) {
-        setRouteId(foundRoute.route_id);
-        setRouteName(foundRoute.routeName || 'Route A');
-        setPoints(
-          foundRoute.gridPoints.map((pt: any) => ({
-            easting: String(pt.easting ?? ''),
-            northing: String(pt.northing ?? ''),
-            point_id: pt.point_id,
-          }))
-        );
-        return;
-      }
+    if (routes && routes.length > 0 && Array.isArray(routes[0].gridPoints) && routes[0].gridPoints.length > 0) {
+      setRouteId(routes[0].route_id);
+      setRouteName(routes[0].routeName || 'Route A');
+      setPoints(
+        routes[0].gridPoints.map((pt: any) => ({
+          easting: String(pt.easting ?? ''),
+          northing: String(pt.northing ?? ''),
+          point_id: pt.point_id,
+        }))
+      );
+    } else {
+      setRouteId('');
+      setRouteName('Route A');
+      setPoints([{ easting: '', northing: '', point_id: '' }]);
     }
-    setRouteId('');
-    setRouteName('Route A');
-    setPoints([{ easting: '', northing: '', point_id: '' }]);
-  }, [routes, isNewRoute, initialRouteName, routeId]);
+  }, [routes, isNewRoute, initialRouteName]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -133,6 +130,7 @@ const RouteMapPage: React.FC = () => {
             northing: Number(pt.northing),
             point_id:''
           })),
+          disconnectedroute_justification: details
         });
       } else {
         // Existing route, save (update)
@@ -144,6 +142,7 @@ const RouteMapPage: React.FC = () => {
             northing: Number(pt.northing),
             point_id: pt.point_id,
           })),
+          disconnectedroute_justification: details
         }]);
       }
       // After save, delete points if any
@@ -221,41 +220,53 @@ const RouteMapPage: React.FC = () => {
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-full">
               <h1 className="govuk-heading-xl">{routeName}</h1>
+              <div className='govuk-grid-column-three-quarters'>  
+              <p className="govuk-body">
+                Enter the points where your route starts, changes direction and ends by adding <b>new</b> coordinates before or after the previous point. Submit your route after you have entered all of the points.
+              </p>
               <div className="govuk-inset-text">
-                You can{' '}
                 <a
                   href={`/frontend/route-guidance?id=${effectiveApplicationId}`}
                   className="govuk-link"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  read the guidance on adding a route.
+                  Read the guidance on adding a route or a route spur
                 </a>
+              </div>
               </div>
               <div className="govuk-grid-row">
                 <div className="govuk-grid-column-one-half">
                   <form method="post" data-module="fds-html-form">
                     {/* Hidden CSRF or other fields can go here if needed */}
-                    <div data-module="eip-add-route" className="eip-add-route">
-                      {points.map((point, idx) => {
-                        // Use validation function for each point
-                        const errorMsg = validationError ? getPointError(point.easting, point.northing) : undefined;
-                        return (
-                          <RoutePointCard
-                            key={point.point_id || idx}
-                            point={point}
-                            idx={idx}
-                            error={errorMsg}
-                            onAddBefore={() => handleAddPoint(idx, 'before')}
-                            onAddAfter={() => handleAddPoint(idx, 'after')}
-                            onRemove={() => handleRemovePoint(idx)}
-                            onChange={(field, value) => handleChange(idx, field, value)}
-                            onFocus={() => setSelectedIdx(idx)}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div className="govuk-!-static-margin-top-6">
+                    <fieldset className="govuk-fieldset" aria-describedby="route-points-hint">
+                      <legend className="govuk-fieldset__legend govuk-fieldset__legend--m" style={{ marginBottom: 0 }}>
+                        <span className="govuk-visually-hidden">Route points</span>
+                      </legend>
+                   
+                      <div className="govuk-form-group govuk-!-margin-top-4" style={{ padding: 0 }}>
+                        <div className="govuk-box-highlight govuk-!-margin-bottom-4" style={{ border: '1px solid #b1b4b6', borderRadius: 0, padding: 0 }}>
+                          {points.map((point, idx) => {
+                            // Use validation function for each point
+                            const errorMsg = validationError ? getPointError(point.easting, point.northing) : undefined;
+                            return (
+                              <RoutePointCard
+                                key={point.point_id || idx}
+                                point={point}
+                                idx={idx}
+                                error={errorMsg}
+                                onAddBefore={() => handleAddPoint(idx, 'before')}
+                                onAddAfter={() => handleAddPoint(idx, 'after')}
+                                onRemove={() => handleRemovePoint(idx)}
+                                onChange={(field, value) => handleChange(idx, field, value)}
+                                onFocus={() => setSelectedIdx(idx)}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </fieldset>
+                    <div className="govuk-!-margin-top-6">
                       <button
                         className="govuk-button"
                         type="button"
@@ -269,7 +280,6 @@ const RouteMapPage: React.FC = () => {
                       )}
                     </div>
                   </form>
-                 
                 </div>
                 <div className="govuk-grid-column-one-half eip-sticky-column">
                   {/* Removed IE warning message */}
@@ -280,7 +290,7 @@ const RouteMapPage: React.FC = () => {
                         selectedIdx={selectedIdx}
                         setPoints={setPoints}
                         setSelectedIdx={setSelectedIdx}
-                        routeName={routeName}
+                        routeName={location.state?.routeName || 'Route'}
                         mode="edit"
                       />
                     </div>
