@@ -17,3 +17,21 @@ export async function uploadFileToS3(url: string, file: File) {
   });
   return res;
 }
+
+// New: Get presigned GET (download) URL for a file
+export async function getPresignedGetUrl(filename: string) {
+  const res = await fetch('/backend/api/file/presigned-url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename })
+  });
+  if (!res.ok) throw new Error('Failed to get presigned GET URL');
+  return await res.json();
+}
+
+// List files for a given prefix
+export async function listFilesByPrefix(prefix: string) {
+  const res = await fetch(`/backend/api/files?prefix=${encodeURIComponent(prefix)}`);
+  if (!res.ok) throw new Error('Failed to list files');
+  return await res.json();
+}
