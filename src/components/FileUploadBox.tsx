@@ -222,7 +222,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
       {/* Existing files for this path/prefix */}
       <div style={{ marginBottom: 32 }}>
         {existingFilesLoading && <div>Loading files...</div>}
-        {existingFilesError && <div style={{ color: '#d4351c' }}>{existingFilesError}</div>}
+        {/*{existingFilesError && <div style={{ color: '#d4351c' }}>Failed to load files. Please try again later.</div>}*/}
         {!existingFilesLoading && !existingFilesError && existingFiles.length === 0 && (
           <div style={{ color: '#505a5f' }}>No files found.</div>
         )}
