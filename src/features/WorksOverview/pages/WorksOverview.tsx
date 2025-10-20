@@ -1,46 +1,38 @@
 import React, { useState, useEffect,useRef } from 'react';
-import { useAssetStore } from '../../../store/useAssetStore';
+import { FileUploadResponse } from '../../../types/FileUploadResponse';
+import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import NumberInput from '../component/NumberInput';
 import RadioGroup from '../component/RadioGroup';
-import SelectInput from '../component/SelectInput';
 import TextArea from '../component/TextArea';
 import FileUploadBox from '../../../components/FileUploadBox';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
-import { WORKS_ERROR_MESSAGES } from '../../../constants/worksError';
-import { VOLTAGE_CLASS_OPTIONS, TYPE_OF_LINE_ENUM, LINE_TYPE_LABELS } from '../../../constants/asset';
-import { createAsset } from '../../../services/asset-service';
+import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 
 const initialState = {
   assetId: '',
-  referenceNumber: '',
-  lineLength: '',
-  lineLengthUnit: 'metres',
-  addingPoles: '',
-  polesMaterials: '',
-  chemicalCoating: '',
+  addingOrReplacingPoles: '',
+  poleMaterial: '',
+  chemicalTreatments: '',
   polesAdded: '',
   polesReplaced: '',
-  constructionDescription: '',
-  addingOverheadLines: '',
-  overheadLinesDescription: '',
-  overheadLinesDuration: '',
-  overheadLinesVehicles: '',
-  overheadLinesRoadClosures: '',
-  excavationWorks: '',
-  excavationWorksDescription: '',
-  vegetationClearance: '',
-  vegetationClearanceDescription: '',
-  removingEquipment: '',
-  removingEquipmentDescription: '',
-  worksOnExistingAsset: '',
-  generalComments: '',
-  lineType: '',
-  lineVoltage: '',
-  overheadLinesWorkItemId: '',
-  assetPolesWorkItemId: '',
-  assetEquipmentRemovalWorkItemId: ''
+  poleComments: '',
+  addingOrReplacingLines: '',
+  overheadLineDescription: '',
+  estimatedDuration: '',
+  vehiclesRequired: '',
+  roadClosuresRequired: '',
+  excavationRequired: '',
+  excavationDetails: '',
+  vegetationClearanceRequired: '',
+  vegetationClearanceDetails: '',
+  usingExistingAccessRoutes: '',
+  accessRoutesDetails: '',
+  accessRouteFiles: [] as FileUploadResponse[], // For uploaded files
+  removingExistingEquipment: '',
+  removalDescription: '',
+  generalComments: ''
 };
 
 type FormErrors = Partial<Record<keyof typeof initialState, string>>;
@@ -49,7 +41,7 @@ const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
-  const { assets, fetchAssets, updateAsset } = useAssetStore();
+  // Remove asset store usage for works overview
   const navigate = useNavigate();
   // Ref for first error field
   const firstErrorRef = useRef<HTMLInputElement | null>(null);
@@ -64,74 +56,72 @@ const WorksOverview: React.FC = () => {
 
   // Get applicationId from URL params or query string
  
-    const params = useParams();
- 
-const getApplicationId = () => {
-        if (params.applicationId) return params.applicationId;
-        if (params.id) return params.id;
-        if (typeof window !== 'undefined') {
-            const searchParams = new URLSearchParams(window.location.search);
-            const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-            if (idFromQuery) return idFromQuery;
-        }
-        return '';
-    };
-    const applicationId = getApplicationId();
- 
- 
-  const location = useLocation();
-  // Try to get ?id=... from query string if not present in params
-  const queryParams = new URLSearchParams(location.search);
-  const queryId = queryParams.get('id');
-  const effectiveApplicationId = applicationId || queryId || '';
 
-  // Fetch asset details on mount
-  useEffect(() => {
-    if (effectiveApplicationId) {
-      fetchAssets(effectiveApplicationId);
+  const params = useParams();
+  const location = useLocation();
+  const application = useApplicationStore((state) => state.application);
+  // Helper to get applicationId from store, params, or query string
+  const getApplicationId = () => {
+    if (application && application.application_id)
+      return application.application_id;
+    if (params.applicationId) return params.applicationId;
+    if (params.id) return params.id;
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(location.search);
+      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+      if (idFromQuery) return idFromQuery;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return '';
+  };
+  const applicationId = getApplicationId();
+ 
+ 
+  const effectiveApplicationId = applicationId;
+
+
+  // Fetch works overview details on mount
+  useEffect(() => {
+    async function fetchWorksOverview() {
+      if (effectiveApplicationId) {
+        try {
+          const data = await getWorksOverview(effectiveApplicationId);
+          if (data && data.worksOverview) {
+            setForm(prev => ({
+              ...prev,
+              ...{
+                addingOrReplacingPoles: data.worksOverview.addingOrReplacingPoles ? 'yes' : 'no',
+                poleMaterial: data.worksOverview.poleMaterial || '',
+                chemicalTreatments: data.worksOverview.chemicalTreatments || '',
+                polesAdded: data.worksOverview.polesAdded !== undefined ? data.worksOverview.polesAdded.toString() : '',
+                polesReplaced: data.worksOverview.polesReplaced !== undefined ? data.worksOverview.polesReplaced.toString() : '',
+                poleComments: data.worksOverview.poleComments || '',
+                addingOrReplacingLines: data.worksOverview.addingOrReplacingLines ? 'yes' : 'no',
+                overheadLineDescription: data.worksOverview.overheadLineDescription || '',
+                estimatedDuration: data.worksOverview.estimatedDuration || '',
+                vehiclesRequired: data.worksOverview.vehiclesRequired || '',
+                roadClosuresRequired: data.worksOverview.roadClosuresRequired ? 'yes' : 'no',
+                excavationRequired: data.worksOverview.excavationRequired ? 'yes' : 'no',
+                excavationDetails: data.worksOverview.excavationDetails || '',
+                vegetationClearanceRequired: data.worksOverview.vegetationClearanceRequired ? 'yes' : 'no',
+                vegetationClearanceDetails: data.worksOverview.vegetationClearanceDetails || '',
+                usingExistingAccessRoutes: data.worksOverview.usingExistingAccessRoutes ? 'yes' : 'no',
+                accessRoutesDetails: data.worksOverview.accessRoutesDetails || '',
+                removingExistingEquipment: data.worksOverview.removingExistingEquipment ? 'yes' : 'no',
+                removalDescription: data.worksOverview.removalDescription || '',
+                generalComments: data.worksOverview.generalComments || ''
+              }
+            }));
+          }
+        } catch {
+          // Optionally handle error
+        }
+      }
+    }
+    fetchWorksOverview();
+    
   }, [effectiveApplicationId]);
 
-  useEffect(() => {
-    if (assets && assets.length > 0) {
-      const worksOverview = assets[0];
-      setForm(prev => ({
-        ...prev,
-        assetId: worksOverview.assetId || '',
-        referenceNumber: worksOverview.standardSpecificationReferenceNumber || '',
-        lineLength: worksOverview.lineLength?.toString() || '',
-        lineLengthUnit: 'metres',
-        addingPoles: worksOverview.poles?.hasAddOrReplace ? 'yes' : 'no',
-        polesMaterials: worksOverview.poles?.materials || '',
-        polesAdded: worksOverview.poles?.add?.toString() || '',
-        polesReplaced: worksOverview.poles?.replace?.toString() || '',
-        constructionDescription: worksOverview.poles?.description || '',
-        addingOverheadLines: worksOverview.overheadLines?.hasAddOrReplace ? 'yes' : 'no',
-        overheadLinesDescription: worksOverview.overheadLines?.description || '',
-        // The following fields are frontend-only, do not map from backend
-        // overheadLinesDuration, overheadLinesVehicles, overheadLinesRoadClosures
-        excavationWorks: worksOverview.excavationWorks?.hasExcavation ? 'yes' : 'no',
-        chemicalCoating: worksOverview.poles?.chemicalCoatings || '',
-        excavationWorksDescription: worksOverview.excavationWorks?.description || '',
-        vegetationClearance: worksOverview.vegetationClearance?.hasClearance ? 'yes' : 'no',
-        vegetationClearanceDescription: worksOverview.vegetationClearance?.description || '',
-        removingEquipment: worksOverview.equipmentRemoval?.isRemoving ? 'yes' : 'no',
-        removingEquipmentDescription: worksOverview.equipmentRemoval?.description || '',
-        worksOnExistingAsset: worksOverview.isExistingAsset ? 'yes' : 'no',
-        generalComments: worksOverview.generalComments || '',
-        lineType: typeof worksOverview.typeOfLine === 'object' && worksOverview.typeOfLine !== null
-          ? (worksOverview.typeOfLine as { code?: string }).code || ''
-          : worksOverview.typeOfLine || '',
-        lineVoltage: typeof worksOverview.lineVoltage === 'object' && worksOverview.lineVoltage !== null
-          ? (worksOverview.lineVoltage as { code?: string }).code || ''
-          : worksOverview.lineVoltage || '',
-        overheadLinesWorkItemId: worksOverview.overheadLines?.workItemId || '',
-        assetPolesWorkItemId: worksOverview.poles?.workItemId || '',
-        assetEquipmentRemovalWorkItemId: worksOverview.equipmentRemoval?.workItemId || ''
-      }));
-    }
-  }, [assets]);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -140,45 +130,47 @@ const getApplicationId = () => {
 
   const validate = (data: typeof initialState): FormErrors => {
     const newErrors: FormErrors = {};
-    if (!data.addingPoles) {
-      newErrors.addingPoles = WORKS_ERROR_MESSAGES.addingPoles;
-    } else if (data.addingPoles === 'yes') {
-      if (!data.polesAdded.trim()) newErrors.polesAdded = WORKS_ERROR_MESSAGES.polesAdded;
-      if (!data.polesReplaced.trim()) newErrors.polesReplaced = WORKS_ERROR_MESSAGES.polesReplaced;
-      if (!data.constructionDescription.trim()) newErrors.constructionDescription = WORKS_ERROR_MESSAGES.constructionDescription;
+    if (!data.addingOrReplacingPoles) {
+      newErrors.addingOrReplacingPoles = 'Select if you are adding or replacing poles.';
+    } else if (data.addingOrReplacingPoles === 'yes') {
+      if (!data.poleMaterial.trim()) newErrors.poleMaterial = 'Enter pole material.';
+      if (!data.chemicalTreatments.trim()) newErrors.chemicalTreatments = 'Enter chemical treatments.';
+      if (!data.polesAdded.trim()) newErrors.polesAdded = 'Enter number of poles added.';
+      if (!data.polesReplaced.trim()) newErrors.polesReplaced = 'Enter number of poles replaced.';
+      if (!data.poleComments.trim()) newErrors.poleComments = 'Enter comments on poles being added or replaced.';
     }
-    if (!data.addingOverheadLines) {
-      newErrors.addingOverheadLines = WORKS_ERROR_MESSAGES.addingOverheadLines;
-    } else if (data.addingOverheadLines === 'yes') {
-      if (!data.overheadLinesDescription.trim()) newErrors.overheadLinesDescription = WORKS_ERROR_MESSAGES.overheadLinesDescription;
-      if (!data.overheadLinesDuration.trim()) newErrors.overheadLinesDuration = 'Enter the estimated duration of the works';
-      if (!data.overheadLinesVehicles.trim()) newErrors.overheadLinesVehicles = 'Enter the vehicles required on site';
-      if (!data.overheadLinesRoadClosures) newErrors.overheadLinesRoadClosures = 'Select if road closures or traffic calming measures are required';
+    if (!data.addingOrReplacingLines) {
+      newErrors.addingOrReplacingLines = 'Select if you are adding or replacing overhead lines.';
+    } else if (data.addingOrReplacingLines === 'yes') {
+      if (!data.overheadLineDescription.trim()) newErrors.overheadLineDescription = 'Enter overhead line description.';
+      if (!data.estimatedDuration.trim()) newErrors.estimatedDuration = 'Enter estimated duration.';
+      if (!data.vehiclesRequired.trim()) newErrors.vehiclesRequired = 'Enter vehicles required.';
+      if (!data.roadClosuresRequired) newErrors.roadClosuresRequired = 'Select if road closures are required.';
     }
-    if (!data.excavationWorks) {
-      newErrors.excavationWorks = WORKS_ERROR_MESSAGES.excavationWorkDescription;
-    } else if (data.excavationWorks === 'yes') {
-      if (!data.excavationWorksDescription.trim()) {
-        newErrors.excavationWorksDescription = WORKS_ERROR_MESSAGES.excavationWorkDescription;
-      }
+    if (!data.excavationRequired) {
+      newErrors.excavationRequired = 'Select if excavation is required.';
+    } else if (data.excavationRequired === 'yes') {
+      if (!data.excavationDetails.trim()) newErrors.excavationDetails = 'Enter excavation details.';
     }
-    if (!data.vegetationClearance) {
-      newErrors.vegetationClearance = WORKS_ERROR_MESSAGES.vegetationClearanceDescription;
-    } else if (data.vegetationClearance === 'yes') {
-      if (!data.vegetationClearanceDescription.trim()) {
-        newErrors.vegetationClearanceDescription = WORKS_ERROR_MESSAGES.vegetationClearanceDescription;
-      }
+    if (!data.vegetationClearanceRequired) {
+      newErrors.vegetationClearanceRequired = 'Select if vegetation clearance is required.';
+    } else if (data.vegetationClearanceRequired === 'yes') {
+      if (!data.vegetationClearanceDetails.trim()) newErrors.vegetationClearanceDetails = 'Enter vegetation clearance details.';
     }
-    if (!data.removingEquipment) {
-      newErrors.removingEquipment = WORKS_ERROR_MESSAGES.removingEquipment;
-    } else if (data.removingEquipment === 'yes') {
-      if (!data.removingEquipmentDescription.trim()) newErrors.removingEquipmentDescription = WORKS_ERROR_MESSAGES.removingEquipmentDescription;
+    if (!data.usingExistingAccessRoutes) {
+      newErrors.usingExistingAccessRoutes = 'Select if using existing access routes.';
+    } else if (data.usingExistingAccessRoutes === 'yes') {
+      if (!data.accessRoutesDetails.trim()) newErrors.accessRoutesDetails = 'Enter access routes details.';
     }
-    if (!data.worksOnExistingAsset) newErrors.worksOnExistingAsset = WORKS_ERROR_MESSAGES.worksOnExistingAsset;
+    if (!data.removingExistingEquipment) {
+      newErrors.removingExistingEquipment = 'Select if removing existing equipment.';
+    } else if (data.removingExistingEquipment === 'yes') {
+      if (!data.removalDescription.trim()) newErrors.removalDescription = 'Enter removal description.';
+    }
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
     const validationErrors = validate(form);
@@ -186,71 +178,54 @@ const getApplicationId = () => {
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-    // Map form data to AssetRequest
-    //const asset = assets && assets[0] ? assets[0] : {};
-    const assetPayload = {
-      applicationId: effectiveApplicationId,
-      assets: [
-        {
-          assetId: form.assetId || '',
-          assetType: 's37',
-          assetReference: form.referenceNumber,
-          description: form.constructionDescription || '',
-          poles: {
-            hasAddOrReplace: form.addingPoles === 'yes',
-            materials: form.polesMaterials,
-            add: parseInt(form.polesAdded) || 0,
-            replace: parseInt(form.polesReplaced) || 0,
-            description: form.constructionDescription,
-            workItemId: typeof form.assetPolesWorkItemId === 'string' ? form.assetPolesWorkItemId : ''
-          },
-          overheadLines: {
-            hasAddOrReplace: form.addingOverheadLines === 'yes',
-            description: form.overheadLinesDescription,
-            workItemId: typeof form.overheadLinesWorkItemId === 'string' ? form.overheadLinesWorkItemId : ''
-          },
-          excavationWorks: {
-            hasExcavation: form.excavationWorks === 'yes',
-            description: form.excavationWorksDescription
-          },
-          vegetationClearance: {
-            hasClearance: form.vegetationClearance === 'yes',
-            description: form.vegetationClearanceDescription
-          },
-          equipmentRemoval: {
-            isRemoving: form.removingEquipment === 'yes',
-            description: form.removingEquipmentDescription,
-            workItemId: typeof form.assetEquipmentRemovalWorkItemId === 'string' ? form.assetEquipmentRemovalWorkItemId : ''
-          },
-          isExistingAsset: form.worksOnExistingAsset === 'yes',
-          generalComments: form.generalComments,
-          typeOfLine: form.lineType,
-          lineVoltage: form.lineVoltage,
-          lineLength: parseFloat(form.lineLength) || 0,
-          standardSpecificationReferenceNumber: form.referenceNumber
-        }
-      ]
+    // Map form data to backend expected payload: { applicationId, worksOverview: { ...fields... } }
+    const worksOverviewPayload = {
+      addingOrReplacingPoles: form.addingOrReplacingPoles === 'yes',
+      addingOrReplacingLines: form.addingOrReplacingLines === 'yes',
+      poleMaterial: form.poleMaterial || '',
+      chemicalTreatments: form.chemicalTreatments || '',
+      polesAdded: parseInt(form.polesAdded) || 0,
+      polesReplaced: parseInt(form.polesReplaced) || 0,
+      poleComments: form.poleComments,
+      overheadLineDescription: form.overheadLineDescription || '',
+      estimatedDuration: form.estimatedDuration || '',
+      vehiclesRequired: form.vehiclesRequired || '',
+      roadClosuresRequired: form.roadClosuresRequired === 'yes',
+      excavationRequired: form.excavationRequired === 'yes',
+      excavationDetails: form.excavationDetails || '',
+      vegetationClearanceRequired: form.vegetationClearanceRequired === 'yes',
+      vegetationClearanceDetails: form.vegetationClearanceDetails || '',
+      usingExistingAccessRoutes: form.usingExistingAccessRoutes === 'yes',
+      accessRoutesDetails: form.accessRoutesDetails || '',
+      // accessRouteFiles: (form.accessRouteFiles || []).map(f => ({
+      //   url: f.url,
+      //   name: f.filename,
+      //   size: typeof f.fileSize === 'number' ? f.fileSize : 0
+      // })),
+      removingExistingEquipment: form.removingExistingEquipment === 'yes',
+      removalDescription: form.removalDescription || '',
+      generalComments: form.generalComments || ''
     };
-    if (assets && assets[0]?.assetId) {
-      // Update existing asset
-      updateAsset(assetPayload)
-        .then(() => {
-          fetchAssets(effectiveApplicationId);
-          navigate(`/task-list?id=${effectiveApplicationId}`);
-        })
-        .catch((err: any) => {
-          setErrors({ generalComments: err.message || ASSET_ERROR_MESSAGES.generalCommentsFailed });
-        });
-    } else {
-      // Create new asset
-      createAsset(assetPayload)
-        .then(() => {
-          fetchAssets(effectiveApplicationId);
-          navigate(`/task-list?id=${effectiveApplicationId}`);
-        })
-        .catch((err: any) => {
-          setErrors({ generalComments: err.message || ASSET_ERROR_MESSAGES.generalCommentsFailed });
-        });
+
+    const payload = {
+      applicationId: effectiveApplicationId,
+      worksOverview: worksOverviewPayload
+    };
+
+    try {
+      if (form.assetId) {
+        await updateWorksOverview(effectiveApplicationId, payload);
+      } else {
+        await createWorksOverview(payload);
+      }
+      // Removed fetchAssets call; not needed for works overview
+      navigate(`/task-list?id=${effectiveApplicationId}`);
+    } catch (err: unknown) {
+      let errorMsg = ASSET_ERROR_MESSAGES.generalCommentsFailed;
+      if (err && typeof err === 'object' && 'message' in err && typeof (err as { message?: unknown }).message === 'string') {
+        errorMsg = (err as { message: string }).message;
+      }
+      setErrors({ generalComments: errorMsg });
     }
   };
 
@@ -291,41 +266,35 @@ const getApplicationId = () => {
         {/* Adding or replacing poles */}
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
-            id="addingPoles"
+            id="addingOrReplacingPoles"
             label="Are you adding or replacing any poles?"
-            name="addingPoles"
-            value={form.addingPoles}
-            error={errors.addingPoles}
+            name="addingOrReplacingPoles"
+            value={form.addingOrReplacingPoles}
+            error={errors.addingOrReplacingPoles}
             onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
+            options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.polesAdded ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              
+            <div className={`govuk-form-group${errors.poleMaterial ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextInput
-                id="polesMaterials"
-                name="polesMaterials"
+                id="poleMaterial"
+                name="poleMaterial"
                 label="What materials will be used for the new poles/pylons?"
-                value={form.polesMaterials}
+                value={form.poleMaterial}
                 onChange={handleChange}
-                error={errors.polesAdded}
+                error={errors.poleMaterial}
               />
             </div>
-            <div className={`govuk-form-group${errors.polesAdded ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              
+            <div className={`govuk-form-group${errors.chemicalTreatments ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextInput
-                id="chemicalCoatings"
-                name="chemicalCoating"
-                label="Are any chemical coatings proposed?"
-                value={form.chemicalCoating}
+                id="chemicalTreatments"
+                name="chemicalTreatments"
+                label="Are any chemical treatments proposed?"
+                value={form.chemicalTreatments}
                 onChange={handleChange}
-                error={errors.polesAdded}
+                error={errors.chemicalTreatments}
               />
             </div>
             <div className={`govuk-form-group${errors.polesAdded ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-
               <NumberInput
                 id="polesAdded"
                 name="polesAdded"
@@ -345,17 +314,17 @@ const getApplicationId = () => {
                 error={errors.polesReplaced}
               />
             </div>
-            <div className={`govuk-form-group${errors.constructionDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.poleComments ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
-                id="constructionDescription"
-                name="constructionDescription"
+                id="poleComments"
+                name="poleComments"
                 label="Comments on poles being added or replaced (optional)"
                 hint="On poles being added or replaced"
-                value={form.constructionDescription}
+                value={form.poleComments}
                 onChange={handleChange}
                 maxLength={4000}
                 showCount
-                error={errors.constructionDescription}
+                error={errors.poleComments}
               />
             </div>
           </RadioGroup>
@@ -364,42 +333,54 @@ const getApplicationId = () => {
         {/* Adding or replacing overhead lines */}
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
-            id="addingOverheadLines"
+            id="addingOrReplacingLines"
             label="Are you adding or replacing any overhead lines?"
-            name="addingOverheadLines"
-            value={form.addingOverheadLines}
-            error={errors.addingOverheadLines}
+            name="addingOrReplacingLines"
+            value={form.addingOrReplacingLines}
+            error={errors.addingOrReplacingLines}
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
             <h3 className="govuk-heading-s">Provide a description of the overhead lines that you are adding or replacing</h3>
-            <div className={`govuk-form-group${errors.overheadLinesDuration ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <TextInput
-                id="overheadLinesDuration"
-                name="overheadLinesDuration"
-                label="What is the estimated duration of the works?"
-                value={form.overheadLinesDuration}
+            <div className={`govuk-form-group${errors.overheadLineDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+              <TextArea
+                id="overheadLineDescription"
+                name="overheadLineDescription"
+                label="Description of the overhead lines"
+                value={form.overheadLineDescription}
                 onChange={handleChange}
-                error={errors.overheadLinesDuration}
+                error={errors.overheadLineDescription}
+                maxLength={4000}
+                showCount
               />
             </div>
-            <div className={`govuk-form-group${errors.overheadLinesVehicles ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.estimatedDuration ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextInput
-                id="overheadLinesVehicles"
-                name="overheadLinesVehicles"
-                label="What vehicles will be required on site?"
-                value={form.overheadLinesVehicles}
+                id="estimatedDuration"
+                name="estimatedDuration"
+                label="Estimated duration of the works"
+                value={form.estimatedDuration}
                 onChange={handleChange}
-                error={errors.overheadLinesVehicles}
+                error={errors.estimatedDuration}
               />
             </div>
-            <div className={`govuk-form-group${errors.overheadLinesRoadClosures ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.vehiclesRequired ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+              <TextInput
+                id="vehiclesRequired"
+                name="vehiclesRequired"
+                label="Vehicles required on site"
+                value={form.vehiclesRequired}
+                onChange={handleChange}
+                error={errors.vehiclesRequired}
+              />
+            </div>
+            <div className={`govuk-form-group${errors.roadClosuresRequired ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <RadioGroup
-                id="overheadLinesRoadClosures"
+                id="roadClosuresRequired"
                 label="Will any road closures or traffic calming measures be required?"
-                name="overheadLinesRoadClosures"
-                value={form.overheadLinesRoadClosures}
-                error={errors.overheadLinesRoadClosures}
+                name="roadClosuresRequired"
+                value={form.roadClosuresRequired}
+                error={errors.roadClosuresRequired}
                 onChange={handleChange}
                 options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
               />
@@ -407,32 +388,29 @@ const getApplicationId = () => {
           </RadioGroup>
         </div>
 
+
+
         {/* Excavation works */}
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
-            id="excavationWorks"
+            id="excavationRequired"
             label="Are excavation works required?"
-            name="excavationWorks"
-            hint="For example hedgerow removal or tree lopping"
-            value={form.excavationWorks}
-            error={errors.excavationWorks}
+            name="excavationRequired"
+            value={form.excavationRequired}
+            error={errors.excavationRequired}
             onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
+            options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.excavationWorksDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.excavationDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
-                id="excavationWorksDescription"
-                name="excavationWorksDescription"
+                id="excavationDetails"
+                name="excavationDetails"
                 label="Provide more details about the excavation works"
-                value={form.excavationWorksDescription}
+                value={form.excavationDetails}
                 onChange={handleChange}
                 maxLength={4000}
                 showCount
-                style={{ width: '100%', maxWidth: 600 }}
-                error={errors.excavationWorksDescription}
+                error={errors.excavationDetails}
               />
             </div>
           </RadioGroup>
@@ -441,87 +419,88 @@ const getApplicationId = () => {
         {/* Vegetation clearance */}
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
-            id="vegetationClearance"
+            id="vegetationClearanceRequired"
             label="Is vegetation clearance required?"
-            name="vegetationClearance"
-            hint="For example hedgerow removal or tree lopping"
-            value={form.vegetationClearance}
-            error={errors.vegetationClearance}
+            name="vegetationClearanceRequired"
+            value={form.vegetationClearanceRequired}
+            error={errors.vegetationClearanceRequired}
             onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
+            options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.vegetationClearanceDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.vegetationClearanceDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
-                id="vegetationClearanceDescription"
-                name="vegetationClearanceDescription"
+                id="vegetationClearanceDetails"
+                name="vegetationClearanceDetails"
                 label="Provide more details about the vegetation clearance"
-                value={form.vegetationClearanceDescription}
+                value={form.vegetationClearanceDetails}
                 onChange={handleChange}
                 maxLength={4000}
                 showCount
-                style={{ width: '100%' }}
-                error={errors.vegetationClearanceDescription}
+                error={errors.vegetationClearanceDetails}
               />
             </div>
           </RadioGroup>
         </div>
 
-                {/* Vegetation clearance */}
+        {/* Pre-existing access routes */}
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
-            id="vegetationClearance"
+            id="usingExistingAccessRoutes"
             label="Are you using pre-existing access routes and/or storage sites?"
-            name="vegetationClearance"
-            value={form.vegetationClearance}
-            error={errors.vegetationClearance}
+            name="usingExistingAccessRoutes"
+            value={form.usingExistingAccessRoutes}
+            error={errors.usingExistingAccessRoutes}
             onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
+            options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.vegetationClearanceDescription ? ' govuk-form-group--error' : ''}`}> 
+            <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
-                id="vegetationClearanceDescription"
-                name="vegetationClearanceDescription"
+                id="accessRoutesDetails"
+                name="accessRoutesDetails"
                 label="Provide more details about the pre-existing access routes and/or storage sites?"
-                value={form.vegetationClearanceDescription}
+                value={form.accessRoutesDetails}
                 onChange={handleChange}
                 maxLength={4000}
                 showCount
-                style={{ width: '100%' }}
-                error={errors.vegetationClearanceDescription}
+                error={errors.accessRoutesDetails}
               />
             </div>
-            <div style={{ marginTop: '2rem' }}>
-              <label className="govuk-label govuk-label--m" style={{ fontWeight: 700 }}>
-                Upload map and photos of the Access Route.
-              </label>
+            {/* File upload for access route map/photos */}
+            <div className="govuk-form-group" style={{ maxWidth: 600 }}>
+              <label className="govuk-label">Upload map and photos of the Access Route.</label>
               <FileUploadBox
-                prefix={`access-route/${applicationId}`}
-                onUploadComplete={() => {}}
+                title="Upload map and photos of the Access Route."
+                prefix="access-route"
+                onUploadComplete={(files: FileUploadResponse[]) => setForm(prev => ({ ...prev, accessRouteFiles: files }))}
               />
             </div>
           </RadioGroup>
         </div>
 
-        {/* Works on existing asset */}
+        {/* Removing existing equipment */}
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
-            id="worksOnExistingAsset"
-            label="Are the works to be carried out on an existing asset?"
-            name="worksOnExistingAsset"
-            value={form.worksOnExistingAsset}
-            error={errors.worksOnExistingAsset}
+            id="removingExistingEquipment"
+            label="Are you removing existing equipment?"
+            name="removingExistingEquipment"
+            value={form.removingExistingEquipment}
+            error={errors.removingExistingEquipment}
             onChange={handleChange}
-            options={[
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-            ]}
-          />
+            options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
+          >
+            <div className={`govuk-form-group${errors.removalDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+              <TextArea
+                id="removalDescription"
+                name="removalDescription"
+                label="Provide more details about the equipment removal"
+                value={form.removalDescription}
+                onChange={handleChange}
+                maxLength={4000}
+                showCount
+                error={errors.removalDescription}
+              />
+            </div>
+          </RadioGroup>
         </div>
 
         {/* General comments */}
