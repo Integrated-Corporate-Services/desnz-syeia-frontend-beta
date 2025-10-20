@@ -2,7 +2,7 @@ import { WorksOverviewRequest } from '../types/works';
 
 // Fetch WorksOverview by applicationId
 export async function getWorksOverview(applicationId: string) {
-  const response = await fetch(`/backend/api/applications/works-overview/${applicationId}`, {
+  const response = await fetch(`/backend/api/applications/${applicationId}/works-overview`, {
     method: 'GET',
     credentials: 'include',
     headers: {

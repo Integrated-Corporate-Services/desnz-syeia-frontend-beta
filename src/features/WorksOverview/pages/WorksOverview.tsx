@@ -11,7 +11,6 @@ import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 
 const initialState = {
-  assetId: '',
   addingOrReplacingPoles: '',
   poleMaterial: '',
   chemicalTreatments: '',
@@ -41,6 +40,7 @@ const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false); // New state to track edit mode
   // Remove asset store usage for works overview
   const navigate = useNavigate();
   // Ref for first error field
@@ -85,40 +85,42 @@ const WorksOverview: React.FC = () => {
       if (effectiveApplicationId) {
         try {
           const data = await getWorksOverview(effectiveApplicationId);
-          if (data && data.worksOverview) {
-            setForm(prev => ({
-              ...prev,
-              ...{
-                addingOrReplacingPoles: data.worksOverview.addingOrReplacingPoles ? 'yes' : 'no',
-                poleMaterial: data.worksOverview.poleMaterial || '',
-                chemicalTreatments: data.worksOverview.chemicalTreatments || '',
-                polesAdded: data.worksOverview.polesAdded !== undefined ? data.worksOverview.polesAdded.toString() : '',
-                polesReplaced: data.worksOverview.polesReplaced !== undefined ? data.worksOverview.polesReplaced.toString() : '',
-                poleComments: data.worksOverview.poleComments || '',
-                addingOrReplacingLines: data.worksOverview.addingOrReplacingLines ? 'yes' : 'no',
-                overheadLineDescription: data.worksOverview.overheadLineDescription || '',
-                estimatedDuration: data.worksOverview.estimatedDuration || '',
-                vehiclesRequired: data.worksOverview.vehiclesRequired || '',
-                roadClosuresRequired: data.worksOverview.roadClosuresRequired ? 'yes' : 'no',
-                excavationRequired: data.worksOverview.excavationRequired ? 'yes' : 'no',
-                excavationDetails: data.worksOverview.excavationDetails || '',
-                vegetationClearanceRequired: data.worksOverview.vegetationClearanceRequired ? 'yes' : 'no',
-                vegetationClearanceDetails: data.worksOverview.vegetationClearanceDetails || '',
-                usingExistingAccessRoutes: data.worksOverview.usingExistingAccessRoutes ? 'yes' : 'no',
-                accessRoutesDetails: data.worksOverview.accessRoutesDetails || '',
-                removingExistingEquipment: data.worksOverview.removingExistingEquipment ? 'yes' : 'no',
-                removalDescription: data.worksOverview.removalDescription || '',
-                generalComments: data.worksOverview.generalComments || ''
-              }
-            }));
+          if (data) {
+            setForm({
+              addingOrReplacingPoles: data.addingOrReplacingPoles ? 'yes' : 'no',
+              poleMaterial: data.poleMaterial || '',
+              chemicalTreatments: data.chemicalTreatments || '',
+              polesAdded: data.polesAdded !== undefined ? data.polesAdded.toString() : '',
+              polesReplaced: data.polesReplaced !== undefined ? data.polesReplaced.toString() : '',
+              poleComments: data.poleComments || '',
+              addingOrReplacingLines: data.addingOrReplacingLines ? 'yes' : 'no',
+              overheadLineDescription: data.overheadLineDescription || '',
+              estimatedDuration: data.estimatedDuration || '',
+              vehiclesRequired: data.vehiclesRequired || '',
+              roadClosuresRequired: data.roadClosuresRequired ? 'yes' : 'no',
+              excavationRequired: data.excavationRequired ? 'yes' : 'no',
+              excavationDetails: data.excavationDetails || '',
+              vegetationClearanceRequired: data.vegetationClearanceRequired ? 'yes' : 'no',
+              vegetationClearanceDetails: data.vegetationClearanceDetails || '',
+              usingExistingAccessRoutes: data.usingExistingAccessRoutes ? 'yes' : 'no',
+              accessRoutesDetails: data.accessRoutesDetails || '',
+              accessRouteFiles: [],
+              removingExistingEquipment: data.removingExistingEquipment ? 'yes' : 'no',
+              removalDescription: data.removalDescription || '',
+              generalComments: data.generalComments || ''
+            });
+            setIsEditMode(true);
+          } else {
+            setForm(initialState);
+            setIsEditMode(false);
           }
         } catch {
-          // Optionally handle error
+          setForm(initialState);
+          setIsEditMode(false);
         }
       }
     }
     fetchWorksOverview();
-    
   }, [effectiveApplicationId]);
 
 
@@ -199,7 +201,7 @@ const WorksOverview: React.FC = () => {
       accessRoutesDetails: form.accessRoutesDetails || '',
       // accessRouteFiles: (form.accessRouteFiles || []).map(f => ({
       //   url: f.url,
-      //   name: f.filename,
+      //   name: f.filename || '',
       //   size: typeof f.fileSize === 'number' ? f.fileSize : 0
       // })),
       removingExistingEquipment: form.removingExistingEquipment === 'yes',
@@ -213,12 +215,12 @@ const WorksOverview: React.FC = () => {
     };
 
     try {
-      if (form.assetId) {
+      // Always use updateWorksOverview for PUT, createWorksOverview for POST
+      if (isEditMode) {
         await updateWorksOverview(effectiveApplicationId, payload);
       } else {
         await createWorksOverview(payload);
       }
-      // Removed fetchAssets call; not needed for works overview
       navigate(`/task-list?id=${effectiveApplicationId}`);
     } catch (err: unknown) {
       let errorMsg = ASSET_ERROR_MESSAGES.generalCommentsFailed;
