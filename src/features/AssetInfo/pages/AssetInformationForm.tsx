@@ -3,28 +3,37 @@ import { useAssetStore } from '../../../store/useAssetStore';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import RadioGroup from '../component/RadioGroup';
-import SelectInput from '../component/SelectInput';
+import MultiSelectDropdown from '../component/MultiSelect';
 import TextArea from '../component/TextArea';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
 
-const initialState = {
+interface AssetFormState {
+  assetId: string;
+  referenceNumber: string;
+  lineType: string;
+  tori_noi: string;
+  lineVoltage: string[];
+  lineLength: string;
+}
+
+const initialState: AssetFormState = {
   assetId: '',
   referenceNumber: '',
   lineType: '',
   tori_noi: '',
-  lineVoltage: '',
+  lineVoltage: [],
   lineLength: '',
 };
 
 type FormErrors = Partial<Record<keyof typeof initialState, string>>;
 
 const AssetInformationForm: React.FC = () => {
-  const [form, setForm] = useState(initialState);
+  const [form, setForm] = useState<AssetFormState>(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
-  const { assets, loading, error, fetchAssets, updateAsset } = useAssetStore();
+  const { assets, fetchAssets, updateAsset } = useAssetStore();
   const navigate = useNavigate();
   // Ref for first error field
   const firstErrorRef = useRef<HTMLInputElement | null>(null);
@@ -72,6 +81,14 @@ const getApplicationId = () => {
   useEffect(() => {
     if (assets && assets.length > 0) {
       const asset = assets[0];
+      let voltageArr: string[] = [];
+      if (Array.isArray(asset.lineVoltage)) {
+        voltageArr = asset.lineVoltage;
+      } else if (typeof asset.lineVoltage === 'string') {
+        voltageArr = asset.lineVoltage.split(',').map(v => v.trim()).filter(Boolean);
+      } else if (typeof asset.lineVoltage === 'object' && asset.lineVoltage !== null) {
+        voltageArr = [(asset.lineVoltage as { code?: string }).code || ''];
+      }
       setForm({
         assetId: asset.assetId || '',
         referenceNumber: asset.standardSpecificationReferenceNumber || '',
@@ -79,9 +96,7 @@ const getApplicationId = () => {
         lineType: typeof asset.typeOfLine === 'object' && asset.typeOfLine !== null
           ? (asset.typeOfLine as { code?: string }).code || ''
           : asset.typeOfLine || '',
-        lineVoltage: typeof asset.lineVoltage === 'object' && asset.lineVoltage !== null
-          ? (asset.lineVoltage as { code?: string }).code || ''
-          : asset.lineVoltage || '',
+        lineVoltage: voltageArr,
         lineLength: asset.lineLength?.toString() || '',
       });
     }
@@ -92,13 +107,13 @@ const getApplicationId = () => {
   setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validate = (data: typeof initialState): FormErrors => {
-  const newErrors: FormErrors = {};
-  if (!data.referenceNumber.trim()) newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumber;
-  if (!data.lineType) newErrors.lineType = ASSET_ERROR_MESSAGES.lineType;
-  if (!data.lineLength.trim()) newErrors.lineLength = ASSET_ERROR_MESSAGES.lineLength;
-  if (!data.lineVoltage) newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltage;
-  return newErrors;
+  const validate = (data: AssetFormState): FormErrors => {
+    const newErrors: FormErrors = {};
+    if (!data.referenceNumber.trim()) newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumber;
+    if (!data.lineType) newErrors.lineType = ASSET_ERROR_MESSAGES.lineType;
+    if (!data.lineLength.trim()) newErrors.lineLength = ASSET_ERROR_MESSAGES.lineLength;
+    if (!data.lineVoltage || !Array.isArray(data.lineVoltage) || data.lineVoltage.length === 0) newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltage;
+    return newErrors;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -120,7 +135,11 @@ const getApplicationId = () => {
           standardSpecificationReferenceNumber: form.referenceNumber,
           typeOfLine: form.lineType,
           tori_noi: form.tori_noi,
-          lineVoltage: form.lineVoltage,
+          lineVoltage: Array.isArray(form.lineVoltage)
+            ? form.lineVoltage.filter(Boolean).join(',')
+            : typeof form.lineVoltage === 'string'
+              ? form.lineVoltage
+              : '',
           lineLength: parseFloat(form.lineLength),
           assetReference: '', // Default empty string
           poles: { hasAddOrReplace: false, add: 0, replace: 0, description: '' },
@@ -234,17 +253,14 @@ const getApplicationId = () => {
 
         {/* Line voltage */}
         <div className="govuk-!-margin-bottom-6">
-          <SelectInput
+          <MultiSelectDropdown
             id="lineVoltage"
             name="lineVoltage"
             label="Line voltage"
-            value={form.lineVoltage}
+            options={VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))}
+            selected={Array.isArray(form.lineVoltage) ? form.lineVoltage : form.lineVoltage ? [form.lineVoltage] : []}
+            onChange={(selected: string[]) => setForm(prev => ({ ...prev, lineVoltage: selected }))}
             error={errors.lineVoltage}
-            onChange={handleChange}
-            options={[
-              { value: '', label: 'Select an option' },
-              ...VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))
-            ]}
           />
         </div>
 
