@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import '../styles/FileUpload.css';
+import '../styles/Fileupload.css';
 import { getPresignedUrls, uploadFileToS3, getPresignedGetUrl, deleteFileFromS3 } from '../services/s3ApiService';
 
 import { UploadedFile, ApplicationDocument } from '../types/fileUpload';
