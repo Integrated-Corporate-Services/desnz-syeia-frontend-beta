@@ -379,7 +379,7 @@ const SupportingInfo: React.FC = () => {
         </label>
         <FileUpload
           title="Supporting information documents"
-          prefix={`supporting-docs/${applicationId}`}
+          prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}/`}
           applicationId={applicationId}
           category={FILE_CATEGORIES.SUPPORT_INFO}
           addedBy={userId}

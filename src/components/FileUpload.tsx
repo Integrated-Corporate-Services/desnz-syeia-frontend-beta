@@ -262,23 +262,29 @@ const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photograph
         {Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
           <div style={{ marginBottom: 16 }}>
             {uploadedFiles.map((file: UploadedFile, idx: number) => (
-              <div key={file.id} className="gds-upload-file-row">
-                <span className="gds-upload-file-link">{file.filename ? file.filename.split('/').pop() : ''}</span>
-                <span className="gds-upload-file-size">{Math.round(Number(file.fileSizeBytes) / 1024)} KB</span>
+              <div key={file.id} className="gds-upload-file-row" style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #b1b4b6', padding: '8px 0' }}>
+                <a
+                  href="#"
+                  className="govuk-link gds-upload-file-link"
+                  style={{ flex: '1', color: '#1d70b8', textDecoration: 'underline', fontWeight: 400, fontSize: '1rem' }}
+                  onClick={e => { e.preventDefault(); /* add download handler if needed */ }}
+                >
+                  {file.filename ? file.filename.split('/').pop() : ''}
+                </a>
+                <span className="gds-upload-file-size" style={{ flex: '0 0 100px', textAlign: 'center', color: '#505a5f', fontSize: '1rem' }}>{Math.round(Number(file.fileSizeBytes) / 1024)} KB</span>
+                <a
+                  href="#"
+                  className="govuk-link gds-upload-remove-link"
+                  style={{ flex: '0 0 120px', textAlign: 'right', color: '#1d70b8', textDecoration: 'underline', cursor: 'pointer', fontWeight: 400, fontSize: '1rem', marginLeft: 'auto' }}
+                  onClick={e => { e.preventDefault(); if (onRemoveFile) onRemoveFile(idx); }}
+                >
+                  Remove file
+                </a>
               </div>
             ))}
           </div>
         )}
-        {/* Local files not yet uploaded (optional, can be removed if not needed) */}
-        {files.map((file, idx) => (
-          <div key={idx} className="gds-upload-file-row"><a href="#" className="gds-upload-file-link">{file.name}</a><span className="gds-upload-file-size">{(file.size / 1024).toFixed(0)} KB</span><button type="button" className="gds-upload-remove" onClick={() => handleRemoveFile(idx)}>
-              Remove file
-            </button>
-            {statuses[idx] && (
-              <span style={{ marginLeft: 16, color: statuses[idx].includes('successful') ? '#00703c' : '#d4351c', fontWeight: 500, fontSize: '1rem' }}>{statuses[idx]}</span>
-            )}
-          </div>
-        ))}
+      
       </div><div
         className="gds-upload-dropzone"
         onDrop={handleDrop}
