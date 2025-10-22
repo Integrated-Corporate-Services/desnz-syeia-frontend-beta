@@ -48,15 +48,19 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   };
 
   return (
-    <div className="govuk-form-group" ref={dropdownRef} style={{ maxWidth: 320 }}><fieldset className="govuk-fieldset" aria-describedby={`${id}-hint`}><legend className="govuk-fieldset__legend govuk-fieldset__legend--m">{label}</legend><span id={`${id}-hint`} className="govuk-hint">Select all that apply</span>
+    <div className="govuk-form-group" ref={dropdownRef} style={{ maxWidth: 320 }}>
+      <fieldset className="govuk-fieldset" aria-describedby={`${id}-hint`}>
+        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">{label}</legend>
+        <span id={`${id}-hint`} className="govuk-hint">Select all that apply</span>
         {error && (
           <span className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {error}
           </span>
         )}
-        <div className="multi-select-dropdown" style={{ position: 'relative' }}><button
+        <div className="multi-select-dropdown" style={{ position: 'relative' }}>
+          <button
             type="button"
-            className="govuk-select"
-            style={{ width: '100%', textAlign: 'left' }}
+            className={`govuk-select${error ? ' govuk-input--error' : ''}`}
+            style={{ width: '100%', textAlign: 'left', border: error ? '2px solid #d4351c' : undefined }}
             onClick={() => setOpen(!open)}
             aria-haspopup="listbox"
             aria-expanded={open}
@@ -83,7 +87,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               aria-multiselectable="true"
             >
               {options.map(opt => (
-                <div key={opt.value} className="govuk-checkboxes__item" style={{ padding: '8px 12px 8px 20px', display: 'flex', alignItems: 'center' }}><input
+                <div key={opt.value} className="govuk-checkboxes__item" style={{ padding: '8px 12px 8px 20px', display: 'flex', alignItems: 'center' }}>
+                  <input
                     type="checkbox"
                     id={`${id}-${opt.value}`}
                     name={name}
@@ -92,13 +97,17 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                     onChange={e => handleCheckboxChange(opt.value, e.target.checked)}
                     className="govuk-checkboxes__input"
                     style={{ width: 16, height: 16 }}
-                  /><label htmlFor={`${id}-${opt.value}`} className="govuk-label govuk-checkboxes__label" style={{ marginLeft: 8, fontSize: '1rem' }}>
+                  />
+                  <label htmlFor={`${id}-${opt.value}`} className="govuk-label govuk-checkboxes__label" style={{ marginLeft: 8, fontSize: '1rem' }}>
                     {opt.label}
-                  </label></div>
+                  </label>
+                </div>
               ))}
             </div>
           )}
-        </div></fieldset></div>
+        </div>
+      </fieldset>
+    </div>
   );
 };
 
