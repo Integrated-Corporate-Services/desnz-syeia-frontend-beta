@@ -20,13 +20,10 @@ export interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photographs', prefix = '', uploadedFiles, onFilesChange, onRemoveFile, applicationId, category, addedBy, onUploaded }) => {
-  // Debug: log uploadedFiles prop
-  useEffect(() => {
-    console.log('FileUpload uploadedFiles prop:', uploadedFiles);
-  }, [uploadedFiles]);
   // Get user from auth context
   const { user } = useAuthUserContext();
-  const userId = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || "44444444-4444-4444-4444-444444444444";
+  const DEFAULT_USER_ID = "44444444-4444-4444-4444-444444444444";
+  const userId = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || DEFAULT_USER_ID;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [statuses, setStatuses] = useState<string[]>([]);

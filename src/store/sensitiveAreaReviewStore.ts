@@ -14,7 +14,7 @@ export function useSensitiveAreaReview(applicationId: string) {
       const data = await getSensitiveAreaReview(applicationId);
       setReview(data?.[0] || null);
     } catch (err) {
-      setError('Failed to fetch sensitive area review');
+  setError(`Failed to fetch sensitive area review: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
@@ -27,7 +27,7 @@ export function useSensitiveAreaReview(applicationId: string) {
       const saved = await saveSensitiveAreaReview(newReview);
       setReview(saved);
     } catch (err) {
-      setError('Failed to save sensitive area review');
+  setError(`Failed to save sensitive area review: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }

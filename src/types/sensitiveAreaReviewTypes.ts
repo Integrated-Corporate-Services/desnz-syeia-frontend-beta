@@ -1,3 +1,4 @@
+import { UploadedFile,ApplicationDocument  } from './fileUpload';
 export interface SensitiveAreaReview {
   id?: string;
   application_id: string;
@@ -9,6 +10,6 @@ export interface SensitiveAreaReview {
   reviewed_at?: string;
   created_at?: string;
   updated_at?: string;
-  documents?: any[];
-  uploaded_files?: any[];
+  documents?: ApplicationDocument[];
+  uploaded_files?: UploadedFile[];
 }

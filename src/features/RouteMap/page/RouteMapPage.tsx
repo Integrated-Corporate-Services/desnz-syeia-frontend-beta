@@ -169,8 +169,7 @@ const RouteMapPage: React.FC = () => {
   };
 
   const handleAddPoint = (idx: number, direction: 'before' | 'after') => {
-        setSubmitError(null);
-
+  setSubmitError(null);
     setValidationError(null); // Clear validation error before adding
     setPoints(prev => {
       const newPoint: RoutePoint = { easting: '', northing: '', route_id: routeId };
@@ -205,8 +204,7 @@ const RouteMapPage: React.FC = () => {
   };
 
   const handleChange = (idx: number, field: 'easting' | 'northing', value: string) => {
-     setSubmitError(null);
-
+  setSubmitError(null);
     setValidationError(null);
     setPoints(prev => prev.map((pt, i) => i === idx ? { ...pt, [field]: value } : pt));
     // Optionally update store if you want to keep in sync
@@ -283,8 +281,8 @@ const RouteMapPage: React.FC = () => {
                               if (validationError && idx === firstInvalidIdx) {
                                 errorMsg = getPointError(point.easting, point.northing);
                               }
-                              // Use a unique key for each point: point_id if present, else idx + timestamp
-                              const uniqueKey = point.point_id || `${idx}-${point.easting}-${point.northing}-${Date.now()}`;
+                              // Use a unique key for each point: point_id if present, else idx + easting + northing
+                              const uniqueKey = point.point_id || `${idx}-${point.easting}-${point.northing}`;
                               return (
                                 <RoutePointCard
                                   key={uniqueKey}
