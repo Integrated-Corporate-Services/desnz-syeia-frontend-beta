@@ -27,7 +27,7 @@ const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error,
                 {opt.label}
               </label>
             </div>
-            {opt.value === 'yes' && value === 'yes' && children && (
+            {opt.value === 'transmission' && value === 'transmission' && children && (
               <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
                 {children}
               </div>

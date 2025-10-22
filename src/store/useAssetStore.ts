@@ -7,30 +7,9 @@ export interface AssetDetails {
   excavationWorks: any;
   assetId: string;
   assetReference: string;
-  description: string;
+  tori_noi?: string;
   standardSpecificationReferenceNumber: string;
   lineLength: number;
-  poles: {
-    chemicalCoatings: string;
-    materials: string;
-    workItemId: string;
-    hasAddOrReplace: boolean;
-    add: number;
-    replace: number;
-    description: string;
-  };
-  overheadLines: {
-    workItemId: string;
-    hasAddOrReplace: boolean;
-    description: string;
-  };
-  equipmentRemoval: {
-    workItemId: string;
-    isRemoving: boolean;
-    description: string;
-  };
-  isExistingAsset: boolean;
-  generalComments: string;
   lineVoltage: string;
   typeOfLine: string;
 }
