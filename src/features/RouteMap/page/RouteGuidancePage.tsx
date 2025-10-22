@@ -32,13 +32,13 @@ const RouteGuidancePage: React.FC = () => {
 
         <h2 className="govuk-heading-l">Creating a route</h2>
         <p className="govuk-body">
-          In a moment we're going to ask you to enter the route of the overhead line involved in your application.
-          You will need to enter Ordnance Survey National Grid (OSGB) coordinates for each change of direction.
+          On the next screen we will ask you to enter the route of the overhead line(s) included in your application. You will need to enter Ordnance Survey National Grid (OSGB) coordinates for each change of direction.
         </p>
         <p className="govuk-body">
-          You are not required to enter coordinates for each pole in your route.
-          In the example below you can see how there are only coordinates where the route changes direction.
+          You are not required to enter coordinates for each pole in your route, only the points where the route changes direction, as shown in the example below.
         </p>
+        <p className="govuk-body">
+         If you are applying for multiple routes that do not connect, please create a separate application for each route unless you can provide justification to DESNZ, for example: they are connected underground. </p>
         <div
           style={{
             border: '1px solid #bbb',
@@ -61,14 +61,15 @@ const RouteGuidancePage: React.FC = () => {
         <h2 className="govuk-heading-l">Adding a spur</h2>
         <p className="govuk-body">
           If your route contains multiple endpoints, you will need to add a route spur to your application.
-          When editing a route, the route you're working on will be highlighted on the map.
         </p>
         <p className="govuk-body">
-          To join your routes together, enter a set of coordinates that is common to both route lines.
-          In the example below you can see how the second route, Route B, starts at a coordinate that is already mapped in Route A.
+          When editing a route, the route you are working on will be highlighted on the map.
         </p>
         <p className="govuk-body">
-          If application contains routes that do not connect, please create a separate application for each separate route unless you have a justification to provide to DESNZ.
+          To join your routes together, enter a set of coordinates that is common to both route lines. In the example below you can see how the second route, Route B, starts at a coordinate that is already mapped in Route A.
+        </p>
+        <p className="govuk-body">
+          If you are applying for multiple routes that do not connect, please create a separate application for each route unless you can provide justification to DESNZ, for example: they are connected underground.
         </p>
         <div
           style={{

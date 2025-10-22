@@ -1,5 +1,5 @@
 import { UploadedFile } from "./fileUpload";
-import { ProjectDocument } from "./fileUpload";
+import { ApplicationDocument } from "./fileUpload";
 
 export interface SupportingInfo {
   application_id: string;
@@ -9,7 +9,7 @@ export interface SupportingInfo {
   applicant_supporting_comments?: string;
   has_additional_supporting_documents: boolean;
   uploaded_files?: FileList | null;
-  documents?: any[];
+  application_documents?: any[];
   created_at?: string;
   updated_at?: string;
 }
@@ -26,5 +26,5 @@ export interface SupportingInfoRequest {
   has_additional_supporting_documents: boolean;
   applicant_supporting_comments?: string;
   uploaded_files?: UploadedFile[];
-  documents?: ProjectDocument[];
+  application_documents?: ApplicationDocument[];
 }

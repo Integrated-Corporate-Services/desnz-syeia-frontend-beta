@@ -3,8 +3,8 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSupportingInfoStore } from "../../../store/useSupportingInfoStore";
 import TextAreaField from "../../../components/commonFormFields/TextAreaField";
 import { Button } from "govuk-react";
-import FileUploadBox from '../../../components/FileUploadBox';
-import { UploadedFile, ProjectDocument } from '../../../types/fileUpload';
+import FileUpload from '../../../components/FileUpload';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FileUploadResponse } from '../../../types/FileUploadResponse';
 import "../../../styles/_file_upload.scss";
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -43,7 +43,7 @@ const SupportingInfo: React.FC = () => {
   const [comments, setComments] = useState<string>("");
   const [errors, setErrors] = useState<{ key: string; message: string }[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [projectDocuments, setProjectDocuments] = useState<ProjectDocument[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
 
   // refs for scrolling
   const wayleavesRef = useRef<HTMLInputElement>(null);
@@ -64,7 +64,7 @@ const SupportingInfo: React.FC = () => {
         has_additional_supporting_documents,
         applicant_supporting_comments,
         uploaded_files,
-        documents
+        application_documents
       } = supportingInfo;
 
       setWayleaves(wayleaves_obtained ? "yes" : "no");
@@ -78,8 +78,7 @@ const SupportingInfo: React.FC = () => {
         Array.isArray(uploaded_files) &&
         uploaded_files.length > 0 &&
         uploaded_files[0] &&
-        uploaded_files[0].filename &&
-        uploaded_files[0].file_content_type
+        uploaded_files[0].filename 
       ) {
         setUploadedFiles(uploaded_files as UploadedFile[]);
       } else {
@@ -87,14 +86,14 @@ const SupportingInfo: React.FC = () => {
       }
       // If documents is already in ProjectDocument[] format, set it directly (with bounds check)
       if (
-        Array.isArray(documents) &&
-        documents.length > 0 &&
-        documents[0] &&
-        documents[0].title
+        Array.isArray(application_documents) &&
+        application_documents.length > 0 &&
+        application_documents[0] &&
+        application_documents[0].title
       ) {
-        setProjectDocuments(documents as ProjectDocument[]);
+        setApplicationDocuments(application_documents as ApplicationDocument[]);
       } else {
-        setProjectDocuments([]);
+        setApplicationDocuments([]);
       }
     }
   }, [supportingInfo]);
@@ -115,10 +114,6 @@ const SupportingInfo: React.FC = () => {
     const errs = validate();
     setErrors(errs);
 
-    // Always use the latest uploadedFiles and projectDocuments
-    const latestUploadedFiles = uploadedFiles;
-    const latestProjectDocuments = projectDocuments;
-
     if (errs.length === 0) {
       const data = {
         application_id: applicationId!,
@@ -127,8 +122,8 @@ const SupportingInfo: React.FC = () => {
         esqcr_2002_compliance_confirmed: regulations,
         has_additional_supporting_documents: supportingDocs === "yes",
         applicant_supporting_comments: comments,
-        uploaded_files: latestUploadedFiles,
-        documents: latestProjectDocuments,
+        uploaded_files: uploadedFiles,
+        application_documents: applicationDocuments,
       };
       try {
         const response: any = await saveSupportingInfo(data);
@@ -382,11 +377,16 @@ const SupportingInfo: React.FC = () => {
         <label className="govuk-label" style={{ fontWeight: 600 }}>
           Upload supporting information documents
         </label>
-        <FileUploadBox
-          prefix={`supporting-docs/${applicationId}`}
-          onUploadComplete={(results: FileUploadResponse[]) => {
-            setUploadedFiles(mapFileUploadResponsesToFiles(results));
-            setProjectDocuments(mapFileUploadResponsesToDocuments(results, applicationId, userId));
+        <FileUpload
+          title="Supporting information documents"
+          prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}/`}
+          applicationId={applicationId}
+          category={FILE_CATEGORIES.SUPPORT_INFO}
+          addedBy={userId}
+          uploadedFiles={uploadedFiles}
+          onUploaded={(newUploadedFiles, newProjectDocuments) => {
+            setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+            setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
           }}
         />
       </div>
@@ -422,36 +422,3 @@ const SupportingInfo: React.FC = () => {
 
 export default SupportingInfo;
 
-// --- Helpers ---
-function mapFileUploadResponsesToFiles(results: FileUploadResponse[]): UploadedFile[] {
-  return results.map((fileResp) => ({
-    id: '',
-    storage_provider: 's3',
-    s3_key: fileResp.filename,
-    bucket_name: fileResp.bucketName,
-    virtual_folder: fileResp.filename,
-    filename: fileResp.filename.split('/').pop() || fileResp.filename,
-    file_content_type: fileResp.contentType,
-    file_size_bytes: fileResp.fileSize ?? 0,
-    uploaded_at_timestamp: new Date().toISOString(),
-  }));
-}
-
-function mapFileUploadResponsesToDocuments(
-  results: FileUploadResponse[],
-  applicationId: string,
-  userId: string | undefined
-): ProjectDocument[] {
-  return results.map((fileResp) => ({
-    documentId: '',
-    applicationId: applicationId,
-    fileId: '',
-    category: FILE_CATEGORIES.SUPPORT_INFO,
-    subCategory: '',
-    title: fileResp.filename.split('/').pop() || fileResp.filename,
-    virtualFolder: fileResp.filename,
-    addedBy: userId ?? '',
-    addedAt: new Date().toISOString(),
-    description: fileResp.description ?? 'No description provided',
-  }));
-}

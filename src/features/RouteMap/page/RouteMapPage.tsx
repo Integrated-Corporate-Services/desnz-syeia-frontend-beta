@@ -1,5 +1,5 @@
 // Validation function for a single point
-function getPointError(easting: string, northing: string) {
+ function getPointError(easting: string, northing: string) {
   if (!easting && !northing) return 'Enter a grid reference';
   if (!easting) return 'Enter easting';
   if (!northing) return 'Enter northing';
@@ -15,22 +15,22 @@ import RoutePointCard from '../component/RoutePointCard';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
 
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError(error: unknown) {
-    return { hasError: true };
-  }
-  componentDidCatch(error: unknown, errorInfo: unknown) {}
-  render() {
-    if (this.state.hasError) {
-      return <div className="govuk-error-summary"><h2>Something went wrong in the map. Please check your points and try again.</h2></div>;
-    }
-    return this.props.children;
-  }
-}
+// class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+//   constructor(props: { children: React.ReactNode }) {
+//     super(props);
+//     this.state = { hasError: false };
+//   }
+//   static getDerivedStateFromError(error: unknown) {
+//     return { hasError: true };
+//   }
+//   componentDidCatch(error: unknown, errorInfo: unknown) {}
+//   render() {
+//     if (this.state.hasError) {
+//       return <div className="govuk-error-summary"><h2>Something went wrong in the map. Please check your points and try again.</h2></div>;
+//     }
+//     return this.props.children;
+//   }
+// }
 
 // Extend RoutePoint to include point_id and route_id
 interface RoutePoint extends BaseRoutePoint {
@@ -79,11 +79,21 @@ const RouteMapPage: React.FC = () => {
       setPoints([{ easting: '', northing: '', point_id: '' }]);
       return;
     }
-    if (routes && routes.length > 0 && Array.isArray(routes[0].gridPoints) && routes[0].gridPoints.length > 0) {
-      setRouteId(routes[0].route_id);
-      setRouteName(routes[0].routeName || 'Route A');
+    // If editing, find the correct route by route_id from location.state
+    const editRouteId = location.state?.route_id;
+    let routeToEdit = null;
+    if (editRouteId && routes && routes.length > 0) {
+      routeToEdit = routes.find(r => r.route_id === editRouteId);
+    }
+    // Fallback to first route if not editing a specific one
+    if (!routeToEdit && routes && routes.length > 0 && Array.isArray(routes[0].gridPoints) && routes[0].gridPoints.length > 0) {
+      routeToEdit = routes[0];
+    }
+    if (routeToEdit && Array.isArray(routeToEdit.gridPoints) && routeToEdit.gridPoints.length > 0) {
+      setRouteId(routeToEdit.route_id);
+      setRouteName(routeToEdit.routeName || 'Route A');
       setPoints(
-        routes[0].gridPoints.map((pt: any) => ({
+        routeToEdit.gridPoints.map((pt: any) => ({
           easting: String(pt.easting ?? ''),
           northing: String(pt.northing ?? ''),
           point_id: pt.point_id,
@@ -94,7 +104,7 @@ const RouteMapPage: React.FC = () => {
       setRouteName('Route A');
       setPoints([{ easting: '', northing: '', point_id: '' }]);
     }
-  }, [routes, isNewRoute, initialRouteName]);
+  }, [routes, isNewRoute, initialRouteName, location.state]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -159,6 +169,8 @@ const RouteMapPage: React.FC = () => {
   };
 
   const handleAddPoint = (idx: number, direction: 'before' | 'after') => {
+  setSubmitError(null);
+    setValidationError(null); // Clear validation error before adding
     setPoints(prev => {
       const newPoint: RoutePoint = { easting: '', northing: '', route_id: routeId };
       const newPoints = [...prev];
@@ -192,18 +204,24 @@ const RouteMapPage: React.FC = () => {
   };
 
   const handleChange = (idx: number, field: 'easting' | 'northing', value: string) => {
+  setSubmitError(null);
+    setValidationError(null);
     setPoints(prev => prev.map((pt, i) => i === idx ? { ...pt, [field]: value } : pt));
     // Optionally update store if you want to keep in sync
   };
 
   return (
-    <ErrorBoundary>
       <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb" style={{ marginBottom: '2rem' }}>
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
               <a className="govuk-breadcrumbs__link" href={`/frontend/task-list?id=${effectiveApplicationId}`}>Task list</a>
             </li>
+            {routes.length > 0 && (
+              <li className="govuk-breadcrumbs__list-item">
+                <a className="govuk-breadcrumbs__link" href={`/frontend/route-overview/${effectiveApplicationId}`}>Route overview</a>
+              </li>
+            )}
             <li className="govuk-breadcrumbs__list-item" aria-current="page">{routeName}</li>
           </ol>
         </nav>
@@ -246,23 +264,40 @@ const RouteMapPage: React.FC = () => {
                    
                       <div className="govuk-form-group govuk-!-margin-top-4" style={{ padding: 0 }}>
                         <div className="govuk-box-highlight govuk-!-margin-bottom-4" style={{ border: '1px solid #b1b4b6', borderRadius: 0, padding: 0 }}>
-                          {points.map((point, idx) => {
-                            // Use validation function for each point
-                            const errorMsg = validationError ? getPointError(point.easting, point.northing) : undefined;
-                            return (
-                              <RoutePointCard
-                                key={point.point_id || idx}
-                                point={point}
-                                idx={idx}
-                                error={errorMsg}
-                                onAddBefore={() => handleAddPoint(idx, 'before')}
-                                onAddAfter={() => handleAddPoint(idx, 'after')}
-                                onRemove={() => handleRemovePoint(idx)}
-                                onChange={(field, value) => handleChange(idx, field, value)}
-                                onFocus={() => setSelectedIdx(idx)}
-                              />
-                            );
-                          })}
+                          {(() => {
+                            // Find the first invalid point index after submit
+                            let firstInvalidIdx: number | null = null;
+                            if (validationError) {
+                              for (let i = 0; i < points.length; i++) {
+                                const err = getPointError(points[i].easting, points[i].northing);
+                                if (err) {
+                                  firstInvalidIdx = i;
+                                  break;
+                                }
+                              }
+                            }
+                            return points.map((point, idx) => {
+                              let errorMsg: string | undefined = undefined;
+                              if (validationError && idx === firstInvalidIdx) {
+                                errorMsg = getPointError(point.easting, point.northing);
+                              }
+                              // Use a unique key for each point: point_id if present, else idx + easting + northing
+                              const uniqueKey = point.point_id || `${idx}-${point.easting}-${point.northing}`;
+                              return (
+                                <RoutePointCard
+                                  key={uniqueKey}
+                                  point={point}
+                                  idx={idx}
+                                  error={errorMsg}
+                                  onAddBefore={() => handleAddPoint(idx, 'before')}
+                                  onAddAfter={() => handleAddPoint(idx, 'after')}
+                                  onRemove={() => handleRemovePoint(idx)}
+                                  onChange={(field, value) => handleChange(idx, field, value)}
+                                  onFocus={() => setSelectedIdx(idx)}
+                                />
+                              );
+                            });
+                          })()}
                         </div>
                       </div>
                     </fieldset>
@@ -301,7 +336,6 @@ const RouteMapPage: React.FC = () => {
           </div>
         </main>
       </div>
-    </ErrorBoundary>
   );
 };
 
