@@ -35,3 +35,14 @@ export async function listFilesByPrefix(prefix: string) {
   if (!res.ok) throw new Error('Failed to list files');
   return await res.json();
 }
+
+// Delete a file from S3 by key
+export async function deleteFileFromS3(key: string) {
+  const res = await fetch('/backend/api/file/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key })
+  });
+  if (!res.ok) throw new Error('Failed to delete file');
+  return await res.json();
+}

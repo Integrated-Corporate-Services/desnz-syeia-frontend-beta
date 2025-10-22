@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import FileUpload from '../../../components/FileUpload';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { getSensitiveAreas } from '../../../services/sensitiveAreaService';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
@@ -19,6 +22,8 @@ const SensitiveAreaReviewPage: React.FC = () => {
   const [poleOption, setPoleOption] = useState<SensitiveAreaPoleOption | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const navigate = useNavigate();
 
   // Sensitive area review store
@@ -60,6 +65,13 @@ const SensitiveAreaReviewPage: React.FC = () => {
             ? Number(review.asset_presence_option_id)
             : null
       );
+      // Load previously uploaded files and documents if present
+      if (Array.isArray(review.uploaded_files)) {
+        setUploadedFiles(review.uploaded_files);
+      }
+      if (Array.isArray(review.documents)) {
+        setApplicationDocuments(review.documents);
+      }
     }
   }, [review]);
 
@@ -68,11 +80,10 @@ const SensitiveAreaReviewPage: React.FC = () => {
     setFormErrors([]);
     setApiError(null);
     const errors: string[] = [];
-    // Validation: require at least one document (mocked as always missing for now)
-    // TODO: Replace with actual document check if available
-    // if (!documents || documents.length === 0) errors.push('Upload at least one environmental and archaeological document');
-    // For now, always require
-    errors.push('Upload at least one environmental and archaeological document');
+    // Validation: require at least one document
+    if (!uploadedFiles || uploadedFiles.length === 0) {
+      errors.push('Upload at least one environmental and archaeological document');
+    }
     if (poleOption === null) {
       errors.push('Select whether there are poles or overhead lines within the sensitive areas');
     }
@@ -91,10 +102,12 @@ const SensitiveAreaReviewPage: React.FC = () => {
       reviewed_at: review?.reviewed_at || '',
       created_at: review?.created_at || '',
       updated_at: review?.updated_at || '',
+      uploaded_files: uploadedFiles,
+      application_documents: applicationDocuments,
     };
     try {
       await saveReview(payload);
-      navigate(`/frontend/task-list?id=${effectiveApplicationId}`);
+      navigate(`/task-list?id=${effectiveApplicationId}`);
     } catch (err: any) {
       setApiError(err?.message || 'Failed to save sensitive area review');
     }
@@ -171,9 +184,24 @@ const SensitiveAreaReviewPage: React.FC = () => {
                 Upload at least one environmental and archaeological document
               </span>
             )}
-            <div className="govuk-dropzone" style={{ border: '2px dashed #b1b4b6', padding: '2rem', textAlign: 'center', background: '#f8f8f8', maxWidth: 600 }}>
-              Drag and drop your documents here, or <a href="#" className="govuk-link">choose a file</a>
-            </div>
+            <FileUpload
+              title="Environmental and archaeological documents"
+              prefix={`${effectiveApplicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
+              applicationId={effectiveApplicationId}
+              category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
+              addedBy={review?.reviewed_by || 'current-user'}
+              uploadedFiles={uploadedFiles}
+              onUploaded={(newUploadedFiles, newProjectDocuments) => {
+                setUploadedFiles(prev => {
+                  const updated = [...prev, ...newUploadedFiles];
+                  return updated;
+                });
+                setApplicationDocuments(prev => {
+                  const updated = [...prev, ...newProjectDocuments];
+                  return updated;
+                });
+              }}
+            />
           </div>
 
           <details className="govuk-details govuk-!-margin-bottom-6" data-module="govuk-details">

@@ -1,16 +1,16 @@
 export interface UploadedFile {
   id: string;
-  storage_provider: string;
-  s3_key: string;
-  bucket_name: string;
-  virtual_folder: string;
+  storageProvider: string;
+  s3Key: string;
+  bucketName: string;
+  virtualFolder: string;
   filename: string;
-  file_content_type: string;
-  file_size_bytes: number;
-  uploaded_at_timestamp: string;
+  fileContentType: string;
+  fileSizeBytes: number;
+  uploadedAtTimestamp: string;
 }
 
-export interface ProjectDocument {
+export interface ApplicationDocument {
   documentId: string;
   applicationId: string;
   fileId: string;

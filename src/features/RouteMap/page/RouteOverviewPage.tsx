@@ -134,7 +134,7 @@ export const RouteOverviewPage: React.FC = () => {
         <div className="govuk-inset-text" style={{ maxWidth: 700, marginTop: 12 }}>
           <a
             className="govuk-link"
-            href={applicationId ? `/route-guidance?id=${applicationId}` : '/route-guidance'}
+            href={applicationId ? `/frontend/route-guidance?id=${applicationId}` : '/frontend/route-guidance'}
            
           >
             Read the guidance on adding a route or a route spur
