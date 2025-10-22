@@ -157,7 +157,7 @@ const getApplicationId = () => {
           navigate(`/task-list?id=${effectiveApplicationId}`);
         })
         .catch(() => {
-          setErrors({ assetId: '', referenceNumber: '', lineType: '', tori_noi: '', lineVoltage: '', lineLength: '' });
+          setErrors({ assetId: '', referenceNumber: ASSET_ERROR_MESSAGES.referenceNumber, lineType: ASSET_ERROR_MESSAGES.lineType, tori_noi: '', lineVoltage: ASSET_ERROR_MESSAGES.lineVoltage, lineLength: ASSET_ERROR_MESSAGES.lineLength });
         });
     } else {
       // Create new asset
@@ -167,7 +167,7 @@ const getApplicationId = () => {
           navigate(`/task-list?id=${effectiveApplicationId}`);
         })
         .catch(() => {
-          setErrors({ assetId: '', referenceNumber: '', lineType: '', tori_noi: '', lineVoltage: '', lineLength: '' });
+          setErrors({ assetId: '', referenceNumber: ASSET_ERROR_MESSAGES.referenceNumber, lineType: ASSET_ERROR_MESSAGES.lineType, tori_noi: '', lineVoltage: ASSET_ERROR_MESSAGES.lineVoltage, lineLength: ASSET_ERROR_MESSAGES.lineLength });
         });
     }
   };
