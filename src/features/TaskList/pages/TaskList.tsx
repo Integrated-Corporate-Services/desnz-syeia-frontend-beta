@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { getInitialSections, updateSectionStatus } from '../../../utils/taskListUtils';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import RouteEntry from '../../RouteMap/page/RouteEntry';
+import RouteDeletedBanner from '../../RouteMap/component/RouteDeletedBanner';
 import { useApplicationStore } from '../../../store/useApplicationStore';
-import { useNavigate } from 'react-router-dom';
-import { getSensitiveAreaCheckStatus } from '../../../services/sensitiveAreaStatusService';
+
 
 const TaskList: React.FC = () => {
+  // ...existing code...
+  const [showSensitiveAreaPopup, setShowSensitiveAreaPopup] = useState(false);
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const application = useApplicationStore(state => state.application);
   const [sections, setSections] = useState(getInitialSections(application?.application_id));
@@ -18,9 +21,31 @@ const TaskList: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ inProgress: boolean; completed: number; total: number } | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Show RouteDeletedBanner for one render after redirect, then clear state
+  const [showBanner, setShowBanner] = useState(false);
+  const [deletedRouteName, setDeletedRouteName] = useState<string | null>(null);
+  useEffect(() => {
+    if (location.state && location.state.routeDeletedName) {
+      setShowBanner(true);
+      setDeletedRouteName(location.state.routeDeletedName);
+      // Clear the state after first render
+      setTimeout(() => {
+        navigate(location.pathname + location.search, { replace: true, state: undefined });
+      }, 0);
+    }
+    if (location.state && location.state.showSensitiveAreaPopup) {
+      setShowSensitiveAreaPopup(true);
+      // Optionally clear popup state after first render
+      setTimeout(() => {
+        navigate(location.pathname + location.search, { replace: true, state: undefined });
+      }, 0);
+    }
+  }, [location, navigate]);
   const params = new URLSearchParams(location.search);
   const appId = params.get('id');
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (appId) {
@@ -58,16 +83,25 @@ const TaskList: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      {sensitiveAreaStatus && sensitiveAreaStatus.inProgress && (
-        <div style={{ border: '4px solid #2074c7', background: '#eaf4fb', padding: '1rem', marginBottom: '2rem' }}>
-          <strong>Sensitive area checks in progress</strong>
-          <div style={{ marginTop: 8 }}>
-            {`${sensitiveAreaStatus.completed} of ${sensitiveAreaStatus.total} checks completed. You can refresh this page to track the progress`}
-          </div>
-        </div>
+      {/* Show RouteDeletedBanner for one render after redirect */}
+      {showBanner && deletedRouteName && (
+        <RouteDeletedBanner routeName={deletedRouteName} />
       )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
+          {(showSensitiveAreaPopup || (sensitiveAreaStatus && sensitiveAreaStatus.inProgress)) && (
+            <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" data-govuk-notification-banner-init="" style={{ marginBottom: '24px' }}>
+              <div className="govuk-notification-banner__header">
+                <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                  Sensitive area checks in progress
+                </h2>
+              </div>
+              <div className="govuk-notification-banner__content">
+                <p className="govuk-!-font-weight-bold">
+                 0 of 30 checks completed. You can refresh this page to track the progress  </p>
+              </div>
+            </div>
+          )}
           {application ? (
             <>
               <span className="govuk-caption-l">{application.operator_ref || 'NPOWER LIMITED'}</span>
@@ -100,7 +134,13 @@ const TaskList: React.FC = () => {
                           {submitting ? 'Submitting...' : 'Submit application'}
                         </button>
                       ) : appId ? (
-                        <Link className="govuk-link" to={`${item.link}?id=${appId}`}>{item.name}</Link>
+                        item.name === 'Route' ? (
+                          <RouteEntry applicationId={appId || ''}>
+                            <Link className="govuk-link" to={`${item.link}?id=${appId}`}>{item.name}</Link>
+                          </RouteEntry>
+                        ) : (
+                          <Link className="govuk-link" to={`${item.link}?id=${appId}`}>{item.name}</Link>
+                        )
                       ) : (
                         <span className="govuk-link govuk-link--disabled">{item.name}</span>
                       )}

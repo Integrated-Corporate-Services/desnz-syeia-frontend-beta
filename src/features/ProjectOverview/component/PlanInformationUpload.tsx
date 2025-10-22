@@ -1,5 +1,6 @@
 import React from "react";
 import FileUploadBox from '../../../components/FileUploadBox';
+import FileUpload from '../../../components/FileUpload';
 import type { Application } from '../../../types/application';
 
 function getS3Prefix(application: Application | null) {
@@ -14,13 +15,31 @@ interface PlanInformationUploadProps {
 
 const PlanInformationUpload: React.FC<PlanInformationUploadProps> = ({ application, title }) => {
   const prefix = getS3Prefix(application) ?? undefined;
-  /*if (!prefix) {
-    return <div className="govuk-inset-text">Loading application information...</div>;
-  }*/
+  const [files, setFiles] = React.useState<File[]>([]);
+
+  const handleFilesChange = (newFiles: File[]) => {
+    setFiles(newFiles);
+  };
+
+  const handleRemoveFile = (idx: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  {/*
   return (
-    <FileUploadBox
+
+      <FileUploadBox
       title={title}
       prefix={prefix}
+    />
+  );
+  */}
+  return (
+    <FileUpload
+      title={title}
+      prefix={prefix}
+      onFilesChange={handleFilesChange}
+      onRemoveFile={handleRemoveFile}
     />
   );
 };
