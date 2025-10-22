@@ -287,17 +287,6 @@ const getApplicationId = () => {
           </div>
         </div>
 
-        <details className="govuk-details govuk-!-margin-top-2 govuk-!-margin-bottom-6" data-module="govuk-details">
-          <summary className="govuk-details__summary">
-            <span className="govuk-details__summary-text">
-              I need to provide more than one line voltage
-            </span>
-          </summary>
-          <div className="govuk-details__text">
-            Please contact the system administrator to provide additional line voltages.
-          </div>
-        </details>
-
         <button type="submit" className="govuk-button govuk-!-margin-top-4">Save and continue</button>
       </form>
     </div>
