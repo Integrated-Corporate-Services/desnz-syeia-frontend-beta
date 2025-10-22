@@ -2,7 +2,7 @@
 
 import { SearchableDropdownOption } from "../components/SearchableDropdown";
 import { UploadedFile } from "./fileUpload";
-import { ProjectDocument } from "./fileUpload";
+import { ApplicationDocument } from "./fileUpload";
 export interface RelatedApplication {
   relatedApplicationId: string;
   projectId?: string;
@@ -37,5 +37,5 @@ export interface ProjectOverviewModel {
   relatedCpoDetails: string | { field: string };
   eipDetails: string;
   uploadedFiles: UploadedFile[];
-  documents: ProjectDocument[];
+  documents: ApplicationDocument[];
 }

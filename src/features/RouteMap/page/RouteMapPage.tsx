@@ -1,46 +1,45 @@
-import React, { useState } from 'react';
-import SensitiveAreaCheckMap, { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
+// Validation function for a single point
+ function getPointError(easting: string, northing: string) {
+  if (!easting && !northing) return 'Enter a grid reference';
+  if (!easting) return 'Enter easting';
+  if (!northing) return 'Enter northing';
+  const valid6 = (val: string) => /^\d{6}$/.test(val) && Number(val) >= 1 && Number(val) <= 999999;
+  if (!valid6(easting) || !valid6(northing)) {
+    return 'Enter the northing and easting for each grid reference. The northing and easting must be between 000001 and 999999 with leading zeros included.';
+  }
+  return undefined;
+}
+import React, { useState, useEffect } from 'react';
+import SensitiveAreaCheckMap, { RoutePoint as BaseRoutePoint } from '../../../components/SensitiveAreaCheckMap';
 import RoutePointCard from '../component/RoutePointCard';
-import { useParams } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { submitRoutePoints } from '../../../services/routeMapService';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useRouteStore } from '../../../store/useRouteStore';
 
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError(error: unknown) {
-    return { hasError: true };
-  }
-  componentDidCatch(error: unknown, errorInfo: unknown) {}
-  render() {
-    if (this.state.hasError) {
-      return <div className="govuk-error-summary"><h2>Something went wrong in the map. Please check your points and try again.</h2></div>;
-    }
-    return this.props.children;
-  }
+// class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+//   constructor(props: { children: React.ReactNode }) {
+//     super(props);
+//     this.state = { hasError: false };
+//   }
+//   static getDerivedStateFromError(error: unknown) {
+//     return { hasError: true };
+//   }
+//   componentDidCatch(error: unknown, errorInfo: unknown) {}
+//   render() {
+//     if (this.state.hasError) {
+//       return <div className="govuk-error-summary"><h2>Something went wrong in the map. Please check your points and try again.</h2></div>;
+//     }
+//     return this.props.children;
+//   }
+// }
+
+// Extend RoutePoint to include point_id and route_id
+interface RoutePoint extends BaseRoutePoint {
+  point_id?: string;
+  route_id?: string;
 }
 
 const RouteMapPage: React.FC = () => {
   const location = useLocation();
-  const [points, setPoints] = useState<RoutePoint[]>(() => {
-    const prefillPoints = location.state?.gridPoints;
-    return Array.isArray(prefillPoints) && prefillPoints.length > 0
-      ? prefillPoints
-      : [{ easting: '', northing: '' }];
-  });
-
-  React.useEffect(() => {
-    const prefillPoints = location.state?.gridPoints;
-    if (Array.isArray(prefillPoints) && prefillPoints.length > 0) {
-      setPoints(prefillPoints);
-    }
-  }, [location.state?.gridPoints]);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { applicationId: paramId } = useParams<{ applicationId: string }>();
   const queryParams = new URLSearchParams(location.search);
@@ -48,17 +47,120 @@ const RouteMapPage: React.FC = () => {
   const stateId = location.state?.applicationId;
   const effectiveApplicationId = paramId || queryId || stateId || '';
 
+  // Store
+  const { routes, loading, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRouteStore();
+  // If coming from add new route, use blank state and provided routeName
+  const isNewRoute = location.state?.isNewRoute;
+  const initialRouteName = location.state?.routeName || 'Route A';
+  const details = location.state?.details || '';
+  const [points, setPoints] = useState<RoutePoint[]>([{ easting: '', northing: '' }]);
+  const [routeId, setRouteId] = useState<string | undefined>(undefined);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [routeName, setRouteName] = useState<string>(initialRouteName);
+  // Track point_ids to delete
+  const [pointsToDelete, setPointsToDelete] = useState<string[]>([]);
+
+  // Fetch routes on mount if applicationId is present
+  useEffect(() => {
+    if (effectiveApplicationId) {
+      fetchRoutes(effectiveApplicationId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveApplicationId]);
+
+  // When routes change, set points and routeId from the first route (if any), unless adding a new route
+  useEffect(() => {
+    if (isNewRoute) {
+      setRouteId(undefined);
+      setRouteName(initialRouteName);
+      setPoints([{ easting: '', northing: '', point_id: '' }]);
+      return;
+    }
+    // If editing, find the correct route by route_id from location.state
+    const editRouteId = location.state?.route_id;
+    let routeToEdit = null;
+    if (editRouteId && routes && routes.length > 0) {
+      routeToEdit = routes.find(r => r.route_id === editRouteId);
+    }
+    // Fallback to first route if not editing a specific one
+    if (!routeToEdit && routes && routes.length > 0 && Array.isArray(routes[0].gridPoints) && routes[0].gridPoints.length > 0) {
+      routeToEdit = routes[0];
+    }
+    if (routeToEdit && Array.isArray(routeToEdit.gridPoints) && routeToEdit.gridPoints.length > 0) {
+      setRouteId(routeToEdit.route_id);
+      setRouteName(routeToEdit.routeName || 'Route A');
+      setPoints(
+        routeToEdit.gridPoints.map((pt: any) => ({
+          easting: String(pt.easting ?? ''),
+          northing: String(pt.northing ?? ''),
+          point_id: pt.point_id,
+        }))
+      );
+    } else {
+      setRouteId('');
+      setRouteName('Route A');
+      setPoints([{ easting: '', northing: '', point_id: '' }]);
+    }
+  }, [routes, isNewRoute, initialRouteName, location.state]);
+
   const handleSubmit = async () => {
     setSubmitting(true);
     setSubmitError(null);
+    setValidationError(null);
+    // Use validation function to determine first error
+    let summaryError: string | undefined = undefined;
+    for (const pt of points) {
+      const err = getPointError(pt.easting, pt.northing);
+      if (err) {
+        summaryError = err;
+        break;
+      }
+    }
+    if (summaryError) {
+      setValidationError(summaryError);
+      setSubmitting(false);
+      return;
+    }
     if (!effectiveApplicationId) {
       setSubmitError('No application ID found in URL or query string.');
       setSubmitting(false);
       return;
     }
     try {
-      await submitRoutePoints(effectiveApplicationId, points);
-      navigate(`/task-list?id=${effectiveApplicationId}`);
+      if (!routeId) {
+        // No routeId, create new route
+        await createRoute(effectiveApplicationId, {
+          route_id: '',
+          routeName: routeName,
+          gridPoints: points.map(pt => ({
+            easting: Number(pt.easting),
+            northing: Number(pt.northing),
+            point_id:''
+          })),
+          disconnectedroute_justification: details
+        });
+      } else {
+        // Existing route, save (update)
+        await saveRoutes(effectiveApplicationId, [{
+          route_id: routeId,
+          routeName: routeName,
+          gridPoints: points.map(pt => ({
+            easting: Number(pt.easting),
+            northing: Number(pt.northing),
+            point_id: pt.point_id,
+          })),
+          disconnectedroute_justification: details
+        }]);
+      }
+      // After save, delete points if any
+      if (pointsToDelete.length > 0) {
+        await deleteRoutePoints(pointsToDelete);
+        setPointsToDelete([]); // Clear after successful delete
+      }
+      navigate(`/route-overview/${effectiveApplicationId}`);
     } catch (err) {
       setSubmitError('Failed to submit route points. Please try again.');
     } finally {
@@ -67,8 +169,10 @@ const RouteMapPage: React.FC = () => {
   };
 
   const handleAddPoint = (idx: number, direction: 'before' | 'after') => {
+  setSubmitError(null);
+    setValidationError(null); // Clear validation error before adding
     setPoints(prev => {
-      const newPoint: RoutePoint = { easting: '', northing: '' };
+      const newPoint: RoutePoint = { easting: '', northing: '', route_id: routeId };
       const newPoints = [...prev];
       if (direction === 'before') {
         newPoints.splice(idx, 0, newPoint);
@@ -77,65 +181,161 @@ const RouteMapPage: React.FC = () => {
       }
       return newPoints;
     });
+    // Optionally update store if you want to keep in sync
   };
 
   const handleRemovePoint = (idx: number) => {
-    setPoints(prev => prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev);
+    setPoints(prev => {
+      if (prev.length === 1) {
+        // Only one box left: clear its values, but keep the box
+        const removed = prev[0];
+        if (removed.point_id) {
+          setPointsToDelete(ids => [...ids, removed.point_id!]);
+        }
+        return [{ easting: '', northing: '', point_id: '' }];
+      } else {
+        const removed = prev[idx];
+        if (removed.point_id) {
+          setPointsToDelete(ids => [...ids, removed.point_id!]);
+        }
+        return prev.filter((_, i) => i !== idx);
+      }
+    });
   };
 
   const handleChange = (idx: number, field: 'easting' | 'northing', value: string) => {
+  setSubmitError(null);
+    setValidationError(null);
     setPoints(prev => prev.map((pt, i) => i === idx ? { ...pt, [field]: value } : pt));
+    // Optionally update store if you want to keep in sync
   };
 
   return (
-    <ErrorBoundary>
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-full-width">
-          <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Create a route</h1>
-          <div className="govuk-inset-text">
-            You can <a href="#" className="govuk-link">read the guidance on adding a route</a>
-          </div>
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-one-half">
-              {points.map((point, idx) => (
-                <RoutePointCard
-                  key={idx}
-                  point={point}
-                  idx={idx}
-                  onAddBefore={() => handleAddPoint(idx, 'before')}
-                  onAddAfter={() => handleAddPoint(idx, 'after')}
-                  onRemove={() => handleRemovePoint(idx)}
-                  onChange={(field, value) => handleChange(idx, field, value)}
-                  onFocus={() => setSelectedIdx(idx)}
-                />
-              ))}
-            </div>
-            <div className="govuk-grid-column-one-half">
-              <SensitiveAreaCheckMap
-                points={points}
-                selectedIdx={selectedIdx}
-                setPoints={setPoints}
-                setSelectedIdx={setSelectedIdx}
-              />
-            </div>
-          </div>
-          {/* Call to action buttons */}
-          <div className="govuk-!-static-margin-top-6">
-            <button
-              className="govuk-button"
-              type="button"
-              onClick={handleSubmit}
-              disabled={submitting}
-            >
-              {submitting ? 'Submitting...' : 'Submit and continue'}
-            </button>
-            {submitError && (
-              <div className="govuk-error-message govuk-!-margin-top-2">{submitError}</div>
+      <div className="govuk-width-container">
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb" style={{ marginBottom: '2rem' }}>
+          <ol className="govuk-breadcrumbs__list">
+            <li className="govuk-breadcrumbs__list-item">
+              <a className="govuk-breadcrumbs__link" href={`/frontend/task-list?id=${effectiveApplicationId}`}>Task list</a>
+            </li>
+            {routes.length > 0 && (
+              <li className="govuk-breadcrumbs__list-item">
+                <a className="govuk-breadcrumbs__link" href={`/frontend/route-overview/${effectiveApplicationId}`}>Route overview</a>
+              </li>
             )}
+            <li className="govuk-breadcrumbs__list-item" aria-current="page">{routeName}</li>
+          </ol>
+        </nav>
+        {/* Validation error summary */}
+        {validationError && (
+          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+            <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+            <ul className="govuk-list govuk-error-summary__list">
+              <li><a href="#eip-add-route-easting" className="govuk-link govuk-error-message">{validationError}</a></li>
+            </ul>
           </div>
-        </div>
+        )}
+        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-full">
+              <h1 className="govuk-heading-xl">{routeName}</h1>
+              <div className='govuk-grid-column-three-quarters'>  
+              <p className="govuk-body">
+                Enter the points where your route starts, changes direction and ends by adding <b>new</b> coordinates before or after the previous point. Submit your route after you have entered all of the points.
+              </p>
+              <div className="govuk-inset-text">
+                <a
+                  href={`/frontend/route-guidance?id=${effectiveApplicationId}`}
+                  className="govuk-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Read the guidance on adding a route or a route spur
+                </a>
+              </div>
+              </div>
+              <div className="govuk-grid-row">
+                <div className="govuk-grid-column-one-half">
+                  <form method="post" data-module="fds-html-form">
+                    {/* Hidden CSRF or other fields can go here if needed */}
+                    <fieldset className="govuk-fieldset" aria-describedby="route-points-hint">
+                      <legend className="govuk-fieldset__legend govuk-fieldset__legend--m" style={{ marginBottom: 0 }}>
+                        <span className="govuk-visually-hidden">Route points</span>
+                      </legend>
+                   
+                      <div className="govuk-form-group govuk-!-margin-top-4" style={{ padding: 0 }}>
+                        <div className="govuk-box-highlight govuk-!-margin-bottom-4" style={{ border: '1px solid #b1b4b6', borderRadius: 0, padding: 0 }}>
+                          {(() => {
+                            // Find the first invalid point index after submit
+                            let firstInvalidIdx: number | null = null;
+                            if (validationError) {
+                              for (let i = 0; i < points.length; i++) {
+                                const err = getPointError(points[i].easting, points[i].northing);
+                                if (err) {
+                                  firstInvalidIdx = i;
+                                  break;
+                                }
+                              }
+                            }
+                            return points.map((point, idx) => {
+                              let errorMsg: string | undefined = undefined;
+                              if (validationError && idx === firstInvalidIdx) {
+                                errorMsg = getPointError(point.easting, point.northing);
+                              }
+                              // Use a unique key for each point: point_id if present, else idx + easting + northing
+                              const uniqueKey = point.point_id || `${idx}-${point.easting}-${point.northing}`;
+                              return (
+                                <RoutePointCard
+                                  key={uniqueKey}
+                                  point={point}
+                                  idx={idx}
+                                  error={errorMsg}
+                                  onAddBefore={() => handleAddPoint(idx, 'before')}
+                                  onAddAfter={() => handleAddPoint(idx, 'after')}
+                                  onRemove={() => handleRemovePoint(idx)}
+                                  onChange={(field, value) => handleChange(idx, field, value)}
+                                  onFocus={() => setSelectedIdx(idx)}
+                                />
+                              );
+                            });
+                          })()}
+                        </div>
+                      </div>
+                    </fieldset>
+                    <div className="govuk-!-margin-top-6">
+                      <button
+                        className="govuk-button"
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={submitting}
+                      >
+                        {submitting ? 'Submitting...' : 'Submit'}
+                      </button>
+                      {submitError && (
+                        <div className="govuk-error-message govuk-!-margin-top-2">{submitError}</div>
+                      )}
+                    </div>
+                  </form>
+                </div>
+                <div className="govuk-grid-column-one-half eip-sticky-column">
+                  {/* Removed IE warning message */}
+                  <div data-module="eip-hide-if-ie">
+                    <div className="eip-map__container">
+                      <SensitiveAreaCheckMap
+                        points={points}
+                        selectedIdx={selectedIdx}
+                        setPoints={setPoints}
+                        setSelectedIdx={setSelectedIdx}
+                        routeName={location.state?.routeName || 'Route'}
+                        mode="edit"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
-    </ErrorBoundary>
   );
 };
 

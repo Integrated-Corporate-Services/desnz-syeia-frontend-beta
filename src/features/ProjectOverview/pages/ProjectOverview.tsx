@@ -222,14 +222,14 @@ const ProjectOverview = () => {
 				uploadedFiles: Array.isArray(projectData.uploadedFiles)
 					? projectData.uploadedFiles.map(f => ({
 						id: f.id || '',
-						storage_provider: f.storage_provider || '',
-						s3_key: f.s3_key || '',
-						bucket_name: f.bucket_name || '',
-						virtual_folder: f.virtual_folder || '',
+						storageProvider: f.storageProvider || '',
+						s3Key: f.s3Key || '',
+						bucketName: f.bucketName || '',
+						virtualFolder: f.virtualFolder || '',
 						filename: f.filename || '',
-						file_content_type: f.file_content_type || '',
-						file_size_bytes: f.file_size_bytes || 0,
-						uploaded_at_timestamp: f.uploaded_at_timestamp			
+						fileContentType: f.fileContentType || '',
+						fileSizeBytes: f.fileSizeBytes || 0,
+						uploadedAtTimestamp: f.uploadedAtTimestamp
 					}))
 					: [],
 				documents: Array.isArray(projectData.documents)
@@ -398,15 +398,15 @@ const ProjectOverview = () => {
 						latestWorkStartDateYear: shouldClearDates ? '' : (formState.latestWorkStartDateYear || ''),
 						uploadedFiles: (formState.uploadedFiles || []).map(f => ({
 							id: f.id,
-							storage_provider: f.storage_provider,
-							s3_key: f.s3_key,
-							bucket_name: f.bucket_name,
-							virtual_folder: f.virtual_folder,
+							storageProvider: f.storageProvider,
+							s3Key: f.s3Key,
+							bucketName: f.bucketName,
+							virtualFolder: f.virtualFolder,
 							filename: f.filename,
-							file_content_type: f.file_content_type,
-							file_size_bytes: f.file_size_bytes,
-							uploaded_at_timestamp: f.uploaded_at_timestamp
-							
+							fileContentType: f.fileContentType,
+							fileSizeBytes: f.fileSizeBytes,
+							uploadedAtTimestamp: f.uploadedAtTimestamp
+
 						})),
 						// Always send relatedCpoDetails as string (not object)
 						relatedCpoDetails: typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
