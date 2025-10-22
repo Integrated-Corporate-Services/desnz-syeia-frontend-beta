@@ -141,7 +141,7 @@ const getApplicationId = () => {
               ? form.lineVoltage
               : '',
           lineLength: parseFloat(form.lineLength),
-          assetReference: '', // Default empty string
+          assetReference: form.referenceNumber,
           poles: { hasAddOrReplace: false, add: 0, replace: 0, description: '' },
           overheadLines: { hasAddOrReplace: false, description: '' },
           equipmentRemoval: { isRemoving: false, description: '' },
