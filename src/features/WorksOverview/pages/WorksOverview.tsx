@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FileUploadResponse } from '../../../types/FileUploadResponse';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
@@ -139,7 +139,6 @@ const WorksOverview: React.FC = () => {
       if (!data.chemicalTreatments.trim()) newErrors.chemicalTreatments = 'Enter chemical treatments.';
       if (!data.polesAdded.trim()) newErrors.polesAdded = 'Enter number of poles added.';
       if (!data.polesReplaced.trim()) newErrors.polesReplaced = 'Enter number of poles replaced.';
-      if (!data.poleComments.trim()) newErrors.poleComments = 'Enter comments on poles being added or replaced.';
     }
     if (!data.addingOrReplacingLines) {
       newErrors.addingOrReplacingLines = 'Select if you are adding or replacing overhead lines.';
