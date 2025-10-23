@@ -511,7 +511,7 @@ const WorksOverview: React.FC = () => {
             id="generalComments"
             name="generalComments"
             label="General comments (optional)"
-            hint="Are you carrying out any additional work to any assets on this route that is not covered above."
+            hint="Are you carrying out any additional work to any assets on this route that is not covered above?"
             value={form.generalComments}
             onChange={handleChange}
             maxLength={4000}
