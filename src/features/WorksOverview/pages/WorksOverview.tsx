@@ -321,7 +321,6 @@ const WorksOverview: React.FC = () => {
                 id="poleComments"
                 name="poleComments"
                 label="Comments on poles being added or replaced (optional)"
-                hint="On poles being added or replaced"
                 value={form.poleComments}
                 onChange={handleChange}
                 maxLength={4000}
