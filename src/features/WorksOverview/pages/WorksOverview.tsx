@@ -459,7 +459,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="accessRoutesDetails"
                 name="accessRoutesDetails"
-                label="Provide more details about the pre-existing access routes and/or storage sites?"
+                label="Provide more details about the pre-existing access routes and/or storage sites"
                 value={form.accessRoutesDetails}
                 onChange={handleChange}
                 maxLength={4000}
@@ -468,14 +468,14 @@ const WorksOverview: React.FC = () => {
               />
             </div>
             {/* File upload for access route map/photos */}
-            <div className="govuk-form-group" style={{ maxWidth: 600 }}>
+            {/* <div className="govuk-form-group" style={{ maxWidth: 600 }}>
               <label className="govuk-label">Upload map and photos of the Access Route.</label>
               <FileUploadBox
                 title="Upload map and photos of the Access Route."
                 prefix="access-route"
                 onUploadComplete={(files: FileUploadResponse[]) => setForm(prev => ({ ...prev, accessRouteFiles: files }))}
               />
-            </div>
+            </div> */}
           </RadioGroup>
         </div>
 
