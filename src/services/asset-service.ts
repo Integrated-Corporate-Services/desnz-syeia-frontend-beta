@@ -1,15 +1,3 @@
-import type { WorksOverviewRequest } from '../types/works';
-// Service to create works via POST
-export const createWorks = async (payload: WorksOverviewRequest) => {
-  const response = await axios.post('/backend/api/applications/works', payload);
-  return response.data;
-};
-
-// Service to update works via PUT
-export const updateWorks = async (payload: WorksOverviewRequest) => {
-  const response = await axios.put('/backend/api/applications/works', payload);
-  return response.data;
-};
 import axios from 'axios';
 
 // Service to fetch asset details from the backend
