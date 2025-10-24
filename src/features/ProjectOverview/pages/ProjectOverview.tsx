@@ -654,7 +654,7 @@ const ProjectOverview = () => {
 						{projectOverview.planInformationDocuments}
 					</label>
 					<FileUpload
-						title={projectOverview.planInformationDocuments}
+						title=''
 						prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
 						applicationId={applicationId}
 						category={FILE_CATEGORIES.PLAN_INFO}

@@ -44,7 +44,7 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
     if (isSelected && eastingRef.current) {
       eastingRef.current.focus();
     }
-  }, [isSelected, point.easting]);
+  }, [isSelected]);
 
   return (
     <div className={`govuk-summary-card${error ? ' fds-summary-card--error' : ''}`}>

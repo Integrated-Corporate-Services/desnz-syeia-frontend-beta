@@ -1,6 +1,5 @@
 // src/types/projectOverview.ts
 
-import { SearchableDropdownOption } from "../components/SearchableDropdown";
 import { UploadedFile } from "./fileUpload";
 import { ApplicationDocument } from "./fileUpload";
 export interface RelatedApplication {
@@ -37,5 +36,5 @@ export interface ProjectOverviewModel {
   relatedCpoDetails: string | { field: string };
   eipDetails: string;
   uploadedFiles: UploadedFile[];
-  documents: ApplicationDocument[];
+  applicationDocuments: ApplicationDocument[];
 }
