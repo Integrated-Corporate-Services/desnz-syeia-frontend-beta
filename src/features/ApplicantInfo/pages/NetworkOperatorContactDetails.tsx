@@ -9,14 +9,15 @@ import { CONTENT } from '../../../constants/content';
 const NetworkOperatorContactDetails = () => {
   const application = useApplicationStore(state => state.application);
   const party = application?.application_party;
-  const [contactIsConfirmed, setContactIsConfirmed] = useState(
-    typeof party?.contact_isconfirmed === 'boolean' ? party.contact_isconfirmed : true
-  );
+  const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
+  const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   // Keep radio value in sync with store if application/party changes
   React.useEffect(() => {
     if (party && typeof party.contact_isconfirmed === 'boolean') {
       setContactIsConfirmed(party.contact_isconfirmed);
+    } else {
+      setContactIsConfirmed(null); // Ensure no selection by default
     }
   }, [party?.contact_isconfirmed]);
   const { user } = useAuthUserContext();
@@ -25,6 +26,11 @@ const NetworkOperatorContactDetails = () => {
   // Handles the form submit for contact details
   const handleContactDetailsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (contactIsConfirmed === null) {
+      setError('Select yes if all contact details are available and correct');
+      return;
+    }
+    setError('');
     let app = application;
     if (!app || !app.application_id) {
       const newAppData = {
@@ -64,13 +70,23 @@ const NetworkOperatorContactDetails = () => {
             <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator contact details</li>
           </ol>
         </nav>
+        {/* Error summary for validation */}
+        {error && (
+          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ marginBottom: '2rem', maxWidth: 600 }}>
+            <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+            <div className="govuk-error-summary__body">
+              <ul className="govuk-list govuk-error-summary__list">
+                <li><a href="#contactIsConfirmed-yes">{error}</a></li>
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
       <div className="govuk-width-container">
         <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <h1 className="govuk-heading-xl">Network operator contact details</h1>
-
               <div className="govuk-summary-card" id="contact-details-summary">
                 <div className="govuk-summary-card__content">
                   <dl className="govuk-summary-list">
@@ -99,18 +115,19 @@ const NetworkOperatorContactDetails = () => {
                   </dl>
                 </div>
               </div>
-
               <form method="post" data-module="fds-html-form" onSubmit={handleContactDetailsSubmit}>
                 <input type="hidden" name="_csrf" value="UI9xuVoTjzeGRDhenxLGm1f7_va41XQHylwL4S8jWljCJLIGY-4XiW0n6g6rJVpqrT_yozTL05eP5kwq_2gy1RdCbTqmFIZn" />
-
-                <div className="govuk-form-group">
+                <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}> 
                   <fieldset className="govuk-fieldset">
                     <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                       <h2 className="govuk-fieldset__heading">
                         Are all contact details available and correct?
                       </h2>
                     </legend>
-                    <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios" data-govuk-radios-init="">
+                    {error && (
+                      <span className="govuk-error-message" id="contactIsConfirmed-error">{error}</span>
+                    )}
+                    <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios" data-govuk-radios-init="" style={{ marginBottom: '2rem' }}>
                       <div className="govuk-radios__item">
                         <input
                           className="govuk-radios__input"
@@ -150,7 +167,6 @@ const NetworkOperatorContactDetails = () => {
                     </div>
                   </fieldset>
                 </div>
-
                 <button
                   type="submit"
                   data-module="govuk-button"

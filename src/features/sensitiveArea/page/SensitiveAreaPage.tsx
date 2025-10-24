@@ -12,11 +12,12 @@ const SensitiveAreaPage: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const queryId = queryParams.get('id');
   const effectiveApplicationId = applicationId || queryId || '';
-  const [toleranceRequired, setToleranceRequired] = useState<string>('no');
+  const [toleranceRequired, setToleranceRequired] = useState<string | null>(null);
   const [toleranceValue, setToleranceValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const errorMessage = 'Select yes if the route requires tolerance';
   const [result, setResult] = useState<any>(null);
   const navigate = useNavigate();
   // Support multiple routes, initially empty
@@ -50,6 +51,10 @@ const SensitiveAreaPage: React.FC = () => {
   const handleStartCheck = async () => {
     setFormError(null);
     setError(null);
+    if (!toleranceRequired) {
+      setError(errorMessage);
+      return;
+    }
     if (toleranceRequired === 'yes') {
       if (!toleranceValue.trim()) {
         setFormError('Enter the route tolerance');
@@ -82,6 +87,16 @@ const SensitiveAreaPage: React.FC = () => {
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        {error && (
+          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ marginBottom: '2rem', maxWidth: 600 }}>
+            <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+            <div className="govuk-error-summary__body">
+              <ul className="govuk-list govuk-error-summary__list">
+                <li><a href="#routeToleranceRequired">{error}</a></li>
+              </ul>
+            </div>
+          </div>
+        )}
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
             <a className="govuk-breadcrumbs__link" href={`/frontend/task-list?id=${effectiveApplicationId}`}>Task list</a>
@@ -109,7 +124,7 @@ const SensitiveAreaPage: React.FC = () => {
               <div className="govuk-grid-column-one-half">
                 <form method="post" data-module="fds-html-form" onSubmit={e => { e.preventDefault(); handleStartCheck(); }}>
                   {/* <input type="hidden" name="_csrf" value="..." /> */}
-                  <div className="govuk-form-group">
+                  <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}> 
                     <fieldset className="govuk-fieldset" aria-describedby="fieldset-1-hint">
                       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                         <h2 className="govuk-fieldset__heading">
@@ -119,6 +134,10 @@ const SensitiveAreaPage: React.FC = () => {
                       <div className="govuk-hint" id="fieldset-1-hint">
                         Your route will be buffered by the tolerance provided when checking if it passes through any sensitive areas
                       </div>
+                      {/* Inline error message for radio group */}
+                      {error && (
+                        <span className="govuk-error-message" id="tolerance-error">{error}</span>
+                      )}
                         <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
                           <div className="govuk-radios__item">
                             <input
@@ -131,6 +150,7 @@ const SensitiveAreaPage: React.FC = () => {
                               aria-controls="routeToleranceRequired-hidden"
                               aria-expanded={toleranceRequired === 'yes'}
                               onChange={() => setToleranceRequired('yes')}
+                              aria-describedby={error ? 'tolerance-error' : undefined}
                             />
                             <label className="govuk-label govuk-radios__label" htmlFor="routeToleranceRequired">Yes</label>
                           </div>
@@ -171,6 +191,7 @@ const SensitiveAreaPage: React.FC = () => {
                               value="no"
                               checked={toleranceRequired === 'no'}
                               onChange={() => setToleranceRequired('no')}
+                              aria-describedby={error ? 'tolerance-error' : undefined}
                             />
                             <label className="govuk-label govuk-radios__label" htmlFor="routeToleranceRequired-no">No</label>
                           </div>
@@ -180,7 +201,7 @@ const SensitiveAreaPage: React.FC = () => {
                   <button type="submit" data-module="govuk-button" className="govuk-button" value="Start sensitive area checks" name="Start sensitive area checks" data-prevent-double-click="true">
                     {loading ? 'Checking...' : 'Start sensitive area checks'}
                   </button>
-                  {error && <div className="govuk-error-summary govuk-!-margin-top-4"><h2>{error}</h2></div>}
+                  {/* Remove duplicate error summary below the button */}
                 </form>
               </div>
               <div className="govuk-grid-column-one-half">
