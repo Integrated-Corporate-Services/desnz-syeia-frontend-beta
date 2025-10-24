@@ -5,6 +5,7 @@ export interface CommonInputProps {
   id: string;
   name: string;
   label: string;
+    hint?: string;
   value: string;
   error?: string;
   onChange: (e: React.ChangeEvent<any>) => void;
