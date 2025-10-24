@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
 
 interface RoutePointCardProps {
@@ -18,7 +18,7 @@ function isValidGridValue(val: string) {
 }
 
 
-const RoutePointCard: React.FC<RoutePointCardProps> = ({
+const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> = ({
   point,
   idx,
   error,
@@ -27,12 +27,24 @@ const RoutePointCard: React.FC<RoutePointCardProps> = ({
   onRemove,
   onChange,
   onFocus,
+  isSelected,
 }) => {
   const [eastingTouched, setEastingTouched] = useState(false);
   const [northingTouched, setNorthingTouched] = useState(false);
   const eastingValid = isValidGridValue(point.easting);
   const northingValid = isValidGridValue(point.northing);
   const showError = (!eastingValid && eastingTouched) || (!northingValid && northingTouched);
+
+  // Refs for input fields
+  const eastingRef = useRef<HTMLInputElement>(null);
+  const northingRef = useRef<HTMLInputElement>(null);
+
+  // Focus effect for selected input
+  useEffect(() => {
+    if (isSelected && eastingRef.current) {
+      eastingRef.current.focus();
+    }
+  }, [isSelected, point.easting]);
 
   return (
     <div className={`govuk-summary-card${error ? ' fds-summary-card--error' : ''}`}>
@@ -63,6 +75,7 @@ const RoutePointCard: React.FC<RoutePointCardProps> = ({
                 <div className={`govuk-form-group govuk-!-static-margin-bottom-0${!eastingValid && eastingTouched ? ' govuk-form-group--error' : ''}`}>
                   <label className="govuk-label" htmlFor={`easting-input-${idx}`}>Easting</label>
                   <input
+                    ref={eastingRef}
                     className={`govuk-input${!eastingValid && eastingTouched ? ' govuk-input--error' : ''}`}
                     id={`easting-input-${idx}`}
                     name={`easting-${idx}`}
@@ -70,7 +83,6 @@ const RoutePointCard: React.FC<RoutePointCardProps> = ({
                     value={point.easting}
                     onChange={e => onChange('easting', e.target.value)}
                     onFocus={onFocus}
-                    onBlur={() => setEastingTouched(true)}
                   />
                 </div>
               </div>
@@ -78,6 +90,7 @@ const RoutePointCard: React.FC<RoutePointCardProps> = ({
                 <div className={`govuk-form-group${!northingValid && northingTouched ? ' govuk-form-group--error' : ''}`}>
                   <label className="govuk-label" htmlFor={`northing-input-${idx}`}>Northing</label>
                   <input
+                    ref={northingRef}
                     className={`govuk-input${!northingValid && northingTouched ? ' govuk-input--error' : ''}`}
                     id={`northing-input-${idx}`}
                     name={`northing-${idx}`}
@@ -85,7 +98,6 @@ const RoutePointCard: React.FC<RoutePointCardProps> = ({
                     value={point.northing}
                     onChange={e => onChange('northing', e.target.value)}
                     onFocus={onFocus}
-                    onBlur={() => setNorthingTouched(true)}
                   />
                 </div>
               </div>

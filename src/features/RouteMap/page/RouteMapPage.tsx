@@ -204,9 +204,10 @@ const RouteMapPage: React.FC = () => {
   };
 
   const handleChange = (idx: number, field: 'easting' | 'northing', value: string) => {
-  setSubmitError(null);
+    setSubmitError(null);
     setValidationError(null);
     setPoints(prev => prev.map((pt, i) => i === idx ? { ...pt, [field]: value } : pt));
+    setSelectedIdx(idx); // Keep focus on the same box after change
     // Optionally update store if you want to keep in sync
   };
 
@@ -294,6 +295,7 @@ const RouteMapPage: React.FC = () => {
                                   onRemove={() => handleRemovePoint(idx)}
                                   onChange={(field, value) => handleChange(idx, field, value)}
                                   onFocus={() => setSelectedIdx(idx)}
+                                  isSelected={selectedIdx === idx}
                                 />
                               );
                             });
