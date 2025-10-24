@@ -10,13 +10,14 @@ import TextInput from "../component/TextInput";
 import TextArea from "../component/TextArea";
 import NumberInput from "../component/NumberInput";
 import RadioGroup from "../component/RadioGroup";
-import PlanInformationUpload from "../component/PlanInformationUpload";
+import FileUpload from "../../../components/FileUpload";
 
 
 import { ProjectOverviewModel } from '../../../types/projectOverview';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 // import SearchableDropdown from "../../../components/SearchableDropdown";
 import { useRef } from "react";
+import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 
 const emptyProjectOverview: ProjectOverviewModel = {
 	applicationFormId: "",
@@ -35,7 +36,7 @@ const emptyProjectOverview: ProjectOverviewModel = {
 	relatedCpoDetails: "",
 	eipDetails: "",
 	uploadedFiles: [],
-	documents: [],
+	applicationDocuments: [],
 	projectId: "",
 	applicationId: "",
 	createdBy: "",
@@ -46,7 +47,7 @@ const ProjectOverview = () => {
 	const navigate = useNavigate();
 	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
 	const [dropdownValue, setDropdownValue] = useState("");
-	const [searchResults, setSearchResults] = useState<any[]>([]);
+		const [searchResults, setSearchResults] = useState<any[]>([]);
 	const [showDropdown, setShowDropdown] = useState(false);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 	// Search handler for project names
@@ -229,11 +230,11 @@ const ProjectOverview = () => {
 						filename: f.filename || '',
 						fileContentType: f.fileContentType || '',
 						fileSizeBytes: f.fileSizeBytes || 0,
-						uploadedAtTimestamp: f.uploadedAtTimestamp
+						uploadedAtTimestamp: f.uploadedAtTimestamp || ''
 					}))
 					: [],
-				documents: Array.isArray(projectData.documents)
-					? projectData.documents.map(d => ({
+				applicationDocuments: Array.isArray(projectData.applicationDocuments)
+					? projectData.applicationDocuments.map(d => ({
 						documentId: d.documentId  || '',
 						applicationId: d.applicationId || '',
 						fileId: d.fileId  || '',
@@ -416,8 +417,8 @@ const ProjectOverview = () => {
 						relatedApplications: Array.isArray(formState.relatedApplications)
 							? formState.relatedApplications.map(({ applicationRelationId, ...rest }) => rest)
 							: [],
-						documents: Array.isArray(formState.documents)
-							? formState.documents.map(d => ({
+						applicationDocuments: Array.isArray(formState.applicationDocuments)
+							? formState.applicationDocuments.map(d => ({
 								documentId: d.documentId || '',
 								applicationId: d.applicationId || '',
 								fileId: d.fileId || '',
@@ -648,17 +649,27 @@ const ProjectOverview = () => {
 
 					{/* Plan Information Documents */}
 					<div className="govuk-form-group">
-						<fieldset className="govuk-fieldset">
-							{application ? (
-								<PlanInformationUpload
-									application={application}
-									title={projectOverview.planInformationDocuments}
-								/>
-							) : (
-								<div className="govuk-inset-text">Application data is not available. Please reload the page or check your connection.</div>
-							)}
-						</fieldset>
-					</div>
+				<fieldset className="govuk-fieldset">
+					<label className="govuk-label" style={{ fontWeight: 600 }}>
+						{projectOverview.planInformationDocuments}
+					</label>
+					<FileUpload
+						title=''
+						prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
+						applicationId={applicationId}
+						category={FILE_CATEGORIES.PLAN_INFO}
+						addedBy={userId}
+						uploadedFiles={formState.uploadedFiles}
+						onUploaded={(newUploadedFiles, newProjectDocuments) => {
+							setFormState(prev => ({
+								...prev,
+								uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
+								applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
+							}));
+						}}
+					/>
+				</fieldset>
+			</div>
 
 					{/* Details: What information should be included in the plan */}
 					<details className="govuk-details">

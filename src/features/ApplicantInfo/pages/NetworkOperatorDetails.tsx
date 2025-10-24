@@ -13,6 +13,7 @@ const NetworkOperatorDetails = () => {
   const [selectedOrganisation, setSelectedOrganisation] = useState<any | null>(null);
   const [selectedOrgName, setSelectedOrgName] = useState('');
   const [errors, setErrors] = useState<{ reference?: string; organisation?: string }>({});
+  const allowedReferenceRegex = /^[A-Za-z0-9\-\s]+$/;
 
   const application = useApplicationStore(state => state.application);
   const setOrganisation = useApplicationStore(state => state.setOrganisation);
@@ -77,8 +78,24 @@ const NetworkOperatorDetails = () => {
     }
   }, [application]);
 
+  // After options are set, select the first organisation by default if none is selected
+  useEffect(() => {
+    if (options.length > 0 && !selectedOrgName) {
+      setSelectedOrgName(options[0].organisation_name);
+      setSelectedOrganisation(options[0]);
+      setOrganisation(options[0]);
+    }
+  }, [options, selectedOrgName, setOrganisation]);
+
   const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNetworkOperatorReference(e.target.value);
+    const value = e.target.value;
+    // Only allow alphabets, numbers, spaces, and hyphens
+    if (value === '' || allowedReferenceRegex.test(value)) {
+      setNetworkOperatorReference(value);
+      setErrors(prev => ({ ...prev, reference: undefined }));
+    } else {
+      setErrors(prev => ({ ...prev, reference: 'Only letters, numbers, spaces, and hyphens are allowed.' }));
+    }
   };
 
   const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -94,6 +111,8 @@ const NetworkOperatorDetails = () => {
     const newErrors: { reference?: string; organisation?: string } = {};
     if (!networkOperatorReference.trim()) {
       newErrors.reference = 'Network operator reference is required.';
+    } else if (!allowedReferenceRegex.test(networkOperatorReference)) {
+      newErrors.reference = 'Only letters, numbers, spaces, and hyphens are allowed.';
     }
     if (!selectedOrgName.trim()) {
       newErrors.organisation = 'Please select a network operator organisation.';
@@ -133,7 +152,7 @@ const NetworkOperatorDetails = () => {
         person_id: selectedOrganisation?.person_id,
         contact_id: selectedOrganisation?.party_contact_id,
         is_primary: true,
-        contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? false,
+        contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? null,
       },
     });
     navigate(`/network-operator-contact-details?id=${app.application_id}`);
@@ -168,15 +187,34 @@ const NetworkOperatorDetails = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl">Network operator details</h1>
+            {/* Error summary for validation */}
+            {(errors.reference || errors.organisation) && (
+              <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ marginBottom: '2rem', maxWidth: 600 }}>
+                <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <ul className="govuk-list govuk-error-summary__list">
+                    {errors.reference && (
+                      <li><a href="#networkOperatorReference-inputValue">{errors.reference}</a></li>
+                    )}
+                    {errors.organisation && (
+                      <li><a href="#networkOperator">{errors.organisation}</a></li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            )}
             <form method="post" data-module="fds-html-form" onSubmit={handleSubmit}>
               <input type="hidden" name="_csrf" value="1cS2IlJvS27qI0DJG9gL3gIaaY-sywG0StstzDKXCdG3BVpy5qXQEmVbLlfHQiL9KfU_5mEqRO6b-DmZf-8U-Ar2PrPTNW4T" />
 
-              <div className="govuk-form-group">
+              <div className={`govuk-form-group${errors.reference ? ' govuk-form-group--error' : ''}`}> 
                 <label className="govuk-label" htmlFor="networkOperatorReference-inputValue">
                   Network operator's reference
                 </label>
+                {errors.reference && (
+                  <span className="govuk-error-message" id="networkOperatorReference-error">{errors.reference}</span>
+                )}
                 <input
-                  className="govuk-input"
+                  className={`govuk-input${errors.reference ? ' govuk-input--error' : ''}`}
                   id="networkOperatorReference-inputValue"
                   name="networkOperatorReference.inputValue"
                   type="text"
@@ -187,12 +225,9 @@ const NetworkOperatorDetails = () => {
                   aria-invalid={!!errors.reference}
                   aria-describedby={errors.reference ? 'networkOperatorReference-error' : undefined}
                 />
-                {errors.reference && (
-                  <span className="govuk-error-message" id="networkOperatorReference-error">{errors.reference}</span>
-                )}
               </div>
 
-              <div className="govuk-form-group">
+              <div className={`govuk-form-group${errors.organisation ? ' govuk-form-group--error' : ''}`}> 
                 <label className="govuk-label" htmlFor="networkOperator" id="selector-networkOperator-label">
                   Who is the contact in the network operator organisation for this application?
                 </label>
@@ -204,7 +239,7 @@ const NetworkOperatorDetails = () => {
                   name="networkOperator"
                   className="govuk-select"
                   style={{ width: '100%' }}
-                  value={selectedOrgName}
+                  value={selectedOrgName || ''}
                   onChange={handleOperatorChange}
                   aria-invalid={!!errors.organisation}
                   aria-describedby={errors.organisation ? 'networkOperator-error' : undefined}
@@ -212,7 +247,7 @@ const NetworkOperatorDetails = () => {
                 >
                   <option value="" disabled>Select one...</option>
                   {options.map(opt => (
-                    <option key={opt.organisation_id || opt.organisation_name} value={opt.organisation_name}>{opt.organisation_name}</option>
+                    <option key={opt.organisation_id || opt.organisation_name} value={opt.organisation_name} selected={opt.organisation_name === selectedOrgName}>{opt.organisation_name}</option>
                   ))}
                 </select>
                 {errors.organisation && (
