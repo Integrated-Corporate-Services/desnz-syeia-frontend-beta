@@ -366,6 +366,11 @@ const ProjectOverview = () => {
 						newErrors.push('<a href="#hasRelatedApplications">Select yes if there are related applications</a>');
 						newFieldErrors.hasRelatedApplications = "Select yes if there are related applications";
 					}
+					// Validation: If user selects 'Yes' for related applications but none are added
+					if (formState.hasRelatedApplications === "true" && (!formState.relatedApplications || formState.relatedApplications.length === 0)) {
+						newErrors.push('<a href="#relatedApplications-search">Add one or more related applications</a>');
+						newFieldErrors.hasRelatedApplications = "Add one or more related applications";
+					}
 					if (!formState.hasRelatedCpo) {
 						newErrors.push('<a href="#hasRelatedCpo">Select yes if there is a related CPO</a>');
 						newFieldErrors.hasRelatedCpo = "Select yes if there is a related CPO";
@@ -685,7 +690,7 @@ const ProjectOverview = () => {
 
 					{/* Related Applications */}
 					<div className={`govuk-form-group${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`}>
-						<fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()}>
+						<fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()} id="relatedApplications-section">
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 								<h2 className="govuk-fieldset__heading">{projectOverview.relatedApplications}</h2>
 							</legend>
