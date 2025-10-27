@@ -282,11 +282,11 @@ const RouteMapPage: React.FC = () => {
                               if (validationError && idx === firstInvalidIdx) {
                                 errorMsg = getPointError(point.easting, point.northing);
                               }
-                              // Use a unique key for each point: point_id if present, else idx + easting + northing
-                              const uniqueKey = point.point_id || `${idx}-${point.easting}-${point.northing}`;
+                              // Use a stable key for each point: point_id if present, else idx
+                              const stableKey = point.point_id || idx;
                               return (
                                 <RoutePointCard
-                                  key={uniqueKey}
+                                  key={stableKey}
                                   point={point}
                                   idx={idx}
                                   error={errorMsg}
