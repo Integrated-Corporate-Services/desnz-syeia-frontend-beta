@@ -109,7 +109,11 @@ const getApplicationId = () => {
 
   const validate = (data: AssetFormState): FormErrors => {
     const newErrors: FormErrors = {};
-    if (!data.referenceNumber.trim()) newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumber;
+    if (!data.referenceNumber.trim()) {
+      newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumber;
+    } else if (!/^[a-zA-Z0-9]+$/.test(data.referenceNumber.trim())) {
+      newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumberAlphanumeric;
+    }
     if (!data.lineType) newErrors.lineType = ASSET_ERROR_MESSAGES.lineType;
     if (!data.lineLength.trim()) newErrors.lineLength = ASSET_ERROR_MESSAGES.lineLength;
     if (!data.lineVoltage || !Array.isArray(data.lineVoltage) || data.lineVoltage.length === 0) newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltage;
