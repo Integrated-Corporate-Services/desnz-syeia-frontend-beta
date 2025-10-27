@@ -88,6 +88,30 @@ export const RouteOverviewPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      {/* Error summary box at the top, if error exists */}
+      {formError && (
+        <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ border: '4px solid #d4351c', background: '#fff', marginBottom: 24 }}>
+          <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+          <ul className="govuk-list govuk-error-summary__list">
+            <li>
+              <a
+                href="#addRouteRadioGroup"
+                className="govuk-link govuk-error-message"
+                onClick={e => {
+                  e.preventDefault();
+                  const el = document.getElementById('addRouteRadioGroup');
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    (el as HTMLElement).focus();
+                  }
+                }}
+              >
+                {formError}
+              </a>
+            </li>
+          </ul>
+        </div>
+      )}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -106,28 +130,8 @@ export const RouteOverviewPage: React.FC = () => {
         </ol>
       </nav>
       <main className="govuk-main-wrapper" id="main-content" role="main">
-        {showBanner && <RouteDeletedBanner routeName={showBanner.routeName} />}
-        <h1 className="govuk-heading-xl">Route overview</h1>
-        {formError && (
-          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ border: '4px solid #d4351c', background: '#fff', marginBottom: 24 }}>
-            <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
-            <ul className="govuk-list govuk-error-summary__list">
-              <li>
-                <a
-                  href="#routeJustification"
-                  className="govuk-link govuk-error-message"
-                  onClick={e => {
-                    e.preventDefault();
-                    detailsRef.current?.focus();
-                    detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }}
-                >
-                  {formError}
-                </a>
-              </li>
-            </ul>
-          </div>
-        )}
+          {showBanner && <RouteDeletedBanner routeName={showBanner.routeName} />}
+          <h1 className="govuk-heading-xl">Route overview</h1>
         <p className="govuk-body" style={{ maxWidth: 700 }}>
           Any changes to the route will require you to run the sensitive area checks again, upload new plan information, and reconsult or provide updated information to consultees if consultations are open.
         </p>
@@ -135,7 +139,6 @@ export const RouteOverviewPage: React.FC = () => {
           <a
             className="govuk-link"
             href={applicationId ? `/frontend/route-guidance?id=${applicationId}` : '/frontend/route-guidance'}
-           
           >
             Read the guidance on adding a route or a route spur
           </a>
@@ -204,6 +207,11 @@ export const RouteOverviewPage: React.FC = () => {
             <form
               onSubmit={e => {
                 e.preventDefault();
+                // Validation: require a radio button selection
+                if (!spurChoice) {
+                  setFormError('Select whether you want to add more routes');
+                  return;
+                }
                 if (spurChoice === 'notconnected' && !details.trim()) {
                   setFormError('Enter a justification for the additional route');
                   setTimeout(() => {
@@ -220,8 +228,13 @@ export const RouteOverviewPage: React.FC = () => {
               }}
               noValidate
             >
-              <div className="govuk-form-group">
-                <fieldset className="govuk-fieldset" aria-describedby="fieldset-1-hint">
+              <div className={`govuk-form-group${formError && formError.includes('Select whether you want to add more routes') ? ' govuk-form-group--error' : ''}`.trim()}>
+                <fieldset
+                  className="govuk-fieldset"
+                  aria-describedby={`fieldset-1-hint${formError && formError.includes('Select whether you want to add more routes') ? ' addRouteRadioGroup-error' : ''}`.trim()}
+                  id="addRouteRadioGroup"
+                  tabIndex={-1}
+                >
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                     <h2 className="govuk-fieldset__heading">
                       Do you want to add another route?
@@ -230,6 +243,11 @@ export const RouteOverviewPage: React.FC = () => {
                   <div className="govuk-hint" id="fieldset-1-hint">
                     If you have a line off the main route, you will need to add a route spur. If your routes do not connect, you need to provide justification for including it in this application.
                   </div>
+                  {formError && formError.includes('Select whether you want to add more routes') && (
+                    <span className="govuk-error-message" id="addRouteRadioGroup-error">
+                      <span className="govuk-visually-hidden">Error:</span> {formError}
+                    </span>
+                  )}
                   <div className="govuk-radios">
                     <div className="govuk-radios__item">
                       <input className="govuk-radios__input" id="addRouteRadioOption" name="addRouteRadioOption" type="radio" value="spur" checked={spurChoice === 'spur'} onChange={() => setSpurChoice('spur')} />
@@ -279,8 +297,9 @@ export const RouteOverviewPage: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    
   );
 };
 
