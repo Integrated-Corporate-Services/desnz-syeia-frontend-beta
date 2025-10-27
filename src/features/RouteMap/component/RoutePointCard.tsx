@@ -39,10 +39,14 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
   const eastingRef = useRef<HTMLInputElement>(null);
   const northingRef = useRef<HTMLInputElement>(null);
 
-  // Focus effect for selected input
+  // Focus effect for selected input: keep focus on the last edited field
   useEffect(() => {
-    if (isSelected && eastingRef.current) {
-      eastingRef.current.focus();
+    if (!isSelected) return;
+    // If northing is being edited, focus northing, else focus easting
+    if (document.activeElement === northingRef.current) {
+      northingRef.current?.focus();
+    } else if (document.activeElement === eastingRef.current) {
+      eastingRef.current?.focus();
     }
   }, [isSelected]);
 
