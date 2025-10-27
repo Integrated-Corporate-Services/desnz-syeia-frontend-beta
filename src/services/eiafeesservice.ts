@@ -8,7 +8,6 @@ import { EiaFees } from '../types/eiaFees';
 export interface CreateEiaFeePayload {
   eiaId: string;
   applicationId: string;
-  isEiaDevelopment: boolean;
   requiresFullEia: boolean;
   screeningOnly: boolean;
   createdAt: string;
@@ -21,7 +20,6 @@ export interface CreateEiaFeePayload {
 export interface UpdateEiaFeePayload {
   eiaFeeId: string;
   applicationId: string;
-  isEiaDevelopment: boolean;
   requiresFullEia: boolean;
   screeningOnly: boolean;
   updatedAt: string;

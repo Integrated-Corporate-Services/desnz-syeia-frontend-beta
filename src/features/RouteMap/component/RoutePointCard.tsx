@@ -31,25 +31,36 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
 }) => {
   const [eastingTouched, setEastingTouched] = useState(false);
   const [northingTouched, setNorthingTouched] = useState(false);
+
+ 
   const eastingValid = isValidGridValue(point.easting);
   const northingValid = isValidGridValue(point.northing);
-  const showError = (!eastingValid && eastingTouched) || (!northingValid && northingTouched);
+  // Only show error styling if error prop is present (after submit)
+  const showEastingError = !!error && !eastingValid;
+  const showNorthingError = !!error && !northingValid;
 
   // Refs for input fields
   const eastingRef = useRef<HTMLInputElement>(null);
   const northingRef = useRef<HTMLInputElement>(null);
 
-  // Focus effect for selected input: keep focus on the last edited field
+  // Track which input was last focused
+  const [lastFocused, setLastFocused] = useState<'easting' | 'northing'>();
+
+  // Always focus the last-focused input when selected
   useEffect(() => {
     if (!isSelected) return;
-    // If northing is being edited, focus northing, else focus easting
-    if (document.activeElement === northingRef.current) {
+    if (lastFocused === 'northing') {
       northingRef.current?.focus();
-    } else if (document.activeElement === eastingRef.current) {
+    } else if (lastFocused === 'easting') {
       eastingRef.current?.focus();
     }
-  }, [isSelected]);
-
+  }, [isSelected, lastFocused]);
+ // Unified onChange handler
+  const handleInputChange = (field: 'easting' | 'northing', value: string) => {
+    onChange(field, value);
+    if (field === 'easting') setEastingTouched(true);
+    if (field === 'northing') setNorthingTouched(true);
+  };
   return (
     <div className={`govuk-summary-card${error ? ' fds-summary-card--error' : ''}`}>
       <div className="govuk-summary-card__title-wrapper">
@@ -76,32 +87,38 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
           <div className="govuk-summary-list__row">
             <div className="govuk-grid-row">
               <div className="govuk-grid-column-one-quarter">
-                <div className={`govuk-form-group govuk-!-static-margin-bottom-0${!eastingValid && eastingTouched ? ' govuk-form-group--error' : ''}`}>
+                <div className={`govuk-form-group govuk-!-static-margin-bottom-0${showEastingError ? ' govuk-form-group--error' : ''}`}>
                   <label className="govuk-label" htmlFor={`easting-input-${idx}`}>Easting</label>
                   <input
                     ref={eastingRef}
-                    className={`govuk-input${!eastingValid && eastingTouched ? ' govuk-input--error' : ''}`}
+                    className={`govuk-input${showEastingError ? ' govuk-input--error' : ''}`}
                     id={`easting-input-${idx}`}
                     name={`easting-${idx}`}
                     type="text"
                     value={point.easting}
-                    onChange={e => onChange('easting', e.target.value)}
-                    onFocus={onFocus}
+                    onChange={e => handleInputChange('easting', e.target.value)}
+                    onFocus={e => {
+                      setLastFocused('easting');
+                      onFocus();
+                    }}
                   />
                 </div>
               </div>
               <div className="govuk-grid-column-one-quarter govuk-!-static-margin-bottom-0">
-                <div className={`govuk-form-group${!northingValid && northingTouched ? ' govuk-form-group--error' : ''}`}>
+                <div className={`govuk-form-group${showNorthingError ? ' govuk-form-group--error' : ''}`}>
                   <label className="govuk-label" htmlFor={`northing-input-${idx}`}>Northing</label>
                   <input
                     ref={northingRef}
-                    className={`govuk-input${!northingValid && northingTouched ? ' govuk-input--error' : ''}`}
+                    className={`govuk-input${showNorthingError ? ' govuk-input--error' : ''}`}
                     id={`northing-input-${idx}`}
                     name={`northing-${idx}`}
                     type="text"
                     value={point.northing}
-                    onChange={e => onChange('northing', e.target.value)}
-                    onFocus={onFocus}
+                    onChange={e => handleInputChange('northing', e.target.value)}
+                    onFocus={e => {
+                      setLastFocused('northing');
+                      onFocus();
+                    }}
                   />
                 </div>
               </div>
