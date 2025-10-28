@@ -16,7 +16,7 @@ import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
 import RouteDeletePage from '../features/RouteMap/page/RouteDeletePage';
 import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
-
+import ConsultationPage from '../features/Consultation/pages/ConsultationDetailsPage';
 export const ROUTE_CONFIG = [
   {
     path: '/signin',
@@ -139,8 +139,8 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path: '/consultations',
-    component: ComingSoon,
+    path: '/consultation-details',
+    component: ConsultationPage,
     auth: true,
     layout: true
   },

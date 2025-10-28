@@ -40,7 +40,7 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
     {
       title: 'Consultations',
       items: [
-        { name: 'Consultations', status: 'Cannot start yet', link: '/consultations' },
+        { name: 'Consultations', status: 'Cannot start yet', link: '/consultation-details' },
         { name: 'Post consultation actions', status: 'Cannot start yet', link: '/post-consultation-actions' },
       ],
     },

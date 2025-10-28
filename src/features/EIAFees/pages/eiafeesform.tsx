@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import RadioGroup from "../component/RadioGroup";
 import { useApplicationStore } from "../../../store/useApplicationStore";
+import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
 
 // Helper to get CSRF token from cookie
@@ -15,24 +16,7 @@ function getCsrfToken() {
 
 const EIAFeesForm: React.FC = () => {
   const navigate = useNavigate();
-  const params = useParams();
-  const location = useLocation();
-  const application = useApplicationStore((state) => state.application);
-  // Helper to get applicationId from store, params, or query string
-  const getApplicationId = () => {
-    if (application && application.application_id)
-      return application.application_id;
-    if (params.applicationId) return params.applicationId;
-    if (params.id) return params.id;
-    if (typeof window !== "undefined") {
-      const searchParams = new URLSearchParams(location.search);
-      const idFromQuery =
-        searchParams.get("id") || searchParams.get("applicationId");
-      if (idFromQuery) return idFromQuery;
-    }
-    return "";
-  };
-  const applicationId = getApplicationId();
+  const applicationId = useGetApplicationId();
 
   // State for fetched EIA Fees
   const eiaFees = useEiaFeesStore((state) => state.eiaFees);
