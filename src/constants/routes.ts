@@ -16,6 +16,10 @@ import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
 import RouteDeletePage from '../features/RouteMap/page/RouteDeletePage';
 import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
+import WhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
+import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDetails';
+import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
+import NWLTaskList from '../features/NWL/TaskList';
 
 export const ROUTE_CONFIG = [
   {
@@ -27,6 +31,30 @@ export const ROUTE_CONFIG = [
   {
     path: '/workbasket',
     component: Workbasket,
+    auth: true,
+    layout: true
+  },
+  {
+    path:'/who-is-applying',
+    component: WhoIsApplying,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/applicant-details',
+    component: ApplicantDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/network-operator-contact-details',
+    component: NWLNetworkOperatorContactDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl-task-list',
+    component: NWLTaskList,
     auth: true,
     layout: true
   },
