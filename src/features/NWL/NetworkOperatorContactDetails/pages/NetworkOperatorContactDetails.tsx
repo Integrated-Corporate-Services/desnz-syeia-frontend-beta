@@ -1,15 +1,43 @@
+
+
 import React, { useState, useEffect } from 'react';
+import { useAuthUserContext } from '../../../../context/AuthUserContext';
+import type { AuthUser } from '../../../../types/auth';
 import { useApplicationStore } from '../../../../store/useApplicationStore';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { networkOperatorApiService } from '../../../../services/networkOperatorApiService';
+
+type OrganisationContact = {
+  organisation_name?: string;
+  line1?: string;
+  line2?: string;
+  city?: string;
+  postcode?: string;
+  country?: string;
+  email?: string;
+  phone?: string;
+  organisation_id?: string;
+  person_id?: string;
+  contact_id?: string;
+  party_contact_id?: string;
+};
 
 const NetworkOperatorContactDetails: React.FC = () => {
-  // Get application from store
-  const application = useApplicationStore((state: any) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state: any) => state.fetchAndSetApplication);
+  const [options, setOptions] = useState<OrganisationContact[]>([]);
+  const [selectedOrganisation, setSelectedOrganisation] = useState<OrganisationContact | null>(null);
+  const [selectedOrgName, setSelectedOrgName] = useState('');
+  const [error, setError] = useState<string>('');
+  const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
+
+  const application = useApplicationStore(state => state.application);
+  const setOrganisation = useApplicationStore(state => state.setOrganisation);
+  const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const appId = params.get('id');
+  const { user } = useAuthUserContext();
+  const emailId = (user as AuthUser)?.email;
 
   // Fetch application if not loaded
   useEffect(() => {
@@ -18,25 +46,68 @@ const NetworkOperatorContactDetails: React.FC = () => {
     }
   }, [appId, application, fetchAndSetApplication]);
 
-  const party = application?.application_party;
-  const contactDetails = {
-    operatorName: party?.organisation_name || '',
-    contactName: party?.full_name || party?.person_name || '',
-    address: [party?.line1, party?.line2, party?.city, party?.country, party?.postcode].filter(Boolean).join('<br>'),
-    email: party?.email || '',
-    phone: party?.phone || '',
-  };
-
-  const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
-  const [error, setError] = useState<string>('');
-
+  // Fetch dropdown options and bind application data
   useEffect(() => {
-    if (party && typeof party.contact_isconfirmed === 'boolean') {
-      setContactIsConfirmed(party.contact_isconfirmed);
+    let isMounted = true;
+    const fetchOptionsAndBind = async () => {
+    let orgOptions: OrganisationContact[] = [];
+      try {
+        if (typeof emailId === 'string' && emailId) {
+          const data = await networkOperatorApiService.getNetworkOperatorByEmail(emailId);
+          orgOptions = Array.isArray(data) ? data : [];
+        } else {
+          orgOptions = [];
+        }
+      } catch {
+        orgOptions = [];
+      }
+      if (!isMounted) return;
+      setOptions(orgOptions);
+
+      // Bind application data to form fields
+      if (application) {
+        const partyOrgName = application.application_party?.organisation_name;
+        if (partyOrgName && orgOptions.length > 0) {
+          const org = orgOptions.find(
+            opt =>
+              opt.organisation_name &&
+              opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
+          );
+          setSelectedOrganisation(org || null);
+          setOrganisation(org || null);
+          setSelectedOrgName(partyOrgName);
+        }
+      }
+    };
+    fetchOptionsAndBind();
+    return () => { isMounted = false; };
+  }, [emailId, application, setOrganisation]);
+
+  // After options are set, select the first organisation by default if none is selected
+  useEffect(() => {
+    if (options.length > 0 && !selectedOrgName) {
+      setSelectedOrgName(options[0].organisation_name || '');
+      setSelectedOrganisation(options[0]);
+      setOrganisation(options[0]);
+    }
+  }, [options, selectedOrgName, setOrganisation]);
+
+  // Keep contactIsConfirmed in sync with application
+  useEffect(() => {
+    if (application?.application_party && typeof application.application_party.contact_isconfirmed === 'boolean') {
+      setContactIsConfirmed(application.application_party.contact_isconfirmed);
     } else {
       setContactIsConfirmed(null);
     }
-  }, [party?.contact_isconfirmed]);
+  }, [application]);
+
+  const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedName = e.target.value;
+    setSelectedOrgName(selectedName);
+  const org = options.find((opt: OrganisationContact) => opt.organisation_name === selectedName);
+    setSelectedOrganisation(org || null);
+    setOrganisation(org || null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,22 +116,62 @@ const NetworkOperatorContactDetails: React.FC = () => {
       return;
     }
     setError('');
-    let app = application;
+  const app = application;
     if (!app || !app.application_id) {
       setError('No application found.');
       return;
     }
+    useApplicationStore.getState().setApplication({
+      application_id: app.application_id,
+      type: app.type || '',
+      operator_ref: app.operator_ref,
+      status: app.status || '',
+      created_by: app.created_by || '',
+      created_at: app.created_at || '',
+      submitted_at: app.submitted_at || '',
+      application_party: {
+        party_type: app?.application_party?.party_type ?? '',
+        organisation_name: selectedOrganisation?.organisation_name || '',
+        line1: selectedOrganisation?.line1 || '',
+        line2: selectedOrganisation?.line2 || '',
+        city: selectedOrganisation?.city || '',
+        postcode: selectedOrganisation?.postcode || '',
+        country: selectedOrganisation?.country || '',
+        email: selectedOrganisation?.email || '',
+        phone: selectedOrganisation?.phone || '',
+        organisation_id: selectedOrganisation?.organisation_id,
+        person_id: selectedOrganisation?.person_id,
+        contact_id: selectedOrganisation?.party_contact_id || selectedOrganisation?.contact_id,
+        is_primary: true,
+        contact_isconfirmed: contactIsConfirmed,
+      },
+    });
+    navigate(`/nwl/network-operator-contact-details?id=${app.application_id}`);
+
     await useApplicationStore.getState().saveNetworkOperator({
       application_id: app.application_id,
       operator_ref: app.operator_ref,
-      organisation_id: party?.organisation_id,
-      person_id: party?.person_id,
-      contact_id: party?.contact_id,
+      organisation_id: selectedOrganisation?.organisation_id || '',
+      person_id: selectedOrganisation?.person_id || '',
+      contact_id: selectedOrganisation?.party_contact_id || selectedOrganisation?.contact_id || '',
       role: 'Applicant',
       is_primary: true,
       contact_isconfirmed: contactIsConfirmed,
     });
-    navigate(`/nwl-task-list?id=${app.application_id}`);    
+    if (app && app.application_id) {
+      navigate(`/nwl/task-list?id=${app.application_id}`);
+    } else {
+      navigate('/nwl/task-list');
+    }
+  };
+
+  // Prepare contact details for summary
+  const contactDetails = {
+    operatorName: selectedOrganisation?.organisation_name || '',
+    contactName: selectedOrganisation?.organisation_name || '',
+    address: [selectedOrganisation?.line1, selectedOrganisation?.line2, selectedOrganisation?.city, selectedOrganisation?.country, selectedOrganisation?.postcode].filter(Boolean).join('<br>'),
+    email: selectedOrganisation?.email || '',
+    phone: selectedOrganisation?.phone || '',
   };
 
   return (
@@ -76,6 +187,39 @@ const NetworkOperatorContactDetails: React.FC = () => {
                 <li>{error}</li>
               </ul>
             </div>
+          </div>
+        )}
+
+        {/* Organisation/contact dropdown for selection if multiple options */}
+        {options.length > 1 && (
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="networkOperatorContact">
+              Select applicant contact
+            </label>
+            <select
+              id="networkOperatorContact"
+              name="networkOperatorContact"
+              className="govuk-select"
+              style={{ width: '100%' }}
+              value={selectedOrgName || ''}
+              onChange={handleOperatorChange}
+              required
+            >
+              <option value="" disabled>Select one...</option>
+              {options.map((opt: OrganisationContact) => (
+                <option key={opt.organisation_id || opt.organisation_name} value={opt.organisation_name}>{opt.organisation_name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Fallback message if no contact available */}
+        {options.length === 0 && (
+          <div className="govuk-warning-text">
+            <span className="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong className="govuk-warning-text__text">
+              No applicant contact details found. Please ensure your account is set up correctly.
+            </strong>
           </div>
         )}
 
@@ -138,10 +282,10 @@ const NetworkOperatorContactDetails: React.FC = () => {
                 </div>
                 {contactIsConfirmed === false && (
                   <div className="govuk-radios__conditional">
-                    <p>
+                    <p className="govuk-body">
                       If any of the contact details are not correct or missing then the contact person must update their account details on EIP. You will not be allowed to submit the application until all details are provided and correct.
                     </p>
-                    <p>
+                    <p className="govuk-body">
                       The contact can update their details by logging into their account on EIP and going to the ‘Update My Details’ link shown in the left-hand menu on the workbasket page.
                     </p>
                   </div>

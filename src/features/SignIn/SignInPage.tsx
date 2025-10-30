@@ -11,7 +11,7 @@ const SignInPage: React.FC = () => {
   const handleNWLSignIn = () => {
   // const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL_NWL || 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login-nwl';
   // window.location.href = loginUrl;
-  navigate('/who-is-applying');
+  navigate('/nwl/who-is-applying');
   }
 
   return (

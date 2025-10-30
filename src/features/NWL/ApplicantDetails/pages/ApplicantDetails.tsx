@@ -10,29 +10,30 @@ type NetworkOperator = {
 };
 
 const ApplicantDetails: React.FC = () => {
-  const setApplication = useApplicationStore((state) => state.setApplication);
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
   const navigate = useNavigate();
   const locationObj = useLocation();
   const params = new URLSearchParams(locationObj.search);
   const appId = params.get('id');
-  const networkOperatorOptions: NetworkOperator[] =
-    (locationObj.state as { networkOperatorOptions?: NetworkOperator[] })
-      ?.networkOperatorOptions || [];
+  const networkOperatorOptions: NetworkOperator[] = React.useMemo(() => {
+    return (
+      (locationObj.state as { networkOperatorOptions?: NetworkOperator[] })?.networkOperatorOptions || []
+    );
+  }, [locationObj.state]);
   const [networkOperatorRef, setNetworkOperatorRef] = useState("");
   const [location, setLocation] = useState("choose");
   const [emailAddress, setEmailAddress] = useState("");
   const [additionalContacts, setAdditionalContacts] = useState<string[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [showErrorSummary, setShowErrorSummary] = useState(false);
-  const [selectedOrganisation, setSelectedOrganisation] = useState<any | null>(null);
+  const [selectedOrganisation, setSelectedOrganisation] = useState<NetworkOperator | null>(null);
 
   // Sync selectedOrganisation with dropdown selection
   React.useEffect(() => {
     if (location && location !== "choose") {
       const org = networkOperatorOptions.find(
-        (op: any) => op.full_name === location
+        (op: NetworkOperator) => op.full_name === location
       );
       setSelectedOrganisation(org || null);
     } else {
@@ -45,6 +46,22 @@ const ApplicantDetails: React.FC = () => {
       fetchAndSetApplication(appId);
     }
   }, [appId, fetchAndSetApplication]);
+
+  // Bind application data to local state when loaded
+  useEffect(() => {
+    if (application) {
+      if (application.operator_ref !== undefined && application.operator_ref !== null) {
+        setNetworkOperatorRef(application.operator_ref);
+      }
+      const partyOrgName = application.application_party?.organisation_name;
+      if (partyOrgName && networkOperatorOptions.length > 0) {
+        const org = networkOperatorOptions.find(
+          (opt: NetworkOperator) => opt.organisation_name && opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
+        );
+        setSelectedOrganisation(org || null);
+      }
+    }
+  }, [application, networkOperatorOptions]);
 
   const handleAddContact = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,54 +93,47 @@ const ApplicantDetails: React.FC = () => {
           // You may want to set created_by from user context if available
         };
         app = await useApplicationStore.getState().startApplication(newAppData);
-        setApplication(app);
       }
-      // Update application with operator_ref in backend using saveNetworkOperator
+      // Always update main application object with operator_ref
+      useApplicationStore.getState().setApplication({
+        application_id: app.application_id,
+        type: app?.type || '',
+        operator_ref: networkOperatorRef,
+        status: app?.status || '',
+        created_by: app?.created_by || '',
+        created_at: app?.created_at || '',
+        submitted_at: app?.submitted_at || '',
+        application_party: {
+          party_type: app?.application_party?.party_type ?? '',
+          organisation_name: selectedOrganisation?.organisation_name ?? '',
+          line1: selectedOrganisation?.line1 ?? '',
+          line2: selectedOrganisation?.line2 ?? '',
+          city: selectedOrganisation?.city ?? '',
+          postcode: selectedOrganisation?.postcode ?? '',
+          country: selectedOrganisation?.country ?? '',
+          email: selectedOrganisation?.email ?? '',
+          phone: selectedOrganisation?.phone ?? '',
+          organisation_id: selectedOrganisation?.organisation_id ?? '',
+          person_id: selectedOrganisation?.person_id ?? '',
+          contact_id: selectedOrganisation?.party_contact_id ?? '',
+          is_primary: true,
+          contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? false,
+        },
+      });
+      // Optionally, still call saveNetworkOperator if needed for backend
       try {
-        // Only send allowed fields to backend
         const payload = {
           application_id: app.application_id,
           operator_ref: networkOperatorRef,
           is_primary: true,
           contact_isconfirmed: true,
-          organisation_id: selectedOrganisation?.organisation_id ?? "",
-          person_id: selectedOrganisation?.person_id ?? "",
-          contact_id: selectedOrganisation?.party_contact_id ?? "",
           role: 'Applicant',
         };
-        const result = await applicationApiService.saveNetworkOperator(payload);
-        setApplication(result.application);
+        await applicationApiService.saveNetworkOperator(payload);
       } catch {
-        // Mimic NetworkOperatorDetails: set all required fields except role
-        // Use correct type for party so all required fields are available
-        setApplication({
-          application_id: app.application_id,
-          type: app?.type || "",
-          operator_ref: networkOperatorRef,
-          status: app?.status || "",
-          created_by: app?.created_by || "",
-          created_at: app?.created_at || "",
-          submitted_at: app?.submitted_at || "",
-          application_party: {
-            party_type: app?.application_party?.party_type ?? "",
-            organisation_name: selectedOrganisation?.organisation_name ?? "",
-            line1: selectedOrganisation?.line1 ?? "",
-            line2: selectedOrganisation?.line2 ?? "",
-            city: selectedOrganisation?.city ?? "",
-            postcode: selectedOrganisation?.postcode ?? "",
-            country: selectedOrganisation?.country ?? "",
-            email: selectedOrganisation?.email ?? "",
-            phone: selectedOrganisation?.phone ?? "",
-            organisation_id: selectedOrganisation?.organisation_id ?? "",
-            person_id: selectedOrganisation?.person_id ?? "",
-            contact_id: selectedOrganisation?.party_contact_id ?? "",
-            is_primary: true,
-            contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? false,
-          },
-        });
+        // Handle error if needed
       }
-  // Proceed to next page
-  navigate(`/network-operator-contact-details?id=${app.application_id}`);
+      navigate(`/nwl/network-operator-contact-details?id=${app.application_id}`);
     }
   };
 

@@ -16,7 +16,7 @@ import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
 import RouteDeletePage from '../features/RouteMap/page/RouteDeletePage';
 import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
-import WhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
+import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
 import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDetails';
 import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
 import NWLTaskList from '../features/NWL/TaskList';
@@ -35,25 +35,25 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path:'/who-is-applying',
-    component: WhoIsApplying,
+    path:'/nwl/who-is-applying',
+    component: NWLWhoIsApplying,
     auth: true,
     layout: true
   },
   {
-    path: '/applicant-details',
+    path: '/nwl/applicant-details',
     component: ApplicantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/network-operator-contact-details',
+    path: '/nwl/network-operator-contact-details',
     component: NWLNetworkOperatorContactDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl-task-list',
+    path: '/nwl/task-list',
     component: NWLTaskList,
     auth: true,
     layout: true

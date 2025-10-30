@@ -89,7 +89,7 @@ const WhoIsApplying: React.FC = () => {
         is_primary: true,
       },
     });
-  navigate(`/applicant-details?id=${app.application_id}`, { state: { networkOperatorOptions: options } });
+  navigate(`/nwl/applicant-details?id=${app.application_id}`, { state: { networkOperatorOptions: options } });
   };
 
   return (

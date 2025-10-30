@@ -42,7 +42,7 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                   onClick={e => {
                     e.preventDefault();
                     if (app.type === 'NWL') {
-                      navigate(`/nwl/task-list?id=${app.application_id}`);
+                      navigate(`/nwl-task-list?id=${app.application_id}`);
                     } else {
                       navigate(`/task-list?id=${app.application_id}`);
                     }
@@ -65,7 +65,7 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                   onClick={e => {
                     e.preventDefault();
                     if (app.type === 'NWL') {
-                      navigate(`/nwl/task-list?id=${app.application_id}`);
+                      navigate(`/nwl-task-list?id=${app.application_id}`);
                     } else {
                       navigate(`/task-list?id=${app.application_id}`);
                     }

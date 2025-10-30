@@ -35,7 +35,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/applicant-details?id=${appId}`}>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/applicant-details?id=${appId}`}>
 										<strong>Applicant details</strong>
 									</a>
 								</div>
@@ -45,7 +45,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/network-operator-contact-details?id=${appId}`}>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/network-operator-contact-details?id=${appId}`}>
 										<strong>Check applicant contact details</strong>
 									</a>
 								</div>
