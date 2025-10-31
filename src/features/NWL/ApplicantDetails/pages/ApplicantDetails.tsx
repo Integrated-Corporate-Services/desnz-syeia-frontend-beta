@@ -7,6 +7,7 @@ type NetworkOperator = {
   organisation_name: string;
   full_name: string;
   line1?: string;
+  person_name?: string;
 };
 
 const ApplicantDetails: React.FC = () => {
@@ -17,9 +18,7 @@ const ApplicantDetails: React.FC = () => {
   const params = new URLSearchParams(locationObj.search);
   const appId = params.get('id');
   const networkOperatorOptions: NetworkOperator[] = React.useMemo(() => {
-    return (
-      (locationObj.state as { networkOperatorOptions?: NetworkOperator[] })?.networkOperatorOptions || []
-    );
+    return (locationObj.state as { networkOperatorOptions?: NetworkOperator[] })?.networkOperatorOptions || [];
   }, [locationObj.state]);
   const [networkOperatorRef, setNetworkOperatorRef] = useState("");
   const [location, setLocation] = useState("choose");
@@ -53,13 +52,19 @@ const ApplicantDetails: React.FC = () => {
       if (application.operator_ref !== undefined && application.operator_ref !== null) {
         setNetworkOperatorRef(application.operator_ref);
       }
-      const partyOrgName = application.application_party?.organisation_name;
-      if (partyOrgName && networkOperatorOptions.length > 0) {
-        const org = networkOperatorOptions.find(
-          (opt: NetworkOperator) => opt.organisation_name && opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
+      const partyFullName = application.application_party?.person_name;
+      let org: NetworkOperator | undefined;
+      if (partyFullName && networkOperatorOptions.length > 0) {
+        org = networkOperatorOptions.find(
+          (opt: NetworkOperator) => opt.full_name && opt.full_name.trim().toLowerCase() === partyFullName.trim().toLowerCase()
         );
-        setSelectedOrganisation(org || null);
       }
+      // Fallback: if no full_name in application_party, select first available contact
+      if (!org && networkOperatorOptions.length > 0) {
+        org = networkOperatorOptions[0];
+      }
+      setSelectedOrganisation(org || null);
+      setLocation(org?.full_name || "choose");
     }
   }, [application, networkOperatorOptions]);
 
@@ -99,6 +104,7 @@ const ApplicantDetails: React.FC = () => {
         application_id: app.application_id,
         type: app?.type || '',
         operator_ref: networkOperatorRef,
+        operator_name: selectedOrganisation?.organisation_name ?? '',
         status: app?.status || '',
         created_by: app?.created_by || '',
         created_at: app?.created_at || '',
@@ -107,17 +113,9 @@ const ApplicantDetails: React.FC = () => {
           party_type: app?.application_party?.party_type ?? '',
           organisation_name: selectedOrganisation?.organisation_name ?? '',
           line1: selectedOrganisation?.line1 ?? '',
-          line2: selectedOrganisation?.line2 ?? '',
-          city: selectedOrganisation?.city ?? '',
-          postcode: selectedOrganisation?.postcode ?? '',
-          country: selectedOrganisation?.country ?? '',
-          email: selectedOrganisation?.email ?? '',
-          phone: selectedOrganisation?.phone ?? '',
-          organisation_id: selectedOrganisation?.organisation_id ?? '',
-          person_id: selectedOrganisation?.person_id ?? '',
-          contact_id: selectedOrganisation?.party_contact_id ?? '',
           is_primary: true,
           contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? false,
+          person_name: selectedOrganisation?.person_name || '',
         },
       });
       // Optionally, still call saveNetworkOperator if needed for backend

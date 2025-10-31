@@ -1,3 +1,27 @@
+// Service to fetch a single asset by applicationId and assetId
+export const getAssetById = async (applicationId: string, assetId: string) => {
+  try {
+    console.log('[getAssetById] applicationId:', applicationId, 'assetId:', assetId);
+    const url = `/backend/api/applications/${applicationId}/assets/${assetId}`;
+    console.log('[getAssetById] GET URL:', url);
+    const response = await axios.get(url);
+    console.log('[getAssetById] response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('[getAssetById] Error fetching asset by id:', error);
+    throw error;
+  }
+};
+// Service to delete asset by applicationId and assetId
+export const deleteAsset = async (applicationId: string, assetId: string) => {
+  try {
+    const response = await axios.delete(`/backend/api/applications/${applicationId}/assets/${assetId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting asset:', error);
+    throw error;
+  }
+};
 import axios from 'axios';
 
 // Service to fetch asset details from the backend
@@ -16,7 +40,9 @@ export const fetchAssetDetails = async (applicationId: string) => {
 
 import type { AssetRequest } from '../types/asset';
 export const createAsset = async (payload: AssetRequest) => {
-  const response = await axios.post('/backend/api/applications/assets', payload);
+  const url = '/backend/api/applications/assets';
+  console.log('[createAsset] POST URL:', url);
+  const response = await axios.post(url, payload);
   return response.data;
 };
 

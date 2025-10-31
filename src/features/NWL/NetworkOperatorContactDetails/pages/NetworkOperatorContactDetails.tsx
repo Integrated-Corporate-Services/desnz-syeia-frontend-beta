@@ -116,53 +116,8 @@ const NetworkOperatorContactDetails: React.FC = () => {
       return;
     }
     setError('');
-  const app = application;
-    if (!app || !app.application_id) {
-      setError('No application found.');
-      return;
-    }
-    useApplicationStore.getState().setApplication({
-      application_id: app.application_id,
-      type: app.type || '',
-      operator_ref: app.operator_ref,
-      status: app.status || '',
-      created_by: app.created_by || '',
-      created_at: app.created_at || '',
-      submitted_at: app.submitted_at || '',
-      application_party: {
-        party_type: app?.application_party?.party_type ?? '',
-        organisation_name: selectedOrganisation?.organisation_name || '',
-        line1: selectedOrganisation?.line1 || '',
-        line2: selectedOrganisation?.line2 || '',
-        city: selectedOrganisation?.city || '',
-        postcode: selectedOrganisation?.postcode || '',
-        country: selectedOrganisation?.country || '',
-        email: selectedOrganisation?.email || '',
-        phone: selectedOrganisation?.phone || '',
-        organisation_id: selectedOrganisation?.organisation_id,
-        person_id: selectedOrganisation?.person_id,
-        contact_id: selectedOrganisation?.party_contact_id || selectedOrganisation?.contact_id,
-        is_primary: true,
-        contact_isconfirmed: contactIsConfirmed,
-      },
-    });
-    navigate(`/nwl/network-operator-contact-details?id=${app.application_id}`);
-
-    await useApplicationStore.getState().saveNetworkOperator({
-      application_id: app.application_id,
-      operator_ref: app.operator_ref,
-      organisation_id: selectedOrganisation?.organisation_id || '',
-      person_id: selectedOrganisation?.person_id || '',
-      contact_id: selectedOrganisation?.party_contact_id || selectedOrganisation?.contact_id || '',
-      role: 'Applicant',
-      is_primary: true,
-      contact_isconfirmed: contactIsConfirmed,
-    });
-    if (app && app.application_id) {
-      navigate(`/nwl/task-list?id=${app.application_id}`);
-    } else {
-      navigate('/nwl/task-list');
-    }
+    // Only navigate, do not send anything to the DB or update the store
+    navigate(`/nwl/task-list?id=${appId || ''}`);
   };
 
   // Prepare contact details for summary
@@ -239,7 +194,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
             <div className="govuk-summary-list__row">
               <dt className="govuk-summary-list__key">Email address</dt>
               <dd className="govuk-summary-list__value">
-                <a href={`mailto:${contactDetails.email}`}>{contactDetails.email}</a>
+                {contactDetails.email}
               </dd>
             </div>
             <div className="govuk-summary-list__row">

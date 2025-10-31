@@ -20,6 +20,7 @@ import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying'
 import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDetails';
 import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
 import NWLTaskList from '../features/NWL/TaskList';
+import NWLAssets from '../features/NWL/Assets/pages/Assets';
 
 export const ROUTE_CONFIG = [
   {
@@ -49,6 +50,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/nwl/network-operator-contact-details',
     component: NWLNetworkOperatorContactDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/assets',
+    component: NWLAssets,
     auth: true,
     layout: true
   },
