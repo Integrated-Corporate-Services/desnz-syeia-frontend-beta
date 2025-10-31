@@ -145,7 +145,9 @@ const Asset: React.FC = () => {
     try {
       const { deleteAsset } = await import('../../../../services/asset-service');
       await deleteAsset(applicationId, assetToDelete.assetId);
-      window.location.reload();
+      // Remove from local assets state for instant UI feedback
+      setAssets(prev => prev.filter((_, i) => i !== index));
+      await fetchAssets(applicationId); // Also refetch from store for consistency
     } catch {
       setErrors({ description: "Failed to delete asset. Please try again." });
       setShowErrorSummary(true);
