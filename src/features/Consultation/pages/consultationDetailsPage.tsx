@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { ConsultationDetails } from "../../../types/ConsultationDetails";
 import { Link } from "react-router-dom";
@@ -60,7 +59,10 @@ const ConsultationDetailsPage: React.FC = () => {
             <ConsultationSummaryCard
               key={consultation.id}
               orgName={consultation.consulteeOrganisationName}
+              consultationName={consultation.otherConsultee || consultation.consulteeOrganisationName}
               status={consultation.status}
+              consultationId={consultation.id}
+              applicationId={applicationId}
             />
           ))}
 

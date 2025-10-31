@@ -16,7 +16,10 @@ import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
 import RouteDeletePage from '../features/RouteMap/page/RouteDeletePage';
 import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
-import ConsultationPage from '../features/Consultation/pages/ConsultationDetailsPage';
+import ConsultationPage from '../features/Consultation/pages/consultationDetailsPage';
+import consulteeApplicationDetails from '../features/Consultation/pages/consulteeApplicationInfo';
+import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
+
 export const ROUTE_CONFIG = [
   {
     path: '/signin',
@@ -141,6 +144,18 @@ export const ROUTE_CONFIG = [
   {
     path: '/consultation-details',
     component: ConsultationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/consultation/consultee-application-details',
+    component: consulteeApplicationDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/sendApplicationToConsultee',
+    component: SendApplicationToConsultee,
     auth: true,
     layout: true
   },

@@ -112,7 +112,7 @@ const NetworkOperatorDetails = () => {
     if (!networkOperatorReference.trim()) {
       newErrors.reference = 'Network operator reference is required.';
     } else if (!allowedReferenceRegex.test(networkOperatorReference)) {
-      newErrors.reference = 'Only letters, numbers, spaces, and hyphens are allowed.';
+      newErrors.reference = 'You can only enter letters, numbers, spaces and hyphens';
     }
     if (!selectedOrgName.trim()) {
       newErrors.organisation = 'Please select a network operator organisation.';
