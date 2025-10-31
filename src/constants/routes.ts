@@ -21,6 +21,8 @@ import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDe
 import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
 import NWLTaskList from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
+import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
+import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 
 export const ROUTE_CONFIG = [
   {
@@ -62,6 +64,18 @@ export const ROUTE_CONFIG = [
   {
     path: '/nwl/task-list',
     component: NWLTaskList,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/landowner-occupant-details',
+    component: LandownerOccupantDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/application-and-land-details',
+    component: ApplicationLandDetails,
     auth: true,
     layout: true
   },
