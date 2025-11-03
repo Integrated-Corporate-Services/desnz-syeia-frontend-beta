@@ -106,7 +106,6 @@ const ProjectOverview = () => {
 	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
 	 const { user } = useAuthUser();
 	  const userId = user?.user_id;
-	  console.log('Authenticated user ID:', userId);
 	// Helper to get applicationId from store, params, or query string
 	const getApplicationId = () => {
 		if (application?.application_id) return application.application_id;
@@ -360,8 +359,11 @@ const ProjectOverview = () => {
 							newErrors.push('<a href="#latestWorkStartDate-year">Latest expected start date must be a real year</a>');
 						}
 					}
-					// For file upload, you may need to check file input value or uploaded files
-					// newErrors.push('<a href="#planInformationDocuments">Upload plan information documents</a>');
+					// File upload validation
+					if (!formState.uploadedFiles || formState.uploadedFiles.length === 0) {
+						newErrors.push('<a href="#planInformationDocuments">Upload plan information documents</a>');
+						newFieldErrors.uploadedFiles = "Upload plan information documents";
+					}
 					if (!formState.hasRelatedApplications) {
 						newErrors.push('<a href="#hasRelatedApplications">Select yes if there are related applications</a>');
 						newFieldErrors.hasRelatedApplications = "Select yes if there are related applications";
@@ -653,28 +655,33 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Plan Information Documents */}
-					<div className="govuk-form-group">
-				<fieldset className="govuk-fieldset">
-					<label className="govuk-label" style={{ fontWeight: 600 }}>
-						{projectOverview.planInformationDocuments}
-					</label>
-					<FileUpload
-						title=''
-						prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
-						applicationId={applicationId}
-						category={FILE_CATEGORIES.PLAN_INFO}
-						addedBy={userId}
-						uploadedFiles={formState.uploadedFiles}
-						onUploaded={(newUploadedFiles, newProjectDocuments) => {
-							setFormState(prev => ({
-								...prev,
-								uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
-								applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
-							}));
-						}}
-					/>
-				</fieldset>
-			</div>
+					<div id="planInformationDocuments" className={`govuk-form-group${fieldErrors?.uploadedFiles ? " govuk-form-group--error" : ""}`}> 
+						<fieldset className="govuk-fieldset">
+							<label className="govuk-label" style={{ fontWeight: 600 }}>
+								{projectOverview.planInformationDocuments}
+							</label>
+							{fieldErrors?.uploadedFiles && (
+								<p id="planInformationDocuments-error" className="govuk-error-message">
+									<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
+								</p>
+							)}
+							<FileUpload
+								title=''
+								prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
+								applicationId={applicationId}
+								category={FILE_CATEGORIES.PLAN_INFO}
+								addedBy={userId}
+								uploadedFiles={formState.uploadedFiles}
+								onUploaded={(newUploadedFiles, newProjectDocuments) => {
+									setFormState(prev => ({
+										...prev,
+										uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
+										applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
+									}));
+								}}
+							/>
+						</fieldset>
+					</div>
 
 					{/* Details: What information should be included in the plan */}
 					<details className="govuk-details">
@@ -802,7 +809,7 @@ const ProjectOverview = () => {
 									</div>
 								)}
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="hasRelatedApplications-no" name="hasRelatedApplications" type="radio" value="false" checked={formState.hasRelatedApplications === "false"} onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "false" }))} />
+									<input className="govuk-radios__input" id="hasRelatedApplications-no" name="hasRelatedApplications" type="radio" value="false" checked={formState.hasRelatedApplications === "false"} onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplications: [] }))} />
 									<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications-no">No</label>
 								</div>
 							</div>
