@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
+import { networkOperatorApiService } from "../../../../services/networkOperatorApiService";
+import type { ApplicationParty } from '../../../../types/application';
+import { useAuthUserContext } from "../../../../context/AuthUserContext";
+import type { AuthUser } from '../../../../types/auth';
 import { applicationApiService } from "../../../../services/applicationApiService";
-
-type NetworkOperator = {
-  organisation_name: string;
-  full_name: string;
-  line1?: string;
-  person_name?: string;
-};
 
 const ApplicantDetails: React.FC = () => {
   const application = useApplicationStore((state) => state.application);
@@ -17,28 +14,115 @@ const ApplicantDetails: React.FC = () => {
   const locationObj = useLocation();
   const params = new URLSearchParams(locationObj.search);
   const appId = params.get('id');
-  const networkOperatorOptions: NetworkOperator[] = React.useMemo(() => {
-    return (locationObj.state as { networkOperatorOptions?: NetworkOperator[] })?.networkOperatorOptions || [];
-  }, [locationObj.state]);
+  const [options, setOptions] = useState<ApplicationParty[]>([]);
   const [networkOperatorRef, setNetworkOperatorRef] = useState("");
-  const [location, setLocation] = useState("choose");
+  const [selectedOrgName, setSelectedOrgName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [additionalContacts, setAdditionalContacts] = useState<string[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [showErrorSummary, setShowErrorSummary] = useState(false);
-  const [selectedOrganisation, setSelectedOrganisation] = useState<NetworkOperator | null>(null);
+  const [selectedOrganisation, setSelectedOrganisation] = useState<ApplicationParty | null>(null);
+  const { user } = useAuthUserContext();
 
-  // Sync selectedOrganisation with dropdown selection
-  React.useEffect(() => {
-    if (location && location !== "choose") {
-      const org = networkOperatorOptions.find(
-        (op: NetworkOperator) => op.full_name === location
-      );
-      setSelectedOrganisation(org || null);
-    } else {
+  // Fetch dropdown options and bind application data
+  useEffect(() => {
+    let isMounted = true;
+    type NetworkOperator = {
+      organisation_id: string;
+      organisation_name: string;
+      person_id: string;
+      party_contact_id: string;
+      full_name?: string;
+      line1?: string;
+      line2?: string;
+      town_city?: string;
+      country?: string;
+      postcode?: string;
+      email?: string;
+      phone?: string;
+    };
+    const fetchOptionsAndBind = async () => {
+      let orgOptions: ApplicationParty[] = [];
+      try {
+        const emailId = (user as AuthUser)?.email;
+        let data: NetworkOperator[] = [];
+        if (typeof emailId === 'string' && emailId) {
+          data = await networkOperatorApiService.getNetworkOperatorByEmail(emailId);
+        } else {
+          data = [];
+        }
+        orgOptions = Array.isArray(data)
+          ? data.map(opt => ({
+              organisation_id: opt.organisation_id,
+              organisation_name: opt.organisation_name,
+              person_id: opt.person_id,
+              contact_id: opt.party_contact_id,
+              person_name: opt.full_name || opt.organisation_name,
+              line1: opt.line1,
+              line2: opt.line2,
+              city: opt.town_city,
+              country: opt.country,
+              postcode: opt.postcode,
+              email: opt.email,
+              phone: opt.phone,
+              party_type: '',
+              is_primary: true,
+              contact_isconfirmed: true,
+            }))
+          : [];
+      } catch {
+        orgOptions = [];
+      }
+      if (!isMounted) return;
+      setOptions(orgOptions);
+
+      // Bind application data to form fields
+      if (application) {
+        const partyPersonName = application.application_party?.person_name;
+        if (partyPersonName && orgOptions.length > 0) {
+          const org = orgOptions.find(
+            opt =>
+              opt.person_name &&
+              opt.person_name.trim().toLowerCase() === partyPersonName.trim().toLowerCase()
+          );
+          setSelectedOrganisation(org || null);
+        }
+      }
+    };
+    fetchOptionsAndBind();
+    return () => { isMounted = false; };
+  }, [application, user]);
+
+  // Keep selectedOrgName in sync with application
+  useEffect(() => {
+    if (application?.application_party?.person_name) {
+      setSelectedOrgName(application.application_party.person_name);
+    }
+  }, [application]);
+
+  // Do NOT auto-select the first option; require user selection
+  useEffect(() => {
+    if (options.length > 0 && !selectedOrgName) {
+      setSelectedOrgName(""); // Keep dropdown empty
       setSelectedOrganisation(null);
     }
-  }, [location, networkOperatorOptions]);
+  }, [options, selectedOrgName]);
+
+  // Always set dropdown selection to the first name in the options list
+  useEffect(() => {
+    if (options.length > 0) {
+      setSelectedOrgName(options[0].person_name);
+      setSelectedOrganisation(options[0]);
+    }
+  }, [options]);
+
+  // When user selects from dropdown, update selectedOrganisation
+  const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedName = e.target.value;
+    setSelectedOrgName(selectedName);
+    const org = options.find(opt => opt.person_name === selectedName);
+    setSelectedOrganisation(org || null);
+  };
 
   useEffect(() => {
     if (appId) {
@@ -48,25 +132,10 @@ const ApplicantDetails: React.FC = () => {
 
   // Bind application data to local state when loaded
   useEffect(() => {
-    if (application) {
-      if (application.operator_ref !== undefined && application.operator_ref !== null) {
-        setNetworkOperatorRef(application.operator_ref);
-      }
-      const partyFullName = application.application_party?.person_name;
-      let org: NetworkOperator | undefined;
-      if (partyFullName && networkOperatorOptions.length > 0) {
-        org = networkOperatorOptions.find(
-          (opt: NetworkOperator) => opt.full_name && opt.full_name.trim().toLowerCase() === partyFullName.trim().toLowerCase()
-        );
-      }
-      // Fallback: if no full_name in application_party, select first available contact
-      if (!org && networkOperatorOptions.length > 0) {
-        org = networkOperatorOptions[0];
-      }
-      setSelectedOrganisation(org || null);
-      setLocation(org?.full_name || "choose");
+    if (application && application.operator_ref !== undefined && application.operator_ref !== null) {
+      setNetworkOperatorRef(application.operator_ref);
     }
-  }, [application, networkOperatorOptions]);
+  }, [application?.operator_ref]);
 
   const handleAddContact = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +151,7 @@ const ApplicantDetails: React.FC = () => {
     if (!networkOperatorRef.trim()) {
       newErrors.push("Enter an Applicant’s reference");
     }
-    if (location === "choose" || !location) {
+    if (!selectedOrgName.trim()) {
       newErrors.push("Select the network operator");
     }
     setErrors(newErrors);
@@ -103,18 +172,26 @@ const ApplicantDetails: React.FC = () => {
       useApplicationStore.getState().setApplication({
         application_id: app.application_id,
         type: app?.type || '',
-        operator_ref: networkOperatorRef,
-        operator_name: selectedOrganisation?.organisation_name ?? '',
+        operator_ref: networkOperatorRef, // Ensure reference is set
         status: app?.status || '',
         created_by: app?.created_by || '',
         created_at: app?.created_at || '',
         submitted_at: app?.submitted_at || '',
         application_party: {
           party_type: app?.application_party?.party_type ?? '',
-          organisation_name: selectedOrganisation?.organisation_name ?? '',
-          line1: selectedOrganisation?.line1 ?? '',
+          organisation_id: selectedOrganisation?.organisation_id || '',
+          person_id: selectedOrganisation?.person_id || '',
+          contact_id: selectedOrganisation?.contact_id || '',
           is_primary: true,
-          contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? false,
+          contact_isconfirmed: true,
+          organisation_name: selectedOrganisation?.organisation_name || '',
+          line1: selectedOrganisation?.line1 || '',
+          line2: selectedOrganisation?.line2 || '',
+          city: selectedOrganisation?.city || '',
+          country: selectedOrganisation?.country || '',
+          postcode: selectedOrganisation?.postcode || '',
+          email: selectedOrganisation?.email || '',
+          phone: selectedOrganisation?.phone || '',
           person_name: selectedOrganisation?.person_name || '',
         },
       });
@@ -122,7 +199,7 @@ const ApplicantDetails: React.FC = () => {
       try {
         const payload = {
           application_id: app.application_id,
-          operator_ref: networkOperatorRef,
+          operator_ref: networkOperatorRef, // Ensure reference is sent in payload
           is_primary: true,
           contact_isconfirmed: true,
           role: 'Applicant',
@@ -223,14 +300,14 @@ const ApplicantDetails: React.FC = () => {
                   className="govuk-select"
                   id="location"
                   name="location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  value={selectedOrgName}
+                  onChange={handleOperatorChange}
                   aria-describedby="location-hint"
                 >
-                  <option value="choose">Select option...</option>
-                  {networkOperatorOptions.map((op: NetworkOperator) => (
-                    <option key={op.full_name} value={op.full_name}>
-                      {op.full_name}
+                  <option value="">Select person...</option>
+                  {options.map((op: ApplicationParty) => (
+                    <option key={op.organisation_id || op.person_name} value={op.person_name}>
+                      {op.person_name}
                     </option>
                   ))}
                 </select>
