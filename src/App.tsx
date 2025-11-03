@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import * as GOVUKFrontend from 'govuk-frontend';
 import { BrowserRouter, useLocation } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import AppRouter from './routes/AppRouter';
@@ -8,6 +9,13 @@ import { ROUTE_CONFIG } from './constants/routes';
 
 const AppContent = () => {
   const location = useLocation();
+  // Enhance GOV.UK JS on every route change
+  useEffect(() => {
+    if (typeof GOVUKFrontend.initAll === 'function') {
+      GOVUKFrontend.initAll();
+    }
+  }, [location]);
+
   // If the current route is 404, render NotFound outside MainLayout
   const validPaths = [
     ...ROUTE_CONFIG.map(route => route.path),

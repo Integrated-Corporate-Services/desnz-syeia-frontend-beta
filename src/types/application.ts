@@ -23,6 +23,7 @@ export type ApplicationParty = {
   organisation_id?: string;
   person_id?: string;
   contact_id?: string;
-   is_primary: boolean | null;
+  is_primary: boolean | null;
   contact_isconfirmed?: boolean | null;
+  person_name?: string;
 };

@@ -41,7 +41,11 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                   href="#"
                   onClick={e => {
                     e.preventDefault();
-                    navigate(`/task-list?id=${app.application_id}`);
+                    if (app.type === 'NWL') {
+                      navigate(`/nwl/task-list?id=${app.application_id}`);
+                    } else {
+                      navigate(`/task-list?id=${app.application_id}`);
+                    }
                   }}
                   className="govuk-link"
                 >
@@ -60,7 +64,11 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                   className="govuk-link govuk-!-static-margin-right-2"
                   onClick={e => {
                     e.preventDefault();
-                    navigate(`/task-list?id=${app.application_id}`);
+                    if (app.type === 'NWL') {
+                      navigate(`/nwl/task-list?id=${app.application_id}`);
+                    } else {
+                      navigate(`/task-list?id=${app.application_id}`);
+                    }
                   }}
                 >
                   View
