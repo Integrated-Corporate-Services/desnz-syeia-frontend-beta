@@ -1,3 +1,5 @@
+  import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
+
 import TaskList from '../features/TaskList/pages/TaskList';
 import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOperatorDetails';
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -162,6 +164,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/post-consultation-actions',
     component: ComingSoon,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/consultation-request-sent',
+    component: ConsultationRequestSent,
     auth: true,
     layout: true
   },

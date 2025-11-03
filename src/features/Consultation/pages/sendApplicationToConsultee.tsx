@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { getConsultationPack } from "../../../services/consultationPackService";
+import { sendNotificationEmail } from '../../../services/notifyService';
 
 const SendApplicationToConsultee: React.FC = () => {
   const location = useLocation();
@@ -16,6 +17,9 @@ const SendApplicationToConsultee: React.FC = () => {
   const [uploadedFiles, setPackUploadedFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendSuccess, setSendSuccess] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -37,6 +41,32 @@ const SendApplicationToConsultee: React.FC = () => {
     if (consultationId && applicationId) fetchData();
   }, [consultationId, applicationId]);
 
+  const handleSendRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    setSendError(null);
+    setSendSuccess(false);
+    try {
+      const subject = (document.getElementById('subject') as HTMLInputElement)?.value || '';
+      const message = (document.getElementById('message') as HTMLTextAreaElement)?.value || '';
+      await sendNotificationEmail({
+        to: orgEmail,
+        subject,
+        message,
+        consultationId,
+        applicationId,
+        sections: packSections,
+        documents: packDocuments,
+        uploadedFiles,
+      });
+      // Redirect to confirmation page with applicationId
+      navigate(`/consultation-request-sent?applicationId=${applicationId}`);
+    } catch (err: any) {
+      setSendError(err.message || 'Failed to send email');
+    } finally {
+      setSending(false);
+    }
+  };
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="govuk-error-message">{error}</div>;
 
@@ -66,7 +96,9 @@ const SendApplicationToConsultee: React.FC = () => {
             <p className="govuk-body govuk-!-margin-bottom-6">
               Review the details and documents you're about to send.
             </p>
-            <form className="govuk-!-margin-bottom-8">
+            <form className="govuk-!-margin-bottom-8" onSubmit={handleSendRequest}>
+  {sendError && <div className="govuk-error-message">{sendError}</div>}
+  {sendSuccess && <div className="govuk-notification-banner govuk-notification-banner--success"><div className="govuk-notification-banner__content">Email sent successfully!</div></div>}
               <div className="govuk-form-group">
                 <label className="govuk-label govuk-label--m" htmlFor="org-email">
                   Organisation email address
@@ -86,13 +118,13 @@ const SendApplicationToConsultee: React.FC = () => {
                 <label className="govuk-label govuk-label--m" htmlFor="subject">
                   Subject
                 </label>
-                <input className="govuk-input" id="subject" name="subject" type="text" />
+                <input className="govuk-input" id="subject" name="subject" type="text" defaultValue="test subject" />
               </div>
               <div className="govuk-form-group">
                 <label className="govuk-label govuk-label--m" htmlFor="message">
                   Message
                 </label>
-                <textarea className="govuk-textarea" id="message" name="message" rows={5}></textarea>
+                <textarea className="govuk-textarea" id="message" name="message" rows={5} defaultValue="test message"></textarea>
               </div>
             </form>
           </div>
@@ -179,7 +211,15 @@ const SendApplicationToConsultee: React.FC = () => {
         {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
           <button type="button" className="govuk-button govuk-button--secondary">Save for later</button>
-          <button type="submit" className="govuk-button" style={{ backgroundColor: '#00703c' }}>Send request</button>
+          <button
+            type="button"
+            className="govuk-button"
+            style={{ backgroundColor: '#00703c' }}
+            disabled={sending}
+            onClick={handleSendRequest}
+          >
+            {sending ? 'Sending...' : 'Send request'}
+          </button>
         </div>
       </main>
     </div>

@@ -63,6 +63,7 @@ const ConsultationDetailsPage: React.FC = () => {
               status={consultation.status}
               consultationId={consultation.id}
               applicationId={applicationId}
+              dateRequestCreated={consultation.lastUpdatedAt ?? undefined}
             />
           ))}
 

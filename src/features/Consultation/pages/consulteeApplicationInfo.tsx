@@ -6,18 +6,8 @@ import { getConsultationPack ,saveConsultationPack} from "../../../services/cons
 import { PackSection, ConsultationPack } from '../../../types/consultationPack';
 import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCategoryConstants';
 import FileUpload from '../../../components/FileUpload';
+import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 
-const sections = [
-  "Network operator details",
-  "Network operator contact details",
-  "Project overview",
-  "Assets information",
-  "Route",
-  "Works overview",
-  "Sensitive area checks",
-  "Sensitive area review",
-  "Parishes",
-];
 
 
 
@@ -46,10 +36,10 @@ useEffect(() => {
   }
 }, []);
   // Document checkbox handler
-  function handleDocumentSelect(documentId: string) {
+  function handleDocumentSelect(packDocumentId: string) {
     setPackDocuments(prevDocs => {
       const updated = prevDocs.map(doc =>
-        doc.documentId === documentId ? { ...doc, include: !doc.include } : doc
+        doc.packDocumentId === packDocumentId ? { ...doc, include: !doc.include } : doc
       );
       setSelectAllDocuments(updated.length > 0 && updated.every(d => d.include));
       return updated;
@@ -79,7 +69,7 @@ useEffect(() => {
       let initialSections: PackSection[] = [];
       if (!consultationPack.packSections || consultationPack.packSections.length === 0) {
         // Create new list of packSections with default values
-        initialSections = sections.map((sectionKey, idx) => ({
+        initialSections = CONSULTATION_SECTIONS.map((sectionKey: string, idx: number) => ({
           packSectionId: '',
           packId: consultationPack.pack?.packId || '',
           sectionKey,
@@ -95,7 +85,6 @@ useEffect(() => {
         initialSections = consultationPack.packSections;
       }
       setPackSections(initialSections);
-      setSelectAllSections(initialSections.length > 0 && initialSections.every(s => s.include));
 
       // --- NEW LOGIC FOR PACK DOCUMENTS ---
       let combinedPackDocuments: any[] = [];
@@ -107,7 +96,7 @@ useEffect(() => {
         const newPackDocuments = consultationPack.appDocs.map((doc: any) => ({
           packDocumentId: '',
           packId: consultationPack.pack?.packId || '',
-          documentId: doc.documentId,
+          documentId: doc.document_id || doc.documentId, // Support both naming conventions
           documentTitle: doc.title || '',
           documentCategory: doc.category || '',
           include: false,
@@ -165,10 +154,14 @@ useEffect(() => {
       return;
     }
     setErrorMessage(null);
+    // Sort packSections by CONSULTATION_SECTIONS order before saving
+    const sortedPackSections = [...packSections].sort((a, b) =>
+      CONSULTATION_SECTIONS.indexOf(a.sectionKey) - CONSULTATION_SECTIONS.indexOf(b.sectionKey)
+    ).map((section, idx) => ({ ...section, sortOrder: idx + 1 }));
     const packObj: ConsultationPack = {
       consultation: consultationPack?.consultation || { id: consultationId, applicationId },
       pack: consultationPack?.pack || { packId: '', consultationId, createdAt: '', createdBy: user?.user_id || '', lastUpdatedAt: '', lastUpdatedBy: user?.user_id || '' },
-      packSections,
+      packSections: sortedPackSections,
       packDocuments,
       uploadedFiles: consultationPack?.uploadedFiles || [],
       applicationDocuments: consultationPack?.applicationDocuments || [],
@@ -374,7 +367,7 @@ useEffect(() => {
                                 name={`doc-${idx}`}
                                 type="checkbox"
                                 checked={doc.include}
-                                onChange={() => handleDocumentSelect(doc.documentId)}
+                                onChange={() => handleDocumentSelect(doc.packDocumentId)}
                               />
                               <label className="govuk-checkboxes__label govuk-!-margin-bottom-0 govuk-!-text-align-left" htmlFor={`doc-${idx}`} style={{ marginLeft: '8px', whiteSpace: 'wrap', minWidth: '220px', textAlign: 'left' }}>
                                 {FILE_CATEGORY_LABELS[doc.documentCategory] || doc.documentCategory || 'document'}
