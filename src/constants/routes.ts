@@ -21,6 +21,13 @@ import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
 import ConsultationPage from '../features/Consultation/pages/consultationDetailsPage';
 import consulteeApplicationDetails from '../features/Consultation/pages/consulteeApplicationInfo';
 import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
+import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
+import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDetails';
+import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
+import NWLTaskList from '../features/NWL/TaskList';
+import NWLAssets from '../features/NWL/Assets/pages/Assets';
+import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
+import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 
 export const ROUTE_CONFIG = [
   {
@@ -32,6 +39,48 @@ export const ROUTE_CONFIG = [
   {
     path: '/workbasket',
     component: Workbasket,
+    auth: true,
+    layout: true
+  },
+  {
+    path:'/nwl/who-is-applying',
+    component: NWLWhoIsApplying,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/applicant-details',
+    component: ApplicantDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/network-operator-contact-details',
+    component: NWLNetworkOperatorContactDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/assets',
+    component: NWLAssets,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/task-list',
+    component: NWLTaskList,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/landowner-occupant-details',
+    component: LandownerOccupantDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/nwl/application-and-land-details',
+    component: ApplicationLandDetails,
     auth: true,
     layout: true
   },
