@@ -58,7 +58,7 @@ const ApplicantDetails: React.FC = () => {
               person_id: opt.person_id,
               contact_id: opt.party_contact_id,
               person_name: opt.full_name || opt.organisation_name,
-              line1: opt.line1,
+              line1: opt.line1 ?? "",
               line2: opt.line2,
               city: opt.town_city,
               country: opt.country,
@@ -111,7 +111,7 @@ const ApplicantDetails: React.FC = () => {
   // Always set dropdown selection to the first name in the options list
   useEffect(() => {
     if (options.length > 0) {
-      setSelectedOrgName(options[0].person_name);
+  setSelectedOrgName(options[0].person_name ?? "");
       setSelectedOrganisation(options[0]);
     }
   }, [options]);
@@ -185,7 +185,7 @@ const ApplicantDetails: React.FC = () => {
           is_primary: true,
           contact_isconfirmed: null,
           organisation_name: selectedOrganisation?.organisation_name || '',
-          line1: selectedOrganisation?.line1 || '',
+          line1: selectedOrganisation?.line1 ?? '',
           line2: selectedOrganisation?.line2 || '',
           city: selectedOrganisation?.city || '',
           country: selectedOrganisation?.country || '',
