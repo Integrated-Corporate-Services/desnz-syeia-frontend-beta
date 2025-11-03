@@ -183,7 +183,7 @@ const ApplicantDetails: React.FC = () => {
           person_id: selectedOrganisation?.person_id || '',
           contact_id: selectedOrganisation?.contact_id || '',
           is_primary: true,
-          contact_isconfirmed: true,
+          contact_isconfirmed: null,
           organisation_name: selectedOrganisation?.organisation_name || '',
           line1: selectedOrganisation?.line1 || '',
           line2: selectedOrganisation?.line2 || '',

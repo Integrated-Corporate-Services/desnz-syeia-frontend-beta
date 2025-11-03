@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import type { AuthUser } from '../../../../types/auth';
@@ -29,77 +27,79 @@ const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
 
-  const application = useApplicationStore(state => state.application);
-  const setOrganisation = useApplicationStore(state => state.setOrganisation);
-  const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const appId = params.get('id');
-  const { user } = useAuthUserContext();
-  const emailId = (user as AuthUser)?.email;
+    const application = useApplicationStore(state => state.application);
+    const setOrganisation = useApplicationStore(state => state.setOrganisation);
+    const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const appId = params.get('id');
+    const { user } = useAuthUserContext();
+    const emailId = (user as AuthUser)?.email;
 
-  // Fetch application if not loaded
-  useEffect(() => {
-    if (!application && appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, application, fetchAndSetApplication]);
+    // Fetch application if not loaded
+    useEffect(() => {
+      if (!application && appId) {
+        fetchAndSetApplication(appId);
+      }
+    }, [appId, application, fetchAndSetApplication]);
 
-  // Fetch dropdown options and bind application data
-  useEffect(() => {
-    let isMounted = true;
-    const fetchOptionsAndBind = async () => {
-    let orgOptions: OrganisationContact[] = [];
-      try {
-        if (typeof emailId === 'string' && emailId) {
-          const data = await networkOperatorApiService.getNetworkOperatorByEmail(emailId);
-          orgOptions = Array.isArray(data) ? data : [];
-        } else {
+    // Fetch dropdown options and bind application data
+    useEffect(() => {
+      let isMounted = true;
+      const fetchOptionsAndBind = async () => {
+      let orgOptions: OrganisationContact[] = [];
+        try {
+          if (typeof emailId === 'string' && emailId) {
+            const data = await networkOperatorApiService.getNetworkOperatorByEmail(emailId);
+            orgOptions = Array.isArray(data) ? data : [];
+          } else {
+            orgOptions = [];
+          }
+        } catch {
           orgOptions = [];
         }
-      } catch {
-        orgOptions = [];
-      }
-      if (!isMounted) return;
-      setOptions(orgOptions);
+        if (!isMounted) return;
+        setOptions(orgOptions);
 
-      // Bind application data to form fields
-      if (application) {
-        const partyOrgName = application.application_party?.organisation_name;
-        if (partyOrgName && orgOptions.length > 0) {
-          const org = orgOptions.find(
-            opt =>
-              opt.organisation_name &&
-              opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
-          );
-          setSelectedOrganisation(org || null);
-          setOrganisation(org || null);
-          setSelectedOrgName(partyOrgName);
+        // Bind application data to form fields
+        if (application) {
+          const partyOrgName = application.application_party?.organisation_name;
+          if (partyOrgName && orgOptions.length > 0) {
+            const org = orgOptions.find(
+              opt =>
+                opt.organisation_name &&
+                opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
+            );
+            setSelectedOrganisation(org || null);
+            setOrganisation(org || null);
+            setSelectedOrgName(partyOrgName);
+          }
         }
+      };
+      fetchOptionsAndBind();
+      return () => { isMounted = false; };
+    }, [emailId, application, setOrganisation]);
+
+    // After options are set, select the first organisation by default if none is selected
+    useEffect(() => {
+      if (options.length > 0 && !selectedOrgName) {
+        setSelectedOrgName(options[0].organisation_name || '');
+        setSelectedOrganisation(options[0]);
+        setOrganisation(options[0]);
       }
-    };
-    fetchOptionsAndBind();
-    return () => { isMounted = false; };
-  }, [emailId, application, setOrganisation]);
+    }, [options, selectedOrgName, setOrganisation]);
 
-  // After options are set, select the first organisation by default if none is selected
-  useEffect(() => {
-    if (options.length > 0 && !selectedOrgName) {
-      setSelectedOrgName(options[0].organisation_name || '');
-      setSelectedOrganisation(options[0]);
-      setOrganisation(options[0]);
-    }
-  }, [options, selectedOrgName, setOrganisation]);
+    // Keep contactIsConfirmed in sync with store
 
-  // Keep contactIsConfirmed in sync with application
+  const party = application?.application_party;
   useEffect(() => {
-    if (application?.application_party && typeof application.application_party.contact_isconfirmed === 'boolean') {
-      setContactIsConfirmed(application.application_party.contact_isconfirmed);
+    if (party && typeof party.contact_isconfirmed === 'boolean') {
+      setContactIsConfirmed(party.contact_isconfirmed);
     } else {
-      setContactIsConfirmed(null);
+      setContactIsConfirmed(null); // Ensure no selection by default
     }
-  }, [application]);
+  }, [party?.contact_isconfirmed]);
 
   const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedName = e.target.value;
@@ -210,31 +210,37 @@ const NetworkOperatorContactDetails: React.FC = () => {
               </legend>
               <div className="govuk-radios" data-module="govuk-radios">
                 <div className="govuk-radios__item">
-                  <input
-                    className="govuk-radios__input"
-                    id="contactIsConfirmed-yes"
-                    name="contactIsConfirmed"
-                    type="radio"
-                    checked={contactIsConfirmed === true}
-                    onChange={() => setContactIsConfirmed(true)}
-                  />
-                  <label className="govuk-label govuk-radios__label" htmlFor="contactIsConfirmed-yes">
-                    Yes
-                  </label>
-                </div>
-                <div className="govuk-radios__item">
-                  <input
-                    className="govuk-radios__input"
-                    id="contactIsConfirmed-no"
-                    name="contactIsConfirmed"
-                    type="radio"
-                    checked={contactIsConfirmed === false}
-                    onChange={() => setContactIsConfirmed(false)}
-                  />
-                  <label className="govuk-label govuk-radios__label" htmlFor="contactIsConfirmed-no">
-                    No
-                  </label>
-                </div>
+                          <input
+                            className="govuk-radios__input"
+                            id="contactIsConfirmed-yes"
+                            name="contactIsConfirmed"
+                            type="radio"
+                            checked={contactIsConfirmed === true}
+                            onChange={() => {
+                              setContactIsConfirmed(true);
+                              setError('');
+                            }}
+                          />
+                          <label className="govuk-label govuk-radios__label" htmlFor="contactIsConfirmed-yes">
+                            Yes
+                          </label>
+                        </div>
+                        <div className="govuk-radios__item">
+                          <input
+                            className="govuk-radios__input"
+                            id="contactIsConfirmed-no"
+                            name="contactIsConfirmed"
+                            type="radio"
+                            checked={contactIsConfirmed === false}
+                            onChange={() => {
+                              setContactIsConfirmed(false);
+                              setError('');
+                            }}
+                          />
+                          <label className="govuk-label govuk-radios__label" htmlFor="contactIsConfirmed-no">
+                            No
+                          </label>
+                        </div>
                 {contactIsConfirmed === false && (
                   <div className="govuk-radios__conditional">
                     <p className="govuk-body">

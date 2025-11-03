@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const LandownerOccupantDetails: React.FC = () => {
@@ -14,7 +14,63 @@ const LandownerOccupantDetails: React.FC = () => {
   const [repContactPhone, setRepContactPhone] = useState("");
   const [errors, setErrors] = useState<{[key:string]:string}>({});
   const [showRepFields, setShowRepFields] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Fetch landowner/occupant/rep details from backend
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const applicationId = searchParams.get('id') || searchParams.get('applicationId') || '';
+    console.log('LandownerOccupantDetails: applicationId', applicationId);
+    if (!applicationId) {
+      console.warn('No applicationId found in query string.');
+      return;
+    }
+
+    const url = `/backend/api/nwl/landowner-occupant-details/${applicationId}`;
+    console.log('LandownerOccupantDetails: GET', url);
+    fetch(url)
+      .then(res => {
+        console.log('LandownerOccupantDetails: response', res);
+        if (!res.ok) {
+          console.error('LandownerOccupantDetails: fetch error', res.status, res.statusText);
+          throw new Error(`Error ${res.status}: ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('LandownerOccupantDetails: data', data);
+        if (data.landowners && data.landowners.length > 0) {
+          setClassification('Owner');
+          setName(data.landowners[0].full_name || '');
+          setFullAddress(data.landowners[0].address_id || '');
+          setContactEmail(data.landowners[0].email || '');
+          setContactPhone(data.landowners[0].phone || '');
+        }
+        if (data.occupants && data.occupants.length > 0) {
+          setClassification('Occupier');
+          setName(data.occupants[0].full_name || '');
+          setFullAddress(data.occupants[0].address_id || '');
+          setContactEmail(data.occupants[0].email || '');
+          setContactPhone(data.occupants[0].phone || '');
+        }
+        if (data.representatives && data.representatives.length > 0) {
+          setGrantorRep('Yes');
+          setShowRepFields(true);
+          setGrantorRepDescription(data.representatives[0].full_name || '');
+          setGrantorRepAddress(data.representatives[0].address_id || '');
+          setRepContactEmail(data.representatives[0].email || '');
+          setRepContactPhone(data.representatives[0].phone || '');
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('LandownerOccupantDetails: fetch catch', err);
+        setFetchError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +91,9 @@ const LandownerOccupantDetails: React.FC = () => {
 
   return (
     <main className="govuk-main-wrapper" id="main-content">
+      {loading && (
+        <div className="govuk-body">Loading landowner/occupant details...</div>
+      )}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
