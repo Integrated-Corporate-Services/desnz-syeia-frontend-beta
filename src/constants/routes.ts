@@ -193,8 +193,20 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
+  path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/consultee-application-details`,
+    component: consulteeApplicationDetails,
+    auth: true,
+    layout: true
+  },
+  {
   path: `${S37_BASE_URL}/:applicationId/consultation/consultee-application-details`,
     component: consulteeApplicationDetails,
+    auth: true,
+    layout: true
+  },
+  {
+  path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/send-application-to-consultee`,
+    component: SendApplicationToConsultee,
     auth: true,
     layout: true
   },

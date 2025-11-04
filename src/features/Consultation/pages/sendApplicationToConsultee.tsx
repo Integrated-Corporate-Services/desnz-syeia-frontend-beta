@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { S37_BASE_URL } from '../../../constants/s37';
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import { getConsultationPack } from "../../../services/consultationPackService";
 import { sendNotificationEmail } from '../../../services/notifyService';
 
 const SendApplicationToConsultee: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const params = useParams();
   const searchParams = new URLSearchParams(location.search);
-  const consultationId = searchParams.get("consultationId") || "";
-  const applicationId = searchParams.get("applicationId") || "";
+  const consultationId = params.consultationId || searchParams.get("consultationId") || "";
+  const applicationId = params.applicationId || searchParams.get("applicationId") || "";
 
   const [consultationName, setConsultationName] = useState("");
   const [orgEmail, setOrgEmail] = useState("");
@@ -60,8 +61,7 @@ const SendApplicationToConsultee: React.FC = () => {
         documents: packDocuments,
         uploadedFiles,
       });
-  // Redirect to confirmation page with applicationId
-  navigate(`${S37_BASE_URL}/${applicationId}/consultation-request-sent?applicationId=${applicationId}`);
+  navigate(`${S37_BASE_URL}/${applicationId}/consultation-request-sent`);
     } catch (err: any) {
       setSendError(err.message || 'Failed to send email');
     } finally {

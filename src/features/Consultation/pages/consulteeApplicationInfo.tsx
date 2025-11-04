@@ -26,7 +26,8 @@ const consulteeApplicationInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const consultationId = searchParams.get("consultationId") || "";
+  // Read consultationId from path params if available, fallback to query param
+  const consultationId = params.consultationId || searchParams.get("consultationId") || "";
   const consultationName = searchParams.get("consultationName") || "";
   const navigate = useNavigate();
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -171,12 +172,9 @@ useEffect(() => {
     try {
       await saveConsultationPack(packObj);
       if (validate) {
-        // Navigate to sendApplicationToConsultee page, passing consultationName and orgEmail
-        const consultationName = consultationPack?.consultation?.org_name || consultationPack?.consultation?.consultationName || '';
-        const orgEmail = consultationPack?.consultation?.default_email || '';
-  navigate(`${S37_BASE_URL}/${applicationId}/send-application-to-consultee?consultationId=${encodeURIComponent(consultationId)}&applicationId=${encodeURIComponent(applicationId)}`);
+        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/send-application-to-consultee`);
       } else {
-  navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+        navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to save');

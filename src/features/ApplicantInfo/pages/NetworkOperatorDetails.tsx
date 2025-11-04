@@ -3,7 +3,7 @@ import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import React, { useState, useEffect } from 'react';
 import { useApplicationStore } from '../../../store/useApplicationStore';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, useParams } from 'react-router-dom';
 import { CONTENT } from '../../../constants/content';
 import { networkOperatorApiService } from '../../../services/networkOperatorApiService';
 
@@ -21,8 +21,8 @@ const NetworkOperatorDetails = () => {
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const navigate = useNavigate();
   const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const appId = params.get('id');
+  const routeParams = useParams();
+  const appId = routeParams.applicationId || '';
   const { user } = useAuthUserContext();
   const emailId = (user as AuthUser)?.email;
 
@@ -108,6 +108,7 @@ const NetworkOperatorDetails = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('handleSubmit called');
     e.preventDefault();
     const newErrors: { reference?: string; organisation?: string } = {};
     if (!networkOperatorReference.trim()) {
@@ -121,17 +122,35 @@ const NetworkOperatorDetails = () => {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    if (application && application.application_id) {
-      useApplicationStore.getState().setApplication({
-        application_id: application.application_id,
-        type: application.type || '',
+    let app = application;
+    const type = 'S37';
+    const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
+
+    if (appId) {
+      console.log('Calling updateApplicantInfo with:', appId, networkOperatorReference, type);
+      app = await useApplicationStore.getState().updateApplicantInfo(appId, networkOperatorReference, type);
+      console.log('Updated app:', app);
+    } else {
+      const newAppData = {
+        type,
         operator_ref: networkOperatorReference,
-        status: application.status || '',
-        created_by: application.created_by || '',
-        created_at: application.created_at || '',
-        submitted_at: application.submitted_at || '',
+        status: 'Draft',
+        created_by: createdBy,
+      };
+      app = await useApplicationStore.getState().startApplication(newAppData);
+    }
+
+    if (app) {
+      useApplicationStore.getState().setApplication({
+        application_id: app.application_id,
+        type: app.type || '',
+        operator_ref: networkOperatorReference,
+        status: app.status || '',
+        created_by: app.created_by || '',
+        created_at: app.created_at || '',
+        submitted_at: app.submitted_at || '',
         application_party: {
-          party_type: application?.application_party?.party_type ?? '',
+          party_type: app?.application_party?.party_type ?? '',
           organisation_name: selectedOrganisation?.organisation_name || '',
           line1: selectedOrganisation?.line1 || '',
           line2: selectedOrganisation?.line2 || '',
@@ -144,10 +163,12 @@ const NetworkOperatorDetails = () => {
           person_id: selectedOrganisation?.person_id,
           contact_id: selectedOrganisation?.party_contact_id,
           is_primary: true,
-          contact_isconfirmed: application?.application_party?.contact_isconfirmed ?? null,
+          contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? null,
         },
       });
-  navigate(`${S37_BASE_URL}/${application.application_id}/network-operator-contact-details`);
+      navigate(`${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`);
+    } else {
+      setErrors(prev => ({ ...prev, reference: 'Failed to save application. Please try again.' }));
     }
   };
 
