@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { S37_BASE_URL } from '../../../constants/s37';
 
 type Application = {
   application_id: string;
@@ -42,9 +43,9 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                   onClick={e => {
                     e.preventDefault();
                     if (app.type === 'NWL') {
-                      navigate(`/nwl/task-list?id=${app.application_id}`);
+                      navigate(`/NWL/${app.application_id}/task-list`);
                     } else {
-                      navigate(`/task-list?id=${app.application_id}`);
+                      navigate(`${S37_BASE_URL}/${app.application_id}/task-list`);
                     }
                   }}
                   className="govuk-link"
@@ -65,9 +66,9 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                   onClick={e => {
                     e.preventDefault();
                     if (app.type === 'NWL') {
-                      navigate(`/nwl/task-list?id=${app.application_id}`);
+                      navigate(`/NWL/${app.application_id}/task-list`);
                     } else {
-                      navigate(`/task-list?id=${app.application_id}`);
+                      navigate(`${S37_BASE_URL}/${app.application_id}/task-list`);
                     }
                   }}
                 >

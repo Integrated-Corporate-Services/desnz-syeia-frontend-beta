@@ -1,3 +1,4 @@
+import { S37_BASE_URL } from '../../../constants/s37';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import React, { useState, useEffect } from 'react';
@@ -120,42 +121,34 @@ const NetworkOperatorDetails = () => {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    let app = application;
-    if (!app || !app.application_id) {
-      const newAppData = {
-        type: 'S37',
+    if (application && application.application_id) {
+      useApplicationStore.getState().setApplication({
+        application_id: application.application_id,
+        type: application.type || '',
         operator_ref: networkOperatorReference,
-        status: 'Draft',
-  created_by: (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '',
-      };
-      app = await useApplicationStore.getState().startApplication(newAppData);
+        status: application.status || '',
+        created_by: application.created_by || '',
+        created_at: application.created_at || '',
+        submitted_at: application.submitted_at || '',
+        application_party: {
+          party_type: application?.application_party?.party_type ?? '',
+          organisation_name: selectedOrganisation?.organisation_name || '',
+          line1: selectedOrganisation?.line1 || '',
+          line2: selectedOrganisation?.line2 || '',
+          city: selectedOrganisation?.city || '',
+          postcode: selectedOrganisation?.postcode || '',
+          country: selectedOrganisation?.country || '',
+          email: selectedOrganisation?.email || '',
+          phone: selectedOrganisation?.phone || '',
+          organisation_id: selectedOrganisation?.organisation_id,
+          person_id: selectedOrganisation?.person_id,
+          contact_id: selectedOrganisation?.party_contact_id,
+          is_primary: true,
+          contact_isconfirmed: application?.application_party?.contact_isconfirmed ?? null,
+        },
+      });
+  navigate(`${S37_BASE_URL}/${application.application_id}/network-operator-contact-details`);
     }
-    useApplicationStore.getState().setApplication({
-      application_id: app.application_id,
-      type: app.type || '',
-      operator_ref: networkOperatorReference,
-      status: app.status || '',
-      created_by: app.created_by || '',
-      created_at: app.created_at || '',
-      submitted_at: app.submitted_at || '',
-      application_party: {
-        party_type: app?.application_party?.party_type ?? '',
-        organisation_name: selectedOrganisation?.organisation_name || '',
-        line1: selectedOrganisation?.line1 || '',
-        line2: selectedOrganisation?.line2 || '',
-        city: selectedOrganisation?.city || '',
-        postcode: selectedOrganisation?.postcode || '',
-        country: selectedOrganisation?.country || '',
-        email: selectedOrganisation?.email || '',
-        phone: selectedOrganisation?.phone || '',
-        organisation_id: selectedOrganisation?.organisation_id,
-        person_id: selectedOrganisation?.person_id,
-        contact_id: selectedOrganisation?.party_contact_id,
-        is_primary: true,
-        contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? null,
-      },
-    });
-    navigate(`/network-operator-contact-details?id=${app.application_id}`);
   };
 
   // Button label logic
@@ -176,7 +169,7 @@ const NetworkOperatorDetails = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${application?.application_id || ''}`}>
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${application?.application_id || ''}/task-list`}>
               {CONTENT.networkOperatorContact.breadcrumb.taskList}
             </Link>
           </li>

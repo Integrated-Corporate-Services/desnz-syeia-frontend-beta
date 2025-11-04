@@ -1,3 +1,4 @@
+import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSupportingInfoStore } from "../../../store/useSupportingInfoStore";
@@ -134,7 +135,7 @@ const SupportingInfo: React.FC = () => {
           response?.application_overview?.application_id ||
           applicationId ||
           '';
-        navigate(`/task-list?id=${redirectId}`);
+  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
       } catch (err: any) {
         setErrors([{ key: 'save', message: err?.message || 'Failed to save supporting information' }]);
       }
@@ -160,7 +161,7 @@ const SupportingInfo: React.FC = () => {
   <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
   <ol className="govuk-breadcrumbs__list">
     <li className="govuk-breadcrumbs__list-item">
-      <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${applicationId}`}>
+  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
         Task list
       </Link>
     </li>

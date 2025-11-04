@@ -1,15 +1,14 @@
 
 import React from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { S37_BASE_URL } from '../../../constants/s37';
+import { useLocation, Link, useNavigate, useParams } from 'react-router-dom';
 import eipSimpleRoute from '../../../assets/eip_simple_route-1.png';
 import eipMultipleRoutes from '../../../assets/eip_multiple_routes-2.png';
 import eipRouteOverview from '../../../assets/eip_route_overview-3.png';
 
 const RouteGuidancePage: React.FC = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const params = new URLSearchParams(location.search);
-  const applicationId = params.get('id') || '';
+  const { applicationId } = useParams();
   return (
     <div className="govuk-width-container">
       <nav
@@ -19,7 +18,7 @@ const RouteGuidancePage: React.FC = () => {
       >
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
-            <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${applicationId}`}>
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
               Task list
             </Link>
           </li>
@@ -111,7 +110,7 @@ const RouteGuidancePage: React.FC = () => {
           type="button"
           className="govuk-button govuk-button--primary"
           style={{ marginTop: '2rem' }}
-          onClick={() => navigate(`/route-map?id=${applicationId}`)}
+          onClick={() => navigate(`${S37_BASE_URL}/${applicationId}/route-map`)}
         >
           Add a route
         </button>

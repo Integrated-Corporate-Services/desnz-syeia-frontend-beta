@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { S37_BASE_URL } from '../../../constants/s37';
 import { useRouteStore } from '../../../store/useRouteStore';
 
 interface RouteEntryProps {
@@ -20,12 +21,12 @@ const RouteEntry: React.FC<RouteEntryProps> = ({ applicationId, children }) => {
     try {
       const data = await getRoutesWithPoints(applicationId);
       if (data && data.routes && data.routes.length > 0) {
-        navigate(`/route-overview/${applicationId}`);
+        navigate(`${S37_BASE_URL}/${applicationId}/route-overview`);
       } else {
-        navigate(`/route-guidance?id=${applicationId}`);
+        navigate(`${S37_BASE_URL}/${applicationId}/route-guidance`);
       }
     } catch (err) {
-      navigate(`/route-guidance?id=${applicationId}`);
+  navigate(`${S37_BASE_URL}/${applicationId}/route-guidance`);
     } finally {
       setLoading(false);
     }

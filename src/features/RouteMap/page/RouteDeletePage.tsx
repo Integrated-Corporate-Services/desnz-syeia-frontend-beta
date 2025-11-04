@@ -1,4 +1,5 @@
 import React from 'react';
+import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
 
@@ -34,7 +35,7 @@ const RouteDeletePage: React.FC = () => {
     const hasRoutes = Array.isArray(latestRoutes) && latestRoutes.length > 0;
     const bannerState = { state: { routeDeletedName: routeName } };
     if (!hasRoutes) {
-      navigate(`/task-list?id=${applicationId || ''}`, bannerState);
+  navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);
     } else {
       navigate('/route-overview/' + (applicationId || ''), bannerState);
     }

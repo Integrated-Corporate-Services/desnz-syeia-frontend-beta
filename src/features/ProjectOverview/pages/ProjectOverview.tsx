@@ -1,3 +1,4 @@
+import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStore } from '../../../store/useProjectStore';
@@ -254,12 +255,12 @@ const ProjectOverview = () => {
 			<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 				<ol className="govuk-breadcrumbs__list">
 					<li className="govuk-breadcrumbs__list-item">
-						<Link
-							className="govuk-breadcrumbs__link"
-							to={`/task-list?id=${applicationId}`}
-						>
-							{projectOverview.breadcrumb.taskList}
-						</Link>
+									<Link
+										className="govuk-breadcrumbs__link"
+										to={`${S37_BASE_URL}/${applicationId}/task-list`}
+									>
+										{projectOverview.breadcrumb.taskList}
+									</Link>
 					</li>
 					<li className="govuk-breadcrumbs__list-item" aria-current="page">{projectOverview.breadcrumb.current}</li>
 				</ol>
@@ -446,7 +447,7 @@ const ProjectOverview = () => {
 								response?.application_overview?.application_id ||
 								applicationIdForSave ||
 								'';
-							navigate(`/task-list?id=${redirectId}`);
+							  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
 						})
 						.catch((err: any) => {
 							setErrors([err.message || 'Failed to save project overview']);

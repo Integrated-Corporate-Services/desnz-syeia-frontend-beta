@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { S37_BASE_URL } from '../../../constants/s37';
 import { Link, useParams, useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../hooks/useAuthUser";
@@ -173,9 +174,9 @@ useEffect(() => {
         // Navigate to sendApplicationToConsultee page, passing consultationName and orgEmail
         const consultationName = consultationPack?.consultation?.org_name || consultationPack?.consultation?.consultationName || '';
         const orgEmail = consultationPack?.consultation?.default_email || '';
-  navigate(`/sendApplicationToConsultee?consultationId=${encodeURIComponent(consultationId)}&applicationId=${encodeURIComponent(applicationId)}`);
+  navigate(`${S37_BASE_URL}/${applicationId}/send-application-to-consultee?consultationId=${encodeURIComponent(consultationId)}&applicationId=${encodeURIComponent(applicationId)}`);
       } else {
-        navigate(`/task-list?id=${applicationId}`);
+  navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to save');
@@ -206,7 +207,7 @@ useEffect(() => {
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
             <Link
-              to={`/task-list?id=${applicationId}`}
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
               className="govuk-breadcrumbs__link"
             >
               Task list

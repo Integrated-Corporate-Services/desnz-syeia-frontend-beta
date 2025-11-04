@@ -10,6 +10,8 @@
   return undefined;
 }
 import React, { useState, useEffect } from 'react';
+import { S37_BASE_URL } from '../../../constants/s37';
+import { Link } from 'react-router-dom';
 import SensitiveAreaCheckMap, { RoutePoint as BaseRoutePoint } from '../../../components/SensitiveAreaCheckMap';
 import RoutePointCard from '../component/RoutePointCard';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -160,7 +162,7 @@ const RouteMapPage: React.FC = () => {
         await deleteRoutePoints(pointsToDelete);
         setPointsToDelete([]); // Clear after successful delete
       }
-      navigate(`/route-overview/${effectiveApplicationId}`);
+  navigate(`${S37_BASE_URL}/${effectiveApplicationId}/route-overview`);
     } catch (err) {
       setSubmitError('Failed to submit route points. Please try again.');
     } finally {
@@ -216,11 +218,15 @@ const RouteMapPage: React.FC = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb" style={{ marginBottom: '2rem' }}>
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
-              <a className="govuk-breadcrumbs__link" href={`/frontend/task-list?id=${effectiveApplicationId}`}>Task list</a>
+              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+                Task list
+              </Link>
             </li>
             {routes.length > 0 && (
               <li className="govuk-breadcrumbs__list-item">
-                <a className="govuk-breadcrumbs__link" href={`/frontend/route-overview/${effectiveApplicationId}`}>Route overview</a>
+                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/route-overview`}>
+                  Route overview
+                </Link>
               </li>
             )}
             <li className="govuk-breadcrumbs__list-item" aria-current="page">{routeName}</li>
@@ -244,14 +250,14 @@ const RouteMapPage: React.FC = () => {
                 Enter the points where your route starts, changes direction and ends by adding <b>new</b> coordinates before or after the previous point. Submit your route after you have entered all of the points.
               </p>
               <div className="govuk-inset-text">
-                <a
-                  href={`/frontend/route-guidance?id=${effectiveApplicationId}`}
+                <Link
                   className="govuk-link"
+                  to={`${S37_BASE_URL}/${effectiveApplicationId}/route-guidance`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   Read the guidance on adding a route or a route spur
-                </a>
+                </Link>
               </div>
               </div>
               <div className="govuk-grid-row">

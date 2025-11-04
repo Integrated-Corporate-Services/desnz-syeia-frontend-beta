@@ -1,3 +1,4 @@
+import { S37_BASE_URL } from '../../../constants/s37';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 
@@ -31,30 +32,19 @@ const NetworkOperatorContactDetails = () => {
       return;
     }
     setError('');
-    let app = application;
-    if (!app || !app.application_id) {
-      const newAppData = {
-        type: 'S37',
-        operator_ref: application?.operator_ref || '',
-        status: 'Draft',
-        created_by,
+    if (application && application.application_id) {
+      await useApplicationStore.getState().saveNetworkOperator({
+        application_id: application.application_id,
+        operator_ref: application.operator_ref,
+        organisation_id: party?.organisation_id,
+        person_id: party?.person_id,
+        contact_id: party?.contact_id,
         role: 'Applicant',
         is_primary: true,
-        created_at: new Date().toISOString(),
-      };
-      app = await useApplicationStore.getState().startApplication(newAppData);
+        contact_isconfirmed: contactIsConfirmed,
+      });
+  navigate(`${S37_BASE_URL}/${application.application_id}/task-list`);
     }
-    await useApplicationStore.getState().saveNetworkOperator({
-      application_id: app.application_id,
-      operator_ref: app.operator_ref,
-      organisation_id: party?.organisation_id,
-      person_id: party?.person_id,
-      contact_id: party?.contact_id,
-      role: 'Applicant',
-      is_primary: true,
-      contact_isconfirmed: contactIsConfirmed,
-    });
-    navigate(`/task-list?id=${app.application_id}`);
   };
 
   return (
@@ -63,7 +53,7 @@ const NetworkOperatorContactDetails = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${application?.application_id || ''}`}>
+              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${application?.application_id || ''}/task-list`}>
                 {CONTENT.networkOperatorContact.breadcrumb.taskList}
               </Link>
             </li>

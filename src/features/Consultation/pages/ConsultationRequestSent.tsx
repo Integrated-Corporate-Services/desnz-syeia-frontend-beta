@@ -1,4 +1,5 @@
 import React from 'react';
+import { S37_BASE_URL } from '../../../constants/s37';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const ConsultationRequestSent: React.FC = () => {
@@ -10,7 +11,7 @@ const ConsultationRequestSent: React.FC = () => {
 
   const handleBack = () => {
     if (applicationId) {
-      navigate(`/consultation-details?id=${applicationId}`);
+  navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } else {
       navigate('/consultation-details');
     }

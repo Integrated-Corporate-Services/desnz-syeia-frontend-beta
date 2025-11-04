@@ -1,3 +1,4 @@
+import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect,useRef } from 'react';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
@@ -158,7 +159,7 @@ const getApplicationId = () => {
       updateAsset(assetPayload)
         .then(() => {
           fetchAssets(effectiveApplicationId);
-          navigate(`/task-list?id=${effectiveApplicationId}`);
+          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
         })
         .catch(() => {
           setErrors({ assetId: '', referenceNumber: ASSET_ERROR_MESSAGES.referenceNumber, lineType: ASSET_ERROR_MESSAGES.lineType, tori_noi: '', lineVoltage: ASSET_ERROR_MESSAGES.lineVoltage, lineLength: ASSET_ERROR_MESSAGES.lineLength });
@@ -168,7 +169,7 @@ const getApplicationId = () => {
       createAsset(assetPayload)
         .then(() => {
           fetchAssets(effectiveApplicationId);
-          navigate(`/task-list?id=${effectiveApplicationId}`);
+          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
         })
         .catch(() => {
           setErrors({ assetId: '', referenceNumber: ASSET_ERROR_MESSAGES.referenceNumber, lineType: ASSET_ERROR_MESSAGES.lineType, tori_noi: '', lineVoltage: ASSET_ERROR_MESSAGES.lineVoltage, lineLength: ASSET_ERROR_MESSAGES.lineLength });
@@ -183,7 +184,7 @@ const getApplicationId = () => {
 					<li className="govuk-breadcrumbs__list-item">
 						<Link
 							className="govuk-breadcrumbs__link"
-							to={`/task-list?id=${applicationId}`}
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
 						>
               Task list
             </Link>

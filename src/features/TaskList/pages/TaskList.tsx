@@ -1,31 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { getInitialSections, updateSectionStatus } from '../../../utils/taskListUtils';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useNavigate, useParams } from 'react-router-dom';
 import RouteEntry from '../../RouteMap/page/RouteEntry';
 import RouteDeletedBanner from '../../RouteMap/component/RouteDeletedBanner';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 
-
 const TaskList: React.FC = () => {
-  // ...existing code...
-  const [showSensitiveAreaPopup, setShowSensitiveAreaPopup] = useState(false);
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const application = useApplicationStore(state => state.application);
-  const [sections, setSections] = useState(getInitialSections(application?.application_id));
+  const { applicationId } = useParams();
+  const [sections, setSections] = useState(getInitialSections(application?.application_id || applicationId));
   useEffect(() => {
-    if (application?.application_id) {
-      setSections(getInitialSections(application.application_id));
+    if (application?.application_id || applicationId) {
+      setSections(getInitialSections(application?.application_id || applicationId));
     }
-  }, [application?.application_id]);
+  }, [application?.application_id, applicationId]);
+  // Fetch application if not present in store but available in route params
+  useEffect(() => {
+    if (!application && applicationId) {
+      fetchAndSetApplication(applicationId);
+    }
+  }, [application, applicationId, fetchAndSetApplication]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ inProgress: boolean; completed: number; total: number } | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-
   // Show RouteDeletedBanner for one render after redirect, then clear state
   const [showBanner, setShowBanner] = useState(false);
   const [deletedRouteName, setDeletedRouteName] = useState<string | null>(null);
+  const [showSensitiveAreaPopup, setShowSensitiveAreaPopup] = useState(false);
   useEffect(() => {
     if (location.state && location.state.routeDeletedName) {
       setShowBanner(true);
@@ -43,15 +47,6 @@ const TaskList: React.FC = () => {
       }, 0);
     }
   }, [location, navigate]);
-  const params = new URLSearchParams(location.search);
-  const appId = params.get('id');
-
-
-  useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, fetchAndSetApplication]);
 
   // Example: update status handler
   const handleStatusUpdate = (sectionIdx: number, itemIdx: number, newStatus: string) => {
@@ -83,25 +78,16 @@ const TaskList: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      {/* Show RouteDeletedBanner for one render after redirect */}
-      {showBanner && deletedRouteName && (
-        <RouteDeletedBanner routeName={deletedRouteName} />
+      {sensitiveAreaStatus && sensitiveAreaStatus.inProgress && (
+        <div style={{ border: '4px solid #2074c7', background: '#eaf4fb', padding: '1rem', marginBottom: '2rem' }}>
+          <strong>Sensitive area checks in progress</strong>
+          <div style={{ marginTop: 8 }}>
+            {`${sensitiveAreaStatus.completed} of ${sensitiveAreaStatus.total} checks completed. You can refresh this page to track the progress`}
+          </div>
+        </div>
       )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          {(showSensitiveAreaPopup || (sensitiveAreaStatus && sensitiveAreaStatus.inProgress)) && (
-            <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" data-govuk-notification-banner-init="" style={{ marginBottom: '24px' }}>
-              <div className="govuk-notification-banner__header">
-                <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                  Sensitive area checks in progress
-                </h2>
-              </div>
-              <div className="govuk-notification-banner__content">
-                <p className="govuk-!-font-weight-bold">
-                 0 of 30 checks completed. You can refresh this page to track the progress  </p>
-              </div>
-            </div>
-          )}
           {application ? (
             <>
               <span className="govuk-caption-l">{application.operator_ref || 'NPOWER LIMITED'}</span>
@@ -133,13 +119,13 @@ const TaskList: React.FC = () => {
                         >
                           {submitting ? 'Submitting...' : 'Submit application'}
                         </button>
-                      ) : appId ? (
+                      ) : (application?.application_id || applicationId) ? (
                         item.name === 'Route' ? (
-                          <RouteEntry applicationId={appId || ''}>
-                            <Link className="govuk-link" to={`${item.link}?id=${appId}`}>{item.name}</Link>
+                          <RouteEntry applicationId={(application?.application_id || applicationId) ?? ''}>
+                            <Link className="govuk-link" to={item.link}>{item.name}</Link>
                           </RouteEntry>
                         ) : (
-                          <Link className="govuk-link" to={`${item.link}?id=${appId}`}>{item.name}</Link>
+                          <Link className="govuk-link" to={item.link}>{item.name}</Link>
                         )
                       ) : (
                         <span className="govuk-link govuk-link--disabled">{item.name}</span>

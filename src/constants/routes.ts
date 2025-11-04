@@ -1,5 +1,3 @@
-  import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
-
 import TaskList from '../features/TaskList/pages/TaskList';
 import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOperatorDetails';
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -20,6 +18,8 @@ import RouteDeletePage from '../features/RouteMap/page/RouteDeletePage';
 import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
 import ConsultationPage from '../features/Consultation/pages/consultationDetailsPage';
 import consulteeApplicationDetails from '../features/Consultation/pages/consulteeApplicationInfo';
+import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
+import { S37_BASE_URL } from './s37';
 import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
 import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
 import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDetails';
@@ -91,133 +91,127 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path: '/task-list',
+  path: `${S37_BASE_URL}/:applicationId/task-list`,
     component: TaskList,
     auth: true,
     layout: true
   },
   {
-    path: '/network-operator-details',
+  path: `${S37_BASE_URL}/:applicationId/network-operator-details`,
     component: NetworkOperatorDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/network-operator-contact-details',
+  path: `${S37_BASE_URL}/:applicationId/network-operator-contact-details`,
     component: NetworkOperatorContactDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/asset-information',
+  path: `${S37_BASE_URL}/:applicationId/asset-information`,
     component: AssetInformationForm,
     auth: true,
     layout: true
   },
   {
-    path: '/application-submitted',
+  path: `${S37_BASE_URL}/:applicationId/application-submitted`,
     component: ApplicationSubmitted,
     auth: true,
     layout: true
   },
   {
-    path: '/project-overview',
+  path: `${S37_BASE_URL}/:applicationId/project-overview`,
     component: ProjectOverview,
     auth: true,
     layout: true
   },
   {
-    path: '/route-overview',
+  path: `${S37_BASE_URL}/:applicationId/route-overview`,
     component: RouteOverviewPage,
     auth: true,
     layout: true
   },
   {
-    path: '/route-overview/:applicationId',
-    component: RouteOverviewPage,
-    auth: true,
-    layout: true
-  },
-  {
-    path: '/route-map',
+  path: `${S37_BASE_URL}/:applicationId/route-map`,
     component: RouteMapPage,
     auth: true,
     layout: true
   },
-    {
-    path: '/route-delete',
+  {
+  path: `${S37_BASE_URL}/:applicationId/route-delete`,
     component: RouteDeletePage,
     auth: true,
     layout: true
   },
-    {
-    path: '/route-guidance',
+  {
+  path: `${S37_BASE_URL}/:applicationId/route-guidance`,
     component: RouteGuidancePage,
     auth: true,
     layout: true
   },
   {
-    path: '/sensitive-area-check',
+  path: `${S37_BASE_URL}/:applicationId/sensitive-area-check`,
     component: SensitiveAreaPage,
     auth: true,
     layout: true
   },
   {
-    path: '/sensitive-area-review',
+  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review`,
     component: SensitiveAreaReviewPage,
     auth: true,
     layout: true
   },
   {
-    path: '/works-overview',
+  path: `${S37_BASE_URL}/:applicationId/works-overview`,
     component: WorksOverview,
     auth: true,
     layout: true
   },
   {
-    path: '/parishes',
+  path: `${S37_BASE_URL}/:applicationId/parishes`,
     component: ComingSoon,
     auth: true,
     layout: true
   },
   {
-    path: '/supporting-info',
+  path: `${S37_BASE_URL}/:applicationId/supporting-info`,
     component: SupportingInfo,
     auth: true,
     layout: true
   },
   {
-    path: '/eia-fees',
+  path: `${S37_BASE_URL}/:applicationId/eia-fees`,
     component: EIAFeesForm,
     auth: true,
     layout: true
   },
   {
-    path: '/consultation-details',
+  path: `${S37_BASE_URL}/:applicationId/consultation-details`,
     component: ConsultationPage,
     auth: true,
     layout: true
   },
   {
-    path: '/consultation/consultee-application-details',
+  path: `${S37_BASE_URL}/:applicationId/consultation/consultee-application-details`,
     component: consulteeApplicationDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/sendApplicationToConsultee',
+  path: `${S37_BASE_URL}/:applicationId/send-application-to-consultee`,
     component: SendApplicationToConsultee,
     auth: true,
     layout: true
   },
   {
-    path: '/post-consultation-actions',
+  path: `${S37_BASE_URL}/:applicationId/post-consultation-actions`,
     component: ComingSoon,
     auth: true,
     layout: true
   },
   {
-    path: '/consultation-request-sent',
+  path: `${S37_BASE_URL}/:applicationId/consultation-request-sent`,
     component: ConsultationRequestSent,
     auth: true,
     layout: true
@@ -235,9 +229,9 @@ export const SANDBOX_ROUTE_CONFIG = [
 ];
 
 export const ROUTES = {
-  NETWORK_OPERATOR_DETAILS: '/network-operator-details',
-  TASK_LIST: '/task-list',
-  NETWORK_OPERATOR_CONTACT_DETAILS: '/network-operator-contact-details',
+  NETWORK_OPERATOR_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-details`,
+  TASK_LIST: `${S37_BASE_URL}/:applicationId/task-list`,
+  NETWORK_OPERATOR_CONTACT_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-contact-details`,
 };
 
 export const BASE_URL = import.meta.env.BASE_URL;
