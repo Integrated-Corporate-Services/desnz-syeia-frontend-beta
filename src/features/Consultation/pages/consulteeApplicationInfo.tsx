@@ -66,9 +66,9 @@ useEffect(() => {
 
   useEffect(() => {
     if (!loading && consultationPack) {
+      // --- Preserve user selection for packSections ---
       let initialSections: PackSection[] = [];
       if (!consultationPack.packSections || consultationPack.packSections.length === 0) {
-        // Create new list of packSections with default values
         initialSections = CONSULTATION_SECTIONS.map((sectionKey: string, idx: number) => ({
           packSectionId: '',
           packId: consultationPack.pack?.packId || '',
@@ -84,19 +84,24 @@ useEffect(() => {
       } else {
         initialSections = consultationPack.packSections;
       }
-      setPackSections(initialSections);
+      // Merge with previous packSections to preserve user selection
+      setPackSections(prevSections =>
+        initialSections.map(section => {
+          const prev = prevSections.find(s => s.sectionKey === section.sectionKey);
+          return prev ? { ...section, include: prev.include, mandatory: prev.mandatory } : section;
+        })
+      );
 
-      // --- NEW LOGIC FOR PACK DOCUMENTS ---
+      // --- Preserve user selection for packDocuments ---
       let combinedPackDocuments: any[] = [];
       if (
         consultationPack.appDocs &&
         consultationPack.appDocs.length > 0
       ) {
-        // Create new packDocuments from appDocs (for docs not in packDocuments)
         const newPackDocuments = consultationPack.appDocs.map((doc: any) => ({
           packDocumentId: '',
           packId: consultationPack.pack?.packId || '',
-          documentId: doc.document_id || doc.documentId, // Support both naming conventions
+          documentId: doc.document_id || doc.documentId,
           documentTitle: doc.title || '',
           documentCategory: doc.category || '',
           include: false,
@@ -111,15 +116,18 @@ useEffect(() => {
         combinedPackDocuments = [...newPackDocuments];
       }
       if (consultationPack.packDocuments && consultationPack.packDocuments.length > 0) {
-        // Append existing packDocuments (with their current state)
         combinedPackDocuments = [
           ...combinedPackDocuments,
           ...consultationPack.packDocuments
         ];
       }
-      setPackDocuments(combinedPackDocuments);
-      // --- END NEW LOGIC ---
-
+      // Merge with previous packDocuments to preserve user selection
+      setPackDocuments(prevDocs =>
+        combinedPackDocuments.map(doc => {
+          const prev = prevDocs.find(d => d.documentId === doc.documentId);
+          return prev ? { ...doc, include: prev.include } : doc;
+        })
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, consultationPack, user]);
