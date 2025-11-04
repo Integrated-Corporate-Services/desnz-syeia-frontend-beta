@@ -33,7 +33,6 @@ const SensitiveAreaPage: React.FC = () => {
         setRoutes(data.routes || []);
         // Fetch sensitive area settings
         const settings = await getSensitiveAreaSettings(effectiveApplicationId);
-        console.log('Fetched sensitive area settings:', settings);
         if (Array.isArray(settings) && settings.length > 0) {
           const first = settings[0];
           if (typeof first.tolerance_required === 'boolean') {

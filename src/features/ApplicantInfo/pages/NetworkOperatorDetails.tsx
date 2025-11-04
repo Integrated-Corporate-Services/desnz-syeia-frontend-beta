@@ -6,6 +6,7 @@ import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useNavigate, useLocation, Link, useParams } from 'react-router-dom';
 import { CONTENT } from '../../../constants/content';
 import { networkOperatorApiService } from '../../../services/networkOperatorApiService';
+import log from '../../../logger';
 
 
 const NetworkOperatorDetails = () => {
@@ -108,7 +109,6 @@ const NetworkOperatorDetails = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('handleSubmit called');
     e.preventDefault();
     const newErrors: { reference?: string; organisation?: string } = {};
     if (!networkOperatorReference.trim()) {
@@ -127,9 +127,7 @@ const NetworkOperatorDetails = () => {
     const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
 
     if (appId) {
-      console.log('Calling updateApplicantInfo with:', appId, networkOperatorReference, type);
       app = await useApplicationStore.getState().updateApplicantInfo(appId, networkOperatorReference, type);
-      console.log('Updated app:', app);
     } else {
       const newAppData = {
         type,

@@ -8,9 +8,7 @@ import { PackSection, ConsultationPack } from '../../../types/consultationPack';
 import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCategoryConstants';
 import FileUpload from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
-
-
-
+import log from '../../../logger';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
@@ -49,7 +47,7 @@ useEffect(() => {
   }
 
   useEffect(() => {
-    console.log('consultationId:', consultationId, 'applicationId:', applicationId);
+    log.debug('consultationId:', consultationId, 'applicationId:', applicationId);
     // Fetch consultation pack details only when both IDs are present
     const fetchPack = async () => {
       try {

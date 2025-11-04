@@ -6,7 +6,7 @@ import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import ConsultationSummaryCard from "../components/SummaryCard";
 import { fetchConsultationDetails } from "../../../services/consultationService";
 import { useAuthUser } from "../../../hooks/useAuthUser";
-
+import log from '../../../logger';
 
 const ConsultationDetailsPage: React.FC = () => {
   // Get applicationId from store, params, or query string
@@ -16,15 +16,15 @@ const ConsultationDetailsPage: React.FC = () => {
   const [consultations, setConsultations] = useState<ConsultationDetails[]>([]);
 
   useEffect(() => {
-    console.log('Fetching consultation details for applicationId:', applicationId, 'and user:', user);
+    log.debug('Fetching consultation details for applicationId:', applicationId, 'and user:', user);
     if (applicationId && user?.user_id) {
       fetchConsultationDetails(applicationId, user.user_id)
         .then((data) => {
           setConsultations(Array.isArray(data) ? data : []);
-          console.log('Consultation details response:', data);
+          log.debug('Consultation details response:', data);
         })
         .catch((err) => {
-          console.error('Failed to fetch consultation details:', err);
+          log.error('Failed to fetch consultation details:', err);
         });
     }
   }, [applicationId, user]);
