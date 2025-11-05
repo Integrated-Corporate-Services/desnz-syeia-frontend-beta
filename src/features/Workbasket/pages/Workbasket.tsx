@@ -11,8 +11,6 @@ const Workbasket = () => {
   // TODO: get from auth/session
   const { user } = useAuthUserContext();
   const created_by = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '44444444-4444-4444-4444-444444444444';
-  console.log('Workbasket user:', user);
-  console.log('Workbasket created_by:', created_by);
   const applications = useApplicationStore((state) => state.applications);
   const loadApplications = useApplicationStore((state) => state.loadApplications);
   const navigate = useNavigate();

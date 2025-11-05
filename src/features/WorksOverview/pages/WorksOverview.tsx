@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { S37_BASE_URL } from '../../../constants/s37';
 import { FileUploadResponse } from '../../../types/FileUploadResponse';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
@@ -220,7 +221,7 @@ const WorksOverview: React.FC = () => {
       } else {
         await createWorksOverview(payload);
       }
-      navigate(`/task-list?id=${effectiveApplicationId}`);
+  navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
     } catch (err: unknown) {
       let errorMsg = ASSET_ERROR_MESSAGES.generalCommentsFailed;
       if (err && typeof err === 'object' && 'message' in err && typeof (err as { message?: unknown }).message === 'string') {
@@ -233,18 +234,18 @@ const WorksOverview: React.FC = () => {
   return (
   <div className="govuk-width-container">
 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-				<ol className="govuk-breadcrumbs__list">
-					<li className="govuk-breadcrumbs__list-item">
-						<Link
-							className="govuk-breadcrumbs__link"
-							to={`/task-list?id=${applicationId}`}
-						>
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item">
+            <Link
+              className="govuk-breadcrumbs__link"
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
+            >
               Task list
             </Link>
-					</li>
-					<li className="govuk-breadcrumbs__list-item" aria-current="page">Works Overview</li>
-				</ol>
-			</nav>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="page">Works Overview</li>
+        </ol>
+      </nav>
       <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
         {submitted && Object.keys(errors).length > 0 && (
           <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary" style={{ marginBottom: '2rem', maxWidth: 600 }}>

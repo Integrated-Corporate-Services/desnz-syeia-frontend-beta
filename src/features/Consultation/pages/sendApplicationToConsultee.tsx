@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { S37_BASE_URL } from '../../../constants/s37';
+import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import { getConsultationPack } from "../../../services/consultationPackService";
 import { sendNotificationEmail } from '../../../services/notifyService';
 
 const SendApplicationToConsultee: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const params = useParams();
   const searchParams = new URLSearchParams(location.search);
-  const consultationId = searchParams.get("consultationId") || "";
-  const applicationId = searchParams.get("applicationId") || "";
+  const consultationId = params.consultationId || searchParams.get("consultationId") || "";
+  const applicationId = params.applicationId || searchParams.get("applicationId") || "";
 
   const [consultationName, setConsultationName] = useState("");
   const [orgEmail, setOrgEmail] = useState("");
@@ -59,8 +61,7 @@ const SendApplicationToConsultee: React.FC = () => {
         documents: packDocuments,
         uploadedFiles,
       });
-      // Redirect to confirmation page with applicationId
-      navigate(`/consultation-request-sent?applicationId=${applicationId}`);
+  navigate(`${S37_BASE_URL}/${applicationId}/consultation-request-sent`);
     } catch (err: any) {
       setSendError(err.message || 'Failed to send email');
     } finally {
@@ -77,7 +78,7 @@ const SendApplicationToConsultee: React.FC = () => {
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
             <Link
-              to={`/task-list?id=${applicationId}`}
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
               className="govuk-breadcrumbs__link"
             >
               Task list
@@ -142,7 +143,7 @@ const SendApplicationToConsultee: React.FC = () => {
                 <div className="govuk-summary-card__title-wrapper">
                   <h3 className="govuk-summary-card__title">Details</h3>
                   <div className="govuk-summary-card__actions">
-                    <Link to={`/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`} className="govuk-link">Add or remove details</Link>
+                    <Link to={`${S37_BASE_URL}/${applicationId}/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`} className="govuk-link">Add or remove details</Link>
                   </div>
                 </div>
                 <div className="govuk-summary-card__content">
@@ -165,7 +166,7 @@ const SendApplicationToConsultee: React.FC = () => {
                 <div className="govuk-summary-card__title-wrapper">
                   <h3 className="govuk-summary-card__title">Documents</h3>
                   <div className="govuk-summary-card__actions">
-                    <Link to={`/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`} className="govuk-link">Add or remove documents</Link>
+                    <Link to={`${S37_BASE_URL}/${applicationId}/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`} className="govuk-link">Add or remove documents</Link>
                   </div>
                 </div>
                 <div className="govuk-summary-card__content">

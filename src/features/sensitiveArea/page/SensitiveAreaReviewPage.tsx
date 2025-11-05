@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { S37_BASE_URL } from '../../../constants/s37';
+import { Link } from 'react-router-dom';
 import FileUpload from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -106,8 +108,8 @@ const SensitiveAreaReviewPage: React.FC = () => {
       application_documents: applicationDocuments,
     };
     try {
-      await saveReview(payload);
-      navigate(`/task-list?id=${effectiveApplicationId}`);
+  await saveReview(payload);
+  navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
     } catch (err: any) {
       setApiError(err?.message || 'Failed to save sensitive area review');
     }
@@ -118,7 +120,9 @@ const SensitiveAreaReviewPage: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href={`/frontend/task-list?id=${effectiveApplicationId}`}>Task list</a>
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+              Task list
+            </Link>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="page">Sensitive area review</li>
         </ol>

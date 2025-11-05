@@ -22,17 +22,14 @@ const LandownerOccupantDetails: React.FC = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const applicationId = searchParams.get('id') || searchParams.get('applicationId') || '';
-    console.log('LandownerOccupantDetails: applicationId', applicationId);
     if (!applicationId) {
       console.warn('No applicationId found in query string.');
       return;
     }
 
     const url = `/backend/api/nwl/landowner-occupant-details/${applicationId}`;
-    console.log('LandownerOccupantDetails: GET', url);
     fetch(url)
       .then(res => {
-        console.log('LandownerOccupantDetails: response', res);
         if (!res.ok) {
           console.error('LandownerOccupantDetails: fetch error', res.status, res.statusText);
           throw new Error(`Error ${res.status}: ${res.statusText}`);
@@ -40,7 +37,6 @@ const LandownerOccupantDetails: React.FC = () => {
         return res.json();
       })
       .then(data => {
-        console.log('LandownerOccupantDetails: data', data);
         if (data.landowners && data.landowners.length > 0) {
           setClassification('Owner');
           setName(data.landowners[0].full_name || '');

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { S37_BASE_URL } from '../../../constants/s37';
 import { Link, useParams, useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../hooks/useAuthUser";
@@ -7,9 +8,7 @@ import { PackSection, ConsultationPack } from '../../../types/consultationPack';
 import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCategoryConstants';
 import FileUpload from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
-
-
-
+import log from '../../../logger';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
@@ -25,7 +24,8 @@ const consulteeApplicationInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const consultationId = searchParams.get("consultationId") || "";
+  // Read consultationId from path params if available, fallback to query param
+  const consultationId = params.consultationId || searchParams.get("consultationId") || "";
   const consultationName = searchParams.get("consultationName") || "";
   const navigate = useNavigate();
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -47,7 +47,7 @@ useEffect(() => {
   }
 
   useEffect(() => {
-    console.log('consultationId:', consultationId, 'applicationId:', applicationId);
+    log.debug('consultationId:', consultationId, 'applicationId:', applicationId);
     // Fetch consultation pack details only when both IDs are present
     const fetchPack = async () => {
       try {
@@ -178,12 +178,9 @@ useEffect(() => {
     try {
       await saveConsultationPack(packObj);
       if (validate) {
-        // Navigate to sendApplicationToConsultee page, passing consultationName and orgEmail
-        const consultationName = consultationPack?.consultation?.org_name || consultationPack?.consultation?.consultationName || '';
-        const orgEmail = consultationPack?.consultation?.default_email || '';
-  navigate(`/sendApplicationToConsultee?consultationId=${encodeURIComponent(consultationId)}&applicationId=${encodeURIComponent(applicationId)}`);
+        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/send-application-to-consultee`);
       } else {
-        navigate(`/task-list?id=${applicationId}`);
+        navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to save');
@@ -214,7 +211,7 @@ useEffect(() => {
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
             <Link
-              to={`/task-list?id=${applicationId}`}
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
               className="govuk-breadcrumbs__link"
             >
               Task list

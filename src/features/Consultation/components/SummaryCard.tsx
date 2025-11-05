@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { S37_BASE_URL } from '../../../constants/s37';
 import { ConsultationStatus } from "../../../constants/consultationStatus";
 
 interface ConsultationSummaryCardProps {
@@ -20,7 +21,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
   orgName,
   consultationName,
   status,
-  requestUrl = "/consultation/consultee-application-details",
+  requestUrl,
   notRequiredUrl = "#",
   consultationId,
   applicationId,
@@ -37,11 +38,8 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
   const statusKey = getStatusKey(status);
   const statusDisplay = statusKey ? ConsultationStatus[statusKey] : status;
 
-  // Build URL with query params (add consultationName)
-  const requestUrlWithParams = `${requestUrl}?consultationId=${encodeURIComponent(
-    consultationId
-  )}&applicationId=${encodeURIComponent(applicationId)}${
-    consultationName ? `&consultationName=${encodeURIComponent(consultationName)}` : ""
+  const requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultee-application-details${
+    consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ""
   }`;
 
   // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)

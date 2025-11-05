@@ -117,7 +117,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
     }
     setError('');
     // Only navigate, do not send anything to the DB or update the store
-    navigate(`/nwl/task-list?id=${appId || ''}`);
+  navigate(`nwl/${appId || ''}/task-list`);
   };
 
   // Prepare contact details for summary
