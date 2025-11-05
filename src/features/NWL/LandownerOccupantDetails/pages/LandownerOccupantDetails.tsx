@@ -178,23 +178,35 @@ const LandownerOccupantDetails: React.FC = () => {
             </fieldset>
             {showRepFields && (
               <div className="grantor-rep">
-                <div className="govuk-form-group">
+                <div className={`govuk-form-group${errors.grantorRepDescription ? ' govuk-form-group--error' : ''}`}>  
                   <label className="govuk-label govuk-label--s" htmlFor="grantorRepDescription">Representative name</label>
                   <div id="grantorRepDescription-hint" className="govuk-hint">E.g. Smith and Smith Solicitors Ltd</div>
-                  <input className="govuk-input" id="grantorRepDescription" name="grantorRepDescription" type="text" value={grantorRepDescription} onChange={e => setGrantorRepDescription(e.target.value)} aria-describedby="grantorRepDescription-hint" />
+                  {errors.grantorRepDescription && (
+                    <p className="govuk-error-message" id="grantorRepDescription-error">{errors.grantorRepDescription}</p>
+                  )}
+                  <input className={`govuk-input${errors.grantorRepDescription ? ' govuk-input--error' : ''}`} id="grantorRepDescription" name="grantorRepDescription" type="text" value={grantorRepDescription} onChange={e => setGrantorRepDescription(e.target.value)} aria-describedby={errors.grantorRepDescription ? "grantorRepDescription-error" : "grantorRepDescription-hint"} />
                 </div>
-                <div className="govuk-form-group">
+                <div className={`govuk-form-group${errors.grantorRepAddress ? ' govuk-form-group--error' : ''}`}>  
                   <label className="govuk-label govuk-label--s" htmlFor="grantorRepAddress">Representative address</label>
                   <div className="govuk-hint">Include postcode. If you don’t have the full address, give as much as possible.</div>
-                  <textarea className="govuk-textarea govuk-!-static-margin-bottom-1" id="grantorRepAddress" name="grantorRepAddress" rows={5} value={grantorRepAddress} onChange={e => setGrantorRepAddress(e.target.value)} />
+                  {errors.grantorRepAddress && (
+                    <p className="govuk-error-message" id="grantorRepAddress-error">{errors.grantorRepAddress}</p>
+                  )}
+                  <textarea className="govuk-textarea govuk-!-static-margin-bottom-1" id="grantorRepAddress" name="grantorRepAddress" rows={5} value={grantorRepAddress} onChange={e => setGrantorRepAddress(e.target.value)} aria-describedby={errors.grantorRepAddress ? "grantorRepAddress-error" : undefined} />
                 </div>
-                <div className="govuk-form-group">
+                <div className={`govuk-form-group${errors.repContactEmail ? ' govuk-form-group--error' : ''}`}>  
                   <label className="govuk-label govuk-label--s" htmlFor="repContactEmail">Representative email address</label>
-                  <input className="govuk-input" id="repContactEmail" name="repContactEmail" type="text" value={repContactEmail} onChange={e => setRepContactEmail(e.target.value)} />
+                  {errors.repContactEmail && (
+                    <p className="govuk-error-message" id="repContactEmail-error">{errors.repContactEmail}</p>
+                  )}
+                  <input className={`govuk-input${errors.repContactEmail ? ' govuk-input--error' : ''}`} id="repContactEmail" name="repContactEmail" type="text" value={repContactEmail} onChange={e => setRepContactEmail(e.target.value)} aria-describedby={errors.repContactEmail ? "repContactEmail-error" : undefined} />
                 </div>
-                <div className="govuk-form-group">
+                <div className={`govuk-form-group${errors.repContactPhone ? ' govuk-form-group--error' : ''}`}>  
                   <label className="govuk-label govuk-label--s" htmlFor="repContactPhone">Representative phone number</label>
-                  <input className="govuk-input" id="repContactPhone" name="repContactPhone" type="text" value={repContactPhone} onChange={e => setRepContactPhone(e.target.value)} />
+                  {errors.repContactPhone && (
+                    <p className="govuk-error-message" id="repContactPhone-error">{errors.repContactPhone}</p>
+                  )}
+                  <input className={`govuk-input${errors.repContactPhone ? ' govuk-input--error' : ''}`} id="repContactPhone" name="repContactPhone" type="text" value={repContactPhone} onChange={e => setRepContactPhone(e.target.value)} aria-describedby={errors.repContactPhone ? "repContactPhone-error" : undefined} />
                 </div>
               </div>
             )}
