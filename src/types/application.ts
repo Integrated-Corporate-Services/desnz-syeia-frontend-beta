@@ -26,4 +26,5 @@ export type ApplicationParty = {
   is_primary: boolean | null;
   contact_isconfirmed?: boolean | null;
   person_name?: string;
+  additional_contact?: string | null;
 };

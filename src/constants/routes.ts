@@ -49,37 +49,37 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path: '/nwl/applicant-details',
+    path: '/nwl/:applicationId/applicant-details',
     component: ApplicantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/network-operator-contact-details',
+    path: '/nwl/:applicationId/network-operator-contact-details',
     component: NWLNetworkOperatorContactDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/assets',
+    path: '/nwl/:applicationId/assets',
     component: NWLAssets,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/task-list',
+    path: '/nwl/:applicationId/task-list',
     component: NWLTaskList,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/landowner-occupant-details',
+    path: '/nwl/:applicationId/landowner-occupant-details',
     component: LandownerOccupantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/application-and-land-details',
+    path: '/nwl/:applicationId/application-and-land-details',
     component: ApplicationLandDetails,
     auth: true,
     layout: true

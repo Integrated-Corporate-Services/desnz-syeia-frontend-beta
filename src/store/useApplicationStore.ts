@@ -39,7 +39,7 @@ export const useApplicationStore = create<State>((set) => ({
   },
   fetchAndSetApplication: async (id: string) => {
     const app = await applicationApiService.getApplicationById(id);
-    set({ application: app });
+    set({ application: app , applicationParty: app.application_party });
   },
   saveNetworkOperator: async (data) => {
     const result = await applicationApiService.saveNetworkOperator(data);

@@ -81,7 +81,7 @@ const LandownerOccupantDetails: React.FC = () => {
       // Submit logic here
       const searchParams = new URLSearchParams(window.location.search);
       const applicationId = searchParams.get('id') || searchParams.get('applicationId') || '';
-      navigate(`/nwl/task-list?id=${applicationId}`);
+  navigate(`/nwl/${applicationId}/task-list`);
     }
   };
 
