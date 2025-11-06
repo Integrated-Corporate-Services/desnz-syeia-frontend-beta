@@ -1,12 +1,23 @@
+import { S37_BASE_URL } from '../../../constants/s37';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 
 import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from '../../../constants/content';
 
 const NetworkOperatorContactDetails = () => {
+  const appId = useGetApplicationId();
+  const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
+  // Fetch application data on mount using appId
+  useEffect(() => {
+    if (appId) {
+      fetchAndSetApplication(appId);
+    }
+  }, [appId, fetchAndSetApplication]);
   const application = useApplicationStore(state => state.application);
   const party = application?.application_party;
   const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
@@ -26,35 +37,27 @@ const NetworkOperatorContactDetails = () => {
   // Handles the form submit for contact details
   const handleContactDetailsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting contact details with contactIsConfirmed:', contactIsConfirmed);
     if (contactIsConfirmed === null) {
       setError('Select yes if all contact details are available and correct');
       return;
     }
     setError('');
-    let app = application;
-    if (!app || !app.application_id) {
-      const newAppData = {
-        type: 'S37',
-        operator_ref: application?.operator_ref || '',
-        status: 'Draft',
-        created_by,
+    if (application && application.application_id) {
+      await useApplicationStore.getState().saveNetworkOperator({
+        application_id: application.application_id,
+        operator_ref: application.operator_ref,
+        organisation_id: party?.organisation_id,
+        person_id: party?.person_id,
+        contact_id: party?.contact_id,
         role: 'Applicant',
         is_primary: true,
-        created_at: new Date().toISOString(),
-      };
-      app = await useApplicationStore.getState().startApplication(newAppData);
+        contact_isconfirmed: contactIsConfirmed,
+        type: application?.type,
+        additional_contact: party?.additional_contact || null,
+      });
+  navigate(`${S37_BASE_URL}/${application.application_id}/task-list`);
     }
-    await useApplicationStore.getState().saveNetworkOperator({
-      application_id: app.application_id,
-      operator_ref: app.operator_ref,
-      organisation_id: party?.organisation_id,
-      person_id: party?.person_id,
-      contact_id: party?.contact_id,
-      role: 'Applicant',
-      is_primary: true,
-      contact_isconfirmed: contactIsConfirmed,
-    });
-    navigate(`/task-list?id=${app.application_id}`);
   };
 
   return (
@@ -63,7 +66,7 @@ const NetworkOperatorContactDetails = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${application?.application_id || ''}`}>
+              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${application?.application_id || ''}/task-list`}>
                 {CONTENT.networkOperatorContact.breadcrumb.taskList}
               </Link>
             </li>

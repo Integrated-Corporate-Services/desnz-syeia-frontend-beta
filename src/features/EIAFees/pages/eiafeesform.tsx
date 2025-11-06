@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { S37_BASE_URL } from '../../../constants/s37';
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import RadioGroup from "../component/RadioGroup";
 import { useApplicationStore } from "../../../store/useApplicationStore";
@@ -154,7 +156,7 @@ const EIAFeesForm: React.FC = () => {
         });
         // Redirect to tasklist page after success
         const redirectId = payload.applicationId;
-        navigate(`/task-list?id=${redirectId}`);
+  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
       } catch {
         setApiError("Failed to submit EIA Fees. Please try again.");
       } finally {
@@ -193,12 +195,9 @@ const EIAFeesForm: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href={`/frontend/task-list?id=${applicationId}`}
-            >
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
               Task list
-            </a>
+            </Link>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             EIA fees

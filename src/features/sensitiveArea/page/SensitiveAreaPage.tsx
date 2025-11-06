@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getSensitiveAreaSettings } from '../../../services/sensitiveAreaSettingsService';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { startSensitiveAreaCheck } from '../../../services/sensitiveAreaService';
 import { getRoutesWithPoints } from '../../../services/routeMapService';
 import SensitiveAreaCheckMap, { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
+import { S37_BASE_URL } from '../../../constants/s37';
 
 const SensitiveAreaPage: React.FC = () => {
   // Get applicationId from URL params or query string
@@ -31,7 +33,6 @@ const SensitiveAreaPage: React.FC = () => {
         setRoutes(data.routes || []);
         // Fetch sensitive area settings
         const settings = await getSensitiveAreaSettings(effectiveApplicationId);
-        console.log('Fetched sensitive area settings:', settings);
         if (Array.isArray(settings) && settings.length > 0) {
           const first = settings[0];
           if (typeof first.tolerance_required === 'boolean') {
@@ -76,7 +77,7 @@ const SensitiveAreaPage: React.FC = () => {
         routes
       ); // run in background, don't await
       // Redirect to task list page after starting check, pass state for notification
-      navigate(`/task-list?id=${effectiveApplicationId}`, { state: { showSensitiveAreaPopup: true } });
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`, { state: { showSensitiveAreaPopup: true } });
     } catch (err: any) {
       setError(err?.response?.data?.error || 'Failed to start sensitive area check');
     } finally {
@@ -99,7 +100,9 @@ const SensitiveAreaPage: React.FC = () => {
         )}
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href={`/frontend/task-list?id=${effectiveApplicationId}`}>Task list</a>
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+              Task list
+            </Link>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="page">Sensitive area check</li>
         </ol>

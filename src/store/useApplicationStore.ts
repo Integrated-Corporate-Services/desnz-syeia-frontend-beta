@@ -4,7 +4,7 @@ import { progressApiService } from '../services/progressApiService';
 import { applicationApiService } from '../services/applicationApiService';
 import { networkOperatorApiService } from '../services/networkOperatorApiService';
 
-import type { Application } from '../types/application';
+import type { Application, ApplicationParty } from '../types/application';
 
 type State = {
   applications: Application[];
@@ -13,11 +13,13 @@ type State = {
   organisation: any | null;
   loadApplications: (created_by: string) => Promise<void>;
   setApplication: (app: Application) => void;
+  setApplicationParty: (party: ApplicationParty) => void;
   setOrganisation: (org: any) => void;
   startApplication: (applicationData: Partial<Application>) => Promise<Application>;
   fetchAndSetApplication: (id: string) => Promise<void>;
   saveNetworkOperator: (data: any) => Promise<void>;
   submitApplication: (applicationId: string) => Promise<any>;
+  updateApplicantInfo: (applicationId: string, operatorRef: string, type: string, additionalContacts: string) => Promise<Application | null>;
 };
 
 export const useApplicationStore = create<State>((set) => ({
@@ -30,6 +32,7 @@ export const useApplicationStore = create<State>((set) => ({
     set({ applications: apps });
   },
   setApplication: (app) => set({ application: app }),
+  setApplicationParty: (party) => set({ applicationParty: party }),
   setOrganisation: (org) => set({ organisation: org }),
   startApplication: async (applicationData) => {
     const app = await applicationApiService.createApplication(applicationData);
@@ -38,7 +41,7 @@ export const useApplicationStore = create<State>((set) => ({
   },
   fetchAndSetApplication: async (id: string) => {
     const app = await applicationApiService.getApplicationById(id);
-    set({ application: app });
+    set({ application: app , applicationParty: app.application_party });
   },
   saveNetworkOperator: async (data) => {
     const result = await applicationApiService.saveNetworkOperator(data);
@@ -49,5 +52,10 @@ export const useApplicationStore = create<State>((set) => ({
   },
   submitApplication: async (applicationId: string) => {
     return await applicationApiService.submitApplication(applicationId);
+  },
+  updateApplicantInfo: async (applicationId, operatorRef, type, additionalContacts) => {
+    const app = await applicationApiService.updateApplicantInfo(applicationId, operatorRef, type, additionalContacts);
+    set({ application: app });
+    return app;
   }
 }));

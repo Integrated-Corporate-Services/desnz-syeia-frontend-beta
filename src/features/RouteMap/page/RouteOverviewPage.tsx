@@ -1,4 +1,5 @@
 import React from 'react';
+import { S37_BASE_URL } from '../../../constants/s37';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import RouteDeletedBanner from '../component/RouteDeletedBanner';
@@ -68,13 +69,13 @@ export const RouteOverviewPage: React.FC = () => {
   const handleEdit = (route_id: string | number) => {
     const route = routes.find(r => r.route_id === route_id);
     if (!route) return;
-    navigate('/route-map', { state: { route_id: route.route_id, gridPoints: route.gridPoints, applicationId, routeName: route.routeName } });
+  navigate(`${S37_BASE_URL}/${applicationId}/route-map`, { state: { route_id: route.route_id, gridPoints: route.gridPoints, applicationId, routeName: route.routeName } });
   };
 
   const handleDelete = (route_id: string | number) => {
     const route = routes.find(r => r.route_id === route_id);
     if (!route) return;
-    navigate('/route-delete', {
+  navigate(`${S37_BASE_URL}/${applicationId}/route-delete`, {
       state: {
         routeName: route.routeName || 'Route',
         gridPoints: route.gridPoints,
@@ -117,10 +118,10 @@ export const RouteOverviewPage: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item">
             <a
               className="govuk-breadcrumbs__link"
-              href={`/task-list?id=${applicationId || ''}`}
+              href={`${S37_BASE_URL}/${applicationId || ''}/task-list`}
               onClick={e => {
                 e.preventDefault();
-                navigate(`/task-list?id=${applicationId || ''}`);
+                navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`);
               }}
             >
               Task list
@@ -138,7 +139,7 @@ export const RouteOverviewPage: React.FC = () => {
         <div className="govuk-inset-text" style={{ maxWidth: 700, marginTop: 12 }}>
           <a
             className="govuk-link"
-            href={applicationId ? `/frontend/route-guidance?id=${applicationId}` : '/frontend/route-guidance'}
+            href={applicationId ? `${S37_BASE_URL}/${applicationId}/route-guidance` : `${S37_BASE_URL}/:applicationId/route-guidance`}
           >
             Read the guidance on adding a route or a route spur
           </a>
@@ -221,9 +222,9 @@ export const RouteOverviewPage: React.FC = () => {
                 }
                 setFormError(null);
                 if (spurChoice === 'spur' || spurChoice === 'notconnected') {
-                  navigate('/route-map', { state: { applicationId, routeName: getNextRouteName(), isNewRoute: true, details: spurChoice === 'notconnected' ? details : undefined } });
+                  navigate(`${S37_BASE_URL}/${applicationId}/route-map`, { state: { applicationId, routeName: getNextRouteName(), isNewRoute: true, details: spurChoice === 'notconnected' ? details : undefined } });
                 } else  {
-                  navigate(`/task-list?id=${applicationId || ''}`);
+                  navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`);
                 }
               }}
               noValidate

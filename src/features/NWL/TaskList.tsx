@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useApplicationStore } from "../../store/useApplicationStore";
+import { useGetApplicationId } from "../../hooks/useGetApplicationId";
 
 const TaskList: React.FC = () => {
 	const location = useLocation();
 	const params = new URLSearchParams(location.search);
-	const appId = params.get('id');
+	const appId = useGetApplicationId();
 	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
 	const application = useApplicationStore(state => state.application);
 	const [orgName, setOrgName] = useState('');
@@ -35,7 +36,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/applicant-details?id=${appId}`}>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/applicant-details`}>
 										<strong>Applicant details</strong>
 									</a>
 								</div>
@@ -45,7 +46,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/network-operator-contact-details?id=${appId}`}>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/network-operator-contact-details`}>
 										<strong>Check applicant contact details</strong>
 									</a>
 								</div>
@@ -59,7 +60,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/landowner-occupant-details?id=${appId}`}>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/landowner-occupant-details`}>
 										<strong>Landowner or occupant details</strong>
 									</a>
 								</div>
@@ -69,7 +70,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/application-and-land-details?id=${appId}`}>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/application-and-land-details`}>
 										<strong>Application and Land details</strong>
 									</a>
 								</div>
@@ -79,7 +80,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/assets?id=${appId}`}>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/assets`}>
 										<strong>Assets</strong>
 									</a>
 								</div>

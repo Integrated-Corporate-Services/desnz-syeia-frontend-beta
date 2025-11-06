@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import type { AuthUser } from '../../../../types/auth';
 import { useApplicationStore } from '../../../../store/useApplicationStore';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { networkOperatorApiService } from '../../../../services/networkOperatorApiService';
+import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 
 type OrganisationContact = {
   organisation_name?: string;
@@ -26,23 +27,23 @@ const NetworkOperatorContactDetails: React.FC = () => {
   const [selectedOrgName, setSelectedOrgName] = useState('');
   const [error, setError] = useState<string>('');
   const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
-
+  const BREADCRUMB_TASK_LIST = 'Task list';
+  const BREADCRUMB_NETWORK_OPERATOR = 'Network operator';
     const application = useApplicationStore(state => state.application);
     const setOrganisation = useApplicationStore(state => state.setOrganisation);
     const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
     const navigate = useNavigate();
     const location = useLocation();
     const params = new URLSearchParams(location.search);
-    const appId = params.get('id');
+    const appId = useGetApplicationId();
     const { user } = useAuthUserContext();
     const emailId = (user as AuthUser)?.email;
-
-    // Fetch application if not loaded
-    useEffect(() => {
-      if (!application && appId) {
-        fetchAndSetApplication(appId);
-      }
-    }, [appId, application, fetchAndSetApplication]);
+  // Fetch application data on mount using appId
+  useEffect(() => {
+    if (appId) {
+      fetchAndSetApplication(appId);
+    }
+  }, [appId, fetchAndSetApplication]);
 
     // Fetch dropdown options and bind application data
     useEffect(() => {
@@ -115,9 +116,22 @@ const NetworkOperatorContactDetails: React.FC = () => {
       setError('Select yes if all contact details are available and correct');
       return;
     }
-    setError('');
-    // Only navigate, do not send anything to the DB or update the store
-    navigate(`/nwl/task-list?id=${appId || ''}`);
+     setError('');
+        if (application && application.application_id) {
+          await useApplicationStore.getState().saveNetworkOperator({
+            application_id: application.application_id,
+            operator_ref: application.operator_ref,
+            organisation_id: party?.organisation_id,
+            person_id: party?.person_id,
+            contact_id: party?.contact_id,
+            role: 'Applicant',
+            is_primary: true,
+            contact_isconfirmed: contactIsConfirmed,
+            type: application?.type,
+            additional_contact: party?.additional_contact || null,
+          });
+        }
+      navigate(`/nwl/${appId}/task-list`);
   };
 
   // Prepare contact details for summary
@@ -131,7 +145,18 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
   return (
     <div className="govuk-grid-row">
+
       <div className="govuk-grid-column-two-thirds">
+              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item" aria-current="false">
+            <Link className="govuk-breadcrumbs__link" to={`/nwl/${application?.application_id || ''}/task-list`}>
+              {BREADCRUMB_TASK_LIST}
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">{BREADCRUMB_NETWORK_OPERATOR}</li>
+        </ol>
+      </nav>
         <h1 className="govuk-heading-xl">Check applicant contact details</h1>
 
         {error && (
