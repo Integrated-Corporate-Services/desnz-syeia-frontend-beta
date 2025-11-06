@@ -2,25 +2,28 @@ import React from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 const RouteDeletePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   // Route details passed via state
-  const { routeName, gridPoints, applicationId, route_id } = location.state || {};
+  const { routeName, gridPoints, route_id } = location.state || {};
+
+  const applicationId = useGetApplicationId();
   const { deleteRoute, fetchRoutes } = useRouteStore();
   const getRouteStore = useRouteStore.getState;
 
   // If no route details, redirect back
   React.useEffect(() => {
     if (!routeName || !Array.isArray(gridPoints)) {
-      navigate('/route-overview/' + (applicationId || ''));
+      navigate(`${S37_BASE_URL}/${applicationId || ''}/route-overview`);
     }
   }, [routeName, gridPoints, applicationId, navigate]);
 
   const handleCancel = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigate('/route-overview/' + (applicationId || ''));
+  e.preventDefault();
+  navigate(`${S37_BASE_URL}/${applicationId || ''}/route-overview`);
   };
 
 
@@ -35,9 +38,9 @@ const RouteDeletePage: React.FC = () => {
     const hasRoutes = Array.isArray(latestRoutes) && latestRoutes.length > 0;
     const bannerState = { state: { routeDeletedName: routeName } };
     if (!hasRoutes) {
-  navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);
+      navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);
     } else {
-      navigate('/route-overview/' + (applicationId || ''), bannerState);
+      navigate(`${S37_BASE_URL}/${applicationId || ''}/route-overview`, bannerState);
     }
   };
 

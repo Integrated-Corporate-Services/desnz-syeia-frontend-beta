@@ -1,13 +1,14 @@
 import React from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 const ConsultationRequestSent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   // Get applicationId from query params or state
   const searchParams = new URLSearchParams(location.search);
-  const applicationId = searchParams.get('applicationId');
+  const applicationId = useGetApplicationId();
 
   const handleBack = () => {
     if (applicationId) {

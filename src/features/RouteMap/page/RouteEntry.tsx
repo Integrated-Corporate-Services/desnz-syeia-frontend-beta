@@ -9,10 +9,12 @@ interface RouteEntryProps {
 }
 
 import { getRoutesWithPoints } from '../../../services/routeMapService';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
-const RouteEntry: React.FC<RouteEntryProps> = ({ applicationId, children }) => {
+const RouteEntry: React.FC<RouteEntryProps> = ({  children }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
+  const applicationId = useGetApplicationId();
 
   const handleRouteClick = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();

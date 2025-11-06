@@ -4,13 +4,13 @@ import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import RouteDeletedBanner from '../component/RouteDeletedBanner';
 import { useRouteStore } from '../../../store/useRouteStore';
-
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 export const RouteOverviewPage: React.FC = () => {
   const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
   const [details, setDetails] = React.useState('');
   const [formError, setFormError] = React.useState<string | null>(null);
   const detailsRef = React.useRef<HTMLTextAreaElement>(null);
-  const { applicationId } = useParams<{ applicationId: string }>();
+  const applicationId = useGetApplicationId();
   const navigate = useNavigate();
   const location = useLocation();
   const store = useRouteStore();
@@ -118,7 +118,7 @@ export const RouteOverviewPage: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item">
             <a
               className="govuk-breadcrumbs__link"
-              href={`${S37_BASE_URL}/${applicationId || ''}/task-list`}
+              href={`${window.location.origin}/frontend${S37_BASE_URL}/${applicationId || ''}/task-list`}
               onClick={e => {
                 e.preventDefault();
                 navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`);
@@ -139,7 +139,7 @@ export const RouteOverviewPage: React.FC = () => {
         <div className="govuk-inset-text" style={{ maxWidth: 700, marginTop: 12 }}>
           <a
             className="govuk-link"
-            href={applicationId ? `${S37_BASE_URL}/${applicationId}/route-guidance` : `${S37_BASE_URL}/:applicationId/route-guidance`}
+              href={`${window.location.origin}/frontend${S37_BASE_URL}/${applicationId || ''}/route-guidance`}
           >
             Read the guidance on adding a route or a route spur
           </a>
