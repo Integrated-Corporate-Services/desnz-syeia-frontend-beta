@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { networkOperatorApiService } from "../../../../services/networkOperatorApiService";
 import type { ApplicationParty } from '../../../../types/application';
@@ -9,6 +9,16 @@ import { applicationApiService } from "../../../../services/applicationApiServic
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 
 const ApplicantDetails: React.FC = () => {
+  // Validate email format
+  function isValidEmail(email: string): boolean {
+    // Simple regex for email validation
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  // Check for duplicate email (case-insensitive)
+  function isDuplicateEmail(email: string): boolean {
+    return additionalContacts.map(e => e.toLowerCase()).includes(email.toLowerCase());
+  }
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
   const navigate = useNavigate();
@@ -20,6 +30,8 @@ const ApplicantDetails: React.FC = () => {
   const [selectedOrgName, setSelectedOrgName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [additionalContacts, setAdditionalContacts] = useState<string[]>([]);
+  // Track initial contacts loaded from application
+  const [initialContactsLoaded, setInitialContactsLoaded] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [showErrorSummary, setShowErrorSummary] = useState(false);
   const [selectedOrganisation, setSelectedOrganisation] = useState<ApplicationParty | null>(null);
@@ -136,16 +148,36 @@ const ApplicantDetails: React.FC = () => {
     if (application && application.operator_ref !== undefined && application.operator_ref !== null) {
       setNetworkOperatorRef(application.operator_ref);
     }
-  }, [application?.operator_ref]);
+    // Load additional contacts from application only once
+    if (
+      application?.application_party?.additional_contact &&
+      !initialContactsLoaded
+    ) {
+      const contacts = application.application_party.additional_contact
+        .split(',')
+        .map(email => email.trim())
+        .filter(email => email.length > 0);
+      setAdditionalContacts(contacts);
+      setInitialContactsLoaded(true);
+    }
+  }, [application, initialContactsLoaded]);
 
   const handleAddContact = (e: React.FormEvent) => {
     e.preventDefault();
     const email = emailAddress.trim();
-    if (email && !additionalContacts.includes(email)) {
+    if (
+      email &&
+      !additionalContacts.map(e => e.toLowerCase()).includes(email.toLowerCase())
+    ) {
       setAdditionalContacts(prev => [...prev, email]);
       setEmailAddress("");
     }
   };
+
+  // Delete contact handler
+  function handleDeleteContact(email: string) {
+    setAdditionalContacts(prev => prev.filter(e => e !== email));
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,10 +194,12 @@ const ApplicantDetails: React.FC = () => {
       let app = application;
       const type = 'NWL';
       const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
-      const additionalContactString = additionalContacts.join(',');
-      console.log('additionalContactString:', additionalContactString);
+      // Trim and join contacts for backend
+      const additionalContactString = additionalContacts
+        .map(email => email.trim())
+        .filter(email => email.length > 0)
+        .join(',');
       if (appId) {
-        console.log("test");
         app = await useApplicationStore.getState().updateApplicantInfo(appId, networkOperatorRef, type, additionalContactString);
       } else {
         const newAppData = {
@@ -309,11 +343,27 @@ const ApplicantDetails: React.FC = () => {
                   ))}
                 </select>
               </div>
+ {additionalContacts.length > 0 && (
+                <ul className="govuk-list">
+                  {additionalContacts.map((email, idx) => (
+                    <li key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #eee', padding: '4px 0' }}>
+                      <span>{email}</span>
+                
+                      <a
+                        className="govuk-link"
+                        href="#"
+                        onClick={() => handleDeleteContact(email)}
+                      >
+                        Delete contact
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               {/* Additional contacts */}
               <h2 className="govuk-heading-m">
-                Additional contacts{" "}
-                <span className="govuk-hint">(optional)</span>
+                Additional contacts <span className="govuk-hint">(optional)</span>
               </h2>
               <div id="landRef-hint" className="govuk-hint">
                 You can add more contact email addresses to this application
@@ -342,14 +392,7 @@ const ApplicantDetails: React.FC = () => {
               >
                 Add contact
               </button>
-              {additionalContacts.length > 0 && (
-                <ul className="govuk-list">
-                  {additionalContacts.map((email, idx) => (
-                    <li key={idx}>{email}</li>
-                  ))}
-                </ul>
-              )}
-
+             
               <details className="govuk-details">
                 <summary className="govuk-details__summary">
                   <span className="govuk-details__summary-text">
