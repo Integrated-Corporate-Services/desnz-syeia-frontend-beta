@@ -4,7 +4,7 @@ import { progressApiService } from '../services/progressApiService';
 import { applicationApiService } from '../services/applicationApiService';
 import { networkOperatorApiService } from '../services/networkOperatorApiService';
 
-import type { Application } from '../types/application';
+import type { Application, ApplicationParty } from '../types/application';
 
 type State = {
   applications: Application[];
@@ -13,6 +13,7 @@ type State = {
   organisation: any | null;
   loadApplications: (created_by: string) => Promise<void>;
   setApplication: (app: Application) => void;
+  setApplicationParty: (party: ApplicationParty) => void;
   setOrganisation: (org: any) => void;
   startApplication: (applicationData: Partial<Application>) => Promise<Application>;
   fetchAndSetApplication: (id: string) => Promise<void>;
@@ -31,6 +32,7 @@ export const useApplicationStore = create<State>((set) => ({
     set({ applications: apps });
   },
   setApplication: (app) => set({ application: app }),
+  setApplicationParty: (party) => set({ applicationParty: party }),
   setOrganisation: (org) => set({ organisation: org }),
   startApplication: async (applicationData) => {
     const app = await applicationApiService.createApplication(applicationData);

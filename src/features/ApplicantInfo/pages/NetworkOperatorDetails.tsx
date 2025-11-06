@@ -18,6 +18,7 @@ const NetworkOperatorDetails = () => {
   const allowedReferenceRegex = /^[A-Za-z0-9\-\s]+$/;
 
   const application = useApplicationStore(state => state.application);
+  const applicationParty = useApplicationStore(state => state.applicationParty);
   const setOrganisation = useApplicationStore(state => state.setOrganisation);
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const NetworkOperatorDetails = () => {
     if (!application && appId) {
       fetchAndSetApplication(appId);
     }
-  }, [appId, application, fetchAndSetApplication]);
+  }, [appId, application, applicationParty, fetchAndSetApplication]);
 
   // Fetch dropdown options and bind application data
   useEffect(() => {
@@ -126,9 +127,8 @@ const NetworkOperatorDetails = () => {
     const type = 'S37';
     const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
 
-    if (appId) {
-      app = await useApplicationStore.getState().updateApplicantInfo(appId, networkOperatorReference, type, '');
-    } else {
+
+    if (!app) {
       const newAppData = {
         type,
         operator_ref: networkOperatorReference,
@@ -138,36 +138,25 @@ const NetworkOperatorDetails = () => {
       app = await useApplicationStore.getState().startApplication(newAppData);
     }
 
-    if (app) {
-      useApplicationStore.getState().setApplication({
-        application_id: app.application_id,
-        type: app.type || '',
-        operator_ref: networkOperatorReference,
-        status: app.status || '',
-        created_by: app.created_by || '',
-        created_at: app.created_at || '',
-        submitted_at: app.submitted_at || '',
-        application_party: {
-          party_type: app?.application_party?.party_type ?? '',
-          organisation_name: selectedOrganisation?.organisation_name || '',
-          line1: selectedOrganisation?.line1 || '',
-          line2: selectedOrganisation?.line2 || '',
-          city: selectedOrganisation?.city || '',
-          postcode: selectedOrganisation?.postcode || '',
-          country: selectedOrganisation?.country || '',
-          email: selectedOrganisation?.email || '',
-          phone: selectedOrganisation?.phone || '',
-          organisation_id: selectedOrganisation?.organisation_id,
-          person_id: selectedOrganisation?.person_id,
-          contact_id: selectedOrganisation?.party_contact_id,
-          is_primary: true,
-          contact_isconfirmed: app?.application_party?.contact_isconfirmed ?? null,
-        },
-      });
+    else{
+      console.log('Saving network operator details for existing application');
+          await useApplicationStore.getState().saveNetworkOperator({
+              application_id: appId,
+              operator_ref: networkOperatorReference,
+              organisation_id: selectedOrganisation?.organisation_id,
+              person_id: selectedOrganisation?.person_id,
+              contact_id: selectedOrganisation?.party_contact_id,
+              role: 'Applicant',
+              is_primary: true,
+              contact_isconfirmed: applicationParty?.contact_isconfirmed ,
+              type: application?.type,
+              additional_contact: applicationParty?.additional_contact || null,
+            });
+     
       navigate(`${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`);
-    } else {
+    } 
       setErrors(prev => ({ ...prev, reference: 'Failed to save application. Please try again.' }));
-    }
+    
   };
 
   // Button label logic

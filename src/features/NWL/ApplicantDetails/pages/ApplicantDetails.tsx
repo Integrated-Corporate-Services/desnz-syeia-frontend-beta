@@ -7,6 +7,7 @@ import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import type { AuthUser } from '../../../../types/auth';
 import { applicationApiService } from "../../../../services/applicationApiService";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
+import { add } from "proj4/dist/lib/projections";
 
 const ApplicantDetails: React.FC = () => {
   // Breadcrumbs content
@@ -23,10 +24,9 @@ const ApplicantDetails: React.FC = () => {
     return additionalContacts.map(e => e.toLowerCase()).includes(email.toLowerCase());
   }
   const application = useApplicationStore((state) => state.application);
+  const applicationParty = useApplicationStore((state) => state.applicationParty);
   const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
   const navigate = useNavigate();
-  const locationObj = useLocation();
-  const params = new URLSearchParams(locationObj.search);
   const appId = useGetApplicationId();
   const [options, setOptions] = useState<ApplicationParty[]>([]);
   const [networkOperatorRef, setNetworkOperatorRef] = useState("");
@@ -202,9 +202,7 @@ const ApplicantDetails: React.FC = () => {
         .map(email => email.trim())
         .filter(email => email.length > 0)
         .join(',');
-      if (appId) {
-        app = await useApplicationStore.getState().updateApplicantInfo(appId, networkOperatorRef, type, additionalContactString);
-      } else {
+     if (!app) {
         const newAppData = {
           type,
           operator_ref: networkOperatorRef,
@@ -213,34 +211,21 @@ const ApplicantDetails: React.FC = () => {
         };
         app = await useApplicationStore.getState().startApplication(newAppData);
       }
-      if (app) {
-        useApplicationStore.getState().setApplication({
-          application_id: app.application_id,
-          type: app?.type || '',
-          operator_ref: networkOperatorRef,
-          status: app?.status || '',
-          created_by: app?.created_by || '',
-          created_at: app?.created_at || '',
-          submitted_at: app?.submitted_at || '',
-          application_party: {
-            party_type: app?.application_party?.party_type ?? '',
-            organisation_id: selectedOrganisation?.organisation_id || '',
-            person_id: selectedOrganisation?.person_id || '',
-            contact_id: selectedOrganisation?.contact_id || '',
-            is_primary: true,
-            contact_isconfirmed: null,
-            organisation_name: selectedOrganisation?.organisation_name || '',
-            line1: selectedOrganisation?.line1 ?? '',
-            line2: selectedOrganisation?.line2 || '',
-            city: selectedOrganisation?.city || '',
-            country: selectedOrganisation?.country || '',
-            postcode: selectedOrganisation?.postcode || '',
-            email: selectedOrganisation?.email || '',
-            phone: selectedOrganisation?.phone || '',
-            person_name: selectedOrganisation?.person_name || '',
-            additional_contact: additionalContactString,
-          },
-        });
+     else {
+         console.log('Saving network operator details for existing application');
+                  await useApplicationStore.getState().saveNetworkOperator({
+                      application_id: appId,
+                      operator_ref: networkOperatorRef,
+                      organisation_id: selectedOrganisation?.organisation_id,
+                      person_id: selectedOrganisation?.person_id,
+                      contact_id: selectedOrganisation?.contact_id,
+                      role: 'Applicant',
+                      is_primary: true,
+                      contact_isconfirmed: applicationParty?.contact_isconfirmed,
+                      type: application?.type,
+                      additional_contact: additionalContactString,
+                    });
+             
         navigate(`/nwl/${app.application_id}/network-operator-contact-details`);
       }
     }
