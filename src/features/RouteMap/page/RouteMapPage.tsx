@@ -16,23 +16,7 @@ import SensitiveAreaCheckMap, { RoutePoint as BaseRoutePoint } from '../../../co
 import RoutePointCard from '../component/RoutePointCard';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
-
-// class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-//   constructor(props: { children: React.ReactNode }) {
-//     super(props);
-//     this.state = { hasError: false };
-//   }
-//   static getDerivedStateFromError(error: unknown) {
-//     return { hasError: true };
-//   }
-//   componentDidCatch(error: unknown, errorInfo: unknown) {}
-//   render() {
-//     if (this.state.hasError) {
-//       return <div className="govuk-error-summary"><h2>Something went wrong in the map. Please check your points and try again.</h2></div>;
-//     }
-//     return this.props.children;
-//   }
-// }
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 // Extend RoutePoint to include point_id and route_id
 interface RoutePoint extends BaseRoutePoint {
@@ -43,11 +27,10 @@ interface RoutePoint extends BaseRoutePoint {
 const RouteMapPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { applicationId: paramId } = useParams<{ applicationId: string }>();
-  const queryParams = new URLSearchParams(location.search);
-  const queryId = queryParams.get('id');
-  const stateId = location.state?.applicationId;
-  const effectiveApplicationId = paramId || queryId || stateId || '';
+    const applicationId = useGetApplicationId();
+  
+
+  const effectiveApplicationId = applicationId 
 
   // Store
   const { routes, loading, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRouteStore();

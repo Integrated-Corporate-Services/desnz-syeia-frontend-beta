@@ -14,13 +14,13 @@ const RouteDeletePage: React.FC = () => {
   // If no route details, redirect back
   React.useEffect(() => {
     if (!routeName || !Array.isArray(gridPoints)) {
-      navigate('/route-overview/' + (applicationId || ''));
+      navigate(`${S37_BASE_URL}/${applicationId || ''}/route-overview`);
     }
   }, [routeName, gridPoints, applicationId, navigate]);
 
   const handleCancel = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigate('/route-overview/' + (applicationId || ''));
+  e.preventDefault();
+  navigate(`${S37_BASE_URL}/${applicationId || ''}/route-overview`);
   };
 
 
@@ -35,9 +35,9 @@ const RouteDeletePage: React.FC = () => {
     const hasRoutes = Array.isArray(latestRoutes) && latestRoutes.length > 0;
     const bannerState = { state: { routeDeletedName: routeName } };
     if (!hasRoutes) {
-  navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);
+      navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);
     } else {
-      navigate('/route-overview/' + (applicationId || ''), bannerState);
+      navigate(`${S37_BASE_URL}/${applicationId || ''}/route-overview`, bannerState);
     }
   };
 
