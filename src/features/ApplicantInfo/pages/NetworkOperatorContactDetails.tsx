@@ -3,11 +3,21 @@ import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 
 import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from '../../../constants/content';
 
 const NetworkOperatorContactDetails = () => {
+  const appId = useGetApplicationId();
+  const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
+  // Fetch application data on mount using appId
+  useEffect(() => {
+    if (appId) {
+      fetchAndSetApplication(appId);
+    }
+  }, [appId, fetchAndSetApplication]);
   const application = useApplicationStore(state => state.application);
   const party = application?.application_party;
   const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
@@ -27,6 +37,7 @@ const NetworkOperatorContactDetails = () => {
   // Handles the form submit for contact details
   const handleContactDetailsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting contact details with contactIsConfirmed:', contactIsConfirmed);
     if (contactIsConfirmed === null) {
       setError('Select yes if all contact details are available and correct');
       return;
@@ -42,6 +53,8 @@ const NetworkOperatorContactDetails = () => {
         role: 'Applicant',
         is_primary: true,
         contact_isconfirmed: contactIsConfirmed,
+        type: application?.type,
+        additional_contact: party?.additional_contact || null,
       });
   navigate(`${S37_BASE_URL}/${application.application_id}/task-list`);
     }

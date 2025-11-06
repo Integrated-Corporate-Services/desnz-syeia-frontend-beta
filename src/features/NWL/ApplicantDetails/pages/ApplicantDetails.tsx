@@ -6,6 +6,7 @@ import type { ApplicationParty } from '../../../../types/application';
 import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import type { AuthUser } from '../../../../types/auth';
 import { applicationApiService } from "../../../../services/applicationApiService";
+import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 
 const ApplicantDetails: React.FC = () => {
   const application = useApplicationStore((state) => state.application);
@@ -13,7 +14,7 @@ const ApplicantDetails: React.FC = () => {
   const navigate = useNavigate();
   const locationObj = useLocation();
   const params = new URLSearchParams(locationObj.search);
-  const appId = params.get('id');
+  const appId = useGetApplicationId();
   const [options, setOptions] = useState<ApplicationParty[]>([]);
   const [networkOperatorRef, setNetworkOperatorRef] = useState("");
   const [selectedOrgName, setSelectedOrgName] = useState("");
@@ -139,8 +140,9 @@ const ApplicantDetails: React.FC = () => {
 
   const handleAddContact = (e: React.FormEvent) => {
     e.preventDefault();
-    if (emailAddress.trim()) {
-      setAdditionalContacts([...additionalContacts, emailAddress.trim()]);
+    const email = emailAddress.trim();
+    if (email && !additionalContacts.includes(email)) {
+      setAdditionalContacts(prev => [...prev, email]);
       setEmailAddress("");
     }
   };
@@ -158,57 +160,52 @@ const ApplicantDetails: React.FC = () => {
     setShowErrorSummary(newErrors.length > 0);
     if (newErrors.length === 0) {
       let app = application;
-      if (!app?.application_id) {
-        // Create new application if missing
+      const type = 'NWL';
+      const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
+      const additionalContactString = additionalContacts.join(',');
+      console.log('additionalContactString:', additionalContactString);
+      if (appId) {
+        console.log("test");
+        app = await useApplicationStore.getState().updateApplicantInfo(appId, networkOperatorRef, type, additionalContactString);
+      } else {
         const newAppData = {
-          type: 'NWL',
+          type,
           operator_ref: networkOperatorRef,
           status: 'Draft',
-          // You may want to set created_by from user context if available
+          created_by: createdBy,
         };
         app = await useApplicationStore.getState().startApplication(newAppData);
       }
-      // Always update main application object with operator_ref
-      useApplicationStore.getState().setApplication({
-        application_id: app.application_id,
-        type: app?.type || '',
-        operator_ref: networkOperatorRef, // Ensure reference is set
-        status: app?.status || '',
-        created_by: app?.created_by || '',
-        created_at: app?.created_at || '',
-        submitted_at: app?.submitted_at || '',
-        application_party: {
-          party_type: app?.application_party?.party_type ?? '',
-          organisation_id: selectedOrganisation?.organisation_id || '',
-          person_id: selectedOrganisation?.person_id || '',
-          contact_id: selectedOrganisation?.contact_id || '',
-          is_primary: true,
-          contact_isconfirmed: null,
-          organisation_name: selectedOrganisation?.organisation_name || '',
-          line1: selectedOrganisation?.line1 ?? '',
-          line2: selectedOrganisation?.line2 || '',
-          city: selectedOrganisation?.city || '',
-          country: selectedOrganisation?.country || '',
-          postcode: selectedOrganisation?.postcode || '',
-          email: selectedOrganisation?.email || '',
-          phone: selectedOrganisation?.phone || '',
-          person_name: selectedOrganisation?.person_name || '',
-        },
-      });
-      // Optionally, still call saveNetworkOperator if needed for backend
-      try {
-        const payload = {
+      if (app) {
+        useApplicationStore.getState().setApplication({
           application_id: app.application_id,
-          operator_ref: networkOperatorRef, // Ensure reference is sent in payload
-          is_primary: true,
-          contact_isconfirmed: true,
-          role: 'Applicant',
-        };
-        await applicationApiService.saveNetworkOperator(payload);
-      } catch {
-        // Handle error if needed
+          type: app?.type || '',
+          operator_ref: networkOperatorRef,
+          status: app?.status || '',
+          created_by: app?.created_by || '',
+          created_at: app?.created_at || '',
+          submitted_at: app?.submitted_at || '',
+          application_party: {
+            party_type: app?.application_party?.party_type ?? '',
+            organisation_id: selectedOrganisation?.organisation_id || '',
+            person_id: selectedOrganisation?.person_id || '',
+            contact_id: selectedOrganisation?.contact_id || '',
+            is_primary: true,
+            contact_isconfirmed: null,
+            organisation_name: selectedOrganisation?.organisation_name || '',
+            line1: selectedOrganisation?.line1 ?? '',
+            line2: selectedOrganisation?.line2 || '',
+            city: selectedOrganisation?.city || '',
+            country: selectedOrganisation?.country || '',
+            postcode: selectedOrganisation?.postcode || '',
+            email: selectedOrganisation?.email || '',
+            phone: selectedOrganisation?.phone || '',
+            person_name: selectedOrganisation?.person_name || '',
+            additional_contact: additionalContactString,
+          },
+        });
+        navigate(`/nwl/${app.application_id}/network-operator-contact-details`);
       }
-      navigate(`/nwl/network-operator-contact-details?id=${app.application_id}`);
     }
   };
 

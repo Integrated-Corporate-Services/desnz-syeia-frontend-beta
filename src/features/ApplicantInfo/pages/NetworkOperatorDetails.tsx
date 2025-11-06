@@ -127,7 +127,7 @@ const NetworkOperatorDetails = () => {
     const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
 
     if (appId) {
-      app = await useApplicationStore.getState().updateApplicantInfo(appId, networkOperatorReference, type);
+      app = await useApplicationStore.getState().updateApplicantInfo(appId, networkOperatorReference, type, '');
     } else {
       const newAppData = {
         type,

@@ -18,7 +18,7 @@ type State = {
   fetchAndSetApplication: (id: string) => Promise<void>;
   saveNetworkOperator: (data: any) => Promise<void>;
   submitApplication: (applicationId: string) => Promise<any>;
-  updateApplicantInfo: (applicationId: string, operatorRef: string, type: string) => Promise<Application | null>;
+  updateApplicantInfo: (applicationId: string, operatorRef: string, type: string, additionalContacts: string) => Promise<Application | null>;
 };
 
 export const useApplicationStore = create<State>((set) => ({
@@ -51,8 +51,8 @@ export const useApplicationStore = create<State>((set) => ({
   submitApplication: async (applicationId: string) => {
     return await applicationApiService.submitApplication(applicationId);
   },
-  updateApplicantInfo: async (applicationId, operatorRef, type) => {
-    const app = await applicationApiService.updateApplicantInfo(applicationId, operatorRef, type);
+  updateApplicantInfo: async (applicationId, operatorRef, type, additionalContacts) => {
+    const app = await applicationApiService.updateApplicantInfo(applicationId, operatorRef, type, additionalContacts);
     set({ application: app });
     return app;
   }

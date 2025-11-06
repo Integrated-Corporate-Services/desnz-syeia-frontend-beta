@@ -40,11 +40,11 @@ export const applicationApiService = {
     return res.json();
   },
 
-  updateApplicantInfo: async (applicationId: string, operatorRef: string, type: string) => {
+  updateApplicantInfo: async (applicationId: string, operatorRef: string, type: string, additionalContacts: string) => {
     const response = await fetch(`/backend/api/applications/${applicationId}/applicant-info`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ operator_ref: operatorRef, type }),
+      body: JSON.stringify({ operator_ref: operatorRef, type, additional_contacts: additionalContacts }),
     });
     return response.json();
   },
