@@ -197,11 +197,11 @@ const ApplicantDetails: React.FC = () => {
       let app = application;
       const type = 'NWL';
       const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
-      // Trim and join contacts for backend
+      // Trim and join contacts for backend, send null if none
       const additionalContactString = additionalContacts
         .map(email => email.trim())
         .filter(email => email.length > 0)
-        .join(',');
+        .join(',') || null;
      if (!app) {
         const newAppData = {
           type,

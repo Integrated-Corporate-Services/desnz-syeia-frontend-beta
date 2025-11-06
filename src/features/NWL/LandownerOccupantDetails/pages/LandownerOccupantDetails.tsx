@@ -15,7 +15,7 @@ const LandownerOccupantDetails: React.FC = () => {
   const [errors, setErrors] = useState<{[key:string]:string}>({});
   const [showRepFields, setShowRepFields] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [hasBackendLandowner, setHasBackendLandowner] = useState(false);
   const navigate = useNavigate();
 
   // Fetch landowner/occupant/rep details from backend
@@ -37,33 +37,47 @@ const LandownerOccupantDetails: React.FC = () => {
         return res.json();
       })
       .then(data => {
-        if (data.landowners && data.landowners.length > 0) {
-          setClassification('Owner');
-          setName(data.landowners[0].full_name || '');
-          setFullAddress(data.landowners[0].address_id || '');
-          setContactEmail(data.landowners[0].email || '');
-          setContactPhone(data.landowners[0].phone || '');
+        console.log('LandownerOccupantDetails: data', data);
+        // Use the landOwner object from the backend response
+        if (data?.landOwner && (
+          data.landOwner.contactType ||
+          data.landOwner.name ||
+          data.landOwner.address ||
+          data.landOwner.email ||
+          data.landOwner.phone
+        )) {
+          setClassification(data.landOwner.contactType || '');
+          setName(data.landOwner.name || '');
+          setFullAddress(data.landOwner.address || '');
+          setContactEmail(data.landOwner.email || '');
+          setContactPhone(data.landOwner.phone || '');
+          setHasBackendLandowner(true);
+        } else {
+          setHasBackendLandowner(false);
         }
-        if (data.occupants && data.occupants.length > 0) {
-          setClassification('Occupier');
-          setName(data.occupants[0].full_name || '');
-          setFullAddress(data.occupants[0].address_id || '');
-          setContactEmail(data.occupants[0].email || '');
-          setContactPhone(data.occupants[0].phone || '');
-        }
-        if (data.representatives && data.representatives.length > 0) {
+        // Map landownerRepresentative fields if present
+        if (data?.landownerRepresentative) {
           setGrantorRep('Yes');
           setShowRepFields(true);
-          setGrantorRepDescription(data.representatives[0].full_name || '');
-          setGrantorRepAddress(data.representatives[0].address_id || '');
-          setRepContactEmail(data.representatives[0].email || '');
-          setRepContactPhone(data.representatives[0].phone || '');
+          // Only set rep fields if not already changed by user
+          setGrantorRepDescription(prev => prev || data.landownerRepresentative.name || '');
+          setGrantorRepAddress(prev => prev || data.landownerRepresentative.address || '');
+          setRepContactEmail(prev => prev || data.landownerRepresentative.email || '');
+          setRepContactPhone(prev => prev || data.landownerRepresentative.phone || '');
+        } else {
+          setGrantorRep('No');
+          setShowRepFields(false);
+          setGrantorRepDescription('');
+          setGrantorRepAddress('');
+          setRepContactEmail('');
+          setRepContactPhone('');
         }
         setLoading(false);
       })
       .catch((err) => {
         console.error('LandownerOccupantDetails: fetch catch', err);
-        setFetchError(err.message);
+        // If Id is present, still assume edit mode
+        setIsEditMode(!!Id);
         setLoading(false);
       });
   }, []);
@@ -71,20 +85,99 @@ const LandownerOccupantDetails: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: {[key:string]:string} = {};
-    if (!classification) newErrors.classification = "Select the type of ownership";
-    if (!name) newErrors.name = "Enter a name";
-    if (!fullAddress) newErrors.fullAddress = "Enter the full address";
-    if (!contactEmail) newErrors.contactEmail = "Enter an email address";
-    if (!contactPhone) newErrors.contactPhone = "Enter a phone number";
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) {
-      // Submit logic here
-      const searchParams = new URLSearchParams(window.location.search);
-      const applicationId = searchParams.get('id') || searchParams.get('applicationId') || '';
-  navigate(`/nwl/${applicationId}/task-list`);
+    if (!classification) newErrors.classification = 'Select the type of ownership';
+    if (!name) newErrors.name = 'Enter a name';
+    if (!fullAddress) newErrors.fullAddress = 'Enter the full address';
+    if (!contactEmail) newErrors.contactEmail = 'Enter an email address';
+    if (!contactPhone) newErrors.contactPhone = 'Enter a phone number';
+    // Add frontend validation for representative fields if required
+    if (grantorRep === 'Yes') {
+      if (!grantorRepDescription) newErrors.grantorRepDescription = 'Enter the representative name';
+      if (!grantorRepAddress) newErrors.grantorRepAddress = 'Enter the representative address';
+      if (!repContactEmail) newErrors.repContactEmail = 'Enter the representative email address';
+      if (!repContactPhone) newErrors.repContactPhone = 'Enter the representative phone number';
+    }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    const searchParams = new URLSearchParams(window.location.search);
+    const Id = searchParams.get('id') || searchParams.get('Id') || '';
+    // Flatten payload structure for backend validation
+    const payload: {[key:string]: any} = {
+      application_id: Id,
+      classification,
+      name,
+      fullAddress,
+      contactEmail,
+      contactPhone,
+    };
+    if (grantorRep === 'Yes') {
+      payload.grantorRep = grantorRep;
+      payload.grantorRepDescription = grantorRepDescription;
+      payload.grantorRepAddress = grantorRepAddress;
+      payload.repContactEmail = repContactEmail;
+      payload.repContactPhone = repContactPhone;
+    }
+    let url = '';
+    let method = '';
+    // Use PUT only if backend returned a landowner record for this application
+    if (hasBackendLandowner) {
+      url = `/backend/api/nwl/landowner-occupant-details/${Id}`;
+      method = 'PUT';
+      console.log('LandownerOccupantDetails PUT payload:', payload);
+    } else {
+      url = `/backend/api/nwl/landowner-occupant-details`;
+      method = 'POST';
+      console.log('LandownerOccupantDetails POST payload:', payload);
+    }
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        let errorMsg = `Error ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.errors) {
+            // Only show backend errors if not a required field
+            const backendErrors: {[key:string]:string} = {};
+            errorData.errors.forEach((msg: string) => {
+              // Map backend field names to user-friendly messages if needed
+              if (msg.includes('classification')) backendErrors.classification = 'Select the type of ownership';
+              else if (msg.includes('name')) backendErrors.name = 'Enter a name';
+              else if (msg.includes('fullAddress')) backendErrors.fullAddress = 'Enter the full address';
+              else if (msg.includes('contactEmail')) backendErrors.contactEmail = 'Enter an email address';
+              else if (msg.includes('contactPhone')) backendErrors.contactPhone = 'Enter a phone number';
+              else backendErrors.submit = msg;
+            });
+            setErrors(backendErrors);
+            return;
+          } else if (errorData && errorData.message) {
+            errorMsg = errorData.message;
+          }
+        } catch {}
+        setErrors({ submit: errorMsg });
+        return;
+      }
+      if (method === 'POST') {
+        // On create, get new id from response if available
+        const data = await response.json();
+        const newId = data?.data?.application_id || data?.data?.id || data?.data?.Id || '';
+        navigate(`/nwl/task-list${newId ? `?id=${newId}` : ''}`);
+      } else {
+        navigate(`/nwl/task-list?id=${Id}`);
+      }
+    } catch (err: any) {
+      setErrors({ submit: err.message });
     }
   };
-
+  // Extra null checks for robustness
   return (
     <main className="govuk-main-wrapper" id="main-content">
       {loading && (
