@@ -2,12 +2,15 @@ import React from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 const RouteDeletePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   // Route details passed via state
-  const { routeName, gridPoints, applicationId, route_id } = location.state || {};
+  const { routeName, gridPoints, route_id } = location.state || {};
+
+  const applicationId = useGetApplicationId();
   const { deleteRoute, fetchRoutes } = useRouteStore();
   const getRouteStore = useRouteStore.getState;
 
