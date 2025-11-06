@@ -9,6 +9,9 @@ import { applicationApiService } from "../../../../services/applicationApiServic
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 
 const ApplicantDetails: React.FC = () => {
+  // Breadcrumbs content
+  const BREADCRUMB_TASK_LIST = 'Task list';
+  const BREADCRUMB_NETWORK_OPERATOR = 'Network operator';
   // Validate email format
   function isValidEmail(email: string): boolean {
     // Simple regex for email validation
@@ -245,6 +248,16 @@ const ApplicantDetails: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item" aria-current="false">
+            <Link className="govuk-breadcrumbs__link" to={`/nwl/${application?.application_id || ''}/task-list`}>
+              {BREADCRUMB_TASK_LIST}
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">{BREADCRUMB_NETWORK_OPERATOR}</li>
+        </ol>
+      </nav>
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
