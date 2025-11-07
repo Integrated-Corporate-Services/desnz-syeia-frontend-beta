@@ -4,6 +4,7 @@ import { useLocation, Link, useNavigate, useParams } from 'react-router-dom';
 import RouteEntry from '../../RouteMap/page/RouteEntry';
 import RouteDeletedBanner from '../../RouteMap/component/RouteDeletedBanner';
 import { useApplicationStore } from '../../../store/useApplicationStore';
+import { S37_BASE_URL } from '../../../constants/s37';
 
 const TaskList: React.FC = () => {
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
@@ -63,12 +64,13 @@ const TaskList: React.FC = () => {
   const submitApplication = useApplicationStore(state => state.submitApplication);
 
   const handleSubmit = async () => {
-    if (!application?.application_id) return;
+    const effectiveApplicationId = application?.application_id || applicationId;
+    if (!effectiveApplicationId) return;
     setSubmitting(true);
     setSubmitError(null);
     try {
-      await submitApplication(application.application_id);
-      navigate('/application-submitted');
+      await submitApplication(effectiveApplicationId);
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/application-submitted`);
     } catch (err) {
       setSubmitError('Failed to submit application. Please try again.');
     } finally {
