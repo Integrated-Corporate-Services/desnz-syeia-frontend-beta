@@ -21,15 +21,18 @@ const LandownerOccupantDetails: React.FC = () => {
   // Fetch landowner/occupant/rep details from backend
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const applicationId = searchParams.get('id') || searchParams.get('applicationId') || '';
-    if (!applicationId) {
-      console.warn('No applicationId found in query string.');
+    const Id = searchParams.get('id') || searchParams.get('Id') || '';
+    console.log('LandownerOccupantDetails: Id', Id);
+    if (!Id) {
+      console.warn('No Id found in query string.');
       return;
     }
 
-    const url = `/backend/api/nwl/landowner-occupant-details/${applicationId}`;
+    const url = `/backend/api/nwl/landowner-occupant-details/${Id}`;
+    console.log('LandownerOccupantDetails: GET', url);
     fetch(url)
       .then(res => {
+        console.log('LandownerOccupantDetails: response', res);
         if (!res.ok) {
           console.error('LandownerOccupantDetails: fetch error', res.status, res.statusText);
           throw new Error(`Error ${res.status}: ${res.statusText}`);
@@ -77,13 +80,14 @@ const LandownerOccupantDetails: React.FC = () => {
       .catch((err) => {
         console.error('LandownerOccupantDetails: fetch catch', err);
         // If Id is present, still assume edit mode
-        setIsEditMode(!!Id);
+        //setIsEditMode(!!Id);
         setLoading(false);
       });
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Frontend validation for required fields
     const newErrors: {[key:string]:string} = {};
     if (!classification) newErrors.classification = 'Select the type of ownership';
     if (!name) newErrors.name = 'Enter a name';
