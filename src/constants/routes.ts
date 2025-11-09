@@ -28,6 +28,13 @@ import NWLTaskList from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
+import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
+import TLPApplicantDetails from '../features/TLP/ApplicantDetails/pages/ApplicantDetails';
+import TLPNetworkOperatorContactDetails from '../features/TLP/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
+import TLPTaskList from '../features/TLP/TaskList';
+import TLPAssets from '../features/TLP/Assets/pages/Assets';
+import TLPLandownerOccupantDetails from '../features/TLP/LandownerOccupantDetails/pages/LandownerOccupantDetails';
+import TLPApplicationLandDetails from '../features/TLP/ApplicationLandDetails/pages/ApplicationLandDetails';
 
 export const ROUTE_CONFIG = [
   {
@@ -81,6 +88,48 @@ export const ROUTE_CONFIG = [
   {
     path: '/nwl/:applicationId/application-and-land-details',
     component: ApplicationLandDetails,
+    auth: true,
+    layout: true
+  },
+{
+    path:'/tlp/who-is-applying',
+    component: TLPWhoIsApplying,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/tlp/:applicationId/applicant-details',
+    component: TLPApplicantDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/tlp/:applicationId/network-operator-contact-details',
+    component: TLPNetworkOperatorContactDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/tlp/:applicationId/assets',
+    component: TLPAssets,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/tlp/:applicationId/task-list',
+    component: TLPTaskList,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/tlp/:applicationId/landowner-occupant-details',
+    component: TLPLandownerOccupantDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/tlp/:applicationId/application-and-land-details',
+    component: TLPApplicationLandDetails,
     auth: true,
     layout: true
   },

@@ -44,6 +44,8 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                     e.preventDefault();
                     if (app.type === 'NWL') {
                       navigate(`/nwl/${app.application_id}/task-list`);
+                    } else if (app.type === 'TLP') {
+                      navigate(`/tlp/${app.application_id}/task-list`);
                     } else {
                       navigate(`${S37_BASE_URL}/${app.application_id}/task-list`);
                     }
@@ -67,6 +69,8 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                     e.preventDefault();
                     if (app.type === 'NWL') {
                       navigate(`/nwl/${app.application_id}/task-list`);
+                    } else if (app.type === 'TLP') {
+                      navigate(`/tlp/${app.application_id}/task-list`);
                     } else {
                       navigate(`${S37_BASE_URL}/${app.application_id}/task-list`);
                     }

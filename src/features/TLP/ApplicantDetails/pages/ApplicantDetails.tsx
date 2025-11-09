@@ -10,7 +10,7 @@ import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { add } from "proj4/dist/lib/projections";
 
 const ApplicantDetails: React.FC = () => {
-  // Breadcrumbs content
+    // Breadcrumbs content
   const BREADCRUMB_TASK_LIST = 'Task list';
   const BREADCRUMB_NETWORK_OPERATOR = 'Network operator';
   // Validate email format
@@ -127,7 +127,7 @@ const ApplicantDetails: React.FC = () => {
   // Always set dropdown selection to the first name in the options list
   useEffect(() => {
     if (options.length > 0) {
-  setSelectedOrgName(options[0].person_name ?? "");
+      setSelectedOrgName(options[0].person_name ?? "");
       setSelectedOrganisation(options[0]);
     }
   }, [options]);
@@ -152,35 +152,35 @@ const ApplicantDetails: React.FC = () => {
       setNetworkOperatorRef(application.operator_ref);
     }
     // Load additional contacts from application only once
-    if (
-      application?.application_party?.additional_contact &&
-      !initialContactsLoaded
-    ) {
-      const contacts = application.application_party.additional_contact
-        .split(',')
-        .map(email => email.trim())
-        .filter(email => email.length > 0);
-      setAdditionalContacts(contacts);
-      setInitialContactsLoaded(true);
-    }
-  }, [application, initialContactsLoaded]);
-
-  const handleAddContact = (e: React.FormEvent) => {
-    e.preventDefault();
-    const email = emailAddress.trim();
-    if (
-      email &&
-      !additionalContacts.map(e => e.toLowerCase()).includes(email.toLowerCase())
-    ) {
-      setAdditionalContacts(prev => [...prev, email]);
-      setEmailAddress("");
-    }
-  };
-
-  // Delete contact handler
-  function handleDeleteContact(email: string) {
-    setAdditionalContacts(prev => prev.filter(e => e !== email));
-  }
+        if (
+          application?.application_party?.additional_contact &&
+          !initialContactsLoaded
+        ) {
+          const contacts = application.application_party.additional_contact
+            .split(',')
+            .map(email => email.trim())
+            .filter(email => email.length > 0);
+          setAdditionalContacts(contacts);
+          setInitialContactsLoaded(true);
+        }
+      }, [application, initialContactsLoaded]);
+    
+      const handleAddContact = (e: React.FormEvent) => {
+        e.preventDefault();
+        const email = emailAddress.trim();
+        if (
+          email &&
+          !additionalContacts.map(e => e.toLowerCase()).includes(email.toLowerCase())
+        ) {
+          setAdditionalContacts(prev => [...prev, email]);
+          setEmailAddress("");
+        }
+      };
+    
+      // Delete contact handler
+      function handleDeleteContact(email: string) {
+        setAdditionalContacts(prev => prev.filter(e => e !== email));
+      }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,48 +195,48 @@ const ApplicantDetails: React.FC = () => {
     setShowErrorSummary(newErrors.length > 0);
     if (newErrors.length === 0) {
       let app = application;
-      const type = 'NWL';
-      const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
-      // Trim and join contacts for backend, send null if none
-      const additionalContactString = additionalContacts
-        .map(email => email.trim())
-        .filter(email => email.length > 0)
-        .join(',') || null;
-     if (!app) {
-        const newAppData = {
-          type,
-          operator_ref: networkOperatorRef,
-          status: 'Draft',
-          created_by: createdBy,
+            const type = 'TLP';
+            const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
+            // Trim and join contacts for backend, send null if none
+            const additionalContactString = additionalContacts
+              .map(email => email.trim())
+              .filter(email => email.length > 0)
+              .join(',') || null;
+           if (!app) {
+              const newAppData = {
+                type,
+                operator_ref: networkOperatorRef,
+                status: 'Draft',
+                created_by: createdBy,
+              };
+              app = await useApplicationStore.getState().startApplication(newAppData);
+            }
+           else {
+               console.log('Saving network operator details for existing application');
+                        await useApplicationStore.getState().saveNetworkOperator({
+                            application_id: appId,
+                            operator_ref: networkOperatorRef,
+                            organisation_id: selectedOrganisation?.organisation_id,
+                            person_id: selectedOrganisation?.person_id,
+                            contact_id: selectedOrganisation?.contact_id,
+                            role: 'Applicant',
+                            is_primary: true,
+                            contact_isconfirmed: applicationParty?.contact_isconfirmed,
+                            type: application?.type,
+                            additional_contact: additionalContactString,
+                          });
+                   
+              navigate(`/tlp/${app.application_id}/network-operator-contact-details`);
+            }
+          }
         };
-        app = await useApplicationStore.getState().startApplication(newAppData);
-      }
-     else {
-         console.log('Saving network operator details for existing application');
-                  await useApplicationStore.getState().saveNetworkOperator({
-                      application_id: appId,
-                      operator_ref: networkOperatorRef,
-                      organisation_id: selectedOrganisation?.organisation_id,
-                      person_id: selectedOrganisation?.person_id,
-                      contact_id: selectedOrganisation?.contact_id,
-                      role: 'Applicant',
-                      is_primary: true,
-                      contact_isconfirmed: applicationParty?.contact_isconfirmed,
-                      type: application?.type,
-                      additional_contact: additionalContactString,
-                    });
-             
-        navigate(`/nwl/${app.application_id}/network-operator-contact-details`);
-      }
-    }
-  };
 
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={`/nwl/${application?.application_id || ''}/task-list`}>
+            <Link className="govuk-breadcrumbs__link" to={`/tlp/${application?.application_id || ''}/task-list`}>
               {BREADCRUMB_TASK_LIST}
             </Link>
           </li>
@@ -341,7 +341,7 @@ const ApplicantDetails: React.FC = () => {
                   ))}
                 </select>
               </div>
- {additionalContacts.length > 0 && (
+               {additionalContacts.length > 0 && (
                 <ul className="govuk-list">
                   {additionalContacts.map((email, idx) => (
                     <li key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #eee', padding: '4px 0' }}>
@@ -390,7 +390,7 @@ const ApplicantDetails: React.FC = () => {
               >
                 Add contact
               </button>
-             
+
               <details className="govuk-details">
                 <summary className="govuk-details__summary">
                   <span className="govuk-details__summary-text">
