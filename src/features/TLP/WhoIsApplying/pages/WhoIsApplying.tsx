@@ -4,7 +4,6 @@ import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import type { AuthUser } from '../../../../types/auth';
 import { useApplicationStore } from '../../../../store/useApplicationStore';
 import { networkOperatorApiService } from '../../../../services/networkOperatorApiService';
-import { applicationApiService } from '../../../../services/applicationApiService';
 
 type NetworkOperator = { organisation_name: string; full_name: string; line1?: string };
 
@@ -92,13 +91,7 @@ const WhoIsApplying: React.FC = () => {
       },
     };
     setApplication(updatedApp);
-    // Send updated application to backend (PUT)
-    try {
-      await applicationApiService.updateApplication(app.application_id, updatedApp);
-      navigate(`/tlp/applicant-details?id=${app.application_id}`, { state: { networkOperatorOptions: options } });
-    } catch (err) {
-      setError("Failed to save applicant details. Please try again.");
-    }
+    navigate(`/tlp/${app.application_id}/applicant-details`, { state: { networkOperatorOptions: options } });
   };
 
   return (

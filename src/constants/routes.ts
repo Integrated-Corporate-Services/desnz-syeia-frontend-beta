@@ -98,37 +98,37 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path: '/tlp/applicant-details',
+    path: '/tlp/:applicationId/applicant-details',
     component: TLPApplicantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/network-operator-contact-details',
+    path: '/tlp/:applicationId/network-operator-contact-details',
     component: TLPNetworkOperatorContactDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/assets',
+    path: '/tlp/:applicationId/assets',
     component: TLPAssets,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/task-list',
+    path: '/tlp/:applicationId/task-list',
     component: TLPTaskList,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/landowner-occupant-details',
+    path: '/tlp/:applicationId/landowner-occupant-details',
     component: TLPLandownerOccupantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/application-and-land-details',
+    path: '/tlp/:applicationId/application-and-land-details',
     component: TLPApplicationLandDetails,
     auth: true,
     layout: true

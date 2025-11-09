@@ -121,7 +121,7 @@ const ApplicationLandDetails: React.FC = () => {
 								</label>
 								<FileUpload
 									title=""
-									prefix={`${applicationId}/${FILE_CATEGORIES.APPLICANTION_LAND_DETAILS}`}
+									prefix={`${applicationId}/${FILE_CATEGORIES.APPLICATION_LAND_DETAILS}`}
 									uploadedFiles={uploadedFiles}
 									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {
 										setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));

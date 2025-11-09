@@ -28,7 +28,7 @@ const LandownerOccupantDetails: React.FC = () => {
       return;
     }
 
-    const url = `/backend/api/nwl/landowner-occupant-details/${Id}`;
+    const url = `/backend/api/tlp/landowner-occupant-details/${Id}`;
     console.log('LandownerOccupantDetails: GET', url);
     fetch(url)
       .then(res => {
@@ -108,7 +108,7 @@ const LandownerOccupantDetails: React.FC = () => {
         repContactPhone,
         application_id: Id,
       };
-      url = `/backend/api/nwl/landowner-occupant-details/${Id}`;
+      url = `/backend/api/tlp/landowner-occupant-details/${Id}`;
       method = 'PUT';
       console.log('LandownerOccupantDetails PUT payload:', payload);
     } else {
@@ -134,7 +134,7 @@ const LandownerOccupantDetails: React.FC = () => {
         landOwner,
         landownerRepresentative,
       };
-      url = `/backend/api/nwl/landowner-occupant-details`;
+      url = `/backend/api/tlp/landowner-occupant-details`;
       method = 'POST';
       console.log('LandownerOccupantDetails POST payload:', payload);
     }
@@ -175,9 +175,9 @@ const LandownerOccupantDetails: React.FC = () => {
         // On create, get new id from response if available
         const data = await response.json();
         const newId = data?.data?.application_id || data?.data?.id || '';
-        navigate(`/nwl/task-list${newId ? `?id=${newId}` : ''}`);
+        navigate(`/tlp/${newId}/task-list`);
       } else {
-        navigate(`/nwl/task-list?id=${Id}`);
+        navigate(`/tlp/${Id}/task-list`);
       }
     } catch (err: any) {
       setErrors({ submit: err.message });

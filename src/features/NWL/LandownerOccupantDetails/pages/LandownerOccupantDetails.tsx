@@ -15,7 +15,7 @@ const LandownerOccupantDetails: React.FC = () => {
   const [errors, setErrors] = useState<{[key:string]:string}>({});
   const [showRepFields, setShowRepFields] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [hasBackendLandowner, setHasBackendLandowner] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const navigate = useNavigate();
 
   // Fetch landowner/occupant/rep details from backend
@@ -54,33 +54,14 @@ const LandownerOccupantDetails: React.FC = () => {
           setFullAddress(data.landOwner.address || '');
           setContactEmail(data.landOwner.email || '');
           setContactPhone(data.landOwner.phone || '');
-          setHasBackendLandowner(true);
+          setIsEditMode(true);
         } else {
-          setHasBackendLandowner(false);
-        }
-        // Map landownerRepresentative fields if present
-        if (data?.landownerRepresentative) {
-          setGrantorRep('Yes');
-          setShowRepFields(true);
-          // Only set rep fields if not already changed by user
-          setGrantorRepDescription(prev => prev || data.landownerRepresentative.name || '');
-          setGrantorRepAddress(prev => prev || data.landownerRepresentative.address || '');
-          setRepContactEmail(prev => prev || data.landownerRepresentative.email || '');
-          setRepContactPhone(prev => prev || data.landownerRepresentative.phone || '');
-        } else {
-          setGrantorRep('No');
-          setShowRepFields(false);
-          setGrantorRepDescription('');
-          setGrantorRepAddress('');
-          setRepContactEmail('');
-          setRepContactPhone('');
+          setIsEditMode(false);
         }
         setLoading(false);
       })
       .catch((err) => {
         console.error('LandownerOccupantDetails: fetch catch', err);
-        // If Id is present, still assume edit mode
-        //setIsEditMode(!!Id);
         setLoading(false);
       });
   }, []);
@@ -108,30 +89,51 @@ const LandownerOccupantDetails: React.FC = () => {
     setErrors({});
     const searchParams = new URLSearchParams(window.location.search);
     const Id = searchParams.get('id') || searchParams.get('Id') || '';
-    // Flatten payload structure for backend validation
-    const payload: {[key:string]: any} = {
-      application_id: Id,
+    // Build payload for backend
+    let payload;
+    let url = '';
+    let method = '';
+    if (isEditMode) {
+      // Update (PUT) - send flat structure
+      payload = {
       classification,
       name,
       fullAddress,
       contactEmail,
       contactPhone,
-    };
-    if (grantorRep === 'Yes') {
-      payload.grantorRep = grantorRep;
-      payload.grantorRepDescription = grantorRepDescription;
-      payload.grantorRepAddress = grantorRepAddress;
-      payload.repContactEmail = repContactEmail;
-      payload.repContactPhone = repContactPhone;
-    }
-    let url = '';
-    let method = '';
-    // Use PUT only if backend returned a landowner record for this application
-    if (hasBackendLandowner) {
+        grantorRep,
+        grantorRepDescription,
+        grantorRepAddress,
+        repContactEmail,
+        repContactPhone,
+        application_id: Id,
+      };
       url = `/backend/api/nwl/landowner-occupant-details/${Id}`;
       method = 'PUT';
       console.log('LandownerOccupantDetails PUT payload:', payload);
     } else {
+      // Create (POST) - send nested structure
+      const landOwner = {
+        contactType: classification,
+        name,
+        address: fullAddress,
+        email: contactEmail,
+        phone: contactPhone,
+      };
+      let landownerRepresentative = {};
+      if (grantorRep === 'Yes') {
+        landownerRepresentative = {
+          contactType: classification, // or a separate field if needed
+          name: grantorRepDescription,
+          address: grantorRepAddress,
+          email: repContactEmail,
+          phone: repContactPhone,
+        };
+      }
+      payload = {
+        landOwner,
+        landownerRepresentative,
+      };
       url = `/backend/api/nwl/landowner-occupant-details`;
       method = 'POST';
       console.log('LandownerOccupantDetails POST payload:', payload);
@@ -172,10 +174,10 @@ const LandownerOccupantDetails: React.FC = () => {
       if (method === 'POST') {
         // On create, get new id from response if available
         const data = await response.json();
-        const newId = data?.data?.application_id || data?.data?.id || data?.data?.Id || '';
-        navigate(`/nwl/task-list${newId ? `?id=${newId}` : ''}`);
+        const newId = data?.data?.application_id || data?.data?.id || '';
+        navigate(`/nwl/${newId}/task-list`);
       } else {
-        navigate(`/nwl/task-list?id=${Id}`);
+        navigate(`/nwl/${Id}/task-list`);
       }
     } catch (err: any) {
       setErrors({ submit: err.message });

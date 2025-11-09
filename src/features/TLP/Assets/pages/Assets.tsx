@@ -258,7 +258,7 @@ const Asset: React.FC = () => {
                 type="button"
                 className="govuk-button"
                 data-module="govuk-button"
-                onClick={() => navigate(`/tlp/task-list?id=${applicationId}`)}
+                onClick={() => navigate(`/tlp/${applicationId}/task-list`)}
               >
                 Save and continue
               </button>
