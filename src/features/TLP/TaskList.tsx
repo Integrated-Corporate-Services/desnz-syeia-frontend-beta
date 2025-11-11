@@ -94,7 +94,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href="form-supporting.html">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/tlp/${appId}/supporting-information`}>
 										<strong>Supporting information</strong>
 									</a>
 								</div>

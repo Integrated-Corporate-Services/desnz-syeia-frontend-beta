@@ -36,6 +36,7 @@ import TLPTaskList from '../features/TLP/TaskList';
 import TLPAssets from '../features/TLP/Assets/pages/Assets';
 import TLPLandownerOccupantDetails from '../features/TLP/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import TLPApplicationLandDetails from '../features/TLP/ApplicationLandDetails/pages/ApplicationLandDetails';
+import TLPSupportingInfo from '../features/TLP/SupportingInfo/pages/SupportingInfo';
 
 export const ROUTE_CONFIG = [
   {
@@ -137,6 +138,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/tlp/:applicationId/application-and-land-details',
     component: TLPApplicationLandDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `/tlp/:applicationId/supporting-information`,
+    component: TLPSupportingInfo,
     auth: true,
     layout: true
   },
