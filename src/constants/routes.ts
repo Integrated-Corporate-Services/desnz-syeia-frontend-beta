@@ -26,6 +26,7 @@ import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDe
 import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
 import NWLTaskList from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
+import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
 import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
@@ -88,6 +89,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/nwl/:applicationId/application-and-land-details',
     component: ApplicationLandDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `/nwl/:applicationId/supporting-information`,
+    component: NWLSupportingInfo,
     auth: true,
     layout: true
   },
