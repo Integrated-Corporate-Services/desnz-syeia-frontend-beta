@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { NWL_BASE_URL } from "../../../../constants/nwl";
 
 const SupportingInfo: React.FC = () => {
+	const { applicationId } = useParams<{ applicationId: string }>();
 	const [errors, setErrors] = useState<string[]>([]);
 	const [signedWayleave, setSignedWayleave] = useState<string>("");
 	const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
@@ -33,6 +36,20 @@ const SupportingInfo: React.FC = () => {
 	};
 
 	return (
+	<div className="govuk-width-container">
+		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<ol className="govuk-breadcrumbs__list">
+				<li className="govuk-breadcrumbs__list-item">
+					<Link
+						className="govuk-breadcrumbs__link"
+						to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+					>
+						Task list
+					</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item" aria-current="page">Supporting information</li>
+			</ol>
+		</nav>
 		<div className="govuk-grid-row">
 			<div className="govuk-grid-column-two-thirds">
 				<h1 className="govuk-heading-xl">Supporting information</h1>
@@ -371,7 +388,8 @@ const SupportingInfo: React.FC = () => {
 				</form>
 			</div>
 		</div>
-	);
+	</div>
+);
 };
 
 export default SupportingInfo;
