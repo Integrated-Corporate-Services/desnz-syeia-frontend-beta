@@ -8,7 +8,6 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 const SupportingInfo: React.FC = () => {
 	const [titlePlanFiles, setTitlePlanFiles] = useState<File[]>([]);
 	const [writtenRemovalFiles, setWrittenRemovalFiles] = useState<File[]>([]);
-	const [inheritedWayleaveFiles, setInheritedWayleaveFiles] = useState<File[]>([]);
 	const { applicationId } = useParams<{ applicationId: string }>();
 	const [errors, setErrors] = useState<string[]>([]);
 	const [signedWayleave, setSignedWayleave] = useState<string>("");
