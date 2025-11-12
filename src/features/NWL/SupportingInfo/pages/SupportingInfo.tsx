@@ -277,13 +277,12 @@ const SupportingInfo: React.FC = () => {
 											{errors.some(e => e.includes('contact-by-email')) && (
 												<p id="contact-by-email-error" className="govuk-error-message">Enter why you believe a new contract is implied</p>
 											)}
-											<input
-												className={`govuk-input govuk-!-width-one-third${errors.some(e => e.includes('contact-by-email')) ? ' govuk-input--error' : ''}`}
+											<textarea
+												className={`govuk-textarea govuk-!-width-one-third${errors.some(e => e.includes('contact-by-email')) ? ' govuk-textarea--error' : ''}`}
 												id="contact-by-email"
 												name="contactByEmail"
-												type="email"
-												spellCheck={false}
-												autoComplete="email"
+												spellCheck={true}
+												rows={4}
 												value={contactByEmail}
 												onChange={e => setContactByEmail(e.target.value)}
 											/>
