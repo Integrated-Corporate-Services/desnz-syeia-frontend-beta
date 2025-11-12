@@ -282,7 +282,7 @@ const SupportingInfo: React.FC = () => {
 												id="contact-by-email"
 												name="contactByEmail"
 												spellCheck={true}
-												rows={4}
+												rows={1}
 												value={contactByEmail}
 												onChange={e => setContactByEmail(e.target.value)}
 											/>
