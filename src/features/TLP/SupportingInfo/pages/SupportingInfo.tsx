@@ -92,6 +92,27 @@ const SupportingInfo: React.FC = () => {
     }
   };
 
+  if (!applicationId) {
+    return (
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              <h1 className="govuk-heading-xl">Supporting information</h1>
+              <div className="govuk-error-summary" data-module="govuk-error-summary" role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <ul className="govuk-list govuk-error-summary__list">
+                    <li>Application ID is missing. Please return to the task list and select a valid application.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
