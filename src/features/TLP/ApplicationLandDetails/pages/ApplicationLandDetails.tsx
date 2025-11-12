@@ -8,7 +8,6 @@ import { TLP_BASE_URL } from "../../../../constants/tlp";
 
 const ApplicationLandDetails: React.FC = () => {
 	// Example values for required props
-	const userId = ""; // TODO: get from auth context or props
 	const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 	const [, setApplicationDocuments] = useState<any[]>([]);
 	// Form state
