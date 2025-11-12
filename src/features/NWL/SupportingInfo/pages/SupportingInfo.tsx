@@ -528,7 +528,12 @@ const SupportingInfo: React.FC = () => {
 					</div>
 					{/* Call to action buttons */}
 					<div className="govuk-!-static-margin-top-6">
-						<a href="application-overview.html" className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2">Save for later</a>
+						<Link
+							to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+							className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2"
+						>
+							Save for later
+						</Link>
 						<button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
 					</div>
 				</form>
