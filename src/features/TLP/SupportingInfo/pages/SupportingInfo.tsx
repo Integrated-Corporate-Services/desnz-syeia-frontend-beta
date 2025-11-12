@@ -514,31 +514,29 @@ const SupportingInfo: React.FC = () => {
                           </div>
                         </fieldset>
                       </div>
-                      {inheritedWayleave === "Yes" && (
-                        <div
-                          className={`govuk-form-group${
-                            errors.inheritedWayleaveFile
-                              ? " govuk-form-group--error"
-                              : ""
-                          }`}
-                        >
-                          <FileUpload
-                            title="Upload a document"
-                            prefix={`applications/${applicationId}/inherited-wayleave`}
-                            onFilesChange={setInheritedWayleaveFiles}
-                            applicationId={applicationId}
-                            category="INHERITED_WAYLEAVE"
-                          />
-                          {errors.inheritedWayleaveFile && (
-                            <div
-                              id="inheritedWayleave-upload-1-error"
-                              className="govuk-error-message"
-                            >
-                              {errors.inheritedWayleaveFile}
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <div
+                        className={`govuk-form-group${
+                          errors.inheritedWayleaveFile
+                            ? " govuk-form-group--error"
+                            : ""
+                        }`}
+                      >
+                        <FileUpload
+                          title="Upload a document"
+                          prefix={`applications/${applicationId}/inherited-wayleave`}
+                          onFilesChange={setInheritedWayleaveFiles}
+                          applicationId={applicationId}
+                          category="INHERITED_WAYLEAVE"
+                        />
+                        {errors.inheritedWayleaveFile && (
+                          <div
+                            id="inheritedWayleave-upload-1-error"
+                            className="govuk-error-message"
+                          >
+                            {errors.inheritedWayleaveFile}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </fieldset>
