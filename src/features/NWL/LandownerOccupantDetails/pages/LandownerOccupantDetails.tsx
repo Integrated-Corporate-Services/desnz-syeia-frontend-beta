@@ -205,7 +205,7 @@ const LandownerOccupantDetails: React.FC = () => {
       if (method === 'POST') {
         // On create, get new id from response if available
         const data = await response.json();
-        const newId = data?.data?.applicationId || data?.data?.id || '';
+        const newId = data?.data?.applicationId || '';
         navigate(`/nwl/${newId}/task-list`);
       } else {
         navigate(`/nwl/${applicationId}/task-list`);
