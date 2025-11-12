@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { TLP_BASE_URL } from "../../../../constants/tlp";
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -17,6 +18,19 @@ const LandownerOccupantDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const navigate = useNavigate();
+
+  const params = useParams();
+  const getApplicationId = () => {
+    if (params.applicationId) return params.applicationId;
+    if (params.id) return params.id;
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+      if (idFromQuery) return idFromQuery;
+    }
+    return '';
+  };
+  const applicationId = getApplicationId();
 
   // Fetch landowner/occupant/rep details from backend
   useEffect(() => {
@@ -186,22 +200,19 @@ const LandownerOccupantDetails: React.FC = () => {
   // Extra null checks for robustness
   return (
     <main className="govuk-main-wrapper" id="main-content">
-      {loading && (
-        <div className="govuk-body">Loading landowner/occupant details...</div>
-      )}
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="applications.html">Applications</a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="application-overview.html">Application overview</a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="form-grantor.html">Landowner or occupant details</a>
-          </li>
-        </ol>
-      </nav>
+		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<ol className="govuk-breadcrumbs__list">
+				<li className="govuk-breadcrumbs__list-item">
+					<Link
+						className="govuk-breadcrumbs__link"
+						to={`${TLP_BASE_URL}/${applicationId}/task-list`}
+					>
+						Task list
+					</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item" aria-current="page">Landowner or occupant details</li>
+			</ol>
+		</nav>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Landowner or occupant details</h1>

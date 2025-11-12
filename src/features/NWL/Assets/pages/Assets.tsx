@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useAssetStore } from '../../../../store/useAssetStore';
 import { createAsset } from '../../../../services/asset-service';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
+import { NWL_BASE_URL } from "../../../../constants/nwl";
 
 const lineTypeOptions: string[] = [
   "High voltage overhead line",
@@ -156,19 +157,19 @@ const Asset: React.FC = () => {
 
   return (
     <main className="govuk-main-wrapper" id="main-content">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="applications.html">Applications</a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="application-overview.html">Application overview</a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="form-assets.html">Assets</a>
-          </li>
-        </ol>
-      </nav>
+      				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+						<ol className="govuk-breadcrumbs__list">
+							<li className="govuk-breadcrumbs__list-item">
+								<Link
+									className="govuk-breadcrumbs__link"
+									to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+								>
+									Task list
+								</Link>
+							</li>
+							<li className="govuk-breadcrumbs__list-item" aria-current="page">Assets</li>
+						</ol>
+					</nav>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Assets</h1>

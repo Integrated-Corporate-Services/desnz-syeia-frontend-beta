@@ -2,12 +2,25 @@ import React, { useState } from "react";
 import FileUpload from '../../../../components/FileUpload';
 // Use the advanced FileUpload component from ProjectOverview
 import { FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
+import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { Link, useParams } from "react-router-dom";
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
 	// Example values for required props
-	const applicationId = ""; // TODO: replace with actual applicationId logic
-	const userId = ""; // TODO: get from auth context or props
+
+  const params = useParams();
+  const getApplicationId = () => {
+    if (params.applicationId) return params.applicationId;
+    if (params.id) return params.id;
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+      if (idFromQuery) return idFromQuery;
+    }
+    return '';
+  };
+  const applicationId = getApplicationId();
 	const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 	const [, setApplicationDocuments] = useState<any[]>([]);
 	// Form state
@@ -65,19 +78,19 @@ const ApplicationLandDetails: React.FC = () => {
 
 	return (
 		<main className="govuk-main-wrapper" id="main-content">
-			<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-				<ol className="govuk-breadcrumbs__list">
-					<li className="govuk-breadcrumbs__list-item">
-						<a className="govuk-breadcrumbs__link" href="applications.html">Applications</a>
-					</li>
-					<li className="govuk-breadcrumbs__list-item">
-						<a className="govuk-breadcrumbs__link" href="application-overview.html">Application overview</a>
-					</li>
-					<li className="govuk-breadcrumbs__list-item">
-						<a className="govuk-breadcrumbs__link" href="form-application.html">Application and Land details</a>
-					</li>
-				</ol>
-			</nav>
+				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+						<ol className="govuk-breadcrumbs__list">
+							<li className="govuk-breadcrumbs__list-item">
+								<Link
+									className="govuk-breadcrumbs__link"
+									to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+								>
+									Task list
+								</Link>
+							</li>
+							<li className="govuk-breadcrumbs__list-item" aria-current="page">Application and Land details</li>
+						</ol>
+					</nav>
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
 					<h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Application and Land details</h1>

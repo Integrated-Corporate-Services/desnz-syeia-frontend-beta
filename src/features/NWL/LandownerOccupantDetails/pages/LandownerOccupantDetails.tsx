@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { NWL_BASE_URL } from "../../../../constants/nwl";
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -18,6 +19,19 @@ const LandownerOccupantDetails: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const navigate = useNavigate();
 
+  const params = useParams();
+  const getApplicationId = () => {
+    if (params.applicationId) return params.applicationId;
+    if (params.id) return params.id;
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+      if (idFromQuery) return idFromQuery;
+    }
+    return '';
+  };
+  const applicationId = getApplicationId();
+
   // Fetch landowner/occupant/rep details from backend
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -28,7 +42,7 @@ const LandownerOccupantDetails: React.FC = () => {
       return;
     }
 
-    const url = `/backend/api/nwl/landowner-occupant-details/${Id}`;
+    const url = `/backend/api/nwl/${applicationId}/landowner-occupant-details`;
     console.log('LandownerOccupantDetails: GET', url);
     fetch(url)
       .then(res => {
@@ -41,14 +55,8 @@ const LandownerOccupantDetails: React.FC = () => {
       })
       .then(data => {
         console.log('LandownerOccupantDetails: data', data);
-        // Use the landOwner object from the backend response
-        if (data?.landOwner && (
-          data.landOwner.contactType ||
-          data.landOwner.name ||
-          data.landOwner.address ||
-          data.landOwner.email ||
-          data.landOwner.phone
-        )) {
+        // Map backend response to form state
+        if (data?.landOwner) {
           setClassification(data.landOwner.contactType || '');
           setName(data.landOwner.name || '');
           setFullAddress(data.landOwner.address || '');
@@ -58,6 +66,22 @@ const LandownerOccupantDetails: React.FC = () => {
         } else {
           setIsEditMode(false);
         }
+        // Map representative if present
+        if (data?.landownerRepresentative) {
+          setGrantorRep('Yes');
+          setShowRepFields(true);
+          setGrantorRepDescription(data.landownerRepresentative.name || '');
+          setGrantorRepAddress(data.landownerRepresentative.address || '');
+          setRepContactEmail(data.landownerRepresentative.email || '');
+          setRepContactPhone(data.landownerRepresentative.phone || '');
+        } else {
+          setGrantorRep('No');
+          setShowRepFields(false);
+          setGrantorRepDescription('');
+          setGrantorRepAddress('');
+          setRepContactEmail('');
+          setRepContactPhone('');
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -66,10 +90,17 @@ const LandownerOccupantDetails: React.FC = () => {
       });
   }, []);
 
+  const isValidUUID = (uuid: string) => {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Frontend validation for required fields
     const newErrors: {[key:string]:string} = {};
+    if (!applicationId || !isValidUUID(applicationId)) {
+      newErrors.applicationId = 'Application ID is missing or invalid.';
+    }
     if (!classification) newErrors.classification = 'Select the type of ownership';
     if (!name) newErrors.name = 'Enter a name';
     if (!fullAddress) newErrors.fullAddress = 'Enter the full address';
@@ -87,8 +118,6 @@ const LandownerOccupantDetails: React.FC = () => {
       return;
     }
     setErrors({});
-    const searchParams = new URLSearchParams(window.location.search);
-    const Id = searchParams.get('id') || searchParams.get('Id') || '';
     // Build payload for backend
     let payload;
     let url = '';
@@ -96,19 +125,19 @@ const LandownerOccupantDetails: React.FC = () => {
     if (isEditMode) {
       // Update (PUT) - send flat structure
       payload = {
-      classification,
-      name,
-      fullAddress,
-      contactEmail,
-      contactPhone,
+        applicationId,
+        classification,
+        name,
+        fullAddress,
+        contactEmail,
+        contactPhone,
         grantorRep,
         grantorRepDescription,
         grantorRepAddress,
         repContactEmail,
         repContactPhone,
-        application_id: Id,
       };
-      url = `/backend/api/nwl/landowner-occupant-details/${Id}`;
+      url = `/backend/api/nwl/${applicationId}/landowner-occupant-details`;
       method = 'PUT';
       console.log('LandownerOccupantDetails PUT payload:', payload);
     } else {
@@ -131,6 +160,7 @@ const LandownerOccupantDetails: React.FC = () => {
         };
       }
       payload = {
+        applicationId,
         landOwner,
         landownerRepresentative,
       };
@@ -160,6 +190,7 @@ const LandownerOccupantDetails: React.FC = () => {
               else if (msg.includes('fullAddress')) backendErrors.fullAddress = 'Enter the full address';
               else if (msg.includes('contactEmail')) backendErrors.contactEmail = 'Enter an email address';
               else if (msg.includes('contactPhone')) backendErrors.contactPhone = 'Enter a phone number';
+              else if (msg.includes('application_id')) backendErrors.applicationId = 'Application ID is missing or invalid.';
               else backendErrors.submit = msg;
             });
             setErrors(backendErrors);
@@ -174,10 +205,10 @@ const LandownerOccupantDetails: React.FC = () => {
       if (method === 'POST') {
         // On create, get new id from response if available
         const data = await response.json();
-        const newId = data?.data?.application_id || data?.data?.id || '';
+        const newId = data?.data?.applicationId || '';
         navigate(`/nwl/${newId}/task-list`);
       } else {
-        navigate(`/nwl/${Id}/task-list`);
+        navigate(`/nwl/${applicationId}/task-list`);
       }
     } catch (err: any) {
       setErrors({ submit: err.message });
@@ -186,22 +217,19 @@ const LandownerOccupantDetails: React.FC = () => {
   // Extra null checks for robustness
   return (
     <main className="govuk-main-wrapper" id="main-content">
-      {loading && (
-        <div className="govuk-body">Loading landowner/occupant details...</div>
-      )}
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="applications.html">Applications</a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="application-overview.html">Application overview</a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <a className="govuk-breadcrumbs__link" href="form-grantor.html">Landowner or occupant details</a>
-          </li>
-        </ol>
-      </nav>
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<ol className="govuk-breadcrumbs__list">
+				<li className="govuk-breadcrumbs__list-item">
+					<Link
+						className="govuk-breadcrumbs__link"
+						to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+					>
+						Task list
+					</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item" aria-current="page">Landowner or occupant details</li>
+			</ol>
+		</nav>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Landowner or occupant details</h1>

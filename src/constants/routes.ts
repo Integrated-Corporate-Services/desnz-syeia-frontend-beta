@@ -26,6 +26,7 @@ import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDe
 import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
 import NWLTaskList from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
+import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
 import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
@@ -35,6 +36,7 @@ import TLPTaskList from '../features/TLP/TaskList';
 import TLPAssets from '../features/TLP/Assets/pages/Assets';
 import TLPLandownerOccupantDetails from '../features/TLP/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import TLPApplicationLandDetails from '../features/TLP/ApplicationLandDetails/pages/ApplicationLandDetails';
+import TLPSupportingInfo from '../features/TLP/SupportingInfo/pages/SupportingInfo';
 
 export const ROUTE_CONFIG = [
   {
@@ -91,6 +93,12 @@ export const ROUTE_CONFIG = [
     auth: true,
     layout: true
   },
+  {
+    path: `/nwl/:applicationId/supporting-information`,
+    component: NWLSupportingInfo,
+    auth: true,
+    layout: true
+  },
 {
     path:'/tlp/who-is-applying',
     component: TLPWhoIsApplying,
@@ -130,6 +138,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/tlp/:applicationId/application-and-land-details',
     component: TLPApplicationLandDetails,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `/tlp/:applicationId/supporting-information`,
+    component: TLPSupportingInfo,
     auth: true,
     layout: true
   },
