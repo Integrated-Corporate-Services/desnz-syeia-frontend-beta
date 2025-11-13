@@ -3,12 +3,9 @@ import FileUpload from '../../../../components/FileUpload';
 import { Link, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 
-
-
 const SupportingInfo: React.FC = () => {
 	const [writtenRemovalFiles, setWrittenRemovalFiles] = useState<File[]>([]);
-	const [inheritedWayleaveFiles, setInheritedWayleaveFiles] = useState<File[]>([]);
-	const { applicationId } = useParams<{ applicationId: string }>();
+	const [, setInheritedWayleaveFiles] = useState<File[]>([]);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [signedWayleave, setSignedWayleave] = useState<string>("");
 	const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
