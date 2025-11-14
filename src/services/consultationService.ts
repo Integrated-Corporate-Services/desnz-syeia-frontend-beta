@@ -7,3 +7,13 @@ export async function fetchConsultationDetails(applicationId: string, userId: st
   });
   return response.data;
 }
+
+export async function getConsultationDetailsById(consultationId: string): Promise<ConsultationDetails> {
+  const response = await axios.get(`/backend/api/consultations/${consultationId}/details`);
+  return response.data;
+}
+
+export async function saveConsultationMessage(consultationId: string, message: string): Promise<any> {
+  const response = await axios.post(`/backend/api/consultations/${consultationId}/save-message`, { message });
+  return response.data;
+}

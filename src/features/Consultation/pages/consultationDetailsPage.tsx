@@ -65,6 +65,12 @@ const ConsultationDetailsPage: React.FC = () => {
               consultationId={consultation.id}
               applicationId={applicationId}
               dateRequestCreated={consultation.lastUpdatedAt ?? undefined}
+              dateClosed={consultation.dateClosed ?? undefined}
+              objectionRaised={consultation.objectionRaised}
+              closeComments={consultation.closeComments}
+              responseDocuments={consultation.responseDocuments}
+              respondingConsulteeName={consultation.respondingConsulteeName}
+              respondingConsulteeEmail={consultation.respondingConsulteeEmail}
             />
           ))}
 
