@@ -39,7 +39,7 @@ const ApplicationStatement: React.FC = () => {
 		setErrors(newErrors);
 		if (Object.keys(newErrors).length === 0) {
 			// Redirect to application overview
-			window.location.href = 'application-overview.html';
+			window.location.href = `${TLP_BASE_URL}/${applicationId}/task-list`;
 		} else {
 			setTimeout(() => {
 				const errorSummary = document.querySelector('.govuk-error-summary');
@@ -60,7 +60,7 @@ const ApplicationStatement: React.FC = () => {
                         Task list
                     </Link>
                 </li>
-                <li className="govuk-breadcrumbs__list-item" aria-current="page">Negotiations</li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">Application statement</li>
             </ol>
         </nav>
 			<div className="govuk-grid-row">

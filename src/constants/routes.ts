@@ -118,12 +118,6 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path: `${NWL_BASE_URL}/:applicationId/supporting-information`,
-    component: NWLSupportingInfo,
-    auth: true,
-    layout: true
-  },
-  {
     path:`${TLP_BASE_URL}/who-is-applying`,
     component: TLPWhoIsApplying,
     auth: true,
@@ -165,7 +159,7 @@ export const ROUTE_CONFIG = [
     auth: true,
     layout: true
   },
-    {
+  {
     path: `${TLP_BASE_URL}/:applicationId/supporting-information`,
     component: TLPSupportingInfo,
     auth: true,
