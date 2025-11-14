@@ -2,8 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { S37_BASE_URL } from '../../../constants/s37';
 import { ConsultationStatus } from "../../../constants/consultationStatus";
-// Remove misplaced top-level await import
-const { downloadS3File } = await import('../../../utils/s3DownloadUtil');
+import { downloadS3File } from '../../../utils/s3DownloadUtil';
 
 interface ConsultationSummaryCardProps {
   orgName: string | null;

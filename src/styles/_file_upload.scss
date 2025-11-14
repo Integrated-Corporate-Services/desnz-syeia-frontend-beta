@@ -28,8 +28,10 @@
     &--hover {
       pointer-events: none;
     }
-    font-size: 19px;
-    line-height: 19px;
+      & {
+        font-size: 19px;
+        line-height: 19px;
+      }
   }
 
   &__extensions {
@@ -39,7 +41,9 @@
       pointer-events: none;
     }
 
-    margin-top: 20px; /* govuk-spacing(3) */
+    & {
+      margin-top: 20px; /* govuk-spacing(3) */
+    }
 
     .govuk-hint {
       margin-bottom: 0;
