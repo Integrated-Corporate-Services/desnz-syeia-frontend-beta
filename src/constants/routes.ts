@@ -44,7 +44,6 @@ import TLPSupportingInfo from '../features/TLP/SupportingInfo/pages/SupportingIn
 import TLPNegotiations from '../features/TLP/Negotiations/pages/Negotiations';
 import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/ApplicationStatement';
 
-
 export const ROUTE_CONFIG = [
   {
     path: '/signin',
@@ -119,6 +118,12 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
+    path: `${NWL_BASE_URL}/:applicationId/supporting-information`,
+    component: NWLSupportingInfo,
+    auth: true,
+    layout: true
+  },
+  {
     path:`${TLP_BASE_URL}/who-is-applying`,
     component: TLPWhoIsApplying,
     auth: true,
@@ -160,7 +165,7 @@ export const ROUTE_CONFIG = [
     auth: true,
     layout: true
   },
-  {
+    {
     path: `${TLP_BASE_URL}/:applicationId/supporting-information`,
     component: TLPSupportingInfo,
     auth: true,
