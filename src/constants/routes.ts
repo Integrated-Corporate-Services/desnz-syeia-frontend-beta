@@ -1,3 +1,6 @@
+import { S37_BASE_URL } from './s37';
+import { TLP_BASE_URL } from './tlp';
+import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
 import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOperatorDetails';
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -19,7 +22,6 @@ import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
 import ConsultationPage from '../features/Consultation/pages/consultationDetailsPage';
 import consulteeApplicationDetails from '../features/Consultation/pages/consulteeApplicationInfo';
 import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
-import { S37_BASE_URL } from './s37';
 import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
 import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
 import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDetails';
@@ -27,8 +29,10 @@ import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorCon
 import NWLTaskList from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
-import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
-import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
+import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
+import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
+import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
+import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPApplicantDetails from '../features/TLP/ApplicantDetails/pages/ApplicantDetails';
 import TLPNetworkOperatorContactDetails from '../features/TLP/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
@@ -37,6 +41,8 @@ import TLPAssets from '../features/TLP/Assets/pages/Assets';
 import TLPLandownerOccupantDetails from '../features/TLP/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import TLPApplicationLandDetails from '../features/TLP/ApplicationLandDetails/pages/ApplicationLandDetails';
 import TLPSupportingInfo from '../features/TLP/SupportingInfo/pages/SupportingInfo';
+import TLPNegotiations from '../features/TLP/Negotiations/pages/Negotiations';
+import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/ApplicationStatement';
 
 export const ROUTE_CONFIG = [
   {
@@ -52,98 +58,122 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path:'/nwl/who-is-applying',
+    path:`${NWL_BASE_URL}/who-is-applying`,
     component: NWLWhoIsApplying,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/:applicationId/applicant-details',
+    path: `${NWL_BASE_URL}/:applicationId/applicant-details`,
     component: ApplicantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/:applicationId/network-operator-contact-details',
+    path: `${NWL_BASE_URL}/:applicationId/network-operator-contact-details`,
     component: NWLNetworkOperatorContactDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/:applicationId/assets',
+    path: `${NWL_BASE_URL}/:applicationId/assets`,
     component: NWLAssets,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/:applicationId/task-list',
+    path: `${NWL_BASE_URL}/:applicationId/task-list`,
     component: NWLTaskList,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/:applicationId/landowner-occupant-details',
-    component: LandownerOccupantDetails,
+    path: `${NWL_BASE_URL}/:applicationId/landowner-occupant-details`,
+    component: NWLLandownerOccupantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/nwl/:applicationId/application-and-land-details',
-    component: ApplicationLandDetails,
+    path: `${NWL_BASE_URL}/:applicationId/application-and-land-details`,
+    component: NWLApplicationLandDetails,
     auth: true,
     layout: true
   },
   {
-    path: `/nwl/:applicationId/supporting-information`,
+    path: `${NWL_BASE_URL}/:applicationId/supporting-information`,
     component: NWLSupportingInfo,
     auth: true,
     layout: true
   },
-{
-    path:'/tlp/who-is-applying',
+  {
+    path: `${NWL_BASE_URL}/:applicationId/negotiations`,
+    component: NWLNegotiations,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/application-statement`,
+    component: NWLApplicationStatement,
+    auth: true,
+    layout: true
+  },
+  {
+    path:`${TLP_BASE_URL}/who-is-applying`,
     component: TLPWhoIsApplying,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/:applicationId/applicant-details',
+    path: `${TLP_BASE_URL}/:applicationId/applicant-details`,
     component: TLPApplicantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/:applicationId/network-operator-contact-details',
+    path: `${TLP_BASE_URL}/:applicationId/network-operator-contact-details`,
     component: TLPNetworkOperatorContactDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/:applicationId/assets',
+    path: `${TLP_BASE_URL}/:applicationId/assets`,
     component: TLPAssets,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/:applicationId/task-list',
+    path: `${TLP_BASE_URL}/:applicationId/task-list`,
     component: TLPTaskList,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/:applicationId/landowner-occupant-details',
+    path: `${TLP_BASE_URL}/:applicationId/landowner-occupant-details`,
     component: TLPLandownerOccupantDetails,
     auth: true,
     layout: true
   },
   {
-    path: '/tlp/:applicationId/application-and-land-details',
+    path: `${TLP_BASE_URL}/:applicationId/application-and-land-details`,
     component: TLPApplicationLandDetails,
     auth: true,
     layout: true
   },
   {
-    path: `/tlp/:applicationId/supporting-information`,
+    path: `${TLP_BASE_URL}/:applicationId/supporting-information`,
     component: TLPSupportingInfo,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${TLP_BASE_URL}/:applicationId/negotiations`,
+    component: TLPNegotiations,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${TLP_BASE_URL}/:applicationId/application-statement`,
+    component: TLPApplicationStatement,
     auth: true,
     layout: true
   },
