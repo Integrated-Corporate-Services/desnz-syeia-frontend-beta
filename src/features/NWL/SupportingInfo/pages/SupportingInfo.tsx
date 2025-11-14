@@ -5,7 +5,7 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 
 const SupportingInfo: React.FC = () => {
 	const [writtenRemovalFiles, setWrittenRemovalFiles] = useState<File[]>([]);
-	const [, setInheritedWayleaveFiles] = useState<File[]>([]);
+	const [setInheritedWayleaveFiles] = useState<File[]>([]);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [signedWayleave, setSignedWayleave] = useState<string>("");
 	const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
@@ -18,8 +18,8 @@ const SupportingInfo: React.FC = () => {
 	const [writtenRemoval, setWrittenRemoval] = useState<string>("");
 	const [writtenRemovalDate, setWrittenRemovalDate] = useState({ day: "", month: "", year: "" });
 	const [titlePlan, setTitlePlan] = useState<string>("");
-	  const params = useParams();
-	  const getApplicationId = () => {
+	const params = useParams();
+	const getApplicationId = () => {
 		if (params.applicationId) return params.applicationId;
 		if (params.id) return params.id;
 		if (typeof window !== 'undefined') {
@@ -29,7 +29,7 @@ const SupportingInfo: React.FC = () => {
 		}
 		return '';
 	  };
-	  const applicationId = getApplicationId();
+	const applicationId = getApplicationId();
 
 
 	const handleSubmit = (e: React.FormEvent) => {
