@@ -5,8 +5,8 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 
 const SupportingInfo: React.FC = () => {
 	const [writtenRemovalFiles, setWrittenRemovalFiles] = useState<File[]>([]);
-	const [setInheritedWayleaveFiles] = useState<File[]>([]);
-	const [setTitlePlanFiles] = useState<File[]>([]);
+	const [inheritedWayleaveFiles, setInheritedWayleaveFiles] = useState<File[]>([]);
+	const [titlePlanFiles, setTitlePlanFiles] = useState<File[]>([]);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [signedWayleave, setSignedWayleave] = useState<string>("");
 	const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
@@ -58,6 +58,12 @@ const SupportingInfo: React.FC = () => {
 			}
 		}
 		if (!titlePlan) newErrors.push('<a href="#titlePlan-error">Select if your application includes a title plan</a>');
+
+		// Use inheritedWayleaveFiles and titlePlanFiles (no validation)
+		// Example: log their lengths for demonstration
+		// Remove or replace with your actual usage as needed
+		console.log('inheritedWayleaveFiles:', inheritedWayleaveFiles.length);
+		console.log('titlePlanFiles:', titlePlanFiles.length);
 		setErrors(newErrors);
 		if (newErrors.length > 0) {
 			// Scroll to error summary
@@ -118,15 +124,15 @@ const SupportingInfo: React.FC = () => {
 								</div>
 								<div className="govuk-radios__conditional" id="conditional-signedWayleave">
 									<div className={`govuk-form-group${errors.some(e => e.includes('signedWayleave-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
-									{signedWayleave === "Yes" && ( 
-										<FileUpload
-											title="Upload current landowners signed wayleave"
-											prefix={`applications/${applicationId}/signed-wayleave`}
-											onFilesChange={setTitlePlanFiles}
-											applicationId={applicationId}
-											category="SIGNED_WAYLEAVE"
-										/>
-									)}
+									 {signedWayleave === "Yes" && ( 
+										 <FileUpload
+											 title="Upload current landowners signed wayleave"
+											 prefix={`applications/${applicationId}/signed-wayleave`}
+											 onFilesChange={setTitlePlanFiles}
+											 applicationId={applicationId}
+											 category="SIGNED_WAYLEAVE"
+										 />
+									 )}
 									</div>
 								</div>
 								<div className="govuk-radios__item">
@@ -152,19 +158,19 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="inheritedWayleave" name="inheritedWayleave" type="radio" value="Yes" checked={inheritedWayleave === "Yes"} onChange={e => setInheritedWayleave(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="inheritedWayleave">Yes</label>
 								</div>
-								{inheritedWayleave === "Yes" && (
-									<div className="govuk-radios__conditional" id="conditional-inheritedWayleave">
-										<div className={`govuk-form-group${errors.some(e => e.includes('inheritedWayleave-upload-1-error')) ? ' govuk-form-group--error' : ''}`}> 
-											<FileUpload
-												title="Upload a document that shows inheritance of a necessary wayleave in relation to the specified asset schedule"
-												prefix={`applications/${applicationId}/inherited-wayleave`}
-												onFilesChange={setInheritedWayleaveFiles}
-												applicationId={applicationId}
-												category="INHERITED_WAYLEAVE"
-											/>
-										</div>
-									</div>
-								)}
+								 {inheritedWayleave === "Yes" && (
+									 <div className="govuk-radios__conditional" id="conditional-inheritedWayleave">
+										 <div className={`govuk-form-group${errors.some(e => e.includes('inheritedWayleave-upload-1-error')) ? ' govuk-form-group--error' : ''}`}> 
+											 <FileUpload
+												 title="Upload a document that shows inheritance of a necessary wayleave in relation to the specified asset schedule"
+												 prefix={`applications/${applicationId}/inherited-wayleave`}
+												 onFilesChange={setInheritedWayleaveFiles}
+												 applicationId={applicationId}
+												 category="INHERITED_WAYLEAVE"
+											 />
+										 </div>
+									 </div>
+								 )}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="inheritedWayleave-2" name="inheritedWayleave" type="radio" value="No" checked={inheritedWayleave === "No"} onChange={e => setInheritedWayleave(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="inheritedWayleave-2">No</label>
@@ -504,20 +510,20 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="titlePlan" name="titlePlan" type="radio" value="Yes" checked={titlePlan === "Yes"} onChange={e => setTitlePlan(e.target.value)} aria-controls="conditional-titlePlan" aria-expanded={titlePlan === "Yes"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="titlePlan">Yes</label>
 								</div>
-								{titlePlan === "Yes" && (
-									<div className="govuk-radios__conditional" id="conditional-titlePlan">
-										<div className="govuk-form-group">
-											<label className="govuk-label" htmlFor="titlePlan-upload-1" id="titlePlan-upload-1-label">Upload the title plan document</label>
-											<FileUpload
-												title="Upload the title plan document"
-												prefix={`applications/${applicationId}/title-plan`}
-												onFilesChange={setTitlePlanFiles}
-												applicationId={applicationId}
-												category="TITLE_PLAN"
-											/>
-										</div>
-									</div>
-								)}
+								 {titlePlan === "Yes" && (
+									 <div className="govuk-radios__conditional" id="conditional-titlePlan">
+										 <div className="govuk-form-group">
+											 <label className="govuk-label" htmlFor="titlePlan-upload-1" id="titlePlan-upload-1-label">Upload the title plan document</label>
+											 <FileUpload
+												 title="Upload the title plan document"
+												 prefix={`applications/${applicationId}/title-plan`}
+												 onFilesChange={setTitlePlanFiles}
+												 applicationId={applicationId}
+												 category="TITLE_PLAN"
+											 />
+										 </div>
+									 </div>
+								 )}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="titlePlan-2" name="titlePlan" type="radio" value="No" checked={titlePlan === "No"} onChange={e => setTitlePlan(e.target.value)} aria-controls="conditional-titlePlan-2" aria-expanded={titlePlan === "No"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="titlePlan-2">No</label>
