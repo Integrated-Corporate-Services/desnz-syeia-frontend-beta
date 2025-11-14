@@ -3,6 +3,9 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import { getConsultationPack } from "../../../services/consultationPackService";
 import { sendNotificationEmail } from '../../../services/notifyService';
+import SummaryCard from '../../../components/SummaryCard';
+import Accordation from '../../../components/Accordation';
+import { useAuthUser } from "../../../hooks/useAuthUser";
 
 const SendApplicationToConsultee: React.FC = () => {
   const location = useLocation();
@@ -22,7 +25,10 @@ const SendApplicationToConsultee: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState(false);
-
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [emailMessage, setEmailMessage] = useState("");
+  const { user } = useAuthUser();
+  const userId = user?.email || "";
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
@@ -34,6 +40,7 @@ const SendApplicationToConsultee: React.FC = () => {
         setPackSections((data?.packSections || []).filter((s: any) => s.include));
         setPackDocuments((data?.packDocuments || []).filter((d: any) => d.include));
         setPackUploadedFiles(data?.uploadedFiles || []);
+        setEmailMessage(data?.consultation?.consultee_email_message || "");
       } catch (err: any) {
         setError(err.message || "Failed to load consultation details");
       } finally {
@@ -61,168 +68,121 @@ const SendApplicationToConsultee: React.FC = () => {
         documents: packDocuments,
         uploadedFiles,
       });
-  navigate(`${S37_BASE_URL}/${applicationId}/consultation-request-sent`);
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation-request-sent`);
     } catch (err: any) {
       setSendError(err.message || 'Failed to send email');
     } finally {
       setSending(false);
     }
   };
+
+  const handleSaveForLater = () => {
+    navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="govuk-error-message">{error}</div>;
 
+  // Prepare summary card sections
+  const summarySections = [];
+  if (packSections.length > 0) {
+    summarySections.push({
+      title: 'Details',
+      items: packSections.map((section: any) => ({ label: section.sectionKey, value: '' })),
+      changeUrl: `${S37_BASE_URL}/${applicationId}/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`,
+    });
+  }
+  if (packDocuments.length > 0) {
+    summarySections.push({
+      title: 'Documents',
+      items: packDocuments.map((doc: any) => ({
+        label: doc.documentCategory || doc.document_category,
+        value: doc.documentTitle || doc.document_title
+      })),
+      changeUrl: `${S37_BASE_URL}/${applicationId}/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`,
+    });
+  }
+  if (uploadedFiles.length > 0) {
+    summarySections.push({
+      title: 'Additional supporting documents',
+      items: uploadedFiles.map((file: any) => ({ label: file.filename, value: '' })),
+      changeUrl: `/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`,
+    });
+  }
+
+  const consulteeid = searchParams.get("consulteeid") || "";
+  const orgname = searchParams.get("orgname") || "";
+  const queryParams = `?consulteeid=${encodeURIComponent(consulteeid)}&orgname=${encodeURIComponent(orgname)}`;
+  const emailDetailsSection = {
+    title: 'Email details',
+    items: [
+      { label: 'Applicant email address', value: userId },
+      { label: 'Consultee email address', value: orgEmail },
+      { label: 'Subject', value: 'Consultation request for overhead lines (Electricity Act 1989)' },
+      { label: 'Message', value: emailMessage },
+    ],
+    changeUrl: `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/email-consultee${queryParams}`,
+  };
+
   return (
     <div className="govuk-width-container">
-      {/* Breadcrumbs */}
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              to={`${S37_BASE_URL}/${applicationId}/task-list`}
-              className="govuk-breadcrumbs__link"
-            >
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            Send selected application details
-          </li>
-        </ol>
-      </nav>
+     <div className="govuk-grid-row">
+             <div className="govuk-grid-column-two-thirds">
+               <nav className="govuk-breadcrumbs" aria-label="Breadcrumbs">
+                 <ol className="govuk-breadcrumbs__list">
+                   <li className="govuk-breadcrumbs__list-item">
+                     <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
+                   </li>
+                   <li className="govuk-breadcrumbs__list-item">
+                     <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Consultations</Link>
+                   </li>
+                   <li className="govuk-breadcrumbs__list-item">Summary of consultation request</li>
+                 </ol>
+               </nav> 
+    
       <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-three-quarters">
-            <h2 className="govuk-caption-l">{consultationName}</h2>
-            <h1 className="govuk-heading-xl">Send selected application details</h1>
-            <p className="govuk-body govuk-!-margin-bottom-6">
-              Review the details and documents you're about to send.
-            </p>
-            <form className="govuk-!-margin-bottom-8" onSubmit={handleSendRequest}>
-  {sendError && <div className="govuk-error-message">{sendError}</div>}
-  {sendSuccess && <div className="govuk-notification-banner govuk-notification-banner--success"><div className="govuk-notification-banner__content">Email sent successfully!</div></div>}
-              <div className="govuk-form-group">
-                <label className="govuk-label govuk-label--m" htmlFor="org-email">
-                  Organisation email address
-                </label>
-                <span className="govuk-hint">Your consultation details will be sent to this address</span>
-                <input
-                  className="govuk-input"
-                  id="org-email"
-                  name="org-email"
-                  type="email"
-                  value={orgEmail}
-                  readOnly
-                  style={{ background: '#f3f2f1' }}
-                />
-              </div>
-              <div className="govuk-form-group">
-                <label className="govuk-label govuk-label--m" htmlFor="subject">
-                  Subject
-                </label>
-                <input className="govuk-input" id="subject" name="subject" type="text" defaultValue="test subject" />
-              </div>
-              <div className="govuk-form-group">
-                <label className="govuk-label govuk-label--m" htmlFor="message">
-                  Message
-                </label>
-                <textarea className="govuk-textarea" id="message" name="message" rows={5} defaultValue="test message"></textarea>
-              </div>
-            </form>
+        <h1 className="govuk-heading-xl">Summary of consultation request</h1>
+        {/* Build accordation sections array without nulls */}
+        {(() => {
+          const accordationSections = [];
+          if (summarySections.length > 0) {
+              accordationSections.push({
+                heading: 'Application details',
+                id: 'application-details',
+                children: <>
+                  <h2 className="govuk-heading-l govuk-!-margin-bottom-2">Application details</h2>
+                  <SummaryCard sections={summarySections} />
+                </>,
+              });
+          }
+          accordationSections.push({
+            heading: 'Email to consultee',
+            id: 'email-details',
+              children: <SummaryCard sections={[emailDetailsSection]} />,
+          });
+          return <Accordation sections={accordationSections} />;
+        })()}
+        <form className="govuk-!-margin-bottom-8" onSubmit={handleSendRequest}>
+          {sendError && <div className="govuk-error-message">{sendError}</div>}
+          {sendSuccess && <div className="govuk-notification-banner govuk-notification-banner--success"><div className="govuk-notification-banner__content">Email sent successfully!</div></div>}
+          <div className="govuk-checkboxes govuk-!-margin-bottom-6">
+            <div className="govuk-checkboxes__item">
+              <input className="govuk-checkboxes__input" id="confirm-send" type="checkbox" required onChange={e => setIsConfirmed(e.target.checked)} />
+              <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-send">
+                Confirm that you want to send this request.
+              </label>
+            </div>
           </div>
-        </div>
-
-        {/* Attachments Section */}
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-three-quarters">
-            <h2 className="govuk-heading-l govuk-!-margin-bottom-2">Attachments</h2>
-            <p className="govuk-body govuk-!-margin-bottom-4">Summary of your selected details and documents.</p>
-
-            {/* Details Table - GOV.UK summary card style */}
-            {packSections.length > 0 && (
-              <div className="govuk-summary-card govuk-!-margin-bottom-6">
-                <div className="govuk-summary-card__title-wrapper">
-                  <h3 className="govuk-summary-card__title">Details</h3>
-                  <div className="govuk-summary-card__actions">
-                    <Link to={`${S37_BASE_URL}/${applicationId}/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`} className="govuk-link">Add or remove details</Link>
-                  </div>
-                </div>
-                <div className="govuk-summary-card__content">
-                  <table className="govuk-table govuk-!-margin-bottom-0">
-                    <tbody className="govuk-table__body">
-                      {packSections.filter((s: any) => s.include).map((section, idx) => (
-                        <tr className="govuk-table__row" key={idx}>
-                          <td className="govuk-table__cell">{section.sectionKey}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Documents Table - GOV.UK summary card style */}
-            {packDocuments.length > 0 && (
-              <div className="govuk-summary-card govuk-!-margin-bottom-6">
-                <div className="govuk-summary-card__title-wrapper">
-                  <h3 className="govuk-summary-card__title">Documents</h3>
-                  <div className="govuk-summary-card__actions">
-                    <Link to={`${S37_BASE_URL}/${applicationId}/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`} className="govuk-link">Add or remove documents</Link>
-                  </div>
-                </div>
-                <div className="govuk-summary-card__content">
-                  <table className="govuk-table govuk-!-margin-bottom-0">
-                    <tbody className="govuk-table__body">
-                      {packDocuments.filter((d: any) => d.include).map((doc, idx) => (
-                        <tr className="govuk-table__row" key={idx}>
-                          <td className="govuk-table__cell govuk-!-font-weight-bold">{doc.documentCategory || doc.document_category}</td>
-                          <td className="govuk-table__cell">{doc.documentTitle || doc.document_title}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Additional Supporting Documents Table - GOV.UK summary card style */}
-            {uploadedFiles.length > 0 && (
-              <div className="govuk-summary-card govuk-!-margin-bottom-8">
-                <div className="govuk-summary-card__title-wrapper">
-                  <h3 className="govuk-summary-card__title">Additional supporting documents</h3>
-                  <div className="govuk-summary-card__actions">
-                    <Link to={`/consultation/consultee-application-details?consultationId=${consultationId}&applicationId=${applicationId}`} className="govuk-link">Add or remove documents</Link>
-                  </div>
-                </div>
-                <div className="govuk-summary-card__content">
-                  <table className="govuk-table govuk-!-margin-bottom-0">
-                    <tbody className="govuk-table__body">
-                      {uploadedFiles.map((file, idx) => (
-                        <tr className="govuk-table__row" key={idx}>
-                          <td className="govuk-table__cell">{ file.filename}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+          <div className="govuk-button-group govuk-!-margin-bottom-6">
+            <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater}>Save for later</button>
+            <button type="submit" className="govuk-button" style={{ backgroundColor: '#00703c' }} disabled={sending || !isConfirmed}>
+              {sending ? 'Sending...' : 'Send request'}
+            </button>
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
-          <button type="button" className="govuk-button govuk-button--secondary">Save for later</button>
-          <button
-            type="button"
-            className="govuk-button"
-            style={{ backgroundColor: '#00703c' }}
-            disabled={sending}
-            onClick={handleSendRequest}
-          >
-            {sending ? 'Sending...' : 'Send request'}
-          </button>
-        </div>
+        </form>
       </main>
+      </div>
+      </div>
     </div>
   );
 };

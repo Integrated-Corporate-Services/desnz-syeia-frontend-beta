@@ -1,4 +1,7 @@
 import TaskList from '../features/TaskList/pages/TaskList';
+import ConsultationResponsePage from '../features/Consultation/pages/ConsultationResponsePage';
+import ConsultationNotRequiredPage from '../features/Consultation/pages/ConsultationNotRequiredPage';
+import ConsultationRequestPage from '../features/Consultation/pages/ConsultationRequestPage';
 import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOperatorDetails';
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import Workbasket from '../features/Workbasket/pages/Workbasket';
@@ -28,6 +31,7 @@ import NWLTaskList from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
+import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 
 export const ROUTE_CONFIG = [
   {
@@ -225,6 +229,30 @@ export const ROUTE_CONFIG = [
   {
   path: `${S37_BASE_URL}/:applicationId/consultation-request-sent`,
     component: ConsultationRequestSent,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response`,
+    component: ConsultationResponsePage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/not-required`,
+    component: ConsultationNotRequiredPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/consultation-request`,
+    component: ConsultationRequestPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/email-consultee`,
+    component: EmailTemplate,
     auth: true,
     layout: true
   },

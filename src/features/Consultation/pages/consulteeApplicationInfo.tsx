@@ -178,7 +178,11 @@ useEffect(() => {
     try {
       await saveConsultationPack(packObj);
       if (validate) {
-        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/send-application-to-consultee`);
+        // Only pass the email address and org name as query params
+        const consulteeid = consultationPack?.consultation?.default_email || "";
+        const orgname = consultationPack?.consultation?.org_name || "";
+        const queryParams = `?consulteeid=${encodeURIComponent(consulteeid)}&orgname=${encodeURIComponent(orgname)}`;
+        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/email-consultee${queryParams}`);
       } else {
         navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
       }
@@ -405,6 +409,7 @@ useEffect(() => {
                     applicationDocuments: [...(prev?.applicationDocuments || []), ...newApplicationDocuments]
                   }));
                 }}
+                consultationId={consultationId}
               />
             </div>
 
