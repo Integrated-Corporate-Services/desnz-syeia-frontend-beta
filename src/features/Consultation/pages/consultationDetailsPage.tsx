@@ -71,6 +71,8 @@ const ConsultationDetailsPage: React.FC = () => {
               responseDocuments={consultation.responseDocuments}
               respondingConsulteeName={consultation.respondingConsulteeName}
               respondingConsulteeEmail={consultation.respondingConsulteeEmail}
+              notRequiredMessage= {consultation.notRequiredReason}
+              notRequiredDocs={consultation.notRequiredDocs}
             />
           ))}
 

@@ -22,6 +22,8 @@ interface ConsultationSummaryCardProps {
   responseDocuments?: { url: string; name: string }[];
   respondingConsulteeName?: string;
   respondingConsulteeEmail?: string;
+  notRequiredMessage?: string;
+  notRequiredDocs?: { url: string; name: string }[];
 }
 
 const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
@@ -41,6 +43,8 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
   responseDocuments,
   respondingConsulteeName,
   respondingConsulteeEmail,
+  notRequiredMessage,
+  notRequiredDocs
 }) => {
   // Normalize status to key in ConsultationStatus
   function getStatusKey(statusValue: string): keyof typeof ConsultationStatus | undefined {
@@ -74,6 +78,44 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
   // Render different card layouts based on status
   function renderCardContent() {
     switch (statusDisplay) {
+      case ConsultationStatus.NOT_REQUIRED:
+        return (
+          <>
+            <div className="govuk-summary-card__title-wrapper"></div>
+            <div className="govuk-summary-card__content">
+              <table className="govuk-table govuk-!-margin-bottom-0" style={{ width: '100%' }}>
+                <tbody className="govuk-table__body">
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell" style={{ fontWeight: 700, width: '30%' }}>Status</td>
+                    <td className="govuk-table__cell" style={{ whiteSpace: 'nowrap', width: '70%' }}>
+                      <span className="govuk-tag govuk-tag--grey">Not required</span>
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell" style={{ fontWeight: 700 }}>Reason</td>
+                    <td className="govuk-table__cell">{notRequiredMessage || 'This consultation is not required'}</td>
+                  </tr>
+                  {notRequiredDocs && notRequiredDocs.length > 0 && (
+                    <tr className="govuk-table__row">
+                      <td className="govuk-table__cell" style={{ fontWeight: 700 }}>Supporting documents</td>
+                      <td className="govuk-table__cell">
+                        {notRequiredDocs.map((doc: any, idx: number) => (
+                          <div key={idx}>
+                            <a href="#" className="govuk-link" onClick={async e => {
+                              e.preventDefault();
+                              const key = doc.key || doc.url;
+                              downloadS3File(key);
+                            }}>{doc.name}</a>
+                          </div>
+                        ))}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
       case ConsultationStatus.REQUEST_SENT:
         return (
           <>

@@ -76,7 +76,8 @@ const ConsultationResponsePage: React.FC = () => {
                 uploaded_files: uploadedFileObjs,
                 application_documents: applicationDocuments,
                 created_by: userId,
-                last_updated_by: userId
+                last_updated_by: userId,
+                isSave: true
             };
             try {
                 await saveConsultationResponse(payload);
@@ -128,13 +129,14 @@ const ConsultationResponsePage: React.FC = () => {
                 response_comments: comments,
                 has_all_documents_uploaded: allDocsUploaded === 'yes' ? true : allDocsUploaded === 'no' ? false : undefined,
                 uploaded_files: uploadedFileObjs,
-                application_documents: applicationDocuments
+                application_documents: applicationDocuments,
+                isSave: false,
+                created_by: userId,
+                last_updated_by: userId,
             };
             try {
                 await saveConsultationResponse(payload);
-                // Redirect to ConsultationDetailsPage after save
-                console.log(applicationId);
-                console.log(consultationId);
+           
                 navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
             } catch (err) {
                 // handle error

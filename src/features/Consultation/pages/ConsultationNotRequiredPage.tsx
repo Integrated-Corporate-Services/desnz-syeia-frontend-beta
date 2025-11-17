@@ -1,9 +1,11 @@
 
-import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import FileUpload from '../../../components/FileUpload';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
+import { ConsultationStatus } from '../../../constants/consultationStatus';
+import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/consultationService';
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
@@ -11,11 +13,68 @@ const ConsultationNotRequiredPage: React.FC = () => {
 	const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 	const [uploadedFileObjs, setUploadedFileObjs] = useState<any[]>([]);
 	const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
+	const [notRequiredStatus, setNotRequiredStatus] = useState<any>(null);
 	// Handler for FileUpload onUploaded
 	const handleUploadedFiles = (uploadedFiles: any[], applicationDocumentsArr: any[]) => {
 		setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
 		setApplicationDocuments(prev => [...prev, ...applicationDocumentsArr]);
 	};
+
+
+	// Fetch 'Consultation Not Required' status on mount
+	useEffect(() => {
+		if (consultationId && applicationId) {
+			getNotRequiredStatus(consultationId, applicationId)
+				.then(data => {
+					setNotRequiredStatus(data);
+					if (data?.details?.notRequiredReason) setReason(data.details.notRequiredReason);
+					if (Array.isArray(data?.uploadedFiles)) setUploadedFileObjs(data.uploadedFiles);
+					if (Array.isArray(data?.applicationDocuments)) setApplicationDocuments(data.applicationDocuments);
+				})
+				.catch(() => {
+					setNotRequiredStatus(null);
+				});
+		}
+	}, [consultationId, applicationId]);
+
+	// Save and Continue handler
+
+		// Save and Continue handler (set status to NOT_REQUIRED)
+		const navigate = useNavigate();
+		const handleSaveAndContinue = async () => {
+			if (!consultationId || !notRequiredStatus?.details) return;
+			const updatedDetails = {
+				...notRequiredStatus.details,
+				status: ConsultationStatus.NOT_REQUIRED,
+				notRequiredReason: reason,
+				uploadedFiles: uploadedFileObjs,
+				applicationDocuments: applicationDocuments
+			};
+			try {
+				await saveNotRequiredStatus(consultationId, updatedDetails);
+				navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+			} catch (err) {
+				// Optionally handle error
+			}
+		};
+
+		// Save for later handler (set status to REQUEST_INCOMPLETE)
+		const handleSaveForLater = async () => {
+			if (!consultationId || !notRequiredStatus?.details) return;
+			const updatedDetails = {
+				...notRequiredStatus.details,
+				status: ConsultationStatus.REQUEST_INCOMPLETE,
+				notRequiredReason: reason,
+				uploadedFiles: uploadedFileObjs,
+				applicationDocuments: applicationDocuments
+			};
+			try {
+				await saveNotRequiredStatus(consultationId, updatedDetails);
+				navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+			} catch (err) {
+				// Optionally handle error
+			}
+		};
 
 	return (
 		<div className="govuk-width-container govuk-!-margin-top-6 govuk-!-margin-bottom-6">
@@ -51,7 +110,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 							<p className="govuk-body">If a consultation is not required, you must provide appropriate evidence here to demonstrate this.</p>
 							<p className="govuk-body">Please note that the upgrade and refurbishment of existing overhead lines within IRZs do not usually require consultation with Natural England.</p>
 						</div>
-						<form className="govuk-form-group govuk-!-margin-bottom-6" noValidate>
+						<form className="govuk-form-group govuk-!-margin-bottom-6" noValidate onSubmit={e => e.preventDefault()}>
 							<div className="govuk-form-group govuk-!-margin-bottom-6">
 								<label className="govuk-label govuk-label--s" htmlFor="reason">Explain why this consultation is not required.</label>
 								<textarea
@@ -81,8 +140,22 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								/>
 							</div>
 							<div className="govuk-button-group govuk-!-margin-top-6">
-								<button type="submit" className="govuk-button govuk-button--secondary" data-module="govuk-button">Save for later</button>
-								<button type="submit" className="govuk-button govuk-button--primary" data-module="govuk-button">Save and Continue</button>
+								<button
+									type="button"
+									className="govuk-button govuk-button--secondary"
+									data-module="govuk-button"
+									onClick={handleSaveForLater}
+								>
+									Save for later
+								</button>
+								<button
+									type="button"
+									className="govuk-button govuk-button--primary"
+									data-module="govuk-button"
+									onClick={handleSaveAndContinue}
+								>
+									Save and Continue
+								</button>
 							</div>
 						</form>
 					</main>

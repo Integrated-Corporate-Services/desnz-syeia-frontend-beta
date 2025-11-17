@@ -36,10 +36,10 @@ useEffect(() => {
   }
 }, []);
   // Document checkbox handler
-  function handleDocumentSelect(packDocumentId: string) {
+  function handleDocumentSelect(documentId: string) {
     setPackDocuments(prevDocs => {
       const updated = prevDocs.map(doc =>
-        doc.packDocumentId === packDocumentId ? { ...doc, include: !doc.include } : doc
+        doc.documentId === documentId ? { ...doc, include: !doc.include } : doc
       );
       setSelectAllDocuments(updated.length > 0 && updated.every(d => d.include));
       return updated;
@@ -372,13 +372,13 @@ useEffect(() => {
                             <div className="govuk-checkboxes__item" >
                               <input
                                 className="govuk-checkboxes__input"
-                                id={`doc-${idx}`}
-                                name={`doc-${idx}`}
+                                id={`doc-${doc.documentId}`}
+                                name={`doc-${doc.documentId}`}
                                 type="checkbox"
                                 checked={doc.include}
-                                onChange={() => handleDocumentSelect(doc.packDocumentId)}
+                                onChange={() => handleDocumentSelect(doc.documentId)}
                               />
-                              <label className="govuk-checkboxes__label govuk-!-margin-bottom-0 govuk-!-text-align-left" htmlFor={`doc-${idx}`} style={{ marginLeft: '8px', whiteSpace: 'wrap', minWidth: '220px', textAlign: 'left' }}>
+                              <label className="govuk-checkboxes__label govuk-!-margin-bottom-0 govuk-!-text-align-left" htmlFor={`doc-${doc.documentId}`} style={{ marginLeft: '8px', whiteSpace: 'wrap', minWidth: '220px', textAlign: 'left' }}>
                                 {FILE_CATEGORY_LABELS[doc.documentCategory] || doc.documentCategory || 'document'}
                               </label>
                             </div>
