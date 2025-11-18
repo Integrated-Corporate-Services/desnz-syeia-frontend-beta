@@ -22,4 +22,15 @@ export interface ConsultationDetails {
   createdBy?: string | null;
   lastUpdatedAt?: string | null;
   lastUpdatedBy?: string | null;
+  // Closed status details for summary card
+  dateClosed?: string;
+  objectionRaised?: boolean;
+  closeComments?: string;
+  responseDocuments?: { name: string; url: string }[];
+  respondingConsulteeName?: string;
+  respondingConsulteeEmail?: string;
+  consulteeEmailMessage?: string;
+  // Additional details for 'Consultation Not Required' status
+  notRequiredReason ?: string;
+  notRequiredDocs ?: { name: string; url: string }[];
 }

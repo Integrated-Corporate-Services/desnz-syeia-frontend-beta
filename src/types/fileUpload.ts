@@ -21,4 +21,5 @@ export interface ApplicationDocument {
   addedBy: string;
   addedAt: string;
   description?: string;
+  consultationId?: string;
 }

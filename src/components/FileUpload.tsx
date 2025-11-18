@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { downloadS3File } from '../utils/s3DownloadUtil';
 import '../styles/Fileupload.css';
 import { getPresignedUrls, uploadFileToS3, getPresignedGetUrl, deleteFileFromS3 } from '../services/s3ApiService';
 
@@ -16,10 +17,11 @@ export interface FileUploadProps {
   applicationId?: string;
   category?: string;
   addedBy?: string;
+  consultationId?: string;
   onUploaded?: (uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[]) => void;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photographs', prefix = '', uploadedFiles, onFilesChange, onRemoveFile, applicationId, category, addedBy, onUploaded }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photographs', prefix = '', uploadedFiles, onFilesChange, onRemoveFile, applicationId, category, addedBy, consultationId, onUploaded }) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
   const DEFAULT_USER_ID = "44444444-4444-4444-4444-444444444444";
@@ -182,6 +184,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photograph
               virtualFolder: uploadedFile.virtualFolder,
               addedBy: userId,
               addedAt: uploadedFile.uploadedAtTimestamp,
+              consultationId: consultationId || '', // Set if applicable
             };
             applicationDocuments.push(applicationDocument);
             // Remove file and its status from local state after successful upload
@@ -267,11 +270,18 @@ const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photograph
                   href="#"
                   className="govuk-link gds-upload-file-link"
                   style={{ flex: '1', color: '#1d70b8', textDecoration: 'underline', fontWeight: 400, fontSize: '1rem' }}
-                  onClick={e => { e.preventDefault(); /* add download handler if needed */ }}
+                  onClick={e => {
+                    e.preventDefault();
+                    if (file.s3Key) downloadS3File(file.s3Key);
+                  }}
                 >
                   {file.filename ? file.filename.split('/').pop() : ''}
                 </a>
-                <span className="gds-upload-file-size" style={{ flex: '0 0 100px', textAlign: 'center', color: '#505a5f', fontSize: '1rem' }}>{Math.round(Number(file.fileSizeBytes) / 1024)} KB</span>
+                <span className="gds-upload-file-size" style={{ flex: '0 0 100px', textAlign: 'center', color: '#505a5f', fontSize: '1rem' }}>
+                  {file.fileSizeBytes && !isNaN(Number(file.fileSizeBytes))
+                    ? `${Math.round(Number(file.fileSizeBytes) / 1024)} KB`
+                    : '0 KB'}
+                </span>
                 <a
                   href="#"
                   className="govuk-link gds-upload-remove-link"
