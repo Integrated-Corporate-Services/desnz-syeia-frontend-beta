@@ -4,7 +4,7 @@ import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import { getConsultationPack } from "../../../services/consultationPackService";
 import { sendNotificationEmail } from '../../../services/notifyService';
 import SummaryCard from '../../../components/SummaryCard';
-import Accordation from '../../../components/Accordation';
+import Accordion from '../../../components/Accordion';
 import { useAuthUser } from "../../../hooks/useAuthUser";
 
 const SendApplicationToConsultee: React.FC = () => {
@@ -144,23 +144,22 @@ const SendApplicationToConsultee: React.FC = () => {
         <h1 className="govuk-heading-xl">Summary of consultation request</h1>
         {/* Build accordation sections array without nulls */}
         {(() => {
-          const accordationSections = [];
+          const accordionSections = [];
           if (summarySections.length > 0) {
-              accordationSections.push({
+              accordionSections.push({
                 heading: 'Application details',
                 id: 'application-details',
                 children: <>
-                  <h2 className="govuk-heading-l govuk-!-margin-bottom-2">Application details</h2>
                   <SummaryCard sections={summarySections} />
                 </>,
               });
           }
-          accordationSections.push({
+          accordionSections.push({
             heading: 'Email to consultee',
             id: 'email-details',
               children: <SummaryCard sections={[emailDetailsSection]} />,
           });
-          return <Accordation sections={accordationSections} />;
+          return <Accordion sections={accordionSections} />;
         })()}
         <form className="govuk-!-margin-bottom-8" onSubmit={handleSendRequest}>
           {sendError && <div className="govuk-error-message">{sendError}</div>}

@@ -203,24 +203,25 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     </tr>
                   )}
                   {responseDocuments && responseDocuments.length > 0 && (
-                    <tr className="govuk-table__row">
-                      <td className="govuk-table__cell" style={{ fontWeight: 700 }}>Response documents</td>
-                      <td className="govuk-table__cell">
-                        {responseDocuments.map((doc: any, idx: number) => (
-                          <div key={idx}>
-                            <a href="#" className="govuk-link" onClick={async e => {
-                              e.preventDefault();
-                              const key = doc.key || doc.url;
-                              downloadS3File(key);
-                            }}>{doc.name}</a>
-                          </div>
-                        ))}
-                      </td>
-                    </tr>
-                  )}
-                  {respondingConsulteeName && (
-                    <tr className="govuk-table__row">
-                      <td className="govuk-table__cell" style={{ fontWeight: 700 }}>Responding consultee’s name</td>
+                      <tr className="govuk-table__row">
+                        <td className="govuk-table__cell" style={{ fontWeight: 700 }}>Response documents</td>
+                        <td className="govuk-table__cell">
+                          {responseDocuments.map((doc: any, idx: number) => (
+                            <div key={idx}>
+                              <a href="#" className="govuk-link" onClick={async e => {
+                                e.preventDefault();
+                                const key = doc.key || doc.url;
+                                try {
+                                  await downloadS3File(key);
+                                } catch (error) {
+                                  console.error("Failed to download file:", error);
+                                }
+                              }}>
+                                {doc.name || doc.fileName}
+                              </a>
+                            </div>
+                          ))}
+                        </td>
                       <td className="govuk-table__cell">{respondingConsulteeName}</td>
                     </tr>
                   )}
