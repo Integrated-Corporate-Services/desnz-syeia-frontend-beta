@@ -34,40 +34,33 @@ const LandownerOccupantDetails: React.FC = () => {
 
   // Fetch landowner/occupant/rep details from backend
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const Id = searchParams.get('id') || searchParams.get('Id') || '';
-    console.log('LandownerOccupantDetails: Id', Id);
-    if (!Id) {
-      console.warn('No Id found in query string.');
+    if (!applicationId) {
+      setIsEditMode(false);
+      setLoading(false);
       return;
     }
-
     const url = `/backend/api/nwl/${applicationId}/landowner-occupant-details`;
-    console.log('LandownerOccupantDetails: GET', url);
     fetch(url)
       .then(res => {
-        console.log('LandownerOccupantDetails: response', res);
         if (!res.ok) {
-          console.error('LandownerOccupantDetails: fetch error', res.status, res.statusText);
-          throw new Error(`Error ${res.status}: ${res.statusText}`);
+          setIsEditMode(false);
+          setLoading(false);
+          return null;
         }
         return res.json();
       })
       .then(data => {
-        console.log('LandownerOccupantDetails: data', data);
-        // Map backend response to form state
-        if (data?.landOwner) {
+        if (data && data.landOwner) {
+          setIsEditMode(true);
           setClassification(data.landOwner.contactType || '');
           setName(data.landOwner.name || '');
           setFullAddress(data.landOwner.address || '');
           setContactEmail(data.landOwner.email || '');
           setContactPhone(data.landOwner.phone || '');
-          setIsEditMode(true);
         } else {
           setIsEditMode(false);
         }
-        // Map representative if present
-        if (data?.landownerRepresentative) {
+        if (data && data.landownerRepresentative) {
           setGrantorRep('Yes');
           setShowRepFields(true);
           setGrantorRepDescription(data.landownerRepresentative.name || '');
@@ -84,11 +77,11 @@ const LandownerOccupantDetails: React.FC = () => {
         }
         setLoading(false);
       })
-      .catch((err) => {
-        console.error('LandownerOccupantDetails: fetch catch', err);
+      .catch(() => {
+        setIsEditMode(false);
         setLoading(false);
       });
-  }, []);
+  }, [applicationId]);
 
   const isValidUUID = (uuid: string) => {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid);
