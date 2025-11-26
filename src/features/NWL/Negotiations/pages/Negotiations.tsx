@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FileUpload from '../../../../components/FileUpload';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 
 const Negotiations: React.FC = () => {
   const [negotiationProgress, setNegotiationProgress] = useState("");
@@ -9,48 +9,219 @@ const Negotiations: React.FC = () => {
   const [moreDetail, setMoreDetail] = useState("");
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<{[key:string]:string}>({});
-    const params = useParams();
-	  const getApplicationId = () => {
-		if (params.applicationId) return params.applicationId;
-		if (params.id) return params.id;
-		if (typeof window !== 'undefined') {
-		  const searchParams = new URLSearchParams(window.location.search);
-		  const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-		  if (idFromQuery) return idFromQuery;
-		}
-		return '';
-	  };
-	  const applicationId = getApplicationId();
+  const params = useParams();
+  const getApplicationId = () => {
+    if (params.applicationId) return params.applicationId;
+    if (params.id) return params.id;
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+      if (idFromQuery) return idFromQuery;
+    }
+    return '';
+  };
+  const applicationId = getApplicationId();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Fetch negotiations data on mount
+  useEffect(() => {
+    if (!applicationId) return;
+    const fetchNegotiations = async () => {
+      try {
+        const response = await fetch(`/backend/api/nwl/${applicationId}/negotiations`);
+        if (response.ok) {
+          const data = await response.json();
+          // Map backend response to UI state
+          setNegotiationProgress(data.any_negotiation ? "yes" : "no");
+          if (data.start_date) {
+            const dateObj = new Date(data.start_date);
+            setNegotiationStartDate({
+              day: String(dateObj.getUTCDate()).padStart(2, '0'),
+              month: String(dateObj.getUTCMonth() + 1).padStart(2, '0'),
+              year: String(dateObj.getUTCFullYear()),
+            });
+          } else {
+            setNegotiationStartDate({ day: "", month: "", year: "" });
+          }
+          setMoreDetail(data.comments || "");
+          // evidenceFiles mapping if needed
+        }
+      } catch (err) {
+        // Optionally handle fetch error
+      }
+    };
+    fetchNegotiations();
+  }, [applicationId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: {[key:string]:string} = {};
-    // Validate negotiation radio
-    if (!negotiationProgress) {
-      newErrors.negotiationProgress = "Select if there has been any negotiation";
-    }
-    // Validate file upload
-    if (evidenceFiles.length === 0) {
-      newErrors.evidenceFiles = "Upload a document to support your application";
-    } else {
-      const allowedExtensions = ["jpg", "jpeg"];
-      const fileName = evidenceFiles[0].name;
-      const fileExt = fileName.split('.').pop()?.toLowerCase();
-      if (!allowedExtensions.includes(fileExt || "")) {
-        newErrors.evidenceFiles = "Upload a JPG or JPEG site photograph";
-      }
-    }
+    // Frontend validation
+    if (!applicationId) newErrors.applicationId = 'Application ID is missing.';
+    if (!negotiationProgress) newErrors.negotiationProgress = 'Select if there has been any negotiation';
     setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) {
-      // Submit logic here
-      // e.g. navigate or API call
-    } else {
-      // Scroll to error summary
+    if (Object.keys(newErrors).length > 0) {
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
       }, 0);
+      return;
     }
+    // Build payload for backend
+    const payload = {
+      applicationId,
+      negotiationProgress,
+      negotiationStartDate,
+      moreDetail,
+      // evidenceFiles: handled separately
+    };
+    // Determine if negotiations exist by checking if negotiationProgress or moreDetail or negotiationStartDate is filled
+    const hasData = negotiationProgress || moreDetail || (negotiationStartDate.day && negotiationStartDate.month && negotiationStartDate.year);
+    if (!applicationId) return;
+    if (hasData) {
+      // Try update first
+      const url = `/backend/api/nwl/${applicationId}/negotiations`;
+      try {
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          // fallback to POST if update fails (e.g. 404)
+          await fetch(url.replace(`/${applicationId}/negotiations`, '/negotiations'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+        }
+      } catch {
+        // fallback to POST if PUT fails
+        await fetch(`/backend/api/nwl/negotiations`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+    } else {
+      // No data, just POST
+      await fetch(`/backend/api/nwl/negotiations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+    }
+    // Navigate after save
+    navigate(`/nwl/${applicationId}/task-list`);
+  };
+
+  const handleUpdate = async () => {
+    if (!applicationId) return;
+    const payload = {
+      negotiationProgress,
+      negotiationStartDate,
+      moreDetail,
+      // evidenceFiles: handled separately
+    };
+    const url = `/backend/api/nwl/${applicationId}/negotiations`;
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        let errorMsg = `Error ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.errors) {
+            const backendErrors: {[key:string]:string} = {};
+            errorData.errors.forEach((msg: string) => {
+              if (msg.includes('negotiationProgress')) backendErrors.negotiationProgress = 'Select if there has been any negotiation';
+              else backendErrors.submit = msg;
+            });
+            setErrors(backendErrors);
+            return;
+          } else if (errorData && errorData.message) {
+            errorMsg = errorData.message;
+          }
+        } catch {}
+        setErrors({ submit: errorMsg });
+        return;
+      }
+      // On success, optionally navigate or show confirmation
+      // const data = await response.json();
+      // e.g. navigate(`/nwl/${applicationId}/task-list`);
+    } catch (err) {
+      setErrors({ submit: err.message });
+    }
+  };
+
+  const handleSaveForLater = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    // Determine if negotiations exist by checking if negotiationProgress or moreDetail or negotiationStartDate is filled
+    const hasData = negotiationProgress || moreDetail || (negotiationStartDate.day && negotiationStartDate.month && negotiationStartDate.year);
+    if (!applicationId) return;
+    const payload = {
+      applicationId,
+      negotiationProgress,
+      negotiationStartDate,
+      moreDetail,
+      // evidenceFiles: handled separately
+    };
+    if (hasData) {
+      // Try update first
+      const url = `/backend/api/nwl/${applicationId}/negotiations`;
+      try {
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          // fallback to POST if update fails (e.g. 404)
+          await fetch(url.replace(`/${applicationId}/negotiations`, '/negotiations'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+        }
+      } catch {
+        // fallback to POST if PUT fails
+        await fetch(`/backend/api/nwl/negotiations`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+    } else {
+      // No data, just POST
+      await fetch(`/backend/api/nwl/negotiations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+    }
+    // Navigate after save
+    navigate(`/nwl/${applicationId}/task-list`);
   };
 
   return (
@@ -153,7 +324,7 @@ const Negotiations: React.FC = () => {
               <textarea className="govuk-textarea govuk-!-static-margin-bottom-1" id="more-detail" name="moreDetail" rows={5} value={moreDetail} onChange={e => setMoreDetail(e.target.value)}></textarea>
             </div>
             {/* FileUpload evidence */}
-            <div className={`govuk-form-group${errors.evidenceFiles ? " govuk-form-group--error" : ""}`}>
+            {/* <div className={`govuk-form-group${errors.evidenceFiles ? " govuk-form-group--error" : ""}`}>
               {errors.evidenceFiles && (
                 <p id="fileUpload1-error" className="govuk-error-message">{errors.evidenceFiles}</p>
               )}
@@ -163,10 +334,10 @@ const Negotiations: React.FC = () => {
                 onFilesChange={setEvidenceFiles}
                 category="NEGOTIATION_EVIDENCE"
               />
-            </div>
+            </div> */}
             {/* Call to action buttons */}
             <div className="govuk-!-static-margin-top-6">
-              <a href={`/frontend${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2">Save for later</a>
+              <a href={`/frontend${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2" onClick={handleSaveForLater}>Save for later</a>
               <button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
             </div>
           </form>
