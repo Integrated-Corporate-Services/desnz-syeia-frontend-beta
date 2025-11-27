@@ -132,7 +132,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href="#">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/payment`}>
 										<strong>Payment</strong>
 									</a>
 								</div>

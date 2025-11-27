@@ -36,6 +36,8 @@ import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
+import NWLPayment from '../features/NWL/Payment/pages/Payment';
+import NWLInvoice from '../features/NWL/Payment/pages/Invoice';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPApplicantDetails from '../features/TLP/ApplicantDetails/pages/ApplicantDetails';
 import TLPNetworkOperatorContactDetails from '../features/TLP/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
@@ -124,14 +126,14 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path:`${TLP_BASE_URL}/who-is-applying`,
-    component: TLPWhoIsApplying,
+    path: `${NWL_BASE_URL}/:applicationId/payment`,
+    component: NWLPayment,
     auth: true,
     layout: true
   },
   {
-    path: `${TLP_BASE_URL}/:applicationId/applicant-details`,
-    component: TLPApplicantDetails,
+    path: `${NWL_BASE_URL}/:applicationId/invoice`,
+    component: NWLInvoice,
     auth: true,
     layout: true
   },
