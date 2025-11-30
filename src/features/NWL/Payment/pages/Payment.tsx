@@ -1,34 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-
+ 
 const Payment: React.FC = () => {
   const navigate = useNavigate();
   const params = useParams();
-	  const getApplicationId = () => {
-		if (params.applicationId) return params.applicationId;
-		if (params.id) return params.id;
-		if (typeof window !== 'undefined') {
-		  const searchParams = new URLSearchParams(window.location.search);
-		  const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-		  if (idFromQuery) return idFromQuery;
-		}
-		return '';
-	  };
-	  const applicationId = getApplicationId();
+  const [generating, setGenerating] = useState(false);
+
+  const getApplicationId = () => {
+    if (params.applicationId) return params.applicationId;
+    if (params.id) return params.id;
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+      if (idFromQuery) return idFromQuery;
+    }
+    return '';
+  };
+  const applicationId = getApplicationId();
   // Example payment breakdown, replace with props or API data as needed
   const paymentItems = [
     {
       item: "Overhead Lines (Section 37): Consent application for a line of 132kV or less",
       amount: 402.50,
-    },
-    {
-      item: "Overhead Lines (Section 37): Request for consent application EIA screening",
-      amount: 60.00,
-    },
+    }
   ];
   const total = paymentItems.reduce((sum, i) => sum + i.amount, 0);
 
+  const handleGenerateInvoice = async () => {
+    if (!applicationId) {
+      alert('Missing application id');
+      return;
+    }
+    try {
+      setGenerating(true);
+      const res = await fetch(`/backend/api/nwl/${applicationId}/invoice/generate`, { method: 'POST' });
+      if (!res.ok) {
+        const text = await res.text().catch(() => null);
+        console.error('Failed to generate invoice', res.status, text);
+        alert('Failed to generate invoice. Check server logs.');
+        return;
+      }
+      // navigate to preview after successful generation/upload
+      navigate(`/nwl/${applicationId}/invoice`);
+    } catch (err) {
+      console.error('Generate invoice error', err);
+      alert('Failed to generate invoice. Check server logs.');
+    } finally {
+      setGenerating(false);
+    }
+  };
+ 
   return (
     <main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -73,13 +95,14 @@ const Payment: React.FC = () => {
       <button
         className="govuk-button govuk-!-margin-right-2"
         type="button"
-        onClick={() => navigate(`/nwl/${applicationId}/invoice`)}
+        onClick={handleGenerateInvoice}
+        disabled={generating}
       >
-        Generate invoice
+        {generating ? 'Generating invoice…' : 'Generate invoice'}
       </button>
       <button className="govuk-button govuk-button--secondary" type="button" onClick={() => navigate(-1)}>Back to task list</button>
     </main>
   );
 };
-
+ 
 export default Payment;

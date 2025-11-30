@@ -32,6 +32,7 @@ const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
 type AssetRow = {
   lineType: string;
   voltage: string;
+  assetId: string;
   description: string;
 };
 
