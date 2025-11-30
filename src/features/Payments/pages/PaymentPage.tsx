@@ -7,7 +7,7 @@ export default function PaymentPage() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const applicationId = params.get('id') || '';
-  const [amount, setAmount] = useState(100);
+  const [amount, setAmount] = useState<number | ''>('');
   const [description, setDescription] = useState('Test payment');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,7 +16,8 @@ export default function PaymentPage() {
     setLoading(true);
     setError('');
     try {
-      const result = await createPayment(amount, applicationId, description);
+      //const result = await createPayment(amount * 100, applicationId, description);
+      const result = await createPayment((amount === '' ? 0 : amount) * 100, applicationId, description);
       // Store localId/paymentId in sessionStorage for callback/result page
       if (result.localId) {
         sessionStorage.setItem('paymentLocalId', result.localId);
@@ -70,7 +71,11 @@ export default function PaymentPage() {
                   type="number"
                   aria-describedby="amount-hint"
                   value={amount}
-                  onChange={e => setAmount(Number(e.target.value))}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setAmount(val === '' ? '' : Number(val));
+                    }}
+                  onBlur={e => { if (Number(e.target.value) < 1) setAmount(1); }}
                   min={1}
                   required
                 />
