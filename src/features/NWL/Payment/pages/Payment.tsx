@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
- 
+// ...existing code...
+
 const Payment: React.FC = () => {
   const navigate = useNavigate();
   const params = useParams();
@@ -18,11 +19,12 @@ const Payment: React.FC = () => {
     return '';
   };
   const applicationId = getApplicationId();
-  // Example payment breakdown, replace with props or API data as needed
+
+  // Example payment breakdown, replace with real data
   const paymentItems = [
     {
-      item: "Overhead Lines (Section 37): Consent application for a line of 132kV or less",
-      amount: 402.50,
+      item: "Necessay Wayleaves: Consent Application",
+      amount: 236.50,
     }
   ];
   const total = paymentItems.reduce((sum, i) => sum + i.amount, 0);
@@ -41,7 +43,6 @@ const Payment: React.FC = () => {
         alert('Failed to generate invoice. Check server logs.');
         return;
       }
-      // navigate to preview after successful generation/upload
       navigate(`/nwl/${applicationId}/invoice`);
     } catch (err) {
       console.error('Generate invoice error', err);
@@ -50,24 +51,27 @@ const Payment: React.FC = () => {
       setGenerating(false);
     }
   };
- 
+
   return (
     <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            <ol className="govuk-breadcrumbs__list">
-                <li className="govuk-breadcrumbs__list-item">
-                    <Link
-                        className="govuk-breadcrumbs__link"
-                        to={`${NWL_BASE_URL}/${applicationId}/task-list`}
-                    >
-                        Task list
-                    </Link>
-                </li>
-                <li className="govuk-breadcrumbs__list-item" aria-current="page">Payment</li>
-            </ol>
-        </nav>
-      <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Payment required</h1>
+      {/* workflow / breadcrumb shown at top */}
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item">
+            <Link
+              className="govuk-breadcrumbs__link"
+              to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+            >
+              Task list
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="page">Pay and submit</li>
+        </ol>
+      </nav>
+
+      <h1 className="govuk-heading-xl govuk-!-margin-bottom-6">Payment required</h1>
       <p className="govuk-body">You must pay <strong>£{total.toFixed(2)}</strong> to submit this application.</p>
+
       <p className="govuk-body">Here is the breakdown of your payment:</p>
       <table className="govuk-table govuk-!-margin-bottom-6">
         <thead className="govuk-table__head">
@@ -89,9 +93,11 @@ const Payment: React.FC = () => {
           </tr>
         </tbody>
       </table>
+
       <div className="govuk-inset-text govuk-!-margin-bottom-6">
         You need to generate an invoice to move to the next step.
       </div>
+
       <button
         className="govuk-button govuk-!-margin-right-2"
         type="button"
@@ -100,9 +106,10 @@ const Payment: React.FC = () => {
       >
         {generating ? 'Generating invoice…' : 'Generate invoice'}
       </button>
+
       <button className="govuk-button govuk-button--secondary" type="button" onClick={() => navigate(-1)}>Back to task list</button>
     </main>
   );
 };
- 
+
 export default Payment;
