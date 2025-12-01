@@ -1,41 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import NWLSupportingInfoService, { NWLSupportingInfoRequest, NWLSupportingInfoResponse } from "../../../../services/NWLSupportingInfoService";
 import FileUpload from '../../../../components/FileUpload';
 import { Link, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 
 const SupportingInfo: React.FC = () => {
-	const [writtenRemovalFiles, setWrittenRemovalFiles] = useState<File[]>([]);
-	const [inheritedWayleaveFiles, setInheritedWayleaveFiles] = useState<File[]>([]);
-	const [titlePlanFiles, setTitlePlanFiles] = useState<File[]>([]);
-	const [errors, setErrors] = useState<string[]>([]);
-	const [signedWayleave, setSignedWayleave] = useState<string>("");
-	const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
-	const [anyPayments, setAnyPayments] = useState<string>("");
-	const [acceptedPayments, setAcceptedPayments] = useState<string>("");
-	const [contact, setContact] = useState<string>("");
-	const [contactByEmail, setContactByEmail] = useState<string>("");
-	const [writtenTermination, setWrittenTermination] = useState<string>("");
-	const [writtenTerminationDate, setWrittenTerminationDate] = useState({ day: "", month: "", year: "" });
-	const [writtenRemoval, setWrittenRemoval] = useState<string>("");
-	const [writtenRemovalDate, setWrittenRemovalDate] = useState({ day: "", month: "", year: "" });
-	const [titlePlan, setTitlePlan] = useState<string>("");
+	// ...existing state declarations...
+		const [errors, setErrors] = useState<string[]>([]);
+		const [signedWayleave, setSignedWayleave] = useState<string>("");
+		const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
+		const [anyPayments, setAnyPayments] = useState<string>("");
+		const [acceptedPayments, setAcceptedPayments] = useState<string>("");
+		const [contact, setContact] = useState<string>("");
+		const [contactByEmail, setContactByEmail] = useState<string>("");
+		const [writtenTermination, setWrittenTermination] = useState<string>("");
+		const [writtenTerminationDate, setWrittenTerminationDate] = useState({ day: "", month: "", year: "" });
+		const [writtenRemoval, setWrittenRemoval] = useState<string>("");
+		const [writtenRemovalDate, setWrittenRemovalDate] = useState({ day: "", month: "", year: "" });
+		const [titlePlan, setTitlePlan] = useState<string>("");
 	const params = useParams();
 	const getApplicationId = () => {
 		if (params.applicationId) return params.applicationId;
 		if (params.id) return params.id;
 		if (typeof window !== 'undefined') {
-		  const searchParams = new URLSearchParams(window.location.search);
-		  const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-		  if (idFromQuery) return idFromQuery;
+			const searchParams = new URLSearchParams(window.location.search);
+			const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+			if (idFromQuery) return idFromQuery;
 		}
 		return '';
-	  };
+	};
 	const applicationId = getApplicationId();
 
+	useEffect(() => {
+		if (!applicationId) return;
+		NWLSupportingInfoService.getSupportingInfo(applicationId)
+			.then((data: NWLSupportingInfoResponse) => {
+				if (data) {
+					setSignedWayleave(data.has_landowner_signed_wayleave ? "Yes" : "No");
+					setInheritedWayleave(data.has_inherited_necessary_wayleave ? "Yes" : "No");
+					setAnyPayments(data.has_prior_wayleave_payments ? "Yes" : "No");
+					setAcceptedPayments(data.has_payments_accepted_by_grantor ? "Yes" : "No");
+					setContact(data.is_new_contract_implied ? "email" : "phone");
+					setContactByEmail(data.new_contract_implied_reason || "");
+					setWrittenTermination(data.has_written_termination_notice ? "Yes" : "No");
+					setWrittenTerminationDate({
+						day: data.written_termination_notice_issue_date?.split("-")[2] || "",
+						month: data.written_termination_notice_issue_date?.split("-")[1] || "",
+						year: data.written_termination_notice_issue_date?.split("-")[0] || "",
+					});
+					setWrittenRemoval(data.has_written_removal_notice ? "Yes" : "No");
+					setWrittenRemovalDate({
+						day: data.written_removal_notice_issue_date?.split("-")[2] || "",
+						month: data.written_removal_notice_issue_date?.split("-")[1] || "",
+						year: data.written_removal_notice_issue_date?.split("-")[0] || "",
+					});
+					setTitlePlan(data.has_title_plan ? "Yes" : "No");
+				}
+			})
+			.catch(() => {
+				// Optionally handle fetch error
+			});
+	}, [applicationId]);
 
-	const handleSubmit = (e: React.FormEvent) => {
+
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		const newErrors: string[] = [];
+		// ...existing validation logic...
 		if (!signedWayleave) newErrors.push('<a href="#signedWayleave-error">Select if the current landowner has signed a wayleave</a>');
 		if (!inheritedWayleave) newErrors.push('<a href="#inheritedWayleave-error">Select if the current landowner has inherited a wayleave</a>');
 		if (!anyPayments) newErrors.push('<a href="#anyPayments-error">Select if Wayleave Payments have previously been made to the grantor</a>');
@@ -53,17 +84,12 @@ const SupportingInfo: React.FC = () => {
 			if (!writtenRemovalDate.day.trim() || !writtenRemovalDate.month.trim() || !writtenRemovalDate.year.trim()) {
 				newErrors.push('<a href="#writtenRemovalDate-day">Enter the full Written Removal Notice issue date</a>');
 			}
-			if (writtenRemovalFiles.length === 0) {
-				newErrors.push('<a href="#writtenremoval-upload-1-error">Upload Written Removal Notice document to support your application</a>');
-			}
+			// if (writtenRemovalFiles.length === 0) {
+			// 	newErrors.push('<a href="#writtenremoval-upload-1-error">Upload Written Removal Notice document to support your application</a>');
+			// }
 		}
 		if (!titlePlan) newErrors.push('<a href="#titlePlan-error">Select if your application includes a title plan</a>');
 
-		// Use inheritedWayleaveFiles and titlePlanFiles (no validation)
-		// Example: log their lengths for demonstration
-		// Remove or replace with your actual usage as needed
-		console.log('inheritedWayleaveFiles:', inheritedWayleaveFiles.length);
-		console.log('titlePlanFiles:', titlePlanFiles.length);
 		setErrors(newErrors);
 		if (newErrors.length > 0) {
 			// Scroll to error summary
@@ -71,7 +97,30 @@ const SupportingInfo: React.FC = () => {
 			if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
 			return;
 		}
-		// TODO: Submit form data
+
+		// Prepare request object
+		const request: NWLSupportingInfoRequest = {
+			application_id: applicationId,
+			has_landowner_signed_wayleave: signedWayleave === "Yes",
+			has_inherited_necessary_wayleave: inheritedWayleave === "Yes",
+			has_prior_wayleave_payments: anyPayments === "Yes",
+			has_payments_accepted_by_grantor: acceptedPayments === "Yes",
+			is_new_contract_implied: contact === "email",
+			new_contract_implied_reason: contactByEmail,
+			has_written_termination_notice: writtenTermination === "Yes",
+			written_termination_notice_issue_date: writtenTermination === "Yes" ? `${writtenTerminationDate.year}-${writtenTerminationDate.month}-${writtenTerminationDate.day}` : undefined,
+			has_written_removal_notice: writtenRemoval === "Yes",
+			written_removal_notice_issue_date: writtenRemoval === "Yes" ? `${writtenRemovalDate.year}-${writtenRemovalDate.month}-${writtenRemovalDate.day}` : undefined,
+			has_title_plan: titlePlan === "Yes",
+			title_plan_missing_reason: titlePlan === "No" ? "" : undefined,
+		};
+
+		try {
+			await NWLSupportingInfoService.createSupportingInfo(applicationId, request);
+			// Optionally show success, navigate, etc.
+		} catch {
+			// Optionally handle error
+		}
 	};
 
 	return (
@@ -124,7 +173,7 @@ const SupportingInfo: React.FC = () => {
 								</div>
 								<div className="govuk-radios__conditional" id="conditional-signedWayleave">
 									<div className={`govuk-form-group${errors.some(e => e.includes('signedWayleave-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
-									 {signedWayleave === "Yes" && ( 
+									 {/* {signedWayleave === "Yes" && (
 										 <FileUpload
 											 title="Upload current landowners signed wayleave"
 											 prefix={`applications/${applicationId}/signed-wayleave`}
@@ -132,7 +181,7 @@ const SupportingInfo: React.FC = () => {
 											 applicationId={applicationId}
 											 category="SIGNED_WAYLEAVE"
 										 />
-									 )}
+									 )} */}
 									</div>
 								</div>
 								<div className="govuk-radios__item">
@@ -158,9 +207,9 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="inheritedWayleave" name="inheritedWayleave" type="radio" value="Yes" checked={inheritedWayleave === "Yes"} onChange={e => setInheritedWayleave(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="inheritedWayleave">Yes</label>
 								</div>
-								 {inheritedWayleave === "Yes" && (
+								 {/* {inheritedWayleave === "Yes" && (
 									 <div className="govuk-radios__conditional" id="conditional-inheritedWayleave">
-										 <div className={`govuk-form-group${errors.some(e => e.includes('inheritedWayleave-upload-1-error')) ? ' govuk-form-group--error' : ''}`}> 
+										 <div className={`govuk-form-group${errors.some(e => e.includes('inheritedWayleave-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
 											 <FileUpload
 												 title="Upload a document that shows inheritance of a necessary wayleave in relation to the specified asset schedule"
 												 prefix={`applications/${applicationId}/inherited-wayleave`}
@@ -170,7 +219,7 @@ const SupportingInfo: React.FC = () => {
 											 />
 										 </div>
 									 </div>
-								 )}
+								 )} */}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="inheritedWayleave-2" name="inheritedWayleave" type="radio" value="No" checked={inheritedWayleave === "No"} onChange={e => setInheritedWayleave(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="inheritedWayleave-2">No</label>
@@ -194,9 +243,9 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="anyPayments" name="anyPayments" type="radio" value="Yes" checked={anyPayments === "Yes"} onChange={e => setAnyPayments(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="anyPayments">Yes</label>
 								</div>
-								{anyPayments === "Yes" && (
+								{/* {anyPayments === "Yes" && (
 									<div className="govuk-radios__conditional" id="conditional-anyPayments">
-										<div className={`govuk-form-group${errors.some(e => e.includes('anyPayments-upload-1-error')) ? ' govuk-form-group--error' : ''}`}> 
+										<div className={`govuk-form-group${errors.some(e => e.includes('anyPayments-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
 											<FileUpload
 												title="Upload a document that shows payments made to the grantor to support your application"
 												prefix={`applications/${applicationId}/any-payments`}
@@ -209,7 +258,7 @@ const SupportingInfo: React.FC = () => {
 											)}
 										</div>
 									</div>
-								)}
+								)} */}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="anyPayments-2" name="anyPayments" type="radio" value="No" checked={anyPayments === "No"} onChange={e => setAnyPayments(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="anyPayments-2">No</label>
@@ -233,9 +282,9 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="acceptedPayments" name="acceptedPayments" type="radio" value="Yes" checked={acceptedPayments === "Yes"} onChange={e => setAcceptedPayments(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="acceptedPayments">Yes</label>
 								</div>
-								{acceptedPayments === "Yes" && (
+								{/* {acceptedPayments === "Yes" && (
 									<div className="govuk-radios__conditional" id="conditional-acceptedPayments">
-										<div className={`govuk-form-group${errors.some(e => e.includes('acceptedPayments-upload-1-error')) ? ' govuk-form-group--error' : ''}`}> 
+										<div className={`govuk-form-group${errors.some(e => e.includes('acceptedPayments-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
 											<FileUpload
 												title="Upload a document that shows payments have been accepted by the grantor"
 												prefix={`applications/${applicationId}/accepted-payments`}
@@ -248,7 +297,7 @@ const SupportingInfo: React.FC = () => {
 											)}
 										</div>
 									</div>
-								)}
+								)} */}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="acceptedPayments-2" name="acceptedPayments" type="radio" value="No" checked={acceptedPayments === "No"} onChange={e => setAcceptedPayments(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="acceptedPayments-2">No</label>
@@ -350,7 +399,7 @@ const SupportingInfo: React.FC = () => {
 								</div>
 								{writtenTermination === "Yes" && (
 									<div className="govuk-radios__conditional" id="conditional-writtenTermination">
-										<div className={`govuk-form-group${errors.some(e => e.includes('writtenTerminationDate-day')) ? ' govuk-form-group--error' : ''}`}> 
+										<div className={`govuk-form-group${errors.some(e => e.includes('writtenTerminationDate-day')) ? ' govuk-form-group--error' : ''}`}>
 											<fieldset className="govuk-fieldset" role="group" aria-describedby="writtenTerminationDate-hint">
 												<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">Written Termination Notice issue date</legend>
 												<div id="writtenTerminationDate-hint" className="govuk-hint"></div>
@@ -380,14 +429,14 @@ const SupportingInfo: React.FC = () => {
 											</fieldset>
 										</div>
 										<div className="govuk-form-group">
-											<label className="govuk-label" htmlFor="writtentermination-upload-1" id="writtentermination-upload-1-label">Upload Written Termination Notice document</label>
+											{/* <label className="govuk-label" htmlFor="writtentermination-upload-1" id="writtentermination-upload-1-label">Upload Written Termination Notice document</label>
 											<FileUpload
 												title="Upload Written Termination Notice document"
 												prefix={`applications/${applicationId}/written-termination-notice`}
 												onFilesChange={() => {}}
 												applicationId={applicationId}
 												category="WRITTEN_TERMINATION_NOTICE"
-											/>
+											/> */}
 										</div>
 									</div>
 								)}
@@ -437,7 +486,7 @@ const SupportingInfo: React.FC = () => {
 								</div>
 								{writtenRemoval === "Yes" && (
 									<div className="govuk-radios__conditional" id="conditional-writtenRemoval">
-										<div className={`govuk-form-group${errors.some(e => e.includes('writtenRemovalDate-day')) ? ' govuk-form-group--error' : ''}`}> 
+										<div className={`govuk-form-group${errors.some(e => e.includes('writtenRemovalDate-day')) ? ' govuk-form-group--error' : ''}`}>
 											<fieldset className="govuk-fieldset" role="group" aria-describedby="writtenRemovalDate-hint">
 												<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">Written Removal Notice issue date</legend>
 												<div id="writtenRemovalDate-hint" className="govuk-hint"></div>
@@ -466,14 +515,14 @@ const SupportingInfo: React.FC = () => {
 												</div>
 											</fieldset>
 										</div>
-											<label className="govuk-label" htmlFor="writtenremoval-upload-1" id="writtenremoval-upload-1-label">Upload Written Removal Notice document</label>
+											{/* <label className="govuk-label" htmlFor="writtenremoval-upload-1" id="writtenremoval-upload-1-label">Upload Written Removal Notice document</label>
 											<FileUpload
 												title="Upload Written Removal Notice document"
 												prefix={`applications/${applicationId}/written-removal-notice`}
 												onFilesChange={setWrittenRemovalFiles}
 												applicationId={applicationId}
 												category="WRITTEN_REMOVAL_NOTICE"
-											/>
+											/> */}
 									</div>
 								)}
 								<div className="govuk-radios__item">
@@ -510,7 +559,7 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="titlePlan" name="titlePlan" type="radio" value="Yes" checked={titlePlan === "Yes"} onChange={e => setTitlePlan(e.target.value)} aria-controls="conditional-titlePlan" aria-expanded={titlePlan === "Yes"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="titlePlan">Yes</label>
 								</div>
-								 {titlePlan === "Yes" && (
+								 {/* {titlePlan === "Yes" && (
 									 <div className="govuk-radios__conditional" id="conditional-titlePlan">
 										 <div className="govuk-form-group">
 											 <label className="govuk-label" htmlFor="titlePlan-upload-1" id="titlePlan-upload-1-label">Upload the title plan document</label>
@@ -523,7 +572,7 @@ const SupportingInfo: React.FC = () => {
 											 />
 										 </div>
 									 </div>
-								 )}
+								 )} */}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="titlePlan-2" name="titlePlan" type="radio" value="No" checked={titlePlan === "No"} onChange={e => setTitlePlan(e.target.value)} aria-controls="conditional-titlePlan-2" aria-expanded={titlePlan === "No"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="titlePlan-2">No</label>
