@@ -30,6 +30,7 @@ export interface ConsultationDetails {
   respondingConsulteeName?: string;
   respondingConsulteeEmail?: string;
   consulteeEmailMessage?: string;
+  consulteeEmailAddress?: string;
   // Additional details for 'Consultation Not Required' status
   notRequiredReason ?: string;
   notRequiredDocs ?: { name: string; url: string }[];
