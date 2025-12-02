@@ -468,7 +468,7 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Project Description */}
-					<div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 600 }}>
+					<div className="govuk-form-group govuk-character-count govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 600 }}>
 						<TextArea
 							label={projectOverview.projectDescription}
 							id="projectDescription-inputValue"
