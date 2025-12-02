@@ -1,7 +1,7 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-// ...existing code...
 
 const Payment: React.FC = () => {
   const navigate = useNavigate();
@@ -20,12 +20,8 @@ const Payment: React.FC = () => {
   };
   const applicationId = getApplicationId();
 
-  // Example payment breakdown, replace with real data
   const paymentItems = [
-    {
-      item: "Necessay Wayleaves: Consent Application",
-      amount: 236.50,
-    }
+    { item: "Necessary Wayleaves: Consent Application", amount: 236.50 }
   ];
   const total = paymentItems.reduce((sum, i) => sum + i.amount, 0);
 
@@ -34,34 +30,22 @@ const Payment: React.FC = () => {
       alert('Missing application id');
       return;
     }
-    try {
-      setGenerating(true);
-      const res = await fetch(`/backend/api/nwl/${applicationId}/invoice/generate`, { method: 'POST' });
-      if (!res.ok) {
-        const text = await res.text().catch(() => null);
-        console.error('Failed to generate invoice', res.status, text);
-        alert('Failed to generate invoice. Check server logs.');
-        return;
-      }
-      navigate(`/nwl/${applicationId}/invoice`);
-    } catch (err) {
-      console.error('Generate invoice error', err);
-      alert('Failed to generate invoice. Check server logs.');
-    } finally {
-      setGenerating(false);
-    }
+    setGenerating(true);
+
+    // Fire-and-forget invoice generation
+    fetch(`/backend/api/nwl/${applicationId}/invoice/generate`, { method: 'POST' })
+      .catch(err => console.error('Background invoice generation failed', err));
+
+    // Navigate immediately to Invoice page
+    navigate(`/nwl/${applicationId}/invoice`);
   };
 
   return (
     <main className="govuk-main-wrapper" id="main-content">
-      {/* workflow / breadcrumb shown at top */}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
-            <Link
-              className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${applicationId}/task-list`}
-            >
+            <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${applicationId}/task-list`}>
               Task list
             </Link>
           </li>
@@ -104,10 +88,12 @@ const Payment: React.FC = () => {
         onClick={handleGenerateInvoice}
         disabled={generating}
       >
-        {generating ? 'Generating invoice…' : 'Generate invoice'}
+        {generating ? 'Redirecting…' : 'Generate invoice'}
       </button>
 
-      <button className="govuk-button govuk-button--secondary" type="button" onClick={() => navigate(-1)}>Back to task list</button>
+      <button className="govuk-button govuk-button--secondary" type="button" onClick={() => navigate(-1)}>
+        Back to task list
+      </button>
     </main>
   );
 };
