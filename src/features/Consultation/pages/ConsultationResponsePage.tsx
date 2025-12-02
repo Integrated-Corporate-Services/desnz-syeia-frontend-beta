@@ -243,8 +243,8 @@ const ConsultationResponsePage: React.FC = () => {
 											</div>
 					  <div className="govuk-form-group govuk-!-margin-bottom-6">
 						<label className="govuk-label govuk-label--m" htmlFor="comments">Add any additional comments <span className="govuk-hint">(optional)</span></label>
-						<textarea className="govuk-textarea" id="comments" name="comments" rows={4} maxLength={4000} value={comments} onChange={e => setComments(e.target.value)} />
-						<span className="govuk-hint">You have 4,000 characters remaining</span>
+                          <textarea className="govuk-textarea" id="comments" name="comments" rows={4} maxLength={4000} value={comments} onChange={e => setComments(e.target.value)} aria-describedby="comments-count" />
+                          <span id="comments-count" className="govuk-hint govuk-character-count__message">You have {4000 - comments.length} characters remaining</span>
 					</div>
 					  <div className="govuk-form-group govuk-!-margin-bottom-6">
 						<fieldset className="govuk-fieldset">

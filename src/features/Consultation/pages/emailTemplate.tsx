@@ -18,6 +18,7 @@ const EmailTemplate: React.FC = () => {
     "An application has been sent to the Secretary of State under s37 of the Electricity Act 1989 seeking consent to install or keep installed an electric line above ground.\n\n" +
     "The views of your authority are required to inform a decision as to whether to grant this consent. Application details, including associated documents, can be viewed in this email."
   );
+  const [consulteeEmailAddress, setConsulteeEmailAddress] = useState("");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +32,7 @@ const EmailTemplate: React.FC = () => {
         const data = await getConsultationDetailsById(consultationId);
         setConsultationDetails(data);
         if (data.consulteeEmailMessage) setMessage(data.consulteeEmailMessage);
+        if (data.consulteeEmailAddress) setConsulteeEmailAddress(data.consulteeEmailAddress);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -48,12 +50,28 @@ const EmailTemplate: React.FC = () => {
     }
   }, [message]);
 
+  // GOV.UK email validation regex
+  const govUkEmailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
   const handleSaveMessage = async (e: React.FormEvent, action: "save" | "continue") => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    // Email validation for Save and continue
+    if (action === "continue") {
+      if (!consulteeEmailAddress) {
+        setError("Consultee email address is required.");
+        setLoading(false);
+        return;
+      }
+      if (!govUkEmailRegex.test(consulteeEmailAddress)) {
+        setError("Enter a valid email address in the correct format, like name@example.com");
+        setLoading(false);
+        return;
+      }
+    }
     try {
-      await saveConsultationMessage(consultationId!, message);
+      await saveConsultationMessage(consultationId!, message, consulteeEmailAddress);
       if (action === "save") {
         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
       } else if (action === "continue") {
@@ -93,7 +111,14 @@ const EmailTemplate: React.FC = () => {
             <div className="govuk-form-group">
               <h1 className="govuk-heading-s">Consultee email address</h1>
               <span className="govuk-hint">For example: john.smith@example.com</span>
-              <input className="govuk-input" id="consultee-email" name="consultee-email" type="email" defaultValue={consulteeid} />
+              <input
+                className="govuk-input"
+                id="consultee-email"
+                name="consultee-email"
+                type="email"
+                value={consulteeEmailAddress}
+                onChange={e => setConsulteeEmailAddress(e.target.value)}
+              />
             </div>
             <div className="govuk-form-group">
               <h1 className="govuk-heading-s" >Subject</h1>
@@ -120,7 +145,14 @@ const EmailTemplate: React.FC = () => {
             </div>
             <div className="govuk-button-group govuk-!-margin-top-6">
               <button type="button" className="govuk-button govuk-button--secondary" onClick={e => handleSaveMessage(e, "save")}>Save for later</button>
-              <button type="button" className="govuk-button" onClick={e => handleSaveMessage(e, "continue")}>Save and continue</button>
+              <button
+                type="button"
+                className="govuk-button"
+                onClick={e => handleSaveMessage(e, "continue")}
+                disabled={loading}
+              >
+                Save and continue
+              </button>
             </div>
           </form>
         </div>
