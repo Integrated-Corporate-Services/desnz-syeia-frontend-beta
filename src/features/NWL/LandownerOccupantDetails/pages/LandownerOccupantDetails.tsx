@@ -50,24 +50,37 @@ const LandownerOccupantDetails: React.FC = () => {
         return res.json();
       })
       .then(data => {
-        if (data && data.landOwner) {
+        if (data && (data.landOwner || data.landownerRepresentative)) {
           setIsEditMode(true);
-          setClassification(data.landOwner.contactType || '');
-          setName(data.landOwner.name || '');
-          setFullAddress(data.landOwner.address || '');
-          setContactEmail(data.landOwner.email || '');
-          setContactPhone(data.landOwner.phone || '');
+          if (data.landOwner) {
+            setClassification(data.landOwner.contactType || '');
+            setName(data.landOwner.name || '');
+            setFullAddress(data.landOwner.address || '');
+            setContactEmail(data.landOwner.email || '');
+            setContactPhone(data.landOwner.phone || '');
+          }
+          if (data.landownerRepresentative && (
+            data.landownerRepresentative.name ||
+            data.landownerRepresentative.address ||
+            data.landownerRepresentative.email ||
+            data.landownerRepresentative.phone
+          )) {
+            setGrantorRep('Yes');
+            setShowRepFields(true);
+            setGrantorRepDescription(data.landownerRepresentative.name || '');
+            setGrantorRepAddress(data.landownerRepresentative.address || '');
+            setRepContactEmail(data.landownerRepresentative.email || '');
+            setRepContactPhone(data.landownerRepresentative.phone || '');
+          } else {
+            setGrantorRep('No');
+            setShowRepFields(false);
+            setGrantorRepDescription('');
+            setGrantorRepAddress('');
+            setRepContactEmail('');
+            setRepContactPhone('');
+          }
         } else {
           setIsEditMode(false);
-        }
-        if (data && data.landownerRepresentative) {
-          setGrantorRep('Yes');
-          setShowRepFields(true);
-          setGrantorRepDescription(data.landownerRepresentative.name || '');
-          setGrantorRepAddress(data.landownerRepresentative.address || '');
-          setRepContactEmail(data.landownerRepresentative.email || '');
-          setRepContactPhone(data.landownerRepresentative.phone || '');
-        } else {
           setGrantorRep('No');
           setShowRepFields(false);
           setGrantorRepDescription('');
@@ -89,10 +102,14 @@ const LandownerOccupantDetails: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleSubmit called');
     // Frontend validation for required fields
     const newErrors: {[key:string]:string} = {};
-    if (!applicationId || !isValidUUID(applicationId)) {
-      newErrors.applicationId = 'Application ID is missing or invalid.';
+    // Only require applicationId for PUT (edit mode)
+    if (isEditMode) {
+      if (!applicationId || typeof applicationId !== 'string' || applicationId.trim() === '') {
+        newErrors.applicationId = 'Application ID is missing or invalid.';
+      }
     }
     if (!classification) newErrors.classification = 'Select the type of ownership';
     if (!name) newErrors.name = 'Enter a name';
@@ -107,6 +124,7 @@ const LandownerOccupantDetails: React.FC = () => {
       if (!repContactPhone) newErrors.repContactPhone = 'Enter the representative phone number';
     }
     if (Object.keys(newErrors).length > 0) {
+      console.log('Validation errors:', newErrors);
       setErrors(newErrors);
       return;
     }
@@ -115,20 +133,44 @@ const LandownerOccupantDetails: React.FC = () => {
     let payload;
     let url = '';
     let method = '';
+    // Debug: log all field values
+    console.log('Form values:', {
+      applicationId,
+      classification,
+      name,
+      fullAddress,
+      contactEmail,
+      contactPhone,
+      grantorRep,
+      grantorRepDescription,
+      grantorRepAddress,
+      repContactEmail,
+      repContactPhone,
+      isEditMode
+    });
     if (isEditMode) {
-      // Update (PUT) - send flat structure
+      // Update (PUT) - send nested structure (same as POST)
+      const landOwner = {
+        contactType: classification,
+        name: name || '', // Ensure not null
+        address: fullAddress,
+        email: contactEmail,
+        phone: contactPhone,
+      };
+      let landownerRepresentative = {};
+      if (grantorRep === 'Yes') {
+        landownerRepresentative = {
+          contactType: classification, // or a separate field if needed
+          name: grantorRepDescription,
+          address: grantorRepAddress,
+          email: repContactEmail,
+          phone: repContactPhone,
+        };
+      }
       payload = {
-        applicationId,
-        classification,
-        name,
-        fullAddress,
-        contactEmail,
-        contactPhone,
-        grantorRep,
-        grantorRepDescription,
-        grantorRepAddress,
-        repContactEmail,
-        repContactPhone,
+        application_id: applicationId,
+        landOwner,
+        landownerRepresentative,
       };
       url = `/backend/api/nwl/${applicationId}/landowner-occupant-details`;
       method = 'PUT';
@@ -153,7 +195,7 @@ const LandownerOccupantDetails: React.FC = () => {
         };
       }
       payload = {
-        applicationId,
+        application_id: applicationId,
         landOwner,
         landownerRepresentative,
       };
@@ -169,41 +211,49 @@ const LandownerOccupantDetails: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
+      console.log('Fetch response status:', response.status);
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+      let responseJson;
+      try {
+        responseJson = JSON.parse(responseText);
+      } catch (err) {
+        console.log('Error parsing response as JSON:', err);
+        responseJson = null;
+      }
       if (!response.ok) {
         let errorMsg = `Error ${response.status}: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          if (errorData && errorData.errors) {
-            // Only show backend errors if not a required field
-            const backendErrors: {[key:string]:string} = {};
-            errorData.errors.forEach((msg: string) => {
-              // Map backend field names to user-friendly messages if needed
-              if (msg.includes('classification')) backendErrors.classification = 'Select the type of ownership';
-              else if (msg.includes('name')) backendErrors.name = 'Enter a name';
-              else if (msg.includes('fullAddress')) backendErrors.fullAddress = 'Enter the full address';
-              else if (msg.includes('contactEmail')) backendErrors.contactEmail = 'Enter an email address';
-              else if (msg.includes('contactPhone')) backendErrors.contactPhone = 'Enter a phone number';
-              else if (msg.includes('application_id')) backendErrors.applicationId = 'Application ID is missing or invalid.';
-              else backendErrors.submit = msg;
-            });
-            setErrors(backendErrors);
-            return;
-          } else if (errorData && errorData.message) {
-            errorMsg = errorData.message;
-          }
-        } catch {}
+        if (responseJson && responseJson.errors) {
+          console.log('Backend error data:', responseJson);
+          const backendErrors: {[key:string]:string} = {};
+          responseJson.errors.forEach((msg: string) => {
+            if (msg.includes('classification')) backendErrors.classification = 'Select the type of ownership';
+            else if (msg.includes('name')) backendErrors.name = 'Enter a name';
+            else if (msg.includes('fullAddress')) backendErrors.fullAddress = 'Enter the full address';
+            else if (msg.includes('contactEmail')) backendErrors.contactEmail = 'Enter an email address';
+            else if (msg.includes('contactPhone')) backendErrors.contactPhone = 'Enter a phone number';
+            else if (msg.includes('application_id')) backendErrors.applicationId = 'Application ID is missing or invalid.';
+            else backendErrors.submit = msg;
+          });
+          setErrors(backendErrors);
+          return;
+        } else if (responseJson && responseJson.message) {
+          errorMsg = responseJson.message;
+        }
         setErrors({ submit: errorMsg });
         return;
       }
       if (method === 'POST') {
         // On create, get new id from response if available
         const data = await response.json();
+        console.log('POST success response:', data);
         const newId = data?.data?.applicationId || '';
         navigate(`/nwl/${newId}/task-list`);
       } else {
         navigate(`/nwl/${applicationId}/task-list`);
       }
     } catch (err: any) {
+      console.log('Fetch error:', err);
       setErrors({ submit: err.message });
     }
   };
