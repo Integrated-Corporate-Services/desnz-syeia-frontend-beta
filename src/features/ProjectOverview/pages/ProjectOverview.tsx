@@ -129,11 +129,11 @@ const ProjectOverview = () => {
 	}, [applicationId]);
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
 	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview, fetchProjectList, projectList } = useProjectStore();
-	const remainingChars = MAX_DESCRIPTION_LENGTH - formState.projectDescription.length;
+	const remainingChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.projectDescription.length);
 	const getRelatedCpoDetailsString = (val: typeof formState.relatedCpoDetails) =>
 		typeof val === 'string' ? val : (val && typeof val.field === 'string' ? val.field : '');
 	const relatedCpoDetailsStr = getRelatedCpoDetailsString(formState.relatedCpoDetails);
-	const remainingCpoChars = MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length;
+	const remainingCpoChars = Math.max(0, MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length);
 
 	// Fetch project overview and project list on mount
 	useEffect(() => {
