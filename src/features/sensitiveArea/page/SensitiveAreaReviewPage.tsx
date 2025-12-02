@@ -175,10 +175,13 @@ const SensitiveAreaReviewPage: React.FC = () => {
               name="otherAreas"
               className="govuk-textarea"
               rows={4}
+              maxLength={4000}
               value={otherAreas}
               onChange={e => setOtherAreas(e.target.value)}
               style={{ width: '100%', maxWidth: 600 }}
+              aria-describedby="otherAreas-count"
             />
+            <div id="otherAreas-count" className="govuk-hint govuk-character-count__message">You have {4000 - otherAreas.length} characters remaining</div>
           </div>
 
           <h2 className="govuk-heading-m">Environmental and archaeological documents</h2>

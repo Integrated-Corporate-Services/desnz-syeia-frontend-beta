@@ -103,6 +103,7 @@ const ProjectOverview = () => {
 	};
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const application = useApplicationStore(state => state.application);
 	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
 	 const { user } = useAuthUser();
@@ -129,11 +130,11 @@ const ProjectOverview = () => {
 	}, [applicationId]);
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
 	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview, fetchProjectList, projectList } = useProjectStore();
-	const remainingChars = MAX_DESCRIPTION_LENGTH - formState.projectDescription.length;
+	const remainingChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.projectDescription.length);
 	const getRelatedCpoDetailsString = (val: typeof formState.relatedCpoDetails) =>
 		typeof val === 'string' ? val : (val && typeof val.field === 'string' ? val.field : '');
 	const relatedCpoDetailsStr = getRelatedCpoDetailsString(formState.relatedCpoDetails);
-	const remainingCpoChars = MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length;
+	const remainingCpoChars = Math.max(0, MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length);
 
 	// Fetch project overview and project list on mount
 	useEffect(() => {
@@ -292,8 +293,14 @@ const ProjectOverview = () => {
 				)}
 				<form method="post" onSubmit={e => {
 					e.preventDefault();
+						setIsSubmitting(true);
 					const newErrors: string[] = [];
 					const newFieldErrors: Record<string, string> = {};
+						// Example: Add email validation for actual email fields if present
+						// if (formState.emailField && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(formState.emailField)) {
+						//     newErrors.push('<a href="#emailField-inputValue">Enter a valid email address</a>');
+						//     newFieldErrors.emailField = "Enter a valid email address";
+						// }
 					if (!formState.projectName?.trim()) {
 						newErrors.push('<a href="#projectName-inputValue">Enter the project name</a>');
 						newFieldErrors.projectName = "Enter the project name";
@@ -386,6 +393,7 @@ const ProjectOverview = () => {
 					// Removed EIP details validation logic as requested
 					setErrors(newErrors);
 					setFieldErrors(newFieldErrors);
+					setIsSubmitting(false);
 					if (newErrors.length > 0) {
 						window.scrollTo({ top: 0, behavior: "smooth" });
 						return;
@@ -468,7 +476,7 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Project Description */}
-					<div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 600 }}>
+					<div className="govuk-form-group govuk-character-count govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 600 }}>
 						<TextArea
 							label={projectOverview.projectDescription}
 							id="projectDescription-inputValue"
@@ -478,7 +486,14 @@ const ProjectOverview = () => {
 							maxLength={MAX_DESCRIPTION_LENGTH}
 							infoId="projectDescription-inputValue-info"
 							remainingChars={remainingChars}
-							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, projectDescription: e.target.value }))}
+							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+								const val = e.target.value;
+								if (val.length <= MAX_DESCRIPTION_LENGTH) {
+									setFormState(prev => ({ ...prev, projectDescription: val }));
+								} else {
+									setFormState(prev => ({ ...prev, projectDescription: val.slice(0, MAX_DESCRIPTION_LENGTH) }));
+								}
+							}}
 						/>
 					</div>
 
@@ -860,7 +875,7 @@ const ProjectOverview = () => {
 						ariaControls={["hasRelatedCpo-hidden", "hasRelatedCpo-no-hidden"]}
 					/>
 
-					<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue">
+					<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue" disabled={errors.length > 0 || isSubmitting}>
 						{projectOverview.saveAndContinue}
 					</button>
 				</form>
