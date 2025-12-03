@@ -25,7 +25,7 @@ export async function getConsultationDetailsById(consultationId: string): Promis
   return response.data;
 }
 
-export async function saveConsultationMessage(consultationId: string, message: string): Promise<any> {
-  const response = await axios.post(`/backend/api/consultations/${consultationId}/save-message`, { message });
+export async function saveConsultationMessage(consultationId: string, message: string, consulteeEmailAddress: string): Promise<any> {
+  const response = await axios.post(`/backend/api/consultations/${consultationId}/save-message`, { message, consulteeEmailAddress });
   return response.data;
 }

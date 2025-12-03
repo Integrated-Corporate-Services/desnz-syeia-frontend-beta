@@ -36,7 +36,7 @@ const SendApplicationToConsultee: React.FC = () => {
       try {
         const data = await getConsultationPack(consultationId, applicationId);
         setConsultationName(data?.consultation?.org_name || "Consultation name");
-        setOrgEmail(data?.consultation?.default_email || "");
+        setOrgEmail(data?.consultation?.consultee_email_address || "");
         setPackSections((data?.packSections || []).filter((s: any) => s.include));
         setPackDocuments((data?.packDocuments || []).filter((d: any) => d.include));
         setPackUploadedFiles(data?.uploadedFiles || []);
@@ -70,7 +70,13 @@ const SendApplicationToConsultee: React.FC = () => {
       });
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-request-sent`);
     } catch (err: any) {
-      setSendError(err.message || 'Failed to send email');
+      // Check for 400 error and specific message in err.error property
+      const errorMsg = err?.error || err?.message;
+      if (errorMsg === 'Request failed with status code 500') {
+        setSendError('Consultee email address is invalid');
+      } else {
+        setSendError(errorMsg || 'Failed to send email');
+      }
     } finally {
       setSending(false);
     }
