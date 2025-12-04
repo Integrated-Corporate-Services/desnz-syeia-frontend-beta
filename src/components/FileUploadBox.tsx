@@ -14,6 +14,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
   const [descriptions, setDescriptions] = useState<string[]>([]);
   const [removeIdx, setRemoveIdx] = useState<number | null>(null);
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // New: State for existing files in S3 for this prefix
@@ -134,6 +135,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
       const data = await getPresignedUrls(fileMetas);
       if (!data.urls || data.urls.length !== uploadFiles.length) {
         setStatuses(Array(uploadFiles.length).fill('Failed to get presigned URLs'));
+        setError('Failed to get presigned URLs');
         return;
       }
       const newStatuses = Array(uploadFiles.length).fill('');
@@ -142,6 +144,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
         if (!urlObj.url) {
           newStatuses[i] = 'Failed to get presigned URL';
           setStatuses([...newStatuses]);
+          setError('Failed to get presigned URL');
           continue;
         }
         newStatuses[i] = 'Uploading to S3...';
@@ -152,9 +155,11 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
             newStatuses[i] = 'Upload successful!';
           } else {
             newStatuses[i] = 'Upload failed: ' + uploadRes.statusText;
+            setError('Upload failed: ' + uploadRes.statusText);
           }
         } catch (err) {
           newStatuses[i] = 'Error: ' + (err instanceof Error ? err.message : String(err));
+          setError('Error: ' + (err instanceof Error ? err.message : String(err)));
         }
         setStatuses([...newStatuses]);
       }
@@ -173,6 +178,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
       }
     } catch (err) {
       setStatuses(Array(uploadFiles.length).fill('Error: ' + (err instanceof Error ? err.message : String(err))));
+      setError('Error: ' + (err instanceof Error ? err.message : String(err)));
     }
   };
 
@@ -219,10 +225,10 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
   return (
     <div style={{ maxWidth: 700 }}>
       {title && <h2 style={{ marginBottom: 24 }}>{title}</h2>}
+      {error && <div style={{ color: '#d4351c', marginBottom: 16 }}>{error}</div>}
       {/* Existing files for this path/prefix */}
       <div style={{ marginBottom: 32 }}>
         {existingFilesLoading && <div>Loading files...</div>}
-        {/*{existingFilesError && <div style={{ color: '#d4351c' }}>Failed to load files. Please try again later.</div>}*/}
         {!existingFilesLoading && !existingFilesError && existingFiles.length === 0 && (
           <div style={{ color: '#505a5f' }}>No files found.</div>
         )}
@@ -232,11 +238,9 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
               <div key={file.key} style={{ border: '2px solid #b1b4b6', background: '#fff', marginBottom: 16, padding: 12, boxSizing: 'border-box', width: '100%', maxWidth: 700, display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontWeight: 'bold', color: '#0b0c0c', background: '#f3f2f1', padding: '2px 4px', fontSize: '1.05rem' }}>{file.key.replace(prefix + '/', '')}</span>
                 <span style={{ marginLeft: 8, color: '#505a5f', fontSize: '1rem' }}>- {Math.round(file.size / 1024)} kB</span>
-                {/*<span style={{ marginLeft: 8, color: '#505a5f', fontSize: '0.95rem' }}>{new Date(file.lastModified).toLocaleString()}</span>*/}
                 <button
                   type="button"
                   onClick={async () => {
-                    // Download using presigned GET URL
                     try {
                       const res = await getPresignedGetUrl(file.key);
                       if (res.url) window.open(res.url, '_blank');
@@ -252,22 +256,30 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
         )}
       </div>
       <div
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        style={{ border: '2px dashed #b1b4b6', background: '#fafafa', padding: 24, marginBottom: 32, textAlign: 'center', cursor: 'pointer', fontSize: '1.25rem', width: '100%', color: '#0b0c0c', boxSizing: 'border-box', maxWidth: 700 }}
+        onDrop={error ? undefined : handleDrop}
+        onDragOver={error ? undefined : handleDragOver}
+        style={{ border: '2px dashed #b1b4b6', background: '#fafafa', padding: 24, marginBottom: 32, textAlign: 'center', cursor: error ? 'not-allowed' : 'pointer', fontSize: '1.25rem', width: '100%', color: '#0b0c0c', boxSizing: 'border-box', maxWidth: 700 }}
         aria-label="Drag and drop your documents here"
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => !error && fileInputRef.current?.click()}
       >
         <input
           ref={fileInputRef}
           type="file"
           multiple
-          onChange={handleFileChange}
+          onChange={error ? undefined : handleFileChange}
           style={{ display: 'none' }}
+          disabled={!!error}
         />
         <span style={{ fontWeight: 500, color: '#0b0c0c' }}>Drag and drop your documents here, or{' '}
-          <span style={{ color: '#1d70b8', textDecoration: 'underline', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}>choose a file</span>
+          <span style={{ color: error ? '#888' : '#1d70b8', textDecoration: 'underline', cursor: error ? 'not-allowed' : 'pointer' }} onClick={e => { if (!error) { e.stopPropagation(); fileInputRef.current?.click(); } }}>
+            choose a file
+          </span>
         </span>
+        {error && (
+          <button type="button" className="govuk-button" disabled style={{ marginTop: 16 }}>
+            Upload disabled due to error
+          </button>
+        )}
       </div>
       {files.length > 0 && (
         <div style={{ marginBottom: 16 }}>
