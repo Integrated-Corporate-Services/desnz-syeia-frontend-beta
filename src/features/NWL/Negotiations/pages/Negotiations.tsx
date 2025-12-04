@@ -49,7 +49,6 @@ const Negotiations: React.FC = () => {
           setComments(data.moreDetail || "");
           setUploadedFiles(Array.isArray(data.uploaded_files) ? data.uploaded_files : []);
           setApplicationDocuments(Array.isArray(data.application_documents) ? data.application_documents : []);
-          // Check if negotiations record exists (use a unique field, e.g. negotiationProgress or another backend-provided id)
           setNegotiationsExists(!!(data && (data.negotiationProgress || data.id)));
         } else {
           setNegotiationsExists(false);
@@ -105,6 +104,8 @@ const Negotiations: React.FC = () => {
             ? { ...negotiationStartDate }
             : null,
           moreDetail: comments || null,
+          uploaded_files: uploadedFiles || [],
+          application_documents: applicationDocuments || [],
         };
       }
       try {
@@ -152,6 +153,8 @@ const Negotiations: React.FC = () => {
             ? { ...negotiationStartDate }
             : null,
           moreDetail: comments || null,
+          uploaded_files: uploadedFiles || [],
+          application_documents: applicationDocuments || [],
         };
       }
       try {
