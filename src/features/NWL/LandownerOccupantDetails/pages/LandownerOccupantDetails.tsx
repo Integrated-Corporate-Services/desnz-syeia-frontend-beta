@@ -197,7 +197,7 @@ const LandownerOccupantDetails: React.FC = () => {
         landOwner,
         landownerRepresentative,
       };
-      url = `/backend/api/nwl/landowner-occupant-details`;
+      url = `/api/nwl/landowner-occupant-details`;
       method = 'POST';
       console.log('LandownerOccupantDetails POST payload:', payload);
     }
