@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
-import React, { useState, useEffect } from "react";
 import FileUpload from '../../../../components/FileUpload';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { ApplicationDocument, UploadedFile } from "../../../../types/fileUpload";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
-import { useAuthUser } from "../../../../hooks/useAuthUser";
 import { ApplicationDocument, UploadedFile } from "../../../../types/fileUpload";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
@@ -14,10 +9,6 @@ import { useAuthUser } from "../../../../hooks/useAuthUser";
 const Negotiations: React.FC = () => {
   const [negotiationProgress, setNegotiationProgress] = useState("");
   const [negotiationStartDate, setNegotiationStartDate] = useState({ day: "", month: "", year: "" });
-  const [comments, setComments] = useState("");
-  const [supportingDocs, setSupportingDocs] = useState<string>("");
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [comments, setComments] = useState("");
   const [supportingDocs, setSupportingDocs] = useState<string>("");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -58,55 +49,6 @@ const Negotiations: React.FC = () => {
           setComments(data.moreDetail || "");
           setUploadedFiles(Array.isArray(data.uploaded_files) ? data.uploaded_files : []);
           setApplicationDocuments(Array.isArray(data.application_documents) ? data.application_documents : []);
-          // Check if negotiations record exists (use a unique field, e.g. negotiationProgress or another backend-provided id)
-          setNegotiationsExists(!!(data && (data.negotiationProgress || data.id)));
-        } else {
-          setNegotiationsExists(false);
-        }
-      } catch {
-        setNegotiationsExists(false);
-      }
-    };
-    fetchNegotiations();
-  }, [applicationId]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-  const [negotiationsExists, setNegotiationsExists] = useState(false);
-  const params = useParams();
-  const { user } = useAuthUser();
-  const userId = user?.user_id;
-
-  const getApplicationId = () => {
-    if (params.applicationId) return params.applicationId;
-    if (params.id) return params.id;
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search);
-      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-      if (idFromQuery) return idFromQuery;
-    }
-    return '';
-  };
-  const applicationId = getApplicationId();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!applicationId) return;
-    const fetchNegotiations = async () => {
-      try {
-        const response = await fetch(`/backend/api/nwl/${applicationId}/negotiations`);
-        if (response.ok) {
-          const result = await response.json();
-          const data = result.negotiations || {};
-          setNegotiationProgress(data.negotiationProgress || "");
-          if (data.negotiationStartDate && typeof data.negotiationStartDate === 'object') {
-            setNegotiationStartDate(data.negotiationStartDate);
-          } else {
-            setNegotiationStartDate({ day: "", month: "", year: "" });
-          }
-          setComments(data.moreDetail || "");
-          setUploadedFiles(Array.isArray(data.uploaded_files) ? data.uploaded_files : []);
-          setApplicationDocuments(Array.isArray(data.application_documents) ? data.application_documents : []);
-          // Check if negotiations record exists (use a unique field, e.g. negotiationProgress or another backend-provided id)
           setNegotiationsExists(!!(data && (data.negotiationProgress || data.id)));
         } else {
           setNegotiationsExists(false);
@@ -123,16 +65,12 @@ const Negotiations: React.FC = () => {
     const newErrors: {[key:string]:string} = {};
     if (!applicationId) newErrors.applicationId = 'Application ID is missing.';
     if (!negotiationProgress) newErrors.negotiationProgress = 'Select if there has been any negotiation';
-    if (!applicationId) newErrors.applicationId = 'Application ID is missing.';
-    if (!negotiationProgress) newErrors.negotiationProgress = 'Select if there has been any negotiation';
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) {
     if (Object.keys(newErrors).length > 0) {
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
       }, 0);
-      return;
       return;
     }
     // Build payload to match backend requirements
@@ -215,6 +153,8 @@ const Negotiations: React.FC = () => {
             ? { ...negotiationStartDate }
             : null,
           moreDetail: comments || null,
+          uploaded_files: uploadedFiles || [],
+          application_documents: applicationDocuments || [],
         };
       }
       try {
@@ -242,16 +182,6 @@ const Negotiations: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="page">Negotiations</li>
         </ol>
       </nav>
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${applicationId}/task-list`}>
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">Negotiations</li>
-        </ol>
-      </nav>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Status of negotiation</h1>
@@ -268,9 +198,6 @@ const Negotiations: React.FC = () => {
                   )}
                   {errors.evidenceFiles && (
                     <li><a href="#fileUpload1">{errors.evidenceFiles}</a></li>
-                  )}
-                  {errors.submit && (
-                    <li>{errors.submit}</li>
                   )}
                   {errors.submit && (
                     <li>{errors.submit}</li>
@@ -333,78 +260,11 @@ const Negotiations: React.FC = () => {
             </div>
             <div className="govuk-form-group">
               <label className="govuk-label govuk-label--s" htmlFor="comments">
-              <label className="govuk-label govuk-label--s" htmlFor="comments">
                 Additional comments <span className="govuk-hint">(optional)</span>
               </label>
               <div className="govuk-hint">Confirm what efforts, if any, have been made to engage with the landowner or occupier to find a voluntary solution. If no negotiations have taken place, explain why.  If possible, provide a timeline of events or correspondence, and upload any relevant documents.</div>
               <textarea className="govuk-textarea govuk-!-static-margin-bottom-1" id="comments" name="comments" rows={5} value={comments} onChange={e => setComments(e.target.value)}></textarea>
-              <textarea className="govuk-textarea govuk-!-static-margin-bottom-1" id="comments" name="comments" rows={5} value={comments} onChange={e => setComments(e.target.value)}></textarea>
             </div>
-            <fieldset className={`govuk-fieldset govuk-form-group${errors.supportingDocs ? " govuk-form-group--error" : ""}`}
-              style={{ marginBottom: 32, paddingBottom: 8, borderLeft: errors.supportingDocs ? '4px solid #d4351c' : undefined, paddingLeft: errors.supportingDocs ? 12 : undefined }}
-              aria-describedby={errors.supportingDocs ? "supportingDocs-error" : undefined}>
-              <legend className="govuk-fieldset__legend govuk-fieldset__legend--s" style={{ fontSize: '1.125rem', lineHeight: '1.31579' }}>
-                <h2 className="govuk-fieldset__heading" style={{ fontSize: '1.125rem', lineHeight: '1.31579' }}>
-                  Do you have any further supporting documents to provide?
-                </h2>
-              </legend>
-              {errors.supportingDocs && (
-                <span className="govuk-error-message" id="supportingDocs-error">
-                  <span className="govuk-visually-hidden">Error:</span> Select yes if this application has supporting documents
-                </span>
-              )}
-              <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios" style={{ marginTop: 8 }}>
-                <div className="govuk-radios__item">
-                  <input
-                    className="govuk-radios__input"
-                    id="hasSupportingDocuments"
-                    name="hasSupportingDocuments"
-                    type="radio"
-                    value="true"
-                    aria-controls="hasSupportingDocuments-hidden"
-                    aria-expanded="true"
-                    checked={supportingDocs === "yes"}
-                    onChange={() => setSupportingDocs("yes")}
-                  />
-                  <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments">
-                    Yes
-                  </label>
-                </div>
-                {supportingDocs === "yes" && (
-                  <div className="govuk-radios__conditional govuk-form-group govuk-form-group--error" id="hasSupportingDocuments-hidden">
-                    <label className="govuk-label" style={{ fontWeight: 600 }}>
-                      Upload supporting information documents
-                    </label>
-                    <FileUpload
-                      title="Upload evidence of negotiation"
-                      prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NEGOTIATIONS}/`}
-                      applicationId={applicationId}
-                      category={NWL_FILE_CATEGORIES.NEGOTIATIONS}
-                      addedBy={userId}
-                      uploadedFiles={uploadedFiles}
-                      onUploaded={(newUploadedFiles, newProjectDocuments) => {
-                        setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
-                        setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
-                      }}
-                    />
-                  </div>
-                )}
-                <div className="govuk-radios__item">
-                  <input
-                    className="govuk-radios__input"
-                    id="hasSupportingDocuments-no"
-                    name="hasSupportingDocuments"
-                    type="radio"
-                    value="false"
-                    checked={supportingDocs === "no"}
-                    onChange={() => setSupportingDocs("no")}
-                  />
-                  <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments-no">
-                    No
-                  </label>
-                </div>
-              </div>
-            </fieldset>
             <fieldset className={`govuk-fieldset govuk-form-group${errors.supportingDocs ? " govuk-form-group--error" : ""}`}
               style={{ marginBottom: 32, paddingBottom: 8, borderLeft: errors.supportingDocs ? '4px solid #d4351c' : undefined, paddingLeft: errors.supportingDocs ? 12 : undefined }}
               aria-describedby={errors.supportingDocs ? "supportingDocs-error" : undefined}>
@@ -471,7 +331,6 @@ const Negotiations: React.FC = () => {
               </div>
             </fieldset>
             <div className="govuk-!-static-margin-top-6">
-              <a href={`/frontend${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2" onClick={handleSaveForLater}>Save for later</a>
               <a href={`/frontend${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2" onClick={handleSaveForLater}>Save for later</a>
               <button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
             </div>
