@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { Logger } from "sass";
 import logger from "../../../../logger";
 
 const LandownerOccupantDetails: React.FC = () => {
@@ -199,7 +198,7 @@ const LandownerOccupantDetails: React.FC = () => {
         landOwner,
         landownerRepresentative,
       };
-      url = `backend/api/nwl/landowner-occupant-details`;
+      url = `/backend/api/nwl/landowner-occupant-details`;
       method = 'POST';
       logger.log('LandownerOccupantDetails POST payload:', payload);
     }
