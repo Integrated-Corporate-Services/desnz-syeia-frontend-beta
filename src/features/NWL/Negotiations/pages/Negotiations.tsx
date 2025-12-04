@@ -105,6 +105,8 @@ const Negotiations: React.FC = () => {
             ? { ...negotiationStartDate }
             : null,
           moreDetail: comments || null,
+          uploaded_files: uploadedFiles || [],
+          application_documents: applicationDocuments || [],
         };
       }
       try {
