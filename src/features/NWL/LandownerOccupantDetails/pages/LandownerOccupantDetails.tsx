@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { Logger } from "sass";
-import logger from "../../../../logger";
-import { Logger } from "sass";
 import logger from "../../../../logger";
 
 const LandownerOccupantDetails: React.FC = () => {
@@ -176,7 +173,6 @@ const LandownerOccupantDetails: React.FC = () => {
       };
       url = `/backend/api/nwl/${applicationId}/landowner-occupant-details`;
       method = 'PUT';
-      logger.log('LandownerOccupantDetails PUT payload:', payload);
       logger.log('LandownerOccupantDetails PUT payload:', payload);
     } else {
       // Create (POST) - send nested structure
