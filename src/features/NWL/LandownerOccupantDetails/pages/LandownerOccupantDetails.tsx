@@ -105,11 +105,9 @@ const LandownerOccupantDetails: React.FC = () => {
     console.log('handleSubmit called');
     // Frontend validation for required fields
     const newErrors: {[key:string]:string} = {};
-    // Only require applicationId for PUT (edit mode)
-    if (isEditMode) {
-      if (!applicationId || typeof applicationId !== 'string' || applicationId.trim() === '') {
-        newErrors.applicationId = 'Application ID is missing or invalid.';
-      }
+    // Require applicationId for both create (POST) and edit (PUT) modes
+    if (!applicationId || typeof applicationId !== 'string' || applicationId.trim() === '') {
+      newErrors.applicationId = 'Application ID is missing or invalid.';
     }
     if (!classification) newErrors.classification = 'Select the type of ownership';
     if (!name) newErrors.name = 'Enter a name';
