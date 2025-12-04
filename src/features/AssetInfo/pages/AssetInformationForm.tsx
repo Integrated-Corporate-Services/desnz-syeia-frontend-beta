@@ -9,6 +9,7 @@ import TextArea from '../component/TextArea';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
+import '../component/AssetInformationForm.css'
 
 interface AssetFormState {
   assetId: string;
@@ -258,16 +259,18 @@ const getApplicationId = () => {
 
         {/* Line voltage */}
         <div className="govuk-!-margin-bottom-6">
-          <div className={`govuk-form-group${errors.lineVoltage ? ' govuk-form-group--error' : ''}`}>
-            <MultiSelectDropdown
-              id="lineVoltage"
-              name="lineVoltage"
-              label="Line voltage"
-              options={VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))}
-              selected={Array.isArray(form.lineVoltage) ? form.lineVoltage : form.lineVoltage ? [form.lineVoltage] : []}
-              onChange={(selected: string[]) => setForm(prev => ({ ...prev, lineVoltage: selected }))}
-              error={errors.lineVoltage}
-            />
+          <div className={`govuk-form-group${errors.lineVoltage ? ' govuk-form-group--error' : ''}`}>  
+            <div className="multi-select-ellipsis" style={{ maxWidth: 480 }}>
+              <MultiSelectDropdown
+                id="lineVoltage"
+                name="lineVoltage"
+                label="Line voltage"
+                options={VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))}
+                selected={Array.isArray(form.lineVoltage) ? form.lineVoltage : form.lineVoltage ? [form.lineVoltage] : []}
+                onChange={(selected: string[]) => setForm(prev => ({ ...prev, lineVoltage: selected }))}
+                error={errors.lineVoltage}
+              />
+            </div>
           </div>
         </div>
 
