@@ -49,6 +49,7 @@ import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/
 import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
+import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
 
 export const ROUTE_CONFIG = [
   {
@@ -330,6 +331,12 @@ export const ROUTE_CONFIG = [
   {
     path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response`,
     component: ConsultationResponsePage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/consultation-withdrawn`,
+    component: ConsultationWithdrawnPage,
     auth: true,
     layout: true
   },

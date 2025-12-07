@@ -1,24 +1,79 @@
 import React, { useState, useEffect } from "react";
-import NWLSupportingInfoService, { NWLSupportingInfoRequest, NWLSupportingInfoResponse } from "../../../../services/NWLSupportingInfoService";
 import FileUpload from '../../../../components/FileUpload';
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { nwlSupportingInfo } from "../../../../types/nwlSupportingInfo";
+import {getSupportingInfo, saveSupportingInfo} from '../../../../services/nwlSupportingInfoService';
+import { useAuthUser } from "../../../../hooks/useAuthUser";
+import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constants/fileCategoryConstants";	
 
 const SupportingInfo: React.FC = () => {
 	// ...existing state declarations...
-		const [errors, setErrors] = useState<string[]>([]);
-		const [signedWayleave, setSignedWayleave] = useState<string>("");
-		const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
-		const [anyPayments, setAnyPayments] = useState<string>("");
-		const [acceptedPayments, setAcceptedPayments] = useState<string>("");
-		const [contact, setContact] = useState<string>("");
-		const [contactByEmail, setContactByEmail] = useState<string>("");
-		const [writtenTermination, setWrittenTermination] = useState<string>("");
-		const [writtenTerminationDate, setWrittenTerminationDate] = useState({ day: "", month: "", year: "" });
-		const [writtenRemoval, setWrittenRemoval] = useState<string>("");
-		const [writtenRemovalDate, setWrittenRemovalDate] = useState({ day: "", month: "", year: "" });
-		const [titlePlan, setTitlePlan] = useState<string>("");
+	const [errors, setErrors] = useState<string[]>([]);
+	const [id, setId] = useState<string>("");
+	const [signedWayleave, setSignedWayleave] = useState<string>("");
+	const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
+	const [anyPayments, setAnyPayments] = useState<string>("");
+	const [acceptedPayments, setAcceptedPayments] = useState<string>("");
+	const [contact, setContact] = useState<string>("");
+	const [contactByEmail, setContactByEmail] = useState<string>("");
+	const [writtenTermination, setWrittenTermination] = useState<string>("");
+	const [writtenTerminationDate, setWrittenTerminationDate] = useState({ day: "", month: "", year: "" });
+	const [writtenRemoval, setWrittenRemoval] = useState<string>("");
+	const [writtenRemovalDate, setWrittenRemovalDate] = useState({ day: "", month: "", year: "" });
+	const [titlePlan, setTitlePlan] = useState<string>("");
+	const [titlePlanMissingReason, setTitlePlanMissingReason] = useState<string>("");
+	const [signedWayleaveFiles, setSignedWayleaveFiles] = useState<any[]>([]);
+	const [inheritedWayleaveFiles, setInheritedWayleaveFiles] = useState<any[]>([]);
+	const [anyPaymentsFiles, setAnyPaymentsFiles] = useState<any[]>([]);
+	const [acceptedPaymentsFiles, setAcceptedPaymentsFiles] = useState<any[]>([]);
+	const [writtenTerminationFiles, setWrittenTerminationFiles] = useState<any[]>([]);
+	const [writtenRemovalFiles, setWrittenRemovalFiles] = useState<any[]>([]);
+	const [titlePlanFiles, setTitlePlanFiles] = useState<any[]>([]);
+
+	// State for applicationDocuments by category
+	const [signedWayleaveDocs, setSignedWayleaveDocs] = useState<any[]>([]);
+	const [inheritedWayleaveDocs, setInheritedWayleaveDocs] = useState<any[]>([]);
+	const [anyPaymentsDocs, setAnyPaymentsDocs] = useState<any[]>([]);
+	const [acceptedPaymentsDocs, setAcceptedPaymentsDocs] = useState<any[]>([]);
+	const [writtenTerminationDocs, setWrittenTerminationDocs] = useState<any[]>([]);
+	const [writtenRemovalDocs, setWrittenRemovalDocs] = useState<any[]>([]);
+	const [titlePlanDocs, setTitlePlanDocs] = useState<any[]>([]);
+
+	// Handlers for onUploaded for each category
+	const handleSignedWayleaveUploaded = (newFiles: any[], newDocs: any[]) => {
+		setSignedWayleaveFiles(prev => [...prev, ...newFiles]);
+		setSignedWayleaveDocs(prev => [...prev, ...newDocs]);
+	};
+	const handleInheritedWayleaveUploaded = (newFiles: any[], newDocs: any[]) => {
+		setInheritedWayleaveFiles(prev => [...prev, ...newFiles]);
+		setInheritedWayleaveDocs(prev => [...prev, ...newDocs]);
+	};
+	const handleAnyPaymentsUploaded = (newFiles: any[], newDocs: any[]) => {
+		setAnyPaymentsFiles(prev => [...prev, ...newFiles]);
+		setAnyPaymentsDocs(prev => [...prev, ...newDocs]);
+	};
+	const handleAcceptedPaymentsUploaded = (newFiles: any[], newDocs: any[]) => {
+		setAcceptedPaymentsFiles(prev => [...prev, ...newFiles]);
+		setAcceptedPaymentsDocs(prev => [...prev, ...newDocs]);
+	};
+	const handleWrittenTerminationUploaded = (newFiles: any[], newDocs: any[]) => {
+		setWrittenTerminationFiles(prev => [...prev, ...newFiles]);
+		setWrittenTerminationDocs(prev => [...prev, ...newDocs]);
+	};
+	const handleWrittenRemovalUploaded = (newFiles: any[], newDocs: any[]) => {
+		setWrittenRemovalFiles(prev => [...prev, ...newFiles]);
+		setWrittenRemovalDocs(prev => [...prev, ...newDocs]);
+	};
+	const handleTitlePlanUploaded = (newFiles: any[], newDocs: any[]) => {
+		setTitlePlanFiles(prev => [...prev, ...newFiles]);
+		setTitlePlanDocs(prev => [...prev, ...newDocs]);
+	};
+
 	const params = useParams();
+	 const { user } = useAuthUser();
+	  const userId = user?.user_id;
+	const navigate = useNavigate();
 	const getApplicationId = () => {
 		if (params.applicationId) return params.applicationId;
 		if (params.id) return params.id;
@@ -33,95 +88,223 @@ const SupportingInfo: React.FC = () => {
 
 	useEffect(() => {
 		if (!applicationId) return;
-		NWLSupportingInfoService.getSupportingInfo(applicationId)
-			.then((data: NWLSupportingInfoResponse) => {
+		const fetchSupportingInfo = async () => {
+			try {
+				const data: nwlSupportingInfo | null = await getSupportingInfo(applicationId);
 				if (data) {
-					setSignedWayleave(data.has_landowner_signed_wayleave ? "Yes" : "No");
-					setInheritedWayleave(data.has_inherited_necessary_wayleave ? "Yes" : "No");
-					setAnyPayments(data.has_prior_wayleave_payments ? "Yes" : "No");
-					setAcceptedPayments(data.has_payments_accepted_by_grantor ? "Yes" : "No");
-					setContact(data.is_new_contract_implied ? "email" : "phone");
-					setContactByEmail(data.new_contract_implied_reason || "");
-					setWrittenTermination(data.has_written_termination_notice ? "Yes" : "No");
-					setWrittenTerminationDate({
-						day: data.written_termination_notice_issue_date?.split("-")[2] || "",
-						month: data.written_termination_notice_issue_date?.split("-")[1] || "",
-						year: data.written_termination_notice_issue_date?.split("-")[0] || "",
-					});
-					setWrittenRemoval(data.has_written_removal_notice ? "Yes" : "No");
-					setWrittenRemovalDate({
-						day: data.written_removal_notice_issue_date?.split("-")[2] || "",
-						month: data.written_removal_notice_issue_date?.split("-")[1] || "",
-						year: data.written_removal_notice_issue_date?.split("-")[0] || "",
-					});
-					setTitlePlan(data.has_title_plan ? "Yes" : "No");
+					setId(data.id || "");
+					setSignedWayleave(data.hasLandownerSignedWayleave ? "Yes" : "No");
+					setInheritedWayleave(data.hasInheritedNecessaryWayleave ? "Yes" : "No");
+					setAnyPayments(data.hasPriorWayleavePayments ? "Yes" : "No");
+					setAcceptedPayments(data.hasPaymentsAcceptedByGrantor ? "Yes" : "No");
+					setContact(data.isNewContractImplied ? "email" : "phone");
+					setContactByEmail(data.newContractImpliedReason || "");
+					setWrittenTermination(data.hasWrittenTerminationNotice ? "Yes" : "No");
+					 setWrittenTerminationDate({
+					 	day: data.writtenTerminationNoticeIssueDate?.split("-")[2]?.split("T")[0] || "",
+					 	month: data.writtenTerminationNoticeIssueDate?.split("-")[1] || "",
+					 	year: data.writtenTerminationNoticeIssueDate?.split("-")[0] || "",
+					 });
+					setWrittenRemoval(data.hasWrittenRemovalNotice ? "Yes" : "No");
+					 setWrittenRemovalDate({
+					 	day: data.writtenRemovalNoticeIssueDate?.split("-")[2]?.split("T")[0] || "",
+					 	month: data.writtenRemovalNoticeIssueDate?.split("-")[1] || "",
+					 	year: data.writtenRemovalNoticeIssueDate?.split("-")[0] || "",
+					 });
+					setTitlePlan(data.hasTitlePlan ? "Yes" : "No");
+					setTitlePlanMissingReason(data.titlePlanMissingReason || "");
+
+					// Assign uploadedFiles/applicationDocuments to category states
+					const uploadedFiles = Array.isArray(data.uploadedFiles) ? data.uploadedFiles : [];
+					const applicationDocuments = Array.isArray(data.applicationDocuments) ? data.applicationDocuments : [];
+
+					// Helper to get UploadedFiles by category using ApplicationDocuments
+						function getFilesByCategory(category: string) {
+							const docFileIds = applicationDocuments.filter(doc => doc.subCategory === category).map(doc => doc.fileId);
+							return uploadedFiles.filter(f => docFileIds.includes(f.id));
+						}
+						// Helper to get ApplicationDocuments by category
+						function getDocsByCategory(category: string) {
+							return applicationDocuments.filter(doc => doc.subCategory === category);
+						}
+
+					setSignedWayleaveFiles(getFilesByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_SIGNED_WAYLEAVE));
+					setInheritedWayleaveFiles(getFilesByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_INHERITED_WAYLEAVE));
+					setAnyPaymentsFiles(getFilesByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ANY_PAYMENTS));
+					setAcceptedPaymentsFiles(getFilesByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ACCEPTED_PAYMENTS));
+					setWrittenTerminationFiles(getFilesByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE));
+					setWrittenRemovalFiles(getFilesByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_REMOVAL_NOTICE));
+					setTitlePlanFiles(getFilesByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_TITLE_PLAN));
+
+					setSignedWayleaveDocs(getDocsByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_SIGNED_WAYLEAVE));
+					setInheritedWayleaveDocs(getDocsByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_INHERITED_WAYLEAVE));
+					setAnyPaymentsDocs(getDocsByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ANY_PAYMENTS));
+					setAcceptedPaymentsDocs(getDocsByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ACCEPTED_PAYMENTS));
+					setWrittenTerminationDocs(getDocsByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE));
+					setWrittenRemovalDocs(getDocsByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_REMOVAL_NOTICE));
+					setTitlePlanDocs(getDocsByCategory(NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_TITLE_PLAN));
 				}
-			})
-			.catch(() => {
+			} catch {
 				// Optionally handle fetch error
-			});
+			}
+		};
+		fetchSupportingInfo();
 	}, [applicationId]);
 
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		const newErrors: string[] = [];
-		// ...existing validation logic...
-		if (!signedWayleave) newErrors.push('<a href="#signedWayleave-error">Select if the current landowner has signed a wayleave</a>');
-		if (!inheritedWayleave) newErrors.push('<a href="#inheritedWayleave-error">Select if the current landowner has inherited a wayleave</a>');
-		if (!anyPayments) newErrors.push('<a href="#anyPayments-error">Select if Wayleave Payments have previously been made to the grantor</a>');
-		if (!acceptedPayments) newErrors.push('<a href="#acceptedPayments-error">Select if Wayleave Payments have been accepted by the grantor</a>');
-		if (!contact) newErrors.push('<a href="#contact-error">Select if a new contract is implied</a>');
-		if (contact === "email" && !contactByEmail.trim()) {
-			newErrors.push('<a href="#contact-by-email">Enter why you believe a new contract is implied</a>');
-		}
-		if (!writtenTermination) newErrors.push('<a href="#writtenTermination-error">Select if a Written Termination Notice has been given</a>');
-		if (writtenTermination === "Yes" && (!writtenTerminationDate.day.trim() || !writtenTerminationDate.month.trim() || !writtenTerminationDate.year.trim())) {
-			newErrors.push('<a href="#writtenTerminationDate-day">Enter the full Written Termination Notice issue date</a>');
-		}
-		if (!writtenRemoval) newErrors.push('<a href="#writtenRemoval-error">Select if a Written Removal Notice has been given</a>');
-		if (writtenRemoval === "Yes") {
-			if (!writtenRemovalDate.day.trim() || !writtenRemovalDate.month.trim() || !writtenRemovalDate.year.trim()) {
-				newErrors.push('<a href="#writtenRemovalDate-day">Enter the full Written Removal Notice issue date</a>');
-			}
-			// if (writtenRemovalFiles.length === 0) {
-			// 	newErrors.push('<a href="#writtenremoval-upload-1-error">Upload Written Removal Notice document to support your application</a>');
-			// }
-		}
-		if (!titlePlan) newErrors.push('<a href="#titlePlan-error">Select if your application includes a title plan</a>');
+	 const handleSubmit = async (e: React.FormEvent) => {
+		 e.preventDefault();
+		 const newErrors: string[] = [];
+		 // ...existing validation logic...
+		 if (!signedWayleave) newErrors.push('<a href="#signedWayleave-error">Select if the current landowner has signed a wayleave</a>');
+		 if (signedWayleave === "Yes" && signedWayleaveFiles.length === 0) {
+			 newErrors.push('<a href="#signedWayleave-upload-1-error">Upload current landowners signed wayleave</a>');
+		 }
+		 if (!inheritedWayleave) newErrors.push('<a href="#inheritedWayleave-error">Select if the current landowner has inherited a wayleave</a>');
+		 if (inheritedWayleave === "Yes" && inheritedWayleaveFiles.length === 0) {
+			 newErrors.push('<a href="#inheritedWayleave-upload-1-error">Upload a document that shows inheritance of a necessary wayleave</a>');
+		 }
+		 if (!anyPayments) newErrors.push('<a href="#anyPayments-error">Select if Wayleave Payments have previously been made to the grantor</a>');
+		 if (anyPayments === "Yes" && anyPaymentsFiles.length === 0) {
+			 newErrors.push('<a href="#anyPayments-upload-1-error">Upload a document that shows payments made to the grantor</a>');
+		 }
+		 if (!acceptedPayments) newErrors.push('<a href="#acceptedPayments-error">Select if Wayleave Payments have been accepted by the grantor</a>');
+		 if (acceptedPayments === "Yes" && acceptedPaymentsFiles.length === 0) {
+			 newErrors.push('<a href="#acceptedPayments-upload-1-error">Upload a document that shows payments have been accepted by the grantor</a>');
+		 }
+		 if (!contact) newErrors.push('<a href="#contact-error">Select if a new contract is implied</a>');
+		 if (contact === "email" && !contactByEmail.trim()) {
+			 newErrors.push('<a href="#contact-by-email">Enter why you believe a new contract is implied</a>');
+		 }
+		 if (!writtenTermination) newErrors.push('<a href="#writtenTermination-error">Select if a Written Termination Notice has been given</a>');
+		 if (writtenTermination === "Yes" && (!writtenTerminationDate.day.trim() || !writtenTerminationDate.month.trim() || !writtenTerminationDate.year.trim())) {
+			 newErrors.push('<a href="#writtenTerminationDate-day">Enter the full Written Termination Notice issue date</a>');
+		 }
+		 if (writtenTermination === "Yes" && writtenTerminationFiles.length === 0) {
+			 newErrors.push('<a href="#writtenTermination-upload-1-error">Upload Written Termination Notice document</a>');
+		 }
+		 if (!writtenRemoval) newErrors.push('<a href="#writtenRemoval-error">Select if a Written Removal Notice has been given</a>');
+		 if (writtenRemoval === "Yes") {
+			 if (!writtenRemovalDate.day.trim() || !writtenRemovalDate.month.trim() || !writtenRemovalDate.year.trim()) {
+				 newErrors.push('<a href="#writtenRemovalDate-day">Enter the full Written Removal Notice issue date</a>');
+			 }
+			 if (writtenRemovalFiles.length === 0) {
+				 newErrors.push('<a href="#writtenRemoval-upload-1-error">Upload Written Removal Notice document</a>');
+			 }
+		 }
+		 if (!titlePlan) newErrors.push('<a href="#titlePlan-error">Select if your application includes a title plan</a>');
+		 if (titlePlan === "Yes" && titlePlanFiles.length === 0) {
+			 newErrors.push('<a href="#titlePlan-upload-1-error">Upload the title plan document</a>');
+		 }
 
-		setErrors(newErrors);
-		if (newErrors.length > 0) {
-			// Scroll to error summary
-			const errorSummary = document.querySelector('.govuk-error-summary');
-			if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
-			return;
-		}
+		 // Clear contactByEmail if No is selected
+		 let contactByEmailToSend = contact === "email" ? contactByEmail : "";
+		 if (contact !== "email" && contactByEmail) {
+			 setContactByEmail("");
+		 }
 
-		// Prepare request object
-		const request: NWLSupportingInfoRequest = {
-			application_id: applicationId,
-			has_landowner_signed_wayleave: signedWayleave === "Yes",
-			has_inherited_necessary_wayleave: inheritedWayleave === "Yes",
-			has_prior_wayleave_payments: anyPayments === "Yes",
-			has_payments_accepted_by_grantor: acceptedPayments === "Yes",
-			is_new_contract_implied: contact === "email",
-			new_contract_implied_reason: contactByEmail,
-			has_written_termination_notice: writtenTermination === "Yes",
-			written_termination_notice_issue_date: writtenTermination === "Yes" ? `${writtenTerminationDate.year}-${writtenTerminationDate.month}-${writtenTerminationDate.day}` : undefined,
-			has_written_removal_notice: writtenRemoval === "Yes",
-			written_removal_notice_issue_date: writtenRemoval === "Yes" ? `${writtenRemovalDate.year}-${writtenRemovalDate.month}-${writtenRemovalDate.day}` : undefined,
-			has_title_plan: titlePlan === "Yes",
-			title_plan_missing_reason: titlePlan === "No" ? "" : undefined,
-		};
+		 setErrors(newErrors);
+		 if (newErrors.length > 0) {
+			 // Scroll to error summary
+			 const errorSummary = document.querySelector('.govuk-error-summary');
+			 if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
+			 return;
+		 }
 
-		try {
-			await NWLSupportingInfoService.createSupportingInfo(applicationId, request);
-			// Optionally show success, navigate, etc.
-		} catch {
-			// Optionally handle error
-		}
-	};
+		 // Prepare request object
+		 const request: nwlSupportingInfo = {
+			 id,
+			 applicationId: applicationId,
+			 hasLandownerSignedWayleave: signedWayleave === "Yes",
+			 hasInheritedNecessaryWayleave: inheritedWayleave === "Yes",
+			 hasPriorWayleavePayments: anyPayments === "Yes",
+			 hasPaymentsAcceptedByGrantor: acceptedPayments === "Yes",
+			 isNewContractImplied: contact === "email",
+			 newContractImpliedReason: contactByEmailToSend,
+			 hasWrittenTerminationNotice: writtenTermination === "Yes",
+			 writtenTerminationNoticeIssueDate: writtenTermination === "Yes" ? `${writtenTerminationDate.year}-${writtenTerminationDate.month}-${writtenTerminationDate.day}` : undefined,
+			 hasWrittenRemovalNotice: writtenRemoval === "Yes",
+			 writtenRemovalNoticeIssueDate: writtenRemoval === "Yes" ? `${writtenRemovalDate.year}-${writtenRemovalDate.month}-${writtenRemovalDate.day}` : undefined,
+			 hasTitlePlan: titlePlan === "Yes",
+			 titlePlanMissingReason: titlePlan === "No" ? titlePlanMissingReason : undefined,
+			 createdBy: userId,
+			 lastUpdatedBy: userId,
+			 uploadedFiles: [
+				 ...signedWayleaveFiles,
+				 ...inheritedWayleaveFiles,
+				 ...anyPaymentsFiles,
+				 ...acceptedPaymentsFiles,
+				 ...writtenTerminationFiles,
+				 ...writtenRemovalFiles,
+				 ...titlePlanFiles,
+			 ],
+			 applicationDocuments: [
+				 ...signedWayleaveDocs,
+				 ...inheritedWayleaveDocs,
+				 ...anyPaymentsDocs,
+				 ...acceptedPaymentsDocs,
+				 ...writtenTerminationDocs,
+				 ...writtenRemovalDocs,
+				 ...titlePlanDocs,
+
+			 ],
+		 };
+
+		 try {
+			 await saveSupportingInfo(request);
+			 				   navigate(`/nwl/${applicationId}/task-list`);
+
+		 } catch {
+			 // Optionally handle error
+		 }
+	 };
+
+	 const handleSaveForLater = async () => {
+		 // Prepare request object (same as handleSubmit, but skip validation)
+		 const request: nwlSupportingInfo = {
+			 id,
+			 applicationId: applicationId,
+			 hasLandownerSignedWayleave: signedWayleave === "Yes",
+			 hasInheritedNecessaryWayleave: inheritedWayleave === "Yes",
+			 hasPriorWayleavePayments: anyPayments === "Yes",
+			 hasPaymentsAcceptedByGrantor: acceptedPayments === "Yes",
+			 isNewContractImplied: contact === "email",
+			 newContractImpliedReason: contact === "email" ? contactByEmail : "",
+			 hasWrittenTerminationNotice: writtenTermination === "Yes",
+			 writtenTerminationNoticeIssueDate: writtenTermination === "Yes" ? `${writtenTerminationDate.year}-${writtenTerminationDate.month}-${writtenTerminationDate.day}` : undefined,
+			 hasWrittenRemovalNotice: writtenRemoval === "Yes",
+			 writtenRemovalNoticeIssueDate: writtenRemoval === "Yes" ? `${writtenRemovalDate.year}-${writtenRemovalDate.month}-${writtenRemovalDate.day}` : undefined,
+			 hasTitlePlan: titlePlan === "Yes",
+			 titlePlanMissingReason: titlePlan === "No" ? titlePlanMissingReason : undefined,
+			 createdBy: userId,
+			 lastUpdatedBy: userId,
+			 uploadedFiles: [
+				 ...signedWayleaveFiles,
+				 ...inheritedWayleaveFiles,
+				 ...anyPaymentsFiles,
+				 ...acceptedPaymentsFiles,
+				 ...writtenTerminationFiles,
+				 ...writtenRemovalFiles,
+				 ...titlePlanFiles,
+			 ],
+			 applicationDocuments: [
+				 ...signedWayleaveDocs,
+				 ...inheritedWayleaveDocs,
+				 ...anyPaymentsDocs,
+				 ...acceptedPaymentsDocs,
+				 ...writtenTerminationDocs,
+				 ...writtenRemovalDocs,
+				 ...titlePlanDocs,
+			 ],
+		 };
+		 try {
+			await saveSupportingInfo(request);
+				   navigate(`/nwl/${applicationId}/task-list`);
+
+		 } catch {	
+			 // Optionally handle error
+		 }
+	 };
 
 	return (
 	<div className="govuk-width-container">
@@ -172,17 +355,23 @@ const SupportingInfo: React.FC = () => {
 									<label className="govuk-label govuk-radios__label" htmlFor="signedWayleave">Yes</label>
 								</div>
 								<div className="govuk-radios__conditional" id="conditional-signedWayleave">
-									<div className={`govuk-form-group${errors.some(e => e.includes('signedWayleave-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
-									 {/* {signedWayleave === "Yes" && (
-										 <FileUpload
-											 title="Upload current landowners signed wayleave"
-											 prefix={`applications/${applicationId}/signed-wayleave`}
-											 onFilesChange={setTitlePlanFiles}
-											 applicationId={applicationId}
-											 category="SIGNED_WAYLEAVE"
-										 />
-									 )} */}
-									</div>
+									{signedWayleave === "Yes" && (
+										<>
+											{errors.some(e => e.includes('signedWayleave-upload-1-error')) && (
+												<p id="signedWayleave-upload-1-error" className="govuk-error-message">Upload current landowners signed wayleave</p>
+											)}
+											<FileUpload
+												title="Upload current landowners signed wayleave"
+												prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_SIGNED_WAYLEAVE}/`}
+												applicationId={applicationId}
+												category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
+												subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_SIGNED_WAYLEAVE}
+												uploadedFiles={signedWayleaveFiles}
+												onUploaded={handleSignedWayleaveUploaded}
+												addedBy={userId}
+											/>
+										</>
+									)}
 								</div>
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="signedWayleave-2" name="signedWayleave" type="radio" value="No" checked={signedWayleave === "No"} onChange={e => setSignedWayleave(e.target.value)} />
@@ -207,19 +396,23 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="inheritedWayleave" name="inheritedWayleave" type="radio" value="Yes" checked={inheritedWayleave === "Yes"} onChange={e => setInheritedWayleave(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="inheritedWayleave">Yes</label>
 								</div>
-								 {/* {inheritedWayleave === "Yes" && (
-									 <div className="govuk-radios__conditional" id="conditional-inheritedWayleave">
-										 <div className={`govuk-form-group${errors.some(e => e.includes('inheritedWayleave-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
-											 <FileUpload
-												 title="Upload a document that shows inheritance of a necessary wayleave in relation to the specified asset schedule"
-												 prefix={`applications/${applicationId}/inherited-wayleave`}
-												 onFilesChange={setInheritedWayleaveFiles}
-												 applicationId={applicationId}
-												 category="INHERITED_WAYLEAVE"
-											 />
-										 </div>
-									 </div>
-								 )} */}
+														{inheritedWayleave === "Yes" && (
+															<div className="govuk-radios__conditional" id="conditional-inheritedWayleave">
+																{errors.some(e => e.includes('inheritedWayleave-upload-1-error')) && (
+																	<p id="inheritedWayleave-upload-1-error" className="govuk-error-message">Upload a document that shows inheritance of a necessary wayleave</p>
+																)}
+																<FileUpload
+																	title="Upload a document that shows inheritance of a necessary wayleave in relation to the specified asset schedule"
+																	prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_INHERITED_WAYLEAVE}/`}
+																	applicationId={applicationId}
+																	category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
+																	subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_INHERITED_WAYLEAVE}
+																	uploadedFiles={inheritedWayleaveFiles}
+																	onUploaded={handleInheritedWayleaveUploaded}
+																	addedBy={userId}
+																/>
+															</div>
+														)}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="inheritedWayleave-2" name="inheritedWayleave" type="radio" value="No" checked={inheritedWayleave === "No"} onChange={e => setInheritedWayleave(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="inheritedWayleave-2">No</label>
@@ -243,22 +436,23 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="anyPayments" name="anyPayments" type="radio" value="Yes" checked={anyPayments === "Yes"} onChange={e => setAnyPayments(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="anyPayments">Yes</label>
 								</div>
-								{/* {anyPayments === "Yes" && (
-									<div className="govuk-radios__conditional" id="conditional-anyPayments">
-										<div className={`govuk-form-group${errors.some(e => e.includes('anyPayments-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
-											<FileUpload
-												title="Upload a document that shows payments made to the grantor to support your application"
-												prefix={`applications/${applicationId}/any-payments`}
-												onFilesChange={() => {}}
-												applicationId={applicationId}
-												category="ANY_PAYMENTS"
-											/>
-											{errors.some(e => e.includes('anyPayments-upload-1-error')) && (
-												<p id="anyPayments-upload-1-error" className="govuk-error-message">Upload a document that shows payments made to the grantor</p>
-											)}
-										</div>
-									</div>
-								)} */}
+														{anyPayments === "Yes" && (
+															<div className="govuk-radios__conditional" id="conditional-anyPayments">
+																{errors.some(e => e.includes('anyPayments-upload-1-error')) && (
+																	<p id="anyPayments-upload-1-error" className="govuk-error-message">Upload a document that shows payments made to the grantor</p>
+																)}
+																<FileUpload
+																	title="Upload a document that shows payments made to the grantor to support your application"
+																	prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ANY_PAYMENTS}/`}
+																	applicationId={applicationId}
+																	category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
+																	subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ANY_PAYMENTS}
+																	uploadedFiles={anyPaymentsFiles}
+																	onUploaded={handleAnyPaymentsUploaded}
+																	addedBy={userId}
+																/>
+															</div>
+														)}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="anyPayments-2" name="anyPayments" type="radio" value="No" checked={anyPayments === "No"} onChange={e => setAnyPayments(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="anyPayments-2">No</label>
@@ -282,22 +476,23 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="acceptedPayments" name="acceptedPayments" type="radio" value="Yes" checked={acceptedPayments === "Yes"} onChange={e => setAcceptedPayments(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="acceptedPayments">Yes</label>
 								</div>
-								{/* {acceptedPayments === "Yes" && (
-									<div className="govuk-radios__conditional" id="conditional-acceptedPayments">
-										<div className={`govuk-form-group${errors.some(e => e.includes('acceptedPayments-upload-1-error')) ? ' govuk-form-group--error' : ''}`}>
-											<FileUpload
-												title="Upload a document that shows payments have been accepted by the grantor"
-												prefix={`applications/${applicationId}/accepted-payments`}
-												onFilesChange={() => {}}
-												applicationId={applicationId}
-												category="ACCEPTED_PAYMENTS"
-											/>
-											{errors.some(e => e.includes('acceptedPayments-upload-1-error')) && (
-												<p id="acceptedPayments-upload-1-error" className="govuk-error-message">Upload a document that shows payments have been accepted by the grantor</p>
-											)}
-										</div>
-									</div>
-								)} */}
+														{acceptedPayments === "Yes" && (
+															<div className="govuk-radios__conditional" id="conditional-acceptedPayments">
+																{errors.some(e => e.includes('acceptedPayments-upload-1-error')) && (
+																	<p id="acceptedPayments-upload-1-error" className="govuk-error-message">Upload a document that shows payments have been accepted by the grantor</p>
+																)}
+																<FileUpload
+																	title="Upload a document that shows payments have been accepted by the grantor"
+																	prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ACCEPTED_PAYMENTS}/`}
+																	applicationId={applicationId}
+																	category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
+																	subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ACCEPTED_PAYMENTS}
+																	uploadedFiles={acceptedPaymentsFiles}
+																	onUploaded={handleAcceptedPaymentsUploaded}
+																	addedBy={userId}
+																/>
+															</div>
+														)}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="acceptedPayments-2" name="acceptedPayments" type="radio" value="No" checked={acceptedPayments === "No"} onChange={e => setAcceptedPayments(e.target.value)} />
 									<label className="govuk-label govuk-radios__label" htmlFor="acceptedPayments-2">No</label>
@@ -426,17 +621,23 @@ const SupportingInfo: React.FC = () => {
 														</div>
 													</div>
 												</div>
+												
 											</fieldset>
 										</div>
 										<div className="govuk-form-group">
-											{/* <label className="govuk-label" htmlFor="writtentermination-upload-1" id="writtentermination-upload-1-label">Upload Written Termination Notice document</label>
-											<FileUpload
+										{errors.some(e => e.includes('writtenTermination-upload-1-error')) && (
+											<p id="writtenTermination-upload-1-error" className="govuk-error-message">Upload Written Termination Notice document</p>
+										)}
+										<FileUpload
 												title="Upload Written Termination Notice document"
-												prefix={`applications/${applicationId}/written-termination-notice`}
-												onFilesChange={() => {}}
+												prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE}/`}
 												applicationId={applicationId}
-												category="WRITTEN_TERMINATION_NOTICE"
-											/> */}
+												category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
+												subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE}
+												uploadedFiles={writtenTerminationFiles}
+												onUploaded={handleWrittenTerminationUploaded}
+												addedBy={userId}
+											/>
 										</div>
 									</div>
 								)}
@@ -484,47 +685,52 @@ const SupportingInfo: React.FC = () => {
 									/>
 									<label className="govuk-label govuk-radios__label" htmlFor="writtenRemoval">Yes</label>
 								</div>
-								{writtenRemoval === "Yes" && (
-									<div className="govuk-radios__conditional" id="conditional-writtenRemoval">
-										<div className={`govuk-form-group${errors.some(e => e.includes('writtenRemovalDate-day')) ? ' govuk-form-group--error' : ''}`}>
-											<fieldset className="govuk-fieldset" role="group" aria-describedby="writtenRemovalDate-hint">
-												<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">Written Removal Notice issue date</legend>
-												<div id="writtenRemovalDate-hint" className="govuk-hint"></div>
-												{errors.some(e => e.includes('writtenRemovalDate-day')) && (
-													<p id="writtenRemovalDate-error" className="govuk-error-message">Enter the full Written Removal Notice issue date</p>
-												)}
-												<div className="govuk-date-input" id="writtenRemovalDate">
-													<div className="govuk-date-input__item">
-														<div className="govuk-form-group">
-															<label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-day">Day</label>
-															<input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenRemovalDate-day" name="writtenRemovalDate-day" type="text" inputMode="numeric" value={writtenRemovalDate.day} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, day: e.target.value })} />
-														</div>
-													</div>
-													<div className="govuk-date-input__item">
-														<div className="govuk-form-group">
-															<label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-month">Month</label>
-															<input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenRemovalDate-month" name="writtenRemovalDate-month" type="text" inputMode="numeric" value={writtenRemovalDate.month} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, month: e.target.value })} />
-														</div>
-													</div>
-													<div className="govuk-date-input__item">
-														<div className="govuk-form-group">
-															<label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-year">Year</label>
-															<input className="govuk-input govuk-date-input__input govuk-input--width-4" id="writtenRemovalDate-year" name="writtenRemovalDate-year" type="text" inputMode="numeric" value={writtenRemovalDate.year} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, year: e.target.value })} />
-														</div>
-													</div>
-												</div>
-											</fieldset>
-										</div>
-											{/* <label className="govuk-label" htmlFor="writtenremoval-upload-1" id="writtenremoval-upload-1-label">Upload Written Removal Notice document</label>
-											<FileUpload
-												title="Upload Written Removal Notice document"
-												prefix={`applications/${applicationId}/written-removal-notice`}
-												onFilesChange={setWrittenRemovalFiles}
-												applicationId={applicationId}
-												category="WRITTEN_REMOVAL_NOTICE"
-											/> */}
-									</div>
-								)}
+								   {writtenRemoval === "Yes" && (
+									   <div className="govuk-radios__conditional" id="conditional-writtenRemoval">
+										   <div className={`govuk-form-group${errors.some(e => e.includes('writtenRemovalDate-day')) ? ' govuk-form-group--error' : ''}`}>
+											   <fieldset className="govuk-fieldset" role="group" aria-describedby="writtenRemovalDate-hint">
+												   <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">Written Removal Notice issue date</legend>
+												   <div id="writtenRemovalDate-hint" className="govuk-hint"></div>
+												   {errors.some(e => e.includes('writtenRemovalDate-day')) && (
+													   <p id="writtenRemovalDate-error" className="govuk-error-message">Enter the full Written Removal Notice issue date</p>
+												   )}
+												   <div className="govuk-date-input" id="writtenRemovalDate">
+													   <div className="govuk-date-input__item">
+														   <div className="govuk-form-group">
+															   <label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-day">Day</label>
+															   <input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenRemovalDate-day" name="writtenRemovalDate-day" type="text" inputMode="numeric" value={writtenRemovalDate.day} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, day: e.target.value })} />
+														   </div>
+													   </div>
+													   <div className="govuk-date-input__item">
+														   <div className="govuk-form-group">
+															   <label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-month">Month</label>
+															   <input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenRemovalDate-month" name="writtenRemovalDate-month" type="text" inputMode="numeric" value={writtenRemovalDate.month} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, month: e.target.value })} />
+														   </div>
+													   </div>
+													   <div className="govuk-date-input__item">
+														   <div className="govuk-form-group">
+															   <label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-year">Year</label>
+															   <input className="govuk-input govuk-date-input__input govuk-input--width-4" id="writtenRemovalDate-year" name="writtenRemovalDate-year" type="text" inputMode="numeric" value={writtenRemovalDate.year} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, year: e.target.value })} />
+														   </div>
+													   </div>
+												   </div>
+											   </fieldset>
+										   </div>
+										   {errors.some(e => e.includes('writtenRemoval-upload-1-error')) && (
+											  <p id="writtenRemoval-upload-1-error" className="govuk-error-message">Upload Written Removal Notice document</p>
+										   )}
+										   <FileUpload
+											   title="Upload Written Removal Notice document"
+											   prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_REMOVAL_NOTICE}/`}
+											   applicationId={applicationId}
+											   category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
+											   subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_REMOVAL_NOTICE}
+											   uploadedFiles={writtenRemovalFiles}
+											   onUploaded={handleWrittenRemovalUploaded}
+											   addedBy={userId}
+										   />
+									   </div>
+								   )}
 								<div className="govuk-radios__item">
 									<input
 										className="govuk-radios__input"
@@ -559,20 +765,23 @@ const SupportingInfo: React.FC = () => {
 									<input className="govuk-radios__input" id="titlePlan" name="titlePlan" type="radio" value="Yes" checked={titlePlan === "Yes"} onChange={e => setTitlePlan(e.target.value)} aria-controls="conditional-titlePlan" aria-expanded={titlePlan === "Yes"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="titlePlan">Yes</label>
 								</div>
-								 {/* {titlePlan === "Yes" && (
-									 <div className="govuk-radios__conditional" id="conditional-titlePlan">
-										 <div className="govuk-form-group">
-											 <label className="govuk-label" htmlFor="titlePlan-upload-1" id="titlePlan-upload-1-label">Upload the title plan document</label>
-											 <FileUpload
-												 title="Upload the title plan document"
-												 prefix={`applications/${applicationId}/title-plan`}
-												 onFilesChange={setTitlePlanFiles}
-												 applicationId={applicationId}
-												 category="TITLE_PLAN"
-											 />
-										 </div>
-									 </div>
-								 )} */}
+								{titlePlan === "Yes" && (
+	<div className="govuk-radios__conditional" id="conditional-titlePlan">
+		{errors.some(e => e.includes('titlePlan-upload-1-error')) && (
+			<p id="titlePlan-upload-1-error" className="govuk-error-message">Upload the title plan document</p>
+		)}
+		<FileUpload
+			title="Upload the title plan document"
+			prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_TITLE_PLAN}/`}
+			applicationId={applicationId}
+			category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
+			subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_TITLE_PLAN}
+			uploadedFiles={titlePlanFiles}
+			onUploaded={handleTitlePlanUploaded}
+			addedBy={userId}
+		/>
+	</div>
+)}
 								<div className="govuk-radios__item">
 									<input className="govuk-radios__input" id="titlePlan-2" name="titlePlan" type="radio" value="No" checked={titlePlan === "No"} onChange={e => setTitlePlan(e.target.value)} aria-controls="conditional-titlePlan-2" aria-expanded={titlePlan === "No"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="titlePlan-2">No</label>
@@ -581,7 +790,14 @@ const SupportingInfo: React.FC = () => {
 									<div className="govuk-radios__conditional" id="conditional-titlePlan-2">
 										<div className="govuk-form-group">
 											<label className="govuk-label" htmlFor="titlePlan-detail">Tell us why you’re not submitting a title plan</label>
-											<textarea className="govuk-textarea govuk-!-static-margin-bottom-1" id="titlePlan-detail" name="titlePlanDetail" rows={5}></textarea>
+											<textarea
+												className="govuk-textarea govuk-!-static-margin-bottom-1"
+												id="titlePlan-detail"
+												name="titlePlanDetail"
+												rows={5}
+												value={titlePlanMissingReason}
+												onChange={e => setTitlePlanMissingReason(e.target.value)}
+											></textarea>
 										</div>
 									</div>
 								)}
@@ -590,12 +806,13 @@ const SupportingInfo: React.FC = () => {
 					</div>
 					{/* Call to action buttons */}
 					<div className="govuk-!-static-margin-top-6">
-						<Link
-							to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+						<button
+							type="button"
 							className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2"
+							onClick={handleSaveForLater}
 						>
 							Save for later
-						</Link>
+						</button>
 						<button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
 					</div>
 				</form>
