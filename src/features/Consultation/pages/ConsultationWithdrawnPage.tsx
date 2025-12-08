@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";

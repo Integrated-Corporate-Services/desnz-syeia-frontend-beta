@@ -253,7 +253,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                   </tr>
                   {dateRequestCreated && (
                     <tr className="govuk-table__row">
-                      <td className="govuk-table__cell" style={{ fontWeight: 700 }}>Withdraw date</td>
+                      <td className="govuk-table__cell" style={{ fontWeight: 700 }}>Withdrawal date</td>
                       <td className="govuk-table__cell">{formatDate(dateRequestCreated)}</td>
                     </tr>
                   )}

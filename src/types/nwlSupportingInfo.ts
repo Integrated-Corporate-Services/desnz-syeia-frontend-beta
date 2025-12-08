@@ -22,6 +22,6 @@ export interface nwlSupportingInfo {
   lastUpdatedBy?: string;
   createdAt?: string;
   updatedAt?: string;
-    uploadedFiles: UploadedFile[];
-  applicationDocuments: ApplicationDocument[];
+	uploadedFiles: UploadedFile[];
+	applicationDocuments: ApplicationDocument[];
 }

@@ -3,9 +3,7 @@ import { useEffect, useState } from 'react';
 import { DEMO_USER_ID, DEMO_USER_EMAIL } from '../constants/demo';
 import type { AuthUser } from '../types/auth';
 
-const LOGIN_DISABLED = true;
-
-// import.meta.env.VITE_LOGIN_DISABLED === 'true';
+const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === 'true';
 
 export function useAuthUser() {
   const [user, setUser] = useState<AuthUser | null>(null);

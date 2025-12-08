@@ -5,7 +5,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Negotiation } from '../../../../types/Negotiation';
 import * as negotiationsService from '../../../../services/negotiationsService';
-import { FILE_CATEGORIES, NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
+import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
 
 const Negotiations: React.FC = () => {
@@ -98,14 +98,27 @@ const Negotiations: React.FC = () => {
     const { day, month, year } = dateFields;
     if (!day && !month && !year) return null; // Optional, so allow blank
     let error = '';
-    const dayNum = Number(day);
-    const monthNum = Number(month);
+    // const dayNum = Number(day);
+    // const monthNum = Number(month);
     const yearNum = Number(year);
-    const currentYear = new Date().getFullYear();
+    // Remove currentYear check; instead, check if the date is valid
     if (!/^(0?[1-9]|[12][0-9]|3[01])$/.test(day)) error = 'Day must be a number between 1 and 31';
     else if (!/^(0?[1-9]|1[0-2])$/.test(month)) error = 'Month must be a number between 1 and 12';
     else if (!/^\d{4}$/.test(year)) error = 'Year must be a 4-digit number';
-    else if (yearNum <= currentYear) error = 'Year must be greater than the current year';
+    else {
+      // Check if the date is valid (e.g., not Feb 30)
+      const dayNum = Number(day);
+      const monthNum = Number(month);
+      const yearNum = Number(year);
+      const date = new Date(yearNum, monthNum - 1, dayNum);
+      if (
+        date.getFullYear() !== yearNum ||
+        date.getMonth() !== monthNum - 1 ||
+        date.getDate() !== dayNum
+      ) {
+        error = 'Date is not valid';
+      }
+    }
     return error || null;
   };
 
@@ -128,7 +141,10 @@ const Negotiations: React.FC = () => {
     // Merge date fields into ISO string if present
     let startDate = '';
     if (dateFields.day && dateFields.month && dateFields.year) {
-      startDate = `${dateFields.year.padStart(4, '0')}-${dateFields.month.padStart(2, '0')}-${dateFields.day.padStart(2, '0')}`;
+      const year = String(parseInt(dateFields.year, 10)).padStart(4, '0');
+      const month = String(parseInt(dateFields.month, 10)).padStart(2, '0');
+      const day = String(parseInt(dateFields.day, 10)).padStart(2, '0');
+      startDate = `${year}-${month}-${day}`;
     }
     const payload: Negotiation = {
       ...negotiation,
@@ -218,14 +234,10 @@ const Negotiations: React.FC = () => {
                     </Link>
                 </li>
                 <li className="govuk-breadcrumbs__list-item" aria-current="page">Negotiations</li>
-            </ol>
-        </nav>
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Status of negotiation</h1>
+              </ol>
+            </nav>
           <div className="govuk-hint govuk-!-margin-bottom-7">
             Tell us about any steps you’ve taken to resolve matters with the landowner or occupier.
-          </div>
           {/* Error summary */}
           {Object.keys(errors).length > 0 && (
             <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
@@ -250,11 +262,8 @@ const Negotiations: React.FC = () => {
           )}
           <form onSubmit={handleSubmit} noValidate>
             {/* Negotiation progress radios */}
-            <div className={`govuk-form-group${errors.negotiationProgress ? " govuk-form-group--error" : ""}`} id="negotiationProgress-group">
-              <fieldset className="govuk-fieldset" aria-describedby="negotiationProgress-hint">
-               
-                  <div className={`govuk-form-group${errors.anyNegotiation ? " govuk-form-group--error" : ""}`} id="negotiationProgress-group">
-              <fieldset className="govuk-fieldset" aria-describedby="negotiationProgress-hint">
+              <div className={`govuk-form-group${errors.anyNegotiation ? " govuk-form-group--error" : ""}`} id="negotiationProgress-group">
+                <fieldset className="govuk-fieldset" aria-describedby="negotiationProgress-hint">
                 <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
                   <h1 className="govuk-fieldset__heading">Has there been any negotiation?</h1>
                 </legend>
@@ -274,8 +283,6 @@ const Negotiations: React.FC = () => {
                     <label className="govuk-label govuk-radios__label" htmlFor="negotiationProgress-2">No</label>
                   </div>
                 </div>
-              </fieldset>
-            </div>
               </fieldset>
             </div>
             {/* Negotiation start date (optional) */}
@@ -323,7 +330,7 @@ const Negotiations: React.FC = () => {
                   <p id="fileUpload1-error" className="govuk-error-message">{errors.evidenceFiles}</p>
                 )}
                   <FileUpload
-            title="upload evidence of negotiations"
+                title="Upload evidence of negotiations"
             prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_NEGOTIATIONS}/`}
             applicationId={applicationId}
             category={NWL_FILE_CATEGORIES.NWL_NEGOTIATIONS}
@@ -342,7 +349,6 @@ const Negotiations: React.FC = () => {
             </div>
           </form>
         </div>
-      </div>
     </main>
   );
 }

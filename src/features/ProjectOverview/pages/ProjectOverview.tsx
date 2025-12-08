@@ -343,7 +343,6 @@ const ProjectOverview = () => {
 							} else {
 								const monthNum = months.findIndex(m => m.toLowerCase() === month.toLowerCase()) + 1;
 								if (monthNum > 0 && options?.mustBeFuture) {
-									const enteredDate = new Date(Number(year), monthNum - 1, 1);
 									const today = new Date();
 									today.setHours(0,0,0,0);
 									const currentYear = today.getFullYear();

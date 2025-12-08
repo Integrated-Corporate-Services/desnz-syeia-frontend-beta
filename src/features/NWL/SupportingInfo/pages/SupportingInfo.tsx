@@ -3,7 +3,7 @@ import FileUpload from '../../../../components/FileUpload';
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { nwlSupportingInfo } from "../../../../types/nwlSupportingInfo";
-import {getSupportingInfo, saveSupportingInfo} from '../../../../services/nwlSupportingInfoService';
+import {getSupportingInfo, saveSupportingInfo} from '../../../../services/NWLSupportingInfoService';
 import { useAuthUser } from "../../../../hooks/useAuthUser";
 import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constants/fileCategoryConstants";	
 
@@ -100,17 +100,29 @@ const SupportingInfo: React.FC = () => {
 					setContact(data.isNewContractImplied ? "email" : "phone");
 					setContactByEmail(data.newContractImpliedReason || "");
 					setWrittenTermination(data.hasWrittenTerminationNotice ? "Yes" : "No");
-					 setWrittenTerminationDate({
-					 	day: data.writtenTerminationNoticeIssueDate?.split("-")[2]?.split("T")[0] || "",
-					 	month: data.writtenTerminationNoticeIssueDate?.split("-")[1] || "",
-					 	year: data.writtenTerminationNoticeIssueDate?.split("-")[0] || "",
-					 });
-					setWrittenRemoval(data.hasWrittenRemovalNotice ? "Yes" : "No");
-					 setWrittenRemovalDate({
-					 	day: data.writtenRemovalNoticeIssueDate?.split("-")[2]?.split("T")[0] || "",
-					 	month: data.writtenRemovalNoticeIssueDate?.split("-")[1] || "",
-					 	year: data.writtenRemovalNoticeIssueDate?.split("-")[0] || "",
-					 });
+					setWrittenTerminationDate(() => {
+						const dateStr = data.writtenTerminationNoticeIssueDate;
+						if (!dateStr) return { day: "", month: "", year: "" };
+						const dateObj = new Date(dateStr);
+						if (isNaN(dateObj.getTime())) return { day: "", month: "", year: "" };
+						return {
+							day: String(dateObj.getDate()).padStart(2, "0"),
+							month: String(dateObj.getMonth() + 1).padStart(2, "0"),
+							year: String(dateObj.getFullYear())
+						};
+					});
+				   setWrittenRemoval(data.hasWrittenRemovalNotice ? "Yes" : "No");
+					setWrittenRemovalDate(() => {
+						const dateStr = data.writtenRemovalNoticeIssueDate;
+						if (!dateStr) return { day: "", month: "", year: "" };
+						const dateObj = new Date(dateStr);
+						if (isNaN(dateObj.getTime())) return { day: "", month: "", year: "" };
+						return {
+							day: String(dateObj.getDate()).padStart(2, "0"),
+							month: String(dateObj.getMonth() + 1).padStart(2, "0"),
+							year: String(dateObj.getFullYear())
+						};
+					});
 					setTitlePlan(data.hasTitlePlan ? "Yes" : "No");
 					setTitlePlanMissingReason(data.titlePlanMissingReason || "");
 
@@ -222,9 +234,13 @@ const SupportingInfo: React.FC = () => {
 			 isNewContractImplied: contact === "email",
 			 newContractImpliedReason: contactByEmailToSend,
 			 hasWrittenTerminationNotice: writtenTermination === "Yes",
-			 writtenTerminationNoticeIssueDate: writtenTermination === "Yes" ? `${writtenTerminationDate.year}-${writtenTerminationDate.month}-${writtenTerminationDate.day}` : undefined,
+			 writtenTerminationNoticeIssueDate: writtenTermination === "Yes"
+				 ? `${String(writtenTerminationDate.year).padStart(4, '0')}-${String(writtenTerminationDate.month).padStart(2, '0')}-${String(writtenTerminationDate.day).padStart(2, '0')}`
+				 : undefined,
 			 hasWrittenRemovalNotice: writtenRemoval === "Yes",
-			 writtenRemovalNoticeIssueDate: writtenRemoval === "Yes" ? `${writtenRemovalDate.year}-${writtenRemovalDate.month}-${writtenRemovalDate.day}` : undefined,
+			 writtenRemovalNoticeIssueDate: writtenRemoval === "Yes"
+				 ? `${String(writtenRemovalDate.year).padStart(4, '0')}-${String(writtenRemovalDate.month).padStart(2, '0')}-${String(writtenRemovalDate.day).padStart(2, '0')}`
+				 : undefined,
 			 hasTitlePlan: titlePlan === "Yes",
 			 titlePlanMissingReason: titlePlan === "No" ? titlePlanMissingReason : undefined,
 			 createdBy: userId,
