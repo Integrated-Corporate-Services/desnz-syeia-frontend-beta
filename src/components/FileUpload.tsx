@@ -16,12 +16,13 @@ export interface FileUploadProps {
   onRemoveFile?: (idx: number) => void;
   applicationId?: string;
   category?: string;
+  subCategory?: string;
   addedBy?: string;
   consultationId?: string;
   onUploaded?: (uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[]) => void;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photographs', prefix = '', uploadedFiles, onFilesChange, onRemoveFile, applicationId, category, addedBy, consultationId, onUploaded }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photographs', prefix = '', uploadedFiles, onFilesChange, onRemoveFile, applicationId, category, subCategory, addedBy, consultationId, onUploaded }) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
   const DEFAULT_USER_ID = "44444444-4444-4444-4444-444444444444";
@@ -179,7 +180,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ title = 'Upload site photograph
               documentId: crypto.randomUUID(),
               applicationId: applicationId || '',
               fileId: uploadedFile.id,
-              category: category || FILE_CATEGORIES.SENSITIVE_AREA_REVIEW,
+              category: category || '',
+              subCategory: subCategory || '',
               title: uploadedFile.filename,
               virtualFolder: uploadedFile.virtualFolder,
               addedBy: userId,

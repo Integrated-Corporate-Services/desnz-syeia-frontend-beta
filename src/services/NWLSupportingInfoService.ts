@@ -1,37 +1,27 @@
-import axios from "axios";
+import { nwlSupportingInfo } from '../types/nwlSupportingInfo';
 
-export interface NWLSupportingInfoRequest {
-  application_id: string;
-  has_landowner_signed_wayleave?: boolean;
-  has_inherited_necessary_wayleave?: boolean;
-  has_prior_wayleave_payments?: boolean;
-  has_payments_accepted_by_grantor?: boolean;
-  is_new_contract_implied?: boolean;
-  new_contract_implied_reason?: string;
-  has_written_termination_notice?: boolean;
-  written_termination_notice_issue_date?: string;
-  has_written_removal_notice?: boolean;
-  written_removal_notice_issue_date?: string;
-  has_title_plan?: boolean;
-  title_plan_missing_reason?: string;
-}
+const API_BASE = '/backend/api/nwl';
 
-export type NWLSupportingInfoResponse = NWLSupportingInfoRequest;
-
-
-class NWLSupportingInfoService {
-  static async getSupportingInfo(applicationId: string): Promise<NWLSupportingInfoResponse> {
-    const response = await axios.get(`/backend/api/nwl/${applicationId}/supporting-information`);
-    return response.data;
+export const getSupportingInfo = async (applicationId: string): Promise<nwlSupportingInfo | null> => {
+  try {
+    const response = await fetch(`${API_BASE}/${applicationId}/nwl-supporting-info`);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
   }
+};
 
-  static async createSupportingInfo(applicationId: string, data: NWLSupportingInfoRequest): Promise<void> {
-    await axios.post(`/backend/api/nwl/supporting-information`, data);
+export const saveSupportingInfo = async (info: nwlSupportingInfo): Promise<nwlSupportingInfo | null> => {
+  try {
+    const response = await fetch(`${API_BASE}/nwl-supporting-info`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(info),
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
   }
-
-  static async updateSupportingInfo(applicationId: string, data: NWLSupportingInfoRequest): Promise<void> {
-    await axios.put(`/backend/api/nwl/${applicationId}/supporting-information`, data);
-  }
-}
-
-export default NWLSupportingInfoService;
+};
