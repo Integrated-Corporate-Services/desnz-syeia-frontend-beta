@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import FileUpload from '../../../../components/FileUpload';
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -202,101 +203,6 @@ const Negotiations: React.FC = () => {
     } else {
       setErrors({ submit: 'Failed to save negotiation.' });
     }
-    // Build payload to match backend requirements
-    const payload = {
-      applicationId: applicationId,
-      negotiationProgress: negotiationProgress || null,
-      negotiationStartDate: negotiationStartDate.day || negotiationStartDate.month || negotiationStartDate.year
-        ? { ...negotiationStartDate }
-        : null,
-      moreDetail: comments || null,
-      uploaded_files: uploadedFiles,
-      application_documents: applicationDocuments,
-    };
-    const hasData = negotiationProgress || comments || (negotiationStartDate.day && negotiationStartDate.month && negotiationStartDate.year);
-    if (!applicationId) return;
-    if (hasData) {
-      let url = '';
-      let method: 'PUT' | 'POST' = 'POST';
-      let postPayload = payload;
-      if (negotiationsExists) {
-        url = `/backend/api/nwl/${applicationId}/negotiations`;
-        method = 'PUT';
-      } else {
-        url = `/backend/api/nwl/negotiations`;
-        method = 'POST';
-        // Only send allowed fields for POST
-        postPayload = {
-          applicationId: applicationId,
-          negotiationProgress: negotiationProgress || null,
-          negotiationStartDate: negotiationStartDate.day || negotiationStartDate.month || negotiationStartDate.year
-            ? { ...negotiationStartDate }
-            : null,
-          moreDetail: comments || null,
-          uploaded_files: uploadedFiles || [],
-          application_documents: applicationDocuments || [],
-        };
-      }
-      try {
-        await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(method === 'POST' ? postPayload : payload),
-        });
-      } catch (err) {
-        setErrors({ submit: (err instanceof Error ? err.message : 'Failed to save negotiations') });
-      }
-    }
-    navigate(`/nwl/${applicationId}/task-list`);
-  };
-
-  const handleSaveForLater = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const hasData = negotiationProgress || comments || (negotiationStartDate.day && negotiationStartDate.month && negotiationStartDate.year);
-    if (!applicationId) return;
-    const payload = {
-      applicationId: applicationId,
-      negotiationProgress: negotiationProgress || null,
-      negotiationStartDate: negotiationStartDate.day || negotiationStartDate.month || negotiationStartDate.year
-        ? { ...negotiationStartDate }
-        : null,
-      moreDetail: comments || null,
-      uploaded_files: uploadedFiles,
-      application_documents: applicationDocuments,
-    };
-    if (hasData) {
-      let url = '';
-      let method: 'PUT' | 'POST' = 'POST';
-      let postPayload = payload;
-      if (negotiationsExists) {
-        url = `/backend/api/nwl/${applicationId}/negotiations`;
-        method = 'PUT';
-      } else {
-        url = `/backend/api/nwl/negotiations`;
-        method = 'POST';
-        // Only send allowed fields for POST
-        postPayload = {
-          applicationId: applicationId,
-          negotiationProgress: negotiationProgress || null,
-          negotiationStartDate: negotiationStartDate.day || negotiationStartDate.month || negotiationStartDate.year
-            ? { ...negotiationStartDate }
-            : null,
-          moreDetail: comments || null,
-          uploaded_files: uploadedFiles || [],
-          application_documents: applicationDocuments || [],
-        };
-      }
-      try {
-        await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(method === 'POST' ? postPayload : payload),
-        });
-      } catch {
-        // Optionally handle error
-      }
-    }
-    navigate(`/nwl/${applicationId}/task-list`);
   };
 
   return (
@@ -320,6 +226,7 @@ const Negotiations: React.FC = () => {
           <div className="govuk-hint govuk-!-margin-bottom-7">
             Tell us about any steps you’ve taken to resolve matters with the landowner or occupier.
           </div>
+          {/* Error summary */}
           {Object.keys(errors).length > 0 && (
             <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
               <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -337,14 +244,12 @@ const Negotiations: React.FC = () => {
                   {errors.submit && (
                     <li>{errors.submit}</li>
                   )}
-                  {errors.submit && (
-                    <li>{errors.submit}</li>
-                  )}
                 </ul>
               </div>
             </div>
           )}
           <form onSubmit={handleSubmit} noValidate>
+            {/* Negotiation progress radios */}
             <div className={`govuk-form-group${errors.negotiationProgress ? " govuk-form-group--error" : ""}`} id="negotiationProgress-group">
               <fieldset className="govuk-fieldset" aria-describedby="negotiationProgress-hint">
                
@@ -405,8 +310,9 @@ const Negotiations: React.FC = () => {
                 </div>
               </fieldset>
             </div>
+            {/* Additional comments */}
             <div className="govuk-form-group">
-              <label className="govuk-label govuk-label--s" htmlFor="comments">
+              <label className="govuk-label govuk-label--s" htmlFor="more-detail">
                 Additional comments <span className="govuk-hint">(optional)</span>
               </label>
               <div className="govuk-hint">Confirm what efforts, if any, have been made to engage with the landowner or occupier to find a voluntary solution. If no negotiations have taken place, explain why.  If possible, provide a timeline of events or correspondence, and upload any relevant documents.</div>
@@ -442,5 +348,3 @@ const Negotiations: React.FC = () => {
 }
 
 export default Negotiations;
-
-
