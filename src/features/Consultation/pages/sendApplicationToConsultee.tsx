@@ -56,12 +56,10 @@ const SendApplicationToConsultee: React.FC = () => {
     setSendError(null);
     setSendSuccess(false);
     try {
-      const subject = (document.getElementById('subject') as HTMLInputElement)?.value || '';
-      const message = (document.getElementById('message') as HTMLTextAreaElement)?.value || '';
-      await sendNotificationEmail({
+         await sendNotificationEmail({
         to: orgEmail,
-        subject,
-        message,
+        subject: 'Consultation request for overhead lines (Electricity Act 1989)',
+        message: emailMessage,
         consultationId,
         applicationId,
         sections: packSections,
