@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import logger from "../../../../logger";
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -102,14 +103,12 @@ const LandownerOccupantDetails: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('handleSubmit called');
+    logger.log('handleSubmit called');
     // Frontend validation for required fields
     const newErrors: {[key:string]:string} = {};
-    // Only require applicationId for PUT (edit mode)
-    if (isEditMode) {
-      if (!applicationId || typeof applicationId !== 'string' || applicationId.trim() === '') {
-        newErrors.applicationId = 'Application ID is missing or invalid.';
-      }
+    // Require applicationId for both create (POST) and edit (PUT) modes
+    if (!applicationId || typeof applicationId !== 'string' || applicationId.trim() === '') {
+      newErrors.applicationId = 'Application ID is missing or invalid.';
     }
     if (!classification) newErrors.classification = 'Select the type of ownership';
     if (!name) newErrors.name = 'Enter a name';
@@ -134,7 +133,7 @@ const LandownerOccupantDetails: React.FC = () => {
     let url = '';
     let method = '';
     // Debug: log all field values
-    console.log('Form values:', {
+    logger.log('Form values:', {
       applicationId,
       classification,
       name,
@@ -174,7 +173,7 @@ const LandownerOccupantDetails: React.FC = () => {
       };
       url = `/backend/api/nwl/${applicationId}/landowner-occupant-details`;
       method = 'PUT';
-      console.log('LandownerOccupantDetails PUT payload:', payload);
+      logger.log('LandownerOccupantDetails PUT payload:', payload);
     } else {
       // Create (POST) - send nested structure
       const landOwner = {
@@ -201,7 +200,7 @@ const LandownerOccupantDetails: React.FC = () => {
       };
       url = `/backend/api/nwl/landowner-occupant-details`;
       method = 'POST';
-      console.log('LandownerOccupantDetails POST payload:', payload);
+      logger.log('LandownerOccupantDetails POST payload:', payload);
     }
     try {
       const response = await fetch(url, {
@@ -211,20 +210,20 @@ const LandownerOccupantDetails: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-      console.log('Fetch response status:', response.status);
+      logger.log('Fetch response status:', response.status);
       const responseText = await response.text();
-      console.log('Raw response text:', responseText);
+      logger.log('Raw response text:', responseText);
       let responseJson;
       try {
         responseJson = JSON.parse(responseText);
       } catch (err) {
-        console.log('Error parsing response as JSON:', err);
+        logger.log('Error parsing response as JSON:', err);
         responseJson = null;
       }
       if (!response.ok) {
         let errorMsg = `Error ${response.status}: ${response.statusText}`;
         if (responseJson && responseJson.errors) {
-          console.log('Backend error data:', responseJson);
+          logger.log('Backend error data:', responseJson);
           const backendErrors: {[key:string]:string} = {};
           responseJson.errors.forEach((msg: string) => {
             if (msg.includes('classification')) backendErrors.classification = 'Select the type of ownership';
@@ -246,7 +245,7 @@ const LandownerOccupantDetails: React.FC = () => {
       if (method === 'POST') {
         // On create, get new id from response if available
         const data = await response.json();
-        console.log('POST success response:', data);
+        logger.log('POST success response:', data);
         const newId = data?.data?.applicationId || '';
         navigate(`/nwl/${newId}/task-list`);
       } else {
