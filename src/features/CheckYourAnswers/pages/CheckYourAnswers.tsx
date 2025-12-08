@@ -16,14 +16,11 @@ const CheckYourAnswers: React.FC = () => {
   };
   const applicationId = getApplicationId();
   const [expandedSections, setExpandedSections] = React.useState<boolean[]>([false, true, false, false, false, false]);
-  const sectionTitles = [
-    "Application documents",
-    "Applicant details",
-    "Project details",
-    "Location",
-    "Supporting information",
-    "Further information"
-  ];
+  // Helper to determine if all sections are expanded
+  const allExpanded = expandedSections.every(Boolean);
+  const handleToggleAll = () => {
+    setExpandedSections(Array(6).fill(!allExpanded));
+  };
   const handleToggle = (idx: number) => {
     setExpandedSections(prev => prev.map((exp, i) => i === idx ? !exp : exp));
   };
@@ -55,16 +52,16 @@ const CheckYourAnswers: React.FC = () => {
               data-govuk-accordion-init=""
             >
               <div className="govuk-accordion__controls" style={{ marginBottom: "1em" }}>
-                <button
-                  type="button"
-                  className="govuk-accordion__show-all"
-                  aria-label="Hide all sections"
-                  style={{ background: "none", border: "none", color: "#1d70b8", cursor: "pointer", fontSize: "1em", padding: 0 }}
-                  onClick={() => setExpandedSections([false, false, false, false, false, false])}
-                >
-                  <span className="govuk-accordion-nav__chevron"></span>
-                  Hide all sections
-                </button>
+        <button
+          type="button"
+          className="govuk-accordion__show-all"
+          aria-label={allExpanded ? "Hide all sections" : "Show all sections"}
+          onClick={handleToggleAll}
+        >
+          <span className="govuk-accordion-nav__chevron"></span>
+          {allExpanded ? "Hide all sections" : "Show all sections"}
+        </button>
+        <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
               </div>
                   {/* Accordion Section: Application documents */}
                   <div className={`govuk-accordion__section${expandedSections[0] ? " govuk-accordion__section--expanded" : ""}`}>
