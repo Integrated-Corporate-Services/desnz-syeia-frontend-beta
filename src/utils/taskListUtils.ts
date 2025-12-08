@@ -49,6 +49,7 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
     {
       title: 'Review and submit',
       items: [
+        { name: 'Check your answers', status: 'Incomplete', link: `${base}/check-your-answers` },
         { name: 'Submit application', status: '', link: `${base}/submit-application` },
       ],
     },
