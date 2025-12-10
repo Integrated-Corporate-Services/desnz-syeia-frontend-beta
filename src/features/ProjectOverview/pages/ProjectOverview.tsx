@@ -328,45 +328,105 @@ const ProjectOverview = () => {
 						newErrors.push('<a href="#areWorkStartDatesKnown">Select yes if you know when work is intended to start on this development</a>');
 						newFieldErrors.areWorkStartDatesKnown = "Select yes if you know when work is intended to start on this development";
 					}
-					// Earliest/Latest work start date validation
-					if (formState.areWorkStartDatesKnown === "true") {
-						// Earliest expected start date error
-						let earliestYearInvalid = false;
-						if (!formState.earliestWorkStartDateMonth || !formState.earliestWorkStartDateYear?.trim()) {
-							newErrors.push('<a href="#earliestWorkStartDate-month">Enter the earliest expected start date</a>');
-							newFieldErrors.earliestWorkStartDate = "Enter the earliest expected start date";
-							if (!formState.earliestWorkStartDateYear?.trim()) {
-								earliestYearInvalid = true;
+					// --- Refactored date validation logic ---
+						// Helper: Validate month/year pair
+						function validateMonthYear(month: string, year: string, fieldPrefix: string, options?: { mustBeFuture?: boolean }) {
+							let errors: string[] = [];
+							let fieldError = "";
+							let yearInvalid = false;
+							if (!month || !year?.trim()) {
+								errors.push(`<a href="#${fieldPrefix}-month">Enter the ${fieldPrefix.replace(/([A-Z])/g, ' $1').toLowerCase()} date</a>`);
+								fieldError = `Enter the ${fieldPrefix.replace(/([A-Z])/g, ' $1').toLowerCase()} date`;
+								if (!year?.trim()) yearInvalid = true;
+							} else if (!/^\d{4}$/.test(year.trim())) {
+								yearInvalid = true;
+							} else {
+								const monthNum = months.findIndex(m => m.toLowerCase() === month.toLowerCase()) + 1;
+								if (monthNum > 0 && options?.mustBeFuture) {
+									const today = new Date();
+									today.setHours(0,0,0,0);
+									const currentYear = today.getFullYear();
+									const currentMonth = today.getMonth() + 1;
+									if (
+										Number(year) < currentYear ||
+										(Number(year) === currentYear && monthNum < currentMonth)
+									) {
+										errors.push(`<a href="#${fieldPrefix}-month">${fieldPrefix.replace(/([A-Z])/g, ' $1').replace('Work ', '')} date must be this month or later</a>`);
+										fieldError = `${fieldPrefix.replace(/([A-Z])/g, ' $1').replace('Work ', '')} date must be this month or later`;
+									}
+								}
 							}
-						} else {
-							// Check if year is a valid 4-digit year
-							const year = formState.earliestWorkStartDateYear.trim();
-							if (!/^\d{4}$/.test(year)) {
-								earliestYearInvalid = true;
+							if (yearInvalid) {
+								errors.push(`<a href="#${fieldPrefix}-year">${fieldPrefix.replace(/([A-Z])/g, ' $1').replace('Work ', '')} date must be a real year</a>`);
+							}
+							return { errors, fieldError, yearInvalid };
+						}
+
+						// Helper: Compare two month/year pairs
+						function compareMonthYear(earliestMonth: string, earliestYear: string, latestMonth: string, latestYear: string) {
+							const earliestMonthNum = months.findIndex(m => m.toLowerCase() === earliestMonth.toLowerCase()) + 1;
+							const latestMonthNum = months.findIndex(m => m.toLowerCase() === latestMonth.toLowerCase()) + 1;
+							if (earliestMonthNum > 0 && latestMonthNum > 0 && /^\d{4}$/.test(earliestYear) && /^\d{4}$/.test(latestYear)) {
+								const earliestDate = new Date(Number(earliestYear), earliestMonthNum - 1, 1);
+								const latestDate = new Date(Number(latestYear), latestMonthNum - 1, 1);
+								if (
+									latestDate.getFullYear() < earliestDate.getFullYear() ||
+									(latestDate.getFullYear() === earliestDate.getFullYear() && latestDate.getMonth() < earliestDate.getMonth())
+								) {
+									return {
+										error: '<a href="#latestWorkStartDate-month">Latest expected start date must be same as or after earliest start date</a>',
+										fieldError: "Latest expected start date must be same as or after earliest start date"
+									};
+								}
+							}
+							return null;
+						}
+
+						if (formState.areWorkStartDatesKnown === "true") {
+							// Earliest expected start date
+							const earliest = validateMonthYear(
+								formState.earliestWorkStartDateMonth,
+								formState.earliestWorkStartDateYear,
+								"earliestWorkStartDate",
+								{ mustBeFuture: true }
+							);
+							if (earliest.errors.length > 0) {
+								newErrors.push(...earliest.errors);
+								newFieldErrors.earliestWorkStartDate = earliest.fieldError;
+							}
+							// Latest expected start date
+							const latest = validateMonthYear(
+								formState.latestWorkStartDateMonth,
+								formState.latestWorkStartDateYear,
+								"latestWorkStartDate"
+							);
+							if (latest.errors.length > 0) {
+								newErrors.push(...latest.errors);
+								newFieldErrors.latestWorkStartDate = latest.fieldError;
+							}
+							// Compare earliest and latest
+							if (!earliest.yearInvalid && !latest.yearInvalid) {
+								const compareResult = compareMonthYear(
+									formState.earliestWorkStartDateMonth,
+									formState.earliestWorkStartDateYear,
+									formState.latestWorkStartDateMonth,
+									formState.latestWorkStartDateYear
+								);
+								if (compareResult) {
+									newErrors.push(compareResult.error);
+									newFieldErrors.latestWorkStartDate = compareResult.fieldError;
+								}
+							}
+							// Additional business logic: restrict latest year to reasonable future (e.g., max current year + 50)
+							if (!latest.yearInvalid && /^\d{4}$/.test(formState.latestWorkStartDateYear)) {
+								const maxYear = new Date().getFullYear() + 50;
+								const enteredLatestYear = parseInt(formState.latestWorkStartDateYear, 10);
+								if (enteredLatestYear > maxYear) {
+									newErrors.push('<a href="#latestWorkStartDate-year">Latest expected start date year must not be more than ' + maxYear + '</a>');
+									newFieldErrors.latestWorkStartDate = 'Latest expected start date year must not be more than ' + maxYear;
+								}
 							}
 						}
-						if (earliestYearInvalid) {
-							newErrors.push('<a href="#earliestWorkStartDate-year">Earliest expected start date must be a real year</a>');
-						}
-						// Latest expected start date error
-						let latestYearInvalid = false;
-						if (!formState.latestWorkStartDateMonth || !formState.latestWorkStartDateYear?.trim()) {
-							newErrors.push('<a href="#latestWorkStartDate-month">Enter the latest expected start date</a>');
-							newFieldErrors.latestWorkStartDate = "Enter the latest expected start date";
-							if (!formState.latestWorkStartDateYear?.trim()) {
-								latestYearInvalid = true;
-							}
-						} else {
-							// Check if year is a valid 4-digit year
-							const year = formState.latestWorkStartDateYear.trim();
-							if (!/^\d{4}$/.test(year)) {
-								latestYearInvalid = true;
-							}
-						}
-						if (latestYearInvalid) {
-							newErrors.push('<a href="#latestWorkStartDate-year">Latest expected start date must be a real year</a>');
-						}
-					}
 					// File upload validation
 					if (!formState.uploadedFiles || formState.uploadedFiles.length === 0) {
 						newErrors.push('<a href="#planInformationDocuments">Upload plan information documents</a>');
@@ -875,7 +935,7 @@ const ProjectOverview = () => {
 						ariaControls={["hasRelatedCpo-hidden", "hasRelatedCpo-no-hidden"]}
 					/>
 
-					<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue" disabled={errors.length > 0 || isSubmitting}>
+					<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue" disabled={isSubmitting}>
 						{projectOverview.saveAndContinue}
 					</button>
 				</form>

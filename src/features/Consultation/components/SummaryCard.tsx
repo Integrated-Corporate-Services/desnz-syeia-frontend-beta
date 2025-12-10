@@ -66,7 +66,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
   }
   
   const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required`;
-
+  const withdrawnPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-withdrawn`;
   // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
   function formatDate(dateStr?: string) {
     if (!dateStr) return '';
@@ -123,7 +123,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
               <div className="govuk-summary-card__title" style={{ display: 'flex', alignItems: 'center' }}>
                 <Link to={responseUrlWithParams} className="govuk-link govuk-!-font-weight-bold govuk-!-margin-right-2">Upload response</Link>
                 <span aria-hidden="true" className="govuk-!-margin-horizontal-2 " style={{ color: '#b1b4b6' }}>|</span>
-                <Link to="#" className="govuk-link govuk-!-font-weight-bold govuk-!-margin-left-2">Withdraw</Link>
+                <Link to={withdrawnPageUrl} className="govuk-link govuk-!-font-weight-bold govuk-!-margin-left-2">Withdraw</Link>
               </div>
             </div>
             <div className="govuk-summary-card__content">
@@ -231,6 +231,30 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                       <td className="govuk-table__cell">
                         <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
                       </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
+      case ConsultationStatus.WITHDRAWN:
+        return (
+          <>
+            <div className="govuk-summary-card__title-wrapper"></div>
+            <div className="govuk-summary-card__content">
+              <table className="govuk-table govuk-!-margin-bottom-0" style={{ width: '100%' }}>
+                <tbody className="govuk-table__body">
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell" style={{ fontWeight: 700, width: '30%' }}>Status</td>
+                    <td className="govuk-table__cell" style={{ whiteSpace: 'nowrap', width: '70%' }}>
+                      <span className="govuk-tag  govuk-tag--grey">Withdrawn</span>
+                    </td>
+                  </tr>
+                  {dateRequestCreated && (
+                    <tr className="govuk-table__row">
+                      <td className="govuk-table__cell" style={{ fontWeight: 700 }}>Withdrawal date</td>
+                      <td className="govuk-table__cell">{formatDate(dateRequestCreated)}</td>
                     </tr>
                   )}
                 </tbody>
