@@ -32,7 +32,7 @@ const CheckYourAnswers: React.FC = () => {
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
               <ol className="govuk-breadcrumbs__list">
                 <li className="govuk-breadcrumbs__list-item" aria-current="false">
-                  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/task-list`}>
+                  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
                     Task list
                   </Link>
                 </li>
@@ -448,7 +448,7 @@ const CheckYourAnswers: React.FC = () => {
             </div>
             <form action={`${S37_BASE_URL}/submit`} method="post" data-module="fds-html-form">
               <p className="govuk-body">
-                <Link className="govuk-link" to={`${S37_BASE_URL}/task-list`}>
+                <Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
                   Back to task list
                 </Link>
               </p>
