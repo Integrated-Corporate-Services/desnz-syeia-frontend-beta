@@ -1,20 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 
 const ApplicationSubmit: React.FC = () => {
     const params = useParams();
     const getApplicationId = () => {
-    if (params.applicationId) return params.applicationId;
-    if (params.id) return params.id;
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search);
-      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-      if (idFromQuery) return idFromQuery;
-    }
-    return '';
-  };
-  const applicationId = getApplicationId();
+        if (params.applicationId) return params.applicationId;
+        if (params.id) return params.id;
+        if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
+            if (idFromQuery) return idFromQuery;
+        }
+        return '';
+    };
+    const applicationId = getApplicationId();
+
+    // State for project details and plan documents
+    const [projectDetails, setProjectDetails] = useState<any>(null);
+    const [planDocuments, setPlanDocuments] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (!applicationId) return;
+        fetch(`/backend/api/applications/${applicationId}/review`)
+            .then(res => res.json())
+            .then(data => {
+                const overview = data.sections?.projectDetails?.overview;
+					let details = null;
+					if (overview?.application_project_overview) {
+						details = { ...overview.application_project_overview };
+						// Merge in project_description from project_details if available and not present
+						if (!details.project_description && overview?.project_details?.project_description) {
+							details.project_description = overview.project_details.project_description;
+						}
+						// Also check for camelCase fallback
+						if (!details.projectDescription && overview?.project_details?.projectDescription) {
+							details.projectDescription = overview.project_details.projectDescription;
+						}
+					} else if (overview?.project_details) {
+						details = { ...overview.project_details };
+					}
+					// Set project name from application_relation if not present
+					if (details && !details.project_name && Array.isArray(overview?.application_relations) && overview.application_relations.length > 0) {
+						details.project_name = overview.application_relations[0].project_name;
+					}
+					setProjectDetails(details);
+					setPlanDocuments(overview?.planDocuments || []);
+            })
+            .catch(() => {
+                setProjectDetails(null);
+                setPlanDocuments([]);
+            });
+    }, [applicationId]);
+
 	return (
 		<div className="govuk-width-container">
 			<main className="govuk-main-wrapper" id="main-content">
@@ -37,7 +75,7 @@ const ApplicationSubmit: React.FC = () => {
 						<h2 className="govuk-heading-m">Applicant details</h2>
 						<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
-								<h2 className="govuk-heading-m">Applicant details</h2>
+								<h2 className="govuk-summary-card__title">Applicant details</h2>
 								<ul className="govuk-summary-card__actions">
 									<li className="govuk-summary-card__action">
 										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/network-operator-details`}>Change<span className="govuk-visually-hidden"> of University of Gloucestershire (University of Gloucestershire)</span></Link>
@@ -85,24 +123,46 @@ const ApplicationSubmit: React.FC = () => {
 								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Project name</dt>
-										<dd className="govuk-summary-list__value">Project name</dd>
+										<dd className="govuk-summary-list__value">{projectDetails?.project_name || "-"}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Project description</dt>
-										<dd className="govuk-summary-list__value">Project description</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Tallest pole height</dt>
-										<dd className="govuk-summary-list__value">Tallest pole height</dd>
+										<dd className="govuk-summary-list__value">{projectDetails?.project_description || projectDetails?.projectDescription || "-"}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Plan reference</dt>
-										<dd className="govuk-summary-list__value">Plan reference</dd>
+										<dd className="govuk-summary-list__value">{projectDetails?.plan_reference || "-"}</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Earliest work start date</dt>
+										<dd className="govuk-summary-list__value">{projectDetails ? `${projectDetails.earliest_work_start_date_month}/${projectDetails.earliest_work_start_date_year}` : "-"}</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Latest work start date</dt>
+										<dd className="govuk-summary-list__value">{projectDetails ? `${projectDetails.latest_work_start_date_month}/${projectDetails.latest_work_start_date_year}` : "-"}</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Max structure height (m)</dt>
+										<dd className="govuk-summary-list__value">{projectDetails?.max_structure_height_m || "-"}</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Last updated</dt>
+										<dd className="govuk-summary-list__value">{projectDetails?.updated_at ? new Date(projectDetails.updated_at).toLocaleDateString() : "-"}</dd>
 									</div>
 									<div className="govuk-summary-list__row govuk-summary-list__row--no-actions ">
 										<dt className="govuk-summary-list__key">Plan information documents</dt>
 										<dd className="govuk-summary-list__value">
-											<ul className="govuk-list"></ul>
+											<ul className="govuk-list">
+												{planDocuments.length > 0 ? (
+													planDocuments.map(doc => (
+														<li key={doc.document_id}>
+															{doc.title} {doc.description && <>- {doc.description}</>}
+														</li>
+													))
+												) : (
+													<li>-</li>
+												)}
+											</ul>
 										</dd>
 									</div>
 								</dl>
