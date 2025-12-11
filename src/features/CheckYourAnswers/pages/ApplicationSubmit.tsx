@@ -25,6 +25,8 @@ const ApplicationSubmit: React.FC = () => {
 	// Add state for supporting info
 	const [supportingQuestions, setSupportingQuestions] = useState<any>(null);
 	const [supportingDocuments, setSupportingDocuments] = useState<any[]>([]);
+	const [eiaFees, setEiaFees] = useState<any>(null);
+	const [worksOverview, setWorksOverview] = useState<any>(null);
 	useEffect(() => {
 		if (!applicationId) return;
 		fetch(`/backend/api/applications/${applicationId}/review`)
@@ -69,6 +71,8 @@ const ApplicationSubmit: React.FC = () => {
 				// Set supporting info questions and documents
 				setSupportingQuestions(data.sections?.supportingInformation?.supportingQuestions || null);
 				setSupportingDocuments(data.sections?.supportingInformation?.supportingDocuments || []);
+				setEiaFees(data.sections?.supportingInformation?.eiaFees || null);
+				setWorksOverview(data.sections?.location?.worksOverview || null);
 			})
 			.catch(() => {
 				setProjectDetails(null);
@@ -294,6 +298,125 @@ const ApplicationSubmit: React.FC = () => {
 								</div>
 							</div>
 						)) : null}
+						{/* Works overview summary card - dynamic mapping and conditional questions */}
+						<h2 className="govuk-heading-m">Works overview</h2>
+						<div className="govuk-summary-card">
+							<div className="govuk-summary-card__title-wrapper">
+								<h2 className="govuk-summary-card__title">Works overview</h2>
+								<ul className="govuk-summary-card__actions">
+									<li className="govuk-summary-card__action">
+										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/works-overview`}>Change<span className="govuk-visually-hidden"> from University of Bristol (University of Bristol)</span></Link>
+									</li>
+								</ul>
+							</div>
+							<div className="govuk-summary-card__content">
+								<dl className="govuk-summary-list">
+									{/* Adding or replacing poles */}
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Are you adding or replacing any poles?</dt>
+										<dd className="govuk-summary-list__value">{worksOverview?.addingOrReplacingPoles ? "Yes" : "No"}</dd>
+									</div>
+									{worksOverview?.addingOrReplacingPoles && (
+										<>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Pole material</dt>
+												<dd className="govuk-summary-list__value">{worksOverview?.poleMaterial || "-"}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Chemical treatments</dt>
+												<dd className="govuk-summary-list__value">{worksOverview?.chemicalTreatments || "-"}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Poles added</dt>
+												<dd className="govuk-summary-list__value">{typeof worksOverview?.polesAdded === "number" ? worksOverview.polesAdded : "-"}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Poles replaced</dt>
+												<dd className="govuk-summary-list__value">{typeof worksOverview?.polesReplaced === "number" ? worksOverview.polesReplaced : "-"}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Comments on poles</dt>
+												<dd className="govuk-summary-list__value">{worksOverview?.poleComments || "-"}</dd>
+											</div>
+										</>
+									)}
+									{/* Adding or replacing overhead lines */}
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Are you adding or replacing any overhead lines?</dt>
+										<dd className="govuk-summary-list__value">{worksOverview?.addingOrReplacingLines ? "Yes" : "No"}</dd>
+									</div>
+									{worksOverview?.addingOrReplacingLines && (
+										<>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Overhead line description</dt>
+												<dd className="govuk-summary-list__value">{worksOverview?.overheadLineDescription || "-"}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Estimated duration</dt>
+												<dd className="govuk-summary-list__value">{worksOverview?.estimatedDuration || "-"}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Vehicles required</dt>
+												<dd className="govuk-summary-list__value">{worksOverview?.vehiclesRequired || "-"}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Road closures required</dt>
+												<dd className="govuk-summary-list__value">{worksOverview?.roadClosuresRequired ? "Yes" : "No"}</dd>
+											</div>
+										</>
+									)}
+									{/* Excavation works */}
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Are excavation works required?</dt>
+										<dd className="govuk-summary-list__value">{worksOverview?.excavationRequired ? "Yes" : "No"}</dd>
+									</div>
+									{worksOverview?.excavationRequired && (
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Excavation details</dt>
+											<dd className="govuk-summary-list__value">{worksOverview?.excavationDetails || "-"}</dd>
+										</div>
+									)}
+									{/* Vegetation clearance */}
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Is vegetation clearance required?</dt>
+										<dd className="govuk-summary-list__value">{worksOverview?.vegetationClearanceRequired ? "Yes" : "No"}</dd>
+									</div>
+									{worksOverview?.vegetationClearanceRequired && (
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Vegetation clearance details</dt>
+											<dd className="govuk-summary-list__value">{worksOverview?.vegetationClearanceDetails || "-"}</dd>
+										</div>
+									)}
+									{/* Pre-existing access routes */}
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Are you using pre-existing access routes and/or storage sites?</dt>
+										<dd className="govuk-summary-list__value">{worksOverview?.usingExistingAccessRoutes ? "Yes" : "No"}</dd>
+									</div>
+									{worksOverview?.usingExistingAccessRoutes && (
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Access routes details</dt>
+											<dd className="govuk-summary-list__value">{worksOverview?.accessRoutesDetails || "-"}</dd>
+										</div>
+									)}
+									{/* Removing existing equipment */}
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Are you removing existing equipment?</dt>
+										<dd className="govuk-summary-list__value">{worksOverview?.removingExistingEquipment ? "Yes" : "No"}</dd>
+									</div>
+									{worksOverview?.removingExistingEquipment && (
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Removal description</dt>
+											<dd className="govuk-summary-list__value">{worksOverview?.removalDescription || "-"}</dd>
+										</div>
+									)}
+									{/* General comments */}
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">General comments</dt>
+										<dd className="govuk-summary-list__value">{worksOverview?.generalComments || "-"}</dd>
+									</div>
+								</dl>
+							</div>
+						</div>
                         {/* Sensitive area check summary card */}
 						<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
@@ -377,7 +500,7 @@ const ApplicationSubmit: React.FC = () => {
 								</dl>
 							</div>
 						</div>
-						{/* EIA fees summary card - updated to show correct questions and mapped data */}
+						{/* EIA fees summary card - updated to use eiaFees from state */}
 						<h2 className="govuk-heading-m">EIA fees</h2>
 						<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
@@ -391,16 +514,16 @@ const ApplicationSubmit: React.FC = () => {
 							<div className="govuk-summary-card__content">
 								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Is this an EIA development?</dt>
-										<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.is_eia_development !== 'undefined' ? (supportingQuestions.is_eia_development ? "Yes" : "No") : "-"}</dd>
-									</div>
-									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Does this application require a full EIA?</dt>
-										<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.requires_full_eia !== 'undefined' ? (supportingQuestions.requires_full_eia ? "Yes" : "No") : "-"}</dd>
+										<dd className="govuk-summary-list__value">{eiaFees && typeof eiaFees.requires_full_eia !== 'undefined' ? (eiaFees.requires_full_eia ? "Yes" : "No") : "-"}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Is this application for screening only?</dt>
-										<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.screening_only !== 'undefined' ? (supportingQuestions.screening_only ? "Yes" : "No") : "-"}</dd>
+										<dd className="govuk-summary-list__value">
+											{eiaFees && typeof eiaFees.requires_full_eia !== 'undefined' && !eiaFees.requires_full_eia
+												? "No"
+												: (eiaFees && typeof eiaFees.screening_only !== 'undefined' ? (eiaFees.screening_only ? "Yes" : "No") : "-")}
+										</dd>
 									</div>
 								</dl>
 							</div>
