@@ -16,42 +16,65 @@ const ApplicationSubmit: React.FC = () => {
     };
     const applicationId = getApplicationId();
 
-    // State for project details and plan documents
-    const [projectDetails, setProjectDetails] = useState<any>(null);
-    const [planDocuments, setPlanDocuments] = useState<any[]>([]);
+	// State for project details, plan documents, layers, and routes
+	const [projectDetails, setProjectDetails] = useState<any>(null);
+	const [planDocuments, setPlanDocuments] = useState<any[]>([]);
+	const [layers, setLayers] = useState<string[]>([]);
+	const [routes, setRoutes] = useState<any[]>([]);
 
-    useEffect(() => {
-        if (!applicationId) return;
-        fetch(`/backend/api/applications/${applicationId}/review`)
-            .then(res => res.json())
-            .then(data => {
-                const overview = data.sections?.projectDetails?.overview;
-					let details = null;
-					if (overview?.application_project_overview) {
-						details = { ...overview.application_project_overview };
-						// Merge in project_description from project_details if available and not present
-						if (!details.project_description && overview?.project_details?.project_description) {
-							details.project_description = overview.project_details.project_description;
-						}
-						// Also check for camelCase fallback
-						if (!details.projectDescription && overview?.project_details?.projectDescription) {
-							details.projectDescription = overview.project_details.projectDescription;
-						}
-					} else if (overview?.project_details) {
-						details = { ...overview.project_details };
+	// Add state for supporting info
+	const [supportingQuestions, setSupportingQuestions] = useState<any>(null);
+	const [supportingDocuments, setSupportingDocuments] = useState<any[]>([]);
+	useEffect(() => {
+		if (!applicationId) return;
+		fetch(`/backend/api/applications/${applicationId}/review`)
+			.then(res => res.json())
+			.then(data => {
+				const overview = data.sections?.projectDetails?.overview;
+				let details = null;
+				// Prefer application_project_overview
+				if (overview?.application_project_overview) {
+					details = { ...overview.application_project_overview };
+					if (!details.project_description && overview?.project_details?.project_description) {
+						details.project_description = overview.project_details.project_description;
 					}
-					// Set project name from application_relation if not present
-					if (details && !details.project_name && Array.isArray(overview?.application_relations) && overview.application_relations.length > 0) {
-						details.project_name = overview.application_relations[0].project_name;
+					if (!details.projectDescription && overview?.project_details?.projectDescription) {
+						details.projectDescription = overview.project_details.projectDescription;
 					}
-					setProjectDetails(details);
-					setPlanDocuments(overview?.planDocuments || []);
-            })
-            .catch(() => {
-                setProjectDetails(null);
-                setPlanDocuments([]);
-            });
-    }, [applicationId]);
+					if (!details.project_name && overview?.project_details?.project_name) {
+						details.project_name = overview.project_details.project_name;
+					}
+				} else if (overview?.project_details) {
+					details = { ...overview.project_details };
+				}
+				if (details && !details.project_name && Array.isArray(overview?.application_relations) && overview.application_relations.length > 0) {
+					details.project_name = overview.application_relations[0].project_name;
+				}
+				setProjectDetails(details);
+				setPlanDocuments(overview?.planDocuments || []);
+				// Set layers data for sensitive areas from location.sensitiveAreaChecks
+				const sensitiveLayers = data.sections?.location?.sensitiveAreaChecks?.layers;
+				if (Array.isArray(sensitiveLayers)) {
+					setLayers(sensitiveLayers);
+				} else {
+					setLayers([]);
+				}
+				// Set routes data from location.route
+				const routeArr = data.sections?.location?.route;
+				if (Array.isArray(routeArr)) {
+					setRoutes(routeArr);
+				} else {
+					setRoutes([]);
+				}
+				// Set supporting info questions and documents
+				setSupportingQuestions(data.sections?.supportingInformation?.supportingQuestions || null);
+				setSupportingDocuments(data.sections?.supportingInformation?.supportingDocuments || []);
+			})
+			.catch(() => {
+				setProjectDetails(null);
+				setPlanDocuments([]);
+			});
+	}, [applicationId]);
 
 	return (
 		<div className="govuk-width-container">
@@ -135,11 +158,19 @@ const ApplicationSubmit: React.FC = () => {
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Earliest work start date</dt>
-										<dd className="govuk-summary-list__value">{projectDetails ? `${projectDetails.earliest_work_start_date_month}/${projectDetails.earliest_work_start_date_year}` : "-"}</dd>
+										<dd className="govuk-summary-list__value">
+											{projectDetails && projectDetails.earliest_work_start_date_month && projectDetails.earliest_work_start_date_year
+												? `${projectDetails.earliest_work_start_date_month}/${projectDetails.earliest_work_start_date_year}`
+												: "-"}
+										</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Latest work start date</dt>
-										<dd className="govuk-summary-list__value">{projectDetails ? `${projectDetails.latest_work_start_date_month}/${projectDetails.latest_work_start_date_year}` : "-"}</dd>
+										<dd className="govuk-summary-list__value">
+											{projectDetails && projectDetails.latest_work_start_date_month && projectDetails.latest_work_start_date_year
+												? `${projectDetails.latest_work_start_date_month}/${projectDetails.latest_work_start_date_year}`
+												: "-"}
+										</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Max structure height (m)</dt>
@@ -220,37 +251,49 @@ const ApplicationSubmit: React.FC = () => {
 							</div>
 						</div>
                         <h2 className="govuk-heading-m">Location</h2>
-						{/* Supporting information summary card */}
-						<div className="govuk-summary-card">
-							<div className="govuk-summary-card__title-wrapper">
-								<h2 className="govuk-summary-card__title">Route A</h2>
-								<ul className="govuk-summary-card__actions">
-									<li className="govuk-summary-card__action">
-										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/route-guidance`}>Change<span className="govuk-visually-hidden"> from University of Bristol (University of Bristol)</span></Link>
-									</li>
-								</ul>
+						{/* Route summary cards */}
+						{routes.length > 0 ? routes.map((route, idx) => (
+							<div className="govuk-summary-card" key={route.route_id || idx}>
+								<div className="govuk-summary-card__title-wrapper">
+									<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
+									<ul className="govuk-summary-card__actions">
+										<li className="govuk-summary-card__action">
+											<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/route-overview`}>Change<span className="govuk-visually-hidden"> for {route.routeName}</span></Link>
+										</li>
+									</ul>
+								</div>
+								<div className="govuk-summary-card__content">
+									<table className="govuk-table" style={{ marginBottom: '30px' }}>
+										<thead className="govuk-table__head">
+											<tr className="govuk-table__row">
+												<th className="govuk-table__header">Easting</th>
+												<th className="govuk-table__header">Northing</th>
+											</tr>
+										</thead>
+										<tbody className="govuk-table__body">
+											{Array.isArray(route.gridPoints) && route.gridPoints.length > 0 ? (
+												route.gridPoints.map((point, pidx) => (
+													<tr className="govuk-table__row" key={point.point_id || pidx}>
+														<td className="govuk-table__cell">{point.easting}</td>
+														<td className="govuk-table__cell">{point.northing}</td>
+													</tr>
+												))
+											) : (
+												<tr className="govuk-table__row">
+													<td className="govuk-table__cell">-</td>
+													<td className="govuk-table__cell">-</td>
+												</tr>
+											)}
+										</tbody>
+									</table>
+									{route.disconnectedroute_justification && (
+										<div className="govuk-inset-text">
+											<strong>Disconnected route justification:</strong> {route.disconnectedroute_justification}
+										</div>
+									)}
+								</div>
 							</div>
-							<div className="govuk-summary-card__content">
-								<table className="govuk-table" style={{ marginBottom: '30px' }}>
-									<thead className="govuk-table__head">
-										<tr className="govuk-table__row">
-											<th className="govuk-table__header">Easting</th>
-											<th className="govuk-table__header">Northing</th>
-										</tr>
-									</thead>
-									<tbody className="govuk-table__body">
-										<tr className="govuk-table__row">
-											<td className="govuk-table__cell">425209</td>
-											<td className="govuk-table__cell">110283</td>
-										</tr>
-										<tr className="govuk-table__row">
-											<td className="govuk-table__cell">425103</td>
-											<td className="govuk-table__cell">110092</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
+						)) : null}
                         {/* Sensitive area check summary card */}
 						<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
@@ -271,12 +314,9 @@ const ApplicationSubmit: React.FC = () => {
 										<dt className="govuk-summary-list__key">Sensitive areas the route passes through</dt>
 										<dd className="govuk-summary-list__value">
 											<ul className="govuk-list govuk-list--bullet">
-												<li>National Parks (England)</li>
-												<li>Ramsar (England)</li>
-												<li>Sites of Special Scientific Interest (England)</li>
-												<li>Special Areas of Conservation (England)</li>
-												<li>Special Protection Areas (England)</li>
-												<li>SSSI Impact Risk Zones (England)</li>
+												{layers.length > 0
+													? layers.map((layer, idx) => <li key={idx}>{layer}</li>)
+													: <li>-</li>}
 											</ul>
 										</dd>
 									</div>
@@ -284,103 +324,83 @@ const ApplicationSubmit: React.FC = () => {
 							</div>
 						</div>
 						<h2 className="govuk-heading-m">Supporting information</h2>
-						{/* Supporting information summary card */}
+						{/* Supporting information summary card - fixed to use state variables and map correct questions/answers */}
 						<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
 								<h2 className="govuk-summary-card__title">Supporting information</h2>
 								<ul className="govuk-summary-card__actions">
 									<li className="govuk-summary-card__action">
-										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/supporting-info`}>Change<span className="govuk-visually-hidden"> from University of Bristol (University of Bristol)</span></Link>
+										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/supporting-info`}>Change<span className="govuk-visually-hidden"> supporting information</span></Link>
 									</li>
 								</ul>
 							</div>
 							<div className="govuk-summary-card__content">
 								<dl className="govuk-summary-list">
-									{/* ...existing code for supporting information rows... */}
 									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Has the current landowner signed a wayleave?</dt>
-										<dd className="govuk-summary-list__value">Yes</dd>
+										<dt className="govuk-summary-list__key">Have all wayleaves been obtained?</dt>
+										<dd className="govuk-summary-list__value">{supportingQuestions ? (supportingQuestions.wayleaves_obtained ? "Yes" : "No") : "-"}</dd>
+									</div>
+									{supportingQuestions && supportingQuestions.wayleaves_obtained === false && (
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Why have all wayleaves not been obtained?</dt>
+											<dd className="govuk-summary-list__value">{supportingQuestions.wayleaves_not_obtained_reason || "-"}</dd>
+										</div>
+									)}
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">I confirm that the works will comply with The Electricity Safety, Quality and Continuity Regulations 2002</dt>
+										<dd className="govuk-summary-list__value">{supportingQuestions ? (supportingQuestions.esqcr_2002_compliance_confirmed ? "Yes" : "No") : "-"}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Upload current landowners signed wayleave</dt>
+										<dt className="govuk-summary-list__key">Do you have any further supporting documents to provide?</dt>
+										<dd className="govuk-summary-list__value">{supportingQuestions ? (supportingQuestions.has_additional_supporting_documents ? "Yes" : "No") : "-"}</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Do you have any comments to make in support of your application?</dt>
+										<dd className="govuk-summary-list__value">{supportingQuestions?.applicant_supporting_comments || "-"}</dd>
+									</div>
+									<div className="govuk-summary-list__row govuk-summary-list__row--no-actions ">
+										<dt className="govuk-summary-list__key">Supporting information documents</dt>
 										<dd className="govuk-summary-list__value">
-											<Link className="govuk-link" to="#">Document 1</Link><br />
-											<Link className="govuk-link" to="#">Document 2</Link><br />
-											<Link className="govuk-link" to="#">Document 3</Link>
+											<ul className="govuk-list">
+												{supportingDocuments.length > 0 ? (
+													supportingDocuments.map((doc: any) => (
+														<li key={doc.document_id}>
+															{doc.title} {doc.description && <>- {doc.description}</>}
+														</li>
+													))
+												) : (
+													<li>-</li>
+												)}
+											</ul>
 										</dd>
 									</div>
-									{/* ...other supporting information rows... */}
+								</dl>
+							</div>
+						</div>
+						{/* EIA fees summary card - updated to show correct questions and mapped data */}
+						<h2 className="govuk-heading-m">EIA fees</h2>
+						<div className="govuk-summary-card">
+							<div className="govuk-summary-card__title-wrapper">
+								<h2 className="govuk-summary-card__title">EIA fees</h2>
+								<ul className="govuk-summary-card__actions">
+									<li className="govuk-summary-card__action">
+										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/eia-fees`}>Change<span className="govuk-visually-hidden"> EIA fees</span></Link>
+									</li>
+								</ul>
+							</div>
+							<div className="govuk-summary-card__content">
+								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Has the current landowner inherited a necessary wayleave in relation to the specified asset schedule?</dt>
-										<dd className="govuk-summary-list__value">Yes</dd>
+										<dt className="govuk-summary-list__key">Is this an EIA development?</dt>
+										<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.is_eia_development !== 'undefined' ? (supportingQuestions.is_eia_development ? "Yes" : "No") : "-"}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Upload a document thats shows inheritance of a necessary wayleave in relation to the specified asset schedule</dt>
-										<dd className="govuk-summary-list__value">
-											<Link className="govuk-link" to="#">Document 1</Link><br />
-											<Link className="govuk-link" to="#">Document 2</Link><br />
-											<Link className="govuk-link" to="#">Document 3</Link>
-										</dd>
+										<dt className="govuk-summary-list__key">Does this application require a full EIA?</dt>
+										<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.requires_full_eia !== 'undefined' ? (supportingQuestions.requires_full_eia ? "Yes" : "No") : "-"}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Have Wayleave Payments previously been made to the grantor?</dt>
-										<dd className="govuk-summary-list__value">No</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Have Wayleave Payments been accepted by the grantor?</dt>
-										<dd className="govuk-summary-list__value">No</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Is a new contract implied?</dt>
-										<dd className="govuk-summary-list__value">Yes</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Why do you believe this is so?</dt>
-										<dd className="govuk-summary-list__value">Reason for new contract</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Has a Written Termination Notice been given?</dt>
-										<dd className="govuk-summary-list__value">Yes</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Written Termination Notice issue date</dt>
-										<dd className="govuk-summary-list__value">05 March 2025</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Upload Written Termination Notice document</dt>
-										<dd className="govuk-summary-list__value">
-											<Link className="govuk-link" to="#">Document 1</Link><br />
-											<Link className="govuk-link" to="#">Document 2</Link><br />
-											<Link className="govuk-link" to="#">Document 3</Link>
-										</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Has a Written Removal Notice been given?</dt>
-										<dd className="govuk-summary-list__value">Yes</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Written Removal Notice issue date</dt>
-										<dd className="govuk-summary-list__value">10 March 2025</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Upload Written Removal Notice document</dt>
-										<dd className="govuk-summary-list__value">
-											<Link className="govuk-link" to="#">Document 1</Link><br />
-											<Link className="govuk-link" to="#">Document 2</Link><br />
-											<Link className="govuk-link" to="#">Document 3</Link>
-										</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Does your application include a title plan?</dt>
-										<dd className="govuk-summary-list__value">Yes</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Upload the title plan document</dt>
-										<dd className="govuk-summary-list__value">
-											<Link className="govuk-link" to="#">Titleplan-pic 1</Link><br />
-											<Link className="govuk-link" to="#">Titleplan-pic 2</Link><br />
-											<Link className="govuk-link" to="#">Titleplan-pic 3</Link>
-										</dd>
+										<dt className="govuk-summary-list__key">Is this application for screening only?</dt>
+										<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.screening_only !== 'undefined' ? (supportingQuestions.screening_only ? "Yes" : "No") : "-"}</dd>
 									</div>
 								</dl>
 							</div>
