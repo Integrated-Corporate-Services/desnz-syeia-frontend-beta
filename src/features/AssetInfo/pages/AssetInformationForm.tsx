@@ -117,7 +117,11 @@ const getApplicationId = () => {
       newErrors.referenceNumber = ASSET_ERROR_MESSAGES.referenceNumberAlphanumeric;
     }
     if (!data.lineType) newErrors.lineType = ASSET_ERROR_MESSAGES.lineType;
-    if (!data.lineLength.trim()) newErrors.lineLength = ASSET_ERROR_MESSAGES.lineLength;
+    if (!data.lineLength.trim()) {
+      newErrors.lineLength = ASSET_ERROR_MESSAGES.lineLength;
+    } else if (parseFloat(data.lineLength) < 0) {
+      newErrors.lineLength = 'Line length cannot be negative.';
+    }
     if (!data.lineVoltage || !Array.isArray(data.lineVoltage) || data.lineVoltage.length === 0) newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltage;
     return newErrors;
   };

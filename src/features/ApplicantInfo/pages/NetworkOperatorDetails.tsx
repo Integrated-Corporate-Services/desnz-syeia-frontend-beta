@@ -16,6 +16,7 @@ const NetworkOperatorDetails = () => {
   const [selectedOrgName, setSelectedOrgName] = useState('');
   const [errors, setErrors] = useState<{ reference?: string; organisation?: string }>({});
   const allowedReferenceRegex = /^[A-Za-z0-9\-\s]+$/;
+  const MAX_REFERENCE_LENGTH = 24;
 
   const application = useApplicationStore(state => state.application);
   const applicationParty = useApplicationStore(state => state.applicationParty);
@@ -91,7 +92,11 @@ const NetworkOperatorDetails = () => {
   }, [options, selectedOrgName, setOrganisation]);
 
   const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    let value = e.target.value;
+    // Limit to max length
+    if (value.length > MAX_REFERENCE_LENGTH) {
+      value = value.slice(0, MAX_REFERENCE_LENGTH);
+    }
     // Only allow alphabets, numbers, spaces, and hyphens
     if (value === '' || allowedReferenceRegex.test(value)) {
       setNetworkOperatorReference(value);
@@ -116,6 +121,8 @@ const NetworkOperatorDetails = () => {
       newErrors.reference = 'Network operator reference is required.';
     } else if (!allowedReferenceRegex.test(networkOperatorReference)) {
       newErrors.reference = 'You can only enter letters, numbers, spaces and hyphens';
+    } else if (networkOperatorReference.length > MAX_REFERENCE_LENGTH) {
+      newErrors.reference = `Reference must be ${MAX_REFERENCE_LENGTH} characters or fewer.`;
     }
     if (!selectedOrgName.trim()) {
       newErrors.organisation = 'Please select a network operator organisation.';
@@ -220,7 +227,7 @@ const NetworkOperatorDetails = () => {
                   name="networkOperatorReference.inputValue"
                   type="text"
                   value={networkOperatorReference}
-                  maxLength={4000}
+                  maxLength={MAX_REFERENCE_LENGTH}
                   onChange={handleReferenceChange}
                   style={{ width: '100%' }}
                   aria-invalid={!!errors.reference}

@@ -313,9 +313,13 @@ const ProjectOverview = () => {
 						newErrors.push('<a href="#tallestPoleHeight-inputValue">Enter the height of the tallest pole</a>');
 						newFieldErrors.tallestPoleHeight = "Enter the height of the tallest pole";
 					} else {
-						// Check for more than two decimal places
 						const val = formState.tallestPoleHeight.trim();
-						if (/^\d+\.\d{3,}$/.test(val)) {
+						if (!isNaN(Number(val)) && Number(val) < 0) {
+							newErrors.push('<a href="#tallestPoleHeight-inputValue">Height cannot be negative</a>');
+							newFieldErrors.tallestPoleHeight = "Height cannot be negative";
+						}
+						// Check for more than two decimal places
+						else if (/^-?\d+\.\d{3,}$/.test(val)) {
 							newErrors.push('<a href="#tallestPoleHeight-inputValue">Enter at most 2 decimal places for the pole height</a>');
 							newFieldErrors.tallestPoleHeight = "Enter at most 2 decimal places for the pole height";
 						}
