@@ -48,5 +48,16 @@ export const applicationApiService = {
     });
     return response.json();
   },
-  
+
+  deleteApplication: async (applicationId: string) => {
+    const response = await fetch(`/backend/api/applications/${applicationId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete application');
+    }
+    return response;
+  },
+
 };
