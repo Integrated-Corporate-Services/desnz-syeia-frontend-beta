@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { applicationApiService } from '../../../services/applicationApiService';
-import { ROUTES } from '../../../constants/routes';
 import { S37_BASE_URL } from '../../../constants/s37';
 
 const DeleteApplicationPage: React.FC = () => {

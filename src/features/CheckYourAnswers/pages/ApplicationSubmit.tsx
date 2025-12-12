@@ -271,7 +271,7 @@ const ApplicationSubmit: React.FC = () => {
 										</thead>
 										<tbody className="govuk-table__body">
 											{Array.isArray(route.gridPoints) && route.gridPoints.length > 0 ? (
-												route.gridPoints.map((point, pidx) => (
+												route.gridPoints.map((point: any, pidx: number) => (
 													<tr className="govuk-table__row" key={point.point_id || pidx}>
 														<td className="govuk-table__cell">{point.easting}</td>
 														<td className="govuk-table__cell">{point.northing}</td>
