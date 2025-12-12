@@ -260,11 +260,6 @@ const ApplicationSubmit: React.FC = () => {
 							<div className="govuk-summary-card" key={route.route_id || idx}>
 								<div className="govuk-summary-card__title-wrapper">
 									<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
-									<ul className="govuk-summary-card__actions">
-										<li className="govuk-summary-card__action">
-											<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/route-overview`}>Change<span className="govuk-visually-hidden"> for {route.routeName}</span></Link>
-										</li>
-									</ul>
 								</div>
 								<div className="govuk-summary-card__content">
 									<table className="govuk-table" style={{ marginBottom: '30px' }}>
@@ -523,32 +518,6 @@ const ApplicationSubmit: React.FC = () => {
 											{eiaFees && typeof eiaFees.requires_full_eia !== 'undefined' && !eiaFees.requires_full_eia
 												? "No"
 												: (eiaFees && typeof eiaFees.screening_only !== 'undefined' ? (eiaFees.screening_only ? "Yes" : "No") : "-")}
-										</dd>
-									</div>
-								</dl>
-							</div>
-						</div>
-						{/* Application statement summary card */}
-						<h2 className="govuk-heading-m">Application statement</h2>
-						<div className="govuk-summary-card">
-							<div className="govuk-summary-card__title-wrapper">
-								<h2 className="govuk-summary-card__title">Application statement</h2>
-								<ul className="govuk-summary-card__actions">
-									<li className="govuk-summary-card__action">
-										<Link className="govuk-link" to="/form-statement">Change<span className="govuk-visually-hidden"> from University of Bristol (University of Bristol)</span></Link>
-									</li>
-								</ul>
-							</div>
-							<div className="govuk-summary-card__content">
-								<dl className="govuk-summary-list">
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Tell us more about your application</dt>
-										<dd className="govuk-summary-list__value">Description about the application</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Upload any other documents to support your application</dt>
-										<dd className="govuk-summary-list__value">
-											<Link className="govuk-link" to="#">Document 1</Link>
 										</dd>
 									</div>
 								</dl>
