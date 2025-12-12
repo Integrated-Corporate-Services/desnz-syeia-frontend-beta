@@ -50,6 +50,8 @@ import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/p
 import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
+import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
+import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 
 export const ROUTE_CONFIG = [
   {
@@ -355,6 +357,18 @@ export const ROUTE_CONFIG = [
   {
     path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/email-consultee`,
     component: EmailTemplate,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
+    component: CheckYourAnswers,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/application-submit`,
+    component: ApplicationSubmit,
     auth: true,
     layout: true
   },
