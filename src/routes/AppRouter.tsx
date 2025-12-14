@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import SignInPage from '../features/SignIn/SignInPage';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
-
+import LandingPage from '../features/SignIn/LandingPage';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ROUTE_CONFIG } from '../constants/routes';
 
@@ -35,9 +34,9 @@ const AppRouter: React.FC = () => {
   return (
     <Routes>
       {ROUTE_CONFIG.map(({ path, component: Component, auth }) => {
-        // If root or /signin, always show SignInPage
-        if (path === '/' || path === '/signin') {
-          return <Route key={path} path={path} element={<SignInPage />} />;
+        // If root or /landingPage, always show LandingPage
+        if (path === '/' || path === '/landingPage') {
+          return <Route key={path} path={path} element={<LandingPage />} />;
         }
         // Allow all other pages to work normally
         return <Route key={path} path={path} element={<Component />} />;

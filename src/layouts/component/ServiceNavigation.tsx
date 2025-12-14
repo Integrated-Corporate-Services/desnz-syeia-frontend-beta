@@ -13,17 +13,24 @@ const ServiceNavigation = () => {
     '/workbasket/'
   ];
 
-  // Hide navigation on the sign-in (One Login) page
-  const isOnSignIn = location.pathname === '/signin';
+
+  // Hide navigation on the sign-in, request-access, and sent-for-approval pages
+  const hideNavPaths = ['/', '/request-access', '/sent-for-approval', '/landingPage', '/s37-guidance'];
   const isOnWorkbasket = workbasketPaths.includes(location.pathname);
 
   // Use environment variable for logout URL
   const logoutUrl = import.meta.env.VITE_LOGOUT_URL || 'http://localhost:3000/logout';
 
-  if (isOnSignIn) return null;
+  if (hideNavPaths.includes(location.pathname)) return null;
 
   return (
     <section aria-label="Service information" className="govuk-service-navigation" data-module="govuk-service-navigation">
+      <style>{`
+        .govuk-service-navigation__container {
+          background: transparent !important;
+          border: none !important;
+        }
+      `}</style>
       <div className="govuk-width-container">
         <div className="govuk-service-navigation__container">
           <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
