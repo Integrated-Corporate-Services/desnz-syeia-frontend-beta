@@ -15,7 +15,7 @@ const MainLayout = ({ children }: MainLayoutProps) => (
     <ServiceNavigation />
     {/* Main Content */}
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
+      <main className="govuk-main-wrapper" id="main-content" style={{ paddingTop: 16, paddingBottom: 16 }}>
         {children}
       </main>
     </div>

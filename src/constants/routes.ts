@@ -9,7 +9,6 @@ import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOpera
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import Workbasket from '../features/Workbasket/pages/Workbasket';
 import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitted';
-import SignInPage from '../features/SignIn/SignInPage';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
 import RouteMapPage from '../features/RouteMap/page/RouteMapPage';
@@ -53,11 +52,40 @@ import ConsultationWithdrawnPage from '../features/Consultation/pages/Consultati
 import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
 import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
+import LandingPage from '../features/SignIn/LandingPage';
+import RegistrationPage from '../features/SignIn/RequestAccess';
+import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
+import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
+import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
 
 export const ROUTE_CONFIG = [
   {
-    path: '/signin',
-    component: SignInPage,
+    path: '/choose-application',
+    component: ChooseApplicationTypePage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/landingPage',
+    component: LandingPage,
+    auth: false,
+    layout: false
+  },
+  {
+    path: '/s37-guidance',
+    component: Section37GuidancePage,
+    auth: false,
+    layout: false
+  },
+  {
+    path: '/request-access',
+    component: RegistrationPage,
+    auth: false,
+    layout: false
+  },
+  {
+    path: '/sent-for-approval',
+    component: SentForApprovalPage,
     auth: false,
     layout: false
   },
@@ -363,6 +391,18 @@ export const ROUTE_CONFIG = [
   },
   {
     path: `${S37_BASE_URL}/:applicationId/delete`,
+    component: DeleteApplicationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/delete`,
+    component: DeleteApplicationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${TLP_BASE_URL}/:applicationId/delete`,
     component: DeleteApplicationPage,
     auth: true,
     layout: true
