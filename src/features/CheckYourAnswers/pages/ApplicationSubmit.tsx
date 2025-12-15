@@ -18,6 +18,7 @@ const ApplicationSubmit: React.FC = () => {
 
 	// State for project details, plan documents, layers, and routes
 	const [projectDetails, setProjectDetails] = useState<any>(null);
+	const [networkOperatorDetails, setNetworkOperatorDetails] = useState<any>(null);
 	const [planDocuments, setPlanDocuments] = useState<any[]>([]);
 	const [layers, setLayers] = useState<string[]>([]);
 	const [routes, setRoutes] = useState<any[]>([]);
@@ -32,6 +33,9 @@ const ApplicationSubmit: React.FC = () => {
 		fetch(`/backend/api/applications/${applicationId}/review`)
 			.then(res => res.json())
 			.then(data => {
+				// Set network operator details
+				setNetworkOperatorDetails(data.sections?.networkOperator?.details || null);
+
 				const overview = data.sections?.projectDetails?.overview;
 				let details = null;
 				// Prefer application_project_overview
@@ -52,6 +56,11 @@ const ApplicationSubmit: React.FC = () => {
 				if (details && !details.project_name && Array.isArray(overview?.application_relations) && overview.application_relations.length > 0) {
 					details.project_name = overview.application_relations[0].project_name;
 				}
+				// Attach assetInformation from the correct location
+				details = {
+					...details,
+					assetInformation: data.sections?.projectDetails?.assetInformation || []
+				};
 				setProjectDetails(details);
 				setPlanDocuments(overview?.planDocuments || []);
 				// Set layers data for sensitive areas from location.sensitiveAreaChecks
@@ -113,23 +122,29 @@ const ApplicationSubmit: React.FC = () => {
 								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Applicant name</dt>
-										<dd className="govuk-summary-list__value">Network operator name</dd>
+										<dd className="govuk-summary-list__value">{networkOperatorDetails?.organisation_name || '-'}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Applicant contact name</dt>
-										<dd className="govuk-summary-list__value">Network operator contact name</dd>
+										<dd className="govuk-summary-list__value">{networkOperatorDetails?.person_name || '-'}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Address</dt>
-										<dd className="govuk-summary-list__value">72 Guild Street<br />London<br />SE23 6FH</dd>
+										<dd className="govuk-summary-list__value">
+											{networkOperatorDetails?.line1 || ''}{networkOperatorDetails?.line1 ? <br /> : null}
+											{networkOperatorDetails?.line2 ? <>{networkOperatorDetails.line2}<br /></> : null}
+											{networkOperatorDetails?.town_city || ''}{networkOperatorDetails?.town_city ? <br /> : null}
+											{networkOperatorDetails?.country || ''}{networkOperatorDetails?.country ? <br /> : null}
+											{networkOperatorDetails?.postcode || ''}
+										</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Email address</dt>
-										<dd className="govuk-summary-list__value">abc@example.com</dd>
+										<dd className="govuk-summary-list__value">{networkOperatorDetails?.email || '-'}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Phone number</dt>
-										<dd className="govuk-summary-list__value">07700 900457</dd>
+										<dd className="govuk-summary-list__value">{networkOperatorDetails?.phone || '-'}</dd>
 									</div>
 								</dl>
 							</div>
@@ -209,57 +224,82 @@ const ApplicationSubmit: React.FC = () => {
 								<h2 className="govuk-summary-card__title">Assets</h2>
 								<ul className="govuk-summary-card__actions">
 									<li className="govuk-summary-card__action">
-										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/asset-information`}>Change<span className="govuk-visually-hidden"> from University of Bristol (University of Bristol)</span></Link>
+										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/asset-information`}>Change<span className="govuk-visually-hidden"> asset information</span></Link>
 									</li>
 								</ul>
 							</div>
 							<div className="govuk-summary-card__content">
 								<dl className="govuk-summary-list">
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Line type</dt>
-										<dd className="govuk-summary-list__value">Low voltage overhead line</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Line voltage</dt>
-										<dd className="govuk-summary-list__value">6.6kV</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Description</dt>
-										<dd className="govuk-summary-list__value">Test comment</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Line type</dt>
-										<dd className="govuk-summary-list__value">High voltage overhead line</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Line voltage</dt>
-										<dd className="govuk-summary-list__value">11kV</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Description</dt>
-										<dd className="govuk-summary-list__value">Test comment</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Line type</dt>
-										<dd className="govuk-summary-list__value">High voltage overhead line</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Line voltage</dt>
-										<dd className="govuk-summary-list__value">20kV</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Description</dt>
-										<dd className="govuk-summary-list__value">Test comment</dd>
-									</div>
+									{(projectDetails?.assetInformation && projectDetails.assetInformation.length > 0
+										? projectDetails.assetInformation
+										: [{}]
+									).map((asset, idx) => (
+										<React.Fragment key={asset.asset_id || idx}>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Standard specification reference number</dt>
+												<dd className="govuk-summary-list__value">{asset.standard_specification_reference_number || '-'}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Type of Line</dt>
+												<dd className="govuk-summary-list__value">{asset.type_of_line || '-'}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Line voltage</dt>
+												<dd className="govuk-summary-list__value">{asset.line_voltage || '-'}</dd>
+											</div>
+											<div className="govuk-summary-list__row">
+												<dt className="govuk-summary-list__key">Line length</dt>
+												<dd className="govuk-summary-list__value">{asset.line_length || '-'}</dd>
+											</div>
+										</React.Fragment>
+									))}
 								</dl>
 							</div>
 						</div>
-                        <h2 className="govuk-heading-m">Location</h2>
+						<h2 className="govuk-heading-m">Location</h2>
 						{/* Route summary cards */}
-						{routes.length > 0 ? routes.map((route, idx) => (
-							<div className="govuk-summary-card" key={route.route_id || idx}>
+						{routes.length > 0 ? (
+							routes.map((route, idx) => (
+								<div className="govuk-summary-card" key={route.route_id || idx}>
+									<div className="govuk-summary-card__title-wrapper">
+										<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
+									</div>
+									<div className="govuk-summary-card__content">
+										<table className="govuk-table" style={{ marginBottom: '30px' }}>
+											<thead className="govuk-table__head">
+												<tr className="govuk-table__row">
+													<th className="govuk-table__header">Easting</th>
+													<th className="govuk-table__header">Northing</th>
+												</tr>
+											</thead>
+											<tbody className="govuk-table__body">
+												{Array.isArray(route.gridPoints) && route.gridPoints.length > 0 ? (
+													route.gridPoints.map((point, pidx) => (
+														<tr className="govuk-table__row" key={point.point_id || pidx}>
+															<td className="govuk-table__cell">{point.easting}</td>
+															<td className="govuk-table__cell">{point.northing}</td>
+														</tr>
+													))
+												) : (
+													<tr className="govuk-table__row">
+														<td className="govuk-table__cell">-</td>
+														<td className="govuk-table__cell">-</td>
+													</tr>
+												)}
+											</tbody>
+										</table>
+										{route.disconnectedroute_justification && (
+											<div className="govuk-inset-text">
+												<strong>Disconnected route justification:</strong> {route.disconnectedroute_justification}
+											</div>
+										)}
+									</div>
+								</div>
+							))
+						) : (
+							<div className="govuk-summary-card">
 								<div className="govuk-summary-card__title-wrapper">
-									<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
+									<h2 className="govuk-summary-card__title">Route</h2>
 								</div>
 								<div className="govuk-summary-card__content">
 									<table className="govuk-table" style={{ marginBottom: '30px' }}>
@@ -270,29 +310,16 @@ const ApplicationSubmit: React.FC = () => {
 											</tr>
 										</thead>
 										<tbody className="govuk-table__body">
-											{Array.isArray(route.gridPoints) && route.gridPoints.length > 0 ? (
-												route.gridPoints.map((point, pidx) => (
-													<tr className="govuk-table__row" key={point.point_id || pidx}>
-														<td className="govuk-table__cell">{point.easting}</td>
-														<td className="govuk-table__cell">{point.northing}</td>
-													</tr>
-												))
-											) : (
-												<tr className="govuk-table__row">
-													<td className="govuk-table__cell">-</td>
-													<td className="govuk-table__cell">-</td>
-												</tr>
-											)}
+											<tr className="govuk-table__row">
+												<td className="govuk-table__cell">-</td>
+												<td className="govuk-table__cell">-</td>
+											</tr>
 										</tbody>
 									</table>
-									{route.disconnectedroute_justification && (
-										<div className="govuk-inset-text">
-											<strong>Disconnected route justification:</strong> {route.disconnectedroute_justification}
-										</div>
-									)}
+									{/* Optionally, you can add a message here if you want to indicate no route data */}
 								</div>
 							</div>
-						)) : null}
+						)}
 						{/* Works overview summary card - dynamic mapping and conditional questions */}
 						<h2 className="govuk-heading-m">Works overview</h2>
 						<div className="govuk-summary-card">
@@ -426,7 +453,7 @@ const ApplicationSubmit: React.FC = () => {
 								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Tolerance required</dt>
-										<dd className="govuk-summary-list__value">No</dd>
+										<dd className="govuk-summary-list__value">{layers && layers.length > 0 ? "Yes" : "No"}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Sensitive areas the route passes through</dt>
@@ -496,7 +523,6 @@ const ApplicationSubmit: React.FC = () => {
 							</div>
 						</div>
 						{/* EIA fees summary card - updated to use eiaFees from state */}
-						<h2 className="govuk-heading-m">EIA fees</h2>
 						<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
 								<h2 className="govuk-summary-card__title">EIA fees</h2>
@@ -518,6 +544,58 @@ const ApplicationSubmit: React.FC = () => {
 											{eiaFees && typeof eiaFees.requires_full_eia !== 'undefined' && !eiaFees.requires_full_eia
 												? "No"
 												: (eiaFees && typeof eiaFees.screening_only !== 'undefined' ? (eiaFees.screening_only ? "Yes" : "No") : "-")}
+										</dd>
+									</div>
+								</dl>
+							</div>
+						</div>
+						<h2 className="govuk-heading-m">Consultation</h2>
+						{/* Consultation card - updated to use consultation from state */}
+						<div className="govuk-summary-card">
+							<div className="govuk-summary-card__title-wrapper">
+								<h2 className="govuk-summary-card__title">Natural England</h2>
+							</div>
+							<div className="govuk-summary-card__content">
+								<dl className="govuk-summary-list">
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Status</dt>
+										<dd className="govuk-summary-list__value">
+											<span style={{ background: '#d8ead7', color: '#22543d', padding: '2px 10px', borderRadius: '4px', fontWeight: 600 }}>Closed</span>
+										</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Date request created</dt>
+										<dd className="govuk-summary-list__value">16 Oct 2025</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Evidence of request</dt>
+										<dd className="govuk-summary-list__value">
+											<a className="govuk-link" href="#" target="_blank" rel="noopener noreferrer">Consultation request preview.pdf</a>
+										</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Date closed</dt>
+										<dd className="govuk-summary-list__value">05 Nov 2025</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Objection raised</dt>
+										<dd className="govuk-summary-list__value">Yes</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Close Comments</dt>
+										<dd className="govuk-summary-list__value">This is a comment</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Response documents</dt>
+										<dd className="govuk-summary-list__value">
+											<a className="govuk-link" href="#" target="_blank" rel="noopener noreferrer">Consultee Reply Email.pdf</a><br />
+											<a className="govuk-link" href="#" target="_blank" rel="noopener noreferrer">Consultee_Report.pdf</a>
+										</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Responding consultee’s email address</dt>
+										<dd className="govuk-summary-list__value">
+											<a className="govuk-link" href="mailto:john.smith@exacmple.com">john.smith@exacmple.com</a>
 										</dd>
 									</div>
 								</dl>
