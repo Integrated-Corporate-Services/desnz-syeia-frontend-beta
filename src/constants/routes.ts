@@ -57,6 +57,7 @@ import RegistrationPage from '../features/SignIn/RequestAccess';
 import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
 import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
+import OTPVerifyPage from '../features/OTPVerifyPage';
 
 export const ROUTE_CONFIG = [
   {
@@ -88,6 +89,12 @@ export const ROUTE_CONFIG = [
     component: SentForApprovalPage,
     auth: false,
     layout: false
+  },
+  {
+    path: '/otp-verify',
+    component: OTPVerifyPage,
+    auth: true,
+    layout: true
   },
   {
     path: '/workbasket',

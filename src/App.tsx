@@ -6,9 +6,13 @@ import AppRouter from './routes/AppRouter';
 import NotFound from './features/NotFound/NotFound';
 import { AuthUserProvider } from './context/AuthUserContext';
 import { ROUTE_CONFIG } from './constants/routes';
+import { SessionTimeoutProvider } from './context/SessionTimeoutContext';
+import SessionTimeout from './components/SessionTimeout';
+import { useAuthUserContext } from './context/AuthUserContext';
 
 const AppContent = () => {
   const location = useLocation();
+  const { user, loading } = useAuthUserContext();
   // Enhance GOV.UK JS on every route change
   useEffect(() => {
     if (typeof GOVUKFrontend.initAll === 'function') {
@@ -30,15 +34,18 @@ const AppContent = () => {
   });
 
   return (
-    <AuthUserProvider>
-      {isNotFound ? (
-        <NotFound />
-      ) : (
-        <MainLayout>
-          <AppRouter />
-        </MainLayout>
-      )}
-    </AuthUserProvider>
+    <SessionTimeoutProvider>
+      <AuthUserProvider>
+        <SessionTimeout />
+        {isNotFound ? (
+          <NotFound />
+        ) : (
+          <MainLayout>
+            <AppRouter />
+          </MainLayout>
+        )}
+      </AuthUserProvider>
+    </SessionTimeoutProvider>
   );
 };
 
