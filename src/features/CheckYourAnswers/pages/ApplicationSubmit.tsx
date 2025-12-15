@@ -557,47 +557,63 @@ const ApplicationSubmit: React.FC = () => {
 							</div>
 							<div className="govuk-summary-card__content">
 								<dl className="govuk-summary-list">
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Status</dt>
-										<dd className="govuk-summary-list__value">
-											<span style={{ background: '#d8ead7', color: '#22543d', padding: '2px 10px', borderRadius: '4px', fontWeight: 600 }}>Closed</span>
-										</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Date request created</dt>
-										<dd className="govuk-summary-list__value">16 Oct 2025</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Evidence of request</dt>
-										<dd className="govuk-summary-list__value">
-											<a className="govuk-link" href="#" target="_blank" rel="noopener noreferrer">Consultation request preview.pdf</a>
-										</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Date closed</dt>
-										<dd className="govuk-summary-list__value">05 Nov 2025</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Objection raised</dt>
-										<dd className="govuk-summary-list__value">Yes</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Close Comments</dt>
-										<dd className="govuk-summary-list__value">This is a comment</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Response documents</dt>
-										<dd className="govuk-summary-list__value">
-											<a className="govuk-link" href="#" target="_blank" rel="noopener noreferrer">Consultee Reply Email.pdf</a><br />
-											<a className="govuk-link" href="#" target="_blank" rel="noopener noreferrer">Consultee_Report.pdf</a>
-										</dd>
-									</div>
-									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Responding consultee’s email address</dt>
-										<dd className="govuk-summary-list__value">
-											<a className="govuk-link" href="mailto:john.smith@exacmple.com">john.smith@exacmple.com</a>
-										</dd>
-									</div>
+									{/* Render consultation data dynamically if available, else show '-' */}
+									{(Array.isArray(projectDetails?.consultations) && projectDetails.consultations.length > 0
+										? projectDetails.consultations
+										: [{}]
+									).map((consultation, idx) => (
+											<React.Fragment key={consultation.consultation_id || idx}>
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">Status</dt>
+													<dd className="govuk-summary-list__value">{consultation.status || '-'}</dd>
+												</div>
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">Date request created</dt>
+													<dd className="govuk-summary-list__value">{consultation.date_request_created ? new Date(consultation.date_request_created).toLocaleDateString() : '-'}</dd>
+												</div>
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">Evidence of request</dt>
+													<dd className="govuk-summary-list__value">
+														{consultation.evidence_of_request ? (
+															<a className="govuk-link" href={consultation.evidence_of_request} target="_blank" rel="noopener noreferrer">Evidence</a>
+														) : '-'}
+													</dd>
+												</div>
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">Date closed</dt>
+													<dd className="govuk-summary-list__value">{consultation.date_closed ? new Date(consultation.date_closed).toLocaleDateString() : '-'}</dd>
+												</div>
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">Objection raised</dt>
+													<dd className="govuk-summary-list__value">{typeof consultation.objection_raised === 'boolean' ? (consultation.objection_raised ? 'Yes' : 'No') : '-'}</dd>
+												</div>
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">Close Comments</dt>
+													<dd className="govuk-summary-list__value">{consultation.close_comments || '-'}</dd>
+												</div>
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">Response documents</dt>
+													<dd className="govuk-summary-list__value">
+														{Array.isArray(consultation.response_documents) && consultation.response_documents.length > 0 ? (
+															consultation.response_documents.map((doc, didx) => (
+																<React.Fragment key={didx}>
+																	<a className="govuk-link" href={doc.url} target="_blank" rel="noopener noreferrer">{doc.name || 'Document'}</a>
+																	{didx < consultation.response_documents.length - 1 && <br />}
+																</React.Fragment>
+															))
+														) : '-'}
+													</dd>
+												</div>
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">Responding consultee’s email address</dt>
+													<dd className="govuk-summary-list__value">
+														{consultation.consultee_email ? (
+															<a className="govuk-link" href={`mailto:${consultation.consultee_email}`}>{consultation.consultee_email}</a>
+														) : '-'}
+													</dd>
+												</div>
+											</React.Fragment>
+										))}
 								</dl>
 							</div>
 						</div>
