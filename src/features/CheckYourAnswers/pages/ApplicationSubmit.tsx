@@ -304,9 +304,9 @@ const ApplicationSubmit: React.FC = () => {
 												)}
 											</tbody>
 										</table>
-										{route.disconnectedroute_justification && (
+										{route.disconnected_route_justification && (
 											<div className="govuk-inset-text">
-												<strong>Disconnected route justification:</strong> {route.disconnectedroute_justification}
+												<strong>Disconnected route justification:</strong> {route.disconnected_route_justification}
 											</div>
 										)}
 									</div>

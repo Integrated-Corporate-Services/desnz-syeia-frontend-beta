@@ -48,7 +48,7 @@ export interface GridPoint {
 export interface Route {
 	route_id?: string;
 	gridPoints?: GridPoint[];
-	disconnectedroute_justification?: string;
+	disconnected_route_justification?: string;
 }
 
 export interface SupportingQuestions {
