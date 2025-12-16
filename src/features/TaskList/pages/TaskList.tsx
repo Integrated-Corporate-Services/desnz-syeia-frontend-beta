@@ -98,9 +98,6 @@ const TaskList: React.FC = () => {
           ) : (
             <p>Loading application...</p>
           )}
-          <button className="govuk-button govuk-button--warning" type="button">
-            Delete application
-          </button>
           {submitError && (
             <div className="govuk-error-message">{submitError}</div>
           )}
@@ -113,25 +110,36 @@ const TaskList: React.FC = () => {
                     <tr className="govuk-table__row" key={item.name}>
                       <td className="govuk-table__cell">
                         {item.name === 'Submit application' ? (
-                        <button
-                          className="govuk-button"
-                          type="button"
-                          onClick={handleSubmit}
-                          disabled={submitting}
-                        >
-                          {submitting ? 'Submitting...' : 'Submit application'}
-                        </button>
-                      ) : (application?.application_id || applicationId) ? (
-                        item.name === 'Route' ? (
-                          <RouteEntry applicationId={(application?.application_id || applicationId) ?? ''}>
+                          <div className="govuk-button-group">
+                            <button
+                              className="govuk-button govuk-button--warning"
+                              type="button"
+                              onClick={() => navigate(`${S37_BASE_URL}/${application?.application_id || applicationId}/delete`)}
+                              disabled={submitting}
+                              style={{ marginRight: '1rem' }}
+                            >
+                              Delete application
+                            </button>
+                            <button
+                              className="govuk-button"
+                              type="button"
+                              onClick={handleSubmit}
+                              disabled={submitting}
+                            >
+                              {submitting ? 'Submitting...' : 'Submit application'}
+                            </button>
+                          </div>
+                        ) : (application?.application_id || applicationId) ? (
+                          item.name === 'Route' ? (
+                            <RouteEntry applicationId={(application?.application_id || applicationId) ?? ''}>
+                              <Link className="govuk-link" to={item.link}>{item.name}</Link>
+                            </RouteEntry>
+                          ) : (
                             <Link className="govuk-link" to={item.link}>{item.name}</Link>
-                          </RouteEntry>
+                          )
                         ) : (
-                          <Link className="govuk-link" to={item.link}>{item.name}</Link>
-                        )
-                      ) : (
-                        <span className="govuk-link govuk-link--disabled">{item.name}</span>
-                      )}
+                          <span className="govuk-link govuk-link--disabled">{item.name}</span>
+                        )}
                       </td>
                       <td className="govuk-table__cell" style={{ textAlign: 'right' }}>
                         <span className={
