@@ -23,6 +23,8 @@ const ApplicationSubmit: React.FC = () => {
 	const [planDocuments, setPlanDocuments] = useState<PlanDocument[]>([]);
 	const [layers, setLayers] = useState<string[]>([]);
 	const [routes, setRoutes] = useState<Route[]>([]);
+	const [sensitiveAreaChecks, setSensitiveAreaChecks] = useState<{ tolerance_required?: boolean; tolerance_value?: number } | null>(null);
+	const [sensitiveAreaReview, setSensitiveAreaReview] = useState<{ other_sensitive_areas_note?: string; asset_presence_option_id?: number; application_documents?: { document_id?: string; title?: string; file_id?: string }[] } | null>(null);
 
 	// Add state for supporting info
 	const [supportingQuestions, setSupportingQuestions] = useState<SupportingQuestions | null>(null);
@@ -42,13 +44,35 @@ const ApplicationSubmit: React.FC = () => {
 		));
 	};
 
+	// Helper function to map asset presence option ID to text
+	const getAssetPresenceText = (optionId?: number) => {
+		switch (optionId) {
+			case 1:
+				return 'There are poles within the sensitive areas';
+			case 2:
+				return 'All poles are outside of the sensitive areas with only the overhead lines passing above them';
+			case 3:
+				return 'No poles are within a sensitive area and no overhead lines pass above them';
+			default:
+				return '-';
+		}
+	};
+
 	useEffect(() => {
 		if (!applicationId) return;
 		fetch(`/backend/api/applications/${applicationId}/review`)
 			.then(res => res.json())
 			.then(data => {
-				// Set network operator details
-				setNetworkOperatorDetails(data.sections?.networkOperator?.details || null);
+				// Set network operator details - flatten application_party fields
+				const networkOpDetails = data.sections?.networkOperator?.details;
+				if (networkOpDetails) {
+					setNetworkOperatorDetails({
+						operator_ref: networkOpDetails.operator_ref,
+						...networkOpDetails.application_party
+					});
+				} else {
+					setNetworkOperatorDetails(null);
+				}
 
 				const overview = data.sections?.projectDetails?.overview;
 				let details = null;
@@ -77,13 +101,25 @@ const ApplicationSubmit: React.FC = () => {
 				};
 				setProjectDetails(details);
 				setPlanDocuments(overview?.planDocuments || []);
-				// Set layers data for sensitive areas from location.sensitiveAreaChecks
-				const sensitiveLayers = data.sections?.location?.sensitiveAreaChecks?.layers;
+				// Set layers data for sensitive areas from sensitiveAreaChecks
+				const sensitiveChecks = data.sections?.sensitiveAreaChecks;
+				const sensitiveLayers = sensitiveChecks?.layers;
 				if (Array.isArray(sensitiveLayers)) {
 					setLayers(sensitiveLayers);
 				} else {
 					setLayers([]);
 				}
+				setSensitiveAreaChecks(sensitiveChecks ? {
+					tolerance_required: sensitiveChecks.tolerance_required,
+					tolerance_value: sensitiveChecks.tolerance_value
+				} : null);
+				// Set sensitive area review data
+				const sensitiveReview = data.sections?.sensitiveAreaReview;
+				setSensitiveAreaReview(sensitiveReview ? {
+					other_sensitive_areas_note: sensitiveReview.other_sensitive_areas_note,
+					asset_presence_option_id: sensitiveReview.asset_presence_option_id,
+					application_documents: sensitiveReview.application_documents
+				} : null);
 				// Set routes data from location.route
 				const routeArr = data.sections?.location?.route;
 				if (Array.isArray(routeArr)) {
@@ -95,7 +131,7 @@ const ApplicationSubmit: React.FC = () => {
 				setSupportingQuestions(data.sections?.supportingInformation?.supportingQuestions || null);
 				setSupportingDocuments(data.sections?.supportingInformation?.supportingDocuments || []);
 				setEiaFees(data.sections?.supportingInformation?.eiaFees || null);
-				setWorksOverview(data.sections?.location?.worksOverview || null);
+				setWorksOverview(data.sections?.worksOverview || null);
 			})
 			.catch(() => {
 				setProjectDetails(null);
@@ -123,9 +159,9 @@ const ApplicationSubmit: React.FC = () => {
 						<h1 className="govuk-heading-xl">Check your answers before sending your application</h1>
 						{/* Applicant details summary card */}
 						<h2 className="govuk-heading-m">Applicant details</h2>
-						<div className="govuk-summary-card">
+												<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
-								<h2 className="govuk-summary-card__title">Applicant details</h2>
+								<h2 className="govuk-summary-card__title">Network operator contact details</h2>
 								<ul className="govuk-summary-card__actions">
 									<li className="govuk-summary-card__action">
 										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/network-operator-details`}>Change<span className="govuk-visually-hidden"> of University of Gloucestershire (University of Gloucestershire)</span></Link>
@@ -135,12 +171,30 @@ const ApplicationSubmit: React.FC = () => {
 							<div className="govuk-summary-card__content">
 								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Applicant name</dt>
-										<dd className="govuk-summary-list__value">{networkOperatorDetails?.organisation_name || '-'}</dd>
+										<dt className="govuk-summary-list__key">Reference</dt>
+										<dd className="govuk-summary-list__value">{networkOperatorDetails?.operator_ref || '-'}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
-										<dt className="govuk-summary-list__key">Applicant contact name</dt>
-										<dd className="govuk-summary-list__value">{networkOperatorDetails?.person_name || '-'}</dd>
+										<dt className="govuk-summary-list__key">Network operator contact</dt>
+										<dd className="govuk-summary-list__value">{networkOperatorDetails?.organisation_name || '-'}</dd>
+									</div>
+								</dl>
+							</div>
+						</div>
+						<div className="govuk-summary-card">
+							<div className="govuk-summary-card__title-wrapper">
+								<h2 className="govuk-summary-card__title">Network operator contact details</h2>
+								<ul className="govuk-summary-card__actions">
+									<li className="govuk-summary-card__action">
+										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/network-operator-contact-details`}>Change<span className="govuk-visually-hidden"> of University of Gloucestershire (University of Gloucestershire)</span></Link>
+									</li>
+								</ul>
+							</div>
+							<div className="govuk-summary-card__content">
+								<dl className="govuk-summary-list">
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Name</dt>
+										<dd className="govuk-summary-list__value">{networkOperatorDetails?.organisation_name || '-'}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Address</dt>
@@ -156,7 +210,11 @@ const ApplicationSubmit: React.FC = () => {
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Email address</dt>
-										<dd className="govuk-summary-list__value">{networkOperatorDetails?.email || '-'}</dd>
+									<dd className="govuk-summary-list__value">
+										{networkOperatorDetails?.email ? (
+											<a className="govuk-link" href={`mailto:${networkOperatorDetails.email}`}>{networkOperatorDetails.email}</a>
+										) : '-'}
+									</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Phone number</dt>
@@ -336,7 +394,6 @@ const ApplicationSubmit: React.FC = () => {
 							</div>
 						)}
 						{/* Works overview summary card - dynamic mapping and conditional questions */}
-						<h2 className="govuk-heading-m">Works overview</h2>
 						<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
 								<h2 className="govuk-summary-card__title">Works overview</h2>
@@ -468,7 +525,11 @@ const ApplicationSubmit: React.FC = () => {
 								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Tolerance required</dt>
-									<dd className="govuk-summary-list__value">{layers && layers.length > 0 ? 'Yes' : (layers ? 'No' : '-')}</dd>
+									<dd className="govuk-summary-list__value">{typeof sensitiveAreaChecks?.tolerance_required === 'boolean' ? (sensitiveAreaChecks.tolerance_required ? 'Yes' : 'No') : '-'}</dd>
+									</div>
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Tolerance</dt>
+										<dd className="govuk-summary-list__value">{typeof sensitiveAreaChecks?.tolerance_value === 'number' ? `${sensitiveAreaChecks.tolerance_value}m` : '-'}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Sensitive areas the route passes through</dt>
@@ -479,6 +540,43 @@ const ApplicationSubmit: React.FC = () => {
 													: <li>-</li>}
 											</ul>
 										</dd>
+									</div>
+								</dl>
+							</div>
+						</div>
+						{/* Sensitive area review summary card */}
+						<div className="govuk-summary-card">
+							<div className="govuk-summary-card__title-wrapper">
+								<h2 className="govuk-summary-card__title">Sensitive area review</h2>
+								<ul className="govuk-summary-card__actions">
+									<li className="govuk-summary-card__action">
+										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review`}>Change<span className="govuk-visually-hidden"> from University of Bristol (University of Bristol)</span></Link>
+									</li>
+								</ul>
+							</div>
+							<div className="govuk-summary-card__content">
+								<dl className="govuk-summary-list">
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Other areas the route passes through</dt>
+									<dd className="govuk-summary-list__value">{sensitiveAreaReview?.other_sensitive_areas_note || '-'}</dd>
+								</div>
+								<div className="govuk-summary-list__row">
+									<dt className="govuk-summary-list__key">Environmental and archaeological documents</dt>
+									<dd className="govuk-summary-list__value">
+										<ul className="govuk-list">
+											{sensitiveAreaReview?.application_documents && sensitiveAreaReview.application_documents.length > 0 ? (
+											sensitiveAreaReview.application_documents.map(doc => (
+													<li key={doc.document_id}>{doc.title}</li>
+												))
+											) : (
+												<li>-</li>
+											)}
+										</ul>
+									</dd>
+								</div>
+								<div className="govuk-summary-list__row">
+									<dt className="govuk-summary-list__key">Poles/lines within sensitive areas</dt>
+									<dd className="govuk-summary-list__value">{getAssetPresenceText(sensitiveAreaReview?.asset_presence_option_id)}</dd>
 									</div>
 								</dl>
 							</div>
