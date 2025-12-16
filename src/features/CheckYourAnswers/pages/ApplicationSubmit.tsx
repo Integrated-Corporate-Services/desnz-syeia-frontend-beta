@@ -161,7 +161,7 @@ const ApplicationSubmit: React.FC = () => {
 						<h2 className="govuk-heading-m">Applicant details</h2>
 												<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
-								<h2 className="govuk-summary-card__title">Network operator contact details</h2>
+								<h2 className="govuk-summary-card__title">Network operator details</h2>
 								<ul className="govuk-summary-card__actions">
 									<li className="govuk-summary-card__action">
 										<Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/network-operator-details`}>Change<span className="govuk-visually-hidden"> of University of Gloucestershire (University of Gloucestershire)</span></Link>
@@ -364,7 +364,6 @@ const ApplicationSubmit: React.FC = () => {
 										</table>
 										{route.disconnected_route_justification && (
 											<div className="govuk-inset-text">
-												<strong>Disconnected route justification:</strong> {route.disconnected_route_justification}
 												<strong>Disconnected route justification:</strong> {route.disconnected_route_justification}
 											</div>
 										)}
