@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
-import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, GridPoint, Route, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, ResponseDocument, Consultation } from "../component/ApplicationSubmit.types";
+import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, Route, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, ResponseDocument, Consultation } from "../component/ApplicationSubmit.types";
 
 const ApplicationSubmit: React.FC = () => {
     const params = useParams();
@@ -220,7 +220,7 @@ const ApplicationSubmit: React.FC = () => {
 										<dd className="govuk-summary-list__value">
 											<ul className="govuk-list">
 												{planDocuments.length > 0 ? (
-												planDocuments.map((doc: PlanDocument) => (
+												planDocuments.map(doc => (
 														<li key={doc.document_id}>
 															{doc.title} {doc.description && <>- {doc.description}</>}
 														</li>
