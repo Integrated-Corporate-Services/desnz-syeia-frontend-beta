@@ -50,8 +50,6 @@ import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
 import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
-import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
-import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 import LandingPage from '../features/SignIn/LandingPage';
 import RegistrationPage from '../features/SignIn/RequestAccess';
 import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
