@@ -365,6 +365,7 @@ const ApplicationSubmit: React.FC = () => {
 										{route.disconnected_route_justification && (
 											<div className="govuk-inset-text">
 												<strong>Disconnected route justification:</strong> {route.disconnected_route_justification}
+												<strong>Disconnected route justification:</strong> {route.disconnected_route_justification}
 											</div>
 										)}
 									</div>
