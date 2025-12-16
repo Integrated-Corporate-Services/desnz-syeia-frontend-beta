@@ -1,4 +1,5 @@
 export interface NetworkOperatorDetails {
+	operator_ref?: string;
 	organisation_name?: string;
 	person_name?: string;
 	line1?: string;
