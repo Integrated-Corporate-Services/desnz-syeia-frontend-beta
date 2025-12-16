@@ -57,6 +57,8 @@ import RegistrationPage from '../features/SignIn/RequestAccess';
 import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
 import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
+import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
+import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 
 export const ROUTE_CONFIG = [
   {
@@ -404,6 +406,18 @@ export const ROUTE_CONFIG = [
   {
     path: `${TLP_BASE_URL}/:applicationId/delete`,
     component: DeleteApplicationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
+    component: CheckYourAnswers,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/application-submit`,
+    component: ApplicationSubmit,
     auth: true,
     layout: true
   },
