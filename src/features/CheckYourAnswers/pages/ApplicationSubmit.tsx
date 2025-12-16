@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
-import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, Route, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, ResponseDocument, Consultation } from "../component/ApplicationSubmit.types";
+import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, Route, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, Consultation } from "../component/ApplicationSubmit.types";
 
 const ApplicationSubmit: React.FC = () => {
     const params = useParams();
@@ -523,7 +523,7 @@ const ApplicationSubmit: React.FC = () => {
 										<dd className="govuk-summary-list__value">
 											<ul className="govuk-list">
 												{supportingDocuments.length > 0 ? (
-												supportingDocuments.map((doc: SupportingDocument) => (
+												supportingDocuments.map(doc => (
 														<li key={doc.document_id}>
 															{doc.title} {doc.description && <>- {doc.description}</>}
 														</li>
@@ -610,7 +610,7 @@ const ApplicationSubmit: React.FC = () => {
 													<dt className="govuk-summary-list__key">Response documents</dt>
 													<dd className="govuk-summary-list__value">
 														{Array.isArray(consultation.response_documents) && consultation.response_documents.length > 0 ? (
-													consultation.response_documents.map((doc: ResponseDocument, didx: number) => (
+													consultation.response_documents.map((doc, didx) => (
 																<React.Fragment key={didx}>
 																	<a className="govuk-link" href={doc.url} target="_blank" rel="noopener noreferrer">{doc.name || 'Document'}</a>
 																	{didx < (consultation.response_documents?.length || 0) - 1 && <br />}
