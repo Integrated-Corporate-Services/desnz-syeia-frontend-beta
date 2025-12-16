@@ -249,7 +249,7 @@ const ApplicationSubmit: React.FC = () => {
 									{(projectDetails?.assetInformation && projectDetails.assetInformation.length > 0
 										? projectDetails.assetInformation
 									: [{}] as AssetInformation[]
-								).map((asset: AssetInformation, idx: number) => (
+									).map((asset, idx) => (
 										<React.Fragment key={asset.asset_id || idx}>
 											<div className="govuk-summary-list__row">
 												<dt className="govuk-summary-list__key">Standard specification reference number</dt>
@@ -275,7 +275,7 @@ const ApplicationSubmit: React.FC = () => {
 						<h2 className="govuk-heading-m">Location</h2>
 						{/* Route summary cards */}
 						{routes.length > 0 ? (
-						routes.map((route: Route, idx: number) => (
+							routes.map((route, idx) => (
 								<div className="govuk-summary-card" key={route.route_id || idx}>
 									<div className="govuk-summary-card__title-wrapper">
 										<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
@@ -290,7 +290,7 @@ const ApplicationSubmit: React.FC = () => {
 											</thead>
 											<tbody className="govuk-table__body">
 												{Array.isArray(route.gridPoints) && route.gridPoints.length > 0 ? (
-													route.gridPoints.map((point: GridPoint, pidx: number) => (
+												route.gridPoints.map((point, pidx) => (
 														<tr className="govuk-table__row" key={point.point_id || pidx}>
 															<td className="govuk-table__cell">{point.easting}</td>
 															<td className="govuk-table__cell">{point.northing}</td>
@@ -576,7 +576,7 @@ const ApplicationSubmit: React.FC = () => {
 									{(Array.isArray(projectDetails?.consultations) && projectDetails.consultations.length > 0
 										? projectDetails.consultations
 									: [{}] as Consultation[]
-								).map((consultation: Consultation, idx: number) => (
+									).map((consultation, idx) => (
 											<React.Fragment key={consultation.consultation_id || idx}>
 												<div className="govuk-summary-list__row">
 													<dt className="govuk-summary-list__key">Status</dt>
