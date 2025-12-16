@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, GridPoint, Route, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, ResponseDocument, Consultation } from "../component/ApplicationSubmit.types";
 
 const ApplicationSubmit: React.FC = () => {
     const params = useParams();
@@ -17,17 +18,17 @@ const ApplicationSubmit: React.FC = () => {
     const applicationId = getApplicationId();
 
 	// State for project details, plan documents, layers, and routes
-	const [projectDetails, setProjectDetails] = useState<any>(null);
-	const [networkOperatorDetails, setNetworkOperatorDetails] = useState<any>(null);
-	const [planDocuments, setPlanDocuments] = useState<any[]>([]);
+	const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
+	const [networkOperatorDetails, setNetworkOperatorDetails] = useState<NetworkOperatorDetails | null>(null);
+	const [planDocuments, setPlanDocuments] = useState<PlanDocument[]>([]);
 	const [layers, setLayers] = useState<string[]>([]);
-	const [routes, setRoutes] = useState<any[]>([]);
+	const [routes, setRoutes] = useState<Route[]>([]);
 
 	// Add state for supporting info
-	const [supportingQuestions, setSupportingQuestions] = useState<any>(null);
-	const [supportingDocuments, setSupportingDocuments] = useState<any[]>([]);
-	const [eiaFees, setEiaFees] = useState<any>(null);
-	const [worksOverview, setWorksOverview] = useState<any>(null);
+	const [supportingQuestions, setSupportingQuestions] = useState<SupportingQuestions | null>(null);
+	const [supportingDocuments, setSupportingDocuments] = useState<SupportingDocument[]>([]);
+	const [eiaFees, setEiaFees] = useState<EIAFees | null>(null);
+	const [worksOverview, setWorksOverview] = useState<WorksOverview | null>(null);
 
 	// Helper function to render address fields with line breaks
 	const renderAddress = (fields: (string | null | undefined)[]) => {
@@ -219,7 +220,7 @@ const ApplicationSubmit: React.FC = () => {
 										<dd className="govuk-summary-list__value">
 											<ul className="govuk-list">
 												{planDocuments.length > 0 ? (
-													planDocuments.map(doc => (
+												planDocuments.map((doc: PlanDocument) => (
 														<li key={doc.document_id}>
 															{doc.title} {doc.description && <>- {doc.description}</>}
 														</li>
@@ -247,8 +248,8 @@ const ApplicationSubmit: React.FC = () => {
 								<dl className="govuk-summary-list">
 									{(projectDetails?.assetInformation && projectDetails.assetInformation.length > 0
 										? projectDetails.assetInformation
-										: [{}]
-									).map((asset, idx) => (
+									: [{}] as AssetInformation[]
+								).map((asset: AssetInformation, idx: number) => (
 										<React.Fragment key={asset.asset_id || idx}>
 											<div className="govuk-summary-list__row">
 												<dt className="govuk-summary-list__key">Standard specification reference number</dt>
@@ -274,7 +275,7 @@ const ApplicationSubmit: React.FC = () => {
 						<h2 className="govuk-heading-m">Location</h2>
 						{/* Route summary cards */}
 						{routes.length > 0 ? (
-							routes.map((route, idx) => (
+						routes.map((route: Route, idx: number) => (
 								<div className="govuk-summary-card" key={route.route_id || idx}>
 									<div className="govuk-summary-card__title-wrapper">
 										<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
@@ -289,7 +290,7 @@ const ApplicationSubmit: React.FC = () => {
 											</thead>
 											<tbody className="govuk-table__body">
 												{Array.isArray(route.gridPoints) && route.gridPoints.length > 0 ? (
-													route.gridPoints.map((point, pidx) => (
+													route.gridPoints.map((point: GridPoint, pidx: number) => (
 														<tr className="govuk-table__row" key={point.point_id || pidx}>
 															<td className="govuk-table__cell">{point.easting}</td>
 															<td className="govuk-table__cell">{point.northing}</td>
@@ -350,7 +351,7 @@ const ApplicationSubmit: React.FC = () => {
 									{/* Adding or replacing poles */}
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Are you adding or replacing any poles?</dt>
-										<dd className="govuk-summary-list__value">{worksOverview?.addingOrReplacingPoles ? 'Yes' : 'No'}</dd>
+										<dd className="govuk-summary-list__value">{typeof worksOverview?.addingOrReplacingPoles === 'boolean' ? (worksOverview.addingOrReplacingPoles ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									{worksOverview?.addingOrReplacingPoles && (
 										<>
@@ -379,7 +380,7 @@ const ApplicationSubmit: React.FC = () => {
 									{/* Adding or replacing overhead lines */}
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Are you adding or replacing any overhead lines?</dt>
-										<dd className="govuk-summary-list__value">{worksOverview?.addingOrReplacingLines ? 'Yes' : 'No'}</dd>
+										<dd className="govuk-summary-list__value">{typeof worksOverview?.addingOrReplacingLines === 'boolean' ? (worksOverview.addingOrReplacingLines ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									{worksOverview?.addingOrReplacingLines && (
 										<>
@@ -397,14 +398,14 @@ const ApplicationSubmit: React.FC = () => {
 											</div>
 											<div className="govuk-summary-list__row">
 												<dt className="govuk-summary-list__key">Road closures required</dt>
-													<dd className="govuk-summary-list__value">{worksOverview?.roadClosuresRequired ? 'Yes' : 'No'}</dd>
+													<dd className="govuk-summary-list__value">{typeof worksOverview?.roadClosuresRequired === 'boolean' ? (worksOverview.roadClosuresRequired ? 'Yes' : 'No') : '-'}</dd>
 											</div>
 										</>
 									)}
 									{/* Excavation works */}
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Are excavation works required?</dt>
-										<dd className="govuk-summary-list__value">{worksOverview?.excavationRequired ? 'Yes' : 'No'}</dd>
+										<dd className="govuk-summary-list__value">{typeof worksOverview?.excavationRequired === 'boolean' ? (worksOverview.excavationRequired ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									{worksOverview?.excavationRequired && (
 										<div className="govuk-summary-list__row">
@@ -415,7 +416,7 @@ const ApplicationSubmit: React.FC = () => {
 									{/* Vegetation clearance */}
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Is vegetation clearance required?</dt>
-										<dd className="govuk-summary-list__value">{worksOverview?.vegetationClearanceRequired ? 'Yes' : 'No'}</dd>
+										<dd className="govuk-summary-list__value">{typeof worksOverview?.vegetationClearanceRequired === 'boolean' ? (worksOverview.vegetationClearanceRequired ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									{worksOverview?.vegetationClearanceRequired && (
 										<div className="govuk-summary-list__row">
@@ -426,7 +427,7 @@ const ApplicationSubmit: React.FC = () => {
 									{/* Pre-existing access routes */}
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Are you using pre-existing access routes and/or storage sites?</dt>
-										<dd className="govuk-summary-list__value">{worksOverview?.usingExistingAccessRoutes ? 'Yes' : 'No'}</dd>
+										<dd className="govuk-summary-list__value">{typeof worksOverview?.usingExistingAccessRoutes === 'boolean' ? (worksOverview.usingExistingAccessRoutes ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									{worksOverview?.usingExistingAccessRoutes && (
 										<div className="govuk-summary-list__row">
@@ -437,7 +438,7 @@ const ApplicationSubmit: React.FC = () => {
 									{/* Removing existing equipment */}
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Are you removing existing equipment?</dt>
-										<dd className="govuk-summary-list__value">{worksOverview?.removingExistingEquipment ? 'Yes' : 'No'}</dd>
+										<dd className="govuk-summary-list__value">{typeof worksOverview?.removingExistingEquipment === 'boolean' ? (worksOverview.removingExistingEquipment ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									{worksOverview?.removingExistingEquipment && (
 										<div className="govuk-summary-list__row">
@@ -467,7 +468,7 @@ const ApplicationSubmit: React.FC = () => {
 								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Tolerance required</dt>
-										<dd className="govuk-summary-list__value">{layers && layers.length > 0 ? 'Yes' : 'No'}</dd>
+									<dd className="govuk-summary-list__value">{layers && layers.length > 0 ? 'Yes' : (layers ? 'No' : '-')}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Sensitive areas the route passes through</dt>
@@ -497,7 +498,7 @@ const ApplicationSubmit: React.FC = () => {
 								<dl className="govuk-summary-list">
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Have all wayleaves been obtained?</dt>
-										<dd className="govuk-summary-list__value">{supportingQuestions ? (supportingQuestions.wayleaves_obtained ? "Yes" : "No") : "-"}</dd>
+									<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.wayleaves_obtained === 'boolean' ? (supportingQuestions.wayleaves_obtained ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									{supportingQuestions && supportingQuestions.wayleaves_obtained === false && (
 										<div className="govuk-summary-list__row">
@@ -507,11 +508,11 @@ const ApplicationSubmit: React.FC = () => {
 									)}
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">I confirm that the works will comply with The Electricity Safety, Quality and Continuity Regulations 2002</dt>
-										<dd className="govuk-summary-list__value">{supportingQuestions ? (supportingQuestions.esqcr_2002_compliance_confirmed ? "Yes" : "No") : "-"}</dd>
+									<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.esqcr_2002_compliance_confirmed === 'boolean' ? (supportingQuestions.esqcr_2002_compliance_confirmed ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Do you have any further supporting documents to provide?</dt>
-										<dd className="govuk-summary-list__value">{supportingQuestions ? (supportingQuestions.has_additional_supporting_documents ? "Yes" : "No") : "-"}</dd>
+									<dd className="govuk-summary-list__value">{supportingQuestions && typeof supportingQuestions.has_additional_supporting_documents === 'boolean' ? (supportingQuestions.has_additional_supporting_documents ? 'Yes' : 'No') : '-'}</dd>
 									</div>
 									<div className="govuk-summary-list__row">
 										<dt className="govuk-summary-list__key">Do you have any comments to make in support of your application?</dt>
@@ -522,7 +523,7 @@ const ApplicationSubmit: React.FC = () => {
 										<dd className="govuk-summary-list__value">
 											<ul className="govuk-list">
 												{supportingDocuments.length > 0 ? (
-													supportingDocuments.map((doc: any) => (
+												supportingDocuments.map((doc: SupportingDocument) => (
 														<li key={doc.document_id}>
 															{doc.title} {doc.description && <>- {doc.description}</>}
 														</li>
@@ -574,8 +575,8 @@ const ApplicationSubmit: React.FC = () => {
 									{/* Render consultation data dynamically if available, else show '-' */}
 									{(Array.isArray(projectDetails?.consultations) && projectDetails.consultations.length > 0
 										? projectDetails.consultations
-										: [{}]
-									).map((consultation, idx) => (
+									: [{}] as Consultation[]
+								).map((consultation: Consultation, idx: number) => (
 											<React.Fragment key={consultation.consultation_id || idx}>
 												<div className="govuk-summary-list__row">
 													<dt className="govuk-summary-list__key">Status</dt>
@@ -609,10 +610,10 @@ const ApplicationSubmit: React.FC = () => {
 													<dt className="govuk-summary-list__key">Response documents</dt>
 													<dd className="govuk-summary-list__value">
 														{Array.isArray(consultation.response_documents) && consultation.response_documents.length > 0 ? (
-															consultation.response_documents.map((doc, didx) => (
+													consultation.response_documents.map((doc: ResponseDocument, didx: number) => (
 																<React.Fragment key={didx}>
 																	<a className="govuk-link" href={doc.url} target="_blank" rel="noopener noreferrer">{doc.name || 'Document'}</a>
-																	{didx < consultation.response_documents.length - 1 && <br />}
+																	{didx < (consultation.response_documents?.length || 0) - 1 && <br />}
 																</React.Fragment>
 															))
 														) : '-'}
