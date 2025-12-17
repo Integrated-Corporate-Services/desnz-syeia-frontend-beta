@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import accessRequestAdminService from '../services/accessRequestAdminService';
+import userService from '../services/userService';
 import type { AccessRequest, DashboardStats } from '../types/accessRequest';
 
 /**
@@ -30,6 +31,11 @@ export const useDashboard = (userRole: string) => {
         // The service returns { success, data }
         const requests = response.success && response.data ? response.data : [];
         
+        // Load actual active users from the users table
+        const usersResponse = await userService.getUsers(null);
+        const users = usersResponse.success && usersResponse.data ? usersResponse.data : [];
+        const activeUsersCount = users.filter(user => user.status === 'ACTIVE').length;
+        
         if (requests && Array.isArray(requests)) {
           // Filter for pending requests
           const pending = requests.filter(req => req.status === 'PENDING');
@@ -41,7 +47,7 @@ export const useDashboard = (userRole: string) => {
           
           setStats({
             pendingRequests: pending.length,
-            activeUsers: approved, // Approved requests become active users
+            activeUsers: activeUsersCount,
             totalRequests: requests.length,
             approvedRequests: approved
           });
