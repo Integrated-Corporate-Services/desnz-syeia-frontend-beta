@@ -9,8 +9,11 @@ export { useAccessConfirmationNavigation } from './useAccessConfirmationNavigati
 export { useDashboard } from './useDashboard';
 export { useDashboardNavigation } from './useDashboardNavigation';
 export { useManageUsers } from './useManageUsers';
-export { useManageUsersNavigation } from './useManageUsersNavigation';
-export { useAddUser } from './useAddUser';
+export { useManageUsersNavigation } from './useManageUsersNavigation';export { useUserManagementDashboard } from './useUserManagementDashboard';export { useAddUser } from './useAddUser';
 export { useAddUserNavigation } from './useAddUserNavigation';
+export { useOrganisations } from './useOrganisations';
+export { useOrganisation } from './useOrganisation';
+export { useTeamCoordinators, useTeamCoordinator } from './useTeamCoordinators';
+export { useApprovedDomains } from './useApprovedDomains';
 
 

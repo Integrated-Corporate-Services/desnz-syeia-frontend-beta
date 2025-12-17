@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAddUser, useAddUserNavigation } from '../../hooks';
-import ErrorSummary from '../../components/commonFormFields/ErrorSummary';
+import { useAddUser, useAddUserNavigation } from '../../../hooks';
+import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
 import {
   AddUserPersonalDetails,
   AddUserAdditionalDetails,
   AddUserReason,
   AddUserActions,
   AddUserSidebar
-} from '../../components/shared/AddUserComponents';
+} from '../../../components/shared/AddUserComponents';
 
 const AddUserPage: React.FC = () => {
   const {

@@ -4,6 +4,7 @@ import { DEMO_USER_ID, DEMO_USER_EMAIL } from '../constants/demo';
 import type { AuthUser } from '../types/auth';
 import { getAuthUser, AuthUserResponse } from '../services/authService';
 import { useAuthStore } from '../store/useAuthStore';
+import { ROLES } from '../constants/roles';
 
 
 const LOGIN_DISABLED = true;
@@ -20,7 +21,7 @@ export function useAuthUser() {
           user: { 
             user_id: DEMO_USER_ID, 
             email: DEMO_USER_EMAIL, 
-            role: 'SUPERUSER',
+            role: ROLES.DESNZ_ADMIN,
             organisation_name: 'DESNZ',
             isDemo: true 
           } 

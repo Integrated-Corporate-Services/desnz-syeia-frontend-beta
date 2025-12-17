@@ -11,11 +11,11 @@ export const useAddUserNavigation = () => {
   const navigate = useNavigate();
 
   const navigateToManageUsers = () => {
-    navigate('/admin/manage-users');
+    navigate('/admin/user-management');
   };
 
   const navigateToDashboard = () => {
-    navigate('/admin/dashboard');
+    navigate('/admin/user-management');
   };
 
   const navigateToUserCreated = (userData: UserCreatedData) => {

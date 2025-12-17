@@ -56,15 +56,18 @@ import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
 import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
 import OTPVerifyPage from '../features/OTPVerifyPage';
-import PendingRequestsPage from '../features/admin/PendingRequestsPage';
-import ReviewRequestPage from '../features/admin/ReviewRequestPage';
-import AccessApprovedPage from '../features/admin/AccessApprovedPage';
-import AccessDeniedPage from '../features/admin/AccessDeniedPage';
-import AdminDashboard from '../features/admin/AdminDashboard';
-import ManageUsersPage from '../features/admin/ManageUsersPage';
-import AddUserPage from '../features/admin/AddUserPage';
-import UserCreatedPage from '../features/admin/UserCreatedPage';
-import AccessRevokedPage from '../features/admin/AccessRevokedPage';
+import ReviewRequestPage from '../features/admin/pages/ReviewRequestPage';
+import AccessApprovedPage from '../features/admin/pages/AccessApprovedPage';
+import AccessDeniedPage from '../features/admin/pages/AccessDeniedPage';
+import AddUserPage from '../features/admin/pages/AddUserPage';
+import UserCreatedPage from '../features/admin/pages/UserCreatedPage';
+import AccessRevokedPage from '../features/admin/pages/AccessRevokedPage';
+import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
+import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
+import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
+import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
+import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
+import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
 import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 
@@ -106,14 +109,32 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path: '/admin/dashboard',
-    component: AdminDashboard,
+    path: '/admin/user-management',
+    component: UserManagementDashboard,
     auth: true,
     layout: false
   },
   {
-    path: '/admin/pending-requests',
-    component: PendingRequestsPage,
+    path: '/admin/organisation/:organisationId/settings',
+    component: ManageOrganisationSettingsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/team-coordinators',
+    component: TeamCoordinatorsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
+    component: ManageTeamCoordinatorPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/approved-domains',
+    component: ApprovedEmailDomainsPage,
     auth: true,
     layout: false
   },
@@ -136,12 +157,6 @@ export const ROUTE_CONFIG = [
     layout: false
   },
   {
-    path: '/admin/manage-users',
-    component: ManageUsersPage,
-    auth: true,
-    layout: false
-  },
-  {
     path: '/admin/add-user',
     component: AddUserPage,
     auth: true,
@@ -156,6 +171,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/admin/access-revoked',
     component: AccessRevokedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/revoke-user/:userId',
+    component: RevokeUserAccessPage,
     auth: true,
     layout: false
   },

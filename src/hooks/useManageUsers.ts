@@ -4,6 +4,7 @@ import { createLogger } from '../utils/logger';
 import type { AuthUser } from '../types/auth';
 import type { User } from '../types/user';
 import userService from '../services/userService';
+import { ROLES } from '../constants/roles';
 
 const logger = createLogger('useManageUsers');
 
@@ -15,7 +16,7 @@ export const useManageUsers = () => {
   const { user } = useAuthUserContext();
   const userRole = user?.role;
   const userOrganisation = user?.organisation_name;
-  const isSuperUserRole = user?.role === 'SUPERUSER';
+  const isDesnzAdminRole = user?.role === ROLES.DESNZ_ADMIN;
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,7 @@ export const useManageUsers = () => {
         setLoading(true);
         setError('');
         const response = await userService.getUsers(
-          isSuperUserRole ? null : userOrganisation || null
+          isDesnzAdminRole ? null : userOrganisation || null
         );
         if (response.success && response.data) {
           setUsers(response.data);
@@ -45,14 +46,14 @@ export const useManageUsers = () => {
     };
 
     loadUsers();
-  }, [userOrganisation, isSuperUserRole]);
+  }, [userOrganisation, isDesnzAdminRole]);
 
   // Computed values - API already filters by organisation, no need to filter again
   const filteredUsers = users;
 
   const activeCount = filteredUsers.filter(u => u.status === 'ACTIVE').length;
   const inactiveCount = filteredUsers.filter(u => u.status === 'SUSPENDED' || u.status === 'INACTIVE').length;
-  const actionColumnCount = isSuperUserRole ? 7 : 6;
+  const actionColumnCount = isDesnzAdminRole ? 7 : 6;
 
   // Handler functions
   const handleRevokeAccess = (userId: string) => {
@@ -65,13 +66,20 @@ export const useManageUsers = () => {
       try {
         const response = await userService.suspendUser(userId, 'Access revoked by administrator');
         if (response.success) {
+          // Reload users to reflect the change
+          const usersResponse = await userService.getUsers(
+            isDesnzAdminRole ? null : userOrganisation || null
+          );
+          if (usersResponse.success && usersResponse.data) {
+            setUsers(usersResponse.data);
+          }
           // Navigate to confirmation page with user details
           onSuccess({
             userName: user.fullName,
             userEmail: user.email
           });
         } else {
-          setError('Failed to revoke user access');
+          setError(response.message || 'Failed to revoke user access');
         }
       } catch (error) {
         logger.error('Failed to revoke access:', error);

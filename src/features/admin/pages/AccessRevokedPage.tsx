@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { useManageUsersNavigation } from '../../hooks';
+import { useManageUsersNavigation } from '../../../hooks';
 
 const AccessRevokedPage: React.FC = () => {
   const location = useLocation();

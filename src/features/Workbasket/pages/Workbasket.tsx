@@ -6,6 +6,7 @@ import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { ROUTES } from '../../../constants/routes';
 import StartNewApplicationButton from '../../../components/StartNewApplicationButton';
+import { ROLES } from '../../../constants/roles';
 
 const Workbasket = () => {
   // TODO: get from auth/session
@@ -16,7 +17,7 @@ const Workbasket = () => {
   const navigate = useNavigate();
 
   // Check if user has admin role
-  const isAdmin = user && ((user as AuthUser)?.role === 'SUPERUSER' || (user as AuthUser)?.role === 'DNO_TEAM_COORDINATOR');
+  const isAdmin = user && ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN || (user as AuthUser)?.role === ROLES.DNO_ADMIN);
 
   useEffect(() => {
     if (created_by && typeof created_by === 'string') {
@@ -41,7 +42,7 @@ const Workbasket = () => {
                   <button
                     className="govuk-button govuk-button--secondary"
                     data-module="govuk-button"
-                    onClick={() => navigate('/admin/dashboard')}
+                    onClick={() => navigate('/admin/user-management')}
                     style={{ marginRight: '10px' }}
                   >
                     Admin dashboard

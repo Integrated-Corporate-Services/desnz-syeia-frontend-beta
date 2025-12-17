@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuthUserContext } from '../../context/AuthUserContext';
 import type { AuthUser } from '../../types/auth';
+import { ROLES } from '../../constants/roles';
 
 interface User {
   id: string;
@@ -49,11 +50,11 @@ interface UserRowProps {
 
 /**
  * Add user button positioned with page heading (GDS primary action pattern)
- * Only visible to admin users (DNO_TEAM_COORDINATOR or SUPERUSER)
+ * Only visible to admin users (DNO_ADMIN or DESNZ_ADMIN)
  */
 export const AddUserButton: React.FC<AddUserButtonProps> = ({ onAddUser }) => {
   const { user } = useAuthUserContext();
-  const isAdmin = user && ((user as AuthUser)?.role === 'SUPERUSER' || (user as AuthUser)?.role === 'DNO_TEAM_COORDINATOR');
+  const isAdmin = user && ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN || (user as AuthUser)?.role === ROLES.DNO_ADMIN);
   return isAdmin ? (
     <button
       type="button"
@@ -104,12 +105,12 @@ export const UsersHeader: React.FC = () => (
  */
 export const EmptyUsersState: React.FC<EmptyUsersStateProps> = ({ onAddUser, userOrganisation }) => {
   const { user } = useAuthUserContext();
-  const isSuperUser = user?.role === 'SUPERUSER';
-  const isAdmin = user && ((user as AuthUser)?.role === 'SUPERUSER' || (user as AuthUser)?.role === 'DNO_TEAM_COORDINATOR');
+  const isDesnzAdmin = user?.role === ROLES.DESNZ_ADMIN;
+  const isAdmin = user && ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN || (user as AuthUser)?.role === ROLES.DNO_ADMIN);
   return (
     <div className="govuk-inset-text">
       <p className="govuk-body govuk-!-margin-bottom-3">
-        There are no users for {isSuperUser ? 'any organisation' : userOrganisation || 'your organisation'} yet.
+        There are no users for {isDesnzAdmin ? 'any organisation' : userOrganisation || 'your organisation'} yet.
       </p>
       {isAdmin && (
         <button
@@ -138,7 +139,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   userOrganisation
 }) => {
   const { user } = useAuthUserContext();
-  const isSuperUser = user?.role === 'SUPERUSER';
+  const isDesnzAdmin = user?.role === ROLES.DESNZ_ADMIN;
   // Handle empty state
   if (filteredUsers.length === 0) {
     return (
@@ -154,7 +155,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
       <thead className="govuk-table__head">
         <tr className="govuk-table__row">
           <th scope="col" className="govuk-table__header">Name</th>
-          {isSuperUser && <th scope="col" className="govuk-table__header">Organisation</th>}
+          {isDesnzAdmin && <th scope="col" className="govuk-table__header">Organisation</th>}
           {/* <th scope="col" className="govuk-table__header">Email</th> */}
           <th scope="col" className="govuk-table__header">Role</th>
           <th scope="col" className="govuk-table__header">Status</th>
@@ -193,22 +194,22 @@ export const UserRow: React.FC<UserRowProps> = ({
   onCancelRevoke
 }) => {
   const { user: currentUser } = useAuthUserContext();
-  const isSuperUser = currentUser?.role === 'SUPERUSER';
+  const isDesnzAdmin = currentUser?.role === ROLES.DESNZ_ADMIN;
   return (
     <>
       <tr className="govuk-table__row">
         <td className="govuk-table__cell"><strong>{user.fullName}</strong></td>
-        {isSuperUser && <td className="govuk-table__cell">{user.organisation}</td>}
+        {isDesnzAdmin && <td className="govuk-table__cell">{user.organisation}</td>}
         {/* <td className="govuk-table__cell">{user.email}</td> */}
         <td className="govuk-table__cell">
           <strong
             className="govuk-tag"
             style={{
-              backgroundColor: user.role === 'SUPERUSER' ? '#4c2c92' : user.role === 'DNO_TEAM_COORDINATOR' ? '#1d70b8' : '#505a5f',
+              backgroundColor: user.role === ROLES.DESNZ_ADMIN ? '#4c2c92' : user.role === ROLES.DNO_ADMIN ? '#1d70b8' : '#505a5f',
               color: '#ffffff'
             }}
           >
-            {user.role === 'SUPERUSER' ? 'Superuser' : user.role === 'DNO_TEAM_COORDINATOR' ? 'DNO Coordinator' : user.role}
+            {user.role === ROLES.DESNZ_ADMIN ? 'DESNZ Admin' : user.role === ROLES.DNO_ADMIN ? 'DNO Admin' : user.role}
           </strong>
         </td>
         <td className="govuk-table__cell">
@@ -225,7 +226,7 @@ export const UserRow: React.FC<UserRowProps> = ({
         <td className="govuk-table__cell">{user.lastLogin || 'Never'}</td>
         {/* Action column disabled
       <td className="govuk-table__cell">
-        {user.status === 'ACTIVE' && user.role !== 'SYSTEM' && isSuperUser && (
+        {user.status === 'ACTIVE' && user.role !== 'SYSTEM' && isDesnzAdmin && (
           <a
             className="govuk-link"
             href="#"

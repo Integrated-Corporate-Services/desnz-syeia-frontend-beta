@@ -1,13 +1,8 @@
 import React from 'react';
-import { useAccessConfirmationNavigation } from '../../hooks';
+import { useAccessConfirmationNavigation } from '../../../hooks';
 
 const AccessApprovedPage: React.FC = () => {
-  const { navigateToPendingRequests, navigateToDashboard } = useAccessConfirmationNavigation();
-
-  const handleViewPendingRequests = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    navigateToPendingRequests();
-  };
+  const { navigateToDashboard } = useAccessConfirmationNavigation();
 
   const handleReturnToDashboard = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -43,17 +38,7 @@ const AccessApprovedPage: React.FC = () => {
           <li>They will receive their access credentials by email</li>
           <li>Their account will be linked to their organisation</li>
         </ul>
-
-        <p className="govuk-body govuk-!-margin-top-6">
-          <a
-            href="#"
-            className="govuk-link govuk-link--no-visited-state"
-            onClick={handleViewPendingRequests}
-          >
-            View pending requests
-          </a>
-        </p>
-
+        
         <p className="govuk-body">
           <a
             href="#"

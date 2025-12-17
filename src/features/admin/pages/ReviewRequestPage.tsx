@@ -1,13 +1,13 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useReviewRequest, useReviewRequestNavigation } from '../../hooks';
-import ErrorSummary from '../../components/commonFormFields/ErrorSummary';
+import { useReviewRequest, useReviewRequestNavigation } from '../../../hooks';
+import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
 import {
   ApplicantDetails,
   RejectionReasonForm,
   ActionButtons,
   RelatedContentSidebar
-} from '../../components/shared/ReviewRequestComponents';
+} from '../../../components/shared/ReviewRequestComponents';
 
 const ReviewRequestPage: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
@@ -30,14 +30,14 @@ const ReviewRequestPage: React.FC = () => {
   } = useReviewRequest(requestId || '');
 
   const {
-    navigateToPendingRequests,
+    navigateToDashboard,
     navigateToAccessApproved,
     navigateToAccessDenied
   } = useReviewRequestNavigation();
 
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigateToPendingRequests();
+    navigateToDashboard();
   };
 
   const handleApprove = () => {

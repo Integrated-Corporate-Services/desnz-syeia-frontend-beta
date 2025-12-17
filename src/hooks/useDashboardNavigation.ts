@@ -8,7 +8,7 @@ export const useDashboardNavigation = () => {
   const navigate = useNavigate();
 
   const navigateToPendingRequests = () => {
-    navigate('/admin/pending-requests');
+    navigate('/admin/user-management');
   };
 
   const navigateToWorkbasket = () => {
@@ -16,7 +16,7 @@ export const useDashboardNavigation = () => {
   };
 
   const navigateToManageUsers = () => {
-    navigate('/admin/manage-users');
+    navigate('/admin/user-management');
   };
 
   const navigateToOrganisationSettings = () => {

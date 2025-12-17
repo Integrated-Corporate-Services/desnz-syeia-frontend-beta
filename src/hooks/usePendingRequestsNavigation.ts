@@ -4,7 +4,7 @@ export const usePendingRequestsNavigation = () => {
   const navigate = useNavigate();
 
   const navigateToDashboard = () => {
-    navigate('/admin/dashboard');
+    navigate('/admin/user-management');
   };
 
   const navigateToWorkbasket = () => {

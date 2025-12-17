@@ -1,13 +1,8 @@
 import React from 'react';
-import { useAccessConfirmationNavigation } from '../../hooks';
+import { useAccessConfirmationNavigation } from '../../../hooks';
 
 const AccessDeniedPage: React.FC = () => {
-  const { navigateToPendingRequests, navigateToDashboard } = useAccessConfirmationNavigation();
-
-  const handleViewPendingRequests = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    navigateToPendingRequests();
-  };
+  const { navigateToDashboard } = useAccessConfirmationNavigation();
 
   const handleReturnToDashboard = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -44,16 +39,6 @@ const AccessDeniedPage: React.FC = () => {
           <li>The rejection reason has been recorded</li>
           <li>This action has been logged in the audit trail</li>
         </ul>
-
-        <p className="govuk-body govuk-!-margin-top-6">
-          <a
-            href="#"
-            className="govuk-link govuk-link--no-visited-state"
-            onClick={handleViewPendingRequests}
-          >
-            View pending requests
-          </a>
-        </p>
 
         <p className="govuk-body">
           <a

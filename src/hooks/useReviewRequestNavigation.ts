@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 export const useReviewRequestNavigation = () => {
   const navigate = useNavigate();
 
-  const navigateToPendingRequests = () => {
-    navigate('/admin/pending-requests');
+  const navigateToDashboard = () => {
+    navigate('/admin/user-management');
   };
 
   const navigateToAccessApproved = () => {
@@ -16,7 +16,7 @@ export const useReviewRequestNavigation = () => {
   };
 
   return {
-    navigateToPendingRequests,
+    navigateToDashboard,
     navigateToAccessApproved,
     navigateToAccessDenied
   };

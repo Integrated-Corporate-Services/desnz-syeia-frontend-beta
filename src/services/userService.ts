@@ -65,16 +65,22 @@ class UserService {
    */
   async suspendUser(userId: string, reason: string): Promise<ServiceResponse<void>> {
     try {
-      await axios.patch(`/backend/api/users/${userId}/suspend`, { reason });
+      logger.debug('Suspending user:', { userId, reason });
+      const response = await axios.patch(`/backend/api/users/${userId}/suspend`, { reason });
+      logger.debug('Suspend user response:', response.data);
       return {
         success: true,
         message: 'User access revoked successfully'
       };
-    } catch (error) {
-      logger.error('Failed to suspend user:', error);
+    } catch (error: any) {
+      logger.error('Failed to suspend user:', {
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       return {
         success: false,
-        message: 'Failed to suspend user'
+        message: error.response?.data?.error || 'Failed to suspend user'
       };
     }
   }
