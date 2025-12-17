@@ -19,9 +19,7 @@ type OrganisationContact = {
   person_id?: string;
   contact_id?: string;
   party_contact_id?: string;
-  operator_ref?: string;
 };
-const MAX_REFERENCE_LENGTH = 24;
 
 const NetworkOperatorContactDetails: React.FC = () => {
   const [options, setOptions] = useState<OrganisationContact[]>([]);
@@ -143,7 +141,6 @@ const NetworkOperatorContactDetails: React.FC = () => {
     address: [selectedOrganisation?.line1, selectedOrganisation?.line2, selectedOrganisation?.city, selectedOrganisation?.country, selectedOrganisation?.postcode].filter(Boolean).join('<br>'),
     email: selectedOrganisation?.email || '',
     phone: selectedOrganisation?.phone || '',
-    operatorRef: selectedOrganisation?.operator_ref || application?.operator_ref || '',
   };
 
   return (
@@ -208,26 +205,6 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
         <form onSubmit={handleSubmit} noValidate>
           <dl className="govuk-summary-list">
-            <div className="govuk-summary-list__row">
-              <dt className="govuk-summary-list__key">Applicant’s reference</dt>
-              <dd className="govuk-summary-list__value">
-                <input
-                  type="text"
-                  id="applicantReference-inputValue"
-                  name="applicantReference.inputValue"
-                  maxLength={MAX_REFERENCE_LENGTH}
-                  value={contactDetails.operatorRef.slice(0, MAX_REFERENCE_LENGTH)}
-                  onChange={e => {
-                    const val = e.target.value.slice(0, MAX_REFERENCE_LENGTH);
-                    if (selectedOrganisation) {
-                      setSelectedOrganisation({ ...selectedOrganisation, operator_ref: val });
-                    }
-                  }}
-                  className="govuk-input"
-                  style={{ width: '100%' }}
-                />
-              </dd>
-            </div>
             <div className="govuk-summary-list__row">
               <dt className="govuk-summary-list__key">Name</dt>
               <dd className="govuk-summary-list__value">

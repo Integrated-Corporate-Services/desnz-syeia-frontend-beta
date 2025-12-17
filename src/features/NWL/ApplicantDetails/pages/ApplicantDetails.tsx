@@ -10,6 +10,7 @@ import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { add } from "proj4/dist/lib/projections";
 
 const ApplicantDetails: React.FC = () => {
+  const MAX_REFERENCE_LENGTH = 24;
   // Breadcrumbs content
   const BREADCRUMB_TASK_LIST = 'Task list';
   const BREADCRUMB_NETWORK_OPERATOR = 'Network operator';
@@ -303,8 +304,7 @@ const ApplicantDetails: React.FC = () => {
                   }`}
                   id="networkOperatorRef"
                   name="networkOperatorRef"
-                  type="text"
-                  value={networkOperatorRef}
+                  type="text"                  maxLength={MAX_REFERENCE_LENGTH}                  value={networkOperatorRef}
                   onChange={(e) => setNetworkOperatorRef(e.target.value)}
                 />
               </div>
