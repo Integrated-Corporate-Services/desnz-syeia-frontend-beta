@@ -92,11 +92,7 @@ const NetworkOperatorDetails = () => {
   }, [options, selectedOrgName, setOrganisation]);
 
   const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    // Limit to max length
-    if (value.length > MAX_REFERENCE_LENGTH) {
-      value = value.slice(0, MAX_REFERENCE_LENGTH);
-    }
+    const value = e.target.value;
     // Only allow alphabets, numbers, spaces, and hyphens
     if (value === '' || allowedReferenceRegex.test(value)) {
       setNetworkOperatorReference(value);
