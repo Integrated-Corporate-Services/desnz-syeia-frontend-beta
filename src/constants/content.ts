@@ -67,7 +67,7 @@ export const CONTENT = {
   },
   serviceNav: [
     {
-      text: "Workbasket",
+      text: "Applications",
       href: "",
     },
     {
