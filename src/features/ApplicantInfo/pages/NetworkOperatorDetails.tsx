@@ -16,6 +16,7 @@ const NetworkOperatorDetails = () => {
   const [selectedOrgName, setSelectedOrgName] = useState('');
   const [errors, setErrors] = useState<{ reference?: string; organisation?: string }>({});
   const allowedReferenceRegex = /^[A-Za-z0-9\-\s]+$/;
+  const MAX_REFERENCE_LENGTH = 24;
 
   const application = useApplicationStore(state => state.application);
   const applicationParty = useApplicationStore(state => state.applicationParty);
@@ -220,7 +221,7 @@ const NetworkOperatorDetails = () => {
                   name="networkOperatorReference.inputValue"
                   type="text"
                   value={networkOperatorReference}
-                  maxLength={4000}
+                  maxLength={MAX_REFERENCE_LENGTH}
                   onChange={handleReferenceChange}
                   style={{ width: '100%' }}
                   aria-invalid={!!errors.reference}

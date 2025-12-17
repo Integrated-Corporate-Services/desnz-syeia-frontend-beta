@@ -10,6 +10,7 @@ import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { add } from "proj4/dist/lib/projections";
 
 const ApplicantDetails: React.FC = () => {
+  const MAX_REFERENCE_LENGTH = 24;
   // Breadcrumbs content
   const BREADCRUMB_TASK_LIST = 'Task list';
   const BREADCRUMB_NETWORK_OPERATOR = 'Network operator';
@@ -36,6 +37,7 @@ const ApplicantDetails: React.FC = () => {
   // Track initial contacts loaded from application
   const [initialContactsLoaded, setInitialContactsLoaded] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [emailInputError, setEmailInputError] = useState<string | null>(null);
   const [showErrorSummary, setShowErrorSummary] = useState(false);
   const [selectedOrganisation, setSelectedOrganisation] = useState<ApplicationParty | null>(null);
   const { user } = useAuthUserContext();
@@ -168,13 +170,18 @@ const ApplicantDetails: React.FC = () => {
   const handleAddContact = (e: React.FormEvent) => {
     e.preventDefault();
     const email = emailAddress.trim();
-    if (
-      email &&
-      !additionalContacts.map(e => e.toLowerCase()).includes(email.toLowerCase())
-    ) {
-      setAdditionalContacts(prev => [...prev, email]);
-      setEmailAddress("");
+    if (!email) return;
+    if (!isValidEmail(email)) {
+      setEmailInputError("Enter a valid email address");
+      return;
     }
+    if (additionalContacts.map(e => e.toLowerCase()).includes(email.toLowerCase())) {
+      setEmailInputError("This email address has already been added");
+      return;
+    }
+    setAdditionalContacts(prev => [...prev, email]);
+    setEmailAddress("");
+    setEmailInputError(null);
   };
 
   // Delete contact handler
@@ -297,8 +304,7 @@ const ApplicantDetails: React.FC = () => {
                   }`}
                   id="networkOperatorRef"
                   name="networkOperatorRef"
-                  type="text"
-                  value={networkOperatorRef}
+                  type="text"                  maxLength={MAX_REFERENCE_LENGTH}                  value={networkOperatorRef}
                   onChange={(e) => setNetworkOperatorRef(e.target.value)}
                 />
               </div>
@@ -366,20 +372,27 @@ const ApplicantDetails: React.FC = () => {
               <div id="landRef-hint" className="govuk-hint">
                 You can add more contact email addresses to this application
               </div>
-              <div className="govuk-form-group">
+              <div className={`govuk-form-group${emailInputError ? ' govuk-form-group--error' : ''}`}>
                 <label
                   className="govuk-label govuk-label--s"
                   htmlFor="emailAddress"
                 >
                   Email address
                 </label>
+                {emailInputError && (
+                  <span className="govuk-error-message">{emailInputError}</span>
+                )}
                 <input
-                  className="govuk-input"
+                  className={`govuk-input${emailInputError ? ' govuk-input--error' : ''}`}
                   id="emailAddress"
                   name="emailAddress"
                   type="text"
                   value={emailAddress}
-                  onChange={(e) => setEmailAddress(e.target.value)}
+                  onChange={(e) => {
+                    setEmailAddress(e.target.value);
+                    if (emailInputError) setEmailInputError(null);
+                  }}
+                  autoComplete="off"
                 />
               </div>
               <button

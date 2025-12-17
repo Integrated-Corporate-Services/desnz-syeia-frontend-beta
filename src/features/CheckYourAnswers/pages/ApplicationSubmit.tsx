@@ -31,6 +31,7 @@ const ApplicationSubmit: React.FC = () => {
 	const [supportingDocuments, setSupportingDocuments] = useState<SupportingDocument[]>([]);
 	const [eiaFees, setEiaFees] = useState<EIAFees | null>(null);
 	const [worksOverview, setWorksOverview] = useState<WorksOverview | null>(null);
+	const [consultations, setConsultations] = useState<Consultation[]>([]);
 
 	// Helper function to render address fields with line breaks
 	const renderAddress = (fields: (string | null | undefined)[]) => {
@@ -131,7 +132,11 @@ const ApplicationSubmit: React.FC = () => {
 				setSupportingQuestions(data.sections?.supportingInformation?.supportingQuestions || null);
 				setSupportingDocuments(data.sections?.supportingInformation?.supportingDocuments || []);
 				setEiaFees(data.sections?.supportingInformation?.eiaFees || null);
+				// Set consultations data
+				setConsultations(Array.isArray(data.sections?.consultations) ? data.sections.consultations : []);
 				setWorksOverview(data.sections?.worksOverview || null);
+				// Set consultations data
+				setConsultations(Array.isArray(data.sections?.consultations) ? data.sections.consultations : []);
 			})
 			.catch(() => {
 				setProjectDetails(null);
@@ -663,73 +668,68 @@ const ApplicationSubmit: React.FC = () => {
 							</div>
 						</div>
 						<h2 className="govuk-heading-m">Consultation</h2>
-						{/* Consultation card - updated to use consultation from state */}
-						<div className="govuk-summary-card">
-							<div className="govuk-summary-card__title-wrapper">
-								<h2 className="govuk-summary-card__title">Natural England</h2>
-							</div>
-							<div className="govuk-summary-card__content">
-								<dl className="govuk-summary-list">
-									{/* Render consultation data dynamically if available, else show '-' */}
-									{(Array.isArray(projectDetails?.consultations) && projectDetails.consultations.length > 0
-										? projectDetails.consultations
-									: [{}] as Consultation[]
-									).map((consultation, idx) => (
-											<React.Fragment key={consultation.consultation_id || idx}>
-												<div className="govuk-summary-list__row">
-													<dt className="govuk-summary-list__key">Status</dt>
-													<dd className="govuk-summary-list__value">{consultation.status || '-'}</dd>
-												</div>
-												<div className="govuk-summary-list__row">
-													<dt className="govuk-summary-list__key">Date request created</dt>
-													<dd className="govuk-summary-list__value">{consultation.date_request_created ? new Date(consultation.date_request_created).toLocaleDateString() : '-'}</dd>
-												</div>
-												<div className="govuk-summary-list__row">
-													<dt className="govuk-summary-list__key">Evidence of request</dt>
-													<dd className="govuk-summary-list__value">
-														{consultation.evidence_of_request ? (
-															<a className="govuk-link" href={consultation.evidence_of_request} target="_blank" rel="noopener noreferrer">Evidence</a>
-														) : '-'}
-													</dd>
-												</div>
-												<div className="govuk-summary-list__row">
-													<dt className="govuk-summary-list__key">Date closed</dt>
-													<dd className="govuk-summary-list__value">{consultation.date_closed ? new Date(consultation.date_closed).toLocaleDateString() : '-'}</dd>
-												</div>
-												<div className="govuk-summary-list__row">
-													<dt className="govuk-summary-list__key">Objection raised</dt>
-													<dd className="govuk-summary-list__value">{typeof consultation.objection_raised === 'boolean' ? (consultation.objection_raised ? 'Yes' : 'No') : '-'}</dd>
-												</div>
-												<div className="govuk-summary-list__row">
-													<dt className="govuk-summary-list__key">Close comments</dt>
-													<dd className="govuk-summary-list__value">{consultation.close_comments || '-'}</dd>
-												</div>
-												<div className="govuk-summary-list__row">
-													<dt className="govuk-summary-list__key">Response documents</dt>
-													<dd className="govuk-summary-list__value">
-														{Array.isArray(consultation.response_documents) && consultation.response_documents.length > 0 ? (
-													consultation.response_documents.map((doc, didx) => (
-																<React.Fragment key={didx}>
-																	<a className="govuk-link" href={doc.url} target="_blank" rel="noopener noreferrer">{doc.name || 'Document'}</a>
-																	{didx < (consultation.response_documents?.length || 0) - 1 && <br />}
-																</React.Fragment>
+						{/* Consultation cards - render one card per consultee organisation */}
+						{(consultations.length > 0 ? consultations : [{}]).map((consultation, idx) => (
+							<div className="govuk-summary-card" key={consultation.id || idx}>
+								<div className="govuk-summary-card__title-wrapper">
+									<h2 className="govuk-summary-card__title">{consultation.consulteeOrganisationName || 'Consultation'}</h2>
+								</div>
+								<div className="govuk-summary-card__content">
+									<dl className="govuk-summary-list">
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Status</dt>
+											<dd className="govuk-summary-list__value">{consultation.status || '-'}</dd>
+										</div>
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Date request sent</dt>
+											<dd className="govuk-summary-list__value">
+												{consultation.status === 'Request Incomplete' ? '-' : ((consultation.sentAt || consultation.createdAt) ? new Date(consultation.sentAt || consultation.createdAt!).toLocaleDateString() : '-')}
+											</dd>
+										</div>
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Date closed</dt>
+											<dd className="govuk-summary-list__value">
+												{consultation.status === 'Request Incomplete' ? '-' : ((consultation.closedAt || consultation.dateClosed) ? new Date(consultation.closedAt || consultation.dateClosed!).toLocaleDateString() : '-')}
+											</dd>
+										</div>
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Objection raised</dt>
+											<dd className="govuk-summary-list__value">
+												{consultation.status === 'Request Incomplete' ? '-' : (typeof consultation.objectionRaised === 'boolean' ? (consultation.objectionRaised ? 'Yes' : 'No') : '-')}
+											</dd>
+										</div>
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Response documents</dt>
+											<dd className="govuk-summary-list__value">
+												{consultation.status === 'Request Incomplete' ? (
+													<ul className="govuk-list">
+														<li>-</li>
+													</ul>
+												) : (
+													<ul className="govuk-list">
+														{Array.isArray(consultation.responseDocuments) && consultation.responseDocuments.length > 0 ? (
+															consultation.responseDocuments.map((doc, didx) => (
+																<li key={didx}>{doc.name || 'Document'}</li>
 															))
-														) : '-'}
-													</dd>
-												</div>
-												<div className="govuk-summary-list__row">
-													<dt className="govuk-summary-list__key">Responding consultee’s email address</dt>
-													<dd className="govuk-summary-list__value">
-														{consultation.consultee_email ? (
-															<a className="govuk-link" href={`mailto:${consultation.consultee_email}`}>{consultation.consultee_email}</a>
-														) : '-'}
-													</dd>
-												</div>
-											</React.Fragment>
-										))}
-								</dl>
+														) : (
+															<li>-</li>
+														)}
+													</ul>
+												)}
+											</dd>
+										</div>
+										<div className="govuk-summary-list__row">
+											<dt className="govuk-summary-list__key">Consultee email address</dt>
+											<dd className="govuk-summary-list__value">
+												{consultation.status === 'Request Incomplete' ? '-' : (consultation.consulteeEmailAddress ? (
+													<a className="govuk-link" href={`mailto:${consultation.consulteeEmailAddress}`}>{consultation.consulteeEmailAddress}</a>
+												) : '-')}
+											</dd>
+										</div>
+									</dl>
+								</div>
 							</div>
-						</div>
+						))}
 						{/* Submit application form */}
 						<div className="govuk-form-group">
 							<form action="/application-submit" method="post" noValidate>

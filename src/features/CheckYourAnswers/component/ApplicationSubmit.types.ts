@@ -100,13 +100,17 @@ export interface ResponseDocument {
 }
 
 export interface Consultation {
-	consultation_id?: string;
+	id?: string;
+	applicationId?: string;
+	consultationType?: string;
+	consulteeOrganisationId?: string;
+	consulteeOrganisationName?: string;
 	status?: string;
-	date_request_created?: string;
-	evidence_of_request?: string;
-	date_closed?: string;
-	objection_raised?: boolean;
-	close_comments?: string;
-	response_documents?: ResponseDocument[];
-	consultee_email?: string;
+	sentAt?: string | null;
+	createdAt?: string;
+	closedAt?: string | null;
+	dateClosed?: string | null;
+	objectionRaised?: boolean | null;
+	responseDocuments?: ResponseDocument[];
+	consulteeEmailAddress?: string | null;
 }
