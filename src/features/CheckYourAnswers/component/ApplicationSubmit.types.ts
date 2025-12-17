@@ -15,6 +15,7 @@ export interface AssetInformation {
 	asset_id?: string;
 	standard_specification_reference_number?: string;
 	type_of_line?: string;
+	tori_noi_code?: string;
 	line_voltage?: string;
 	line_length?: string;
 }
@@ -48,6 +49,7 @@ export interface GridPoint {
 
 export interface Route {
 	route_id?: string;
+	routeName?: string;
 	gridPoints?: GridPoint[];
 	disconnected_route_justification?: string;
 }
