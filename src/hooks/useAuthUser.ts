@@ -6,16 +6,28 @@ import { getAuthUser, AuthUserResponse } from '../services/authService';
 import { useAuthStore } from '../store/useAuthStore';
 
 
-const LOGIN_DISABLED = false;
+const LOGIN_DISABLED = true;
 
 export function useAuthUser() {
   const { setAuth, setError, setLoading, user, loading, error, authenticated } = useAuthStore();
 
   useEffect(() => {
     if (LOGIN_DISABLED) {
-      setAuth({ authenticated: true, user: { user_id: DEMO_USER_ID, email: DEMO_USER_EMAIL, isDemo: true } });
-      setLoading(false);
-      console.log('[useAuthUser] LOGIN_DISABLED, using demo user');
+      // Only set demo user if not already set
+      if (!user || !user.isDemo) {
+        setAuth({ 
+          authenticated: true, 
+          user: { 
+            user_id: DEMO_USER_ID, 
+            email: DEMO_USER_EMAIL, 
+            role: 'SUPERUSER',
+            organisation_name: 'DESNZ',
+            isDemo: true 
+          } 
+        });
+        setLoading(false);
+        console.log('[useAuthUser] LOGIN_DISABLED, using demo user');
+      }
       return;
     }
     // Only call backend if user is not already in store
@@ -30,7 +42,7 @@ export function useAuthUser() {
           console.log('[useAuthUser] Auth error:', err);
         });
     }
-  }, [setAuth, setError, setLoading, user]);
+  }, [user]); // Only depend on user, not on setAuth/setError/setLoading
 
   return {
     user,

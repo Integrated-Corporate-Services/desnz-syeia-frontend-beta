@@ -6,7 +6,7 @@ const Section37GuidancePage = () => {
   return (
     <>
       <a 
-        href="/frontend/landingPage" 
+        href="/landingPage" 
         className="govuk-back-link govuk-!-margin-bottom-6 govuk-!-margin-top-0"
         style={{ display: 'inline-block', marginBottom: '32px', marginTop: 0 }}
       >
@@ -29,7 +29,7 @@ const Section37GuidancePage = () => {
             <li><a href="https://www.legislation.gov.uk/uksi/2000/1927/contents/made" className="govuk-link" target="_blank" rel="noopener noreferrer">Electricity Works (Environmental Impact Assessment) (England and Wales) Regulations 2000 (opens in a new tab)</a></li>
           </ul>
           <p className="govuk-body">
-            <a href="/frontend/landingPage" className="govuk-link">Learn about other application types</a>
+            <a href="/landingPage" className="govuk-link">Learn about other application types</a>
           </p>
 
           <h2 className="govuk-heading-m">Before you start</h2>

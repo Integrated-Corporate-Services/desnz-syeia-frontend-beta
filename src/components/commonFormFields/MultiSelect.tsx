@@ -23,6 +23,7 @@ interface MultiSelectProps {
     error?: string;
     hint?: React.ReactNode;
     maxSelections?: number | null;
+    disabled?: boolean;
 }
 
 
@@ -35,7 +36,8 @@ const MultiSelect: React.FC<MultiSelectProps> = React.memo(({
     options,
     error,
     hint,
-    maxSelections = null
+    maxSelections = null,
+    disabled = false
 }) => {
     const hasError = Boolean(error && error.length > 0);
 
@@ -99,7 +101,7 @@ const MultiSelect: React.FC<MultiSelectProps> = React.memo(({
                     {options.map((option) => {
                         const checkboxId = `${id}-${option.value}`;
                         const isChecked = values.includes(option.value);
-                        const isDisabled = typeof maxSelections === 'number' && maxSelections > 0 && values.length >= maxSelections && !isChecked;
+                        const isDisabled = disabled || (typeof maxSelections === 'number' && maxSelections > 0 && values.length >= maxSelections && !isChecked);
                         return (
                             <div key={option.value} className="govuk-checkboxes__item">
                                 <input

@@ -58,6 +58,15 @@ import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
 import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
 import OTPVerifyPage from '../features/OTPVerifyPage';
+import PendingRequestsPage from '../features/admin/PendingRequestsPage';
+import ReviewRequestPage from '../features/admin/ReviewRequestPage';
+import AccessApprovedPage from '../features/admin/AccessApprovedPage';
+import AccessDeniedPage from '../features/admin/AccessDeniedPage';
+import AdminDashboard from '../features/admin/AdminDashboard';
+import ManageUsersPage from '../features/admin/ManageUsersPage';
+import AddUserPage from '../features/admin/AddUserPage';
+import UserCreatedPage from '../features/admin/UserCreatedPage';
+import AccessRevokedPage from '../features/admin/AccessRevokedPage';
 
 export const ROUTE_CONFIG = [
   {
@@ -95,6 +104,60 @@ export const ROUTE_CONFIG = [
     component: OTPVerifyPage,
     auth: true,
     layout: true
+  },
+  {
+    path: '/admin/dashboard',
+    component: AdminDashboard,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/pending-requests',
+    component: PendingRequestsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/review-request/:requestId',
+    component: ReviewRequestPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-approved',
+    component: AccessApprovedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-denied',
+    component: AccessDeniedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/manage-users',
+    component: ManageUsersPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/add-user',
+    component: AddUserPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/user-created',
+    component: UserCreatedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-revoked',
+    component: AccessRevokedPage,
+    auth: true,
+    layout: false
   },
   {
     path: '/workbasket',
