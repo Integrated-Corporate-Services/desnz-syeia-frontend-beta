@@ -50,8 +50,6 @@ import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
 import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
-import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
-import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 import LandingPage from '../features/SignIn/LandingPage';
 import RegistrationPage from '../features/SignIn/RequestAccess';
 import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
@@ -67,6 +65,8 @@ import ManageUsersPage from '../features/admin/ManageUsersPage';
 import AddUserPage from '../features/admin/AddUserPage';
 import UserCreatedPage from '../features/admin/UserCreatedPage';
 import AccessRevokedPage from '../features/admin/AccessRevokedPage';
+import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
+import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 
 export const ROUTE_CONFIG = [
   {
@@ -474,6 +474,18 @@ export const ROUTE_CONFIG = [
   {
     path: `${TLP_BASE_URL}/:applicationId/delete`,
     component: DeleteApplicationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
+    component: CheckYourAnswers,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/application-submit`,
+    component: ApplicationSubmit,
     auth: true,
     layout: true
   },
