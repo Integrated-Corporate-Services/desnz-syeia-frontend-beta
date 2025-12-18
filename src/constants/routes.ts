@@ -70,6 +70,7 @@ import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordin
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
 import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
+import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 
 export const ROUTE_CONFIG = [
   {
@@ -519,6 +520,12 @@ export const ROUTE_CONFIG = [
   {
     path: `${S37_BASE_URL}/:applicationId/application-submit`,
     component: ApplicationSubmit,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/who-is-applying`,
+    component: WhoIsApplying,
     auth: true,
     layout: true
   },

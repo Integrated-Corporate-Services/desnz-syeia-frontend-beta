@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
-import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, Route, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, Consultation } from "../component/ApplicationSubmit.types";
+import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, Route, GridPoint, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, Consultation } from "../component/ApplicationSubmit.types";
+import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 
 const ApplicationSubmit: React.FC = () => {
     const params = useParams();
@@ -162,9 +163,86 @@ const ApplicationSubmit: React.FC = () => {
 				<div className="govuk-grid-row">
 					<div className="govuk-grid-column-three-quarters">
 						<h1 className="govuk-heading-xl">Check your answers before sending your application</h1>
+						{/* Applicant documents summary card */}
+						<h2 className="govuk-heading-m">Applicant documents</h2>
+						<div className="govuk-summary-card">
+							<div className="govuk-summary-card__title-wrapper">
+								<h2 className="govuk-summary-card__title">Project Overview</h2>
+							</div>
+							<div className="govuk-summary-card__content">
+								<dl className="govuk-summary-list">
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Plan information documents</dt>
+										<dd className="govuk-summary-list__value">
+											<ul className="govuk-list">
+												{planDocuments.length > 0 ? (
+													planDocuments.map(doc => (
+														<li key={doc.document_id}>
+															{doc.title} {doc.description && <>- {doc.description}</>}
+														</li>
+													))
+												) : (
+													<li>-</li>
+												)}
+											</ul>
+										</dd>
+									</div>
+								</dl>
+							</div>
+						</div>
+						{/* Supporting information summary card */}
+						<div className="govuk-summary-card">
+							<div className="govuk-summary-card__title-wrapper">
+								<h2 className="govuk-summary-card__title">Supporting information</h2>
+							</div>
+							<div className="govuk-summary-card__content">
+								<dl className="govuk-summary-list">
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Supporting documents</dt>
+										<dd className="govuk-summary-list__value">
+											<ul className="govuk-list">
+												{supportingDocuments.length > 0 ? (
+													supportingDocuments.map(doc => (
+														<li key={doc.document_id}>
+															{doc.title} {doc.description && <>- {doc.description}</>}
+														</li>
+													))
+												) : (
+													<li>-</li>
+												)}
+											</ul>
+										</dd>
+									</div>
+								</dl>
+							</div>
+						</div>
+						{/* Sensitive area review summary card */}
+						<div className="govuk-summary-card">
+							<div className="govuk-summary-card__title-wrapper">
+								<h2 className="govuk-summary-card__title">Sensitive area review</h2>
+							</div>
+							<div className="govuk-summary-card__content">
+								<dl className="govuk-summary-list">
+									<div className="govuk-summary-list__row">
+										<dt className="govuk-summary-list__key">Environmental and archaeological documents</dt>
+										<dd className="govuk-summary-list__value">
+											<ul className="govuk-list">
+												{sensitiveAreaReview?.application_documents && sensitiveAreaReview.application_documents.length > 0 ? (
+													sensitiveAreaReview.application_documents.map(doc => (
+														<li key={doc.document_id}>{doc.title}</li>
+													))
+												) : (
+													<li>-</li>
+												)}
+											</ul>
+										</dd>
+									</div>
+								</dl>
+							</div>
+						</div>
 						{/* Applicant details summary card */}
 						<h2 className="govuk-heading-m">Applicant details</h2>
-												<div className="govuk-summary-card">
+						<div className="govuk-summary-card">
 							<div className="govuk-summary-card__title-wrapper">
 								<h2 className="govuk-summary-card__title">Network operator details</h2>
 								<ul className="govuk-summary-card__actions">
@@ -320,8 +398,14 @@ const ApplicationSubmit: React.FC = () => {
 											</div>
 											<div className="govuk-summary-list__row">
 												<dt className="govuk-summary-list__key">Type of Line</dt>
-												<dd className="govuk-summary-list__value">{asset.type_of_line || '-'}</dd>
+												<dd className="govuk-summary-list__value">{asset.type_of_line ? asset.type_of_line.charAt(0).toUpperCase() + asset.type_of_line.slice(1) : '-'}</dd>
 											</div>
+											{asset.type_of_line?.toLowerCase() === 'transmission' && (
+												<div className="govuk-summary-list__row">
+													<dt className="govuk-summary-list__key">TORI/NOI code for this project</dt>
+													<dd className="govuk-summary-list__value">{asset.tori_noi_code || '-'}</dd>
+												</div>
+											)}
 											<div className="govuk-summary-list__row">
 												<dt className="govuk-summary-list__key">Line voltage</dt>
 												<dd className="govuk-summary-list__value">{asset.line_voltage || '-'}</dd>
@@ -336,52 +420,74 @@ const ApplicationSubmit: React.FC = () => {
 							</div>
 						</div>
 						<h2 className="govuk-heading-m">Location</h2>
-						{/* Route summary cards */}
-						{routes.length > 0 ? (
-							routes.map((route, idx) => (
-								<div className="govuk-summary-card" key={route.route_id || idx}>
+						{/* Route map summary card*/}
+						<div className="govuk-summary-card">
 									<div className="govuk-summary-card__title-wrapper">
-										<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
+										<h2 className="govuk-summary-card__title">Route map</h2>
 									</div>
 									<div className="govuk-summary-card__content">
-										<table className="govuk-table" style={{ marginBottom: '30px' }}>
-											<thead className="govuk-table__head">
-												<tr className="govuk-table__row">
-													<th className="govuk-table__header">Easting</th>
-													<th className="govuk-table__header">Northing</th>
-												</tr>
-											</thead>
-											<tbody className="govuk-table__body">
-												{Array.isArray(route.gridPoints) && route.gridPoints.length > 0 ? (
-												route.gridPoints.map((point, pidx) => (
-														<tr className="govuk-table__row" key={point.point_id || pidx}>
-															<td className="govuk-table__cell">{point.easting}</td>
-															<td className="govuk-table__cell">{point.northing}</td>
-														</tr>
-													))
-												) : (
-													<tr className="govuk-table__row">
-														<td className="govuk-table__cell">-</td>
-														<td className="govuk-table__cell">-</td>
-													</tr>
-												)}
-											</tbody>
-										</table>
-										{route.disconnected_route_justification && (
-											<div className="govuk-inset-text">
-												<strong>Disconnected route justification:</strong> {route.disconnected_route_justification}
-											</div>
-										)}
+										<div style={{ width: '100%', height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff' }}>
+											<SensitiveAreaCheckMap
+												routes={routes.filter(r => Array.isArray(r.gridPoints) && r.gridPoints.length > 0).map(r => ({
+												points: (r.gridPoints || []).map((pt: GridPoint) => ({ 
+														easting: String(pt.easting || ''), 
+														northing: String(pt.northing || '') 
+													})),
+													routeName: r.routeName || 'Route'
+												}))}
+												mode="overview"
+											/>
+										</div>
 									</div>
 								</div>
-							))
+						{/* Route summary cards */}
+						{routes.length > 0 ? (
+							<>
+								{routes.map((route, idx) => (
+									<div className="govuk-summary-card" key={route.route_id || idx}>
+										<div className="govuk-summary-card__title-wrapper">
+											<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
+										</div>
+										<div className="govuk-summary-card__content">
+											<table className="govuk-table govuk-!-margin-bottom-6">
+												<thead className="govuk-table__head">
+													<tr className="govuk-table__row">
+														<th className="govuk-table__header">Easting</th>
+														<th className="govuk-table__header">Northing</th>
+													</tr>
+												</thead>
+												<tbody className="govuk-table__body">
+													{Array.isArray(route.gridPoints) && route.gridPoints.length > 0 ? (
+													route.gridPoints.map((point, pidx) => (
+															<tr className="govuk-table__row" key={point.point_id || pidx}>
+																<td className="govuk-table__cell">{point.easting}</td>
+																<td className="govuk-table__cell">{point.northing}</td>
+															</tr>
+														))
+													) : (
+														<tr className="govuk-table__row">
+															<td className="govuk-table__cell">-</td>
+															<td className="govuk-table__cell">-</td>
+														</tr>
+													)}
+												</tbody>
+											</table>
+											{route.disconnected_route_justification && (
+												<div className="govuk-inset-text">
+													<strong>Disconnected route justification:</strong> {route.disconnected_route_justification}
+												</div>
+											)}
+										</div>
+									</div>
+								))}
+							</>
 						) : (
 							<div className="govuk-summary-card">
 								<div className="govuk-summary-card__title-wrapper">
 									<h2 className="govuk-summary-card__title">Route</h2>
 								</div>
 								<div className="govuk-summary-card__content">
-									<table className="govuk-table" style={{ marginBottom: '30px' }}>
+									<table className="govuk-table govuk-!-margin-bottom-6">
 										<thead className="govuk-table__head">
 											<tr className="govuk-table__row">
 												<th className="govuk-table__header">Easting</th>
