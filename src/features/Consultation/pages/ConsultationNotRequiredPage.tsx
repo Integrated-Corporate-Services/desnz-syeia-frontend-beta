@@ -54,7 +54,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				await saveNotRequiredStatus(consultationId, updatedDetails);
 				navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
 			} catch (err) {
-				// Optionally handle error
+				// TODO: error handling
 			}
 		};
 

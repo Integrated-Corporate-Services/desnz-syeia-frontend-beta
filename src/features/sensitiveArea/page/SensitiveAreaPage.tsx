@@ -43,7 +43,8 @@ const SensitiveAreaPage: React.FC = () => {
           }
         }
       } catch (err) {
-        // Optionally handle error
+				// TODO: error handling
+        setError('Failed to load route or sensitive area settings');
       }
     }
     if (effectiveApplicationId) fetchRoutesAndSettings();
