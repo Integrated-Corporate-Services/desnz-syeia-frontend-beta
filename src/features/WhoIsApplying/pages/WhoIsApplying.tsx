@@ -67,7 +67,7 @@ const WhoIsApplying: React.FC = () => {
     let app = application;
     if (!app || !app.application_id) {
       const newAppData = {
-        type: 'NWL',
+        type: 'S37',
         operator_ref: '',
         status: 'Draft',
         created_by: (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '',
@@ -100,7 +100,7 @@ const WhoIsApplying: React.FC = () => {
             <h1 className="govuk-heading-xl">Who is applying?</h1>
             {/* Error summary */}
             {submitted && error && (
-              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert" style={{ marginBottom: '2rem' }}>
+              <div className="govuk-error-summary govuk-!-margin-bottom-4" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
@@ -113,16 +113,17 @@ const WhoIsApplying: React.FC = () => {
               <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 500 }}>
                 <label className="govuk-label" htmlFor="location">Network operator</label>
                 {error && (
-                  <p id="location-error" className="govuk-error-message">{error}</p>
+                  <p id="location-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
                 )}
                 <select
-                  className="govuk-select"
+                  className="govuk-select govuk-!-width-full govuk-!-font-size-19"
                   id="location"
                   name="location"
-                  aria-describedby="location-hint"
+                  aria-describedby={error ? "location-error" : undefined}
                   value={selectedOrgName}
                   onChange={handleOrgChange}
-                  style={{ width: "100%", fontSize: "1.1rem" }}
                   disabled={options.length === 0}
                   required
                 >
@@ -142,7 +143,7 @@ const WhoIsApplying: React.FC = () => {
                     If you do not know who the team coordinator is then contact the service desk for advice at{' '}
                     <a
                       href="mailto:ukop@nstauthority.co.uk"
-                      style={{ color: '#1d70b8', textDecoration: 'underline' }}
+                      className="govuk-link"
                     >
                       ukop@nstauthority.co.uk
                     </a>

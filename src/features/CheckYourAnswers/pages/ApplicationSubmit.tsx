@@ -449,7 +449,7 @@ const ApplicationSubmit: React.FC = () => {
 											<h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(65 + idx)}`}</h2>
 										</div>
 										<div className="govuk-summary-card__content">
-											<table className="govuk-table" style={{ marginBottom: '30px' }}>
+											<table className="govuk-table govuk-!-margin-bottom-6">
 												<thead className="govuk-table__head">
 													<tr className="govuk-table__row">
 														<th className="govuk-table__header">Easting</th>
@@ -487,7 +487,7 @@ const ApplicationSubmit: React.FC = () => {
 									<h2 className="govuk-summary-card__title">Route</h2>
 								</div>
 								<div className="govuk-summary-card__content">
-									<table className="govuk-table" style={{ marginBottom: '30px' }}>
+									<table className="govuk-table govuk-!-margin-bottom-6">
 										<thead className="govuk-table__head">
 											<tr className="govuk-table__row">
 												<th className="govuk-table__header">Easting</th>

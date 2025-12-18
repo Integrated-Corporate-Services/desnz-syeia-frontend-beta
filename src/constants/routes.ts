@@ -524,7 +524,7 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path:`${S37_BASE_URL}/who-is-applying`,
+    path: `${S37_BASE_URL}/who-is-applying`,
     component: WhoIsApplying,
     auth: true,
     layout: true
