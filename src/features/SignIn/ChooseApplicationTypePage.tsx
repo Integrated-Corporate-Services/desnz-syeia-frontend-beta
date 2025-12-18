@@ -27,26 +27,7 @@ const ChooseApplicationTypePage: React.FC = () => {
       return;
     }
     if (selectedType === 'section37') {
-      setLoading(true);
-      const created_by = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
-      const newAppData = {
-        type: 'S37',
-        operator_ref: '',
-        status: 'Draft',
-        created_by,
-      };
-      try {
-        const app = await startApplication(newAppData);
-        if (app && app.application_id) {
-          navigate(`${S37_BASE_URL}/${app.application_id}/network-operator-details`);
-        } else {
-          setError('Failed to create application.');
-        }
-      } catch (err) {
-        setError('Failed to create application.');
-      } finally {
-        setLoading(false);
-      }
+      navigate('/s-37/who-is-applying');
     } else if (selectedType === 'wayleaves') {
       navigate('/nwl/who-is-applying');
     } else if (selectedType === 'treefelling') {
