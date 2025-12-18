@@ -55,6 +55,19 @@ import RegistrationPage from '../features/SignIn/RequestAccess';
 import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
 import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
+import OTPVerifyPage from '../features/OTPVerifyPage';
+import ReviewRequestPage from '../features/admin/pages/ReviewRequestPage';
+import AccessApprovedPage from '../features/admin/pages/AccessApprovedPage';
+import AccessDeniedPage from '../features/admin/pages/AccessDeniedPage';
+import AddUserPage from '../features/admin/pages/AddUserPage';
+import UserCreatedPage from '../features/admin/pages/UserCreatedPage';
+import AccessRevokedPage from '../features/admin/pages/AccessRevokedPage';
+import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
+import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
+import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
+import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
+import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
+import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
 import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
@@ -88,6 +101,84 @@ export const ROUTE_CONFIG = [
     path: '/sent-for-approval',
     component: SentForApprovalPage,
     auth: false,
+    layout: false
+  },
+  {
+    path: '/otp-verify',
+    component: OTPVerifyPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/admin/user-management',
+    component: UserManagementDashboard,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisation/:organisationId/settings',
+    component: ManageOrganisationSettingsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/team-coordinators',
+    component: TeamCoordinatorsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
+    component: ManageTeamCoordinatorPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/approved-domains',
+    component: ApprovedEmailDomainsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/review-request/:requestId',
+    component: ReviewRequestPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-approved',
+    component: AccessApprovedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-denied',
+    component: AccessDeniedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/add-user',
+    component: AddUserPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/user-created',
+    component: UserCreatedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-revoked',
+    component: AccessRevokedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/revoke-user/:userId',
+    component: RevokeUserAccessPage,
+    auth: true,
     layout: false
   },
   {

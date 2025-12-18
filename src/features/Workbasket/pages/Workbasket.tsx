@@ -6,6 +6,7 @@ import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { ROUTES } from '../../../constants/routes';
 import StartNewApplicationButton from '../../../components/StartNewApplicationButton';
+import { ROLES } from '../../../constants/roles';
 
 const Workbasket = () => {
   // TODO: get from auth/session
@@ -14,6 +15,9 @@ const Workbasket = () => {
   const applications = useApplicationStore((state) => state.applications);
   const loadApplications = useApplicationStore((state) => state.loadApplications);
   const navigate = useNavigate();
+
+  // Check if user has admin role
+  const isAdmin = user && ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN || (user as AuthUser)?.role === ROLES.DNO_ADMIN);
 
   useEffect(() => {
     if (created_by && typeof created_by === 'string') {
@@ -34,6 +38,16 @@ const Workbasket = () => {
               <h1 className="govuk-heading-l">Your applications</h1>
             </div>
             <div className="govuk-grid-column-one-half govuk-!-text-align-right">
+                {/*{isAdmin && (*/}
+                  <button
+                    className="govuk-button govuk-button--secondary"
+                    data-module="govuk-button"
+                    onClick={() => navigate('/admin/user-management')}
+                    style={{ marginRight: '10px' }}
+                  >
+                    Admin dashboard
+                  </button>
+                
                 <StartNewApplicationButton />
             </div>
           </div>

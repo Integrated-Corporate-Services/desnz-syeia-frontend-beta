@@ -6,14 +6,15 @@ type AuthUserContextType = {
   user: AuthUser | null;
   loading: boolean;
   error: any;
+  authenticated: boolean;
 };
 
-const AuthUserContext = createContext<AuthUserContextType>({ user: null, loading: true, error: null });
+const AuthUserContext = createContext<AuthUserContextType>({ user: null, loading: true, error: null, authenticated: false });
 
 export const AuthUserProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, error } = useAuthUser();
+  const { user, loading, error, authenticated } = useAuthUser();
   return (
-    <AuthUserContext.Provider value={{ user, loading, error }}>
+    <AuthUserContext.Provider value={{ user, loading, error, authenticated }}>
       {children}
     </AuthUserContext.Provider>
   );

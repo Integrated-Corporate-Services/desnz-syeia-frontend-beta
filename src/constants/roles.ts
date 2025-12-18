@@ -5,4 +5,6 @@ export const ROLES = {
   PROJECT_MANAGER: 'Project manager',
   CONSULTANT: 'Consultant',
   REVIEWER: 'Reviewer',
+  DESNZ_ADMIN: 'DESNZ_ADMIN',
+  DNO_ADMIN: 'DNO_ADMIN',
 };

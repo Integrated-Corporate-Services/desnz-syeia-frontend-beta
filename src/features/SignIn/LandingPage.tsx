@@ -1,6 +1,3 @@
-
-
-
 import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
@@ -73,7 +70,10 @@ const LandingPage = () => {
               <button
                 className="govuk-button govuk-button--start"
                 data-module="govuk-button"
-                onClick={() => navigate('/request-access')}
+                onClick={() => {
+                  const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL || 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login';
+                  window.location.href = loginUrl;
+                }}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 Sign in

@@ -1,59 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorSummary from '../../components/commonFormFields/ErrorSummary';
 import TextInput from '../../components/commonFormFields/TextInput';
 import MultiSelect from '../../components/commonFormFields/MultiSelect';
 import Checkbox from '../../components/commonFormFields/Checkbox';
+import { useRequestAccess } from '../../hooks/useRequestAccess';
+import axios from 'axios';
 
 interface RegistrationFormData {
     fullName: string;
     email: string;
+    line1: string;
+    line2: string;
+    town: string;
+    country: string;
+    postCode: string;
     organisations: string[];
     applyingOnBehalf: boolean;
 }
 
-interface RegistrationError {
-    fieldId: string;
-    message: string;
-}
-
 const RegistrationPage: React.FC = () => {
     const navigate = useNavigate();
+    const { isSubmitting, errors, submitRequestAccess } = useRequestAccess();
+    const [organisationOptions, setOrganisationOptions] = useState<Array<{value: string, label: string}>>([]);
+    const [isLoadingOrgs, setIsLoadingOrgs] = useState(true);
     const [formData, setFormData] = useState<RegistrationFormData>({
         fullName: '',
         email: 'applicant@nationalgrid.com', // Passed from backend in real app
+        line1: '',
+        line2: '',
+        town: '',
+        country: 'United Kingdom',
+        postCode: '',
         organisations: [], // Changed to array for multiple selections
         applyingOnBehalf: false
     });
-    const [errors, setErrors] = useState<RegistrationError[]>([]);
-    const organisationOptions = [
-        { value: 'electricity-north-west', label: 'Electricity North West' },
-        { value: 'national-grid-electricity-distribution', label: 'National Grid Electricity Distribution' },
-        { value: 'national-grid-electricity-transmission', label: 'National Grid Electricity Transmission' },
-        { value: 'northern-powergrid', label: 'Northern Powergrid' },
-        { value: 'sp-manweb', label: 'SP Manweb' },
-        { value: 'southern-electric-power-distribution', label: 'Southern Electric Power Distribution' },
-        { value: 'uk-power-networks', label: 'UK Power Networks' }
-    ];
 
-    const validateForm = (): boolean => {
-        const newErrors: RegistrationError[] = [];
-
-        if (!formData.fullName.trim()) {
-            newErrors.push({ fieldId: 'full-name', message: 'Enter your full name' });
-        }
-
-        if (!formData.email.trim()) {
-            newErrors.push({ fieldId: 'email', message: 'Enter your email address' });
-        }
-
-        if (!formData.organisations || formData.organisations.length === 0) {
-            newErrors.push({ fieldId: 'organisations', message: 'Select at least one organisation' });
-        }
-
-        setErrors(newErrors);
-        return newErrors.length === 0;
-    };
+    // Fetch organisations on component mount
+    useEffect(() => {
+        const fetchOrganisations = async () => {
+            try {
+                const response = await axios.get('/backend/api/organisations');
+                const orgs = response.data.map((org: any) => ({
+                    value: org.organisation_id,
+                    label: org.organisation_name
+                }));
+                setOrganisationOptions(orgs);
+            } catch (error) {
+                console.error('Failed to fetch organisations:', error);
+            } finally {
+                setIsLoadingOrgs(false);
+            }
+        };
+        
+        fetchOrganisations();
+    }, []);
 
     type SyntheticEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | {
         target: { name: string; value: any; type?: string; checked?: boolean };
@@ -71,12 +72,9 @@ const RegistrationPage: React.FC = () => {
         }));
     };
 
-    const onSubmitRegistration = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmitRegistration = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (validateForm()) {
-            console.log('Registration submitted:', formData);
-            navigate('/sent-for-approval');
-        }
+        await submitRequestAccess(formData);
     };
 
     const getFieldError = (fieldId: string): string => {
@@ -85,10 +83,9 @@ const RegistrationPage: React.FC = () => {
     };
 
     return (
-
         <div className="govuk-width-container">
             <a
-                href="/frontend/landingPage"
+                href="/landingPage"
                 className="govuk-back-link govuk-!-margin-bottom-6 govuk-!-margin-top-0"
                 style={{ display: 'inline-block', marginBottom: '32px', marginTop: 0 }}
             >
@@ -142,6 +139,59 @@ const RegistrationPage: React.FC = () => {
                                 autoComplete="email"
                             />
 
+                            {/* <h2 className="govuk-heading-s govuk-!-margin-top-6">Work address</h2>
+
+                            <TextInput
+                                id="line1"
+                                name="line1"
+                                label="Address line 1"
+                                value={formData.line1}
+                                onChange={handleInputChange}
+                                error={getFieldError('line1')}
+                                autoComplete="address-line1"
+                            />
+
+                            <TextInput
+                                id="line2"
+                                name="line2"
+                                label="Address line 2 (optional)"
+                                value={formData.line2}
+                                onChange={handleInputChange}
+                                error={getFieldError('line2')}
+                                autoComplete="address-line2"
+                            />
+
+                            <TextInput
+                                id="town"
+                                name="town"
+                                label="Town or city"
+                                value={formData.town}
+                                onChange={handleInputChange}
+                                error={getFieldError('town')}
+                                autoComplete="address-level2"
+                            />
+
+                            <TextInput
+                                id="country"
+                                name="country"
+                                label="Country"
+                                value={formData.country}
+                                onChange={handleInputChange}
+                                error={getFieldError('country')}
+                                autoComplete="country-name"
+                            />
+
+                            <TextInput
+                                id="post-code"
+                                name="postCode"
+                                label="Postcode"
+                                value={formData.postCode}
+                                onChange={handleInputChange}
+                                error={getFieldError('post-code')}
+                                autoComplete="postal-code"
+                                className="govuk-input--width-10"
+                            /> */}
+
                             <MultiSelect
                                 id="organisations"
                                 name="organisations"
@@ -151,6 +201,7 @@ const RegistrationPage: React.FC = () => {
                                 options={organisationOptions}
                                 error={getFieldError('organisations')}
                                 hint="Choose the Distribution Network Operators (DNOs) you work for or represent. You can select multiple organisations if you work across several."
+                                disabled={isLoadingOrgs}
                             />
 
                             <Checkbox
@@ -171,8 +222,13 @@ const RegistrationPage: React.FC = () => {
                             </div>
 
                             <div className="govuk-form-group govuk-!-margin-top-6">
-                                <button type="submit" className="govuk-button" data-module="govuk-button">
-                                    Continue
+                                <button 
+                                    type="submit" 
+                                    className="govuk-button" 
+                                    data-module="govuk-button"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? 'Submitting...' : 'Continue'}
                                 </button>
                             </div>
                         </form>
