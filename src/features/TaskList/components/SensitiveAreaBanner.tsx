@@ -13,10 +13,16 @@ interface SensitiveAreaBannerProps {
 const SensitiveAreaBanner: React.FC<SensitiveAreaBannerProps> = ({ status }) => {
   if (!status || !status.inProgress) return null;
   return (
-    <div style={{ border: '4px solid #2074c7', background: '#eaf4fb', padding: '1rem', marginBottom: '2rem' }}>
-      <strong>Sensitive area checks in progress</strong>
-      <div style={{ marginTop: 8 }}>
-        {`${status.completed} of ${status.total} checks completed. You can refresh this page to track the progress`}
+    <div className="govuk-notification-banner" role="region" aria-labelledby="sensitive-area-title" data-module="govuk-notification-banner" style={{ maxWidth: '640px' }}>
+      <div className="govuk-notification-banner__header">
+        <h2 className="govuk-notification-banner__title" id="sensitive-area-title">
+          Sensitive area checks in progress
+        </h2>
+      </div>
+      <div className="govuk-notification-banner__content">
+        <p className="govuk-body">
+          <strong>{`${status.completed} of ${status.total} checks completed. You can refresh this page to track the progress`}</strong>
+        </p>
       </div>
     </div>
   );
