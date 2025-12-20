@@ -20,7 +20,7 @@ export function useTaskListData() {
   const [showBanner, setShowBanner] = useState(false);
   const [deletedRouteName, setDeletedRouteName] = useState<string | null>(null);
   const [showSensitiveAreaPopup, setShowSensitiveAreaPopup] = useState(false);
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Fetch application if not present in store but available in route params
   useEffect(() => {
@@ -38,7 +38,7 @@ export function useTaskListData() {
   }, [application?.application_id, applicationId, fetchProgress]);
 
   // Poll for sensitive area check status
- {/* useEffect(() => {
+  /* useEffect(() => {
     const effectiveId = application?.application_id || applicationId;
     if (!effectiveId) return;
 
@@ -84,7 +84,7 @@ export function useTaskListData() {
       }
     };
   }, [application?.application_id, applicationId]);
-*/}
+  */
 
   // Update sections when progress or applicationId changes
   useEffect(() => {
