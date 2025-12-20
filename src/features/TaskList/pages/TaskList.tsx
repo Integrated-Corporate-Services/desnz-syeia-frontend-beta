@@ -29,13 +29,16 @@ const TaskList: React.FC = () => {
       <SensitiveAreaBanner status={sensitiveAreaStatus} />
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          {application ? (
+          {!application ? (
+            <>
+              <h1 className="govuk-heading-l">Section 37 application</h1>
+              <p>Loading application details...</p>
+            </>
+          ) : (
             <>
               <span className="govuk-caption-l">{application.operator_ref}</span>
               <h1 className="govuk-heading-l">Section 37 application</h1>
             </>
-          ) : (
-            <p>Loading application...</p>
           )}
           <ErrorMessage error={submitError} />
           {sections.map((section, idx) => (
