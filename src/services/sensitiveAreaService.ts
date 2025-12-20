@@ -5,6 +5,11 @@ export async function getSensitiveAreas(applicationId: string) {
   return res.data;
 }
 
+export async function getSensitiveAreaCheckStatus(applicationId: string) {
+  const res = await axios.get(`/backend/api/sensitive-area-check-status/${applicationId}`);
+  return res.data;
+}
+
 export async function startSensitiveAreaCheck(applicationId: string, toleranceRequired: string, toleranceValue: number, routes: { routeName: string; gridPoints: { easting: string; northing: string; }[]; }[]) {
  const payload = {
     toleranceRequired, // 'yes' or 'no'

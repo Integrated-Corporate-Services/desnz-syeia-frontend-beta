@@ -73,3 +73,38 @@ export function updateSectionStatus(
       : section
   );
 }
+
+/**
+ * Returns sections with status from progress API if available, else uses default status.
+ * @param applicationId
+ * @param progress Array of { subsection_name, status } from backend
+ */
+export function getSectionsWithProgress(
+  applicationId?: string,
+  progress?: { subsection_name: string; status: string }[]
+): TaskListSection[] {
+  const sections = getInitialSections(applicationId);
+  if (!progress || !Array.isArray(progress) || progress.length === 0) return sections;
+  return applyProgressToSections(sections, progress);
+}
+
+/**
+ * Updates the status of each item in sections based on backend progress data.
+ * @param sections The initial sections array
+ * @param progress Array of { subsection_name, status } from backend
+ */
+export function applyProgressToSections(
+  sections: TaskListSection[],
+  progress: { subsection_name: string; status: string }[]
+): TaskListSection[] {
+  return sections.map(section => ({
+    ...section,
+    items: section.items.map(item => {
+      const found = progress.find(p => p.subsection_name === item.name);
+      if (found && typeof found.status === 'string' && found.status.trim() !== '') {
+        return { ...item, status: found.status };
+      }
+      return item;
+    }),
+  }));
+}

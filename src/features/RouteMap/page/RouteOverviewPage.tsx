@@ -5,6 +5,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import RouteDeletedBanner from '../component/RouteDeletedBanner';
 import { useRouteStore } from '../../../store/useRouteStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { useProgressStore } from '../../../store/useProgressStore';
 export const RouteOverviewPage: React.FC = () => {
   const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
   const [details, setDetails] = React.useState('');
@@ -14,6 +15,7 @@ export const RouteOverviewPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const store = useRouteStore();
+  const progressStore = useProgressStore();
   let routes = Array.isArray(store?.routes) ? store.routes : [];
   // Sort routes by routeName (A, B, C, ...)
   routes = [...routes].sort((a, b) => {
@@ -206,7 +208,7 @@ export const RouteOverviewPage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
             <form
-              onSubmit={e => {
+              onSubmit={async e => {
                 e.preventDefault();
                 // Validation: require a radio button selection
                 if (!spurChoice) {
@@ -224,6 +226,16 @@ export const RouteOverviewPage: React.FC = () => {
                 if (spurChoice === 'spur' || spurChoice === 'notconnected') {
                   navigate(`${S37_BASE_URL}/${applicationId}/route-map`, { state: { applicationId, routeName: getNextRouteName(), isNewRoute: true, details: spurChoice === 'notconnected' ? details : undefined } });
                 } else  {
+                  // Call progress update for 'no spur' before navigating
+                  try {
+                    await progressStore.updateProgress(
+                      applicationId!,
+                      'Route',
+                      'Completed'
+                    );
+                  } catch (err) {
+				            // TODO: error handling
+                  }
                   navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`);
                 }
               }}

@@ -8,9 +8,8 @@ interface ProgressState {
   fetchProgress: (applicationId: string) => Promise<void>;
   updateProgress: (
     applicationId: string,
-    section_name: string,
     subsection_name: string,
-    is_completed: boolean
+    status: string
   ) => Promise<void>;
 }
 
@@ -31,17 +30,15 @@ export const useProgressStore = create<ProgressState>((set) => ({
 
   updateProgress: async (
     applicationId: string,
-    section_name: string,
     subsection_name: string,
-    is_completed: boolean
+    status: string
   ) => {
     set({ loading: true, error: null });
     try {
       await progressApiService.updateApplicationProgress(
         applicationId,
-        section_name,
         subsection_name,
-        is_completed
+        status
       );
       // Optionally refetch progress after update
       await (useProgressStore.getState().fetchProgress(applicationId));
