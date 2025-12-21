@@ -71,6 +71,8 @@ import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomai
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
 import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
+import Parishes from '../features/Parishes/pages/Parishes';
+import PostConsultationActions from '../features/PostConsultation/pages/PostConsultation';
 
 export const ROUTE_CONFIG = [
   {
@@ -393,7 +395,7 @@ export const ROUTE_CONFIG = [
   },
   {
   path: `${S37_BASE_URL}/:applicationId/parishes`,
-    component: ComingSoon,
+    component: Parishes,
     auth: true,
     layout: true
   },
@@ -441,7 +443,7 @@ export const ROUTE_CONFIG = [
   },
   {
   path: `${S37_BASE_URL}/:applicationId/post-consultation-actions`,
-    component: ComingSoon,
+    component: PostConsultationActions,
     auth: true,
     layout: true
   },
