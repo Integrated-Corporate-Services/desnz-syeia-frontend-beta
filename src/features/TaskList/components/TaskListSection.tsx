@@ -27,7 +27,8 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
 
   return (
     <div style={{ marginTop: '2rem' }}>
-      <h2 className="govuk-heading-m">{idx + 1}. {section.title}</h2>
+      <h2 className="govuk-heading-m" style={{ marginBottom: '15px' }}>{idx + 1}. {section.title}</h2>
+      <hr className="govuk-section-break govuk-section-break--visible" style={{ marginBottom: '0' }} />
       <table className="govuk-table">
         <tbody className="govuk-table__body">
           {section.items.map((item, itemIdx) => (
@@ -56,13 +57,25 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                 ) : applicationId ? (
                   item.name === 'Route' ? (
                     <RouteEntry applicationId={applicationId}>
-                      <Link className="govuk-link" to={item.link}>{item.name}</Link>
+                      <Link 
+                        className="govuk-link" 
+                        to={item.link}
+                        style={{ fontWeight: 700 }}
+                      >
+                        {item.name}
+                      </Link>
                     </RouteEntry>
                   ) : (
-                    <Link className="govuk-link" to={item.link}>{item.name}</Link>
+                    <Link 
+                      className="govuk-link" 
+                      to={item.link}
+                      style={{ fontWeight: 700 }}
+                    >
+                      {item.name}
+                    </Link>
                   )
                 ) : (
-                  <span className="govuk-link govuk-link--disabled">{item.name}</span>
+                  <span className="govuk-link govuk-link--disabled" style={{ fontWeight: 700 }}>{item.name}</span>
                 )}
               </td>
               <td className="govuk-table__cell" style={{ textAlign: 'right' }}>

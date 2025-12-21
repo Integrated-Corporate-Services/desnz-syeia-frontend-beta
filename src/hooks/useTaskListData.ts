@@ -4,6 +4,7 @@ import { useApplicationStore } from '../store/useApplicationStore';
 import { useProgressStore } from '../store/useProgressStore';
 import { getInitialSections, getSectionsWithProgress, updateSectionStatus } from '../utils/taskListUtils';
 import { getSensitiveAreaCheckStatus } from '../services/sensitiveAreaService';
+import { S37_BASE_URL } from '../constants/s37';
 
 export function useTaskListData() {
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
@@ -122,7 +123,7 @@ export function useTaskListData() {
     setSubmitError(null);
     try {
       await submitApplication(effectiveApplicationId);
-      navigate(`/s37/${effectiveApplicationId}/application-submitted`);
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/application-submitted`);
     } catch (err) {
       setSubmitError('Failed to submit application. Please try again.');
     } finally {

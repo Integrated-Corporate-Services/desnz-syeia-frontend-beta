@@ -31,13 +31,13 @@ const TaskList: React.FC = () => {
         <div className="govuk-grid-column-two-thirds">
           {!application ? (
             <>
-              <h1 className="govuk-heading-l">Section 37 application</h1>
-              <p>Loading application details...</p>
+              <h1 className="govuk-heading-l">Loading application...</h1>
             </>
           ) : (
             <>
-              <span className="govuk-caption-l">{application.operator_ref}</span>
-              <h1 className="govuk-heading-l">Section 37 application</h1>
+              <span className="govuk-caption-l">{application.operator_name || application.application_party?.organisation_name || ''}</span>
+              <h1 className="govuk-heading-l">{application.type === 'S37' ? 'Section 37' : application.type} application</h1>
+              <p className="govuk-body" style={{ color: '#505a5f' }}>Complete the following sections in order to create and submit your application</p>
             </>
           )}
           <ErrorMessage error={submitError} />

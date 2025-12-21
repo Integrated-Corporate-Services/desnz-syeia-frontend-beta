@@ -2,6 +2,7 @@ export type Application = {
   application_id: string;
   type: string;
   operator_ref: string;
+  operator_name?: string;
   status: string;
   created_by: string;
   created_at: string;

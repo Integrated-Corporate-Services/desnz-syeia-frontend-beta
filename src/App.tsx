@@ -16,7 +16,14 @@ const AppContent = () => {
   // Enhance GOV.UK JS on every route change
   useEffect(() => {
     if (typeof GOVUKFrontend.initAll === 'function') {
-      GOVUKFrontend.initAll();
+      try {
+        GOVUKFrontend.initAll();
+      } catch (error) {
+        // Suppress double initialization errors
+        if (!(error instanceof Error && error.message.includes('already initialised'))) {
+          console.error('GOV.UK Frontend initialization error:', error);
+        }
+      }
     }
   }, [location]);
 
