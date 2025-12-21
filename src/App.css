@@ -18,3 +18,18 @@
     box-shadow: inset 0 0 0 4px #0b0c0c;
 
   }
+
+  /* Task list link styling - bold and purple when visited */
+  .govuk-link:visited {
+    color: #4c2c92;
+  }
+  
+  .govuk-link:visited:hover {
+    color: #2e1a57;
+  }
+
+  /* Turquoise tag color override to match wireframe */
+  .govuk-tag--turquoise {
+    color: rgb(0, 90, 48) !important;
+    background-color: rgb(204, 226, 216) !important;
+  }
