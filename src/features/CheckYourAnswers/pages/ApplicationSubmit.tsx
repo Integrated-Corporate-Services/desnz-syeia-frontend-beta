@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, Route, GridPoint, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, Consultation } from "../component/ApplicationSubmit.types";
@@ -33,6 +33,17 @@ const ApplicationSubmit: React.FC = () => {
 	const [eiaFees, setEiaFees] = useState<EIAFees | null>(null);
 	const [worksOverview, setWorksOverview] = useState<WorksOverview | null>(null);
 	const [consultations, setConsultations] = useState<Consultation[]>([]);
+
+	// Memoize transformed routes to avoid recalculating on every render
+	const transformedRoutes = useMemo(() => {
+		return routes.filter(r => Array.isArray(r.gridPoints) && r.gridPoints.length > 0).map(r => ({
+			points: (r.gridPoints || []).map((pt: GridPoint) => ({ 
+				easting: String(pt.easting || ''), 
+				northing: String(pt.northing || '') 
+			})),
+			routeName: r.routeName || 'Route'
+		}));
+	}, [routes]);
 
 	// Helper function to render address fields with line breaks
 	const renderAddress = (fields: (string | null | undefined)[]) => {
@@ -428,13 +439,7 @@ const ApplicationSubmit: React.FC = () => {
 									<div className="govuk-summary-card__content">
 										<div style={{ width: '100%', height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff' }}>
 											<SensitiveAreaCheckMap
-												routes={routes.filter(r => Array.isArray(r.gridPoints) && r.gridPoints.length > 0).map(r => ({
-												points: (r.gridPoints || []).map((pt: GridPoint) => ({ 
-														easting: String(pt.easting || ''), 
-														northing: String(pt.northing || '') 
-													})),
-													routeName: r.routeName || 'Route'
-												}))}
+												routes={transformedRoutes}
 												mode="overview"
 											/>
 										</div>
