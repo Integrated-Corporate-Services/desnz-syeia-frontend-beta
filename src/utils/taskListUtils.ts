@@ -11,8 +11,8 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
     {
       title: 'Applicant details',
       items: [
-        { name: 'Network operator details', status: 'Completed', link: `${base}/network-operator-details` },
-        { name: 'Network operator contact details', status: 'Completed', link: `${base}/network-operator-contact-details` },
+        { name: 'Applicant details', status: 'Completed', link: `${base}/network-operator-details` },
+        { name: 'Check applicant contact details', status: 'Completed', link: `${base}/network-operator-contact-details` },
       ],
     },
     {
