@@ -42,8 +42,8 @@ const Section37GuidancePage = () => {
           <ul className="govuk-list govuk-list--bullet">
             <li>Applicant details
               <ul className="govuk-list govuk-list--bullet">
-                <li>Network operator</li>
-                <li>Network operator contact person</li>
+                <li>Applicant details</li>
+                <li>Check applicant contact details</li>
               </ul>
             </li>
             <li>Application details
