@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useApplicationStore } from "../../../store/useApplicationStore";
 import { networkOperatorApiService } from "../../../services/networkOperatorApiService";
 import type { ApplicationParty } from '../../../types/application';
 import { useAuthUserContext } from "../../../context/AuthUserContext";
 import type { AuthUser } from '../../../types/auth';
-import { applicationApiService } from "../../../services/applicationApiService";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { S37_BASE_URL } from "../../../constants/s37";
 
@@ -13,7 +12,7 @@ const NetworkOperatorDetails: React.FC = () => {
   const MAX_REFERENCE_LENGTH = 24;
   // Breadcrumbs content
   const BREADCRUMB_TASK_LIST = 'Task list';
-  const BREADCRUMB_NETWORK_OPERATOR = 'Network operator';
+  const BREADCRUMB_NETWORK_OPERATOR = 'Applicant details';
   // Validate email format
   function isValidEmail(email: string): boolean {
     // Simple regex for email validation
@@ -21,9 +20,6 @@ const NetworkOperatorDetails: React.FC = () => {
   }
 
   // Check for duplicate email (case-insensitive)
-  function isDuplicateEmail(email: string): boolean {
-    return additionalContacts.map(e => e.toLowerCase()).includes(email.toLowerCase());
-  }
   const application = useApplicationStore((state) => state.application);
   const applicationParty = useApplicationStore((state) => state.applicationParty);
   const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
@@ -235,7 +231,7 @@ const NetworkOperatorDetails: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={`/${S37_BASE_URL}/${application?.application_id || ''}/task-list`}>
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${application?.application_id || ''}/task-list`}>
               {BREADCRUMB_TASK_LIST}
             </Link>
           </li>

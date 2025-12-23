@@ -29,7 +29,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
   const BREADCRUMB_TASK_LIST = 'Task list';
-  const BREADCRUMB_NETWORK_OPERATOR = 'Network operator';
+  const BREADCRUMB_NETWORK_OPERATOR = 'Check applicant contact details';
     const application = useApplicationStore(state => state.application);
     const setOrganisation = useApplicationStore(state => state.setOrganisation);
     const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
