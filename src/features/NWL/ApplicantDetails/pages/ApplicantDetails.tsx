@@ -13,7 +13,7 @@ const ApplicantDetails: React.FC = () => {
   const MAX_REFERENCE_LENGTH = 24;
   // Breadcrumbs content
   const BREADCRUMB_TASK_LIST = 'Task list';
-  const BREADCRUMB_NETWORK_OPERATOR = 'Network operator';
+  const BREADCRUMB_NETWORK_OPERATOR = 'Applicant details';
   // Validate email format
   function isValidEmail(email: string): boolean {
     // Simple regex for email validation
