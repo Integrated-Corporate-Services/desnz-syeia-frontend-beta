@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { useApplicationStore } from '../../../store/useApplicationStore';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { networkOperatorApiService } from '../../../services/networkOperatorApiService';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -34,8 +34,6 @@ const NetworkOperatorContactDetails: React.FC = () => {
     const setOrganisation = useApplicationStore(state => state.setOrganisation);
     const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
     const navigate = useNavigate();
-    const location = useLocation();
-    const params = new URLSearchParams(location.search);
     const appId = useGetApplicationId();
     const { user } = useAuthUserContext();
     const emailId = (user as AuthUser)?.email;
@@ -101,7 +99,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
     } else {
       setContactIsConfirmed(null); // Ensure no selection by default
     }
-  }, [party?.contact_isconfirmed]);
+  }, [party]);
 
   const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedName = e.target.value;
