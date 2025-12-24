@@ -78,8 +78,15 @@ import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationP
 import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
+import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
 
 export const ROUTE_CONFIG = [
+  {
+  path: `${S37_BASE_URL}/:applicationId/payment-success`,
+  component: PaymentSuccessPage,
+  auth: true,
+  layout: true
+  },
   {
     path: '/payment/callback',
     component: PaymentCallbackPage,

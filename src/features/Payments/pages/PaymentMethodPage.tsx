@@ -17,55 +17,69 @@ const PaymentMethodPage: React.FC = () => {
 
   const { invoiceNumber, totalAmount, consentFee, eiaScreeningFee } = location.state || {};
 
-  const handlePayByCard = async () => {
-    if (!isChecked) {
-      setError('You must confirm that you understand the application will be submitted when you pay by card');
-      // Scroll to error
-      setTimeout(() => {
-        const errorSummary = document.querySelector('.govuk-error-summary');
-        if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
-      }, 0);
-      return;
+const handlePayByCard = async () => {
+  if (!isChecked) {
+    setError('You must confirm that you understand the application will be submitted when you pay by card');
+    setTimeout(() => {
+      const errorSummary = document.querySelector('.govuk-error-summary');
+      if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
+    }, 0);
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+
+  try {
+    console.log('Creating payment with:', {
+      amount: totalAmount,
+      applicationId,
+      userId: user?.user_id
+    });
+
+    const result = await createPayment(
+      Math.round(totalAmount * 100), // Convert to pence
+      applicationId, // reference
+      `Section 37 Application Payment - ${applicationId}`, // description
+      `${window.location.origin}/frontend/payment/callback`, // return_url
+      { // metadata
+        applicationId,
+        invoiceNumber,
+        userId: user?.user_id
+      }
+    );
+
+    console.log('Payment creation result:', result);
+
+    // Store payment details in sessionStorage
+    if (result.result?.localId) {
+      sessionStorage.setItem('paymentLocalId', result.result.localId.toString());
+    }
+    if (result.result?.payment_id) {
+      sessionStorage.setItem('paymentId', result.result.payment_id);
+    }
+    sessionStorage.setItem('applicationId', applicationId);
+    if (invoiceNumber) {
+      sessionStorage.setItem('invoiceNumber', invoiceNumber);
     }
 
-    setLoading(true);
-    setError('');
-
-    try {
-      const result = await createPayment(
-        Math.round(totalAmount * 100), // Convert to pence and ensure it's an integer
-        applicationId,
-        `Section 37 Application Payment - ${applicationId}`,
-        's37-consent-application',
-        `${window.location.origin}/payment/callback`,
-        user?.user_id
-      );
-
-      // Store payment details in sessionStorage for callback
-      if (result.localId) {
-        sessionStorage.setItem('paymentLocalId', result.localId);
-      }
-      if (result.payment_id) {
-        sessionStorage.setItem('paymentId', result.payment_id);
-      }
-      sessionStorage.setItem('applicationId', applicationId);
-      sessionStorage.setItem('invoiceNumber', invoiceNumber);
-
-      // Redirect to GOV.UK Pay
-      if (result.next_url) {
-        window.location.href = result.next_url;
-      } else if (result._links?.next_url?.href) {
-        window.location.href = result._links.next_url.href;
-      } else {
-        setError('No redirect URL received from payment service');
-        setLoading(false);
-      }
-    } catch (err: any) {
-      console.error('Payment error:', err);
-      setError(err.message || 'Failed to initiate payment');
+    // Redirect to GOV.UK Pay
+    const nextUrl = result.result?._links?.next_url?.href || result.result?.next_url;
+    
+    if (nextUrl) {
+      console.log('Redirecting to GOV.UK Pay:', nextUrl);
+      window.location.href = nextUrl;
+    } else {
+      console.error('No redirect URL in response:', result);
+      setError('No redirect URL received from payment service');
       setLoading(false);
     }
-  };
+  } catch (err: any) {
+    console.error('Payment error:', err);
+    setError(err.message || 'Failed to initiate payment');
+    setLoading(false);
+  }
+};
 
   const handleBackToTaskList = () => {
     navigate(`${S37_BASE_URL}/${applicationId}/task-list`);

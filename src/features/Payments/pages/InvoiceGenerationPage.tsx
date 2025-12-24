@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-import '../../../styles/loading-spinner.css'; // Import the spinner styles
 
 const InvoiceGenerationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -85,14 +84,78 @@ const InvoiceGenerationPage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {loading && (
-              <div className="hods-loading-spinner" role="status">
-                <div className="hods-loading-spinner__spinner"></div>
-                <div className="hods-loading-spinner__content">
-                  <h1 className="govuk-heading-m">
-                    Please wait while we generate your invoice...
-                  </h1>
+              <>
+                {/* Important Banner */}
+                <div style={{ 
+                  border: '5px solid #1d70b8',
+                  marginBottom: '30px'
+                }}>
+                  <div style={{ 
+                    backgroundColor: '#1d70b8',
+                    padding: '10px 15px'
+                  }}>
+                    <h2 style={{ 
+                      color: '#ffffff',
+                      margin: 0,
+                      fontSize: '19px',
+                      fontWeight: 700,
+                      fontFamily: 'Arial, sans-serif'
+                    }}>
+                      Important
+                    </h2>
+                  </div>
+                  <div style={{ 
+                    backgroundColor: '#ffffff',
+                    padding: '15px',
+                    border: '1px solid #b1b4b6'
+                  }}>
+                    <p style={{ 
+                      margin: 0,
+                      fontSize: '19px',
+                      lineHeight: '1.5',
+                      fontFamily: 'Arial, sans-serif',
+                      color: '#0b0c0c'
+                    }}>
+                      Please do not close this window or navigate away from this page while we generate your invoice.
+                    </p>
+                  </div>
                 </div>
-              </div>
+
+                {/* Loading Spinner and Text */}
+                <div style={{ 
+                  textAlign: 'center',
+                  marginTop: '50px',
+                  marginBottom: '50px'
+                }}>
+                  <div 
+                    style={{
+                      border: '8px solid #dee0e2',
+                      borderTop: '8px solid #1d70b8',
+                      borderRadius: '50%',
+                      width: '80px',
+                      height: '80px',
+                      animation: 'spin 1s linear infinite',
+                      margin: '0 auto 30px auto'
+                    }}
+                  />
+                  <p style={{ 
+                    margin: 0,
+                    fontSize: '24px',
+                    fontWeight: 700,
+                    fontFamily: 'Arial, sans-serif',
+                    color: '#0b0c0c'
+                  }}>
+                    Generating invoice...
+                  </p>
+                </div>
+                
+                <style>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
+              </>
             )}
 
             {error && !loading && (
