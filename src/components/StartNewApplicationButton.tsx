@@ -1,21 +1,23 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../constants/routes';
 
-const StartNewApplicationButton: React.FC = () => {
+type StartNewApplicationButtonProps = {
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
+};
+
+const StartNewApplicationButton: React.FC<StartNewApplicationButtonProps> = ({ onClick }) => {
   const navigate = useNavigate();
-
-  const handleStart = () => {
-    navigate(ROUTES.NETWORK_OPERATOR_DETAILS);
-  };
-
   return (
     <a
       href="#"
       className="govuk-button"
       onClick={e => {
         e.preventDefault();
-        handleStart();
+        if (onClick) {
+          onClick(e);
+        } else {
+          navigate('/choose-application');
+        }
       }}
     >
       Start new application
@@ -24,3 +26,5 @@ const StartNewApplicationButton: React.FC = () => {
 };
 
 export default StartNewApplicationButton;
+
+

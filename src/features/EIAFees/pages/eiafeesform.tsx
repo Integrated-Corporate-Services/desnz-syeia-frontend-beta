@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { S37_BASE_URL } from '../../../constants/s37';
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import RadioGroup from "../component/RadioGroup";
-import CheckboxGroup from "../component/CheckboxGroup";
 import { useApplicationStore } from "../../../store/useApplicationStore";
+import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
 
 // Helper to get CSRF token from cookie
@@ -16,24 +18,7 @@ function getCsrfToken() {
 
 const EIAFeesForm: React.FC = () => {
   const navigate = useNavigate();
-  const params = useParams();
-  const location = useLocation();
-  const application = useApplicationStore((state) => state.application);
-  // Helper to get applicationId from store, params, or query string
-  const getApplicationId = () => {
-    if (application && application.application_id)
-      return application.application_id;
-    if (params.applicationId) return params.applicationId;
-    if (params.id) return params.id;
-    if (typeof window !== "undefined") {
-      const searchParams = new URLSearchParams(location.search);
-      const idFromQuery =
-        searchParams.get("id") || searchParams.get("applicationId");
-      if (idFromQuery) return idFromQuery;
-    }
-    return "";
-  };
-  const applicationId = getApplicationId();
+  const applicationId = useGetApplicationId();
 
   // State for fetched EIA Fees
   const eiaFees = useEiaFeesStore((state) => state.eiaFees);
@@ -41,14 +26,12 @@ const EIAFeesForm: React.FC = () => {
   const createEiaFees = useEiaFeesStore((state) => state.createEiaFees);
   const updateEiaFees = useEiaFeesStore((state) => state.updateEiaFees);
   type FormState = {
-    isEiaDevelopment: boolean;
     requiresFullEia: string;
     screeningOnly: string;
     eiaFeeId?: string;
     applicationId?: string;
   };
   const [form, setForm] = useState<FormState>({
-    isEiaDevelopment: false,
     requiresFullEia: "",
     screeningOnly: "",
     eiaFeeId: undefined,
@@ -71,7 +54,6 @@ const EIAFeesForm: React.FC = () => {
   useEffect(() => {
     if (eiaFees) {
       setForm({
-        isEiaDevelopment: !!eiaFees.isEiaDevelopment,
         requiresFullEia: eiaFees.requiresFullEia ? "true" : "false",
         screeningOnly: eiaFees.screeningOnly ? "true" : "false",
         eiaFeeId: eiaFees.eiaFeeId,
@@ -123,7 +105,6 @@ const EIAFeesForm: React.FC = () => {
         // Compose payload for backend
         type EiaPayload = {
           applicationId: string;
-          isEiaDevelopment: boolean;
           requiresFullEia: boolean;
           screeningOnly: boolean;
           updatedAt: string;
@@ -134,7 +115,6 @@ const EIAFeesForm: React.FC = () => {
         };
         const payload: EiaPayload = {
           applicationId: applicationId,
-          isEiaDevelopment: form.isEiaDevelopment,
           requiresFullEia: form.requiresFullEia === "true", // maps first question
           screeningOnly: form.screeningOnly === "true", // maps second question
           updatedAt: new Date().toISOString(),
@@ -145,7 +125,6 @@ const EIAFeesForm: React.FC = () => {
           await updateEiaFees({
             eiaFeeId: eiaFees.eiaFeeId,
             applicationId: payload.applicationId,
-            isEiaDevelopment: payload.isEiaDevelopment,
             requiresFullEia: payload.requiresFullEia,
             screeningOnly: payload.screeningOnly,
             updatedAt: payload.updatedAt,
@@ -159,7 +138,6 @@ const EIAFeesForm: React.FC = () => {
           await createEiaFees({
             eiaId,
             applicationId: payload.applicationId,
-            isEiaDevelopment: payload.isEiaDevelopment,
             requiresFullEia: payload.requiresFullEia,
             screeningOnly: payload.screeningOnly,
             createdAt,
@@ -170,7 +148,7 @@ const EIAFeesForm: React.FC = () => {
         }
         setSuccess(true);
         setForm({
-          isEiaDevelopment: false,
+
           requiresFullEia: "",
           screeningOnly: "",
           eiaFeeId: undefined,
@@ -178,7 +156,7 @@ const EIAFeesForm: React.FC = () => {
         });
         // Redirect to tasklist page after success
         const redirectId = payload.applicationId;
-        navigate(`/task-list?id=${redirectId}`);
+  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
       } catch {
         setApiError("Failed to submit EIA Fees. Please try again.");
       } finally {
@@ -217,12 +195,9 @@ const EIAFeesForm: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href={`/frontend/task-list?id=${applicationId}`}
-            >
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
               Task list
-            </a>
+            </Link>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             EIA fees
@@ -256,7 +231,6 @@ const EIAFeesForm: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl">EIA fees</h1>
 
-            <CheckboxGroup isEiaDevelopment={form.isEiaDevelopment} onChange={handleChange} />
             <form
               method="post"
               data-module="fds-html-form"
@@ -268,32 +242,7 @@ const EIAFeesForm: React.FC = () => {
                 name="_csrf"
                 value={getCsrfToken()}
               />
-              <div
-                className={`govuk-form-group${
-                  hasError("isEiaDevelopment") ? " govuk-form-group--error" : ""
-                }`}
-              >
-                <fieldset
-                  className="govuk-fieldset"
-                  aria-describedby={
-                    hasError("isEiaDevelopment")
-                      ? "isEiaDevelopment-error"
-                      : undefined
-                  }
-                >
-                  {hasError("isEiaDevelopment") && (
-                    <p
-                      id="isEiaDevelopment-error"
-                      className="govuk-error-message"
-                      style={{ color: "#d4351c" }}
-                    >
-                      <span className="govuk-visually-hidden">Error:</span>{" "}
-                      <span style={{ color: "#d4351c", fontWeight: "bold" }}>
-                        {getErrorMessage("isEiaDevelopment")}
-                      </span>
-                    </p>
-                  )}
-                </fieldset>
+              <div className="govuk-form-group">
                 <RadioGroup
                   requiresFullEia={form.requiresFullEia}
                   screeningOnly={form.screeningOnly}

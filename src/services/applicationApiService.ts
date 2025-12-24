@@ -39,5 +39,25 @@ export const applicationApiService = {
     }
     return res.json();
   },
-  
+
+  updateApplicantInfo: async (applicationId: string, operatorRef: string, type: string, additionalContacts: string) => {
+    const response = await fetch(`/backend/api/applications/${applicationId}/applicant-info`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ operator_ref: operatorRef, type, additional_contacts: additionalContacts }),
+    });
+    return response.json();
+  },
+
+  deleteApplication: async (applicationId: string) => {
+    const response = await fetch(`/backend/api/applications/${applicationId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete application');
+    }
+    return response;
+  },
+
 };

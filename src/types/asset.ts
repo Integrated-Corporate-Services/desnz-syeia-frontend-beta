@@ -21,17 +21,18 @@ export interface AssetEquipmentRemoval {
 export interface Asset {
   assetId: string;
   assetType: string;
-  assetReference: string;
-  description: string;
   standardSpecificationReferenceNumber: string;
-  lineLength: number;
   typeOfLine: string;
-  poles: AssetPoles;
-  overheadLines: AssetOverheadLines;
-  equipmentRemoval: AssetEquipmentRemoval;
-  isExistingAsset: boolean;
-  generalComments: string;
+  tori_noi?: string;
   lineVoltage: string;
+  lineLength: number;
+  assetReference?: string;
+  description?: string;
+  poles?: AssetPoles;
+  overheadLines?: AssetOverheadLines;
+  equipmentRemoval?: AssetEquipmentRemoval;
+  isExistingAsset?: boolean;
+  generalComments?: string;
 }
  
 export interface AssetRequest {

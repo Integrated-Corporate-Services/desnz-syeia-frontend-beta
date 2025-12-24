@@ -1,3 +1,14 @@
+// Delete a route by route_id
+export async function deleteRoute(route_id: string) {
+  return axios.delete(`/backend/api/route/${route_id}`);
+}
+// Bulk delete route points by point_ids
+export async function deleteRoutePoints(point_ids: string[]) {
+  return axios.delete('/backend/api/route-points-remove', {
+    data: { point_ids },
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
 import axios from 'axios';
 import { RoutePoint } from '../components/SensitiveAreaCheckMap';
 
@@ -22,5 +33,21 @@ export async function getRoutesWithPoints(applicationId: string) {
   if (!applicationId) throw new Error('applicationId is required');
   const res = await axios.get(`/backend/api/applications/${applicationId}/route`);
   return res.data;
+}
+
+// New: create route with points
+export async function createRouteWithPoints(applicationId: string, route: any) {
+  return axios.post('/backend/api/map-route', {
+    applicationId,
+    routes: [route],
+  });
+}
+
+// New: save (update) route with points
+export async function saveRoutesWithPoints(applicationId: string, routes: any[]) {
+  return axios.put('/backend/api/map-route', {
+    applicationId,
+    routes,
+  });
 }
 

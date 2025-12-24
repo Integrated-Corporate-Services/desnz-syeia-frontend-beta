@@ -1,13 +1,21 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { getStatusTagClass } from '../constants/statusDisplay';
+import { useApplicationNavigation } from '../../../hooks';
+import type { Application } from '../../../types/application';
 
-type Application = {
-  application_id: string;
-  operator_ref: string;
-  type: string;
-  operator_name?: string;
-  status: string;
-  created_at: string;
+const formatStatusText = (status: string): string => {
+  // Convert to title case (capitalize first letter of each word)
+  return status
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const getStatusTag = (status: string) => {
+  const tagClass = getStatusTagClass(status);
+  const formattedStatus = formatStatusText(status);
+  return <strong className={tagClass}>{formattedStatus}</strong>;
 };
 
 type Props = {
@@ -15,7 +23,7 @@ type Props = {
 };
 
 const ApplicationTable: React.FC<Props> = ({ applications }) => {
-  const navigate = useNavigate();
+  const { navigateToApplication } = useApplicationNavigation();
 
   return (
     <table className="govuk-table" style={{ marginTop: 32 }}>
@@ -25,7 +33,6 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
           <th className="govuk-table__header">Type</th>
           <th className="govuk-table__header">Operator Name</th>
           <th className="govuk-table__header">Status</th>
-          <th className="govuk-table__header">Created At</th>
           <th className="govuk-table__header">Action</th>
         </tr>
       </thead>
@@ -34,36 +41,36 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
           .map(app => (
             <tr className="govuk-table__row" key={app.application_id}>
-              <td className="govuk-table__cell">{app.operator_ref}</td>
+              <td className="govuk-table__cell"><strong>{app.operator_ref}</strong></td>
               <td className="govuk-table__cell">{app.type}</td>
               <td className="govuk-table__cell">
+                {app.operator_name || ''}
+              </td>
+              <td className="govuk-table__cell">
+                {getStatusTag(app.status)}
+              </td>
+              <td className="govuk-table__cell">
                 <a
                   href="#"
-                  onClick={e => {
-                    e.preventDefault();
-                    navigate(`/task-list?id=${app.application_id}`);
-                  }}
                   className="govuk-link"
-                >
-                  {app.operator_name}
-                </a>
-              </td>
-              <td className="govuk-table__cell">
-                <strong className={`govuk-tag${app.status === 'Submitted' ? ' govuk-tag--green' : ''}`}>
-                  {app.status}
-                </strong>
-              </td>
-              <td className="govuk-table__cell">{new Date(app.created_at).toLocaleString()}</td>
-              <td className="govuk-table__cell">
-                <a
-                  href="#"
-                  className="govuk-link govuk-!-static-margin-right-2"
+                  style={{ marginRight: '10px', color: '#4c2c92' }}
                   onClick={e => {
                     e.preventDefault();
-                    navigate(`/task-list?id=${app.application_id}`);
+                    navigateToApplication(app.type, app.application_id, 'task-list');
                   }}
                 >
                   View
+                </a>
+                <a
+                  href="#"
+                  className="govuk-link"
+                  style={{ color: '#4c2c92' }}
+                  onClick={e => {
+                    e.preventDefault();
+                    navigateToApplication(app.type, app.application_id, 'delete');
+                  }}
+                >
+                  Delete
                 </a>
               </td>
             </tr>

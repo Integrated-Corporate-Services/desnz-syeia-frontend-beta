@@ -2,6 +2,7 @@ export type Application = {
   application_id: string;
   type: string;
   operator_ref: string;
+  operator_name?: string;
   status: string;
   created_by: string;
   created_at: string;
@@ -23,6 +24,8 @@ export type ApplicationParty = {
   organisation_id?: string;
   person_id?: string;
   contact_id?: string;
-  is_primary: boolean;
-  contact_isconfirmed: boolean;
+  is_primary: boolean | null;
+  contact_isconfirmed?: boolean | null;
+  person_name?: string;
+  additional_contact?: string | null;
 };

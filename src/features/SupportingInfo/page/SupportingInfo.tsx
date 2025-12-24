@@ -1,11 +1,11 @@
+import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSupportingInfoStore } from "../../../store/useSupportingInfoStore";
-import TextAreaField from "../../../components/commonFormFields/TextAreaField";
+import TextArea from '../../ProjectOverview/component/TextArea';
 import { Button } from "govuk-react";
-import FileUploadBox from '../../../components/FileUploadBox';
-import { UploadedFile, ProjectDocument } from '../../../types/fileUpload';
-import { FileUploadResponse } from '../../../types/FileUploadResponse';
+import FileUpload from '../../../components/FileUpload';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import "../../../styles/_file_upload.scss";
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../hooks/useAuthUser';
@@ -41,9 +41,11 @@ const SupportingInfo: React.FC = () => {
   const [wayleavesReason, setWayleavesReason] = useState<string>("");
   const [supportingDocs, setSupportingDocs] = useState<string>("");
   const [comments, setComments] = useState<string>("");
+  const MAX_COMMENTS_LENGTH = 4000;
+  const remainingCommentChars = MAX_COMMENTS_LENGTH - comments.length;
   const [errors, setErrors] = useState<{ key: string; message: string }[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [projectDocuments, setProjectDocuments] = useState<ProjectDocument[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
 
   // refs for scrolling
   const wayleavesRef = useRef<HTMLInputElement>(null);
@@ -64,7 +66,7 @@ const SupportingInfo: React.FC = () => {
         has_additional_supporting_documents,
         applicant_supporting_comments,
         uploaded_files,
-        documents
+        application_documents
       } = supportingInfo;
 
       setWayleaves(wayleaves_obtained ? "yes" : "no");
@@ -78,8 +80,7 @@ const SupportingInfo: React.FC = () => {
         Array.isArray(uploaded_files) &&
         uploaded_files.length > 0 &&
         uploaded_files[0] &&
-        uploaded_files[0].filename &&
-        uploaded_files[0].file_content_type
+        uploaded_files[0].filename 
       ) {
         setUploadedFiles(uploaded_files as UploadedFile[]);
       } else {
@@ -87,14 +88,14 @@ const SupportingInfo: React.FC = () => {
       }
       // If documents is already in ProjectDocument[] format, set it directly (with bounds check)
       if (
-        Array.isArray(documents) &&
-        documents.length > 0 &&
-        documents[0] &&
-        documents[0].title
+        Array.isArray(application_documents) &&
+        application_documents.length > 0 &&
+        application_documents[0] &&
+        application_documents[0].title
       ) {
-        setProjectDocuments(documents as ProjectDocument[]);
+        setApplicationDocuments(application_documents as ApplicationDocument[]);
       } else {
-        setProjectDocuments([]);
+        setApplicationDocuments([]);
       }
     }
   }, [supportingInfo]);
@@ -107,6 +108,10 @@ const SupportingInfo: React.FC = () => {
     }
     if (!regulations) errs.push({ key: "regulations", message: "Confirm that the works will comply with regulations" });
     if (!supportingDocs) errs.push({ key: "supportingDocs", message: "Select yes if this application has supporting documents" });
+      // Validation: If 'Yes' is selected for supportingDocs, at least one file must be uploaded
+      if (supportingDocs === "yes" && uploadedFiles.length === 0) {
+        errs.push({ key: "supportingDocsFiles", message: "Upload at least one supporting document" });
+      }
     return errs;
   };
 
@@ -114,10 +119,6 @@ const SupportingInfo: React.FC = () => {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
-
-    // Always use the latest uploadedFiles and projectDocuments
-    const latestUploadedFiles = uploadedFiles;
-    const latestProjectDocuments = projectDocuments;
 
     if (errs.length === 0) {
       const data = {
@@ -127,8 +128,8 @@ const SupportingInfo: React.FC = () => {
         esqcr_2002_compliance_confirmed: regulations,
         has_additional_supporting_documents: supportingDocs === "yes",
         applicant_supporting_comments: comments,
-        uploaded_files: latestUploadedFiles,
-        documents: latestProjectDocuments,
+        uploaded_files: uploadedFiles,
+        application_documents: applicationDocuments,
       };
       try {
         const response: any = await saveSupportingInfo(data);
@@ -139,7 +140,7 @@ const SupportingInfo: React.FC = () => {
           response?.application_overview?.application_id ||
           applicationId ||
           '';
-        navigate(`/task-list?id=${redirectId}`);
+  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
       } catch (err: any) {
         setErrors([{ key: 'save', message: err?.message || 'Failed to save supporting information' }]);
       }
@@ -165,7 +166,7 @@ const SupportingInfo: React.FC = () => {
   <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
   <ol className="govuk-breadcrumbs__list">
     <li className="govuk-breadcrumbs__list-item">
-      <Link className="govuk-breadcrumbs__link" to={`/task-list?id=${applicationId}`}>
+  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
         Task list
       </Link>
     </li>
@@ -330,15 +331,17 @@ const SupportingInfo: React.FC = () => {
         </div>
       </fieldset>
 
-  <div className="govuk-form-group" style={{ marginBottom: 32 }}>
-        <TextAreaField
-          label="Do you have any comments to make in support of your application? (optional)"
-          value={comments}
-          onChange={setComments}
-          name="comments"
-          className="govuk-textarea govuk-!-width-full"
-        />
-      </div>
+  <div className="govuk-form-group govuk-character-count" style={{ marginBottom: 32 }}>
+    <TextArea
+      label="Do you have any comments to make in support of your application? (optional)"
+      id="comments-inputValue"
+      name="comments"
+      value={comments}
+      maxLength={MAX_COMMENTS_LENGTH}
+      remainingChars={remainingCommentChars}
+      onChange={e => setComments(e.target.value)}
+    />
+  </div>
 
   <fieldset className={`govuk-fieldset govuk-form-group${hasError("supportingDocs") ? " govuk-form-group--error" : ""}`}
     style={{
@@ -378,18 +381,32 @@ const SupportingInfo: React.FC = () => {
     </div>
 
     {supportingDocs === "yes" && (
-      <div className="govuk-radios__conditional govuk-form-group govuk-form-group--error" id="hasSupportingDocuments-hidden">
-        <label className="govuk-label" style={{ fontWeight: 600 }}>
-          Upload supporting information documents
-        </label>
-        <FileUploadBox
-          prefix={`supporting-docs/${applicationId}`}
-          onUploadComplete={(results: FileUploadResponse[]) => {
-            setUploadedFiles(mapFileUploadResponsesToFiles(results));
-            setProjectDocuments(mapFileUploadResponsesToDocuments(results, applicationId, userId));
-          }}
-        />
-      </div>
+        <div
+          className={`govuk-radios__conditional govuk-form-group${hasError("supportingDocsFiles") ? " govuk-form-group--error" : ""}`}
+          id="hasSupportingDocuments-hidden"
+          style={hasError("supportingDocsFiles") ? { borderLeft: '4px solid #d4351c', paddingLeft: 12 } : {}}
+        >
+          <label className="govuk-label" style={{ fontWeight: 600 }}>
+            Upload supporting information documents
+          </label>
+          {hasError("supportingDocsFiles") && (
+            <span className="govuk-error-message" id="supportingDocsFiles-error">
+              <span className="govuk-visually-hidden">Error:</span> Upload at least one supporting document
+            </span>
+          )}
+          <FileUpload
+            title=""
+            prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}/`}
+            applicationId={applicationId}
+            category={FILE_CATEGORIES.SUPPORT_INFO}
+            addedBy={userId}
+            uploadedFiles={uploadedFiles}
+            onUploaded={(newUploadedFiles, newProjectDocuments) => {
+              setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+              setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
+            }}
+          />
+        </div>
     )}
 
     <div className="govuk-radios__item">
@@ -422,36 +439,3 @@ const SupportingInfo: React.FC = () => {
 
 export default SupportingInfo;
 
-// --- Helpers ---
-function mapFileUploadResponsesToFiles(results: FileUploadResponse[]): UploadedFile[] {
-  return results.map((fileResp) => ({
-    id: '',
-    storage_provider: 's3',
-    s3_key: fileResp.filename,
-    bucket_name: fileResp.bucketName,
-    virtual_folder: fileResp.filename,
-    filename: fileResp.filename.split('/').pop() || fileResp.filename,
-    file_content_type: fileResp.contentType,
-    file_size_bytes: fileResp.fileSize ?? 0,
-    uploaded_at_timestamp: new Date().toISOString(),
-  }));
-}
-
-function mapFileUploadResponsesToDocuments(
-  results: FileUploadResponse[],
-  applicationId: string,
-  userId: string | undefined
-): ProjectDocument[] {
-  return results.map((fileResp) => ({
-    documentId: '',
-    applicationId: applicationId,
-    fileId: '',
-    category: FILE_CATEGORIES.SUPPORT_INFO,
-    subCategory: '',
-    title: fileResp.filename.split('/').pop() || fileResp.filename,
-    virtualFolder: fileResp.filename,
-    addedBy: userId ?? '',
-    addedAt: new Date().toISOString(),
-    description: fileResp.description ?? 'No description provided',
-  }));
-}

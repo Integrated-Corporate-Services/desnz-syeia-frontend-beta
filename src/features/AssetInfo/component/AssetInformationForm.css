@@ -1,0 +1,7 @@
+.multi-select-ellipsis .multi-select-dropdown .govuk-select {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  display: block;
+}

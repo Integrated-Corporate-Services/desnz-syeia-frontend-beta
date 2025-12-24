@@ -19,12 +19,9 @@ export default defineConfig(({ mode }) => {
         }
       },
       allowedHosts: [
-        "eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com"
-      ],
-      fs: {
-        strict: false
-      },
-      historyApiFallback: true
+        "eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com",
+        "EIP-staging-external-1323435366.eu-west-2.elb.amazonaws.com"
+      ]
     }
   };
 });
