@@ -14,7 +14,13 @@ const InvoiceGenerationPage: React.FC = () => {
   const [error, setError] = useState('');
 
   // Get payment amounts from location state (passed from PaymentAmountPage)
-  const { consentFee = 402.50, eiaScreeningFee = 60.00, totalAmount = 462.50 } = location.state || {};
+  const { 
+    consentFee = 0, 
+    screeningFee = 0, 
+    eiaFee = 0, 
+    totalAmount = 0,
+    breakdown = null 
+  } = location.state || {};
 
   const handleGenerateInvoice = async () => {
     if (!applicationId) {
@@ -26,12 +32,13 @@ const InvoiceGenerationPage: React.FC = () => {
       setLoading(true);
       setError('');
 
-      // Prepare invoice data
+      // Prepare invoice data with dynamic fees
       const invoiceData = {
         userName: user?.full_name || 'User',
         userEmail: user?.email || '',
         consentFee: consentFee,
-        eiaScreeningFee: eiaScreeningFee,
+        screeningFee: screeningFee,  
+        eiaFee: eiaFee,              
         totalAmount: totalAmount
       };
 
@@ -60,10 +67,12 @@ const InvoiceGenerationPage: React.FC = () => {
           invoiceNumber: result.invoiceNumber,
           s3Key: result.s3Key,
           consentFee,
-          eiaScreeningFee,
+          screeningFee,  
+          eiaFee,        
           totalAmount
         }
       });
+// ...existing code...
 
     } catch (err: any) {
       setError(err.message || 'Failed to generate invoice');
@@ -73,8 +82,11 @@ const InvoiceGenerationPage: React.FC = () => {
 
   // Auto-generate invoice on page load
   useEffect(() => {
-    if (applicationId) {
+    if (applicationId && totalAmount > 0) {
       handleGenerateInvoice();
+    } else if (applicationId && totalAmount === 0) {
+      setError('Payment amount is not available. Please go back and try again.');
+      setLoading(false);
     }
   }, [applicationId]);
 
