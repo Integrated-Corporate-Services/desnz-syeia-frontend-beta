@@ -16,8 +16,9 @@ export default function PaymentPage() {
     setLoading(true);
     setError('');
     try {
+      const returnUrl = `${window.location.origin}/frontend/payment/callback`;
       //const result = await createPayment(amount * 100, applicationId, description);
-      const result = await createPayment((amount === '' ? 0 : amount) * 100, applicationId, description);
+      const result = await createPayment((amount === '' ? 0 : amount) * 100, applicationId, description, returnUrl);
       // Store localId/paymentId in sessionStorage for callback/result page
       if (result.localId) {
         sessionStorage.setItem('paymentLocalId', result.localId);
