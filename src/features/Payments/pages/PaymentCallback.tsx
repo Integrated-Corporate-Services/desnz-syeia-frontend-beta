@@ -57,31 +57,6 @@ export default function PaymentCallback() {
     };
   }, []);
 
-    // --- Webhook approach ---
-
-  /* useEffect(() => {
-     const paymentId = sessionStorage.getItem('paymentId');
-     if (!paymentId) {
-       setError('No payment ID found.');
-       setLoading(false);
-       return;
-     }
-     // Just fetch status once, since backend is kept in sync by webhook
-     getPaymentStatus(paymentId)
-       .then(data => {
-         setStatus(data.state?.status || '');
-         setReference(data.reference || paymentId);
-         setAmount(data.amount ? `£${(data.amount / 100).toFixed(2)}` : '');
-         setDescription(data.description || '');
-         setLoading(false);
-       })
-       .catch(err => {
-         setError(err.message);
-         setLoading(false);
-       });
-   }, []);
-   */
-
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper govuk-!-padding-top-6" id="main-content">

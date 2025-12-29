@@ -72,7 +72,6 @@ const InvoiceGenerationPage: React.FC = () => {
           totalAmount
         }
       });
-// ...existing code...
 
     } catch (err: any) {
       setError(err.message || 'Failed to generate invoice');
