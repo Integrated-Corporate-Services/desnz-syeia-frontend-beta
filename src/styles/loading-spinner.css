@@ -1,0 +1,32 @@
+.hods-loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: 300px;
+}
+
+.hods-loading-spinner__spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #f3f2f1;
+  border-top: 6px solid #1d70b8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hods-loading-spinner__content {
+  text-align: center;
+}
+
+.hods-loading-spinner__content .govuk-heading-m {
+  margin: 0;
+  color: #0b0c0c;
+}

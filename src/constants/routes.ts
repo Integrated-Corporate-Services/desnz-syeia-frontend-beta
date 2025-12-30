@@ -73,11 +73,53 @@ import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSub
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationActions from '../features/PostConsultation/pages/PostConsultation';
+import PaymentAmountPage from '../features/Payments/pages/PaymentAmountPage';
+import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationPage';
+import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
+import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
+import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
+import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
 
 export const ROUTE_CONFIG = [
   {
+  path: `${S37_BASE_URL}/:applicationId/payment-success`,
+  component: PaymentSuccessPage,
+  auth: true,
+  layout: true
+  },
+  {
+    path: '/payment/callback',
+    component: PaymentCallbackPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/payment-method`,
+    component: PaymentMethodPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/generate-invoice`,
+    component: InvoiceGenerationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/invoice-download`,
+    component: InvoiceDownloadPage,
+    auth: true,
+    layout: true
+  },
+  {
     path: '/choose-application',
     component: ChooseApplicationTypePage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/pay-and-submit`,
+    component: PaymentAmountPage,
     auth: true,
     layout: true
   },
@@ -530,12 +572,6 @@ export const ROUTE_CONFIG = [
     component: WhoIsApplying,
     auth: true,
     layout: true
-  },
-  {
-    path: '*',
-    component: ComingSoon,
-    auth: false,
-    layout: false
   }
 ];
 

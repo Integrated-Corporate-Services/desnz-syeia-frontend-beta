@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate} from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { NetworkOperatorDetails, AssetInformation, ProjectDetails, PlanDocument, Route, GridPoint, SupportingQuestions, SupportingDocument, EIAFees, WorksOverview, Consultation } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 
 const ApplicationSubmit: React.FC = () => {
+	const navigate = useNavigate();
     const params = useParams();
     const getApplicationId = () => {
         if (params.applicationId) return params.applicationId;
@@ -17,6 +18,20 @@ const ApplicationSubmit: React.FC = () => {
         return '';
     };
     const applicationId = getApplicationId();
+
+	const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // TODO: Add validation to check if checkbox is checked
+        const checkbox = document.getElementById('organisation') as HTMLInputElement;
+        if (!checkbox?.checked) {
+            alert('Please confirm you have read and understood the information');
+            return;
+        }
+        
+        // Navigate to pay and submit page
+        navigate(`${S37_BASE_URL}/${applicationId}/pay-and-submit`);
+    };
 
 	// State for project details, plan documents, layers, and routes
 	const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
@@ -843,7 +858,7 @@ const ApplicationSubmit: React.FC = () => {
 						))}
 						{/* Submit application form */}
 						<div className="govuk-form-group">
-							<form action="/application-submit" method="post" noValidate>
+							<form onSubmit={handleSubmit} noValidate>
 								<div className="govuk-form-group">
 									<fieldset className="govuk-fieldset">
 										<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">Submit application</legend>
