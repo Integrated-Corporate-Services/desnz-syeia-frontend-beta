@@ -1,3 +1,5 @@
+import { ACCESS_REQUEST_STATUS } from '../constants/accessRequestStatus';
+
 export interface RequestAccessRequest {
   fullName: string;
   email: string;
@@ -14,6 +16,12 @@ export interface RequestAccessResponse {
   success: boolean;
   referenceNumber?: string;
   message: string;
+  alreadyExists?: boolean;
+  existingRequests?: Array<{
+    organisationName: string;
+    status: string;
+    createdAt: string;
+  }>;
 }
 
 export interface VerifyEmailRequest {
@@ -28,6 +36,6 @@ export interface VerifyEmailResponse {
 }
 
 export interface RequestAccessStatusResponse {
-  status: 'pending' | 'approved' | 'rejected';
+  status: typeof ACCESS_REQUEST_STATUS[keyof typeof ACCESS_REQUEST_STATUS];
   message?: string;
 }

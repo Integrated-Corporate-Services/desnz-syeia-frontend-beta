@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useAuthUserContext } from '../context/AuthUserContext';
-import { createLogger } from '../utils/logger';
-import type { AuthUser } from '../types/auth';
-import type { User } from '../types/user';
-import userService from '../services/userService';
-import { ROLES } from '../constants/roles';
+import { useState, useEffect } from "react";
+import { useAuthUserContext } from "../context/AuthUserContext";
+import { createLogger } from "../utils/logger";
+import type { AuthUser } from "../types/auth";
+import type { User } from "../types/user";
+import userService from "../services/userService";
+import { ROLES } from "../constants/roles";
 
-const logger = createLogger('useManageUsers');
+const logger = createLogger("useManageUsers");
 
 /**
  * Custom hook for managing users data and operations
@@ -20,39 +20,48 @@ export const useManageUsers = () => {
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [showRevokeWarning, setShowRevokeWarning] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [showRevokeWarning, setShowRevokeWarning] = useState<string | null>(
+    null
+  );
 
   // Load users data
   useEffect(() => {
     const loadUsers = async () => {
       try {
         setLoading(true);
-        setError('');
+        setError("");
         const response = await userService.getUsers(
           isDesnzAdminRole ? null : userOrganisation || null
         );
         if (response.success && response.data) {
           setUsers(response.data);
         } else {
-          setError('Failed to load users');
+          setError("Failed to load users");
         }
       } catch (error) {
-        logger.error('Failed to load users:', error);
-        setError('Failed to load users');
+        logger.error("Error loading users:", error);
+        setError("Failed to load users");
       } finally {
         setLoading(false);
       }
     };
 
-    loadUsers();
-  }, [userOrganisation, isDesnzAdminRole]);
+    // Only load if user is authenticated
+    if (user) {
+      loadUsers();
+    } else {
+      logger.debug("User not loaded yet, skipping API call");
+    }
+  }, [user, userOrganisation, isDesnzAdminRole]);
 
   // Computed values - API already filters by organisation, no need to filter again
   const filteredUsers = users;
 
-  const activeCount = filteredUsers.filter(u => u.status === 'ACTIVE').length;
-  const inactiveCount = filteredUsers.filter(u => u.status === 'SUSPENDED' || u.status === 'INACTIVE').length;
+  const activeCount = filteredUsers.filter((u) => u.status === "ACTIVE").length;
+  const inactiveCount = filteredUsers.filter(
+    (u) => u.status === "SUSPENDED" || u.status === "INACTIVE"
+  ).length;
   const actionColumnCount = isDesnzAdminRole ? 7 : 6;
 
   // Handler functions
@@ -60,11 +69,17 @@ export const useManageUsers = () => {
     setShowRevokeWarning(userId);
   };
 
-  const confirmRevokeAccess = async (userId: string, onSuccess: (data: { userName: string; userEmail: string }) => void) => {
-    const user = users.find(u => u.id === userId);
+  const confirmRevokeAccess = async (
+    userId: string,
+    onSuccess: (data: { userName: string; userEmail: string }) => void
+  ) => {
+    const user = users.find((u) => u.id === userId);
     if (user) {
       try {
-        const response = await userService.suspendUser(userId, 'Access revoked by administrator');
+        const response = await userService.suspendUser(
+          userId,
+          "Access revoked by administrator"
+        );
         if (response.success) {
           // Reload users to reflect the change
           const usersResponse = await userService.getUsers(
@@ -76,14 +91,14 @@ export const useManageUsers = () => {
           // Navigate to confirmation page with user details
           onSuccess({
             userName: user.fullName,
-            userEmail: user.email
+            userEmail: user.email,
           });
         } else {
-          setError(response.message || 'Failed to revoke user access');
+          setError(response.message || "Failed to revoke user access");
         }
       } catch (error) {
-        logger.error('Failed to revoke access:', error);
-        setError('Failed to revoke user access');
+        logger.error("Failed to revoke access:", error);
+        setError("Failed to revoke user access");
       }
     }
     setShowRevokeWarning(null);
@@ -108,6 +123,6 @@ export const useManageUsers = () => {
     // Handlers
     handleRevokeAccess,
     confirmRevokeAccess,
-    cancelRevoke
+    cancelRevoke,
   };
 };

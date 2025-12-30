@@ -14,6 +14,7 @@ export interface Organisation {
 
 export interface TeamCoordinator {
   user_id: string;
+  person_id: string;
   first_name: string;
   last_name: string;
   email: string;

@@ -1,8 +1,8 @@
-import axios from 'axios';
-import { createLogger } from '../utils/logger';
-import { Organisation } from '../types/organisation';
+import axios from "axios";
+import { createLogger } from "../utils/logger";
+import { Organisation } from "../types/organisation";
 
-const logger = createLogger('organisationService');
+const logger = createLogger("organisationService");
 
 // Re-export for backward compatibility
 export type { Organisation };
@@ -19,22 +19,24 @@ class OrganisationService {
    */
   async getOrganisations(): Promise<ServiceResponse<Organisation[]>> {
     try {
-      logger.debug('Fetching organisations');
-      const response = await axios.get('/backend/api/organisations');
-      logger.debug('Organisations fetched successfully', { count: response.data.length });
+      logger.debug("Fetching organisations");
+      const response = await axios.get("/backend/api/organisations");
+      logger.debug("Organisations fetched successfully", {
+        count: response.data.length,
+      });
       return {
         success: true,
-        data: response.data
+        data: response.data,
       };
     } catch (error: any) {
-      logger.error('Failed to fetch organisations:', {
+      logger.error("Failed to fetch organisations:", {
         error: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
       });
       return {
         success: false,
-        message: error.response?.data?.error || 'Failed to fetch organisations'
+        message: error.response?.data?.error || "Failed to fetch organisations",
       };
     }
   }
@@ -44,22 +46,26 @@ class OrganisationService {
    */
   async getOrganisationsDetailed(): Promise<ServiceResponse<Organisation[]>> {
     try {
-      logger.debug('Fetching detailed organisations');
-      const response = await axios.get('/backend/api/admin/organisations');
-      logger.debug('Detailed organisations fetched successfully', { count: response.data.length });
+      logger.debug("Fetching detailed organisations");
+      const response = await axios.get("/backend/api/admin/organisations");
+      logger.debug("Detailed organisations fetched successfully", {
+        count: response.data.length,
+      });
       return {
         success: true,
-        data: response.data
+        data: response.data,
       };
     } catch (error: any) {
-      logger.error('Failed to fetch detailed organisations:', {
+      logger.error("Failed to fetch detailed organisations:", {
         error: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
       });
       return {
         success: false,
-        message: error.response?.data?.error || 'Failed to fetch detailed organisations'
+        message:
+          error.response?.data?.error ||
+          "Failed to fetch detailed organisations",
       };
     }
   }
@@ -67,23 +73,55 @@ class OrganisationService {
   /**
    * Get organisation by ID
    */
-  async getOrganisationById(id: string): Promise<ServiceResponse<Organisation>> {
+  async getOrganisationById(
+    id: string
+  ): Promise<ServiceResponse<Organisation>> {
     try {
-      logger.debug('Fetching organisation by ID', { id });
-      const response = await axios.get(`/backend/api/admin/organisations/${id}`);
-      logger.debug('Organisation fetched successfully');
+      logger.debug("Fetching organisation by ID", { id });
+      const response = await axios.get(
+        `/backend/api/admin/organisations/${id}`
+      );
+      logger.debug("Organisation fetched successfully");
       return {
         success: true,
-        data: response.data
+        data: response.data,
       };
     } catch (error: any) {
-      logger.error('Failed to fetch organisation:', {
+      logger.error("Failed to fetch organisation:", {
         error: error.message,
-        response: error.response?.data
+        response: error.response?.data,
       });
       return {
         success: false,
-        message: error.response?.data?.error || 'Failed to fetch organisation'
+        message: error.response?.data?.error || "Failed to fetch organisation",
+      };
+    }
+  }
+
+  /**
+   * Get public organisations (no authentication required, excludes DESNZ)
+   */
+  async getPublicOrganisations(): Promise<ServiceResponse<Organisation[]>> {
+    try {
+      logger.debug("Fetching public organisations");
+      const response = await axios.get("/backend/api/public/organisations");
+      logger.debug("Public organisations fetched successfully", {
+        count: response.data.length,
+      });
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      logger.error("Failed to fetch public organisations:", {
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      return {
+        success: false,
+        message:
+          error.response?.data?.error || "Failed to fetch public organisations",
       };
     }
   }

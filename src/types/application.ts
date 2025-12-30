@@ -10,7 +10,6 @@ export type Application = {
   application_party?: ApplicationParty | undefined; // Optional field for merged backend response
 };
 
-
 export type ApplicationParty = {
   party_type: string;
   organisation_name: string;
@@ -24,6 +23,15 @@ export type ApplicationParty = {
   organisation_id?: string;
   person_id?: string;
   contact_id?: string;
+  contact_person_id?: string;
+  contact_person_name?: string;
+  contact_person_email?: string;
+  contact_person_phone?: string;
+  contact_person_line1?: string;
+  contact_person_line2?: string;
+  contact_person_city?: string;
+  contact_person_country?: string;
+  contact_person_postcode?: string;
   is_primary: boolean | null;
   contact_isconfirmed?: boolean | null;
   person_name?: string;
