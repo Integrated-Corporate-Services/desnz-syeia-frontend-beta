@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import accessRequestApplicationService from '../services/accessRequestApplicationService';
-import type { RequestAccessRequest } from '../types/requestAccess';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import accessRequestApplicationService from "../services/accessRequestApplicationService";
+import type { RequestAccessRequest } from "../types/requestAccess";
 
 interface ValidationError {
   fieldId: string;
@@ -12,21 +12,24 @@ export const useRequestAccess = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<ValidationError[]>([]);
-  const [referenceNumber, setReferenceNumber] = useState<string>('');
+  const [referenceNumber, setReferenceNumber] = useState<string>("");
 
   const validateForm = (formData: RequestAccessRequest): boolean => {
     const newErrors: ValidationError[] = [];
 
     if (!formData.fullName.trim()) {
-      newErrors.push({ fieldId: 'full-name', message: 'Enter your full name' });
+      newErrors.push({ fieldId: "full-name", message: "Enter your full name" });
     }
 
     if (!formData.email.trim()) {
-      newErrors.push({ fieldId: 'email', message: 'Enter your email address' });
+      newErrors.push({ fieldId: "email", message: "Enter your email address" });
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
-        newErrors.push({ fieldId: 'email', message: 'Enter a valid email address' });
+        newErrors.push({
+          fieldId: "email",
+          message: "Enter a valid email address",
+        });
       }
     }
 
@@ -48,7 +51,10 @@ export const useRequestAccess = () => {
     // }
 
     if (!formData.organisations || formData.organisations.length === 0) {
-      newErrors.push({ fieldId: 'organisations', message: 'Select at least one organisation' });
+      newErrors.push({
+        fieldId: "organisations",
+        message: "Select at least one organisation",
+      });
     }
 
     setErrors(newErrors);
@@ -64,19 +70,47 @@ export const useRequestAccess = () => {
     setErrors([]);
 
     try {
-      const response = await accessRequestApplicationService.submitRequestAccess(formData);
+      const response =
+        await accessRequestApplicationService.submitRequestAccess(formData);
 
       if (response.success && response.referenceNumber) {
         setReferenceNumber(response.referenceNumber);
-        navigate('/sent-for-approval', {
-          state: { referenceNumber: response.referenceNumber }
+        navigate("/sent-for-approval", {
+          state: { referenceNumber: response.referenceNumber },
         });
         return true;
       }
+
+      // Handle "already exists" case
+      if (response.alreadyExists) {
+        setErrors([
+          {
+            fieldId: "email",
+            message:
+              response.message ||
+              "An access request for this email address has already been submitted.",
+          },
+        ]);
+        return false;
+      }
+
       return false;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      setErrors([{ fieldId: 'general', message: errorMessage }]);
+    } catch (error: any) {
+      // Check if error response contains "already exists" info
+      if (error.response?.data?.alreadyExists) {
+        setErrors([
+          {
+            fieldId: "email",
+            message:
+              error.response.data.message ||
+              "An access request for this email address has already been submitted.",
+          },
+        ]);
+      } else {
+        const errorMessage =
+          error instanceof Error ? error.message : "An error occurred";
+        setErrors([{ fieldId: "general", message: errorMessage }]);
+      }
       return false;
     } finally {
       setIsSubmitting(false);
@@ -89,6 +123,6 @@ export const useRequestAccess = () => {
     referenceNumber,
     validateForm,
     submitRequestAccess,
-    setErrors
+    setErrors,
   };
 };

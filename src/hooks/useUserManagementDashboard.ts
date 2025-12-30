@@ -1,18 +1,20 @@
-import { useState } from 'react';
-import { useManageUsers } from './useManageUsers';
-import { useManageUsersNavigation } from './useManageUsersNavigation';
-import { useDashboard } from './useDashboard';
-import { useOrganisations } from './useOrganisations';
-import { useAuthUserContext } from '../context/AuthUserContext';
-import type { AuthUser } from '../types/auth';
-import { ROLES } from '../constants/roles';
+import { useState } from "react";
+import { useManageUsers } from "./useManageUsers";
+import { useManageUsersNavigation } from "./useManageUsersNavigation";
+import { useDashboard } from "./useDashboard";
+import { useOrganisations } from "./useOrganisations";
+import { useAuthUserContext } from "../context/AuthUserContext";
+import type { AuthUser } from "../types/auth";
+import { ROLES } from "../constants/roles";
 
 export const useUserManagementDashboard = () => {
   const { user } = useAuthUserContext();
-  const userRole = (user as AuthUser)?.role || '';
+  const userRole = (user as AuthUser)?.role || "";
   const isDesnzAdmin = userRole === ROLES.DESNZ_ADMIN;
-  
-  const [activeTab, setActiveTab] = useState<'organisations' | 'active-users' | 'pending-requests'>('organisations');
+
+  const [activeTab, setActiveTab] = useState<
+    "organisations" | "active-users" | "pending-requests"
+  >("organisations");
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -24,33 +26,42 @@ export const useUserManagementDashboard = () => {
     showRevokeWarning,
     handleRevokeAccess,
     confirmRevokeAccess,
-    cancelRevoke
+    cancelRevoke,
   } = useManageUsers();
 
-  const { navigateToAccessRevoked, navigateToReviewRequest, navigateToRevokeUser } = useManageUsersNavigation();
+  const {
+    navigateToAccessRevoked,
+    navigateToReviewRequest,
+    navigateToRevokeUser,
+  } = useManageUsersNavigation();
 
   const {
     pendingRequests,
     loading: requestsLoading,
     error: requestsError,
-    getStatValue
+    getStatValue,
   } = useDashboard(userRole);
 
   const {
     organisations,
     loading: organisationsLoading,
-    error: organisationsError
+    error: organisationsError,
   } = useOrganisations();
 
   const handleConfirmRevoke = (userId: string) => {
     confirmRevokeAccess(userId, navigateToAccessRevoked);
   };
 
-  const activeUsers = filteredUsers.filter(u => u.status === 'ACTIVE');
-  const totalResults = activeTab === 'active-users' ? activeUsers.length : 
-                       activeTab === 'pending-requests' ? pendingRequests.length :
-                       activeTab === 'organisations' ? organisations.length : 0;
-  const pendingCount = getStatValue('pendingRequests');
+  const activeUsers = filteredUsers.filter((u) => u.status === "ACTIVE");
+  const totalResults =
+    activeTab === "active-users"
+      ? activeUsers.length
+      : activeTab === "pending-requests"
+      ? pendingRequests.length
+      : activeTab === "organisations"
+      ? organisations.length
+      : 0;
+  const pendingCount = getStatValue("pendingRequests");
 
   // Pagination logic
   const totalPages = Math.ceil(totalResults / itemsPerPage);
@@ -60,29 +71,31 @@ export const useUserManagementDashboard = () => {
   const paginatedRequests = pendingRequests.slice(startIndex, endIndex);
 
   const handleExportCSV = () => {
-    const csvData = activeUsers.map(user => ({
+    const csvData = activeUsers.map((user) => ({
       Name: user.fullName,
       Organisation: user.organisation,
       Email: user.email,
       Role: user.role,
       Status: user.status,
-      'Last login': user.lastLogin || 'Never'
+      "Last login": user.lastLogin || "Never",
     }));
 
-    const headers = Object.keys(csvData[0]).join(',');
-    const rows = csvData.map(row => Object.values(row).join(','));
-    const csv = [headers, ...rows].join('\n');
+    const headers = Object.keys(csvData[0]).join(",");
+    const rows = csvData.map((row) => Object.values(row).join(","));
+    const csv = [headers, ...rows].join("\n");
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `active-users-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `active-users-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
-  const handleTabChange = (tab: 'organisations' | 'active-users' | 'pending-requests') => {
+  const handleTabChange = (
+    tab: "organisations" | "active-users" | "pending-requests"
+  ) => {
     setActiveTab(tab);
     setCurrentPage(1);
   };
@@ -136,6 +149,6 @@ export const useUserManagementDashboard = () => {
     navigateToRevokeUser,
 
     // Computed values
-    totalResults
+    totalResults,
   };
 };

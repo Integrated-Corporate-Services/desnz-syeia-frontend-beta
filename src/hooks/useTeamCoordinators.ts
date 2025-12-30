@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import * as teamCoordinatorService from '../services/teamCoordinatorService';
-import { TeamCoordinator } from '../types/organisation';
-import { createLogger } from '../utils/logger';
+import { useState, useEffect } from "react";
+import * as teamCoordinatorService from "../services/teamCoordinatorService";
+import { TeamCoordinator } from "../types/organisation";
+import { createLogger } from "../utils/logger";
 
-const logger = createLogger('useTeamCoordinators');
+const logger = createLogger("useTeamCoordinators");
 
 export const useTeamCoordinators = (organisationId?: string) => {
   const [coordinators, setCoordinators] = useState<TeamCoordinator[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const fetchCoordinators = async () => {
@@ -19,15 +19,20 @@ export const useTeamCoordinators = (organisationId?: string) => {
 
       try {
         setLoading(true);
-        setError('');
-        logger.debug('Fetching team coordinators', { organisationId });
-        
-        const result = await teamCoordinatorService.getTeamCoordinators(organisationId);
-        logger.debug('Team coordinators fetched successfully', { count: result.length });
+        setError("");
+        logger.debug("Fetching team coordinators", { organisationId });
+
+        const result = await teamCoordinatorService.getTeamCoordinators(
+          organisationId
+        );
+        logger.debug("Team coordinators fetched successfully", {
+          count: result.length,
+        });
         setCoordinators(result);
       } catch (err: any) {
-        const errorMsg = err.message || 'An error occurred while fetching team coordinators';
-        logger.error('Error fetching team coordinators', { error: errorMsg });
+        const errorMsg =
+          err.message || "An error occurred while fetching team coordinators";
+        logger.error("Error fetching team coordinators", { error: errorMsg });
         setError(errorMsg);
       } finally {
         setLoading(false);
@@ -40,32 +45,54 @@ export const useTeamCoordinators = (organisationId?: string) => {
   return { coordinators, loading, error };
 };
 
-export const useTeamCoordinator = (organisationId?: string, coordinatorId?: string) => {
+export const useTeamCoordinator = (
+  organisationId?: string,
+  coordinatorId?: string
+) => {
   const [coordinator, setCoordinator] = useState<TeamCoordinator | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
+    console.log("[useTeamCoordinator] useEffect triggered", {
+      organisationId,
+      coordinatorId,
+    });
+
     const fetchCoordinator = async () => {
       if (!organisationId || !coordinatorId) {
+        console.log("[useTeamCoordinator] Missing IDs, aborting");
         setLoading(false);
         return;
       }
 
       try {
+        console.log("[useTeamCoordinator] Starting fetch...");
         setLoading(true);
-        setError('');
-        logger.debug('Fetching team coordinator', { organisationId, coordinatorId });
-        
+        setError("");
+        logger.debug("Fetching team coordinator", {
+          organisationId,
+          coordinatorId,
+        });
+
         const result = await teamCoordinatorService.getTeamCoordinatorById(
           organisationId,
           coordinatorId
         );
-        logger.debug('Team coordinator fetched successfully');
+        logger.debug("Team coordinator fetched successfully");
+        console.log(
+          "[useTeamCoordinator] Fetch successful, setting coordinator:",
+          result
+        );
         setCoordinator(result);
       } catch (err: any) {
-        const errorMsg = err.message || 'An error occurred while fetching team coordinator';
-        logger.error('Error fetching team coordinator', { error: errorMsg });
+        const errorMsg =
+          err.message || "An error occurred while fetching team coordinator";
+        console.error("[useTeamCoordinator] Fetch failed:", err, {
+          errorMsg,
+          status: err.response?.status,
+        });
+        logger.error("Error fetching team coordinator", { error: errorMsg });
         setError(errorMsg);
       } finally {
         setLoading(false);
@@ -77,22 +104,23 @@ export const useTeamCoordinator = (organisationId?: string, coordinatorId?: stri
 
   const updateCoordinator = async (updates: any) => {
     if (!organisationId || !coordinatorId) {
-      throw new Error('Organisation ID and Coordinator ID are required');
+      throw new Error("Organisation ID and Coordinator ID are required");
     }
 
     try {
-      logger.debug('Updating team coordinator', { coordinatorId, updates });
+      logger.debug("Updating team coordinator", { coordinatorId, updates });
       const result = await teamCoordinatorService.updateTeamCoordinator(
         organisationId,
         coordinatorId,
         updates
       );
-      logger.debug('Team coordinator updated successfully');
+      logger.debug("Team coordinator updated successfully");
       setCoordinator(result);
       return result;
     } catch (err: any) {
-      const errorMsg = err.message || 'An error occurred while updating team coordinator';
-      logger.error('Error updating team coordinator', { error: errorMsg });
+      const errorMsg =
+        err.message || "An error occurred while updating team coordinator";
+      logger.error("Error updating team coordinator", { error: errorMsg });
       throw err;
     }
   };

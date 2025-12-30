@@ -1,7 +1,7 @@
-import React from 'react';
-import { useAuthUserContext } from '../../context/AuthUserContext';
-import type { AuthUser } from '../../types/auth';
-import { ROLES } from '../../constants/roles';
+import React from "react";
+import { useAuthUserContext } from "../../context/AuthUserContext";
+import type { AuthUser } from "../../types/auth";
+import { ROLES } from "../../constants/roles";
 
 interface User {
   id: string;
@@ -50,17 +50,16 @@ interface UserRowProps {
 
 /**
  * Add user button positioned with page heading (GDS primary action pattern)
- * Only visible to admin users (DNO_ADMIN or DESNZ_ADMIN)
+ * Only visible to admin users (DNO_TEAM_COORDINATOR or DESNZ_ADMIN)
  */
 export const AddUserButton: React.FC<AddUserButtonProps> = ({ onAddUser }) => {
   const { user } = useAuthUserContext();
-  const isAdmin = user && ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN || (user as AuthUser)?.role === ROLES.DNO_ADMIN);
+  const isAdmin =
+    user &&
+    ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+      (user as AuthUser)?.role === ROLES.DNO_TEAM_COORDINATOR);
   return isAdmin ? (
-    <button
-      type="button"
-      className="govuk-button"
-      onClick={onAddUser}
-    >
+    <button type="button" className="govuk-button" onClick={onAddUser}>
       Add user
     </button>
   ) : null;
@@ -72,7 +71,7 @@ export const AddUserButton: React.FC<AddUserButtonProps> = ({ onAddUser }) => {
 export const UserOverviewSection: React.FC<UserOverviewSectionProps> = ({
   activeCount,
   inactiveCount,
-  userOrganisation
+  userOrganisation,
 }) => (
   <>
     <h2 className="govuk-heading-m">User overview</h2>
@@ -103,21 +102,27 @@ export const UsersHeader: React.FC = () => (
 /**
  * Empty state component for when there are no users
  */
-export const EmptyUsersState: React.FC<EmptyUsersStateProps> = ({ onAddUser, userOrganisation }) => {
+export const EmptyUsersState: React.FC<EmptyUsersStateProps> = ({
+  onAddUser,
+  userOrganisation,
+}) => {
   const { user } = useAuthUserContext();
   const isDesnzAdmin = user?.role === ROLES.DESNZ_ADMIN;
-  const isAdmin = user && ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN || (user as AuthUser)?.role === ROLES.DNO_ADMIN);
+  const isAdmin =
+    user &&
+    ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+      (user as AuthUser)?.role === ROLES.DNO_TEAM_COORDINATOR);
   return (
     <div className="govuk-inset-text">
       <p className="govuk-body govuk-!-margin-bottom-3">
-        There are no users for {isDesnzAdmin ? 'any organisation' : userOrganisation || 'your organisation'} yet.
+        There are no users for{" "}
+        {isDesnzAdmin
+          ? "any organisation"
+          : userOrganisation || "your organisation"}{" "}
+        yet.
       </p>
       {isAdmin && (
-        <button
-          type="button"
-          className="govuk-button"
-          onClick={onAddUser}
-        >
+        <button type="button" className="govuk-button" onClick={onAddUser}>
           Add user
         </button>
       )}
@@ -136,7 +141,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   onConfirmRevoke,
   onCancelRevoke,
   onAddUser,
-  userOrganisation
+  userOrganisation,
 }) => {
   const { user } = useAuthUserContext();
   const isDesnzAdmin = user?.role === ROLES.DESNZ_ADMIN;
@@ -154,18 +159,30 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     <table className="govuk-table govuk-!-margin-bottom-8">
       <thead className="govuk-table__head">
         <tr className="govuk-table__row">
-          <th scope="col" className="govuk-table__header">Name</th>
-          {isDesnzAdmin && <th scope="col" className="govuk-table__header">Organisation</th>}
+          <th scope="col" className="govuk-table__header">
+            Name
+          </th>
+          {isDesnzAdmin && (
+            <th scope="col" className="govuk-table__header">
+              Organisation
+            </th>
+          )}
           {/* <th scope="col" className="govuk-table__header">Email</th> */}
-          <th scope="col" className="govuk-table__header">Role</th>
-          <th scope="col" className="govuk-table__header">Status</th>
-          <th scope="col" className="govuk-table__header">Last login</th>
+          <th scope="col" className="govuk-table__header">
+            Role
+          </th>
+          <th scope="col" className="govuk-table__header">
+            Status
+          </th>
+          <th scope="col" className="govuk-table__header">
+            Last login
+          </th>
           {/* <th scope="col" className="govuk-table__header">Action</th> */}
         </tr>
       </thead>
 
       <tbody className="govuk-table__body">
-        {filteredUsers.map(user => (
+        {filteredUsers.map((user) => (
           <React.Fragment key={user.id}>
             <UserRow
               user={user}
@@ -191,39 +208,52 @@ export const UserRow: React.FC<UserRowProps> = ({
   actionColumnCount,
   onRevokeAccess,
   onConfirmRevoke,
-  onCancelRevoke
+  onCancelRevoke,
 }) => {
   const { user: currentUser } = useAuthUserContext();
   const isDesnzAdmin = currentUser?.role === ROLES.DESNZ_ADMIN;
   return (
     <>
       <tr className="govuk-table__row">
-        <td className="govuk-table__cell"><strong>{user.fullName}</strong></td>
-        {isDesnzAdmin && <td className="govuk-table__cell">{user.organisation}</td>}
+        <td className="govuk-table__cell">
+          <strong>{user.fullName}</strong>
+        </td>
+        {isDesnzAdmin && (
+          <td className="govuk-table__cell">{user.organisation}</td>
+        )}
         {/* <td className="govuk-table__cell">{user.email}</td> */}
         <td className="govuk-table__cell">
           <strong
             className="govuk-tag"
             style={{
-              backgroundColor: user.role === ROLES.DESNZ_ADMIN ? '#4c2c92' : user.role === ROLES.DNO_ADMIN ? '#1d70b8' : '#505a5f',
-              color: '#ffffff'
+              backgroundColor:
+                user.role === ROLES.DESNZ_ADMIN
+                  ? "#4c2c92"
+                  : user.role === ROLES.DNO_TEAM_COORDINATOR
+                  ? "#1d70b8"
+                  : "#505a5f",
+              color: "#ffffff",
             }}
           >
-            {user.role === ROLES.DESNZ_ADMIN ? 'DESNZ Admin' : user.role === ROLES.DNO_ADMIN ? 'DNO Admin' : user.role}
+            {user.role === ROLES.DESNZ_ADMIN
+              ? "DESNZ Admin"
+              : user.role === ROLES.DNO_TEAM_COORDINATOR
+              ? "DNO Team Coordinator"
+              : user.role}
           </strong>
         </td>
         <td className="govuk-table__cell">
           <strong
             className="govuk-tag"
             style={{
-              backgroundColor: user.status === 'ACTIVE' ? '#00703c' : '#d4351c',
-              color: '#ffffff'
+              backgroundColor: user.status === "ACTIVE" ? "#00703c" : "#d4351c",
+              color: "#ffffff",
             }}
           >
-            {user.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+            {user.status === "ACTIVE" ? "Active" : "Inactive"}
           </strong>
         </td>
-        <td className="govuk-table__cell">{user.lastLogin || 'Never'}</td>
+        <td className="govuk-table__cell">{user.lastLogin || "Never"}</td>
         {/* Action column disabled
       <td className="govuk-table__cell">
         {user.status === 'ACTIVE' && user.role !== 'SYSTEM' && isDesnzAdmin && (
@@ -247,10 +277,13 @@ export const UserRow: React.FC<UserRowProps> = ({
         <tr className="govuk-table__row">
           <td className="govuk-table__cell" colSpan={actionColumnCount}>
             <div className="govuk-warning-text govuk-!-margin-bottom-2">
-              <span className="govuk-warning-text__icon" aria-hidden="true">!</span>
+              <span className="govuk-warning-text__icon" aria-hidden="true">
+                !
+              </span>
               <strong className="govuk-warning-text__text">
                 <span className="govuk-visually-hidden">Warning</span>
-                Are you sure you want to revoke access for {user.fullName}? They will no longer be able to use this service.
+                Are you sure you want to revoke access for {user.fullName}? They
+                will no longer be able to use this service.
               </strong>
             </div>
             <div className="govuk-button-group">

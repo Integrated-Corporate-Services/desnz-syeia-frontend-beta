@@ -1,12 +1,12 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useUserManagementDashboard } from '../../../hooks';
-import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
-import { TabNavigation } from '../components/TabNavigation';
-import { FilterSection } from '../components/FilterSection';
-import { OrganisationsTab } from '../components/OrganisationsTab';
-import { ActiveUsersTab } from '../components/ActiveUsersTab';
-import { PendingRequestsTab } from '../components/PendingRequestsTab';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useUserManagementDashboard } from "../../../hooks";
+import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
+import { TabNavigation } from "../components/TabNavigation";
+import { FilterSection } from "../components/FilterSection";
+import { OrganisationsTab } from "../components/OrganisationsTab";
+import { ActiveUsersTab } from "../components/ActiveUsersTab";
+import { PendingRequestsTab } from "../components/PendingRequestsTab";
 
 const UserManagementDashboard: React.FC = () => {
   const {
@@ -40,9 +40,12 @@ const UserManagementDashboard: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">
             <h1 className="govuk-heading-l">User Management Dashboard</h1>
-            <p className="govuk-body-m">Manage access request and users across all Distribution Network Operators.</p>
+            <p className="govuk-body-m">
+              Manage access request and users across all Distribution Network
+              Operators.
+            </p>
 
-            <FilterSection 
+            <FilterSection
               showFilters={showFilters}
               onToggleFilters={toggleFilters}
             />
@@ -53,7 +56,7 @@ const UserManagementDashboard: React.FC = () => {
               onTabChange={handleTabChange}
             />
 
-            {activeTab === 'organisations' && (
+            {activeTab === "organisations" && (
               <OrganisationsTab
                 organisations={organisations}
                 loading={organisationsLoading}
@@ -61,7 +64,7 @@ const UserManagementDashboard: React.FC = () => {
               />
             )}
 
-            {activeTab === 'active-users' && (
+            {activeTab === "active-users" && (
               <ActiveUsersTab
                 isDesnzAdmin={isDesnzAdmin}
                 totalResults={totalResults}
@@ -76,7 +79,7 @@ const UserManagementDashboard: React.FC = () => {
               />
             )}
 
-            {activeTab === 'pending-requests' && (
+            {activeTab === "pending-requests" && (
               <PendingRequestsTab
                 pendingRequests={pendingRequests}
                 requestsError={requestsError}

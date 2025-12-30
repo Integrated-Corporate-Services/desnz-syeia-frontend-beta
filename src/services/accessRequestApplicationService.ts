@@ -1,20 +1,21 @@
-import axios from 'axios';
-import { createLogger } from '../utils/logger';
+import axios from "axios";
+import { createLogger } from "../utils/logger";
 import type {
   RequestAccessRequest,
   RequestAccessResponse,
   VerifyEmailResponse,
-  RequestAccessStatusResponse
-} from '../types/requestAccess';
+  RequestAccessStatusResponse,
+} from "../types/requestAccess";
 
-const logger = createLogger('accessRequestApplicationService');
+const logger = createLogger("accessRequestApplicationService");
 
 class RequestAccessService {
-
   /**
    * Submit a new request access
    */
-  async submitRequestAccess(data: RequestAccessRequest): Promise<RequestAccessResponse> {
+  async submitRequestAccess(
+    data: RequestAccessRequest
+  ): Promise<RequestAccessResponse> {
     try {
       const response = await axios.post(`/backend/api/access-requests`, {
         fullName: data.fullName,
@@ -26,20 +27,34 @@ class RequestAccessService {
         // country: data.country,
         // postCode: data.postCode,
         organisations: data.organisations,
-        applyingOnBehalf: data.applyingOnBehalf
+        applyingOnBehalf: data.applyingOnBehalf,
       });
 
       return {
-        success: true,
+        success: response.data.success !== false,
         referenceNumber: response.data.referenceNumber || response.data.id,
-        message: response.data.message || 'Request access submitted successfully'
+        message:
+          response.data.message || "Request access submitted successfully",
+        alreadyExists: response.data.alreadyExists || false,
       };
     } catch (error) {
-      logger.error('Request access error:', error);
+      // Handle 409 Conflict (duplicate request) gracefully
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        return {
+          success: false,
+          alreadyExists: true,
+          message:
+            error.response.data.message ||
+            "An access request for this email address has already been submitted.",
+          existingRequests: error.response.data.existingRequests,
+        };
+      }
+
+      logger.error("Request access error:", error);
       throw new Error(
         axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message
-          : 'Failed to submit request access. Please try again.'
+          : "Failed to submit request access. Please try again."
       );
     }
   }
@@ -47,41 +62,47 @@ class RequestAccessService {
   /**
    * Get request access status by ID
    */
-  async getRequestAccessStatus(requestId: string): Promise<RequestAccessStatusResponse> {
+  async getRequestAccessStatus(
+    requestId: string
+  ): Promise<RequestAccessStatusResponse> {
     try {
-      const response = await axios.get(`/backend/api/access-requests/${requestId}`);
+      const response = await axios.get(
+        `/backend/api/access-requests/${requestId}`
+      );
       return {
         status: response.data.status,
-        message: response.data.rejectionReason || response.data.message
+        message: response.data.rejectionReason || response.data.message,
       };
     } catch (error) {
-      logger.error('Get request access status error:', error);
-      throw new Error('Failed to retrieve request access status');
+      logger.error("Get request access status error:", error);
+      throw new Error("Failed to retrieve request access status");
     }
   }
-
 
   /**
    * Verify email with 6-digit code
    */
-  async verifyEmailCode(code: string, userEmail: string): Promise<VerifyEmailResponse> {
+  async verifyEmailCode(
+    code: string,
+    userEmail: string
+  ): Promise<VerifyEmailResponse> {
     try {
       const response = await axios.post(`/backend/api/auth/verify-email`, {
         code: code,
-        email: userEmail
+        email: userEmail,
       });
 
       return {
         success: true,
-        message: response.data.message || 'Email verified successfully',
-        redirectUrl: response.data.redirectUrl
+        message: response.data.message || "Email verified successfully",
+        redirectUrl: response.data.redirectUrl,
       };
     } catch (error) {
-      logger.error('Verification error:', error);
+      logger.error("Verification error:", error);
       throw new Error(
         axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message
-          : 'Failed to verify email code. Please try again.'
+          : "Failed to verify email code. Please try again."
       );
     }
   }
@@ -89,22 +110,24 @@ class RequestAccessService {
   /**
    * Resend verification code to email
    */
-  async resendVerificationCode(email: string): Promise<{ success: boolean; message: string }> {
+  async resendVerificationCode(
+    email: string
+  ): Promise<{ success: boolean; message: string }> {
     try {
       const response = await axios.post(`/backend/api/auth/resend-code`, {
-        email: email
+        email: email,
       });
 
       return {
         success: true,
-        message: response.data.message || 'Verification code sent successfully'
+        message: response.data.message || "Verification code sent successfully",
       };
     } catch (error) {
-      logger.error('Resend code error:', error);
+      logger.error("Resend code error:", error);
       throw new Error(
         axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message
-          : 'Failed to resend verification code. Please try again.'
+          : "Failed to resend verification code. Please try again."
       );
     }
   }

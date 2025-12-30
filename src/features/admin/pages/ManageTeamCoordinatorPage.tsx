@@ -1,25 +1,52 @@
-import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { useTeamCoordinator } from '../../../hooks';
-import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
+import React, { useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { useTeamCoordinator } from "../../../hooks";
+import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 
 const ManageTeamCoordinatorPage: React.FC = () => {
-  const { organisationId, coordinatorId } = useParams<{ organisationId: string; coordinatorId: string }>();
+  const { organisationId, coordinatorId } = useParams<{
+    organisationId: string;
+    coordinatorId: string;
+  }>();
   const navigate = useNavigate();
-  
-  const { coordinator, loading, error, updateCoordinator } = useTeamCoordinator(organisationId, coordinatorId);
+
+  console.log("[ManageTeamCoordinatorPage] Component rendering", {
+    organisationId,
+    coordinatorId,
+  });
+
+  const { coordinator, loading, error, updateCoordinator } = useTeamCoordinator(
+    organisationId,
+    coordinatorId
+  );
+
+  console.log("[ManageTeamCoordinatorPage] Hook state:", {
+    coordinator,
+    loading,
+    error,
+  });
+
+  if (coordinator) {
+    console.log("[ManageTeamCoordinatorPage] Coordinator fields:", {
+      first_name: coordinator.first_name,
+      last_name: coordinator.last_name,
+      email: coordinator.email,
+      phone_number: coordinator.phone_number,
+      fullObject: coordinator,
+    });
+  }
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string>('');
+  const [saveError, setSaveError] = useState<string>("");
 
   const handleSave = async () => {
     try {
       setSaving(true);
-      setSaveError('');
+      setSaveError("");
       // In a real implementation, you would collect form changes and call updateCoordinator
       // For now, just navigate back
       navigate(`/admin/organisations/${organisationId}/team-coordinators`);
     } catch (err: any) {
-      setSaveError(err.message || 'Failed to save changes');
+      setSaveError(err.message || "Failed to save changes");
     } finally {
       setSaving(false);
     }
@@ -41,15 +68,28 @@ const ManageTeamCoordinatorPage: React.FC = () => {
         <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
-              <Link to={`/admin/organisations/${organisationId}/team-coordinators`} className="govuk-back-link">
+              <Link
+                to={`/admin/organisations/${organisationId}/team-coordinators`}
+                className="govuk-back-link"
+              >
                 Back
               </Link>
-              <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
-                <h2 className="govuk-error-summary__title" id="error-summary-title">
+              <div
+                className="govuk-error-summary"
+                aria-labelledby="error-summary-title"
+                role="alert"
+                tabIndex={-1}
+              >
+                <h2
+                  className="govuk-error-summary__title"
+                  id="error-summary-title"
+                >
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">
-                  <p className="govuk-body">{error || 'Team coordinator not found'}</p>
+                  <p className="govuk-body">
+                    {error || "Team coordinator not found"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -64,15 +104,28 @@ const ManageTeamCoordinatorPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <Link to={`/admin/organisations/${organisationId}/team-coordinators`} className="govuk-back-link">
+            <Link
+              to={`/admin/organisations/${organisationId}/team-coordinators`}
+              className="govuk-back-link"
+            >
               Back
             </Link>
 
-            <h1 className="govuk-heading-l govuk-!-margin-top-6">Manage team coordinator</h1>
+            <h1 className="govuk-heading-l govuk-!-margin-top-6">
+              Manage team coordinator
+            </h1>
 
             {saveError && (
-              <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
-                <h2 className="govuk-error-summary__title" id="error-summary-title">
+              <div
+                className="govuk-error-summary"
+                aria-labelledby="error-summary-title"
+                role="alert"
+                tabIndex={-1}
+              >
+                <h2
+                  className="govuk-error-summary__title"
+                  id="error-summary-title"
+                >
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">
@@ -81,22 +134,20 @@ const ManageTeamCoordinatorPage: React.FC = () => {
               </div>
             )}
 
-            <h2 className="govuk-heading-m govuk-!-margin-top-6">Team coordinator details</h2>
+            <h2 className="govuk-heading-m govuk-!-margin-top-6">
+              Team coordinator details
+            </h2>
 
             <dl className="govuk-summary-list">
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">
-                  Name
-                </dt>
+                <dt className="govuk-summary-list__key">Name</dt>
                 <dd className="govuk-summary-list__value">
                   {coordinator.first_name} {coordinator.last_name}
                 </dd>
               </div>
 
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">
-                  Email address
-                </dt>
+                <dt className="govuk-summary-list__key">Email address</dt>
                 <dd className="govuk-summary-list__value">
                   {coordinator.email}
                 </dd>
@@ -108,11 +159,9 @@ const ManageTeamCoordinatorPage: React.FC = () => {
               </div>
 
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">
-                  Phone number
-                </dt>
+                <dt className="govuk-summary-list__key">Phone number</dt>
                 <dd className="govuk-summary-list__value">
-                  {coordinator.phone_number || 'Not provided'}
+                  {coordinator.phone_number || "Not provided"}
                 </dd>
                 <dd className="govuk-summary-list__actions">
                   <a className="govuk-link" href="#">
@@ -122,11 +171,9 @@ const ManageTeamCoordinatorPage: React.FC = () => {
               </div>
 
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">
-                  Location
-                </dt>
+                <dt className="govuk-summary-list__key">Location</dt>
                 <dd className="govuk-summary-list__value">
-                  {coordinator.phone_number || 'Not provided'}
+                  {coordinator.town_city || "Not provided"}
                 </dd>
                 <dd className="govuk-summary-list__actions">
                   <a className="govuk-link" href="#">
@@ -142,12 +189,24 @@ const ManageTeamCoordinatorPage: React.FC = () => {
                 <dd className="govuk-summary-list__value">
                   {coordinator.address_line1 ? (
                     <>
-                      {coordinator.address_line1}<br />
-                      {coordinator.address_line2 && <>{coordinator.address_line2}<br /></>}
+                      {coordinator.address_line1}
+                      <br />
+                      {coordinator.address_line2 && (
+                        <>
+                          {coordinator.address_line2}
+                          <br />
+                        </>
+                      )}
+                      {coordinator.town_city && (
+                        <>
+                          {coordinator.town_city}
+                          <br />
+                        </>
+                      )}
                       {coordinator.postcode}
                     </>
                   ) : (
-                    'Not provided'
+                    "Not provided"
                   )}
                 </dd>
               </div>
@@ -156,11 +215,11 @@ const ManageTeamCoordinatorPage: React.FC = () => {
             <button
               type="button"
               className="govuk-button govuk-!-margin-top-6"
-              style={{ backgroundColor: '#00703c' }}
+              style={{ backgroundColor: "#00703c" }}
               onClick={handleSave}
               disabled={saving}
             >
-              {saving ? 'Saving...' : 'Save changes'}
+              {saving ? "Saving..." : "Save changes"}
             </button>
           </div>
         </div>
@@ -170,4 +229,3 @@ const ManageTeamCoordinatorPage: React.FC = () => {
 };
 
 export default ManageTeamCoordinatorPage;
-

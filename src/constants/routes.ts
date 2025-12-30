@@ -26,8 +26,8 @@ import consulteeApplicationDetails from '../features/Consultation/pages/consulte
 import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
 import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
 import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
-import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDetails';
-import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
+import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorDetails';
+import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import NWLTaskList from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
@@ -36,8 +36,8 @@ import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetail
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
-import TLPApplicantDetails from '../features/TLP/ApplicantDetails/pages/ApplicantDetails';
-import TLPNetworkOperatorContactDetails from '../features/TLP/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
+import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
+import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import TLPTaskList from '../features/TLP/TaskList';
 import TLPAssets from '../features/TLP/Assets/pages/Assets';
 import TLPLandownerOccupantDetails from '../features/TLP/LandownerOccupantDetails/pages/LandownerOccupantDetails';
@@ -239,7 +239,7 @@ export const ROUTE_CONFIG = [
   },
   {
     path: `${NWL_BASE_URL}/:applicationId/applicant-details`,
-    component: ApplicantDetails,
+    component: NWLNetworkOperatorDetails,
     auth: true,
     layout: true
   },
@@ -299,7 +299,7 @@ export const ROUTE_CONFIG = [
   },
   {
     path: `${TLP_BASE_URL}/:applicationId/applicant-details`,
-    component: TLPApplicantDetails,
+    component: TLPNetworkOperatorDetails,
     auth: true,
     layout: true
   },

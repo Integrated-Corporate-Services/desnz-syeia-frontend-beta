@@ -1,0 +1,56 @@
+# ===================================================================
+# Frontend Development Script
+# ===================================================================
+# SETUP: Copy this file to run-frontend.ps1 and customize for your environment
+# USAGE: Run in Visual Studio Code terminal (Windows PowerShell)
+# ===================================================================
+
+# ===================================================================
+# POWERSHELL EXECUTION POLICY
+# ===================================================================
+# If you get "scripts is disabled on this system" error, run one of:
+#   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+# OR bypass for this execution only:
+#   powershell -ExecutionPolicy Bypass -File .\run-frontend.ps1
+#
+# Frontend path:
+#   cd 'C:\Users\YourUsername\Desktop\project\workspace\desnz-beta\desnz-syeia-frontend-beta'
+#   powershell -ExecutionPolicy Bypass -File .\run-frontend.ps1
+# ===================================================================
+
+# ===================================================================
+# DUMMY USER CONFIGURATION (Local Development Only)
+# ===================================================================
+# Change this value to test different user roles and permissions
+# 
+# Available Options:
+#   DESNZ_ADMIN                           - DESNZ Administrator
+#   DNO_TEAM_COORDINATOR                  - National Grid Team Coordinator (Hannah Martin)
+#   DNO_TEAM_COORDINATOR_2                - National Grid Team Coordinator (Jennifer Foster)
+#   DNO_PREPOPULATED_TEAM_COORDINATOR     - National Grid Team Coordinator (Elizabeth Parker)
+#   DNO_USER_APPROVED                     - Approved Network Operator User (Thomas Wilson)
+#   DNO_AGENT_APPROVED                    - Fully Approved Agent - 3 DNOs (David Clarke)
+#   DNO_AGENT_PARTIALLY_APPROVED          - Partially Approved Agent - 2 approved, 1 pending (Sofia Martinez)
+# ===================================================================
+$env:VITE_DUMMY_USER_TYPE = "DNO_TEAM_COORDINATOR"
+
+# ===================================================================
+# APPLICATION CONFIGURATION
+# ===================================================================
+$env:API_URL = "http://localhost:3000"
+$env:VITE_PORT = "5173"
+$env:VITE_LOGIN_DISABLED = "true"
+$env:MODE = "local"
+
+# ===================================================================
+# API ENDPOINTS
+# ===================================================================
+$env:VITE_API_BASE_URL = "http://localhost:3000"
+$env:VITE_AUTH_LOGIN_URL = "http://localhost:3000/backend/auth/login"
+$env:VITE_AUTH_LOGOUT_URL = "http://localhost:3000/backend/auth/logout"
+
+# ===================================================================
+# START APPLICATION
+# ===================================================================
+npm run build
+npm run dev
