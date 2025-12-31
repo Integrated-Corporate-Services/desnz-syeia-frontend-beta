@@ -1,36 +1,59 @@
 /// <reference types="vite/client" />
 
+import { generateCorrelationId } from "../utils/correlationId";
+
 export const applicationApiService = {
   // Fetch applications for a user
-  fetchApplicationsByUser: async (created_by: string) => {
+  fetchApplicationsByUser: async (
+    created_by: string,
+    correlationId?: string
+  ) => {
+    const headers: HeadersInit = {
+      "X-Correlation-ID": correlationId || generateCorrelationId(),
+    };
     const response = await fetch(
       `/backend/api/applications?created_by=${created_by}`,
-      { credentials: "include" }
+      { credentials: "include", headers }
     );
     return response.json();
   },
+
   // Create a new application
-  createApplication: async (applicationData: any) => {
+  createApplication: async (applicationData: any, correlationId?: string) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": correlationId || generateCorrelationId(),
+    };
     const response = await fetch("/backend/api/applications", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       credentials: "include",
       body: JSON.stringify(applicationData),
     });
     return response.json();
   },
-  getApplicationById: async (id: string) => {
+
+  getApplicationById: async (id: string, correlationId?: string) => {
+    const headers: HeadersInit = {
+      "X-Correlation-ID": correlationId || generateCorrelationId(),
+    };
     const response = await fetch(`/backend/api/applications/${id}`, {
       credentials: "include",
+      headers,
     });
     return response.json();
   },
-  saveNetworkOperator: async (data: any) => {
+
+  saveNetworkOperator: async (data: any, correlationId?: string) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": correlationId || generateCorrelationId(),
+    };
     const response = await fetch(
       "/backend/api/applications/network-operators",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include",
         body: JSON.stringify(data),
       }
@@ -38,12 +61,16 @@ export const applicationApiService = {
     return response.json();
   },
 
-  submitApplication: async (applicationId: string) => {
+  submitApplication: async (applicationId: string, correlationId?: string) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": correlationId || generateCorrelationId(),
+    };
     const res = await fetch(
       `/backend/api/applications/${applicationId}/submit`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include",
       }
     );
@@ -59,11 +86,15 @@ export const applicationApiService = {
     type: string,
     additionalContacts: string
   ) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": generateCorrelationId(),
+    };
     const response = await fetch(
       `/backend/api/applications/${applicationId}/applicant-info`,
       {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include",
         body: JSON.stringify({
           operator_ref: operatorRef,
@@ -81,11 +112,15 @@ export const applicationApiService = {
     organisationName: string,
     line1?: string
   ) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": generateCorrelationId(),
+    };
     const response = await fetch(
       `/backend/api/applications/${applicationId}/organisation`,
       {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include",
         body: JSON.stringify({
           organisation_id: organisationId,
@@ -98,9 +133,13 @@ export const applicationApiService = {
   },
 
   deleteApplication: async (applicationId: string) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": generateCorrelationId(),
+    };
     const response = await fetch(`/backend/api/applications/${applicationId}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers,
       credentials: "include",
     });
     if (!response.ok) {
