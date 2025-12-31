@@ -71,8 +71,7 @@ const LandingPage = () => {
                 className="govuk-button govuk-button--start"
                 data-module="govuk-button"
                 onClick={() => {
-                  const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL || 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login';
-                  window.location.href = loginUrl;
+                  window.location.href = '/backend/auth/login';
                 }}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >

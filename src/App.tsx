@@ -17,10 +17,9 @@ const AppContent = () => {
   // Auto-redirect to create session when LOGIN_DISABLED is enabled
   useEffect(() => {
     const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
-    const LOGIN_URL = import.meta.env.VITE_AUTH_LOGIN_URL;
 
-    if (LOGIN_DISABLED && !loading && !user && error && LOGIN_URL) {
-      window.location.href = LOGIN_URL;
+    if (LOGIN_DISABLED && !loading && !user && error) {
+      window.location.href = '/backend/auth/login';
     }
   }, [user, loading, error]);
 

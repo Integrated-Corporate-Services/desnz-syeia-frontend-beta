@@ -5,15 +5,12 @@ export type AuthUserResponse = {
   user: any;
 };
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com";
-
 /**
  * Get current authenticated user from backend session
+ * Always uses relative paths for same-origin requests
  */
 export async function getAuthUser(): Promise<AuthUserResponse> {
-  const response = await fetch(`${API_BASE_URL}/backend/auth/user`, {
+  const response = await fetch("/backend/auth/user", {
     credentials: "include",
   });
   if (!response.ok) {
@@ -23,7 +20,7 @@ export async function getAuthUser(): Promise<AuthUserResponse> {
 }
 
 export async function signOut(): Promise<void> {
-  await fetch(`${API_BASE_URL}/backend/auth/signout`, {
+  await fetch("/backend/auth/signout", {
     method: "POST",
     credentials: "include",
   });

@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 
 const Section37GuidancePage = () => {
   const navigate = useNavigate();
-  const LOGIN_URL = import.meta.env.VITE_AUTH_LOGIN_URL;
 
   return (
     <>
@@ -127,7 +126,7 @@ const Section37GuidancePage = () => {
           <button
             className="govuk-button govuk-button--start"
             type="button"
-            onClick={() => (window.location.href = LOGIN_URL)}
+            onClick={() => (window.location.href = '/backend/auth/login')}
             style={{ display: "flex", alignItems: "center", gap: "8px" }}
           >
             Sign in

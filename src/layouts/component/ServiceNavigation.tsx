@@ -27,9 +27,6 @@ const ServiceNavigation = () => {
     location.pathname.includes("/task-list") ||
     location.pathname.includes("/delete");
 
-  // Use environment variable for logout URL
-  const logoutUrl = import.meta.env.VITE_AUTH_LOGOUT_URL;
-
   if (hideNavPaths.includes(location.pathname)) return null;
 
   return (
@@ -83,7 +80,7 @@ const ServiceNavigation = () => {
                 <li className="govuk-service-navigation__item">
                   <a
                     className="govuk-service-navigation__link"
-                    href={logoutUrl || "/frontend"}
+                    href="/backend/auth/logout"
                   >
                     Sign out
                   </a>
