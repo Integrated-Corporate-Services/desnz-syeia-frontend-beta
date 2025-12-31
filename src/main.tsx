@@ -10,8 +10,9 @@ import axios from "axios";
 
 // Configure axios to send cookies with requests (required for session auth)
 axios.defaults.withCredentials = true;
-// Configure axios base URL for API calls
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
+axios.defaults.baseURL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com";
 
 // TypeScript: declare GOVUKFrontend on window
 declare global {

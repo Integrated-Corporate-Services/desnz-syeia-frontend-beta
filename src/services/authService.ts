@@ -5,8 +5,9 @@ export type AuthUserResponse = {
   user: any;
 };
 
-// Get API base URL from environment
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com";
 
 /**
  * Get current authenticated user from backend session
