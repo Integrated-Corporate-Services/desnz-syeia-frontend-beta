@@ -26,7 +26,7 @@ const PaymentCallbackPage: React.FC = () => {
         }
 
         // Call backend to verify payment status
-        const response = await fetch(`/backend/api/payments/${paymentId}/verify`, {
+        const response = await fetch(`/backend/api/gov-pay/${paymentId}/verify`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

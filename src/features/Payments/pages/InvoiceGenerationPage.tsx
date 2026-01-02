@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
@@ -22,11 +22,22 @@ const InvoiceGenerationPage: React.FC = () => {
     breakdown = null 
   } = location.state || {};
 
+  // Add ref to track if invoice has been generated
+  const hasGeneratedRef = useRef(false);
+
   const handleGenerateInvoice = async () => {
+    // Prevent duplicate calls
+    if (hasGeneratedRef.current) {
+      console.log('[InvoiceGenerationPage] Invoice already generated, skipping');
+      return;
+    }
+
     if (!applicationId) {
       setError('Application ID is missing');
       return;
     }
+
+    hasGeneratedRef.current = true; // Mark as generated
 
     try {
       setLoading(true);
@@ -74,6 +85,7 @@ const InvoiceGenerationPage: React.FC = () => {
       });
 
     } catch (err: any) {
+      hasGeneratedRef.current = false; // Reset on error to allow retry
       setError(err.message || 'Failed to generate invoice');
       setLoading(false);
     }
@@ -81,13 +93,13 @@ const InvoiceGenerationPage: React.FC = () => {
 
   // Auto-generate invoice on page load
   useEffect(() => {
-    if (applicationId && totalAmount > 0) {
+    if (applicationId && totalAmount > 0 && !hasGeneratedRef.current) {
       handleGenerateInvoice();
     } else if (applicationId && totalAmount === 0) {
       setError('Payment amount is not available. Please go back and try again.');
       setLoading(false);
-    }
-  }, [applicationId]);
+    } 
+  }, [applicationId, totalAmount]);
 
   return (
     <div className="govuk-width-container">
