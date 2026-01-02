@@ -9,17 +9,18 @@ const Parishes: React.FC = () => {
   const navigate = useNavigate();
   const params = useParams();
   const applicationId = params.applicationId || params.id;
-  
-  const [parishes, setParishes] = useState<Parish[]>([
-    { id: "1740", name: "Burton in Lonsdale (North Yorkshire)" }
-  ]);
+
+  const [parishes, setParishes] = useState<Parish[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Parish[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  const handleRemoveParish = (e: React.MouseEvent<HTMLAnchorElement>, parishId: string) => {
+  const handleRemoveParish = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    parishId: string
+  ) => {
     e.preventDefault();
-    setParishes(parishes.filter(p => p.id !== parishId));
+    setParishes(parishes.filter((p) => p.id !== parishId));
   };
 
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,11 +30,17 @@ const Parishes: React.FC = () => {
     if (value.length >= 3) {
       setIsSearching(true);
       try {
-        // TODO: Replace with actual API call
-        // const response = await fetch(`/backend/api/parishes/search?q=${value}`);
-        // const data = await response.json();
-        // setSearchResults(data);
-        setSearchResults([]);
+        const response = await fetch(`/backend/api/parish/search?q=${value}`);
+        const data = await response.json();
+
+        // API returns { query, count, data: [...] }
+        // Map API response (parish_code, parish_name) to frontend format (id, name)
+        const mappedResults = (data.data || []).map((parish: any) => ({
+          id: parish.parish_code,
+          name: parish.parish_name,
+          county: parish.country,
+        }));
+        setSearchResults(mappedResults);
       } catch (error) {
         console.error("Error searching parishes:", error);
         setSearchResults([]);
@@ -46,7 +53,7 @@ const Parishes: React.FC = () => {
   };
 
   const handleAddParish = (parish: Parish) => {
-    if (!parishes.find(p => p.id === parish.id)) {
+    if (!parishes.find((p) => p.id === parish.id)) {
       setParishes([...parishes, parish]);
       setSearchTerm("");
       setSearchResults([]);
@@ -55,10 +62,34 @@ const Parishes: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Save parishes data
-    // const parishIds = parishes.map(p => p.id);
-    // await saveParishes(applicationId, parishIds);
-    navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+
+    try {
+      // Save parishes to backend
+      const parishCodes = parishes.map((p) => p.id);
+      const response = await fetch(
+        `/backend/api/applications/${applicationId}/parishes`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ parish_codes: parishCodes }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save parishes");
+      }
+
+      const result = await response.json();
+      console.log("Parishes saved:", result);
+
+      // Navigate to task list
+      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+    } catch (error) {
+      console.error("Error saving parishes:", error);
+      alert("Failed to save parishes. Please try again.");
+    }
   };
 
   return (
@@ -67,7 +98,10 @@ const Parishes: React.FC = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+              <Link
+                className="govuk-breadcrumbs__link"
+                to={`${S37_BASE_URL}/${applicationId}/task-list`}
+              >
                 Task list
               </Link>
             </li>
@@ -82,7 +116,10 @@ const Parishes: React.FC = () => {
             <h1 className="govuk-heading-xl">Parishes</h1>
 
             <form onSubmit={handleSubmit} noValidate>
-              <ParishesTable parishes={parishes} onRemove={handleRemoveParish} />
+              <ParishesTable
+                parishes={parishes}
+                onRemove={handleRemoveParish}
+              />
 
               <ParishSearch
                 searchTerm={searchTerm}
