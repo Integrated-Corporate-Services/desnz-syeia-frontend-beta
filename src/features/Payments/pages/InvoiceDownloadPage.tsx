@@ -97,7 +97,7 @@ const InvoiceDownloadPage: React.FC = () => {
             )}
 
             <p className="govuk-body">
-              You will need to download the invoice to continue with <span style={{ backgroundColor: '#ffdd00', padding: '0 2px' }}>payment</span>.
+              You will need to download the invoice to continue with payment.
             </p>
 
             <div className="govuk-button-group">

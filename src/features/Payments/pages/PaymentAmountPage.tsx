@@ -120,7 +120,7 @@ const PaymentAmountPage: React.FC = () => {
             )}
 
             <h1 className="govuk-heading-l">
-              <span style={{ backgroundColor: '#ffdd00', padding: '0 4px' }}>Payment</span> Amount
+              Payment Amount
             </h1>
 
             <p className="govuk-body">

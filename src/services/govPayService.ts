@@ -23,7 +23,7 @@ export const createPayment = async (
 
     console.log('Creating payment with payload:', payload);
 
-    const response = await fetch('/backend/api/payments/create', {
+    const response = await fetch('/backend/api/gov-pay/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ export const createPayment = async (
 
 export const getPaymentStatus = async (paymentId: string) => {
   try {
-    const response = await fetch(`/backend/api/payments/${paymentId}/status`, {
+    const response = await fetch(`/backend/api/gov-pay/${paymentId}/status`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
