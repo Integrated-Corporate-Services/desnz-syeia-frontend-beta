@@ -8,6 +8,7 @@ export const ERROR_MESSAGES = {
     "Select yes if all contact details are available and correct",
   NO_CONTACT_FOUND:
     "No applicant contact details found. Please ensure your account is set up correctly.",
+  SAVE_FAILED: "Failed to save contact confirmation. Please try again.",
 };
 
 export const LABELS = {
