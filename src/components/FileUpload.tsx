@@ -47,8 +47,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
   // Get user from auth context
   const { user } = useAuthUserContext();
   const userId =
-    (user as AuthUser)?.person_id ||
     (user as AuthUser)?.user_id ||
+    (user as AuthUser)?.person_id ||
     DEMO_USER_ID;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);

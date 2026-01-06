@@ -1,31 +1,47 @@
-import React, { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { S37_BASE_URL } from "../../../constants/s37";
-import LPAModificationsQuestion from "../components/LPAModificationsQuestion";
-import FormButtons from "../components/FormButtons";
+import React from "react";
+import { Link } from "react-router-dom";
+import { LPAModificationsQuestion, FormButtons } from "../components";
+import {
+  usePostConsultationData,
+  usePostConsultationNavigation,
+} from "../hooks";
+import { POST_CONSULTATION_CONSTANTS } from "../constants";
+import { SaveType } from "../types";
 
 const PostConsultation: React.FC = () => {
-  const navigate = useNavigate();
-  const params = useParams();
-  const applicationId = params.applicationId || params.id;
+  const { applicationId, getTaskListUrl, handleNavigationAfterSave } =
+    usePostConsultationNavigation();
 
-  const [lpaModifications, setLpaModifications] = useState<string>("");
-  const [acceptConditions, setAcceptConditions] = useState<string>("");
-  const [explanation, setExplanation] = useState<string>("");
+  const {
+    lpaModifications,
+    setLpaModifications,
+    acceptConditions,
+    setAcceptConditions,
+    explanation,
+    setExplanation,
+    loading,
+    saving,
+    error,
+    saveData,
+  } = usePostConsultationData(applicationId);
 
-  const handleSubmit = async (e: React.FormEvent, saveType: 'continue' | 'later') => {
+  const handleSubmit = async (e: React.FormEvent, saveType: SaveType) => {
     e.preventDefault();
-    
-    // TODO: Save post consultation data
-    // await savePostConsultationData(applicationId, { lpaModifications, acceptConditions });
-    
-    if (saveType === 'continue') {
-      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
-    } else {
-      // Save for later - stay on page or show confirmation
-      console.log("Saved for later");
-    }
+    const success = await saveData(saveType);
+    handleNavigationAfterSave(saveType, success);
   };
+
+  if (loading) {
+    return (
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content">
+          <p className="govuk-body">
+            {POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}
+          </p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="govuk-width-container">
@@ -33,19 +49,39 @@ const PostConsultation: React.FC = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+              <Link className="govuk-breadcrumbs__link" to={getTaskListUrl()}>
                 Task list
               </Link>
             </li>
             <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              Post consultation actions
+              {POST_CONSULTATION_CONSTANTS.BREADCRUMB_LABEL}
             </li>
           </ol>
         </nav>
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-xl">Post consultation actions</h1>
+            <h1 className="govuk-heading-xl">
+              {POST_CONSULTATION_CONSTANTS.PAGE_TITLE}
+            </h1>
+
+            {error && (
+              <div
+                className="govuk-error-summary"
+                aria-labelledby="error-summary-title"
+                role="alert"
+              >
+                <h2
+                  className="govuk-error-summary__title"
+                  id="error-summary-title"
+                >
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{error}</p>
+                </div>
+              </div>
+            )}
 
             <form noValidate>
               <LPAModificationsQuestion
@@ -58,8 +94,9 @@ const PostConsultation: React.FC = () => {
               />
 
               <FormButtons
-                onSaveLater={(e) => handleSubmit(e, 'later')}
-                onSaveContinue={(e) => handleSubmit(e, 'continue')}
+                onSaveLater={(e) => handleSubmit(e, "later")}
+                onSaveContinue={(e) => handleSubmit(e, "continue")}
+                disabled={saving}
               />
             </form>
           </div>

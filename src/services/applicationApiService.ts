@@ -132,6 +132,59 @@ export const applicationApiService = {
     return response.json();
   },
 
+  confirmContactDetails: async (
+    applicationId: string,
+    isConfirmed: boolean
+  ) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": generateCorrelationId(),
+    };
+    const response = await fetch(
+      `/backend/api/applications/${applicationId}/contact-confirmation`,
+      {
+        method: "PATCH",
+        headers,
+        credentials: "include",
+        body: JSON.stringify({
+          contact_isconfirmed: isConfirmed,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Failed to confirm contact details");
+    }
+
+    return response.json();
+  },
+
+  confirmDeclaration: async (applicationId: string, isConfirmed: boolean) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": generateCorrelationId(),
+    };
+    const response = await fetch(
+      `/backend/api/applications/${applicationId}/declaration`,
+      {
+        method: "PATCH",
+        headers,
+        credentials: "include",
+        body: JSON.stringify({
+          declaration_confirmed: isConfirmed,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Failed to update declaration");
+    }
+
+    return response.json();
+  },
+
   deleteApplication: async (applicationId: string) => {
     const headers: HeadersInit = {
       "Content-Type": "application/json",

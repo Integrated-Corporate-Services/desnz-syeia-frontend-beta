@@ -7,6 +7,7 @@ interface ParishSearchProps {
   isSearching: boolean;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAddParish: (parish: Parish) => void;
+  error?: string | null;
 }
 
 const ParishSearch: React.FC<ParishSearchProps> = ({
@@ -15,24 +16,34 @@ const ParishSearch: React.FC<ParishSearchProps> = ({
   isSearching,
   onSearchChange,
   onAddParish,
+  error,
 }) => {
   return (
-    <div className="govuk-form-group">
+    <div
+      className={`govuk-form-group${error ? " govuk-form-group--error" : ""}`}
+    >
       <label className="govuk-label govuk-label--m" htmlFor="parish-search">
         Add parish
       </label>
       <div id="parish-search-hint" className="govuk-hint">
         Find parishes by name, county or local planning authority
       </div>
+      {error && (
+        <p id="parish-search-error" className="govuk-error-message">
+          <span className="govuk-visually-hidden">Error:</span> {error}
+        </p>
+      )}
       <div style={{ position: "relative" }}>
         <input
-          className="govuk-input"
+          className={`govuk-input${error ? " govuk-input--error" : ""}`}
           id="parish-search"
           name="parish-search"
           type="text"
           value={searchTerm}
           onChange={onSearchChange}
-          aria-describedby="parish-search-hint"
+          aria-describedby={`parish-search-hint${
+            error ? " parish-search-error" : ""
+          }`}
           autoComplete="off"
         />
         {isSearching && (
