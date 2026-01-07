@@ -4,14 +4,15 @@ import { S37_BASE_URL } from "../../../constants/s37";
 import ParishesTable from "../components/ParishesTable";
 import ParishSearch from "../components/ParishSearch";
 import { useParishSearch } from "../hooks/useParishSearch";
-import { useParishManagement } from "../hooks/useParishManagement";
+import { useParishes } from "../hooks/useParishes";
 import { useParishSubmit } from "../hooks/useParishSubmit";
 
 const Parishes: React.FC = () => {
   const params = useParams();
   const applicationId = params.applicationId || params.id || "";
 
-  const { parishes, addParish, removeParish } = useParishManagement();
+  const { parishes, addParish, removeParish, isLoading, loadError } =
+    useParishes(applicationId);
   const {
     searchTerm,
     searchResults,
@@ -65,6 +66,24 @@ const Parishes: React.FC = () => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {loadError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+              >
+                <div role="alert">
+                  <h2 className="govuk-error-summary__title">
+                    There is a problem
+                  </h2>
+                  <div className="govuk-error-summary__body">
+                    <ul className="govuk-list govuk-error-summary__list">
+                      <li>{loadError}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {validationError && (
               <div
                 className="govuk-error-summary"
@@ -87,30 +106,34 @@ const Parishes: React.FC = () => {
 
             <h1 className="govuk-heading-xl">Parishes</h1>
 
-            <form onSubmit={onSubmit} noValidate>
-              <ParishesTable
-                parishes={parishes}
-                onRemove={handleRemoveParish}
-              />
+            {isLoading ? (
+              <p className="govuk-body">Loading saved parishes...</p>
+            ) : (
+              <form onSubmit={onSubmit} noValidate>
+                <ParishesTable
+                  parishes={parishes}
+                  onRemove={handleRemoveParish}
+                />
 
-              <ParishSearch
-                searchTerm={searchTerm}
-                searchResults={searchResults}
-                isSearching={isSearching}
-                onSearchChange={handleSearchInputChange}
-                onAddParish={handleAddParish}
-                error={validationError}
-              />
+                <ParishSearch
+                  searchTerm={searchTerm}
+                  searchResults={searchResults}
+                  isSearching={isSearching}
+                  onSearchChange={handleSearchInputChange}
+                  onAddParish={handleAddParish}
+                  error={validationError}
+                />
 
-              <button
-                type="submit"
-                data-module="govuk-button"
-                className="govuk-button"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Saving..." : "Save and continue"}
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  data-module="govuk-button"
+                  className="govuk-button"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Save and continue"}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </main>

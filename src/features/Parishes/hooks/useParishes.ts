@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Parish } from "../types/Parish";
 import { parishService } from "../../../services/parishService";
 
-export const useParishManagement = (applicationId: string) => {
+export const useParishes = (applicationId: string) => {
   const [parishes, setParishes] = useState<Parish[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
