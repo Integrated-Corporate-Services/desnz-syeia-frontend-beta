@@ -18,14 +18,16 @@ class RequestAccessService {
   ): Promise<RequestAccessResponse> {
     try {
       const response = await axios.post(`/backend/api/access-requests`, {
-        fullName: data.fullName,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
-        // TODO: Address fields are currently disabled. Uncomment when backend supports address data
-        // line1: data.line1,
-        // line2: data.line2,
-        // town: data.town,
-        // country: data.country,
-        // postCode: data.postCode,
+        phoneNumber: data.phoneNumber,
+        workAddressLine1: data.workAddressLine1,
+        workAddressLine2: data.workAddressLine2,
+        workTown: data.workTown,
+        workCounty: data.workCounty,
+        workPostcode: data.workPostcode,
+        company: data.company,
         organisations: data.organisations,
         applyingOnBehalf: data.applyingOnBehalf,
       });

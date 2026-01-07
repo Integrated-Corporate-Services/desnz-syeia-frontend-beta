@@ -3,8 +3,14 @@ import { useTaskListData } from '../../../hooks/useTaskListData';
 import TaskListSection from '../components/TaskListSection';
 import SensitiveAreaBanner from '../components/SensitiveAreaBanner';
 import ErrorMessage from '../components/ErrorMessage';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import type { AuthUser } from '../../../types/auth';
+import { ROLES } from '../../../constants/roles';
 
 const TaskList: React.FC = () => {
+  const { user } = useAuthUserContext();
+  const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
+  
   const {
     application,
     sections,
@@ -27,6 +33,22 @@ const TaskList: React.FC = () => {
   return (
     <div className="govuk-width-container">
       <SensitiveAreaBanner status={sensitiveAreaStatus} />
+      {application?.status?.toLowerCase() === 'submitted' && (
+        <div className="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+          <div className="govuk-notification-banner__header">
+            <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">
+              Application submitted
+            </h2>
+          </div>
+          <div className="govuk-notification-banner__content">
+            <p className="govuk-notification-banner__heading">
+              {isAdmin 
+                ? 'This application has been submitted. As an admin, you can still edit the application.'
+                : 'This application has been submitted and can no longer be edited or deleted.'}
+            </p>
+          </div>
+        </div>
+      )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           {!application ? (
@@ -37,7 +59,13 @@ const TaskList: React.FC = () => {
             <>
               <span className="govuk-caption-l">{application.operator_name || application.application_party?.organisation_name || ''}</span>
               <h1 className="govuk-heading-l">{application.type === 'S37' ? 'Section 37' : application.type} application</h1>
-              <p className="govuk-body" style={{ color: '#505a5f' }}>Complete the following sections in order to create and submit your application</p>
+              <p className="govuk-body" style={{ color: '#505a5f' }}>
+                {application.status?.toLowerCase() === 'submitted' 
+                  ? (isAdmin 
+                      ? 'This application has been submitted. As an admin, you can still make changes if needed.'
+                      : 'This application has been submitted. You can view the information but cannot make changes.')
+                  : 'Complete the following sections in order to create and submit your application'}
+              </p>
             </>
           )}
           <ErrorMessage error={submitError} />
@@ -47,6 +75,8 @@ const TaskList: React.FC = () => {
               section={section}
               idx={idx}
               applicationId={application?.application_id}
+              applicationStatus={application?.status}
+              isAdmin={isAdmin}
               submitting={submitting}
               handleSubmit={handleSubmit}
               statusClass={statusClass}

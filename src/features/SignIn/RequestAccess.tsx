@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import TextInput from "../../components/commonFormFields/TextInput";
 import MultiSelect from "../../components/commonFormFields/MultiSelect";
-import Checkbox from "../../components/commonFormFields/Checkbox";
 import { useRequestAccess } from "../../hooks/useRequestAccess";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { usePublicOrganisations } from "../../hooks/usePublicOrganisations";
@@ -14,6 +13,17 @@ const RequestAccessPage: React.FC = () => {
   const { organisations: organisationOptions, isLoading: isLoadingOrgs } =
     usePublicOrganisations();
   const { formData, handleChange } = useRequestAccessForm(user?.email || "");
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (errors.length > 0 && errorSummaryRef.current) {
+      errorSummaryRef.current.focus();
+      errorSummaryRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [errors]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,47 +37,46 @@ const RequestAccessPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <a
-        href="/landingPage"
-        className="govuk-back-link govuk-!-margin-bottom-6 govuk-!-margin-top-0"
-        style={{ display: "inline-block", marginBottom: "32px", marginTop: 0 }}
-      >
-        Submit your Energy Infrastructure Application
+      <a href="/landingPage" className="govuk-back-link">
+        Back
       </a>
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <ErrorSummary errors={errors} />
+            <ErrorSummary ref={errorSummaryRef} errors={errors} />
 
-            <h1 className="govuk-heading-l">
-              Provide your details to request access to this service
-            </h1>
+            <h1 className="govuk-heading-l">Request access to this service</h1>
 
-            <p className="govuk-body govuk-!-margin-bottom-2">
-              We need a few more details to give you access to this service. A
-              Distribution Network Operator (DNO) administrator will review your
-              request.
-            </p>
-
-            <p className="govuk-body govuk-!-margin-bottom-4">
-              Once you submit this form, we will send your request to your
-              organisation's administrator. You will not be able to use the
+            <p className="govuk-body">
+              A DNO administrator will review your request. You cannot use the
               service until they approve your access.
             </p>
 
             <p className="govuk-body govuk-!-margin-bottom-6">
-              We will email you when your request has been reviewed.
+              We'll email you when your request has been reviewed.
             </p>
 
             <form onSubmit={handleSubmit} noValidate>
               <TextInput
-                id="full-name"
-                name="fullName"
-                label="Full name"
-                value={formData.fullName}
+                id="first-name"
+                name="firstName"
+                label="First name"
+                value={formData.firstName}
                 onChange={handleChange}
-                error={getFieldError("full-name")}
-                autoComplete="name"
+                error={getFieldError("first-name")}
+                autoComplete="given-name"
+                className="govuk-!-width-two-thirds"
+              />
+
+              <TextInput
+                id="last-name"
+                name="lastName"
+                label="Last name"
+                value={formData.lastName}
+                onChange={handleChange}
+                error={getFieldError("last-name")}
+                autoComplete="family-name"
+                className="govuk-!-width-two-thirds"
               />
 
               <TextInput
@@ -79,42 +88,167 @@ const RequestAccessPage: React.FC = () => {
                 onChange={handleChange}
                 readOnly
                 error={getFieldError("email")}
-                hint="This is the email address you used to sign in with GOV.UK One Login."
+                hint="This is your GOV.UK One Login email address."
                 autoComplete="email"
+                className="govuk-!-width-two-thirds"
               />
 
-              <MultiSelect
-                id="organisations"
-                name="organisations"
-                label="Which organisations do you work for or represent?"
-                values={formData.organisations}
+              <TextInput
+                id="phone-number"
+                name="phoneNumber"
+                label="Phone number (optional)"
+                type="tel"
+                value={formData.phoneNumber}
                 onChange={handleChange}
-                options={organisationOptions}
-                error={getFieldError("organisations")}
-                hint="Choose the Distribution Network Operators (DNOs) you work for or represent. You can select multiple organisations if you work across several."
-                disabled={isLoadingOrgs}
+                error={getFieldError("phone-number")}
+                hint="We may need to call you about your request."
+                autoComplete="tel"
+                className="govuk-!-width-two-thirds"
               />
 
-              <Checkbox
-                id="applying-on-behalf"
-                name="applyingOnBehalf"
-                label="I am authorised to act on behalf of these organisations"
-                checked={formData.applyingOnBehalf}
-                onChange={handleChange}
-                hint="Select this if you are an agent or contractor representing these organisations."
-              />
+              <fieldset
+                className="govuk-fieldset"
+                aria-describedby="work-address-hint"
+              >
+                <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                  <h2 className="govuk-fieldset__heading">Work address</h2>
+                </legend>
+                <div id="work-address-hint" className="govuk-hint">
+                  We'll use this address on official correspondence.
+                </div>
 
-              <div className="govuk-form-group govuk-!-margin-top-4">
-                <h2 className="govuk-heading-m govuk-!-margin-bottom-1">
-                  Privacy notice
-                </h2>
-                <p className="govuk-body govuk-!-margin-bottom-1">
-                  By continuing, you agree to the processing of your
-                  information.
+                <TextInput
+                  id="work-address-line-1"
+                  name="workAddressLine1"
+                  label="Address line 1"
+                  value={formData.workAddressLine1}
+                  onChange={handleChange}
+                  error={getFieldError("work-address-line-1")}
+                  autoComplete="address-line1"
+                />
+
+                <TextInput
+                  id="work-address-line-2"
+                  name="workAddressLine2"
+                  label="Address line 2 (optional)"
+                  value={formData.workAddressLine2}
+                  onChange={handleChange}
+                  error={getFieldError("work-address-line-2")}
+                  autoComplete="address-line2"
+                />
+
+                <TextInput
+                  id="work-town"
+                  name="workTown"
+                  label="Town or city"
+                  value={formData.workTown}
+                  onChange={handleChange}
+                  error={getFieldError("work-town")}
+                  autoComplete="address-level2"
+                  className="govuk-!-width-two-thirds"
+                />
+
+                <TextInput
+                  id="work-county"
+                  name="workCounty"
+                  label="County (optional)"
+                  value={formData.workCounty}
+                  onChange={handleChange}
+                  error={getFieldError("work-county")}
+                  autoComplete="address-level1"
+                  className="govuk-!-width-two-thirds"
+                />
+
+                <TextInput
+                  id="work-postcode"
+                  name="workPostcode"
+                  label="Postcode"
+                  value={formData.workPostcode}
+                  onChange={handleChange}
+                  error={getFieldError("work-postcode")}
+                  autoComplete="postal-code"
+                  className="govuk-input--width-10"
+                />
+              </fieldset>
+
+              <div className="govuk-form-group">
+                <div
+                  className="govuk-checkboxes"
+                  data-module="govuk-checkboxes"
+                >
+                  <div className="govuk-checkboxes__item">
+                    <input
+                      className="govuk-checkboxes__input"
+                      id="applying-on-behalf"
+                      name="applyingOnBehalf"
+                      type="checkbox"
+                      checked={formData.applyingOnBehalf}
+                      onChange={handleChange}
+                      aria-controls="conditional-organisations"
+                      aria-expanded={formData.applyingOnBehalf}
+                    />
+                    <label
+                      className="govuk-label govuk-checkboxes__label"
+                      htmlFor="applying-on-behalf"
+                    >
+                      I'm an agent or contractor representing DNOs
+                    </label>
+                    <div className="govuk-hint govuk-checkboxes__hint">
+                      Only select this if you don't work directly for a DNO.
+                      We'll auto-detect your organisation from your email if you
+                      do.
+                    </div>
+                  </div>
+
+                  {formData.applyingOnBehalf && (
+                    <div
+                      className="govuk-checkboxes__conditional"
+                      id="conditional-organisations"
+                    >
+                      <TextInput
+                        id="company"
+                        name="company"
+                        label="Your employer"
+                        value={formData.company}
+                        onChange={handleChange}
+                        error={getFieldError("company")}
+                        autoComplete="organization"
+                        hint="Enter your agency name, not the DNOs you represent."
+                      />
+
+                      <div className="govuk-form-group">
+                        <fieldset className="govuk-fieldset">
+                          <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            <h2 className="govuk-fieldset__heading">
+                              Which DNOs do you represent?
+                            </h2>
+                          </legend>
+                          <MultiSelect
+                            id="organisations"
+                            name="organisations"
+                            label="Select organisations"
+                            values={formData.organisations}
+                            onChange={handleChange}
+                            options={organisationOptions}
+                            error={getFieldError("organisations")}
+                            hint="You can select multiple organisations."
+                            disabled={isLoadingOrgs}
+                          />
+                        </fieldset>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="govuk-form-group govuk-!-margin-top-6">
+                <p className="govuk-body">
+                  By continuing, you agree to the{" "}
+                  <a href="/privacy-notice" className="govuk-link">
+                    privacy notice
+                  </a>
+                  .
                 </p>
-                <a href="#" className="govuk-link">
-                  Read the privacy notice
-                </a>
               </div>
 
               <div className="govuk-form-group govuk-!-margin-top-6">
@@ -137,17 +271,12 @@ const RequestAccessPage: React.FC = () => {
               </summary>
               <div className="govuk-details__text">
                 <p className="govuk-body">
-                  Use this form if you work for one or more Distribution Network
-                  Operators (DNOs) or if you are an authorised agent acting on
-                  their behalf.
+                  Use this form if you work for a DNO or if you're an agent
+                  acting on their behalf.
                 </p>
                 <p className="govuk-body">
-                  You can select multiple organisations if you work across
-                  several DNOs or represent multiple networks.
-                </p>
-                <p className="govuk-body">
-                  If you cannot find your organisation in the list, contact your
-                  DNO administrator.
+                  Agents can select multiple DNOs if they work across several
+                  networks.
                 </p>
               </div>
             </details>
