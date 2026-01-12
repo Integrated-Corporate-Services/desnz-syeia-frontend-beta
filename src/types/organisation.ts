@@ -9,7 +9,7 @@ export interface Organisation {
   address_line2?: string;
   town_city?: string;
   postcode?: string;
-  country?: string;
+  county?: string;
 }
 
 export interface TeamCoordinator {

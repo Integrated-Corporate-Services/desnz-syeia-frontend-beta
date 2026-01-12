@@ -17,20 +17,24 @@ class RequestAccessService {
     data: RequestAccessRequest
   ): Promise<RequestAccessResponse> {
     try {
-      const response = await axios.post(`/backend/api/access-requests`, {
-        firstName: data.firstName,
-        lastName: data.lastName,
+      // Transform frontend field names to backend expected format
+      const payload = {
+        fullName: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
-        phoneNumber: data.phoneNumber,
-        workAddressLine1: data.workAddressLine1,
-        workAddressLine2: data.workAddressLine2,
-        workTown: data.workTown,
-        workCounty: data.workCounty,
-        workPostcode: data.workPostcode,
-        company: data.company,
+        line1: data.workAddressLine1,
+        line2: data.workAddressLine2 || '',
+        town: data.workTown,
+        county: data.workCounty || '',
+        postCode: data.workPostcode,
+        phoneNumber: data.phoneNumber || '',
+        company: data.company || '',
         organisations: data.organisations,
         applyingOnBehalf: data.applyingOnBehalf,
-      });
+      };
+
+      logger.debug('Submitting access request with payload:', payload);
+
+      const response = await axios.post(`/backend/api/access-requests`, payload);
 
       return {
         success: response.data.success !== false,

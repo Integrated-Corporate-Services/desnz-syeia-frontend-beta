@@ -480,7 +480,7 @@ const ApplicationSubmit: React.FC = () => {
                         networkOperatorDetails?.line1,
                         networkOperatorDetails?.line2,
                         networkOperatorDetails?.town_city,
-                        networkOperatorDetails?.country,
+                        networkOperatorDetails?.county,
                         networkOperatorDetails?.postcode,
                       ])}
                     </dd>

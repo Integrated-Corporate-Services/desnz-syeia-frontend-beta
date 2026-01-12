@@ -51,10 +51,15 @@ import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
 import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
 import LandingPage from '../features/SignIn/LandingPage';
-import RegistrationPage from '../features/SignIn/RequestAccess';
-import SentForApprovalPage from '../features/SignIn/SentForApprovalPage';
 import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
+import AccessRequestIntroPage from '../features/SignIn/AccessRequestIntroPage';
+import ContactDetailsPage from '../features/SignIn/ContactDetailsPage';
+import WorkAddressPage from '../features/SignIn/WorkAddressPage';
+import AgentQuestionPage from '../features/SignIn/AgentQuestionPage';
+import CompanyNamePage from '../features/SignIn/CompanyNamePage';
+import SelectOrganisationsPage from '../features/SignIn/SelectOrganisationsPage';
+import AccessRequestSubmittedPage from '../features/SignIn/AccessRequestSubmittedPage';
 import OTPVerifyPage from '../features/OTPVerifyPage';
 import ReviewRequestPage from '../features/admin/pages/ReviewRequestPage';
 import AccessApprovedPage from '../features/admin/pages/AccessApprovedPage';
@@ -135,18 +140,8 @@ export const ROUTE_CONFIG = [
     auth: false,
     layout: false
   },
-  {
-    path: '/request-access',
-    component: RegistrationPage,
-    auth: false,
-    layout: false
-  },
-  {
-    path: '/sent-for-approval',
-    component: SentForApprovalPage,
-    auth: false,
-    layout: false
-  },
+
+
   {
     path: '/otp-verify',
     component: OTPVerifyPage,
@@ -182,6 +177,54 @@ export const ROUTE_CONFIG = [
     component: ApprovedEmailDomainsPage,
     auth: true,
     layout: false
+  },
+  {
+    path: '/request-access/intro',
+    component: AccessRequestIntroPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/contact-details',
+    component: ContactDetailsPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/work-address',
+    component: WorkAddressPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/agent-question',
+    component: AgentQuestionPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/company-name',
+    component: CompanyNamePage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/select-organisations',
+    component: SelectOrganisationsPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/select-organisation',
+    component: SelectOrganisationsPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/submitted',
+    component: AccessRequestSubmittedPage,
+    auth: false,
+    layout: true
   },
   {
     path: '/admin/review-request/:requestId',
