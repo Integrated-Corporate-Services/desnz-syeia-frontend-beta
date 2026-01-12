@@ -20,8 +20,16 @@ const Section37GuidancePage = () => {
 
           <h2 className="govuk-heading-m">Introduction</h2>
           <p className="govuk-body">
-            Apply for consent under Section 37 of the Electricity Act 1989 to
-            install or change overhead electric lines in England and Wales. This
+            Apply for consent under{" "}
+            <a
+              href="https://www.legislation.gov.uk/ukpga/1989/29/section/37"
+              className="govuk-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Section 37 of the Electricity Act 1989 (opens in a new tab)
+            </a>{" "}
+            to install or change overhead electric lines in England and Wales. This
             includes applications for new lines or alterations to existing ones.
           </p>
           <p className="govuk-body">
@@ -138,6 +146,16 @@ const Section37GuidancePage = () => {
                   >
                     The statutory consents regime for overhead power lines in
                     England and Wales: guidance note
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.legislation.gov.uk/uksi/2009/640/contents/made"
+                    className="govuk-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    The Overhead Lines (Exemption)(England and Wales) Regulations 2009
                   </a>
                 </li>
                 <li>
