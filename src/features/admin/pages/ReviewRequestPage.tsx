@@ -6,14 +6,13 @@ import {
   ApplicantDetails,
   RejectionReasonForm,
   ActionButtons,
-  RelatedContentSidebar
+  RelatedContentSidebar,
+  // RelatedContentSidebar
 } from '../../../components/shared/ReviewRequestComponents';
 
 const ReviewRequestPage: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
-  
   // Debug logging handled by logger utility in useReviewRequest hook
-
   const {
     requestData,
     loading,
@@ -41,11 +40,27 @@ const ReviewRequestPage: React.FC = () => {
   };
 
   const handleApprove = () => {
-    approveRequest(navigateToAccessApproved);
+    if (requestData) {
+      const fullName = `${requestData.first_name} ${requestData.last_name}`;
+      const userEmail = requestData.email;
+      
+      approveRequest(() => navigateToAccessApproved({
+        userName: fullName,
+        userEmail: userEmail
+      }));
+    }
   };
 
   const handleReject = () => {
-    rejectRequest(navigateToAccessDenied);
+    if (requestData) {
+      const fullName = `${requestData.first_name} ${requestData.last_name}`;
+      const userEmail = requestData.email;
+      
+      rejectRequest(() => navigateToAccessDenied({
+        userName: fullName,
+        userEmail: userEmail
+      }));
+    }
   };
 
   if (loading) {
@@ -118,9 +133,9 @@ const ReviewRequestPage: React.FC = () => {
             )}
           </div>
 
-          <div className="govuk-grid-column-one-third">
+          {/* <div className="govuk-grid-column-one-third">
             <RelatedContentSidebar />
-          </div>
+          </div> */}
         </div>
       </main>
     </div>

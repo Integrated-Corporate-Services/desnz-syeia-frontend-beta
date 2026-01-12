@@ -1,5 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 
+interface UserDetails {
+  userName: string;
+  userEmail: string;
+}
+
 export const useReviewRequestNavigation = () => {
   const navigate = useNavigate();
 
@@ -7,12 +12,22 @@ export const useReviewRequestNavigation = () => {
     navigate('/admin/user-management');
   };
 
-  const navigateToAccessApproved = () => {
-    navigate('/admin/access-approved');
+  const navigateToAccessApproved = (userDetails: UserDetails) => {
+    navigate('/admin/access-approved', {
+      state: {
+        userName: userDetails.userName,
+        userEmail: userDetails.userEmail
+      }
+    });
   };
 
-  const navigateToAccessDenied = () => {
-    navigate('/admin/access-denied');
+  const navigateToAccessDenied = (userDetails: UserDetails) => {
+    navigate('/admin/access-denied', {
+      state: {
+        userName: userDetails.userName,
+        userEmail: userDetails.userEmail
+      }
+    });
   };
 
   return {
