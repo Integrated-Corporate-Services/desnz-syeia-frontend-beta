@@ -179,7 +179,7 @@ export const ROUTE_CONFIG = [
     layout: false
   },
   {
-    path: '/request-access/intro',
+    path: '/request-access',
     component: AccessRequestIntroPage,
     auth: false,
     layout: true
