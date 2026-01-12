@@ -6,9 +6,10 @@ interface AccessRequest {
   access_request_id: string;
   first_name: string;
   last_name: string;
+  email: string;
   organisation_name?: string;
-  requested_at: string;
   is_agent: boolean;
+  requested_at: string;
 }
 
 interface PendingRequestsTabProps {
@@ -36,12 +37,12 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
     const csvData = pendingRequests.map(request => ({
       'Name': `${request.first_name} ${request.last_name}`,
       'Organisation': request.organisation_name || 'N/A',
+      'Email': request.email,
       'Requested on': new Date(request.requested_at).toLocaleDateString('en-GB', { 
         day: '2-digit', 
         month: 'long', 
         year: 'numeric' 
-      }),
-      'Applicant type': request.is_agent ? 'Agent' : 'Employee'
+      })
     }));
 
     const headers = Object.keys(csvData[0]).join(',');
@@ -101,9 +102,9 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
               <tr className="govuk-table__row">
                 <th scope="col" className="govuk-table__header">Name</th>
                 <th scope="col" className="govuk-table__header">Organisation</th>
+                <th scope="col" className="govuk-table__header">Email</th>
                 <th scope="col" className="govuk-table__header">Requested on</th>
-                <th scope="col" className="govuk-table__header">Applicant type</th>
-                <th scope="col" className="govuk-table__header">Action</th>
+                <th scope="col" className="govuk-table__header">Action(s)</th>
               </tr>
             </thead>
             <tbody className="govuk-table__body">
@@ -116,25 +117,21 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
               ) : (
                 paginatedRequests.map((request) => (
                   <tr key={request.access_request_id} className="govuk-table__row">
-                    <td className="govuk-table__cell"><strong>{`${request.first_name} ${request.last_name}`}</strong></td>
-                    <td className="govuk-table__cell">{request.organisation_name || 'N/A'}</td>
+                    <td className="govuk-table__cell">
+                      <strong>{request.first_name} {request.last_name}</strong>
+                    </td>
+                    <td className="govuk-table__cell">
+                      {request.organisation_name || 'N/A'}
+                    </td>
+                    <td className="govuk-table__cell">
+                      {request.email}
+                    </td>
                     <td className="govuk-table__cell">
                       {new Date(request.requested_at).toLocaleDateString('en-GB', { 
                         day: '2-digit', 
                         month: 'long', 
                         year: 'numeric' 
                       })}
-                    </td>
-                    <td className="govuk-table__cell">
-                      <strong
-                        className="govuk-tag"
-                        style={{
-                          backgroundColor: !request.is_agent ? '#1d70b8' : '#505a5f',
-                          color: '#ffffff'
-                        }}
-                      >
-                        {!request.is_agent ? 'Employee' : 'Agent'}
-                      </strong>
                     </td>
                     <td className="govuk-table__cell">
                       <a
