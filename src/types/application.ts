@@ -17,7 +17,7 @@ export type ApplicationParty = {
   line2?: string;
   city?: string;
   postcode?: string;
-  country?: string;
+  county?: string;
   email?: string;
   phone?: string;
   organisation_id?: string;

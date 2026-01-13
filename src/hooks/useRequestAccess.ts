@@ -17,8 +17,15 @@ export const useRequestAccess = () => {
   const validateForm = (formData: RequestAccessRequest): boolean => {
     const newErrors: ValidationError[] = [];
 
-    if (!formData.fullName.trim()) {
-      newErrors.push({ fieldId: "full-name", message: "Enter your full name" });
+    if (!formData.firstName.trim()) {
+      newErrors.push({
+        fieldId: "first-name",
+        message: "Enter your first name",
+      });
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.push({ fieldId: "last-name", message: "Enter your last name" });
     }
 
     if (!formData.email.trim()) {
@@ -33,28 +40,35 @@ export const useRequestAccess = () => {
       }
     }
 
-    // TODO: Address validation is currently disabled. Uncomment and test when address fields are required
-    // if (!formData.line1?.trim()) {
-    //   newErrors.push({ fieldId: 'line1', message: 'Enter address line 1' });
-    // }
-    //
-    // if (!formData.town?.trim()) {
-    //   newErrors.push({ fieldId: 'town', message: 'Enter a town or city' });
-    // }
-    //
-    // if (!formData.country?.trim()) {
-    //   newErrors.push({ fieldId: 'country', message: 'Enter a country' });
-    // }
-    //
-    // if (!formData.postCode?.trim()) {
-    //   newErrors.push({ fieldId: 'post-code', message: 'Enter a postcode' });
-    // }
-
-    if (!formData.organisations || formData.organisations.length === 0) {
+    if (!formData.workAddressLine1.trim()) {
       newErrors.push({
-        fieldId: "organisations",
-        message: "Select at least one organisation",
+        fieldId: "work-address-line-1",
+        message: "Enter address line 1",
       });
+    }
+
+    if (!formData.workTown.trim()) {
+      newErrors.push({ fieldId: "work-town", message: "Enter a town or city" });
+    }
+
+    if (!formData.workPostcode.trim()) {
+      newErrors.push({ fieldId: "work-postcode", message: "Enter a postcode" });
+    }
+
+    if (formData.applyingOnBehalf) {
+      if (!formData.company.trim()) {
+        newErrors.push({
+          fieldId: "company",
+          message: "Enter your employer or agency name",
+        });
+      }
+
+      if (!formData.organisations || formData.organisations.length === 0) {
+        newErrors.push({
+          fieldId: "organisations",
+          message: "Select at least one organisation",
+        });
+      }
     }
 
     setErrors(newErrors);

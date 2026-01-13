@@ -1,6 +1,10 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect,useRef } from 'react';
 import { useAssetStore } from '../../../store/useAssetStore';
+import { useApplicationStore } from '../../../store/useApplicationStore';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import type { AuthUser } from '../../../types/auth';
+import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import RadioGroup from '../component/RadioGroup';
@@ -36,9 +40,14 @@ const AssetInformationForm: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const { assets, fetchAssets, updateAsset } = useAssetStore();
+  const { application, fetchAndSetApplication } = useApplicationStore();
+  const { user } = useAuthUserContext();
   const navigate = useNavigate();
   // Ref for first error field
   const firstErrorRef = useRef<HTMLInputElement | null>(null);
+
+  // Determine if form should be read-only
+  const isReadOnly = useApplicationReadOnly(application, user as AuthUser);
 
   // Focus the first error field when errors change
   useEffect(() => {
@@ -75,6 +84,7 @@ const getApplicationId = () => {
   useEffect(() => {
     if (effectiveApplicationId) {
       fetchAssets(effectiveApplicationId);
+      fetchAndSetApplication(effectiveApplicationId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveApplicationId]);
@@ -138,6 +148,9 @@ const getApplicationId = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isReadOnly) {
+      return; // Prevent submission if read-only
+    }
     setSubmitted(true);
     const validationErrors = validate(form);
     setErrors(validationErrors);
@@ -207,6 +220,20 @@ const getApplicationId = () => {
 					<li className="govuk-breadcrumbs__list-item" aria-current="page">Asset information</li>
 				</ol>
 			</nav>
+      {isReadOnly && (
+        <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+          <div className="govuk-notification-banner__header">
+            <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">
+              Read-only view
+            </h2>
+          </div>
+          <div className="govuk-notification-banner__content">
+            <p className="govuk-notification-banner__heading">
+              This application has been submitted. You can view the information but cannot make changes.
+            </p>
+          </div>
+        </div>
+      )}
       <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
         {submitted && Object.keys(errors).length > 0 && (
           <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary" style={{ marginBottom: '2rem', maxWidth: 600 }}>
@@ -237,6 +264,7 @@ const getApplicationId = () => {
             onChange={handleChange}
             widthClass="govuk-input--width-20"
             ref={errors.referenceNumber ? firstErrorRef : undefined}
+            disabled={isReadOnly}
           />
         </div>
 
@@ -254,6 +282,7 @@ const getApplicationId = () => {
               { value: 'distribution', label: 'Distribution' },
               { value: 'transmission', label: 'Transmission' },
             ]}
+            disabled={isReadOnly}
           />
           {form.lineType === 'transmission' && (
             <div className="govuk-!-margin-top-2" style={{ maxWidth: 600 }}>
@@ -266,6 +295,7 @@ const getApplicationId = () => {
                 maxLength={4000}
                 showCount
                 style={{ width: '100%', maxWidth: 600 }}
+                disabled={isReadOnly}
               />
             </div>
           )}
@@ -283,6 +313,7 @@ const getApplicationId = () => {
                 selected={Array.isArray(form.lineVoltage) ? form.lineVoltage : form.lineVoltage ? [form.lineVoltage] : []}
                 onChange={(selected: string[]) => setForm(prev => ({ ...prev, lineVoltage: selected }))}
                 error={errors.lineVoltage}
+                disabled={isReadOnly}
               />
             </div>
           </div>
@@ -306,12 +337,15 @@ const getApplicationId = () => {
               onChange={handleChange}
               aria-describedby="lineLength-suffix"
               ref={!errors.referenceNumber && errors.lineLength ? firstErrorRef : undefined}
+              disabled={isReadOnly}
             />
             <span className="govuk-input__suffix" id="lineLength-suffix">metres</span>
           </div>
         </div>
 
-        <button type="submit" className="govuk-button govuk-!-margin-top-4">Save and continue</button>
+        {!isReadOnly && (
+          <button type="submit" className="govuk-button govuk-!-margin-top-4">Save and continue</button>
+        )}
       </form>
     </div>
   );

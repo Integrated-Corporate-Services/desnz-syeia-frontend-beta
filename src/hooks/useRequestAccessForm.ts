@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 
 export interface FormData {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  line1: string;
-  line2: string;
-  town: string;
-  country: string;
-  postCode: string;
+  phoneNumber: string;
+  workAddressLine1: string;
+  workAddressLine2: string;
+  workTown: string;
+  workCounty: string;
+  workPostcode: string;
+  company: string;
   organisations: string[];
   applyingOnBehalf: boolean;
 }
@@ -25,13 +28,16 @@ type FormEvent =
 
 export const useRequestAccessForm = (initialEmail: string = "") => {
   const [formData, setFormData] = useState<FormData>({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: initialEmail,
-    line1: "",
-    line2: "",
-    town: "",
-    country: "United Kingdom",
-    postCode: "",
+    phoneNumber: "",
+    workAddressLine1: "",
+    workAddressLine2: "",
+    workTown: "",
+    workCounty: "",
+    workPostcode: "",
+    company: "",
     organisations: [],
     applyingOnBehalf: false,
   });
@@ -59,13 +65,16 @@ export const useRequestAccessForm = (initialEmail: string = "") => {
 
   const resetForm = () => {
     setFormData({
-      fullName: "",
+      firstName: "",
+      lastName: "",
       email: initialEmail,
-      line1: "",
-      line2: "",
-      town: "",
-      country: "United Kingdom",
-      postCode: "",
+      phoneNumber: "",
+      workAddressLine1: "",
+      workAddressLine2: "",
+      workTown: "",
+      workCounty: "",
+      workPostcode: "",
+      company: "",
       organisations: [],
       applyingOnBehalf: false,
     });

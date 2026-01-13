@@ -13,6 +13,7 @@ interface MultiSelectDropdownProps {
   selected: string[];
   onChange: (selected: string[]) => void;
   error?: string;
+  disabled?: boolean;
 }
 
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
@@ -23,6 +24,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   selected,
   onChange,
   error,
+  disabled,
 }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -77,7 +79,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               textAlign: "left",
               border: error ? "2px solid #d4351c" : undefined,
             }}
-            onClick={() => setOpen(!open)}
+            onClick={() => !disabled && setOpen(!open)}
+            disabled={disabled}
             aria-haspopup="listbox"
             aria-expanded={open}
             id={id}

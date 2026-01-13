@@ -86,6 +86,7 @@ const Workbasket = () => {
                   (currentPage - 1) * itemsPerPage,
                   currentPage * itemsPerPage
                 )}
+                user={user as AuthUser}
               />
               <Pagination
                 currentPage={currentPage}

@@ -12,7 +12,7 @@ export interface TeamCoordinator {
   line1?: string;
   line2?: string;
   town_city?: string;
-  country?: string;
+  county?: string;
   postcode?: string;
   role: string;
   status: string;
@@ -28,7 +28,7 @@ export interface TeamCoordinatorOption {
   line1: string;
   line2?: string;
   city?: string;
-  country?: string;
+  county?: string;
   postcode?: string;
   email?: string;
   phone?: string;

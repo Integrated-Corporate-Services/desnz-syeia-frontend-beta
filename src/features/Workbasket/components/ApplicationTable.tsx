@@ -2,6 +2,8 @@ import React from "react";
 import { getStatusTagClass } from "../constants/statusDisplay";
 import { useApplicationNavigation } from "../../../hooks";
 import type { Application } from "../../../types/application";
+import type { AuthUser } from "../../../types/auth";
+import { ROLES } from "../../../constants/roles";
 
 const formatStatusText = (status: string): string => {
   // Convert to title case (capitalize first letter of each word)
@@ -20,10 +22,12 @@ const getStatusTag = (status: string) => {
 
 type Props = {
   applications: Application[];
+  user?: AuthUser | null;
 };
 
-const ApplicationTable: React.FC<Props> = ({ applications }) => {
+const ApplicationTable: React.FC<Props> = ({ applications, user }) => {
   const { navigateToApplication } = useApplicationNavigation();
+  const isAdmin = user?.role === ROLES.DESNZ_ADMIN;
 
   return (
     <table className="govuk-table" style={{ marginTop: 32 }}>
@@ -67,21 +71,23 @@ const ApplicationTable: React.FC<Props> = ({ applications }) => {
                 >
                   View
                 </a>
-                <a
-                  href="#"
-                  className="govuk-link"
-                  style={{ color: "#4c2c92" }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigateToApplication(
-                      app.type,
-                      app.application_id,
-                      "delete"
-                    );
-                  }}
-                >
-                  Delete
-                </a>
+                {(app.status.toLowerCase() !== "submitted" || isAdmin) && (
+                  <a
+                    href="#"
+                    className="govuk-link"
+                    style={{ color: "#4c2c92" }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateToApplication(
+                        app.type,
+                        app.application_id,
+                        "delete"
+                      );
+                    }}
+                  >
+                    Delete
+                  </a>
+                )}
               </td>
             </tr>
           ))}

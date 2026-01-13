@@ -16,5 +16,5 @@ export { useOrganisation } from './useOrganisation';
 export { useTeamCoordinators, useTeamCoordinator } from './useTeamCoordinators';
 export { useApprovedDomains } from './useApprovedDomains';
 export { useApplicationNavigation } from './useApplicationNavigation';
-
-
+export { useGetAccessRequest } from './useGetAccessRequest';
+export { useSaveAccessRequest } from './useSaveAccessRequest';

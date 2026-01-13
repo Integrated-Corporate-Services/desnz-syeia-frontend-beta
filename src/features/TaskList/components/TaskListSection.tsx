@@ -10,6 +10,8 @@ interface TaskListSectionProps {
   };
   idx: number;
   applicationId?: string;
+  applicationStatus?: string;
+  isAdmin?: boolean;
   submitting: boolean;
   handleSubmit: () => void;
   statusClass: (status: string) => string;
@@ -19,11 +21,15 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
   section,
   idx,
   applicationId,
+  applicationStatus,
+  isAdmin = false,
   submitting,
   handleSubmit,
   statusClass,
 }) => {
   const navigate = useNavigate();
+  const isSubmitted = applicationStatus?.toLowerCase() === 'submitted';
+  const canEdit = !isSubmitted || isAdmin;
 
   return (
     <div style={{ marginTop: '2rem' }}>
@@ -40,7 +46,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                       className="govuk-button govuk-button--warning"
                       type="button"
                       onClick={() => navigate(`${S37_BASE_URL}/${applicationId}/delete`)}
-                      disabled={submitting}
+                      disabled={submitting || !canEdit}
                       style={{ marginRight: '1rem' }}
                     >
                       Delete application
@@ -49,7 +55,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                       className="govuk-button"
                       type="button"
                       onClick={handleSubmit}
-                      disabled={submitting}
+                      disabled={submitting || !canEdit}
                     >
                       {submitting ? 'Submitting...' : 'Submit application'}
                     </button>

@@ -5,7 +5,7 @@ export interface NetworkOperatorDetails {
 	line1?: string;
 	line2?: string;
 	town_city?: string;
-	country?: string;
+	county?: string;
 	postcode?: string;
 	email?: string;
 	phone?: string;

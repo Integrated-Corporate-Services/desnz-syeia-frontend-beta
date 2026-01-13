@@ -17,18 +17,24 @@ class RequestAccessService {
     data: RequestAccessRequest
   ): Promise<RequestAccessResponse> {
     try {
-      const response = await axios.post(`/backend/api/access-requests`, {
-        fullName: data.fullName,
+      // Transform frontend field names to backend expected format
+      const payload = {
+        fullName: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
-        // TODO: Address fields are currently disabled. Uncomment when backend supports address data
-        // line1: data.line1,
-        // line2: data.line2,
-        // town: data.town,
-        // country: data.country,
-        // postCode: data.postCode,
+        line1: data.workAddressLine1,
+        line2: data.workAddressLine2 || '',
+        town: data.workTown,
+        county: data.workCounty || '',
+        postCode: data.workPostcode,
+        phoneNumber: data.phoneNumber || '',
+        company: data.company || '',
         organisations: data.organisations,
         applyingOnBehalf: data.applyingOnBehalf,
-      });
+      };
+
+      logger.debug('Submitting access request with payload:', payload);
+
+      const response = await axios.post(`/backend/api/access-requests`, payload);
 
       return {
         success: response.data.success !== false,
