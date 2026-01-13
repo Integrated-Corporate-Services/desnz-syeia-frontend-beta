@@ -1,54 +1,68 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAccessConfirmationNavigation } from '../../../hooks';
 
 const AccessDeniedPage: React.FC = () => {
+  const location = useLocation();
   const { navigateToDashboard } = useAccessConfirmationNavigation();
 
-  const handleReturnToDashboard = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+  const state = location.state as { userName?: string; userEmail?: string } | null;
+  const userName = state?.userName || 'the applicant';
+  const userEmail = state?.userEmail || '';
+
+  const handleReturnToDashboard = () => {
     navigateToDashboard();
   };
 
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
-        {/* TODO: Replace inline style with custom CSS class or GOV.UK modifier */}
-        <div className="govuk-panel govuk-panel--confirmation" style={{ backgroundColor: '#d4351c' }}>
+        {/* GREEN CONFIRMATION PANEL - Access Rejected */}
+        <div className="govuk-panel govuk-panel--confirmation">
           <h1 className="govuk-panel__title">
-            Access request rejected
+            Access rejected
           </h1>
           <div className="govuk-panel__body">
-            The applicant will receive an email notification
+            {userName} has been notified<br/>
+            <strong>{userEmail}</strong>
           </div>
         </div>
 
+        {/* WHAT HAPPENS NEXT SECTION */}
         <h2 className="govuk-heading-m">What happens next</h2>
 
         <p className="govuk-body">
-          The applicant will receive an email explaining why their request was rejected, including the reason you provided.
+          We have sent an email to {userName} to let them know their access request has been denied.
         </p>
 
         <p className="govuk-body">
-          If they believe this decision was made in error, they can submit a new request or contact the support team.
+          They can contact you directly or submit a new request if they believe this decision was made in error.
         </p>
 
-        <h3 className="govuk-heading-s">What we've done</h3>
+        {/* WHAT HAPPENS NEXT SECTION */}
+        <h2 className="govuk-heading-m">What happens next</h2>
 
-        <ul className="govuk-list govuk-list--bullet">
-          <li>The applicant has been notified by email</li>
-          <li>The rejection reason has been recorded</li>
-          <li>This action has been logged in the audit trail</li>
-        </ul>
-
+        {/* REJECTION REASON SECTION */}
+        <div className="govuk-inset-text">
+          <p className="govuk-body">
+            Rejected
+          </p>
+        </div>
         <p className="govuk-body">
-          <a
-            href="#"
-            className="govuk-link"
-            onClick={handleReturnToDashboard}
-          >
-            Return to dashboard
-          </a>
+            This reason has been included in the email sent to the applicant.
         </p>
+        <p className="govuk-body">
+          If {userName} believes the decision is incorrect, they can contact you directly or submit a new request.
+        </p>
+        {/* RETURN BUTTON */}
+        <button
+          type="button"
+          className="govuk-button"
+          onClick={handleReturnToDashboard}
+          data-module="govuk-button"
+        >
+          Return to dashboard
+        </button>
       </main>
     </div>
   );

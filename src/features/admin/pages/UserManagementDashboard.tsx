@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useUserManagementDashboard } from "../../../hooks";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import { TabNavigation } from "../components/TabNavigation";
-import { FilterSection } from "../components/FilterSection";
+// import { FilterSection } from "../components/FilterSection";
 import { OrganisationsTab } from "../components/OrganisationsTab";
 import { ActiveUsersTab } from "../components/ActiveUsersTab";
 import { PendingRequestsTab } from "../components/PendingRequestsTab";
@@ -12,11 +12,11 @@ const UserManagementDashboard: React.FC = () => {
   const {
     isDesnzAdmin,
     activeTab,
-    showFilters,
+    // showFilters,
     currentPage,
     totalPages,
     handleTabChange,
-    toggleFilters,
+    // toggleFilters,
     handlePageChange,
     totalResults,
     usersError,
@@ -45,15 +45,16 @@ const UserManagementDashboard: React.FC = () => {
               Operators.
             </p>
 
-            <FilterSection
+            {/* <FilterSection
               showFilters={showFilters}
               onToggleFilters={toggleFilters}
-            />
+            /> */}
 
             <TabNavigation
               activeTab={activeTab}
               pendingCount={pendingRequests.length}
               onTabChange={handleTabChange}
+              style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
             {activeTab === "organisations" && (
@@ -80,16 +81,16 @@ const UserManagementDashboard: React.FC = () => {
             )}
 
             {activeTab === "pending-requests" && (
-              <PendingRequestsTab
-                pendingRequests={pendingRequests}
-                requestsError={requestsError}
-                requestsLoading={requestsLoading}
-                paginatedRequests={paginatedRequests}
-                navigateToReviewRequest={navigateToReviewRequest}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                handlePageChange={handlePageChange}
-              />
+                <PendingRequestsTab
+                  pendingRequests={pendingRequests}
+                  requestsError={requestsError}
+                  requestsLoading={requestsLoading}
+                  paginatedRequests={paginatedRequests}
+                  navigateToReviewRequest={navigateToReviewRequest}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  handlePageChange={handlePageChange}
+                />
             )}
           </div>
         </div>

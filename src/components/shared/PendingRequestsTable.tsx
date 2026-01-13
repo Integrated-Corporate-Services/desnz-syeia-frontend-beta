@@ -39,6 +39,7 @@ export const PendingRequestsTable: React.FC<PendingRequestsTableProps> = ({
         <tr className="govuk-table__row">
           <th scope="col" className="govuk-table__header">Name</th>
           <th scope="col" className="govuk-table__header">Organisation</th>
+          <th scope="col" className="govuk-table__header">Email</th>
           <th scope="col" className="govuk-table__header">Requested on</th>
           <th scope="col" className="govuk-table__header">Applicant type</th>
           <th scope="col" className="govuk-table__header">Action</th>
@@ -52,6 +53,9 @@ export const PendingRequestsTable: React.FC<PendingRequestsTableProps> = ({
             </td>
             <td className="govuk-table__cell">
               {request.organisation_name || 'N/A'}
+            </td>
+            <td className="govuk-table__cell">
+              {request.email}
             </td>
             <td className="govuk-table__cell">
               {formatDate(request.requested_at)}

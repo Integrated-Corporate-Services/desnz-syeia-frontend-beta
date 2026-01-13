@@ -77,40 +77,44 @@ export const useReviewRequest = (requestId: string) => {
     return true;
   };
 
-  const approveRequest = async (onSuccess: () => void) => {
+  const approveRequest = async (onSuccess?: () => void) => {
     try {
       setProcessing(true);
-      setErrors([]);
-      const response = await accessRequestAdminService.approveRequest(requestId);
-      if (response.success) {
+      await accessRequestAdminService.approveRequest(requestId);
+      
+      // Call the success callback (which navigates with user details)
+      if (onSuccess) {
         onSuccess();
       }
-    } catch (err) {
+    } catch (error) {
+      logger.error('Failed to approve request:', error);
       setErrors([{
         fieldId: 'general',
-        message: err instanceof Error ? err.message : 'Failed to approve request'
+        message: error instanceof Error ? error.message : 'Failed to approve request'
       }]);
     } finally {
       setProcessing(false);
     }
   };
 
-  const rejectRequest = async (onSuccess: () => void) => {
+  const rejectRequest = async (onSuccess?: () => void) => {
     if (!validateRejectReason()) {
       return;
     }
 
     try {
       setProcessing(true);
-      setErrors([]);
-      const response = await accessRequestAdminService.rejectRequest(requestId, rejectReason);
-      if (response.success) {
+      await accessRequestAdminService.rejectRequest(requestId, rejectReason);
+      
+      // Call the success callback (which navigates with user details)
+      if (onSuccess) {
         onSuccess();
       }
-    } catch (err) {
+    } catch (error) {
+      logger.error('Failed to reject request:', error);
       setErrors([{
         fieldId: 'general',
-        message: err instanceof Error ? err.message : 'Failed to reject request'
+        message: error instanceof Error ? error.message : 'Failed to reject request'
       }]);
     } finally {
       setProcessing(false);
