@@ -15,13 +15,21 @@ const Section37GuidancePage = () => {
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-l">
-            Overhead lines (Section 37) applications
+            Apply for consent to install or change overhead lines (Section 37)
           </h1>
 
           <h2 className="govuk-heading-m">Introduction</h2>
           <p className="govuk-body">
-            Apply for consent under Section 37 of the Electricity Act 1989 to
-            install or change overhead electric lines in England and Wales. This
+            Apply for consent under{" "}
+            <a
+              href="https://www.legislation.gov.uk/ukpga/1989/29/section/37"
+              className="govuk-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Section 37 of the Electricity Act 1989 (opens in a new tab)
+            </a>{" "}
+            to install or change overhead electric lines in England and Wales. This
             includes applications for new lines or alterations to existing ones.
           </p>
           <p className="govuk-body">
@@ -61,67 +69,35 @@ const Section37GuidancePage = () => {
               </a>
             </li>
           </ul>
-          <p className="govuk-body">
-            <a href="/frontend/landingPage" className="govuk-link">
-              Learn about other application types
-            </a>
-          </p>
-
           <h2 className="govuk-heading-m">Before you start</h2>
           <p className="govuk-body">
-            You will need to provide highly detailed information, documents and
-            images to support your application.
-          </p>
-          <p className="govuk-body">
-            Here is a summarised list of the sections you will need to complete:
-          </p>
-          <ul className="govuk-list govuk-list--bullet">
-            <li>
-              Applicant details
+                You will need to provide highly detailed information, documents and images to support your application.
+              </p>
+              <p className="govuk-body">
+                These are the key legal requirements:
+              </p>
               <ul className="govuk-list govuk-list--bullet">
-                <li>Applicant details</li>
-                <li>Check applicant contact details</li>
+                <li>a map of the overhead line's route</li>
+                <li>the length of the line and its nominal voltage</li>
+                <li>the status of wayleave agreements for the affected land</li>
               </ul>
-            </li>
-            <li>
-              Application details
+              <p className="govuk-body">
+                Here is a summarised list of the information you will be asked to provide:
+              </p>
               <ul className="govuk-list govuk-list--bullet">
-                <li>Application overview</li>
-                <li>Asset information</li>
+                <li>your contact details</li>
+                <li>a summary of the proposed works</li>
+                <li>coordinates of the route</li>
+                <li>evidence of consultations with statutory and non-statutory bodies</li>
+                <li>proportionate ecological assessment of the work site</li>
+                <li>payment when you submit</li>
               </ul>
-            </li>
-            <li>
-              Location
-              <ul className="govuk-list govuk-list--bullet">
-                <li>Route</li>
-                <li>Works overview</li>
-                <li>Sensitive area checks</li>
-                <li>Parishes</li>
-              </ul>
-            </li>
-            <li>
-              Supporting information
-              <ul className="govuk-list govuk-list--bullet">
-                <li>Supporting questions</li>
-                <li>EIA fees</li>
-              </ul>
-            </li>
-            <li>
-              Consultations
-              <ul className="govuk-list govuk-list--bullet">
-                <li>Consultations</li>
-                <li>Post-consultation actions</li>
-              </ul>
-            </li>
-            <li>Pay and submit application</li>
-          </ul>
-
+            
           <h2 className="govuk-heading-m">
             Sign in to submit your application
           </h2>
           <p className="govuk-body">
-            You’ll need to sign in to use this service. If you do not already
-            have sign in details, you’ll be able to create them.
+                You will be redirected to GOV.UK One Login to sign into this service. If you don't have a GOV.UK One Login associated with your work email address, you will be able to create one.
           </p>
           <button
             className="govuk-button govuk-button--start"
@@ -142,11 +118,6 @@ const Section37GuidancePage = () => {
               <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z"></path>
             </svg>
           </button>
-          <p className="govuk-body">
-            <a className="govuk-link" href="#">
-              View a printable version of the whole guide
-            </a>
-          </p>
         </div>
         <div className="govuk-grid-column-one-third">
           <aside
@@ -175,6 +146,16 @@ const Section37GuidancePage = () => {
                   >
                     The statutory consents regime for overhead power lines in
                     England and Wales: guidance note
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.legislation.gov.uk/uksi/2009/640/contents/made"
+                    className="govuk-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    The Overhead Lines (Exemption)(England and Wales) Regulations 2009
                   </a>
                 </li>
                 <li>
