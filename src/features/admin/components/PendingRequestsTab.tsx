@@ -33,33 +33,6 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
   totalPages,
   handlePageChange
 }) => {
-  // const handleExportCSV = () => {
-  //   const csvData = pendingRequests.map(request => ({
-  //     'Name': `${request.first_name} ${request.last_name}`,
-  //     'Organisation': request.organisation_name || 'N/A',
-  //     'Email': request.email,
-  //     'Requested on': new Date(request.requested_at).toLocaleDateString('en-GB', { 
-  //       day: '2-digit', 
-  //       month: 'long', 
-  //       year: 'numeric' 
-  //     })
-  //   }));
-
-  //   const headers = Object.keys(csvData[0]).join(',');
-  //   const rows = csvData.map(row => Object.values(row).map(val => `"${val}"`).join(','));
-  //   const csv = [headers, ...rows].join('\n');
-
-  //   const blob = new Blob([csv], { type: 'text/csv' });
-  //   const url = window.URL.createObjectURL(blob);
-  //   const a = document.createElement('a');
-  //   a.href = url;
-  //   a.download = `pending-access-requests-${new Date().toISOString().split('T')[0]}.csv`;
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   document.body.removeChild(a);
-  //   window.URL.revokeObjectURL(url);
-  // };
-
   return (
     <div className="govuk-tabs__panel" id="pending-requests">
       <h2 className="govuk-heading-m">Pending access requests</h2>
@@ -68,18 +41,6 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
         <div className="govuk-grid-column-two-thirds">
           <p className="govuk-body">{pendingRequests.length} results</p>
         </div>
-        {/* <div className="govuk-grid-column-one-third" style={{ textAlign: 'right' }}>
-          {pendingRequests.length > 0 && (
-            <button 
-              className="govuk-button" 
-              data-module="govuk-button"
-              onClick={handleExportCSV}
-              style={{ backgroundColor: '#00703c' }}
-            >
-              Download all (CSV)
-            </button>
-          )}
-        </div> */}
       </div>
 
       {requestsError && (
