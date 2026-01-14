@@ -6,7 +6,7 @@ type Party = {
   line1?: string;
   line2?: string;
   city?: string;
-  country?: string;
+  county?: string;
   postcode?: string;
   email?: string;
   phone?: string;
@@ -23,7 +23,7 @@ const ContactSummaryCard: React.FC<{ party?: Party }> = ({ party }) => (
         <div className="govuk-summary-list__row govuk-summary-list__row--no-actions">
           <dt className="govuk-summary-list__key">{CONTENT.networkOperatorContact.summary.address}</dt>
           <dd className="govuk-summary-list__value">
-            {[party?.line1, party?.line2, party?.city, party?.country, party?.postcode].filter(Boolean).join(', ')}
+            {[party?.line1, party?.line2, party?.city, party?.county, party?.postcode].filter(Boolean).join(', ')}
           </dd>
         </div>
         <div className="govuk-summary-list__row govuk-summary-list__row--no-actions">

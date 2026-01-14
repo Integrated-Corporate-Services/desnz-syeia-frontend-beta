@@ -33,7 +33,7 @@ export const useCoordinatorOptions = ({
       line1: coord.address_line1 ?? "",
       line2: coord.address_line2 ?? undefined,
       city: coord.town_city ?? undefined,
-      country: coord.organisation_name,
+      county: coord.organisation_name,
       postcode: coord.postcode ?? undefined,
       email: coord.email,
       phone: coord.phone_number ?? undefined,

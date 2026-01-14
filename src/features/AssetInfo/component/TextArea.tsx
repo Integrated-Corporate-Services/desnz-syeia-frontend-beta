@@ -5,7 +5,7 @@ import { CommonInputProps } from '../../../types/form';
 
 
 
-const TextArea: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, maxLength, showCount, style }) => {
+const TextArea: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, maxLength, showCount, style, disabled }) => {
   const count = value.length;
   return (
     <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
@@ -25,6 +25,7 @@ const TextArea: React.FC<CommonInputProps> = ({ id, name, label, value, error, o
         rows={4}
         aria-describedby={showCount ? `${id}-info` : undefined}
         style={style}
+        disabled={disabled}
       />
       {showCount && maxLength && (
         <div id={`${id}-info`} className="govuk-hint govuk-character-count__message">
