@@ -16,8 +16,3 @@ export interface DashboardStats {
   totalRequests: number;
   approvedRequests: number;
 }
-
-export interface UserDetails {
-  userName: string;
-  userEmail: string;
-}
