@@ -2,7 +2,7 @@ export interface EiaFees {
   eiaFeeId?: string;
   eiaId?: string;
   applicationId: string;
-  requiresFullEia: boolean;
+  isEiaDevelopment: boolean;
   screeningOnly: boolean;
   createdAt?: string;
   updatedAt: string;
