@@ -1,12 +1,17 @@
 import React from "react";
-import { getStatusTagClass } from "../constants/statusDisplay";
 import { useApplicationNavigation } from "../../../hooks";
 import type { Application } from "../../../types/application";
-import type { AuthUser } from "../../../types/auth";
-import { ROLES } from "../../../constants/roles";
+import { getStatusTagClass } from "../constants/statusDisplay";
+
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
 const formatStatusText = (status: string): string => {
-  // Convert to title case (capitalize first letter of each word)
   return status
     .toLowerCase()
     .split(" ")
@@ -22,22 +27,30 @@ const getStatusTag = (status: string) => {
 
 type Props = {
   applications: Application[];
-  user?: AuthUser | null;
 };
 
-const ApplicationTable: React.FC<Props> = ({ applications, user }) => {
+const ApplicationTable: React.FC<Props> = ({ applications }) => {
   const { navigateToApplication } = useApplicationNavigation();
-  const isAdmin = user?.role === ROLES.DESNZ_ADMIN;
 
   return (
-    <table className="govuk-table" style={{ marginTop: 32 }}>
+    <table className="govuk-table" aria-label="Applications list">
       <thead className="govuk-table__head">
         <tr className="govuk-table__row">
-          <th className="govuk-table__header">Reference</th>
-          <th className="govuk-table__header">Type</th>
-          <th className="govuk-table__header">Applicant Name</th>
-          <th className="govuk-table__header">Status</th>
-          <th className="govuk-table__header">Action</th>
+          <th scope="col" className="govuk-table__header">
+            DESNZ reference
+          </th>
+          <th scope="col" className="govuk-table__header">
+            Your reference
+          </th>
+          <th scope="col" className="govuk-table__header">
+            Case type
+          </th>
+          <th scope="col" className="govuk-table__header">
+            Status
+          </th>
+          <th scope="col" className="govuk-table__header">
+            Date submitted
+          </th>
         </tr>
       </thead>
       <tbody className="govuk-table__body">
@@ -50,16 +63,10 @@ const ApplicationTable: React.FC<Props> = ({ applications, user }) => {
           .map((app) => (
             <tr className="govuk-table__row" key={app.application_id}>
               <td className="govuk-table__cell">
-                <strong>{app.operator_ref}</strong>
-              </td>
-              <td className="govuk-table__cell">{app.type}</td>
-              <td className="govuk-table__cell">{app.operator_name || ""}</td>
-              <td className="govuk-table__cell">{getStatusTag(app.status)}</td>
-              <td className="govuk-table__cell">
                 <a
                   href="#"
                   className="govuk-link"
-                  style={{ marginRight: "10px", color: "#4c2c92" }}
+                  aria-label={`View application ${app.operator_ref}`}
                   onClick={(e) => {
                     e.preventDefault();
                     navigateToApplication(
@@ -69,25 +76,16 @@ const ApplicationTable: React.FC<Props> = ({ applications, user }) => {
                     );
                   }}
                 >
-                  View
+                  {app.operator_ref}
                 </a>
-                {(app.status.toLowerCase() !== "submitted" || isAdmin) && (
-                  <a
-                    href="#"
-                    className="govuk-link"
-                    style={{ color: "#4c2c92" }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigateToApplication(
-                        app.type,
-                        app.application_id,
-                        "delete"
-                      );
-                    }}
-                  >
-                    Delete
-                  </a>
-                )}
+              </td>
+              <td className="govuk-table__cell">
+                {app.your_reference || "123456789"}
+              </td>
+              <td className="govuk-table__cell">Overhead lines</td>
+              <td className="govuk-table__cell">{getStatusTag(app.status)}</td>
+              <td className="govuk-table__cell">
+                {formatDate(app.created_at)}
               </td>
             </tr>
           ))}

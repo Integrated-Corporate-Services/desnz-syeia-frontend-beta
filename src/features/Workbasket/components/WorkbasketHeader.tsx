@@ -1,55 +1,50 @@
-import React from 'react';
-import StartNewApplicationButton from '../../../components/StartNewApplicationButton';
+import React from "react";
 
 interface WorkbasketHeaderProps {
   onToggleFilters: () => void;
   showFilters: boolean;
-  onDashboardClick?: () => void;
-  showDashboard?: boolean;
+  onStartNewApplication: () => void;
 }
 
 export const WorkbasketHeader: React.FC<WorkbasketHeaderProps> = ({
   onToggleFilters,
   showFilters,
-  onDashboardClick,
-  showDashboard = false,
+  onStartNewApplication,
 }) => {
   return (
-    <div className="govuk-grid-row">
-      <div className="govuk-grid-column-one-half">
-        <h1 className="govuk-heading-l">Your applications</h1>
+    <>
+      <h1 className="govuk-heading-xl">Your applications</h1>
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
+          <p className="govuk-body">
+            This dashboard shows you all the applications for your organisation.
+            Start a new application or use the filters to search for any
+            existing applications.
+          </p>
+        </div>
       </div>
-      <div 
-        className="govuk-grid-column-one-half" 
-        style={{ 
-          display: 'flex', 
-          justifyContent: 'flex-end', 
-          alignItems: 'center', 
-          gap: '10px' 
-        }}
+
+      <button
+        className="govuk-button govuk-!-margin-bottom-6"
+        data-module="govuk-button"
+        onClick={onStartNewApplication}
       >
-        {showDashboard && onDashboardClick && (
-          <button
-            className="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-            onClick={onDashboardClick}
-            style={{ whiteSpace: 'nowrap' }}
-          >
-            Dashboard
-          </button>
-        )}
-        
-        <button
-          className="govuk-button govuk-button--secondary"
-          data-module="govuk-button"
-          style={{ whiteSpace: 'nowrap' }}
-          onClick={onToggleFilters}
+        Start new application
+      </button>
+
+      <details className="govuk-details" open={showFilters}>
+        <summary
+          className="govuk-details__summary"
+          onClick={(e) => {
+            e.preventDefault();
+            onToggleFilters();
+          }}
         >
-          {showFilters ? 'Hide filters' : 'Show filters'}
-        </button>
-        
-        <StartNewApplicationButton />
-      </div>
-    </div>
+          <span className="govuk-details__summary-text">
+            {showFilters ? "Hide search and filter" : "Show search and filter"}
+          </span>
+        </summary>
+      </details>
+    </>
   );
 };

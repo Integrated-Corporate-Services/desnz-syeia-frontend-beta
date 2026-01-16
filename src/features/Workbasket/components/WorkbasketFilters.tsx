@@ -1,115 +1,167 @@
-import React from 'react';
-import { STATUS_FILTER_OPTIONS, DATE_FILTER_OPTIONS } from '../constants/filterOptions';
+import React from "react";
+import { CASE_TYPE_OPTIONS, STATUS_OPTIONS } from "../constants/filterOptions";
 
 interface WorkbasketFiltersProps {
   showFilters: boolean;
-  statusFilter: string;
-  dateFilter: string;
   searchText: string;
-  onStatusChange: (value: string) => void;
-  onDateChange: (value: string) => void;
+  submittedBy: "me" | "all";
+  caseTypes: string[];
+  statuses: string[];
   onSearchChange: (value: string) => void;
-  onClearFilters: () => void;
+  onSubmittedByChange: (value: "me" | "all") => void;
+  onCaseTypeToggle: (caseType: string) => void;
+  onStatusToggle: (status: string) => void;
+  onApplyFilters: () => void;
 }
 
 export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   showFilters,
-  statusFilter,
-  dateFilter,
   searchText,
-  onStatusChange,
-  onDateChange,
+  submittedBy,
+  caseTypes,
+  statuses,
   onSearchChange,
-  onClearFilters,
+  onSubmittedByChange,
+  onCaseTypeToggle,
+  onStatusToggle,
+  onApplyFilters,
 }) => {
   if (!showFilters) return null;
 
   return (
-    <div className="govuk-grid-row" style={{ marginBottom: '10px' }}>
-      <div className="govuk-grid-column-full govuk-!-static-padding-top-2 govuk-!-static-margin-bottom-3" style={{ backgroundColor: '#f3f2f1' }}>
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-one-half">
-              <h2 className="govuk-heading-m govuk-!-static-margin-bottom-2">Filters</h2>
-            </div>
-            <div className="govuk-grid-column-one-half" style={{ textAlign: 'right' }}>
-              <a
-                href="#"
-                className="govuk-link"
-                style={{ color: '#4c2c92' }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onClearFilters();
-                }}
-              >
-                Clear filters
-              </a>
-            </div>
-          </div>
+    <>
+      <h2 className="govuk-heading-m">Filter</h2>
 
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-one-third">
-              <div className="govuk-form-group govuk-!-static-margin-bottom-4">
-                <label className="govuk-label" htmlFor="status-filter">
-                  Status
-                </label>
-                <select
-                  className="govuk-select"
-                  id="status-filter"
-                  name="status"
-                  value={statusFilter}
-                  onChange={(e) => onStatusChange(e.target.value)}
-                  style={{ width: '100%' }}
-                >
-                  {STATUS_FILTER_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="govuk-grid-column-one-third">
-              <div className="govuk-form-group govuk-!-static-margin-bottom-4">
-                <label className="govuk-label" htmlFor="date-filter">
-                  Date
-                </label>
-                <select
-                  className="govuk-select"
-                  id="date-filter"
-                  name="date"
-                  value={dateFilter}
-                  onChange={(e) => onDateChange(e.target.value)}
-                  style={{ width: '100%' }}
-                >
-                  {DATE_FILTER_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="govuk-grid-column-one-third">
-              <div className="govuk-form-group govuk-!-static-margin-bottom-4">
-                <label className="govuk-label" htmlFor="search-filter">
-                  Search
-                </label>
-                <input
-                  className="govuk-input"
-                  id="search-filter"
-                  name="search"
-                  type="text"
-                  value={searchText}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder="E.g. Reference, status"
-                  style={{ width: '100%' }}
-                />
-              </div>
-            </div>
-          </div>
+      {/* Search */}
+      <div className="govuk-form-group">
+        <label
+          className="govuk-label govuk-!-font-weight-bold"
+          htmlFor="search"
+        >
+          Search
+        </label>
+        <input
+          className="govuk-input"
+          id="search"
+          name="search"
+          type="text"
+          value={searchText}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
       </div>
-    </div>
+
+      {/* Submitted by */}
+      <div className="govuk-form-group">
+        <fieldset className="govuk-fieldset">
+          <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
+            Submitted by
+          </legend>
+          <div className="govuk-radios govuk-radios--small">
+            <div className="govuk-radios__item">
+              <input
+                className="govuk-radios__input"
+                id="submitted-me"
+                name="submitted-by"
+                type="radio"
+                value="me"
+                checked={submittedBy === "me"}
+                onChange={() => onSubmittedByChange("me")}
+              />
+              <label
+                className="govuk-label govuk-radios__label"
+                htmlFor="submitted-me"
+              >
+                Me
+              </label>
+            </div>
+            <div className="govuk-radios__item">
+              <input
+                className="govuk-radios__input"
+                id="submitted-all"
+                name="submitted-by"
+                type="radio"
+                value="all"
+                checked={submittedBy === "all"}
+                onChange={() => onSubmittedByChange("all")}
+              />
+              <label
+                className="govuk-label govuk-radios__label"
+                htmlFor="submitted-all"
+              >
+                All users
+              </label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      {/* Case type */}
+      <div className="govuk-form-group">
+        <fieldset className="govuk-fieldset">
+          <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
+            Case type
+          </legend>
+          <div className="govuk-checkboxes govuk-checkboxes--small">
+            {CASE_TYPE_OPTIONS.map((option) => (
+              <div key={option.value} className="govuk-checkboxes__item">
+                <input
+                  className="govuk-checkboxes__input"
+                  id={`case-type-${option.value}`}
+                  name="case-type"
+                  type="checkbox"
+                  value={option.value}
+                  checked={caseTypes.includes(option.value)}
+                  onChange={() => onCaseTypeToggle(option.value)}
+                />
+                <label
+                  className="govuk-label govuk-checkboxes__label"
+                  htmlFor={`case-type-${option.value}`}
+                >
+                  {option.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+
+      {/* Status of application */}
+      <div className="govuk-form-group">
+        <fieldset className="govuk-fieldset">
+          <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
+            Status of application
+          </legend>
+          <div className="govuk-checkboxes govuk-checkboxes--small">
+            {STATUS_OPTIONS.map((option) => (
+              <div key={option.value} className="govuk-checkboxes__item">
+                <input
+                  className="govuk-checkboxes__input"
+                  id={`status-${option.value}`}
+                  name="status"
+                  type="checkbox"
+                  value={option.value}
+                  checked={statuses.includes(option.value)}
+                  onChange={() => onStatusToggle(option.value)}
+                />
+                <label
+                  className="govuk-label govuk-checkboxes__label"
+                  htmlFor={`status-${option.value}`}
+                >
+                  {option.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+
+      <button
+        className="govuk-button"
+        data-module="govuk-button"
+        onClick={onApplyFilters}
+      >
+        Apply filters
+      </button>
+    </>
   );
 };

@@ -2,9 +2,13 @@ import { CONTENT } from "../../constants/content";
 import React from "react";
 import { BASE_URL } from "../../constants/routes";
 import { useLocation } from "react-router-dom";
+import { useAuthUserContext } from "../../context/AuthUserContext";
+import { ROLES } from "../../constants/roles";
+import type { AuthUser } from "../../types/auth";
 
 const ServiceNavigation = () => {
   const location = useLocation();
+  const { user } = useAuthUserContext();
 
   // Handle all possible workbasket paths
   const workbasketPaths = ["/", "/workbasket", "/workbasket/"];
@@ -27,75 +31,177 @@ const ServiceNavigation = () => {
     location.pathname.includes("/task-list") ||
     location.pathname.includes("/delete");
 
+  // Check if on organisation/admin pages
+  const isOnOrganisationPages =
+    location.pathname.includes("/admin/") ||
+    location.pathname.includes("/user-management");
+
   if (hideNavPaths.includes(location.pathname)) return null;
 
+  // Check if user has admin role (DTC or DESNZ Admin)
+  const isAdmin =
+    user &&
+    ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+      (user as AuthUser)?.role === ROLES.DNO_TEAM_COORDINATOR);
+
   return (
-    <section
-      aria-label="Service information"
-      className="govuk-service-navigation"
-      data-module="govuk-service-navigation"
-    >
-      <style>{`
-        .govuk-service-navigation__container {
-          background: transparent !important;
-          border: none !important;
-        }
-      `}</style>
-      <div className="govuk-width-container">
-        <div className="govuk-service-navigation__container">
-          <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
+    <div className="govuk-width-container">
+      <section
+        aria-label="Service information"
+        className="govuk-service-navigation"
+        style={{ minHeight: "48px" }}
+      >
+        <style>{`
+          .govuk-service-navigation {
+            border-bottom: none !important;
+            background-color: #f3f2f1 !important;
+          }
+          .govuk-service-navigation__item {
+            padding: 0 !important;
+            margin: 0 !important;
+            border-bottom: none !important;
+          }
+          .govuk-service-navigation__item--active {
+            border-bottom: none !important;
+            box-shadow: none !important;
+          }
+          .govuk-service-navigation__link {
+            font-weight: 700 !important;
+            color: #1d70b8 !important;
+            padding: 8px 0 8px 0 !important;
+            display: inline-block !important;
+            text-decoration: underline !important;
+            text-decoration-thickness: 1px !important;
+            border-bottom: none !important;
+          }
+          .govuk-service-navigation__item--active .govuk-service-navigation__link {
+            color: #0b0c0c !important;
+            text-decoration: none !important;
+            border: none !important;
+            padding-bottom: 4px !important;
+            box-shadow: inset 0 -4px 0 0 #1d70b8 !important;
+            background: none !important;
+          }
+          .govuk-service-navigation__link:hover {
+            color: #003078 !important;
+          }
+          .govuk-service-navigation__item--active .govuk-service-navigation__link:hover {
+            color: #0b0c0c !important;
+          }
+          .govuk-service-navigation__item:not(:last-child)::after {
+            content: "|";
+            margin: 0 8px;
+            color: #505a5f;
+            font-weight: 400;
+          }
+          .govuk-service-navigation__list {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0 !important;
+            margin: 0 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
+        `}</style>
+        <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "8px 0 0 0",
+            }}
+          >
+            {/* User name on the left */}
+            <span
+              className="govuk-body"
+              style={{
+                margin: 0,
+                fontWeight: 500,
+                minWidth: "120px",
+                alignSelf: "center",
+                paddingLeft: "15px",
+              }}
+            >
+              {user
+                ? `${(user as any).first_name || ""} ${
+                    (user as any).last_name || ""
+                  }`.trim() || "\u00A0"
+                : "\u00A0"}
+            </span>
+
+            {/* Navigation links on the right */}
             <ul
               className="govuk-service-navigation__list"
               id="navigation"
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                paddingRight: "15px",
+                alignSelf: "flex-end",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
+              {isAdmin && (
                 <li
                   className={`govuk-service-navigation__item ${
-                    isOnApplicationPages
+                    isOnOrganisationPages
                       ? "govuk-service-navigation__item--active"
                       : ""
                   }`}
                 >
                   <a
                     className="govuk-service-navigation__link"
-                    href={`${BASE_URL}/workbasket`}
-                    aria-current={isOnApplicationPages ? "true" : undefined}
+                    href={`${BASE_URL}/admin/user-management`}
+                    aria-current={isOnOrganisationPages ? "true" : undefined}
                   >
-                    {isOnApplicationPages ? (
-                      <strong className="govuk-service-navigation__active-fallback">
-                        {CONTENT.serviceNav[0].text}
-                      </strong>
-                    ) : (
-                      CONTENT.serviceNav[0].text
-                    )}
+                    Organisation
                   </a>
                 </li>
-              </div>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <li className="govuk-service-navigation__item">
-                  <a
-                    className="govuk-service-navigation__link"
-                    href="/backend/auth/logout"
-                  >
-                    Sign out
-                  </a>
-                </li>
-              </div>
-              {/*<li className="govuk-service-navigation__item">
-                <a className="govuk-service-navigation__link" href={`${BASE_URL}notifications.html`}>
-                  Notifications <span id="notifications" className="moj-notification-badge">2</span>
+              )}
+              <li
+                className={`govuk-service-navigation__item ${
+                  isOnApplicationPages
+                    ? "govuk-service-navigation__item--active"
+                    : ""
+                }`}
+              >
+                <a
+                  className="govuk-service-navigation__link"
+                  href={`${BASE_URL}/workbasket`}
+                  aria-current={isOnApplicationPages ? "true" : undefined}
+                >
+                  Applications
                 </a>
-              </li>*/}
+              </li>
+              <li className="govuk-service-navigation__item">
+                <a
+                  className="govuk-service-navigation__link"
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Notifications <span className="moj-notification-badge"></span>
+                </a>
+              </li>
+              <li className="govuk-service-navigation__item">
+                <a
+                  className="govuk-service-navigation__link"
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Account
+                </a>
+              </li>
+              <li className="govuk-service-navigation__item">
+                <a
+                  className="govuk-service-navigation__link"
+                  href="/backend/auth/logout"
+                >
+                  Sign out
+                </a>
+              </li>
             </ul>
-          </nav>
-        </div>
-      </div>
-    </section>
+          </div>
+        </nav>
+      </section>
+    </div>
   );
 };
 export default ServiceNavigation;
