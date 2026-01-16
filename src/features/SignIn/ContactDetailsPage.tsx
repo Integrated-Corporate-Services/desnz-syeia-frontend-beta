@@ -1,20 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
 import SelectInput from "../../components/commonFormFields/SelectInput";
+import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequestStore } from "../../store/accessRequestStore";
-import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
-import { useGetAccessRequest } from "../../hooks/useGetAccessRequest";
+import axios from "axios";
 
 const ContactDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthUserContext();
   const { formData, updateFormData } = useAccessRequestStore();
-  const { saveAccessRequest, isLoading } = useSaveAccessRequest();
-  
-  // Fetch existing access request data
-  const { data: existingRequest, isLoading: isLoadingRequest } = useGetAccessRequest(user?.email);
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
   
   const [localData, setLocalData] = useState({
     title: formData.title || "",
@@ -24,34 +21,41 @@ const ContactDetailsPage: React.FC = () => {
     phoneNumber: formData.phoneNumber || "",
   });
 
-  // Update form data from existing access request if available
+  // Check if user has already submitted a request and redirect if so
   useEffect(() => {
-    if (existingRequest) {
-      setLocalData({
-        title: existingRequest.title || formData.title || "",
-        firstName: existingRequest.first_name || formData.firstName || "",
-        lastName: existingRequest.last_name || formData.lastName || "",
-        email: existingRequest.email || user?.email || "",
-        phoneNumber: existingRequest.phone_number || formData.phoneNumber || "",
-      });
-      
-      // Also update the store with existing data
-      updateFormData({
-        title: existingRequest.title || "",
-        firstName: existingRequest.first_name || "",
-        lastName: existingRequest.last_name || "",
-        email: existingRequest.email || "",
-        phoneNumber: existingRequest.phone_number || "",
-      });
-    }
-  }, [existingRequest]);
+    const checkExistingRequest = async () => {
+      if (!user?.email) return;
+
+      try {
+        const response = await axios.get(
+          `/backend/api/access-requests/by-email`,
+          {
+            params: { email: user.email },
+          }
+        );
+
+        // If user has a submitted request, redirect to submitted page
+        if (response.data?.hasSubmittedRequest) {
+          navigate("/request-access/submitted", { replace: true });
+        }
+      } catch (error: unknown) {
+        // 404 means no existing request - this is fine, user can proceed
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status !== 404) {
+          console.error("Error checking existing request:", error);
+        }
+      }
+    };
+
+    checkExistingRequest();
+  }, [user?.email, navigate]);
 
   // Update email from session if not already set
   useEffect(() => {
     if (user?.email && !localData.email) {
       setLocalData((prev) => ({ ...prev, email: user.email }));
     }
-  }, [user?.email]);
+  }, [user?.email, localData.email]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -66,30 +70,66 @@ const ContactDetailsPage: React.FC = () => {
   ];
 
   const handleChange = (name: string, value: string) => {
-    setLocalData((prev) => ({ ...prev, [name]: value }));
+    // Apply input restrictions based on field type
+    let sanitizedValue = value;
+    
+    if (name === 'firstName' || name === 'lastName') {
+      // Allow only letters, spaces, hyphens, and apostrophes (for names like O'Brien, Mary-Jane)
+      sanitizedValue = value.replace(/[^a-zA-Z\s'-]/g, '');
+    } else if (name === 'phoneNumber') {
+      // Allow only numbers, spaces, plus, parentheses, and hyphens
+      sanitizedValue = value.replace(/[^0-9\s+()-]/g, '');
+    }
+    
+    setLocalData((prev) => ({ ...prev, [name]: sanitizedValue }));
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-    const validate = (): boolean => {
+  const validateUKPhoneNumber = (phone: string): boolean => {
+    // Remove all spaces, parentheses, and hyphens for validation
+    const cleanPhone = phone.replace(/[\s()-]/g, '');
+    
+    // UK phone numbers: must start with 0 or +44, and be 10-11 digits (or 12-13 with +44)
+    const ukPhoneRegex = /^(?:(?:\+44\s?|0)(?:\d\s?){9,10})$/;
+    const cleanedForRegex = phone.replace(/[()-]/g, '');
+    
+    return ukPhoneRegex.test(cleanedForRegex) && cleanPhone.length >= 10 && cleanPhone.length <= 13;
+  };
+
+  const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    // First name validation
     if (!localData.firstName.trim()) {
       newErrors.firstName = "Enter your first name";
+    } else if (localData.firstName.trim().length > 4000) {
+      newErrors.firstName = "You cannot enter more than 4,000 characters";
     }
 
+    // Last name validation
     if (!localData.lastName.trim()) {
       newErrors.lastName = "Enter your last name";
+    } else if (localData.lastName.trim().length > 4000) {
+      newErrors.lastName = "You cannot enter more than 4,000 characters";
     }
 
+    // Email validation
     if (!localData.email.trim()) {
       newErrors.email = "Enter your email address";
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(localData.email)) {
-        newErrors.email = "Enter a valid email address";
+        newErrors.email = "Enter an email address in the correct format, like name@example.com";
+      }
+    }
+
+    // Phone number validation (optional but validate if provided)
+    if (localData.phoneNumber.trim()) {
+      if (!validateUKPhoneNumber(localData.phoneNumber)) {
+        newErrors.phoneNumber = "Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192";
       }
     }
 
@@ -101,28 +141,26 @@ const ContactDetailsPage: React.FC = () => {
     e.preventDefault();
 
     if (!validate()) {
+      // Focus error summary for accessibility
+      if (errorSummaryRef.current) {
+        errorSummaryRef.current.focus();
+        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
       return;
     }
 
-    try {
-      // Save to backend
-      await saveAccessRequest({
-        email: localData.email,
-        title: localData.title,
-        firstName: localData.firstName,
-        lastName: localData.lastName,
-        phoneNumber: localData.phoneNumber,
-      });
+    // Update store only - no backend save yet
+    updateFormData(localData);
 
-      // Update store
-      updateFormData(localData);
-
-      // Navigate to next page
-      navigate("/request-access/work-address");
-    } catch (error) {
-      setErrors({ general: "Failed to save. Please try again." });
-    }
+    // Navigate to next page
+    navigate("/request-access/work-address");
   };
+
+  // Convert errors object to ErrorSummary format
+  const errorSummaryItems = Object.entries(errors).map(([fieldId, message]) => ({
+    fieldId,
+    message,
+  }));
 
   return (
     <div className="govuk-width-container">
@@ -140,12 +178,11 @@ const ContactDetailsPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
+            
             <h1 className="govuk-heading-l">Enter your contact details</h1>
 
-            {isLoadingRequest ? (
-              <p className="govuk-body">Loading your details...</p>
-            ) : (
-              <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit} noValidate>
               <SelectInput
                 id="title"
                 name="title"
@@ -203,12 +240,10 @@ const ContactDetailsPage: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
-                disabled={isLoading}
               >
-                {isLoading ? "Saving..." : "Save and continue"}
+                Save and continue
               </button>
             </form>
-            )}
           </div>
         </div>
       </main>

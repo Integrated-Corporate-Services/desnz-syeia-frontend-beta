@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
+import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequestStore } from "../../store/accessRequestStore";
-import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
-import { useAuthUserContext } from "../../context/AuthUserContext";
-import { useGetAccessRequest } from "../../hooks/useGetAccessRequest";
 
 const WorkAddressPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuthUserContext();
   const { formData, updateFormData } = useAccessRequestStore();
-  const { saveAccessRequest, isLoading } = useSaveAccessRequest();
-  
-  // Fetch existing access request data
-  const { data: existingRequest, isLoading: isLoadingRequest } = useGetAccessRequest(user?.email);
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const [localData, setLocalData] = useState({
     line1: formData.line1 || "",
@@ -23,51 +17,73 @@ const WorkAddressPage: React.FC = () => {
     postCode: formData.postCode || "",
   });
 
-  // Update form data from existing access request if available
-  useEffect(() => {
-    if (existingRequest) {
-      setLocalData({
-        line1: existingRequest.line1 || formData.line1 || "",
-        line2: existingRequest.line2 || formData.line2 || "",
-        town: existingRequest.town_city || formData.town || "",
-        county: existingRequest.county || formData.county || "",
-        postCode: existingRequest.postcode || formData.postCode || "",
-      });
-      
-      // Also update the store
-      updateFormData({
-        line1: existingRequest.line1 || "",
-        line2: existingRequest.line2 || "",
-        town: existingRequest.town_city || "",
-        county: existingRequest.county || "",
-        postCode: existingRequest.postcode || "",
-      });
-    }
-  }, [existingRequest]);
-
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (name: string, value: string) => {
-    setLocalData((prev) => ({ ...prev, [name]: value }));
+    // Apply input restrictions based on field type
+    let sanitizedValue = value;
+    
+    if (name === 'town' || name === 'county') {
+      // Allow only letters, spaces, hyphens, and apostrophes
+      sanitizedValue = value.replace(/[^a-zA-Z\s'-]/g, '');
+    } else if (name === 'line1' || name === 'line2') {
+      // Allow alphanumeric, spaces, commas, periods, hyphens, and apostrophes
+      sanitizedValue = value.replace(/[^a-zA-Z0-9\s,.'-]/g, '');
+    } else if (name === 'postCode') {
+      // Allow alphanumeric and spaces only, convert to uppercase
+      sanitizedValue = value.replace(/[^a-zA-Z0-9\s]/g, '').toUpperCase();
+    }
+    
+    setLocalData((prev) => ({ ...prev, [name]: sanitizedValue }));
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
+  const validateUKPostcode = (postcode: string): boolean => {
+    // Remove all spaces and convert to uppercase
+    const cleanPostcode = postcode.replace(/\s/g, '').toUpperCase();
+    
+    // UK postcode regex - covers all valid UK postcode formats
+    // Examples: SW1A 1AA, M1 1AE, B33 8TH, CR2 6XH, DN55 1PT, W1A 0AX, EC1A 1BB
+    const postcodeRegex = /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i;
+    
+    return postcodeRegex.test(postcode) && cleanPostcode.length >= 5 && cleanPostcode.length <= 7;
+  };
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    // Address line 1 validation (required)
     if (!localData.line1.trim()) {
-      newErrors.line1 = "Enter address line 1";
+      newErrors.line1 = "Enter address line 1, typically the building and street";
+    } else if (localData.line1.trim().length > 4000) {
+      newErrors.line1 = "You cannot enter more than 4,000 characters";
     }
 
+    // Address line 2 validation (optional but validate if provided)
+    if (localData.line2.trim() && localData.line2.trim().length > 4000) {
+      newErrors.line2 = "You cannot enter more than 4,000 characters";
+    }
+
+    // Town validation (required)
     if (!localData.town.trim()) {
-      newErrors.town = "Enter town or city";
+      newErrors.town = "Enter a town or city";
+    } else if (localData.town.trim().length > 4000) {
+      newErrors.town = "You cannot enter more than 4,000 characters";
     }
 
+    // County validation (optional but validate if provided)
+    if (localData.county.trim() && localData.county.trim().length > 4000) {
+      newErrors.county = "You cannot enter more than 4,000 characters";
+    }
+
+    // Postcode validation (required)
     if (!localData.postCode.trim()) {
-      newErrors.postCode = "Enter postcode";
+      newErrors.postCode = "Enter a full UK postcode";
+    } else if (!validateUKPostcode(localData.postCode)) {
+      newErrors.postCode = "Enter a full UK postcode";
     }
 
     setErrors(newErrors);
@@ -78,29 +94,26 @@ const WorkAddressPage: React.FC = () => {
     e.preventDefault();
 
     if (!validate()) {
+      // Focus error summary for accessibility
+      if (errorSummaryRef.current) {
+        errorSummaryRef.current.focus();
+        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
       return;
     }
 
-    try {
-      // Save to backend
-      await saveAccessRequest({
-        email: formData.email!,
-        line1: localData.line1,
-        line2: localData.line2,
-        town: localData.town,
-        county: localData.county,
-        postCode: localData.postCode,
-      });
+    // Update store only - no backend save yet
+    updateFormData(localData);
 
-      // Update store
-      updateFormData(localData);
-
-      // Navigate to next page
-      navigate("/request-access/agent-question");
-    } catch (error) {
-      setErrors({ general: "Failed to save. Please try again." });
-    }
+    // Navigate to next page
+    navigate("/request-access/agent-question");
   };
+
+  // Convert errors object to ErrorSummary format
+  const errorSummaryItems = Object.entries(errors).map(([fieldId, message]) => ({
+    fieldId,
+    message,
+  }));
 
   return (
     <div className="govuk-width-container">
@@ -118,12 +131,11 @@ const WorkAddressPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
+            
             <h1 className="govuk-heading-l">Enter your work address</h1>
 
-            {isLoadingRequest ? (
-              <p className="govuk-body">Loading your details...</p>
-            ) : (
-              <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit} noValidate>
               <TextInput
                 id="line1"
                 name="line1"
@@ -177,12 +189,10 @@ const WorkAddressPage: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
-                disabled={isLoading}
               >
-                {isLoading ? "Saving..." : "Use this address"}
+                Use this address
               </button>
             </form>
-            )}
           </div>
         </div>
       </main>

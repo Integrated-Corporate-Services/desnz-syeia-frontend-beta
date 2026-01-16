@@ -1,8 +1,39 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthUserContext } from "../../context/AuthUserContext";
+import axios from "axios";
 
 const AccessRequestIntroPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthUserContext();
+
+  useEffect(() => {
+    const checkExistingRequest = async () => {
+      if (!user?.email) return;
+
+      try {
+        const response = await axios.get(
+          `/backend/api/access-requests/by-email`,
+          {
+            params: { email: user.email },
+          }
+        );
+
+        // If user has a submitted request, redirect to submitted page
+        if (response.data?.hasSubmittedRequest) {
+          navigate("/request-access/submitted", { replace: true });
+        }
+      } catch (error: unknown) {
+        // 404 means no existing request - this is fine, user can proceed
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status !== 404) {
+          console.error("Error checking existing request:", error);
+        }
+      }
+    };
+
+    checkExistingRequest();
+  }, [user?.email, navigate]);
 
   return (
     <div className="govuk-width-container">

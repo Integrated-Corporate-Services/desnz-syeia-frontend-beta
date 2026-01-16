@@ -12,6 +12,7 @@ interface TextInputProps {
   readOnly?: boolean;
   autoComplete?: string;
   className?: string;
+  maxLength?: number;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -26,6 +27,7 @@ const TextInput: React.FC<TextInputProps> = ({
   readOnly = false,
   autoComplete,
   className = "",
+  maxLength,
 }) => {
   const hasError = Boolean(error && error.length > 0);
 
@@ -70,6 +72,7 @@ const TextInput: React.FC<TextInputProps> = ({
         autoComplete={autoComplete}
         onChange={onChange}
         aria-describedby={ariaDescribedBy}
+        maxLength={maxLength}
       />
     </div>
   );
