@@ -194,7 +194,7 @@ const PaymentAmountPage: React.FC = () => {
                     {feeBreakdown.intersectedLayerIds && feeBreakdown.intersectedLayerIds.length > 0 && (
                       <li>Intersected layer IDs: {feeBreakdown.intersectedLayerIds.join(', ')}</li>
                     )}
-                    <li>Requires full EIA: {feeBreakdown.requiresFullEia ? 'Yes' : 'No'}</li>
+                    <li>isEiaDevelopment: {feeBreakdown.isEiaDevelopment ? 'Yes' : 'No'}</li>
                     <li>Screening only: {feeBreakdown.screeningOnly ? 'Yes' : 'No'}</li>
                   </ul>
                 </div>
