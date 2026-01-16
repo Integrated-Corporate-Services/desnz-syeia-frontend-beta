@@ -3,7 +3,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import RadioGroup from "../component/RadioGroup";
-import { useApplicationStore } from "../../../store/useApplicationStore";
+// import { useApplicationStore } from "../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
 
@@ -26,13 +26,13 @@ const EIAFeesForm: React.FC = () => {
   const createEiaFees = useEiaFeesStore((state) => state.createEiaFees);
   const updateEiaFees = useEiaFeesStore((state) => state.updateEiaFees);
   type FormState = {
-    requiresFullEia: string;
+    isEiaDevelopment: string;
     screeningOnly: string;
     eiaFeeId?: string;
     applicationId?: string;
   };
   const [form, setForm] = useState<FormState>({
-    requiresFullEia: "",
+    isEiaDevelopment: "",
     screeningOnly: "",
     eiaFeeId: undefined,
     applicationId: undefined,
@@ -54,7 +54,7 @@ const EIAFeesForm: React.FC = () => {
   useEffect(() => {
     if (eiaFees) {
       setForm({
-        requiresFullEia: eiaFees.requiresFullEia ? "true" : "false",
+        isEiaDevelopment: eiaFees.isEiaDevelopment ? "true" : "false",
         screeningOnly: eiaFees.screeningOnly ? "true" : "false",
         eiaFeeId: eiaFees.eiaFeeId,
         applicationId: eiaFees.applicationId,
@@ -77,13 +77,13 @@ const EIAFeesForm: React.FC = () => {
     e.preventDefault();
     const newErrors: { field: string; message: string }[] = [];
     // Validation logic:
-    if (!form.requiresFullEia) {
+    if (!form.isEiaDevelopment) {
       newErrors.push({
-        field: "requiresFullEia",
+        field: "isEiaDevelopment",
         message:
           "Select yes or no to the Environmental Impact Assessment question",
       });
-    } else if (form.requiresFullEia === "true") {
+    } else if (form.isEiaDevelopment === "true") {
       if (!form.screeningOnly) {
         newErrors.push({
           field: "screeningOnly",
@@ -91,7 +91,7 @@ const EIAFeesForm: React.FC = () => {
         });
       } else if (form.screeningOnly === "false") {
         newErrors.push({
-          field: "requiresFullEia",
+          field: "isEiaDevelopment",
           message: "Select no to the Environmental Impact Assessment question",
         });
       }
@@ -105,7 +105,7 @@ const EIAFeesForm: React.FC = () => {
         // Compose payload for backend
         type EiaPayload = {
           applicationId: string;
-          requiresFullEia: boolean;
+          isEiaDevelopment: boolean;
           screeningOnly: boolean;
           updatedAt: string;
           updatedBy: string;
@@ -115,7 +115,7 @@ const EIAFeesForm: React.FC = () => {
         };
         const payload: EiaPayload = {
           applicationId: applicationId,
-          requiresFullEia: form.requiresFullEia === "true", // maps first question
+          isEiaDevelopment: form.isEiaDevelopment === "true", // maps first question
           screeningOnly: form.screeningOnly === "true", // maps second question
           updatedAt: new Date().toISOString(),
           updatedBy: "system",
@@ -125,7 +125,7 @@ const EIAFeesForm: React.FC = () => {
           await updateEiaFees({
             eiaFeeId: eiaFees.eiaFeeId,
             applicationId: payload.applicationId,
-            requiresFullEia: payload.requiresFullEia,
+            isEiaDevelopment: payload.isEiaDevelopment,
             screeningOnly: payload.screeningOnly,
             updatedAt: payload.updatedAt,
             updatedBy: payload.updatedBy
@@ -138,7 +138,7 @@ const EIAFeesForm: React.FC = () => {
           await createEiaFees({
             eiaId,
             applicationId: payload.applicationId,
-            requiresFullEia: payload.requiresFullEia,
+            isEiaDevelopment: payload.isEiaDevelopment,
             screeningOnly: payload.screeningOnly,
             createdAt,
             updatedAt: payload.updatedAt,
@@ -149,7 +149,7 @@ const EIAFeesForm: React.FC = () => {
         setSuccess(true);
         setForm({
 
-          requiresFullEia: "",
+          isEiaDevelopment: "",
           screeningOnly: "",
           eiaFeeId: undefined,
           applicationId: undefined,
@@ -244,10 +244,10 @@ const EIAFeesForm: React.FC = () => {
               />
               <div className="govuk-form-group">
                 <RadioGroup
-                  requiresFullEia={form.requiresFullEia}
+                  isEiaDevelopment={form.isEiaDevelopment}
                   screeningOnly={form.screeningOnly}
                   onChange={handleChange}
-                  errorMessage={getErrorMessage("requiresFullEia")}
+                  errorMessage={getErrorMessage("isEiaDevelopment")}
                   screeningErrorMessage={getErrorMessage("screeningOnly")}
                 />
               </div>

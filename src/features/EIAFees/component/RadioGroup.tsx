@@ -1,7 +1,7 @@
 import React from "react";
 
 interface RadioGroupProps {
-	requiresFullEia: string;
+	isEiaDevelopment: string;
 	screeningOnly: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	errorMessage?: string;
@@ -10,7 +10,7 @@ interface RadioGroupProps {
 
 
 const RadioGroup: React.FC<RadioGroupProps> = ({
-	requiresFullEia,
+	isEiaDevelopment,
 	screeningOnly,
 	onChange,
 	errorMessage,
@@ -18,14 +18,14 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 }) => {
 	return (
 		<div className={`govuk-form-group${errorMessage ? ' govuk-form-group--error' : ''}`}> 
-			<fieldset className="govuk-fieldset" aria-describedby={errorMessage ? "requiresFullEia-error" : undefined}>
+			<fieldset className="govuk-fieldset" aria-describedby={errorMessage ? "isEiaDevelopment-error" : undefined}>
 				<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 					<h2 className="govuk-fieldset__heading">
 						Do you consider that the proposed development will have a likely significant effect on the environment and therefore will be subject to an Environmental Impact Assessment?
 					</h2>
 				</legend>
 				{errorMessage && (
-					<p id="requiresFullEia-error" className="govuk-error-message" style={{ color: "#d4351c" }}>
+					<p id="isEiaDevelopment-error" className="govuk-error-message" style={{ color: "#d4351c" }}>
 						<span className="govuk-visually-hidden">Error:</span> {errorMessage}
 					</p>
 				)}
@@ -33,21 +33,21 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 					<div className="govuk-radios__item">
 						<input
 							className="govuk-radios__input"
-							id="requiresFullEia"
-							name="requiresFullEia"
+							id="isEiaDevelopment"
+							name="isEiaDevelopment"
 							type="radio"
 							value="true"
-							checked={requiresFullEia === "true"}
-							aria-controls="requiresFullEia-hidden"
-							aria-expanded={requiresFullEia === "true"}
+							checked={isEiaDevelopment === "true"}
+							aria-controls="isEiaDevelopment-hidden"
+							aria-expanded={isEiaDevelopment === "true"}
 							onChange={onChange}
 						/>
-						<label className="govuk-label govuk-radios__label" htmlFor="requiresFullEia">
+						<label className="govuk-label govuk-radios__label" htmlFor="isEiaDevelopment">
 							Yes
 						</label>
 					</div>
-					{requiresFullEia === "true" && (
-						<div className="govuk-radios__conditional" id="requiresFullEia-hidden">
+					{isEiaDevelopment === "true" && (
+						<div className="govuk-radios__conditional" id="isEiaDevelopment-hidden">
 							<div className="govuk-form-group">
 								<fieldset className="govuk-fieldset">
 									<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
@@ -102,21 +102,21 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 					<div className="govuk-radios__item">
 						<input
 							className="govuk-radios__input"
-							id="requiresFullEia-no"
-							name="requiresFullEia"
+							id="isEiaDevelopment-no"
+							name="isEiaDevelopment"
 							type="radio"
 							value="false"
-							checked={requiresFullEia === "false"}
-							aria-controls="requiresFullEia-no-hidden"
-							aria-expanded={requiresFullEia === "false"}
+							checked={isEiaDevelopment === "false"}
+							aria-controls="isEiaDevelopment-no-hidden"
+							aria-expanded={isEiaDevelopment === "false"}
 							onChange={onChange}
 						/>
-						<label className="govuk-label govuk-radios__label" htmlFor="requiresFullEia-no">
+						<label className="govuk-label govuk-radios__label" htmlFor="isEiaDevelopment-no">
 							No
 						</label>
 					</div>
-					{requiresFullEia === "false" && (
-						<div className="govuk-radios__conditional govuk-radios__conditional--hidden" id="requiresFullEia-no-hidden">
+					{isEiaDevelopment === "false" && (
+						<div className="govuk-radios__conditional govuk-radios__conditional--hidden" id="isEiaDevelopment-no-hidden">
 							<p className="govuk-body">
 								Please note, a mandatory EIA screening will be carried out for this application due to at least one of the following reasons:
 							</p>
