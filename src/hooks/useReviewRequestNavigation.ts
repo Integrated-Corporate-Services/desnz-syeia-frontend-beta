@@ -1,11 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { UserDetails } from '../types/userDetails';
 
-interface UserDetails {
-  userName: string;
-  userEmail: string;
-}
-
 export const useReviewRequestNavigation = () => {
   const navigate = useNavigate();
 
