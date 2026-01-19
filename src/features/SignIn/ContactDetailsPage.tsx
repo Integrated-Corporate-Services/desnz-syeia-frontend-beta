@@ -5,7 +5,7 @@ import SelectInput from "../../components/commonFormFields/SelectInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequestStore } from "../../store/accessRequestStore";
 import { useAuthUserContext } from "../../context/AuthUserContext";
-import axios from "axios";
+import requestAccessService from "../../services/accessRequestApplicationService";
 
 const ContactDetailsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -27,23 +27,14 @@ const ContactDetailsPage: React.FC = () => {
       if (!user?.email) return;
 
       try {
-        const response = await axios.get(
-          `/backend/api/access-requests/by-email`,
-          {
-            params: { email: user.email },
-          }
-        );
+        const result = await requestAccessService.checkExistingRequestByEmail(user.email);
 
         // If user has a submitted request, redirect to submitted page
-        if (response.data?.hasSubmittedRequest) {
+        if (result.hasSubmittedRequest) {
           navigate("/request-access/submitted", { replace: true });
         }
       } catch (error: unknown) {
-        // 404 means no existing request - this is fine, user can proceed
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status !== 404) {
-          console.error("Error checking existing request:", error);
-        }
+        console.error("Error checking existing request:", error);
       }
     };
 
