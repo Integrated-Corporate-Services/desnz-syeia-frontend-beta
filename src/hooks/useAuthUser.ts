@@ -19,10 +19,10 @@ export function useAuthUser() {
       .then((data: AuthUserResponse) => {
         setAuth({
           authenticated: true,
-          user: {
+          user: data.user ? {
             ...data.user,
             isDemo: LOGIN_DISABLED, // Mark as demo if in LOGIN_DISABLED mode
-          },
+          } : null,
         });
         setLoading(false);
         console.log(
