@@ -2,6 +2,7 @@ import { CONTENT } from "../../constants/content";
 import React from "react";
 import { BASE_URL } from "../../constants/routes";
 import { useLocation } from "react-router-dom";
+import { logout } from "../../services/authService";
 
 const ServiceNavigation = () => {
   const location = useLocation();
@@ -17,6 +18,9 @@ const ServiceNavigation = () => {
     "/landingPage",
     "/s37-guidance",
   ];
+
+  // Check if user is in registration/access request flow
+  const isInRegistrationFlow = location.pathname.startsWith("/request-access");
 
   // Check if on workbasket or any application-related page
   const isOnApplicationPages =
@@ -49,17 +53,18 @@ const ServiceNavigation = () => {
               id="navigation"
               style={{
                 display: "flex",
-                justifyContent: "space-between",
+                justifyContent: isInRegistrationFlow ? "flex-end" : "space-between",
                 alignItems: "center",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
+              {!isInRegistrationFlow && (
                 <li
                   className={`govuk-service-navigation__item ${
                     isOnApplicationPages
                       ? "govuk-service-navigation__item--active"
                       : ""
                   }`}
+                  style={{ display: "flex", alignItems: "center" }}
                 >
                   <a
                     className="govuk-service-navigation__link"
@@ -75,17 +80,22 @@ const ServiceNavigation = () => {
                     )}
                   </a>
                 </li>
-              </div>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <li className="govuk-service-navigation__item">
-                  <a
-                    className="govuk-service-navigation__link"
-                    href="/backend/auth/logout"
-                  >
-                    Sign out
-                  </a>
-                </li>
-              </div>
+              )}
+              <li
+                className="govuk-service-navigation__item"
+                style={{ display: "flex", alignItems: "center", marginLeft: isInRegistrationFlow ? "0" : "auto" }}
+              >
+                <a
+                  className="govuk-service-navigation__link"
+                  href="#"
+                  onClick={async (event) => {
+                    event.preventDefault();
+                    await logout();
+                  }}
+                >
+                  Sign out
+                </a>
+              </li>
               {/*<li className="govuk-service-navigation__item">
                 <a className="govuk-service-navigation__link" href={`${BASE_URL}notifications.html`}>
                   Notifications <span id="notifications" className="moj-notification-badge">2</span>

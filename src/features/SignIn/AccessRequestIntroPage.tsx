@@ -1,8 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthUserContext } from "../../context/AuthUserContext";
+import requestAccessService from "../../services/accessRequestApplicationService";
 
 const AccessRequestIntroPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthUserContext();
+
+  useEffect(() => {
+    const checkExistingRequest = async () => {
+      if (!user?.email) return;
+
+      try {
+        const result = await requestAccessService.checkExistingRequestByEmail(user.email);
+
+        // If user has a submitted request, redirect to submitted page
+        if (result.hasSubmittedRequest) {
+          navigate("/request-access/submitted", { replace: true });
+        }
+      } catch (error: unknown) {
+        console.error("Error checking existing request:", error);
+      }
+    };
+
+    checkExistingRequest();
+  }, [user?.email, navigate]);
 
   return (
     <div className="govuk-width-container">

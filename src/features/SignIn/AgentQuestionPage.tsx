@@ -1,58 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccessRequestStore } from "../../store/accessRequestStore";
-import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
-import { useAuthUserContext } from "../../context/AuthUserContext";
-import { useGetAccessRequest } from "../../hooks/useGetAccessRequest";
 
 const AgentQuestionPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuthUserContext();
   const { formData, updateFormData } = useAccessRequestStore();
-  const { saveAccessRequest, isLoading } = useSaveAccessRequest();
-  
-  // Fetch existing access request data
-  const { data: existingRequest, isLoading: isLoadingRequest } = useGetAccessRequest(user?.email);
 
   const [isAgent, setIsAgent] = useState<boolean | null>(
     formData.isAgent !== undefined ? formData.isAgent : null
   );
   const [error, setError] = useState<string>("");
 
-  // Update form data from existing access request if available
-  useEffect(() => {
-    if (existingRequest && existingRequest.is_agent !== undefined) {
-      setIsAgent(existingRequest.is_agent);
-      updateFormData({ isAgent: existingRequest.is_agent });
-    }
-  }, [existingRequest]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isAgent === null) {
-      setError("Select whether you are an agent or an employee");
+      setError("Select 'Yes' or 'No'");
       return;
     }
 
-    try {
-      // Save to backend
-      await saveAccessRequest({
-        email: formData.email!,
-        isAgent,
-      });
+    // Update store only - no backend save yet
+    updateFormData({ isAgent });
 
-      // Update store
-      updateFormData({ isAgent });
-
-      // Navigate based on selection
-      if (isAgent) {
-        navigate("/request-access/company-name");
-      } else {
-        navigate("/request-access/select-organisation");
-      }
-    } catch (error) {
-      setError("Failed to save. Please try again.");
+    // Navigate based on selection
+    if (isAgent) {
+      navigate("/request-access/company-name");
+    } else {
+      navigate("/request-access/select-organisations");
     }
   };
 
@@ -77,10 +51,7 @@ const AgentQuestionPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {isLoadingRequest ? (
-              <p className="govuk-body">Loading your details...</p>
-            ) : (
-              <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit} noValidate>
               <div
                 className={`govuk-form-group ${error ? "govuk-form-group--error" : ""}`}
               >
@@ -159,16 +130,14 @@ const AgentQuestionPage: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
-                disabled={isLoading}
               >
-                {isLoading ? "Saving..." : "Save and continue"}
+                Save and continue
               </button>
             </form>
-            )}
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
   );
 };
 

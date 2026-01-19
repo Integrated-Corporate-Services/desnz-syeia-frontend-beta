@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { logout } from '../services/authService';
-import { useAuthUserContext } from './AuthUserContext';
 
 interface SessionTimeoutContextType {
   showModal: boolean;
@@ -36,11 +35,13 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
     const activity = () => {
       // Only reset timer if modal is NOT shown
-    
+      if (!showModal) {
+        resetTimer();
+      }
     };
     events.forEach(e => window.addEventListener(e, activity));
     return () => events.forEach(e => window.removeEventListener(e, activity));
-  }, []);
+  }, [showModal]);
 
   useEffect(() => {
     timerRef.current = window.setInterval(() => {

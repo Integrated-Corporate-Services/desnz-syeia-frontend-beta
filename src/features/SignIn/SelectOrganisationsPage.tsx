@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccessRequestStore } from "../../store/accessRequestStore";
 import { usePublicOrganisations } from "../../hooks/usePublicOrganisations";
 import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
-import { useGetAccessRequest } from "../../hooks/useGetAccessRequest";
+import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 
 const SelectOrganisationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,9 +12,7 @@ const SelectOrganisationsPage: React.FC = () => {
   const { formData, updateFormData } = useAccessRequestStore();
   const { organisations, isLoading } = usePublicOrganisations();
   const { saveAccessRequest, isLoading: isSaving } = useSaveAccessRequest();
-  
-  // Fetch existing access request data
-  const { data: existingRequest, isLoading: isLoadingRequest } = useGetAccessRequest(user?.email);
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const [selectedOrgs, setSelectedOrgs] = useState<string[]>(
     formData.organisationIds || []
@@ -22,15 +20,6 @@ const SelectOrganisationsPage: React.FC = () => {
   const [error, setError] = useState<string>("");
 
   const isAgent = formData.isAgent;
-
-  // Update selected organisations from existing access request if available
-  useEffect(() => {
-    if (existingRequest?.organisations && existingRequest.organisations.length > 0) {
-      const orgIds = existingRequest.organisations.map((org) => org.organisation_id);
-      setSelectedOrgs(orgIds);
-      updateFormData({ organisationIds: orgIds });
-    }
-  }, [existingRequest]);
 
   const handleCheckboxChange = (orgId: string) => {
     if (isAgent) {
@@ -51,30 +40,58 @@ const SelectOrganisationsPage: React.FC = () => {
     e.preventDefault();
 
     if (selectedOrgs.length === 0) {
-      setError(
-        isAgent
-          ? "Select at least one organisation"
-          : "Select the organisation you work for"
-      );
+      const errorMsg = isAgent
+        ? "Select at least one organisation"
+        : "Select an organisation";
+      setError(errorMsg);
+      
+      // Focus error summary for accessibility
+      if (errorSummaryRef.current) {
+        errorSummaryRef.current.focus();
+        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
       return;
     }
 
     try {
-      // Update store
+      // Update store with organisation IDs
       updateFormData({ organisationIds: selectedOrgs });
 
-      // Submit to backend - this will be the final save that marks as PENDING
-      const result = await saveAccessRequest({
-        email: formData.email!,
+      // Submit ALL form data to backend in one final save
+      const completeFormData = {
+        email: formData.email || user?.email || '',
+        title: formData.title,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        line1: formData.line1,
+        line2: formData.line2,
+        town: formData.town,
+        county: formData.county,
+        postCode: formData.postCode,
+        isAgent: formData.isAgent,
+        agencyName: formData.agencyName,
         organisationIds: selectedOrgs,
-      });
+      };
+
+      await saveAccessRequest(completeFormData);
 
       // Navigate to success page
       navigate("/request-access/submitted");
-    } catch (err) {
-      setError("Failed to submit request. Please try again.");
+    } catch {
+      const errorMsg = "Failed to submit request. Please try again.";
+      setError(errorMsg);
+      
+      // Focus error summary for accessibility
+      if (errorSummaryRef.current) {
+        errorSummaryRef.current.focus();
+        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
   };
+
+  // Convert error to ErrorSummary format
+  const errorSummaryItems = error ? [{ fieldId: "organisations", message: error }] : [];
 
   if (isLoading) {
     return <div className="govuk-width-container">Loading...</div>;
@@ -100,11 +117,16 @@ const SelectOrganisationsPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
+            
             <form onSubmit={handleSubmit} noValidate>
               <div
                 className={`govuk-form-group ${error ? "govuk-form-group--error" : ""}`}
               >
-                <fieldset className="govuk-fieldset">
+                <fieldset 
+                  className="govuk-fieldset"
+                  aria-describedby={error ? "organisations-error" : undefined}
+                >
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
                     <h1 className="govuk-fieldset__heading">
                       {isAgent
