@@ -1,7 +1,8 @@
+import type { AuthUser } from '../types/auth';
 
 export type AuthUserResponse = {
   authenticated: boolean;
-  user: unknown;
+  user: AuthUser | null;
 };
 
 /**
