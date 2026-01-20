@@ -1,8 +1,7 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { logout } from "../../services/authService";
 
 const AccessRequestSubmittedPage: React.FC = () => {
-  const navigate = useNavigate();
 
   return (
     <div className="govuk-width-container">
@@ -44,19 +43,16 @@ const AccessRequestSubmittedPage: React.FC = () => {
             </p>
 
             <p className="govuk-body">
-              <button
-                onClick={() => navigate("/")}
+              <a
                 className="govuk-link"
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                  textDecoration: "underline",
+                href="#"
+               onClick={async (event) => {
+               event.preventDefault();
+                await logout();
                 }}
               >
                 Log out
-              </button>
+              </a>
             </p>
           </div>
         </div>
