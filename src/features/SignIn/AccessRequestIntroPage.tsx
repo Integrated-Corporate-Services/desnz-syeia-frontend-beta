@@ -28,7 +28,7 @@ const AccessRequestIntroPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <a href="/landingPage" className="govuk-back-link">
+      <a href="/frontend/landingPage" className="govuk-back-link">
         Back
       </a>
 

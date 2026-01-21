@@ -15,7 +15,6 @@ import RouteMapPage from '../features/RouteMap/page/RouteMapPage';
 import SensitiveAreaPage from '../features/sensitiveArea/page/SensitiveAreaPage';
 import SensitiveAreaReviewPage from '../features/sensitiveArea/page/SensitiveAreaReviewPage';
 import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
-import ComingSoon from '../features/NotFound/ComingSoon';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
@@ -45,13 +44,12 @@ import TLPApplicationLandDetails from '../features/TLP/ApplicationLandDetails/pa
 import TLPSupportingInfo from '../features/TLP/SupportingInfo/pages/SupportingInfo';
 import TLPNegotiations from '../features/TLP/Negotiations/pages/Negotiations';
 import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/ApplicationStatement';
-import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
-import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
 import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
 import LandingPage from '../features/SignIn/LandingPage';
 import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
+import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
 import AccessRequestIntroPage from '../features/SignIn/AccessRequestIntroPage';
 import ContactDetailsPage from '../features/SignIn/ContactDetailsPage';
@@ -137,6 +135,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/s37-guidance',
     component: Section37GuidancePage,
+    auth: false,
+    layout: false
+  },
+  {
+    path: '/nwl-guidance',
+    component: NWLGuidancePage,
     auth: false,
     layout: false
   },

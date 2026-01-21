@@ -69,9 +69,11 @@ const ConsultationDetailsPage: React.FC = () => {
               <li>or indicate a consultation is not required</li>
             </ul>
           </div>
+          
+ {/* Commented out section for LPA selection and derived LPAs */}
 
           {/* Show derived LPAs from parishes */}
-          {derivedLpas.length > 0 && (
+           {/* {derivedLpas.length > 0 && (
             <div className="govuk-inset-text govuk-!-margin-bottom-6">
               <h3 className="govuk-heading-s">
                 Local Planning Authorities derived from selected parishes
@@ -82,10 +84,10 @@ const ConsultationDetailsPage: React.FC = () => {
                 ))}
               </ul>
             </div>
-          )}
+          )} */}
 
           {/* LPA Selector Component - easily movable to other pages */}
-          <div className="govuk-!-margin-bottom-6">
+          {/* <div className="govuk-!-margin-bottom-6">
             <LpaSelector
               selectedLpaCodes={selectedLpas.map((lpa) => lpa.lpa_code)}
               onLpaSelect={handleLpaSelect}
@@ -93,7 +95,7 @@ const ConsultationDetailsPage: React.FC = () => {
               showRemoveButton={true}
               showCheckbox={true}
             />
-          </div>
+          </div>  */}
 
           {consultations.map((consultation) => (
             <ConsultationSummaryCard

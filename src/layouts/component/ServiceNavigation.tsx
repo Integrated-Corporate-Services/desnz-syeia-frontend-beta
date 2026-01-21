@@ -17,6 +17,8 @@ const ServiceNavigation = () => {
     "/sent-for-approval",
     "/landingPage",
     "/s37-guidance",
+    "/nwl-guidance",
+    "/tlp-guidance",
   ];
 
   // Check if user is in registration/access request flow
