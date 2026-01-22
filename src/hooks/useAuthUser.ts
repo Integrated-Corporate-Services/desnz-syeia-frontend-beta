@@ -1,35 +1,46 @@
 /// <reference types="vite/client" />
-import { useEffect, useState } from 'react';
-import { DEMO_USER_ID, DEMO_USER_EMAIL } from '../constants/demo';
-import type { AuthUser } from '../types/auth';
+import { useEffect } from "react";
+import { getAuthUser, AuthUserResponse } from "../services/authService";
+import { useAuthStore } from "../store/useAuthStore";
 
-const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === 'true';
+// Read from environment variable for flexibility (works with OneLogin simulator too)
+const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
 
 export function useAuthUser() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { setAuth, setError, setLoading, user, loading, error, authenticated } =
+    useAuthStore();
 
   useEffect(() => {
-    if (LOGIN_DISABLED) {
-      setUser({ user_id: DEMO_USER_ID, email: DEMO_USER_EMAIL, isDemo: true });
-      setLoading(false);
-      return;
-    }
-    fetch('/backend/auth/user', { credentials: 'include' })
-      .then(async (res) => {
-        if (res.ok) return res.json();
-        throw new Error('Not authenticated');
-      })
-      .then((data) => {
-        setUser(data.user);
+    // Skip if user already loaded
+    if (user) return;
+
+    // Check backend for session (middleware auto-initializes dummy session if needed)
+    getAuthUser()
+      .then((data: AuthUserResponse) => {
+        setAuth({
+          authenticated: true,
+          user: data.user ? {
+            ...data.user,
+            isDemo: LOGIN_DISABLED, // Mark as demo if in LOGIN_DISABLED mode
+          } : null,
+        });
         setLoading(false);
+        console.log(
+          "[useAuthUser] Session loaded:",
+          LOGIN_DISABLED ? "dummy" : "OneLogin"
+        );
       })
-      .catch((err) => {
-        setError(err);
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err : new Error(String(err)));
+        console.log("[useAuthUser] Not authenticated:", err);
         setLoading(false);
       });
-  }, []);
+  }, [user, setAuth, setError, setLoading]);
 
-  return { user, loading, error };
+  return {
+    user,
+    loading,
+    error,
+    authenticated,
+  };
 }

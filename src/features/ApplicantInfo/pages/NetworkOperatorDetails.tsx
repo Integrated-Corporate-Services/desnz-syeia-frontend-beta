@@ -1,290 +1,414 @@
-import { S37_BASE_URL } from '../../../constants/s37';
-import { useAuthUserContext } from '../../../context/AuthUserContext';
-import type { AuthUser } from '../../../types/auth';
-import React, { useState, useEffect } from 'react';
-import { useApplicationStore } from '../../../store/useApplicationStore';
-import { useNavigate, useLocation, Link, useParams } from 'react-router-dom';
-import { CONTENT } from '../../../constants/content';
-import { networkOperatorApiService } from '../../../services/networkOperatorApiService';
-import log from '../../../logger';
+import React, { useEffect, useCallback } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useApplicationStore } from "../../../store/useApplicationStore";
+import { useAuthUserContext } from "../../../context/AuthUserContext";
+import type { AuthUser } from "../../../types/auth";
+import type { ApplicationParty } from "../../../types/application";
+import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
+import { useTeamCoordinators } from "../../../hooks/useTeamCoordinators";
+import { useAdditionalContacts } from "../hooks/useAdditionalContacts";
+import { useNetworkOperatorForm } from "../hooks/useNetworkOperatorForm";
+import { useApplicationSync } from "../hooks/useApplicationSync";
+import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
+import { S37_BASE_URL } from "../../../constants/s37";
+import {
+  MAX_REFERENCE_LENGTH,
+  BREADCRUMBS,
+  FORM_LABELS,
+} from "../constants/networkOperatorDetails";
 
-
-const NetworkOperatorDetails = () => {
-  const [options, setOptions] = useState<any[]>([]);
-  const [networkOperatorReference, setNetworkOperatorReference] = useState('');
-  const [selectedOrganisation, setSelectedOrganisation] = useState<any | null>(null);
-  const [selectedOrgName, setSelectedOrgName] = useState('');
-  const [errors, setErrors] = useState<{ reference?: string; organisation?: string }>({});
-  const allowedReferenceRegex = /^[A-Za-z0-9\-\s]+$/;
-
-  const application = useApplicationStore(state => state.application);
-  const applicationParty = useApplicationStore(state => state.applicationParty);
-  const setOrganisation = useApplicationStore(state => state.setOrganisation);
-  const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
+/**
+ * Network Operator Details Page
+ * Allows user to enter applicant reference and select team coordinator
+ */
+const NetworkOperatorDetails: React.FC = () => {
+  const { user } = useAuthUserContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const routeParams = useParams();
-  const appId = routeParams.applicationId || '';
-  const { user } = useAuthUserContext();
-  const emailId = (user as AuthUser)?.email;
+  const appId = useGetApplicationId();
 
-  // Fetch application if not loaded
-  useEffect(() => {
-    if (!application && appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, application, applicationParty, fetchAndSetApplication]);
+  // Get organization from route state
+  const stateOrgId = location.state?.organisationId;
+  const stateOrgName = location.state?.organisationName;
 
-  // Fetch dropdown options and bind application data
+  // Store
+  const application = useApplicationStore((state) => state.application);
+  const applicationParty = useApplicationStore(
+    (state) => state.applicationParty
+  );
+  const setApplication = useApplicationStore((state) => state.setApplication);
+  const fetchAndSetApplication = useApplicationStore(
+    (state) => state.fetchAndSetApplication
+  );
+
+  // Custom hooks
+  const {
+    networkOperatorRef,
+    setNetworkOperatorRef,
+    selectedOrgName,
+    setSelectedOrgName,
+    selectedOrganisation,
+    setSelectedOrganisation,
+    errors,
+    showErrorSummary,
+    validateForm,
+    handleOperatorChange: handleOperatorChangeBase,
+  } = useNetworkOperatorForm();
+
+  const {
+    additionalContacts,
+    emailAddress,
+    emailInputError,
+    setEmailAddress,
+    handleAddContact,
+    handleDeleteContact,
+    setAdditionalContacts,
+    clearEmailInputError,
+  } = useAdditionalContacts();
+
+  const organisationId =
+    application?.application_party?.organisation_id || stateOrgId;
+  const organisationName =
+    application?.application_party?.organisation_name || stateOrgName || "";
+
+  // Fetch team coordinators for users who can access them
+  // DNO_AGENT, DNO_USER, DNO_TEAM_COORDINATOR all have permission
+  const canFetchCoordinators =
+    user?.role === "DESNZ_ADMIN" ||
+    user?.role === "DNO_TEAM_COORDINATOR" ||
+    user?.role === "DNO_AGENT" ||
+    user?.role === "DNO_USER";
+  const { coordinators } = useTeamCoordinators(
+    canFetchCoordinators ? organisationId : undefined
+  );
+
+  // Map coordinators to dropdown options
+  const options = useCoordinatorOptions({
+    coordinators,
+    organisationId,
+    organisationName,
+  });
+
+  // Fetch application data on mount
   useEffect(() => {
-    let isMounted = true;
-    const fetchOptionsAndBind = async () => {
-      let orgOptions: any[] = [];
-      try {
-        if (typeof emailId === 'string' && emailId) {
-          const data = await networkOperatorApiService.getNetworkOperatorByEmail(emailId);
-          orgOptions = Array.isArray(data) ? data : [];
-        } else {
-          orgOptions = [];
+    if (appId) {
+      fetchAndSetApplication(appId).then(() => {
+        // If organization passed via state, update application_party
+        if (stateOrgId && stateOrgName && application?.application_id) {
+          setApplication({
+            ...application,
+            application_id: application.application_id,
+            application_party: {
+              ...application?.application_party,
+              organisation_id: stateOrgId,
+              organisation_name: stateOrgName,
+              party_type:
+                application?.application_party?.party_type ||
+                "Network Operator",
+              line1: application?.application_party?.line1 || "",
+              is_primary: true,
+            },
+          });
         }
-      } catch {
-        orgOptions = [];
-      }
-      if (!isMounted) return;
-      setOptions(orgOptions);
-
-      // Bind application data to form fields
-      if (application) {
-        if (application.operator_ref !== undefined && application.operator_ref !== null) {
-          setNetworkOperatorReference(application.operator_ref);
-        }
-        const partyOrgName = application.application_party?.organisation_name;
-        if (partyOrgName && orgOptions.length > 0) {
-          const org = orgOptions.find(
-            opt =>
-              opt.organisation_name &&
-              opt.organisation_name.trim().toLowerCase() === partyOrgName.trim().toLowerCase()
-          );
-          setSelectedOrganisation(org || null);
-          setOrganisation(org || null);
-        }
-      }
-    };
-    fetchOptionsAndBind();
-    return () => { isMounted = false; };
-  }, [emailId, application, setOrganisation]);
-
-  // Keep selectedOrgName in sync with application
-  useEffect(() => {
-    if (application?.application_party?.organisation_name) {
-      setSelectedOrgName(application.application_party.organisation_name);
+      });
     }
-  }, [application]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appId]);
 
-  // After options are set, select the first organisation by default if none is selected
-  useEffect(() => {
-    if (options.length > 0 && !selectedOrgName) {
-      setSelectedOrgName(options[0].organisation_name);
-      setSelectedOrganisation(options[0]);
-      setOrganisation(options[0]);
-    }
-  }, [options, selectedOrgName, setOrganisation]);
+  // Sync application data with form state
+  useApplicationSync({
+    application,
+    options,
+    onReferenceSync: setNetworkOperatorRef,
+    onCoordinatorSync: (name, org) => {
+      setSelectedOrgName(name);
+      setSelectedOrganisation(org);
+    },
+    onContactsSync: setAdditionalContacts,
+  });
 
-  const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Only allow alphabets, numbers, spaces, and hyphens
-    if (value === '' || allowedReferenceRegex.test(value)) {
-      setNetworkOperatorReference(value);
-      setErrors(prev => ({ ...prev, reference: undefined }));
-    } else {
-      setErrors(prev => ({ ...prev, reference: 'Only letters, numbers, spaces, and hyphens are allowed.' }));
-    }
-  };
-
-  const handleOperatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedName = e.target.value;
-    setSelectedOrgName(selectedName);
-    const org = options.find(opt => opt.organisation_name === selectedName);
-    setSelectedOrganisation(org || null);
-    setOrganisation(org || null);
-  };
+  // Handle dropdown change
+  const handleOperatorChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      handleOperatorChangeBase(e, options);
+    },
+    [handleOperatorChangeBase, options]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: { reference?: string; organisation?: string } = {};
-    if (!networkOperatorReference.trim()) {
-      newErrors.reference = 'Network operator reference is required.';
-    } else if (!allowedReferenceRegex.test(networkOperatorReference)) {
-      newErrors.reference = 'You can only enter letters, numbers, spaces and hyphens';
+
+    if (!validateForm()) {
+      return;
     }
-    if (!selectedOrgName.trim()) {
-      newErrors.organisation = 'Please select a network operator organisation.';
-    }
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
 
     let app = application;
-    const type = 'S37';
-    const createdBy = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
-
+    const created_by = (user as AuthUser)?.user_id || "";
+    const additionalContactString =
+      additionalContacts
+        .map((email) => email.trim())
+        .filter((email) => email.length > 0)
+        .join(",") || null;
 
     if (!app) {
       const newAppData = {
-        type,
-        operator_ref: networkOperatorReference,
-        status: 'Draft',
-        created_by: createdBy,
+        type: "NWL",
+        operator_ref: networkOperatorRef,
+        status: "Draft",
+        created_by: created_by,
       };
       app = await useApplicationStore.getState().startApplication(newAppData);
-    }
-
-    else{
-      console.log('Saving network operator details for existing application');
-          await useApplicationStore.getState().saveNetworkOperator({
-              application_id: appId,
-              operator_ref: networkOperatorReference,
-              organisation_id: selectedOrganisation?.organisation_id,
-              person_id: selectedOrganisation?.person_id,
-              contact_id: selectedOrganisation?.party_contact_id,
-              role: 'Applicant',
-              is_primary: true,
-              contact_isconfirmed: applicationParty?.contact_isconfirmed ,
-              type: application?.type,
-              additional_contact: applicationParty?.additional_contact || null,
-            });
-     
-      navigate(`${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`);
-    } 
-      setErrors(prev => ({ ...prev, reference: 'Failed to save application. Please try again.' }));
-    
-  };
-
-  // Button label logic
-  // Button label logic: show 'Save and continue' if application object with values is available on initial load
-  const [initialShowSave, setInitialShowSave] = useState(false);
-  useEffect(() => {
-    // Only run on initial mount
-    if (application && application.application_id) {
-      setInitialShowSave(true);
     } else {
-      setInitialShowSave(false);
+      await useApplicationStore.getState().saveNetworkOperator({
+        application_id: appId,
+        operator_ref: networkOperatorRef,
+        organisation_id: selectedOrganisation?.organisation_id,
+        person_id: selectedOrganisation?.person_id,
+        contact_id: selectedOrganisation?.contact_id,
+        role: "APPLICANT",
+        is_primary: true,
+        contact_isconfirmed: applicationParty?.contact_isconfirmed,
+        type: application?.type,
+        additional_contact: additionalContactString,
+      });
+
+      navigate(
+        `${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`
+      );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${application?.application_id || ''}/task-list`}>
-              {CONTENT.networkOperatorContact.breadcrumb.taskList}
+            <Link
+              className="govuk-breadcrumbs__link"
+              to={`${S37_BASE_URL}/${
+                application?.application_id || ""
+              }/task-list`}
+            >
+              {BREADCRUMBS.TASK_LIST}
             </Link>
           </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator details</li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">
+            {BREADCRUMBS.NETWORK_OPERATOR}
+          </li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-xl">Network operator details</h1>
-            {/* Error summary for validation */}
-            {(errors.reference || errors.organisation) && (
-              <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ marginBottom: '2rem', maxWidth: 600 }}>
-                <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+            <h1 className="govuk-heading-xl">Applicant details</h1>
+            {/* Error summary */}
+            {showErrorSummary && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
-                    {errors.reference && (
-                      <li><a href="#networkOperatorReference-inputValue">{errors.reference}</a></li>
-                    )}
-                    {errors.organisation && (
-                      <li><a href="#networkOperator">{errors.organisation}</a></li>
-                    )}
+                    {errors.map((err, idx) => (
+                      <li key={idx}>
+                        <a href="#">{err}</a>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
             )}
-            <form method="post" data-module="fds-html-form" onSubmit={handleSubmit}>
-              <input type="hidden" name="_csrf" value="1cS2IlJvS27qI0DJG9gL3gIaaY-sywG0StstzDKXCdG3BVpy5qXQEmVbLlfHQiL9KfU_5mEqRO6b-DmZf-8U-Ar2PrPTNW4T" />
-
-              <div className={`govuk-form-group${errors.reference ? ' govuk-form-group--error' : ''}`}> 
-                <label className="govuk-label" htmlFor="networkOperatorReference-inputValue">
-                  Network operator's reference
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Applicant reference details */}
+              <div
+                className={`govuk-form-group${
+                  errors.includes("Enter an Applicant’s reference")
+                    ? " govuk-form-group--error"
+                    : ""
+                }`}
+              >
+                <label
+                  className="govuk-label govuk-label--s"
+                  htmlFor="networkOperatorRef"
+                >
+                  Applicant’s reference
                 </label>
-                {errors.reference && (
-                  <span className="govuk-error-message" id="networkOperatorReference-error">{errors.reference}</span>
+                {errors.includes("Enter an Applicant’s reference") && (
+                  <p className="govuk-error-message">
+                    Enter an Applicant’s reference
+                  </p>
                 )}
                 <input
-                  className={`govuk-input${errors.reference ? ' govuk-input--error' : ''}`}
-                  id="networkOperatorReference-inputValue"
-                  name="networkOperatorReference.inputValue"
+                  className={`govuk-input${
+                    errors.includes("Enter an Applicant’s reference")
+                      ? " govuk-input--error"
+                      : ""
+                  }`}
+                  id="networkOperatorRef"
+                  name="networkOperatorRef"
                   type="text"
-                  value={networkOperatorReference}
-                  maxLength={4000}
-                  onChange={handleReferenceChange}
-                  style={{ width: '100%' }}
-                  aria-invalid={!!errors.reference}
-                  aria-describedby={errors.reference ? 'networkOperatorReference-error' : undefined}
+                  maxLength={MAX_REFERENCE_LENGTH}
+                  value={networkOperatorRef}
+                  onChange={(e) => setNetworkOperatorRef(e.target.value)}
                 />
               </div>
 
-              <div className={`govuk-form-group${errors.organisation ? ' govuk-form-group--error' : ''}`}> 
-                <label className="govuk-label" htmlFor="networkOperator" id="selector-networkOperator-label">
-                  Who is the contact in the network operator organisation for this application?
-                </label>
-                <div id="networkOperator-hint" className="govuk-hint">
-                  The section 37 consent will be issued in the name of the person selected here
-                </div>
-                <select
-                  id="networkOperator"
-                  name="networkOperator"
-                  className="govuk-select"
-                  style={{ width: '100%' }}
-                  value={selectedOrgName || ''}
-                  onChange={handleOperatorChange}
-                  aria-invalid={!!errors.organisation}
-                  aria-describedby={errors.organisation ? 'networkOperator-error' : undefined}
-                  required
+              <div
+                className={`govuk-form-group${
+                  errors.includes("Select the network operator")
+                    ? " govuk-form-group--error"
+                    : ""
+                }`}
+              >
+                <label
+                  className="govuk-label govuk-label--s"
+                  htmlFor="location"
                 >
-                  <option value="" disabled>Select one...</option>
-                  {options.map(opt => (
-                    <option key={opt.organisation_id || opt.organisation_name} value={opt.organisation_name} selected={opt.organisation_name === selectedOrgName}>{opt.organisation_name}</option>
+                  Applicant contact name
+                </label>
+                <div id="landRef-hint" className="govuk-hint">
+                  The consent will be issued in the name of the person selected
+                  here
+                </div>
+                {errors.includes("Select the network operator") && (
+                  <p className="govuk-error-message">
+                    Select the network operator
+                  </p>
+                )}
+                <select
+                  className="govuk-select"
+                  id="location"
+                  name="location"
+                  value={selectedOrgName}
+                  onChange={handleOperatorChange}
+                  aria-describedby="location-hint"
+                >
+                  <option value="">Select person...</option>
+                  {options.map((op: ApplicationParty, index: number) => (
+                    <option
+                      key={`${op.organisation_id || "no-org"}-${
+                        op.person_name
+                      }-${index}`}
+                      value={op.person_name}
+                    >
+                      {op.person_name}
+                    </option>
                   ))}
                 </select>
-                {errors.organisation && (
-                  <span className="govuk-error-message" id="networkOperator-error">{errors.organisation}</span>
-                )}
               </div>
+              {additionalContacts.length > 0 && (
+                <ul className="govuk-list">
+                  {additionalContacts.map((email, idx) => (
+                    <li
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        borderBottom: "1px solid #eee",
+                        padding: "4px 0",
+                      }}
+                    >
+                      <span>{email}</span>
 
-              <details className="govuk-details" data-module="govuk-details">
+                      <a
+                        className="govuk-link"
+                        href="#"
+                        onClick={() => handleDeleteContact(email)}
+                      >
+                        Delete contact
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Additional contacts */}
+              <h2 className="govuk-heading-m">
+                Additional contacts{" "}
+                <span className="govuk-hint">(optional)</span>
+              </h2>
+              <div id="landRef-hint" className="govuk-hint">
+                You can add more contact email addresses to this application
+              </div>
+              <div
+                className={`govuk-form-group${
+                  emailInputError ? " govuk-form-group--error" : ""
+                }`}
+              >
+                <label
+                  className="govuk-label govuk-label--s"
+                  htmlFor="emailAddress"
+                >
+                  {FORM_LABELS.EMAIL_ADDRESS}
+                </label>
+                {emailInputError && (
+                  <span className="govuk-error-message">{emailInputError}</span>
+                )}
+                <input
+                  className={`govuk-input${
+                    emailInputError ? " govuk-input--error" : ""
+                  }`}
+                  id="emailAddress"
+                  name="emailAddress"
+                  type="text"
+                  value={emailAddress}
+                  onChange={(e) => {
+                    setEmailAddress(e.target.value);
+                    if (emailInputError) clearEmailInputError();
+                  }}
+                  autoComplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                className="govuk-button govuk-button--secondary"
+                onClick={handleAddContact}
+                style={{ marginBottom: "1rem" }}
+              >
+                Add contact
+              </button>
+
+              <details className="govuk-details">
                 <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">The contact is not listed</span>
+                  <span className="govuk-details__summary-text">
+                    The applicant contact is not listed
+                  </span>
                 </summary>
                 <div className="govuk-details__text">
-                  <p className="govuk-body">
-                    The contact must have a user account on EIP and be in the "Electricity Company: S37 Application Editor" or
-                    "Electricity Company: S37 Application Submitter" roles in the network operator team.
+                  <p>
+                    You must contact the team coordinator in your organisation
+                    that you want to create an application for to provide you
+                    with access to their organisation.
                   </p>
-                  <p className="govuk-body">
-                    The network operator team can be updated from the company contacts link on the left side menu on the
-                    workbasket. Only the team coordinator for the network operator organisation can update the team.
+                  <p>
+                    If you do not know who the team coordinator is then contact
+                    the service desk for advice at{" "}
+                    <a
+                      className="govuk-link"
+                      href="mailto:ukop@nstauthority.co.uk"
+                    >
+                      ukop@nstauthority.co.uk
+                    </a>
                   </p>
                 </div>
               </details>
 
-              <button
-                type="submit"
-                data-module="govuk-button"
-                className="govuk-button"
-                value={initialShowSave ? 'Save and continue' : 'Continue'}
-                name={initialShowSave ? 'Save and continue' : 'Continue'}
-                data-prevent-double-click="true"
-                data-fds-disable-on-submit="false"
-                data-govuk-button-init=""
-                style={{ backgroundColor: '#00703c', color: '#fff', width: 'auto', minWidth: '180px', fontWeight: 700 }}
-              >
-                {initialShowSave ? 'Save and continue' : 'Continue'}
-              </button>
+              {/* Call to action buttons */}
+              <div className="govuk-!-static-margin-top-6">
+                <button
+                  type="submit"
+                  className="govuk-button"
+                  data-module="govuk-button"
+                >
+                  Continue
+                </button>
+              </div>
             </form>
           </div>
         </div>

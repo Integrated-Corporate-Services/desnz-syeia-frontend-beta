@@ -1,7 +1,7 @@
 import React from 'react';
 import { CommonInputProps } from '../../../types/form';
 
-const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, options = [], children }) => (
+const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, options = [], children, disabled }) => (
   <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
     <fieldset className="govuk-fieldset">
       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">{label}</legend>
@@ -22,6 +22,7 @@ const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error,
                 value={opt.value}
                 checked={value === opt.value}
                 onChange={onChange}
+                disabled={disabled}
               />
               <label className="govuk-label govuk-radios__label" htmlFor={`${id}-${opt.value}`}>
                 {opt.label}

@@ -9,14 +9,12 @@ import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOpera
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import Workbasket from '../features/Workbasket/pages/Workbasket';
 import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitted';
-import SignInPage from '../features/SignIn/SignInPage';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
 import RouteMapPage from '../features/RouteMap/page/RouteMapPage';
 import SensitiveAreaPage from '../features/sensitiveArea/page/SensitiveAreaPage';
 import SensitiveAreaReviewPage from '../features/sensitiveArea/page/SensitiveAreaReviewPage';
 import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
-import ComingSoon from '../features/NotFound/ComingSoon';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
@@ -27,8 +25,8 @@ import consulteeApplicationDetails from '../features/Consultation/pages/consulte
 import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
 import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
 import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
-import ApplicantDetails from '../features/NWL/ApplicantDetails/pages/ApplicantDetails';
-import NWLNetworkOperatorContactDetails from '../features/NWL/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
+import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorDetails';
+import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import NWLTaskList from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
@@ -37,8 +35,8 @@ import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetail
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
-import TLPApplicantDetails from '../features/TLP/ApplicantDetails/pages/ApplicantDetails';
-import TLPNetworkOperatorContactDetails from '../features/TLP/NetworkOperatorContactDetails/pages/NetworkOperatorContactDetails';
+import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
+import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import TLPTaskList from '../features/TLP/TaskList';
 import TLPAssets from '../features/TLP/Assets/pages/Assets';
 import TLPLandownerOccupantDetails from '../features/TLP/LandownerOccupantDetails/pages/LandownerOccupantDetails';
@@ -46,16 +44,232 @@ import TLPApplicationLandDetails from '../features/TLP/ApplicationLandDetails/pa
 import TLPSupportingInfo from '../features/TLP/SupportingInfo/pages/SupportingInfo';
 import TLPNegotiations from '../features/TLP/Negotiations/pages/Negotiations';
 import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/ApplicationStatement';
-import LandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
-import ApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
+import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
+import LandingPage from '../features/SignIn/LandingPage';
+import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
+import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
+import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
+import AccessRequestIntroPage from '../features/SignIn/AccessRequestIntroPage';
+import ContactDetailsPage from '../features/SignIn/ContactDetailsPage';
+import WorkAddressPage from '../features/SignIn/WorkAddressPage';
+import AgentQuestionPage from '../features/SignIn/AgentQuestionPage';
+import CompanyNamePage from '../features/SignIn/CompanyNamePage';
+import SelectOrganisationsPage from '../features/SignIn/SelectOrganisationsPage';
+import AccessRequestSubmittedPage from '../features/SignIn/AccessRequestSubmittedPage';
+import OTPVerifyPage from '../features/OTPVerifyPage';
+import ReviewRequestPage from '../features/admin/pages/ReviewRequestPage';
+import AccessApprovedPage from '../features/admin/pages/AccessApprovedPage';
+import AccessDeniedPage from '../features/admin/pages/AccessDeniedPage';
+import AddUserPage from '../features/admin/pages/AddUserPage';
+import UserCreatedPage from '../features/admin/pages/UserCreatedPage';
+import AccessRevokedPage from '../features/admin/pages/AccessRevokedPage';
+import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
+import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
+import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
+import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
+import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
+import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
+import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
+import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
+import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
+import Parishes from '../features/Parishes/pages/Parishes';
+import PostConsultationActions from '../features/PostConsultation/pages/PostConsultation';
+import PaymentAmountPage from '../features/Payments/pages/PaymentAmountPage';
+import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationPage';
+import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
+import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
+import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
+import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
 
 export const ROUTE_CONFIG = [
   {
-    path: '/signin',
-    component: SignInPage,
+  path: `${S37_BASE_URL}/:applicationId/payment-success`,
+  component: PaymentSuccessPage,
+  auth: true,
+  layout: true
+  },
+  {
+    path: '/payment/callback',
+    component: PaymentCallbackPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/payment-method`,
+    component: PaymentMethodPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/generate-invoice`,
+    component: InvoiceGenerationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/invoice-download`,
+    component: InvoiceDownloadPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/choose-application',
+    component: ChooseApplicationTypePage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/pay-and-submit`,
+    component: PaymentAmountPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/landingPage',
+    component: LandingPage,
     auth: false,
+    layout: false
+  },
+  {
+    path: '/s37-guidance',
+    component: Section37GuidancePage,
+    auth: false,
+    layout: false
+  },
+  {
+    path: '/nwl-guidance',
+    component: NWLGuidancePage,
+    auth: false,
+    layout: false
+  },
+
+
+  {
+    path: '/otp-verify',
+    component: OTPVerifyPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/admin/user-management',
+    component: UserManagementDashboard,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisation/:organisationId/settings',
+    component: ManageOrganisationSettingsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/team-coordinators',
+    component: TeamCoordinatorsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
+    component: ManageTeamCoordinatorPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/organisations/:organisationId/approved-domains',
+    component: ApprovedEmailDomainsPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/request-access',
+    component: AccessRequestIntroPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/contact-details',
+    component: ContactDetailsPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/work-address',
+    component: WorkAddressPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/agent-question',
+    component: AgentQuestionPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/company-name',
+    component: CompanyNamePage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/select-organisations',
+    component: SelectOrganisationsPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/select-organisation',
+    component: SelectOrganisationsPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/request-access/submitted',
+    component: AccessRequestSubmittedPage,
+    auth: false,
+    layout: true
+  },
+  {
+    path: '/admin/review-request/:requestId',
+    component: ReviewRequestPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-approved',
+    component: AccessApprovedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-denied',
+    component: AccessDeniedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/add-user',
+    component: AddUserPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/user-created',
+    component: UserCreatedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/access-revoked',
+    component: AccessRevokedPage,
+    auth: true,
+    layout: false
+  },
+  {
+    path: '/admin/revoke-user/:userId',
+    component: RevokeUserAccessPage,
+    auth: true,
     layout: false
   },
   {
@@ -72,7 +286,7 @@ export const ROUTE_CONFIG = [
   },
   {
     path: `${NWL_BASE_URL}/:applicationId/applicant-details`,
-    component: ApplicantDetails,
+    component: NWLNetworkOperatorDetails,
     auth: true,
     layout: true
   },
@@ -132,7 +346,7 @@ export const ROUTE_CONFIG = [
   },
   {
     path: `${TLP_BASE_URL}/:applicationId/applicant-details`,
-    component: TLPApplicantDetails,
+    component: TLPNetworkOperatorDetails,
     auth: true,
     layout: true
   },
@@ -270,7 +484,7 @@ export const ROUTE_CONFIG = [
   },
   {
   path: `${S37_BASE_URL}/:applicationId/parishes`,
-    component: ComingSoon,
+    component: Parishes,
     auth: true,
     layout: true
   },
@@ -318,7 +532,7 @@ export const ROUTE_CONFIG = [
   },
   {
   path: `${S37_BASE_URL}/:applicationId/post-consultation-actions`,
-    component: ComingSoon,
+    component: PostConsultationActions,
     auth: true,
     layout: true
   },
@@ -359,10 +573,52 @@ export const ROUTE_CONFIG = [
     layout: true
   },
   {
-    path: '*',
-    component: ComingSoon,
-    auth: false,
-    layout: false
+    path: `${S37_BASE_URL}/:applicationId/delete`,
+    component: DeleteApplicationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/delete`,
+    component: DeleteApplicationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${TLP_BASE_URL}/:applicationId/delete`,
+    component: DeleteApplicationPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
+    component: CheckYourAnswers,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/application-submit`,
+    component: ApplicationSubmit,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
+    component: CheckYourAnswers,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/application-submit`,
+    component: ApplicationSubmit,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/who-is-applying`,
+    component: WhoIsApplying,
+    auth: true,
+    layout: true
   }
 ];
 

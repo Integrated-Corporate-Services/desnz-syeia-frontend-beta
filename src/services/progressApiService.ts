@@ -12,14 +12,13 @@ export const progressApiService = {
   // Update progress for a subsection
   updateApplicationProgress: async (
     applicationId: string,
-    section_name: string,
     subsection_name: string,
-    is_completed: boolean
+    status: string
   ) => {
   const response = await fetch(`/backend/api/applications/${applicationId}/progress`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ section_name, subsection_name, is_completed }),
+      body: JSON.stringify({ subsection_name, status }),
     });
     if (!response.ok) throw new Error('Failed to update application progress');
     return response.json();

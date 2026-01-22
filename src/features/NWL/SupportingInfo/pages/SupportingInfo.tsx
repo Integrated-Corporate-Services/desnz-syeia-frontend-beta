@@ -271,7 +271,7 @@ const SupportingInfo: React.FC = () => {
 			 				   navigate(`/nwl/${applicationId}/task-list`);
 
 		 } catch {
-			 // Optionally handle error
+				// TODO: error handling
 		 }
 	 };
 
@@ -318,7 +318,7 @@ const SupportingInfo: React.FC = () => {
 				   navigate(`/nwl/${applicationId}/task-list`);
 
 		 } catch {	
-			 // Optionally handle error
+				// TODO: error handling
 		 }
 	 };
 

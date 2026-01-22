@@ -1,22 +1,54 @@
-import React, { useEffect } from 'react';
-import { useApplicationStore } from '../../../store/useApplicationStore';
-import { useNavigate } from 'react-router-dom';
-import ApplicationTable from '../component/ApplicationTable';
-import { useAuthUserContext } from '../../../context/AuthUserContext';
-import type { AuthUser } from '../../../types/auth';
-import { ROUTES } from '../../../constants/routes';
-import StartNewApplicationButton from '../../../components/StartNewApplicationButton';
+import React, { useEffect, useState } from "react";
+import { useApplicationStore } from "../../../store/useApplicationStore";
+import { useNavigate } from "react-router-dom";
+import ApplicationTable from "../components/ApplicationTable";
+import { useAuthUserContext } from "../../../context/AuthUserContext";
+import type { AuthUser } from "../../../types/auth";
+import { ROUTES } from "../../../constants/routes";
+import { ROLES } from "../../../constants/roles";
+import { useWorkbasketFilters } from "../hooks/useWorkbasketFilters";
+import { WorkbasketFilters } from "../components/WorkbasketFilters";
+import { WorkbasketHeader } from "../components/WorkbasketHeader";
+import { Pagination } from "../components/Pagination";
+import { DEMO_USER_ID } from "../../../constants/demo";
 
 const Workbasket = () => {
   // TODO: get from auth/session
   const { user } = useAuthUserContext();
-  const created_by = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '44444444-4444-4444-4444-444444444444';
+  const created_by =
+    (user as AuthUser)?.person_id ||
+    (user as AuthUser)?.user_id ||
+    DEMO_USER_ID;
   const applications = useApplicationStore((state) => state.applications);
-  const loadApplications = useApplicationStore((state) => state.loadApplications);
+  const loadApplications = useApplicationStore(
+    (state) => state.loadApplications
+  );
   const navigate = useNavigate();
 
+  const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Use custom filter hook
+  const {
+    statusFilter,
+    setStatusFilter,
+    dateFilter,
+    setDateFilter,
+    searchText,
+    setSearchText,
+    filteredApplications,
+    clearFilters,
+  } = useWorkbasketFilters(applications);
+
+  // Check if user has admin role
+  const isAdmin =
+    user &&
+    ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+      (user as AuthUser)?.role === ROLES.DNO_TEAM_COORDINATOR);
+
   useEffect(() => {
-    if (created_by && typeof created_by === 'string') {
+    if (created_by && typeof created_by === "string") {
       loadApplications(created_by);
     }
   }, [created_by, loadApplications]);
@@ -26,20 +58,47 @@ const Workbasket = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <div className="govuk-width-container" style={{ marginTop: "40px" }}>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-full">
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-one-half">
-              <h1 className="govuk-heading-l">Your applications</h1>
-            </div>
-            <div className="govuk-grid-column-one-half govuk-!-text-align-right">
-                <StartNewApplicationButton />
-            </div>
-          </div>
+          <WorkbasketHeader
+            onToggleFilters={() => setShowFilters(!showFilters)}
+            showFilters={showFilters}
+            onDashboardClick={() => navigate("/admin/user-management")}
+            showDashboard={!!isAdmin}
+          />
 
-          {applications.length > 0 ? (
-              <ApplicationTable applications={applications} />
+          <WorkbasketFilters
+            showFilters={showFilters}
+            statusFilter={statusFilter}
+            dateFilter={dateFilter}
+            searchText={searchText}
+            onStatusChange={setStatusFilter}
+            onDateChange={setDateFilter}
+            onSearchChange={setSearchText}
+            onClearFilters={clearFilters}
+          />
+
+          {filteredApplications.length > 0 ? (
+            <>
+              <ApplicationTable
+                applications={filteredApplications.slice(
+                  (currentPage - 1) * itemsPerPage,
+                  currentPage * itemsPerPage
+                )}
+                user={user as AuthUser}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(
+                  filteredApplications.length / itemsPerPage
+                )}
+                onPageChange={(page) => {
+                  setCurrentPage(page);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
+            </>
           ) : (
             <p>No applications found.</p>
           )}

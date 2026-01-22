@@ -17,4 +17,5 @@ export interface CommonInputProps {
   maxLength?: number;
   showCount?: boolean;
   style?: React.CSSProperties;
+  disabled?: boolean;
 }

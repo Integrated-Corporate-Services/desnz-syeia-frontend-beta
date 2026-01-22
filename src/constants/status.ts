@@ -8,4 +8,10 @@ export const APPLICATION_STATUS = {
   INCOMPLETE: 'Incomplete',
   CANNOT_START_YET: 'Cannot start yet',
   NOT_COMPLETED: 'Not completed',
+  ON_HOLD: 'On hold',
+  DECLINED: 'Declined',
+  NEGOTIATED: 'Negotiated',
+  PAYMENT_PENDING: 'Payment pending',
+  GRANTED: 'Granted',
+  HEARING_PENDING: 'Hearing pending',
 };

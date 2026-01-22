@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useApplicationStore } from "../../store/useApplicationStore";
 import { useGetApplicationId } from "../../hooks/useGetApplicationId";
+import { NWL_BASE_URL } from '../../constants/nwl';
 
 const TaskList: React.FC = () => {
 	const location = useLocation();
@@ -10,6 +11,8 @@ const TaskList: React.FC = () => {
 	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
 	const application = useApplicationStore(state => state.application);
 	const [orgName, setOrgName] = useState('');
+	const [submitting, setSubmitting] = useState(false);
+  	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (appId) {
@@ -156,9 +159,15 @@ const TaskList: React.FC = () => {
 							</li>
 						</ul>
 
-						<a className="govuk-button govuk-button--warning" href="delete-application.html">
+						<button
+							className="govuk-button govuk-button--warning"
+							type="button"
+							onClick={() => navigate(`${NWL_BASE_URL}/${appId}/delete`)}
+							disabled={submitting}
+							style={{ marginRight: '1rem' }}
+						>
 							Delete application
-						</a>
+						</button>
 					</div>
 				</div>
 			</main>

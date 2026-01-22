@@ -3,7 +3,7 @@ import React from 'react';
 import { CommonInputProps } from '../../../types/form';
 
 const TextInput = React.forwardRef<HTMLInputElement, CommonInputProps>(
-  ({ id, name, label, value, error, onChange, widthClass }, ref) => (
+  ({ id, name, label, value, error, onChange, widthClass, disabled }, ref) => (
     <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
       <label className="govuk-label" htmlFor={id}>{label}</label>
       {error && (
@@ -19,6 +19,7 @@ const TextInput = React.forwardRef<HTMLInputElement, CommonInputProps>(
         value={value}
         onChange={onChange}
         ref={ref}
+        disabled={disabled}
       />
     </div>
   )

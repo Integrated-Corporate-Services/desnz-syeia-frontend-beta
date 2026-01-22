@@ -1,194 +1,106 @@
-import { S37_BASE_URL } from '../../../constants/s37';
-import { useAuthUserContext } from '../../../context/AuthUserContext';
-import type { AuthUser } from '../../../types/auth';
+import React, { useState, useEffect } from "react";
+import { useApplicationStore } from "../../../store/useApplicationStore";
+import { Link } from "react-router-dom";
+import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
+import { S37_BASE_URL } from "../../../constants/s37";
+import { useContactConfirmation } from "../hooks/useContactConfirmation";
+import { useContactDetailsSubmit } from "../hooks/useContactDetailsSubmit";
+import { formatContactDetails } from "../utils/contactDetailsFormatter";
+import { ContactDetailsSummary } from "../components/ContactDetailsSummary";
+import { ContactConfirmationRadios } from "../components/ContactConfirmationRadios";
+import { BREADCRUMBS, LABELS } from "../constants/contactDetailsConstants";
 
-import React, { useState } from 'react';
-import { useEffect } from 'react';
-import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import { Link, useNavigate } from 'react-router-dom';
-import { useApplicationStore } from '../../../store/useApplicationStore';
-import { CONTENT } from '../../../constants/content';
+const NetworkOperatorContactDetails: React.FC = () => {
+  const [error, setError] = useState<string>("");
 
-const NetworkOperatorContactDetails = () => {
+  const application = useApplicationStore((state) => state.application);
+  const fetchAndSetApplication = useApplicationStore(
+    (state) => state.fetchAndSetApplication
+  );
   const appId = useGetApplicationId();
-  const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
-  // Fetch application data on mount using appId
+  const party = application?.application_party;
+
+  // Fetch application data on mount
   useEffect(() => {
     if (appId) {
       fetchAndSetApplication(appId);
     }
   }, [appId, fetchAndSetApplication]);
-  const application = useApplicationStore(state => state.application);
-  const party = application?.application_party;
-  const [contactIsConfirmed, setContactIsConfirmed] = useState<true | false | null>(null);
-  const [error, setError] = useState<string>('');
-  const navigate = useNavigate();
-  // Keep radio value in sync with store if application/party changes
-  React.useEffect(() => {
-    if (party && typeof party.contact_isconfirmed === 'boolean') {
-      setContactIsConfirmed(party.contact_isconfirmed);
-    } else {
-      setContactIsConfirmed(null); // Ensure no selection by default
-    }
-  }, [party?.contact_isconfirmed]);
-  const { user } = useAuthUserContext();
-  const created_by = (user as AuthUser)?.person_id || (user as AuthUser)?.user_id || '';
 
-  // Handles the form submit for contact details
-  const handleContactDetailsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Submitting contact details with contactIsConfirmed:', contactIsConfirmed);
-    if (contactIsConfirmed === null) {
-      setError('Select yes if all contact details are available and correct');
-      return;
-    }
-    setError('');
-    if (application && application.application_id) {
-      await useApplicationStore.getState().saveNetworkOperator({
-        application_id: application.application_id,
-        operator_ref: application.operator_ref,
-        organisation_id: party?.organisation_id,
-        person_id: party?.person_id,
-        contact_id: party?.contact_id,
-        role: 'Applicant',
-        is_primary: true,
-        contact_isconfirmed: contactIsConfirmed,
-        type: application?.type,
-        additional_contact: party?.additional_contact || null,
-      });
-  navigate(`${S37_BASE_URL}/${application.application_id}/task-list`);
-    }
-  };
+  // Contact confirmation state
+  const { contactIsConfirmed, setContactIsConfirmed } =
+    useContactConfirmation(application);
+
+  // Form submission handler
+  const { handleSubmit } = useContactDetailsSubmit({
+    application,
+    party,
+    appId,
+    contactIsConfirmed,
+    setError,
+  });
+
+  // Format contact details for display
+  const contactDetails = formatContactDetails(party);
 
   return (
-    <>
-      <div className="govuk-width-container">
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${application?.application_id || ''}/task-list`}>
-                {CONTENT.networkOperatorContact.breadcrumb.taskList}
+              <Link
+                className="govuk-breadcrumbs__link"
+                to={`${S37_BASE_URL}/${appId}/task-list`}
+              >
+                {BREADCRUMBS.TASK_LIST}
               </Link>
             </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">Network operator contact details</li>
+            <li className="govuk-breadcrumbs__list-item" aria-current="true">
+              {BREADCRUMBS.CHECK_CONTACT_DETAILS}
+            </li>
           </ol>
         </nav>
-        {/* Error summary for validation */}
+
+        <h1 className="govuk-heading-xl">{LABELS.PAGE_TITLE}</h1>
+
         {error && (
-          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ marginBottom: '2rem', maxWidth: 600 }}>
-            <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+          <div
+            className="govuk-error-summary"
+            data-module="govuk-error-summary"
+            tabIndex={-1}
+            role="alert"
+          >
+            <h2 className="govuk-error-summary__title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">
-                <li><a href="#contactIsConfirmed-yes">{error}</a></li>
+                <li>{error}</li>
               </ul>
             </div>
           </div>
         )}
-      </div>
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-two-thirds">
-              <h1 className="govuk-heading-xl">Network operator contact details</h1>
-              <div className="govuk-summary-card" id="contact-details-summary">
-                <div className="govuk-summary-card__content">
-                  <dl className="govuk-summary-list">
-                    <div className="govuk-summary-list__row govuk-summary-list__row--no-actions">
-                      <dt className="govuk-summary-list__key">Name</dt>
-                      <dd className="govuk-summary-list__value">{party?.organisation_name || ''}</dd>
-                    </div>
-                    <div className="govuk-summary-list__row govuk-summary-list__row--no-actions">
-                      <dt className="govuk-summary-list__key">Address</dt>
-                      <dd className="govuk-summary-list__value">
-                        {[party?.line1, party?.line2, party?.city, party?.country, party?.postcode].filter(Boolean).join(', ')}
-                      </dd>
-                    </div>
-                    <div className="govuk-summary-list__row govuk-summary-list__row--no-actions">
-                      <dt className="govuk-summary-list__key">Email address</dt>
-                      <dd className="govuk-summary-list__value">
-                        {party?.email ? (
-                          <a href={`mailto:${party.email}`} className="govuk-link">{party.email}</a>
-                        ) : ''}
-                      </dd>
-                    </div>
-                    <div className="govuk-summary-list__row govuk-summary-list__row--no-actions">
-                      <dt className="govuk-summary-list__key">Phone number</dt>
-                      <dd className="govuk-summary-list__value">{party?.phone || ''}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
-              <form method="post" data-module="fds-html-form" onSubmit={handleContactDetailsSubmit}>
-                <input type="hidden" name="_csrf" value="UI9xuVoTjzeGRDhenxLGm1f7_va41XQHylwL4S8jWljCJLIGY-4XiW0n6g6rJVpqrT_yozTL05eP5kwq_2gy1RdCbTqmFIZn" />
-                <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}> 
-                  <fieldset className="govuk-fieldset">
-                    <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                      <h2 className="govuk-fieldset__heading">
-                        Are all contact details available and correct?
-                      </h2>
-                    </legend>
-                    {error && (
-                      <span className="govuk-error-message" id="contactIsConfirmed-error">{error}</span>
-                    )}
-                    <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios" data-govuk-radios-init="" style={{ marginBottom: '2rem' }}>
-                      <div className="govuk-radios__item">
-                        <input
-                          className="govuk-radios__input"
-                          id="contactIsConfirmed-yes"
-                          name="contactIsConfirmed"
-                          type="radio"
-                          checked={contactIsConfirmed === true}
-                          onChange={() => setContactIsConfirmed(true)}
-                        />
-                        <label className="govuk-label govuk-radios__label" htmlFor="contactIsConfirmed-yes">
-                          Yes
-                        </label>
-                      </div>
-                      <div className="govuk-radios__item">
-                        <input
-                          className="govuk-radios__input"
-                          id="contactIsConfirmed-no"
-                          name="contactIsConfirmed"
-                          type="radio"
-                          checked={contactIsConfirmed === false}
-                          onChange={() => setContactIsConfirmed(false)}
-                        />
-                        <label className="govuk-label govuk-radios__label" htmlFor="contactIsConfirmed-no">
-                          No
-                        </label>
-                      </div>
-                      {contactIsConfirmed === false && (
-                        <div className="govuk-radios__conditional" id="contactIsConfirmed-no-hidden">
-                          <p className="govuk-body">
-                            If any of the contact details are not correct or missing then the contact person must update their account details on EIP. You will not be allowed to submit the application until all details are provided and correct.
-                          </p>
-                          <p className="govuk-body">
-                            The contact can update their details by logging into their account on EIP and going to the 'Update My Details' link shown in the left hand menu on the workbasket page.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </fieldset>
-                </div>
-                <button
-                  type="submit"
-                  data-module="govuk-button"
-                  className="govuk-button"
-                  value="Save and continue"
-                  name="Save and continue"
-                  data-prevent-double-click="true"
-                  data-fds-disable-on-submit="false"
-                  data-govuk-button-init=""
-                  style={{ backgroundColor: '#00703c', color: '#fff', minWidth: '180px', fontWeight: 700 }}
-                >
-                  Save and continue
-                </button>
-              </form>
-            </div>
+
+        <form onSubmit={handleSubmit} noValidate>
+          <ContactDetailsSummary contactDetails={contactDetails} />
+
+          <ContactConfirmationRadios
+            contactIsConfirmed={contactIsConfirmed}
+            setContactIsConfirmed={setContactIsConfirmed}
+            setError={setError}
+          />
+
+          <div className="govuk-!-static-margin-top-6">
+            <button
+              type="submit"
+              className="govuk-button"
+              data-module="govuk-button"
+            >
+              {LABELS.CONTINUE}
+            </button>
           </div>
-        </main>
+        </form>
       </div>
-    </>
+    </div>
   );
 };
 
