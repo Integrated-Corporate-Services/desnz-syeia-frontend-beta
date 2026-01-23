@@ -3,39 +3,27 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
-import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getPresignedGetUrl } from '../../../services/s3ApiService';
 
 const InvoiceDownloadPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const applicationId = useGetApplicationId();
-  const { user } = useAuthUser();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const { invoiceNumber, s3Key, consentFee, eiaScreeningFee, totalAmount } = location.state || {};
 
   const handleDownloadInvoice = async () => {
-    if (!s3Key) {
-      setError('Invoice file not available');
+    if (!applicationId) {
+      setError('Application ID is missing');
       return;
     }
-
     try {
       setLoading(true);
       setError('');
-
-      // Get presigned URL from S3
-      const result = await getPresignedGetUrl(s3Key);
-      
-      if (!result.url) {
-        throw new Error('Failed to get download URL');
-      }
-
-      // Open the presigned URL in a new tab or download directly
-      window.open(result.url, '_blank');
-      
+      // Use the invoice backend endpoint instead of generic S3 service
+      window.open(`/backend/api/invoice/${applicationId}/download`, '_blank');
       setLoading(false);
     } catch (err: any) {
       setError(err.message || 'Failed to download invoice');
