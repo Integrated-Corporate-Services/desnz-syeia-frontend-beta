@@ -137,5 +137,33 @@ class RequestAccessService {
       );
     }
   }
+
+  /**
+   * Check if user has an existing access request by email
+   */
+  async checkExistingRequestByEmail(
+    email: string
+  ): Promise<{ hasSubmittedRequest: boolean }> {
+    try {
+      const response = await axios.get(
+        `/backend/api/access-requests/by-email`,
+        {
+          params: { email },
+        }
+      );
+
+      return {
+        hasSubmittedRequest: response.data?.hasSubmittedRequest || false,
+      };
+    } catch (error) {
+      // 404 means no existing request - this is fine
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return { hasSubmittedRequest: false };
+      }
+
+      logger.error("Check existing request error:", error);
+      throw error;
+    }
+  }
 }
 export default new RequestAccessService();

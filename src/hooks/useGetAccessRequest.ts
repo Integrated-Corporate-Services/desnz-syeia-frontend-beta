@@ -46,12 +46,15 @@ export const useGetAccessRequest = (email: string | undefined) => {
         );
 
         setData(response.data);
-      } catch (err: any) {
-        if (err.response?.status === 404) {
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response?.status === 404) {
           // No existing request found - this is normal for new users
           setData(null);
         } else {
-          setError(err.response?.data?.error || "Failed to fetch access request");
+          const errorMessage = axios.isAxiosError(err) 
+            ? err.response?.data?.error || "Failed to fetch access request"
+            : "Failed to fetch access request";
+          setError(errorMessage);
           console.error("Error fetching access request:", err);
         }
       } finally {

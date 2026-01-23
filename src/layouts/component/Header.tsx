@@ -1,10 +1,6 @@
-import { CONTENT } from '../../constants/content';
-import DESNZLogo from '../../assets/DESNZ_logo.png';
-import SignOutButton from '../../components/SignOutButton';
-import { useAuthStore } from '../../store/useAuthStore';
+
 
 const Header = () => {
-  const { authenticated } = useAuthStore();
   return (
     <>
     <style>{`

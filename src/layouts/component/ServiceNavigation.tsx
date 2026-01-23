@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
+import { logout } from "../../services/authService";
 
 const ServiceNavigation = () => {
   const location = useLocation();
@@ -20,7 +21,12 @@ const ServiceNavigation = () => {
     "/sent-for-approval",
     "/landingPage",
     "/s37-guidance",
+    "/nwl-guidance",
+    "/tlp-guidance",
   ];
+
+  // Check if user is in registration/access request flow
+  const isInRegistrationFlow = location.pathname.startsWith("/request-access");
 
   // Check if on workbasket or any application-related page
   const isOnApplicationPages =
@@ -192,7 +198,11 @@ const ServiceNavigation = () => {
               <li className="govuk-service-navigation__item">
                 <a
                   className="govuk-service-navigation__link"
-                  href="/backend/auth/logout"
+                  href="#"
+                  onClick={async (event) => {
+                    event.preventDefault();
+                    await logout();
+                  }}
                 >
                   Sign out
                 </a>

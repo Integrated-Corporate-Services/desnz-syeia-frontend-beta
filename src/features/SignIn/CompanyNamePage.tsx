@@ -1,55 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
+import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequestStore } from "../../store/accessRequestStore";
-import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
-import { useAuthUserContext } from "../../context/AuthUserContext";
-import { useGetAccessRequest } from "../../hooks/useGetAccessRequest";
 
 const CompanyNamePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuthUserContext();
   const { formData, updateFormData } = useAccessRequestStore();
-  const { saveAccessRequest, isLoading } = useSaveAccessRequest();
-  
-  // Fetch existing access request data
-  const { data: existingRequest, isLoading: isLoadingRequest } = useGetAccessRequest(user?.email);
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const [agencyName, setAgencyName] = useState(formData.agencyName || "");
   const [error, setError] = useState<string>("");
 
-  // Update form data from existing access request if available
-  useEffect(() => {
-    if (existingRequest && existingRequest.agency_name) {
-      setAgencyName(existingRequest.agency_name);
-      updateFormData({ agencyName: existingRequest.agency_name });
+  const handleChange = (value: string) => {
+    // Allow alphanumeric, spaces, hyphens, apostrophes, ampersands, periods, commas
+    const sanitizedValue = value.replace(/[^a-zA-Z0-9\s'\-&.,]/g, '');
+    setAgencyName(sanitizedValue);
+    setError("");
+  };
+
+  const validate = (): boolean => {
+    if (!agencyName.trim()) {
+      setError("Enter your agency name");
+      return false;
     }
-  }, [existingRequest]);
+    
+    if (agencyName.trim().length > 4000) {
+      setError("You cannot enter more than 4,000 characters");
+      return false;
+    }
+    
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!agencyName.trim()) {
-      setError("Enter your agency name");
+    if (!validate()) {
+      // Focus error summary for accessibility
+      if (errorSummaryRef.current) {
+        errorSummaryRef.current.focus();
+        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
       return;
     }
 
-    try {
-      // Save to backend
-      await saveAccessRequest({
-        email: formData.email!,
-        agencyName,
-      });
+    // Update store only - no backend save yet
+    updateFormData({ agencyName });
 
-      // Update store
-      updateFormData({ agencyName });
-
-      // Navigate to select organisations page
-      navigate("/request-access/select-organisations");
-    } catch (error) {
-      setError("Failed to save. Please try again.");
-    }
+    // Navigate to select organisations page
+    navigate("/request-access/select-organisations");
   };
+
+  // Convert error to ErrorSummary format
+  const errorSummaryItems = error ? [{ fieldId: "agencyName", message: error }] : [];
 
   return (
     <div className="govuk-width-container">
@@ -67,23 +71,19 @@ const CompanyNamePage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
+            
             <h1 className="govuk-heading-l">Enter your agency name</h1>
 
             <p className="govuk-body">e.g. Fisher Gordon</p>
 
-            {isLoadingRequest ? (
-              <p className="govuk-body">Loading your details...</p>
-            ) : (
-              <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit} noValidate>
               <TextInput
                 id="agencyName"
                 name="agencyName"
                 label=""
                 value={agencyName}
-                onChange={(e) => {
-                  setAgencyName(e.target.value);
-                  setError("");
-                }}
+                onChange={(e) => handleChange(e.target.value)}
                 error={error}
                 className="govuk-input--width-20"
               />
@@ -92,12 +92,10 @@ const CompanyNamePage: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
-                disabled={isLoading}
               >
-                {isLoading ? "Saving..." : "Save and continue"}
+                Save and continue
               </button>
             </form>
-            )}
           </div>
         </div>
       </main>
