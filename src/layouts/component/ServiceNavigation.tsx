@@ -48,7 +48,7 @@ const ServiceNavigation = () => {
   const isAdmin =
     user &&
     ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
-      (user as AuthUser)?.role === ROLES.DNO_TEAM_COORDINATOR);
+      (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
 
   return (
     <div className="govuk-width-container">

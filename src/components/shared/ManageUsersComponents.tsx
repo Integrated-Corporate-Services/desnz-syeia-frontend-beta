@@ -50,14 +50,14 @@ interface UserRowProps {
 
 /**
  * Add user button positioned with page heading (GDS primary action pattern)
- * Only visible to admin users (DNO_TEAM_COORDINATOR or DESNZ_ADMIN)
+ * Only visible to admin users (APPLICANT_TEAM_COORDINATOR or DESNZ_ADMIN)
  */
 export const AddUserButton: React.FC<AddUserButtonProps> = ({ onAddUser }) => {
   const { user } = useAuthUserContext();
   const isAdmin =
     user &&
     ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
-      (user as AuthUser)?.role === ROLES.DNO_TEAM_COORDINATOR);
+      (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
   return isAdmin ? (
     <button type="button" className="govuk-button" onClick={onAddUser}>
       Add user
@@ -111,7 +111,7 @@ export const EmptyUsersState: React.FC<EmptyUsersStateProps> = ({
   const isAdmin =
     user &&
     ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
-      (user as AuthUser)?.role === ROLES.DNO_TEAM_COORDINATOR);
+      (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
   return (
     <div className="govuk-inset-text">
       <p className="govuk-body govuk-!-margin-bottom-3">
@@ -229,17 +229,17 @@ export const UserRow: React.FC<UserRowProps> = ({
               backgroundColor:
                 user.role === ROLES.DESNZ_ADMIN
                   ? "#4c2c92"
-                  : user.role === ROLES.DNO_TEAM_COORDINATOR
-                  ? "#1d70b8"
-                  : "#505a5f",
+                  : user.role === ROLES.APPLICANT_TEAM_COORDINATOR
+                    ? "#1d70b8"
+                    : "#505a5f",
               color: "#ffffff",
             }}
           >
             {user.role === ROLES.DESNZ_ADMIN
               ? "DESNZ Admin"
-              : user.role === ROLES.DNO_TEAM_COORDINATOR
-              ? "DNO Team Coordinator"
-              : user.role}
+              : user.role === ROLES.APPLICANT_TEAM_COORDINATOR
+                ? "DNO Team Coordinator"
+                : user.role}
           </strong>
         </td>
         <td className="govuk-table__cell">
