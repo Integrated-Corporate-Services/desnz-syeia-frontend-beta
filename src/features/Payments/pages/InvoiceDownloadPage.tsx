@@ -82,21 +82,12 @@ const InvoiceDownloadPage: React.FC = () => {
               </div>
             )}
 
-            <h1 className="govuk-heading-l">Generate/ Download Invoice</h1>
-
-            <p className="govuk-body">
-              Your invoice has been generated and the invoice document has also been sent to your contact email address.
-            </p>
-
+            <h1 className="govuk-heading-l">Your Invoice</h1>
             {invoiceNumber && (
               <p className="govuk-body">
                 Your invoice number is <strong>{invoiceNumber}</strong>.
               </p>
             )}
-
-            <p className="govuk-body">
-              You will need to download the invoice to continue with payment.
-            </p>
 
             <div className="govuk-button-group">
               <button
