@@ -15,15 +15,25 @@ const InvoiceDownloadPage: React.FC = () => {
   const { invoiceNumber, s3Key, consentFee, eiaScreeningFee, totalAmount } = location.state || {};
 
   const handleDownloadInvoice = async () => {
-    if (!applicationId) {
-      setError('Application ID is missing');
+    if (!invoiceNumber) {
+      setError('Invoice number not available');
       return;
     }
+
     try {
       setLoading(true);
       setError('');
-      // Use the invoice backend endpoint instead of generic S3 service
-      window.open(`/backend/api/invoice/${applicationId}/download`, '_blank');
+
+      // Use backend download endpoint with invoice number as query param
+      const downloadUrl = `/backend/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(invoiceNumber)}`;
+
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `Invoice_${invoiceNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
       setLoading(false);
     } catch (err: any) {
       setError(err.message || 'Failed to download invoice');
