@@ -6,14 +6,14 @@ export const applicationApiService = {
   // Fetch applications for a user
   fetchApplicationsByUser: async (
     created_by: string,
-    correlationId?: string
+    correlationId?: string,
   ) => {
     const headers: HeadersInit = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
       `/backend/api/applications?created_by=${created_by}`,
-      { credentials: "include", headers }
+      { credentials: "include", headers },
     );
     return response.json();
   },
@@ -56,7 +56,7 @@ export const applicationApiService = {
         headers,
         credentials: "include",
         body: JSON.stringify(data),
-      }
+      },
     );
     return response.json();
   },
@@ -72,7 +72,7 @@ export const applicationApiService = {
         method: "POST",
         headers,
         credentials: "include",
-      }
+      },
     );
     if (!res.ok) {
       throw new Error("Failed to submit application");
@@ -84,7 +84,7 @@ export const applicationApiService = {
     applicationId: string,
     operatorRef: string,
     type: string,
-    additionalContacts: string
+    additionalContacts: string,
   ) => {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -101,7 +101,7 @@ export const applicationApiService = {
           type,
           additional_contacts: additionalContacts,
         }),
-      }
+      },
     );
     return response.json();
   },
@@ -110,7 +110,7 @@ export const applicationApiService = {
     applicationId: string,
     organisationId: string,
     organisationName: string,
-    line1?: string
+    line1?: string,
   ) => {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -127,14 +127,14 @@ export const applicationApiService = {
           organisation_name: organisationName,
           line1,
         }),
-      }
+      },
     );
     return response.json();
   },
 
   confirmContactDetails: async (
     applicationId: string,
-    isConfirmed: boolean
+    isConfirmed: boolean,
   ) => {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -149,7 +149,7 @@ export const applicationApiService = {
         body: JSON.stringify({
           contact_isconfirmed: isConfirmed,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -174,7 +174,7 @@ export const applicationApiService = {
         body: JSON.stringify({
           declaration_confirmed: isConfirmed,
         }),
-      }
+      },
     );
 
     if (!response.ok) {

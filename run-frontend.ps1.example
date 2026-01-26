@@ -25,14 +25,14 @@
 # 
 # Available Options:
 #   DESNZ_ADMIN                           - DESNZ Administrator
-#   DNO_TEAM_COORDINATOR                  - National Grid Team Coordinator (Hannah Martin)
-#   DNO_TEAM_COORDINATOR_2                - National Grid Team Coordinator (Jennifer Foster)
-#   DNO_PREPOPULATED_TEAM_COORDINATOR     - National Grid Team Coordinator (Elizabeth Parker)
-#   DNO_USER_APPROVED                     - Approved Network Operator User (Thomas Wilson)
-#   DNO_AGENT_APPROVED                    - Fully Approved Agent - 3 DNOs (David Clarke)
-#   DNO_AGENT_PARTIALLY_APPROVED          - Partially Approved Agent - 2 approved, 1 pending (Sofia Martinez)
+#   APPLICANT_TEAM_COORDINATOR                  - National Grid Team Coordinator (Hannah Martin)
+#   APPLICANT_TEAM_COORDINATOR_2                - National Grid Team Coordinator (Jennifer Foster)
+#   APPLICANT_PREPOPULATED_TEAM_COORDINATOR     - National Grid Team Coordinator (Elizabeth Parker)
+#   APPLICANT_USER_APPROVED                     - Approved Network Operator User (Thomas Wilson)
+#   APPLICANT_AGENT_APPROVED                    - Fully Approved Agent - 3 DNOs (David Clarke)
+#   APPLICANT_AGENT_PARTIALLY_APPROVED          - Partially Approved Agent - 2 approved, 1 pending (Sofia Martinez)
 # ===================================================================
-$env:VITE_DUMMY_USER_TYPE = "DNO_TEAM_COORDINATOR"
+$env:VITE_DUMMY_USER_TYPE = "APPLICANT_TEAM_COORDINATOR"
 
 # ===================================================================
 # APPLICATION CONFIGURATION
