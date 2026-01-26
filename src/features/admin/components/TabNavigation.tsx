@@ -21,7 +21,8 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
           <a 
             className="govuk-tabs__tab" 
             href="#organisations" 
-            onClick={(e) => { e.preventDefault(); onTabChange('organisations'); }}
+            onClick={(e) => e.preventDefault()}
+            style={{ pointerEvents: 'none', opacity: 0.5 }}
           >
             Organisations
           </a>

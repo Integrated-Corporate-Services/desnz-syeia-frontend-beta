@@ -1,7 +1,5 @@
-import { useNavigate } from "react-router-dom";
 
 const Section37GuidancePage = () => {
-  const navigate = useNavigate();
 
   return (
     <>
