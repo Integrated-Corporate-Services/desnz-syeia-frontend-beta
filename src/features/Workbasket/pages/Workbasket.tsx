@@ -63,9 +63,6 @@ const Workbasket = () => {
     // Note: WorkbasketFilters handles the actual clearing via onClearFilters callback
   };
 
-  // Check if any filters are active
-  const hasActiveFilters = searchText || caseTypes.length > 0 || statuses.length > 0 || submittedBy === 'all';
-
   // Determine if user can see "Submitted by" filter (admin or coordinator only)
   const canSeeSubmittedByFilter = Boolean(
     user && (
