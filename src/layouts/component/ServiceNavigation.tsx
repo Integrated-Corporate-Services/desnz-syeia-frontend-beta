@@ -6,6 +6,7 @@ import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
 import { logout } from "../../services/authService";
+import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
   const location = useLocation();
@@ -55,80 +56,11 @@ const ServiceNavigation = () => {
       <section
         aria-label="Service information"
         className="govuk-service-navigation"
-        style={{ minHeight: "48px" }}
       >
-        <style>{`
-          .govuk-service-navigation {
-            border-bottom: none !important;
-            background-color: #f3f2f1 !important;
-          }
-          .govuk-service-navigation__item {
-            padding: 0 !important;
-            margin: 0 !important;
-            border-bottom: none !important;
-          }
-          .govuk-service-navigation__item--active {
-            border-bottom: none !important;
-            box-shadow: none !important;
-          }
-          .govuk-service-navigation__link {
-            font-weight: 700 !important;
-            color: #1d70b8 !important;
-            padding: 8px 0 8px 0 !important;
-            display: inline-block !important;
-            text-decoration: underline !important;
-            text-decoration-thickness: 1px !important;
-            border-bottom: none !important;
-          }
-          .govuk-service-navigation__item--active .govuk-service-navigation__link {
-            color: #0b0c0c !important;
-            text-decoration: none !important;
-            border: none !important;
-            padding-bottom: 4px !important;
-            box-shadow: inset 0 -4px 0 0 #1d70b8 !important;
-            background: none !important;
-          }
-          .govuk-service-navigation__link:hover {
-            color: #003078 !important;
-          }
-          .govuk-service-navigation__item--active .govuk-service-navigation__link:hover {
-            color: #0b0c0c !important;
-          }
-          .govuk-service-navigation__item:not(:last-child)::after {
-            content: "|";
-            margin: 0 8px;
-            color: #505a5f;
-            font-weight: 400;
-          }
-          .govuk-service-navigation__list {
-            display: flex !important;
-            align-items: center !important;
-            gap: 0 !important;
-            margin: 0 !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-          }
-        `}</style>
         <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "8px 0 0 0",
-            }}
-          >
+          <div className="govuk-service-navigation__wrapper-container">
             {/* User name on the left */}
-            <span
-              className="govuk-body"
-              style={{
-                margin: 0,
-                fontWeight: 500,
-                minWidth: "120px",
-                alignSelf: "center",
-                paddingLeft: "15px",
-              }}
-            >
+            <span className="govuk-body govuk-service-navigation__user-name">
               {user
                 ? `${(user as any).first_name || ""} ${
                     (user as any).last_name || ""
@@ -138,12 +70,8 @@ const ServiceNavigation = () => {
 
             {/* Navigation links on the right */}
             <ul
-              className="govuk-service-navigation__list"
+              className="govuk-service-navigation__list govuk-service-navigation__list--right"
               id="navigation"
-              style={{
-                paddingRight: "15px",
-                alignSelf: "flex-end",
-              }}
             >
               {isAdmin && (
                 <li

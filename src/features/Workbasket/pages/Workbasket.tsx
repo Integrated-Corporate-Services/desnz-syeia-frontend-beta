@@ -58,9 +58,16 @@ const Workbasket = () => {
   };
 
   const handleClearFilters = () => {
-    // Reset pagination when filters are cleared
+    // Clear search text
+    setSearchText('');
+    // Clear case types
+    caseTypes.forEach(type => toggleCaseType(type));
+    // Clear statuses
+    statuses.forEach(status => toggleStatus(status));
+    // Reset submitted by to default
+    setSubmittedBy('me');
+    // Reset pagination
     setCurrentPage(1);
-    // Note: WorkbasketFilters handles the actual clearing via onClearFilters callback
   };
 
   // Determine if user can see "Submitted by" filter (admin or coordinator only)
