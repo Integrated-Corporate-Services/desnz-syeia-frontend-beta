@@ -57,6 +57,23 @@ const Workbasket = () => {
     setCurrentPage(1);
   };
 
+  const handleClearFilters = () => {
+    // Reset pagination when filters are cleared
+    setCurrentPage(1);
+    // Note: WorkbasketFilters handles the actual clearing via onClearFilters callback
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = searchText || caseTypes.length > 0 || statuses.length > 0 || submittedBy === 'all';
+
+  // Determine if user can see "Submitted by" filter (admin or coordinator only)
+  const canSeeSubmittedByFilter = Boolean(
+    user && (
+      (user as AuthUser)?.role === 'DESNZ_ADMIN' || 
+      (user as AuthUser)?.role === 'TEAM_COORDINATOR'
+    )
+  );
+
   return (
     <div className="govuk-width-container govuk-!-margin-top-8">
       <div className="govuk-grid-row">
@@ -79,11 +96,13 @@ const Workbasket = () => {
                   submittedBy={submittedBy}
                   caseTypes={caseTypes}
                   statuses={statuses}
+                  showSubmittedByFilter={canSeeSubmittedByFilter}
                   onSearchChange={setSearchText}
                   onSubmittedByChange={setSubmittedBy}
                   onCaseTypeToggle={toggleCaseType}
                   onStatusToggle={toggleStatus}
                   onApplyFilters={handleApplyFilters}
+                  onClearFilters={handleClearFilters}
                 />
               </div>
               <div className="govuk-grid-column-three-quarters">
@@ -107,6 +126,7 @@ const Workbasket = () => {
                         (currentPage - 1) * itemsPerPage,
                         currentPage * itemsPerPage
                       )}
+                      activeTab={activeTab}
                     />
                     <Pagination
                       currentPage={currentPage}
