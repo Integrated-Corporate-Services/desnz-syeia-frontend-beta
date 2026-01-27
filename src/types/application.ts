@@ -1,7 +1,7 @@
 export type Application = {
   application_id: string;
   type: string;
-  operator_ref: string;
+  desnz_ref: string;
   operator_name?: string;
   your_reference?: string;
   status: string;

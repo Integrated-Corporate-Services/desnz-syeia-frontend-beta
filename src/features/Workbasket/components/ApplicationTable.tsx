@@ -177,10 +177,10 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
               <a
                 href="#"
                 className="govuk-link"
-                aria-label={`View application ${app.operator_ref || 'details'}`}
+                aria-label={`View application ${app.desnz_ref || 'details'}`}
                 onClick={(e) => handleApplicationClick(e, app)}
               >
-                {app.operator_ref || 'N/A'}
+                {app.desnz_ref || 'N/A'}
               </a>
             </td>
 

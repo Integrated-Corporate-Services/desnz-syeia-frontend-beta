@@ -9,7 +9,7 @@ export interface ProjectListItem {
   project_id: string;
   project_name: string;
   application_id: string;
-  operator_ref: string;
+  desnz_ref: string;
 }
 
 type ProjectStoreState = {
@@ -58,7 +58,7 @@ export const useProjectStore = create<ProjectStoreState>((set) => ({
             project_id: p.project_id || '',
             project_name: p.project_name || '',
             application_id: p.application_id || '',
-            operator_ref: p.operator_ref || '',
+            desnz_ref: p.desnz_ref || '',
             application_relation_id: p.application_relation_id || '',
           }))
         : [];

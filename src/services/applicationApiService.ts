@@ -97,7 +97,7 @@ export const applicationApiService = {
         headers,
         credentials: "include",
         body: JSON.stringify({
-          operator_ref: operatorRef,
+          desnz_ref: operatorRef,
           type,
           additional_contacts: additionalContacts,
         }),
