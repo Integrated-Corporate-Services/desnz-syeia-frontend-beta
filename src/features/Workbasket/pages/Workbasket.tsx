@@ -177,11 +177,45 @@ const Workbasket = () => {
                 totalPages={Math.ceil(
                   filteredApplications.length / itemsPerPage
                 )}
-                onPageChange={(page) => {
-                  setCurrentPage(page);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
+              </div>
+            </div>
+          ) : (
+            <>
+              <WorkbasketTabs
+                activeTab={activeTab}
+                onTabChange={(tab) => {
+                  setActiveTab(tab);
+                  setCurrentPage(1);
                 }}
+                counts={tabCounts}
               />
+
+              <p className="govuk-body govuk-!-margin-top-6">
+                {filteredApplications.length} items
+              </p>
+
+              {filteredApplications.length > 0 ? (
+                <>
+                  <ApplicationTable
+                    applications={filteredApplications.slice(
+                      (currentPage - 1) * itemsPerPage,
+                      currentPage * itemsPerPage
+                    )}
+                  />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(
+                      filteredApplications.length / itemsPerPage
+                    )}
+                    onPageChange={(page) => {
+                      setCurrentPage(page);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  />
+                </>
+              ) : (
+                <p className="govuk-body">No applications found.</p>
+              )}
             </>
           ) : (
             <p className="govuk-body">No applications found.</p>
