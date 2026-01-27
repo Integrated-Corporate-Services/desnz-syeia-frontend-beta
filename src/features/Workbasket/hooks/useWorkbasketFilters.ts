@@ -72,7 +72,7 @@ export const useWorkbasketFilters = (applications: Application[]) => {
       // Search filter
       if (searchText) {
         const searchLower = searchText.toLowerCase();
-        const matchesReference = app.operator_ref
+        const matchesReference = app.desnz_ref
           ?.toLowerCase()
           .includes(searchLower);
         const matchesYourRef = app.your_reference

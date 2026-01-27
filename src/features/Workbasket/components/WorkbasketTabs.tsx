@@ -36,7 +36,7 @@ export const WorkbasketTabs: React.FC<WorkbasketTabsProps> = ({
                 onTabChange(tab.value);
               }}
             >
-              {tab.label} ({counts[tab.value]})
+              {tab.label.replace(/\s*\(.*\)\s*$/, "")} ({counts[tab.value]})
             </a>
           </li>
         ))}

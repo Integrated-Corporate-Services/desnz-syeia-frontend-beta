@@ -58,8 +58,9 @@ const getCaseTypeLabel = (type: string): string => {
     'necessary-wayleaves': 'Necessary wayleaves',
     'tree-lopping': 'Tree lopping and felling',
   };
-
-  return typeMap[type.toLowerCase()] || type;
+  // Remove bracketed text for display
+  const label = typeMap[type.toLowerCase()] || type;
+  return label.replace(/\s*\(.*\)\s*$/, "");
 };
 
 /**
@@ -157,9 +158,12 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
           <th scope="col" className="govuk-table__header">
             Case type
           </th>
-          <th scope="col" className="govuk-table__header">
-            Status
-          </th>
+          {/* Only show Status column for non-draft tabs */}
+          {activeTab !== 'draft' && (
+            <th scope="col" className="govuk-table__header">
+              Status
+            </th>
+          )}
           <th scope="col" className="govuk-table__header">
             {dateColumnConfig.label}
           </th>
@@ -173,10 +177,10 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
               <a
                 href="#"
                 className="govuk-link"
-                aria-label={`View application ${app.operator_ref || 'details'}`}
+                aria-label={`View application ${app.desnz_ref || 'details'}`}
                 onClick={(e) => handleApplicationClick(e, app)}
               >
-                {app.operator_ref || 'N/A'}
+                {app.desnz_ref || 'N/A'}
               </a>
             </td>
 
@@ -190,10 +194,12 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
               {getCaseTypeLabel(app.type)}
             </td>
 
-            {/* Status - Using StatusBadge component */}
-            <td className="govuk-table__cell">
-              <StatusBadge status={app.status} />
-            </td>
+            {/* Status - Only show for non-draft tabs */}
+            {activeTab !== 'draft' && (
+              <td className="govuk-table__cell">
+                <StatusBadge status={app.status} />
+              </td>
+            )}
 
             {/* Date - Tab-specific column */}
             <td className="govuk-table__cell">

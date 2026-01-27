@@ -1,0 +1,17 @@
+/* Workbasket Dashboard Styles */
+
+/* Header button container - vertical stack, not stretched */
+.workbasket-header-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+  align-items: flex-start;
+}
+
+/* Ensure buttons are auto-width, not stretched */
+.workbasket-header-buttons .govuk-button {
+  margin: 0;
+  width: auto;
+  min-width: unset;
+}
