@@ -80,6 +80,9 @@ const Workbasket = () => {
 
   return (
     <div className="govuk-width-container govuk-!-margin-top-8">
+      {/* Skip link for keyboard users */}
+      <a href="#main-content" className="govuk-skip-link">Skip to main content</a>
+      
       {/* Header and action buttons always at the top, inside container */}
       <WorkbasketHeader
         onToggleFilters={() => setShowFilters(!showFilters)}
@@ -87,13 +90,15 @@ const Workbasket = () => {
         onStartNewApplication={handleStart}
       />
 
-      {/* Filters and table area */}
-      {showFilters ? (
-        <div className="govuk-grid-row govuk-!-margin-bottom-6">
-          <div
-            className="govuk-grid-column-one-quarter govuk-!-padding-4"
-            style={{ backgroundColor: "#f3f2f1" }}
-          >
+      {/* Main content area */}
+      <main id="main-content">
+        {/* Filters and table area */}
+        {showFilters ? (
+          <div className="govuk-grid-row govuk-!-margin-bottom-6">
+            <div
+              id="workbasket-filters"
+              className="govuk-grid-column-one-quarter govuk-!-padding-4 govuk-!-background-color-light-grey"
+            >
             <WorkbasketFilters
               showFilters={showFilters}
               searchText={searchText}
@@ -120,7 +125,7 @@ const Workbasket = () => {
             />
 
             <p className="govuk-body govuk-!-margin-top-6">
-              {filteredApplications.length} items
+              {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
             </p>
 
             {filteredApplications.length > 0 ? (
@@ -160,7 +165,7 @@ const Workbasket = () => {
           />
 
           <p className="govuk-body govuk-!-margin-top-6">
-            {filteredApplications.length} items
+            {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
           </p>
 
           {filteredApplications.length > 0 ? (
@@ -222,6 +227,7 @@ const Workbasket = () => {
           )}
         </>
       )}
+      </main>
     </div>
   );
 };

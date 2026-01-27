@@ -23,7 +23,7 @@ export type TabType = "draft" | "active" | "completed" | "archived";
 export const TAB_OPTIONS: { value: TabType; label: string; count?: number }[] =
   [
     { value: "draft", label: "Draft" },
-    { value: "active", label: "Active" },
+    { value: "active", label: "Submitted" },
     { value: "completed", label: "Completed" },
     { value: "archived", label: "Archived" },
   ];
