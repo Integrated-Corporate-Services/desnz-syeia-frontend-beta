@@ -181,6 +181,9 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
    * Build filter pills array (memoized for performance)
    * Uses APPLIED filters (from props), not local pending filters
    */
+  // Utility to strip bracketed text
+  const stripBrackets = (label: string) => label.replace(/\s*\(.*\)\s*$/, "");
+
   const filterPills = useMemo(() => {
     const pills: Array<{
       id: string;
@@ -199,11 +202,12 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     }
 
     caseTypes.forEach(caseType => {
-      const label = getFilterLabel('caseType', caseType);
+      let label = getFilterLabel('caseType', caseType);
+      label = stripBrackets(label);
       pills.push({
         id: `case-type-${caseType}`,
         type: 'caseType',
-        label: `Case type: ${label}`,
+        label: label,
         value: caseType,
       });
     });
@@ -213,7 +217,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
       pills.push({
         id: `status-${status}`,
         type: 'status',
-        label: `Status: ${label}`,
+        label: label,
         value: status,
       });
     });
@@ -288,12 +292,16 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
             {filterPills.map(pill => (
               <span
                 key={pill.id}
-                className="govuk-tag govuk-tag--blue"
+                className="govuk-tag govuk-tag--white filter-pill"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
                   padding: '5px 8px',
+                  background: '#fff',
+                  color: '#0b0c0c',
+                  border: '1px solid #b1b4b6',
+                  fontWeight: 400,
                 }}
               >
                 <span>{pill.label}</span>
@@ -328,7 +336,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
           data-module="govuk-button"
           aria-label="Apply selected filters"
         >
-          Apply filters
+          Apply filter
         </button>
 
         {hasActiveFilters && (
@@ -358,9 +366,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         >
           Search
         </label>
-        <div className="govuk-hint" id="search-hint">
-          Search by DESNZ reference or your reference
-        </div>
         <input
           className="govuk-input"
           id="search"
@@ -368,24 +373,17 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
           type="text"
           value={localSearchText}
           onChange={(e) => setLocalSearchText(e.target.value)}
-          aria-describedby="search-hint"
           autoComplete="off"
         />
       </div>
 
       {/* Submitted by - Always visible, backend enforces role-based filtering */}
       <div className="govuk-form-group">
-        <fieldset 
-          className="govuk-fieldset"
-          aria-describedby="submitted-by-hint"
-        >
+        <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
             Submitted by
           </legend>
-          <div className="govuk-hint govuk-!-margin-bottom-2" id="submitted-by-hint">
-            Filter by applications you created or all team applications
-          </div>
-          <div className="govuk-radios govuk-radios--small">
+          <div className="govuk-radios">
             <div className="govuk-radios__item">
               <input
                 className="govuk-radios__input"
@@ -430,7 +428,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
             Case type
           </legend>
-          <div className="govuk-checkboxes govuk-checkboxes--small">
+          <div className="govuk-checkboxes">
             {CASE_TYPE_OPTIONS.map((option) => (
               <div key={option.value} className="govuk-checkboxes__item">
                 <input
@@ -460,7 +458,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
             Status of application
           </legend>
-          <div className="govuk-checkboxes govuk-checkboxes--small">
+          <div className="govuk-checkboxes">
             {STATUS_OPTIONS.map((option) => (
               <div key={option.value} className="govuk-checkboxes__item">
                 <input

@@ -80,115 +80,114 @@ const Workbasket = () => {
 
   return (
     <div className="govuk-width-container govuk-!-margin-top-8">
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-full">
-          <WorkbasketHeader
-            onToggleFilters={() => setShowFilters(!showFilters)}
-            showFilters={showFilters}
-            onStartNewApplication={handleStart}
+      {/* Header and action buttons always at the top, inside container */}
+      <WorkbasketHeader
+        onToggleFilters={() => setShowFilters(!showFilters)}
+        showFilters={showFilters}
+        onStartNewApplication={handleStart}
+      />
+
+      {/* Filters and table area */}
+      {showFilters ? (
+        <div className="govuk-grid-row govuk-!-margin-bottom-6">
+          <div
+            className="govuk-grid-column-one-quarter govuk-!-padding-4"
+            style={{ backgroundColor: "#f3f2f1" }}
+          >
+            <WorkbasketFilters
+              showFilters={showFilters}
+              searchText={searchText}
+              submittedBy={submittedBy}
+              caseTypes={caseTypes}
+              statuses={statuses}
+              showSubmittedByFilter={canSeeSubmittedByFilter}
+              onSearchChange={setSearchText}
+              onSubmittedByChange={setSubmittedBy}
+              onCaseTypeToggle={toggleCaseType}
+              onStatusToggle={toggleStatus}
+              onApplyFilters={handleApplyFilters}
+              onClearFilters={handleClearFilters}
+            />
+          </div>
+          <div className="govuk-grid-column-three-quarters">
+            <WorkbasketTabs
+              activeTab={activeTab}
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                setCurrentPage(1);
+              }}
+              counts={tabCounts}
+            />
+
+            <p className="govuk-body govuk-!-margin-top-6">
+              {filteredApplications.length} items
+            </p>
+
+            {filteredApplications.length > 0 ? (
+              <>
+                <ApplicationTable
+                  applications={filteredApplications.slice(
+                    (currentPage - 1) * itemsPerPage,
+                    currentPage * itemsPerPage
+                  )}
+                  activeTab={activeTab}
+                />
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={Math.ceil(
+                    filteredApplications.length / itemsPerPage
+                  )}
+                  onPageChange={(page) => {
+                    setCurrentPage(page);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              </>
+            ) : (
+              <p className="govuk-body">No applications found.</p>
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          <WorkbasketTabs
+            activeTab={activeTab}
+            onTabChange={(tab) => {
+              setActiveTab(tab);
+              setCurrentPage(1);
+            }}
+            counts={tabCounts}
           />
 
-          {showFilters ? (
-            <div className="govuk-grid-row govuk-!-margin-bottom-6">
-              <div
-                className="govuk-grid-column-one-quarter govuk-!-padding-4"
-                style={{ backgroundColor: "#f3f2f1" }}
-              >
-                <WorkbasketFilters
-                  showFilters={showFilters}
-                  searchText={searchText}
-                  submittedBy={submittedBy}
-                  caseTypes={caseTypes}
-                  statuses={statuses}
-                  showSubmittedByFilter={canSeeSubmittedByFilter}
-                  onSearchChange={setSearchText}
-                  onSubmittedByChange={setSubmittedBy}
-                  onCaseTypeToggle={toggleCaseType}
-                  onStatusToggle={toggleStatus}
-                  onApplyFilters={handleApplyFilters}
-                  onClearFilters={handleClearFilters}
-                />
-              </div>
-              <div className="govuk-grid-column-three-quarters">
-                <WorkbasketTabs
-                  activeTab={activeTab}
-                  onTabChange={(tab) => {
-                    setActiveTab(tab);
-                    setCurrentPage(1);
-                  }}
-                  counts={tabCounts}
-                />
+          <p className="govuk-body govuk-!-margin-top-6">
+            {filteredApplications.length} items
+          </p>
 
-                <p className="govuk-body govuk-!-margin-top-6">
-                  {filteredApplications.length} items
-                </p>
-
-                {filteredApplications.length > 0 ? (
-                  <>
-                    <ApplicationTable
-                      applications={filteredApplications.slice(
-                        (currentPage - 1) * itemsPerPage,
-                        currentPage * itemsPerPage
-                      )}
-                      activeTab={activeTab}
-                    />
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={Math.ceil(
-                        filteredApplications.length / itemsPerPage
-                      )}
-                      onPageChange={(page) => {
-                        setCurrentPage(page);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                    />
-                  </>
-                ) : (
-                  <p className="govuk-body">No applications found.</p>
-                )}
-              </div>
-            </div>
-          ) : (
+          {filteredApplications.length > 0 ? (
             <>
-              <WorkbasketTabs
+              <ApplicationTable
+                applications={filteredApplications.slice(
+                  (currentPage - 1) * itemsPerPage,
+                  currentPage * itemsPerPage
+                )}
                 activeTab={activeTab}
-                onTabChange={(tab) => {
-                  setActiveTab(tab);
-                  setCurrentPage(1);
-                }}
-                counts={tabCounts}
               />
-
-              <p className="govuk-body govuk-!-margin-top-6">
-                {filteredApplications.length} items
-              </p>
-
-              {filteredApplications.length > 0 ? (
-                <>
-                  <ApplicationTable
-                    applications={filteredApplications.slice(
-                      (currentPage - 1) * itemsPerPage,
-                      currentPage * itemsPerPage
-                    )}
-                  />
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={Math.ceil(
-                      filteredApplications.length / itemsPerPage
-                    )}
-                    onPageChange={(page) => {
-                      setCurrentPage(page);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  />
-                </>
-              ) : (
-                <p className="govuk-body">No applications found.</p>
-              )}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(
+                  filteredApplications.length / itemsPerPage
+                )}
+                onPageChange={(page) => {
+                  setCurrentPage(page);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
             </>
+          ) : (
+            <p className="govuk-body">No applications found.</p>
           )}
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

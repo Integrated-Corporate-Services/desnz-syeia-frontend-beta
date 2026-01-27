@@ -1,4 +1,5 @@
 import React from "react";
+import "../../../styles/Workbasket.css";
 
 interface WorkbasketHeaderProps {
   onToggleFilters: () => void;
@@ -24,27 +25,24 @@ export const WorkbasketHeader: React.FC<WorkbasketHeaderProps> = ({
         </div>
       </div>
 
-      <button
-        className="govuk-button govuk-!-margin-bottom-6"
-        data-module="govuk-button"
-        onClick={onStartNewApplication}
-      >
-        Start new application
-      </button>
-
-      <details className="govuk-details" open={showFilters}>
-        <summary
-          className="govuk-details__summary"
-          onClick={(e) => {
-            e.preventDefault();
-            onToggleFilters();
-          }}
+      <div className="workbasket-header-buttons">
+        <button
+          className="govuk-button"
+          data-module="govuk-button"
+          onClick={onStartNewApplication}
         >
-          <span className="govuk-details__summary-text">
-            {showFilters ? "Hide search and filter" : "Show search and filter"}
-          </span>
-        </summary>
-      </details>
+          Start new application
+        </button>
+        <button
+          className="govuk-button govuk-button--secondary"
+          data-module="govuk-button"
+          onClick={onToggleFilters}
+          aria-expanded={showFilters}
+          aria-controls="workbasket-filters"
+        >
+          {showFilters ? "Hide search and filter" : "Show search and filter"}
+        </button>
+      </div>
     </>
   );
 };
