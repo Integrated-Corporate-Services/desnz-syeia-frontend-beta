@@ -3,22 +3,20 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
-import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getPresignedGetUrl } from '../../../services/s3ApiService';
 
 const InvoiceDownloadPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const applicationId = useGetApplicationId();
-  const { user } = useAuthUser();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const { invoiceNumber, s3Key, consentFee, eiaScreeningFee, totalAmount } = location.state || {};
 
   const handleDownloadInvoice = async () => {
-    if (!s3Key) {
-      setError('Invoice file not available');
+    if (!invoiceNumber) {
+      setError('Invoice number not available');
       return;
     }
 
@@ -26,16 +24,16 @@ const InvoiceDownloadPage: React.FC = () => {
       setLoading(true);
       setError('');
 
-      // Get presigned URL from S3
-      const result = await getPresignedGetUrl(s3Key);
-      
-      if (!result.url) {
-        throw new Error('Failed to get download URL');
-      }
+      // Use backend download endpoint with invoice number as query param
+      const downloadUrl = `/backend/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(invoiceNumber)}`;
 
-      // Open the presigned URL in a new tab or download directly
-      window.open(result.url, '_blank');
-      
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `Invoice_${invoiceNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
       setLoading(false);
     } catch (err: any) {
       setError(err.message || 'Failed to download invoice');
@@ -84,21 +82,12 @@ const InvoiceDownloadPage: React.FC = () => {
               </div>
             )}
 
-            <h1 className="govuk-heading-l">Generate/ Download Invoice</h1>
-
-            <p className="govuk-body">
-              Your invoice has been generated and the invoice document has also been sent to your contact email address.
-            </p>
-
+            <h1 className="govuk-heading-l">Your Invoice</h1>
             {invoiceNumber && (
               <p className="govuk-body">
                 Your invoice number is <strong>{invoiceNumber}</strong>.
               </p>
             )}
-
-            <p className="govuk-body">
-              You will need to download the invoice to continue with payment.
-            </p>
 
             <div className="govuk-button-group">
               <button
