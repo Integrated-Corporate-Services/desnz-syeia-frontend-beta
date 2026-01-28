@@ -2,6 +2,7 @@ export type Application = {
   application_id: string;
   type: string;
   desnz_ref: string;
+  operator_ref?: string;
   operator_name?: string;
   your_reference?: string;
   status: string;
