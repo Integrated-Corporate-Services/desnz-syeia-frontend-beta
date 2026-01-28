@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTaskListData } from '../../../hooks/useTaskListData';
 import TaskListSection from '../components/TaskListSection';
 import SensitiveAreaBanner from '../components/SensitiveAreaBanner';
@@ -6,11 +6,17 @@ import ErrorMessage from '../components/ErrorMessage';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { ROLES } from '../../../constants/roles';
+import { getInitialSections } from '../../../utils/taskListUtils';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { applicationApiService } from '../../../services/applicationApiService';
 
 const TaskList: React.FC = () => {
   const { user } = useAuthUserContext();
   const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
-  
+  const applicationId = useGetApplicationId();
+  const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
+
+  // Use the hook to get sections from useTaskListData
   const {
     application,
     sections,
@@ -29,6 +35,14 @@ const TaskList: React.FC = () => {
     progressLoading,
     progressError,
   } = useTaskListData();
+
+  // // Update asset information status when application loads
+  // useEffect(() => {
+  //   if (application?.application_id) {
+  //     const assetStatus = application?.progress?.find((p: any) => p.subsection_name === 'Asset information')?.status || 'Incomplete';
+  //     setAssetInformationStatus(assetStatus);
+  //   }
+  // }, [application?.application_id, application?.progress]);
 
   return (
     <div className="govuk-width-container">

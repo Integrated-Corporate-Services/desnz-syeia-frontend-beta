@@ -104,8 +104,8 @@ const InvoiceGenerationPage: React.FC = () => {
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
+        {/* <div className="govuk-grid-row"> */}
+          {/* <div className="govuk-grid-column-two-thirds"> */}
             {loading && (
               <>
                 {/* Important Banner */}
@@ -200,8 +200,8 @@ const InvoiceGenerationPage: React.FC = () => {
                 </button>
               </>
             )}
-          </div>
-        </div>
+          {/* </div> */}
+        {/* </div> */}
       </main>
     </div>
   );
