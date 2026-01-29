@@ -17,5 +17,6 @@ export interface ConsultationResponse {
   last_updated_by?: string; // UUID
   uploaded_files?: UploadedFile[]; // Array of uploaded files
   application_documents?: ApplicationDocument[]; // Array of application documents
-  isSave ?: boolean; // Indicates if the response is a draft (saved but not submitted)
+  isSave ?: boolean; // Indicates if the response is a draft (saved but not submitted),
+  status ?: string; // Status of the consultation response (e.g., 'draft', 'submitted', 'reviewed')
 }

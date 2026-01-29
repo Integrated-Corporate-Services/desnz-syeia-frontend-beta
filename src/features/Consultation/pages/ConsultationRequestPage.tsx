@@ -1,171 +1,203 @@
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import FileUpload from '../../../components/FileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-import { saveConsultationResponse } from '../../../services/consultationResponseService';
+import { saveConsultationRequest, getConsultationRequest } from '../../../services/consultationRequestService';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
+import { ConsultationStatus } from '../../../constants/consultationStatus';
 
 const ConsultationRequestPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [responseId, setResponseId] = useState<string>('');
-  const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
-  // Add this state for hasObjection
-  const [hasObjection, setHasObjection] = useState<boolean | null>(null);
   // Get params from route and query string
   const { applicationId, consultationId } = useParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const consultationName = searchParams.get('consultationName') || 'Consultee';
+  
+  const [responseDate, setResponseDate] = useState({ day: '', month: '', year: '' });
+  const [uploadedFileObjs, setUploadedFileObjs] = useState<UploadedFile[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const { user } = useAuthUser();
+  const navigate = useNavigate();
+  
+  // Handler for FileUpload onUploaded
+  const handleUploadedFiles = (uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[]) => {
+    setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
+    setApplicationDocuments(prev => [...prev, ...applicationDocuments]);
+  };
+
   // Fetch and bind consultation response on load
   React.useEffect(() => {
     async function fetchData() {
       if (consultationId) {
-        setLoading(true);
         try {
-          const data = await import('../../../services/consultationResponseService').then(m => m.getConsultationResponse(consultationId));
+          const data = await getConsultationRequest(consultationId);
           if (data) {
-            setResponseId(data.response_id || '');
-            // Use correct field name from backend response
-            let radioValue = '';
-            if ('consultation_request_sent' in data) {
-              if (data.consultation_request_sent === true) radioValue = 'yes';
-              else if (data.consultation_request_sent === false) radioValue = 'no';
-              else radioValue = '';
-            } else if ('status' in data) radioValue = String(data.status);
-            // If date or files exist, force radio to 'yes'
-            const hasDate = !!data.received_at;
-            const hasFiles = Array.isArray(data.uploaded_files) && data.uploaded_files.length > 0;
-            if (hasDate || hasFiles) radioValue = 'yes';
-            setHasSentRequest(radioValue);
-            if (hasDate) {
-              const date = new Date(data.received_at);
+            // Parse sent date if available
+            if (data.sentDate) {
+              const date = new Date(data.sentDate);
               setResponseDate({
                 day: String(date.getDate()),
                 month: String(date.getMonth() + 1),
                 year: String(date.getFullYear())
               });
             }
-            setUploadedFileObjs(data.uploaded_files || []);
-            setApplicationDocuments(data.application_documents || []);
+            setUploadedFileObjs(data.uploadedFiles || []);
+            setApplicationDocuments(data.applicationDocuments || []);
           }
-        } catch (err) {
-          // handle error
+        } catch (error) {
+          console.error('Error fetching consultation request:', error);
         }
-        setLoading(false);
       }
     }
     fetchData();
   }, [consultationId]);
-  const [hasSentRequest, setHasSentRequest] = useState<string>('');
 
-  // Clear date and files when no radio selected
-  React.useEffect(() => {
-    if (hasSentRequest === '' || hasSentRequest === 'no') {
-      setResponseDate({ day: '', month: '', year: '' });
-      setUploadedFiles([]);
-      setUploadedFileObjs([]);
-      setApplicationDocuments([]);
+  // Validation function
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    
+    // Date validation
+    const { day, month, year } = responseDate;
+    
+    if (!day && !month && !year) {
+      newErrors.responseDate = 'Enter the date the consultation request was sent';
+    } else if (!day || !month || !year) {
+      const missing = [];
+      if (!day) missing.push('day');
+      if (!month) missing.push('month');
+      if (!year) missing.push('year');
+      newErrors.responseDate = `The date the consultation request was sent must include a ${missing.join(', ')}`;
+    } else {
+      // Check if date is valid
+      const dateValue = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      if (
+        isNaN(dateValue.getTime()) ||
+        dateValue.getDate() !== parseInt(day) ||
+        dateValue.getMonth() !== parseInt(month) - 1 ||
+        dateValue.getFullYear() !== parseInt(year)
+      ) {
+        newErrors.responseDate = 'The date the consultation request was sent must be a real date';
+      }
     }
-  }, [hasSentRequest]);
-  const [responseDate, setResponseDate] = useState({ day: '', month: '', year: '' });
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [uploadedFileObjs, setUploadedFileObjs] = useState<any[]>([]);
-  const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
-  const { user } = useAuthUser();
-  
-  // Handler for FileUpload onUploaded
-  const handleUploadedFiles = (uploadedFiles: any[], applicationDocuments: any[]) => {
-  setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
-  setApplicationDocuments(prev => [...prev, ...applicationDocuments]);
-  };
-  const navigate = useNavigate();
-
-  // Get params from route and query string
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const consultationName = searchParams.get('consultationName') || '';
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setUploadedFiles(Array.from(e.target.files));
+    
+    // File validation
+    if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
+      newErrors.fileUpload = 'You must upload at least one evidence document';
     }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSendConsultationRequest = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultee-application-details${
-      consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ""
-    }`;
-    navigate(requestUrlWithParams);
+  // Validation for save for later (only format validation, not required fields)
+  const validateFormatOnly = () => {
+    const newErrors: { [key: string]: string } = {};
+    
+    // Date format validation (only if any field is filled)
+    const { day, month, year } = responseDate;
+    
+    if (day || month || year) {
+      if (!day || !month || !year) {
+        const missing = [];
+        if (!day) missing.push('day');
+        if (!month) missing.push('month');
+        if (!year) missing.push('year');
+        newErrors.responseDate = `The date the consultation request was sent must include a ${missing.join(', ')}`;
+      } else {
+        // Check if values are numeric
+        const dayNum = parseInt(day);
+        const monthNum = parseInt(month);
+        const yearNum = parseInt(year);
+        
+        if (isNaN(dayNum) || isNaN(monthNum) || isNaN(yearNum)) {
+          newErrors.responseDate = 'The date the consultation request was sent must be a real date';
+        } else {
+          // Check if date is valid
+          const dateValue = new Date(yearNum, monthNum - 1, dayNum);
+          if (
+            isNaN(dateValue.getTime()) ||
+            dateValue.getDate() !== dayNum ||
+            dateValue.getMonth() !== monthNum - 1 ||
+            dateValue.getFullYear() !== yearNum
+          ) {
+            newErrors.responseDate = 'The date the consultation request was sent must be a real date';
+          }
+        }
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   // Save and Continue handler (with validation)
   const handleSaveAndContinue = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (hasSentRequest === 'yes') {
-      // Date validation
-      if (!responseDate.day || !responseDate.month || !responseDate.year) {
-        alert('Please enter the date of consultation request.');
-        return;
+    
+    if (!validateForm()) {
+      // Scroll to error summary
+      const errorSummary = document.getElementById('error-summary');
+      if (errorSummary) {
+        errorSummary.focus();
+        errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-      // File validation
-      if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
-        alert('Please upload at least one file as evidence.');
-        return;
-      }
+      return;
     }
-    let receivedAt = '';
+    let sentDate = '';
     if (responseDate.year && responseDate.month && responseDate.day) {
-      receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
+      sentDate = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
     }
     const payload = {
-  consultation_id: consultationId,
-  consultation_request_sent: hasSentRequest,
-  uploaded_files: uploadedFileObjs,
-  created_by: user?.user_id || '',
-  last_updated_by: user?.user_id || '',
-  response_id: responseId,
-  received_at: receivedAt || '',
-  response_email_address: '',
-  has_objection: hasObjection !== null ? hasObjection : undefined,
-  response_comments: '',
-  has_all_documents_uploaded: true,
-  application_documents: applicationDocuments,
-  // Add this state for hasObjection
+      consultationId: consultationId || '',
+      sentDate: sentDate,
+      uploadedFiles: uploadedFileObjs,
+      applicationDocuments: applicationDocuments,
+      createdBy: user?.user_id || '',
+      lastUpdatedBy: user?.user_id || '',
+      status: ConsultationStatus.REQUEST_SENT,
     };
     try {
-      await saveConsultationResponse(payload);
+      await saveConsultationRequest(payload);
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-    } catch (err) {
-      // handle error
+    } catch (error) {
+      console.error('Error saving consultation request:', error);
     }
   };
 
-  // Save for later handler (no validation)
+  // Save for later handler (format validation only)
   const handleSaveForLater = async () => {
-    let receivedAt = '';
+    if (!validateFormatOnly()) {
+      // Scroll to error summary
+      const errorSummary = document.getElementById('error-summary');
+      if (errorSummary) {
+        errorSummary.focus();
+        errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+    
+    let sentDate = '';
     if (responseDate.year && responseDate.month && responseDate.day) {
-      receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
+      sentDate = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
     }
     const payload = {
-      isSave: true,
-      consultation_id: consultationId,
-      consultation_request_sent: hasSentRequest,
-      uploaded_files: uploadedFileObjs,
-      created_by: user?.user_id || '',
-      last_updated_by: user?.user_id || '',
-      response_id: responseId,
-      received_at: receivedAt ||'',
-      response_email_address: '',
-  has_objection: hasObjection !== null ? hasObjection : undefined,
-      response_comments: '',
-      has_all_documents_uploaded: true,
-      application_documents: applicationDocuments,
+      consultationId: consultationId || '',
+      sentDate: sentDate || undefined,
+      uploadedFiles: uploadedFileObjs,
+      applicationDocuments: applicationDocuments,
+      createdBy: user?.user_id || '',
+      lastUpdatedBy: user?.user_id || '',
+      status: ConsultationStatus.DRAFT,
     };
     try {
-      await saveConsultationResponse(payload);
+      await saveConsultationRequest(payload);
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-    } catch (err) {
-      // handle error
+    } catch (error) {
+      console.error('Error saving consultation request for later:', error);
     }
   };
 
@@ -176,83 +208,177 @@ const ConsultationRequestPage: React.FC = () => {
           <nav className="govuk-breadcrumbs govuk-!-margin-bottom-6" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
                 <li className="govuk-breadcrumbs__list-item">
-                                             <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
-                                         </li>
-                                         <li className="govuk-breadcrumbs__list-item">
-                                             <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Consultations</Link>
-                                         </li>
-              <li className="govuk-breadcrumbs__list-item" aria-current="page">Upload response</li>
+                  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                  Manage consultation
+                </li>
             </ol>
           </nav>
-          <main className="govuk-main-wrapper govuk-!-margin-bottom-6" id="main-content">
-            <h2 className="govuk-heading-m govuk-!-margin-bottom-2">Natural England</h2>
-            <h1 className="govuk-heading-xl govuk-!-margin-bottom-6">Consultation request</h1>
+          
+          <main id="main-content">
+            {Object.keys(errors).length > 0 && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
+                <div role="alert">
+                  <h2 className="govuk-error-summary__title">There is a problem</h2>
+                  <div className="govuk-error-summary__body">
+                    <ul className="govuk-list govuk-error-summary__list">
+                      {errors.responseDate && (
+                        <li>
+                          <a href="#responseDateDay">{errors.responseDate}</a>
+                        </li>
+                      )}
+                      {errors.fileUpload && (
+                        <li>
+                          <a href="#file-upload">{errors.fileUpload}</a>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <h2 className="govuk-caption-xl">{consultationName}</h2>
+            <h1 className="govuk-heading-l">Provide evidence of consultation request</h1>
+            
+            <p className="govuk-body">
+              You need to record the date you sent the request and attach copies of everything you sent to the consultee, such as email correspondence, an application summary and any supporting documents and images.
+            </p>
+
             <form className="govuk-form-group govuk-!-margin-bottom-6" noValidate onSubmit={handleSaveAndContinue}>
-              <div className="govuk-form-group govuk-!-margin-bottom-6">
-                <fieldset className="govuk-fieldset">
-                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">Have you already sent a consultation request to this organisation?</legend>
-                  <div className="govuk-radios govuk-!-margin-top-2">
-                    <div className="govuk-radios__item">
-                      <input className="govuk-radios__input" id="hasSentRequestYes" name="hasSentRequest" type="radio" value="yes" checked={hasSentRequest === 'yes'} onChange={() => setHasSentRequest('yes')} />
-                      <label className="govuk-label govuk-radios__label" htmlFor="hasSentRequestYes">Yes</label>
-                        {hasSentRequest === 'yes' && (
-                          <div className="govuk-radios__conditional govuk-!-margin-bottom-6" id="conditional-hasSentRequestYes">
-                            <h2 className="govuk-heading-m govuk-!-margin-bottom-4">Date of consultation request</h2>
-                            <div className="govuk-form-group govuk-!-margin-bottom-6">
-                              <div className="govuk-date-input govuk-!-margin-top-2" id="responseDate">
-                                <div className="govuk-date-input__item">
-                                  <label className="govuk-label govuk-date-input__label" htmlFor="responseDateDay">Day</label>
-                                  <input className="govuk-input govuk-date-input__input govuk-input--width-2" id="responseDateDay" name="responseDateDay" type="text" inputMode="numeric" autoComplete="off" value={responseDate.day} onChange={e => setResponseDate({ ...responseDate, day: e.target.value })} />
-                                </div>
-                                <div className="govuk-date-input__item">
-                                  <label className="govuk-label govuk-date-input__label" htmlFor="responseDateMonth">Month</label>
-                                  <input className="govuk-input govuk-date-input__input govuk-input--width-2" id="responseDateMonth" name="responseDateMonth" type="text" inputMode="numeric" autoComplete="off" value={responseDate.month} onChange={e => setResponseDate({ ...responseDate, month: e.target.value })} />
-                                </div>
-                                <div className="govuk-date-input__item">
-                                  <label className="govuk-label govuk-date-input__label" htmlFor="responseDateYear">Year</label>
-                                  <input className="govuk-input govuk-date-input__input govuk-input--width-4" id="responseDateYear" name="responseDateYear" type="text" inputMode="numeric" autoComplete="off" value={responseDate.year} onChange={e => setResponseDate({ ...responseDate, year: e.target.value })} />
-                                </div>
-                              </div>
-                            </div>
-                            <h2 className="govuk-heading-m govuk-!-margin-bottom-2">Upload evidence of the consultation request</h2>
-                            <div className="govuk-form-group govuk-!-margin-bottom-6">
-                             <FileUpload
-													title=""
-																					prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_RESPONSE}/${consultationId}`}
-																					applicationId={applicationId}
-																					category={FILE_CATEGORIES.CONSULTATION_RESPONSE}
-																					addedBy={user?.user_id || ''}
-																					uploadedFiles={uploadedFileObjs}
-																					onFilesChange={setUploadedFiles}
-																					onRemoveFile={idx => {
-																							setUploadedFiles(files => files.filter((_, i) => i !== idx));
-																							setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
-																							setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
-																						}}
-																					onUploaded={handleUploadedFiles}
-                                          consultationId={consultationId}
-												/>
-                            </div>
-                          </div>
-                        )}
-                    </div>
-                    <div className="govuk-radios__item">
-                      <input className="govuk-radios__input" id="hasSentRequestNo" name="hasSentRequest" type="radio" value="no" checked={hasSentRequest === 'no'} onChange={() => setHasSentRequest('no')} />
-                      <label className="govuk-label govuk-radios__label" htmlFor="hasSentRequestNo">No</label>
-                    </div>
-                    {hasSentRequest === 'no' && (
-                      <div className="govuk-radios__conditional govuk-!-margin-bottom-6" id="conditional-hasSentRequestNo">
-                        <div className="govuk-hint ">
-                          You must send a consultation request.</div>
-                          <a href="#" className="govuk-link govuk-!-font-weight-bold" onClick={handleSendConsultationRequest}>Send a consultation request</a>
+              <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.responseDate ? 'govuk-form-group--error' : ''}`}>
+                <fieldset className="govuk-fieldset" role="group" aria-describedby={errors.responseDate ? 'responseDate-error' : undefined}>
+                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    <h2 className="govuk-fieldset__heading">Date of consultation request</h2>
+                  </legend>
+                  {errors.responseDate && (
+                    <p id="responseDate-error" className="govuk-error-message">
+                      <span className="govuk-visually-hidden">Error:</span> {errors.responseDate}
+                    </p>
+                  )}
+                  <div className="govuk-date-input govuk-!-margin-top-2" id="responseDate">
+                    <div className="govuk-date-input__item">
+                      <div className="govuk-form-group">
+                        <label className="govuk-label govuk-date-input__label" htmlFor="responseDateDay">Day</label>
+                        <input 
+                          className={`govuk-input govuk-date-input__input govuk-input--width-2 ${errors.responseDate ? 'govuk-input--error' : ''}`}
+                          id="responseDateDay" 
+                          name="responseDateDay" 
+                          type="text" 
+                          inputMode="numeric" 
+                          autoComplete="off" 
+                          value={responseDate.day} 
+                          onChange={e => {
+                            setResponseDate({ ...responseDate, day: e.target.value });
+                            if (errors.responseDate) setErrors({ ...errors, responseDate: '' });
+                          }} 
+                        />
                       </div>
-                    )}
+                    </div>
+                    <div className="govuk-date-input__item">
+                      <div className="govuk-form-group">
+                        <label className="govuk-label govuk-date-input__label" htmlFor="responseDateMonth">Month</label>
+                        <input 
+                          className={`govuk-input govuk-date-input__input govuk-input--width-2 ${errors.responseDate ? 'govuk-input--error' : ''}`}
+                          id="responseDateMonth" 
+                          name="responseDateMonth" 
+                          type="text" 
+                          inputMode="numeric" 
+                          autoComplete="off" 
+                          value={responseDate.month} 
+                          onChange={e => {
+                            setResponseDate({ ...responseDate, month: e.target.value });
+                            if (errors.responseDate) setErrors({ ...errors, responseDate: '' });
+                          }} 
+                        />
+                      </div>
+                    </div>
+                    <div className="govuk-date-input__item">
+                      <div className="govuk-form-group">
+                        <label className="govuk-label govuk-date-input__label" htmlFor="responseDateYear">Year</label>
+                        <input 
+                          className={`govuk-input govuk-date-input__input govuk-input--width-4 ${errors.responseDate ? 'govuk-input--error' : ''}`}
+                          id="responseDateYear" 
+                          name="responseDateYear" 
+                          type="text" 
+                          inputMode="numeric" 
+                          autoComplete="off" 
+                          value={responseDate.year} 
+                          onChange={e => {
+                            setResponseDate({ ...responseDate, year: e.target.value });
+                            if (errors.responseDate) setErrors({ ...errors, responseDate: '' });
+                          }} 
+                        />
+                      </div>
+                    </div>
                   </div>
                 </fieldset>
               </div>
+{/* 
+              {uploadedFileObjs && uploadedFileObjs.length > 0 && (
+                <div className="govuk-form-group govuk-!-margin-bottom-6">
+                  <h2 className="govuk-heading-m">Documents uploaded</h2>
+                  <ul className="govuk-list">
+                    {uploadedFileObjs.map((file, idx) => (
+                      <li key={idx} className="govuk-!-margin-bottom-2">
+                        <a href="#" className="govuk-link" onClick={e => {
+                          e.preventDefault();
+                          // Handle file download if needed
+                        }}>
+                          {file.filename}
+                        </a>
+                        <a 
+                          href="#" 
+                          className="govuk-link govuk-!-margin-left-4" 
+                          onClick={e => {
+                            e.preventDefault();
+                            setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
+                            setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
+                          }}
+                        >
+                          Delete
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )} */}
               
-             
+              <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload ? 'govuk-form-group--error' : ''}`} id="file-upload">
+                <h2 className="govuk-heading-m">Upload evidence of the consultation request</h2>
+                {errors.fileUpload && (
+                  <p id="fileUpload-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {errors.fileUpload}
+                  </p>
+                )}
+                <FileUpload
+                  title=""
+                  prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_REQUEST}/${consultationId}`}
+                  applicationId={applicationId}
+                  category={FILE_CATEGORIES.CONSULTATION_REQUEST}
+                  addedBy={user?.user_id || ''}
+                  uploadedFiles={uploadedFileObjs}
+                  onRemoveFile={idx => {
+                    setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
+                    setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
+                  }}
+                  onUploaded={(files, docs) => {
+                    handleUploadedFiles(files, docs);
+                    if (errors.fileUpload) setErrors({ ...errors, fileUpload: '' });
+                  }}
+                  consultationId={consultationId}
+                />
+              </div>
+              
               <div className="govuk-button-group govuk-!-margin-top-6">
+                <button
+                  type="submit"
+                  className="govuk-button"
+                  data-module="govuk-button"
+                >
+                  Save and continue
+                </button>
                 <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
@@ -260,14 +386,6 @@ const ConsultationRequestPage: React.FC = () => {
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
-                <button
-                  type="submit"
-                  className="govuk-button govuk-button--primary"
-                  data-module="govuk-button"
-                  disabled={hasSentRequest !== 'yes'}
-                >
-                  Save and Continue
                 </button>
               </div>
             </form>

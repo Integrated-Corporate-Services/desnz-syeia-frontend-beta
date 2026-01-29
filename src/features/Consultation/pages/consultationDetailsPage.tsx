@@ -1,41 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { Link } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
-import { useAuthUser } from "../../../hooks/useAuthUser";
-import { useDerivedLpas } from "../../../hooks/useDerivedLpas";
-import { useConsultationDetails } from "../../../hooks/useConsultationDetails";
 import ConsultationSummaryCard from "../components/SummaryCard";
-import LpaSelector, { Lpa } from "../../../components/LpaSelector";
-import log from "../../../logger";
-
+import { useConsultationDetails } from "../../../hooks/useConsultationDetails";
+import { useAuthUser } from "../../../hooks/useAuthUser";
 const ConsultationDetailsPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
 
-  const [selectedLpas, setSelectedLpas] = useState<Lpa[]>([]);
-
-  const { derivedLpas } = useDerivedLpas(applicationId);
-  const { consultations } = useConsultationDetails(
-    applicationId,
-    user?.user_id
-  );
-
-  const handleLpaSelect = (lpa: Lpa | null) => {
-    // Add to array if not already present
-    if (lpa && !selectedLpas.some((s) => s.lpa_code === lpa.lpa_code)) {
-      setSelectedLpas((prev) => [...prev, lpa]);
-      log.debug("LPA added:", lpa.lpa_name, lpa.lpa_code);
-      // TODO: Later integrate with consultation creation
-      // This could trigger creation of a new consultation with this LPA
-    }
-  };
-
-  const handleLpaRemove = (lpaCode: string) => {
-    setSelectedLpas((prev) => prev.filter((lpa) => lpa.lpa_code !== lpaCode));
-    log.debug("LPA removed:", lpaCode);
-  };
-
+    const { consultations } = useConsultationDetails(
+      applicationId,
+      user?.user_id
+    );
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -55,48 +32,22 @@ const ConsultationDetailsPage: React.FC = () => {
       </nav>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-xl">Consultation details</h1>
+          <h1 className="govuk-heading-xl">Manage consultations</h1>
           <p className="govuk-body">
-            Review and complete the required consultations for your application.
+            You must send a consultation request to every organisation shown on this page.
           </p>
           <div className="govuk-body">
             <p>For each organisation you must:</p>
             <ul className="govuk-list govuk-list--bullet">
-              <li>start a consultation if one hasn’t been started;</li>
+              <li>send a request (or show that you have sent a request)</li>
               <li>
-                upload a response if a consultation has already taken place;
+                upload any response received
               </li>
-              <li>or indicate a consultation is not required</li>
             </ul>
+            <p>For Natural England, you can mark the consultation as 'Not required' and you will be asked to explain why it is not required.</p>
           </div>
           
- {/* Commented out section for LPA selection and derived LPAs */}
-
-          {/* Show derived LPAs from parishes */}
-           {/* {derivedLpas.length > 0 && (
-            <div className="govuk-inset-text govuk-!-margin-bottom-6">
-              <h3 className="govuk-heading-s">
-                Local Planning Authorities derived from selected parishes
-              </h3>
-              <ul className="govuk-list govuk-list--bullet">
-                {derivedLpas.map((lpa) => (
-                  <li key={lpa.lpa_code}>{lpa.lpa_name}</li>
-                ))}
-              </ul>
-            </div>
-          )} */}
-
-          {/* LPA Selector Component - easily movable to other pages */}
-          {/* <div className="govuk-!-margin-bottom-6">
-            <LpaSelector
-              selectedLpaCodes={selectedLpas.map((lpa) => lpa.lpa_code)}
-              onLpaSelect={handleLpaSelect}
-              onRemove={handleLpaRemove}
-              showRemoveButton={true}
-              showCheckbox={true}
-            />
-          </div>  */}
-
+ 
           {consultations.map((consultation) => (
             <ConsultationSummaryCard
               key={consultation.id}
@@ -108,7 +59,7 @@ const ConsultationDetailsPage: React.FC = () => {
               status={consultation.status}
               consultationId={consultation.id}
               applicationId={applicationId}
-              dateRequestCreated={consultation.lastUpdatedAt ?? undefined}
+              dateRequestCreated={consultation.dateRequestCreated ?? undefined}
               dateClosed={consultation.dateClosed ?? undefined}
               objectionRaised={consultation.objectionRaised}
               closeComments={consultation.closeComments}
@@ -117,6 +68,7 @@ const ConsultationDetailsPage: React.FC = () => {
               respondingConsulteeEmail={consultation.respondingConsulteeEmail}
               notRequiredMessage={consultation.notRequiredReason}
               notRequiredDocs={consultation.notRequiredDocs}
+              consultationRequestDocs={consultation.consultationRequestDocs}
             />
           ))}
 

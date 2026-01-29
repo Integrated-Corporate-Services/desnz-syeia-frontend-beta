@@ -104,7 +104,6 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
       {/* Only show heading and checkbox if showCheckbox is true */}
       {showCheckbox ? (
         <>
-          <h2 className="govuk-heading-l">Select consultees</h2>
 
           {/* Checkbox to toggle LPA selector */}
           <div className="govuk-checkboxes" data-module="govuk-checkboxes">
@@ -123,7 +122,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
                 className="govuk-label govuk-checkboxes__label"
                 htmlFor="hasLpaConsultee"
               >
-                Local planning authority
+                                            Local Planning Authority (LPA)
               </label>
             </div>
           </div>
@@ -138,68 +137,41 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
           className={showCheckbox ? "govuk-checkboxes__conditional" : ""}
           id={showCheckbox ? "hasLpaConsultee-hidden" : undefined}
         >
-          {/* Table showing selected LPAs */}
+          {/* Show selected LPAs */}
           {selectedLpas.length > 0 && (
-            <table className="govuk-table" id="fds-add-to-list-table">
-              <thead className="govuk-table__head">
-                <tr className="govuk-table__row">
-                  <th
-                    className="govuk-table__header govuk-!-width-three-quarters"
-                    scope="col"
-                  >
-                    Consultee
-                  </th>
-                  <th className="govuk-table__header" scope="col">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="govuk-table__body">
-                {selectedLpas.map((lpa) => (
-                  <tr key={lpa.code} className="govuk-table__row">
-                    <td className="govuk-table__cell">{lpa.name}</td>
-                    <td className="govuk-table__cell">
-                      {showRemoveButton && (
-                        <button
-                          type="button"
-                          className="govuk-link"
-                          onClick={() => handleRemove(lpa.code)}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#1d70b8",
-                            textDecoration: "underline",
-                          }}
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {/* Empty state inset text */}
-          {selectedLpas.length === 0 && (
-            <div id="fds-add-to-list-table-inset">
-              <div className="govuk-inset-text">
-                No items have been added yet.
-              </div>
+            <div className="govuk-!-margin-bottom-2">
+              {selectedLpas.map((lpa, index) => (
+                <div key={lpa.code}>
+                  <div className="govuk-grid-row">
+                    <div className="govuk-grid-column-two-thirds">
+                      <p className="govuk-body">{lpa.name}</p>
+                    </div>
+                    <div className="govuk-grid-column-one-third" style={{ textAlign: "right" }}>
+                      <a
+                        href="#"
+                        className="govuk-link"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemove(lpa.code);
+                        }}
+                      >
+                        Remove
+                      </a>
+                    </div>
+                  </div>
+                  {index < selectedLpas.length - 1 && <hr className="govuk-section-break govuk-section-break--visible govuk-section-break--m" />}
+                </div>
+              ))}
             </div>
           )}
 
           {/* Hidden input to store selected LPA codes */}
-          <div id="fds-add-to-list-table-input">
-            <input
-              type="hidden"
-              id="lpaConsultees"
-              name="lpaConsultees"
-              value={selectedLpas.map((l) => l.code).join(",")}
-            />
-          </div>
+          <input
+            type="hidden"
+            id="lpaConsultees"
+            name="lpaConsultees"
+            value={selectedLpas.map((l) => l.code).join(",")}
+          />
 
           {/* Search selector */}
           <div className="govuk-form-group">
@@ -208,29 +180,15 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
               htmlFor="lpaConsulteeSelect"
               id="selector-lpaConsulteeSelect-label"
             >
-              Select a local planning authority
+              Start typing an LPA's name
             </label>
 
-            {/* Instruction text */}
-            {searchTerm.length === 0 && (
-              <div
-                className="govuk-body"
-                style={{ marginTop: "10px", marginBottom: "10px" }}
-              >
-                Please enter 1 or more characters
-              </div>
-            )}
-
-            <div
-              className="fds-search-selector__input"
-              style={{ position: "relative" }}
-            >
+            <div>
               <input
                 type="text"
                 id="lpaConsulteeSelect"
                 name="lpaConsulteeSelect"
-                className="govuk-input"
-                style={{ width: "100%" }}
+                className="govuk-input govuk-input--width-20"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder=""
@@ -239,62 +197,28 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
 
               {/* Dropdown results */}
               {showDropdown && filteredLpas.length > 0 && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    right: 0,
-                    maxHeight: "300px",
-                    overflowY: "auto",
-                    backgroundColor: "white",
-                    border: "2px solid #0b0c0c",
-                    zIndex: 1000,
-                    marginTop: "2px",
-                  }}
-                >
+                <ul className="govuk-list govuk-!-margin-top-50">
                   {filteredLpas.map((lpa) => (
-                    <div
-                      key={lpa.lpa_code}
-                      onClick={() => handleAdd(lpa.lpa_code, lpa.lpa_name)}
-                      style={{
-                        padding: "12px",
-                        cursor: "pointer",
-                        borderBottom: "1px solid #b1b4b6",
-                        fontSize: "19px",
-                        fontFamily: '"GDS Transport", arial, sans-serif',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#1d70b8";
-                        e.currentTarget.style.color = "white";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "white";
-                        e.currentTarget.style.color = "#0b0c0c";
-                      }}
-                    >
-                      {lpa.lpa_name}
-                    </div>
+                    <li key={lpa.lpa_code}>
+                      <a
+                        href="#"
+                        className="govuk-link"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAdd(lpa.lpa_code, lpa.lpa_name);
+                        }}
+                      >
+                        {lpa.lpa_name}
+                      </a>
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
 
               {showDropdown &&
                 filteredLpas.length === 0 &&
                 searchTerm.length > 0 && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "100%",
-                      left: 0,
-                      right: 0,
-                      backgroundColor: "white",
-                      border: "2px solid #0b0c0c",
-                      padding: "10px",
-                      zIndex: 1000,
-                      marginTop: "2px",
-                    }}
-                  >
+                  <div className="govuk-body govuk-!-margin-top-2">
                     No results found
                   </div>
                 )}

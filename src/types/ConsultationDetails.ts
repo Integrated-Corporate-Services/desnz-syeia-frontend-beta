@@ -33,5 +33,10 @@ export interface ConsultationDetails {
   consulteeEmailAddress?: string;
   // Additional details for 'Consultation Not Required' status
   notRequiredReason ?: string;
-  notRequiredDocs ?: { name: string; url: string }[];
+  notRequiredDocs ?: { name: string; url: string; key?: string; filename?: string }[];
+  uploadedFiles ?: { name: string; url: string }[];
+  applicationDocuments ?: { name: string; url: string }[];
+  // Consultation request documents (evidence of request)
+  consultationRequestDocs ?: { name: string; url: string; key?: string; filename?: string }[];
+  dateRequestCreated?: string;
 }

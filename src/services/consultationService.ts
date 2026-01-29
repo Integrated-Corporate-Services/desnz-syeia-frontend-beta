@@ -49,3 +49,22 @@ export async function withdrawConsultationRequest({ applicationId, consultationI
   }
   return response.json();
 }
+
+// Update all consultations for an application with lastUpdatedBy user id
+export async function updateAllConsultations(applicationId: string, userId: string): Promise<any> {
+  const url = `/backend/api/consultations/${applicationId}/update-all-consultations`;
+  const payload = { userId };
+  
+  console.log('[consultationService] updateAllConsultations calling:', {
+    url,
+    applicationId,
+    userId,
+    payload
+  });
+  
+  const response = await axios.post(url, payload, { withCredentials: true });
+  
+  console.log('[consultationService] updateAllConsultations response:', response.data);
+  
+  return response.data;
+}
