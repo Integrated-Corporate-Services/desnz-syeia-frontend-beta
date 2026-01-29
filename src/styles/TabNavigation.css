@@ -1,3 +1,31 @@
 .govuk-tabs {
   margin-bottom: 0 !important;
 }
+
+/* Prevent tabs row from wrapping - keep all tabs on one line */
+.govuk-tabs__list {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+}
+
+/* Each tab stays on one line */
+.govuk-tabs__list-item {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.govuk-tabs__tab {
+  white-space: nowrap !important;
+}
+
+/* Allow wrapping only on mobile screens */
+@media (max-width: 640px) {
+  .govuk-tabs__list {
+    flex-wrap: wrap !important;
+  }
+  
+  .govuk-tabs__list-item {
+    flex-shrink: 1 !important;
+  }
+}
