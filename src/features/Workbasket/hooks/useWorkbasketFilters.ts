@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import type { Application } from "../../../types/application";
 import type { TabType } from "../constants/filterOptions";
+import { normalizeApplicationType } from "../../../utils/formatters";
 
 export const useWorkbasketFilters = (applications: Application[]) => {
   const [activeTab, setActiveTab] = useState<TabType>("draft");
