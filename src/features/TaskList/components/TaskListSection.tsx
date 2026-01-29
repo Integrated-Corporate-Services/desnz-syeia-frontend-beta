@@ -6,7 +6,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 interface TaskListSectionProps {
   section: {
     title: string;
-    items: { name: string; status: string; link: string }[];
+    items: { name: string; status: string; link: string; disabled?: boolean }[];
   };
   idx: number;
   applicationId?: string;
@@ -40,7 +40,15 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
           {section.items.map((item, itemIdx) => (
             <tr className="govuk-table__row" key={item.name}>
               <td className="govuk-table__cell">
-                {item.name === 'Submit application' ? (
+                {/* Check if item is disabled */}
+                {item.disabled ? (
+                  <span 
+                    className="govuk-link govuk-link--disabled" 
+                    style={{ fontWeight: 700, color: '#626a6e', cursor: 'not-allowed' }}
+                  >
+                    {item.name}
+                  </span>
+                ) : item.name === 'Submit application' ? (
                   <div className="govuk-button-group">
                     <button
                       className="govuk-button govuk-button--warning"
