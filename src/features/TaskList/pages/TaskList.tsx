@@ -36,14 +36,6 @@ const TaskList: React.FC = () => {
     progressError,
   } = useTaskListData();
 
-  // // Update asset information status when application loads
-  // useEffect(() => {
-  //   if (application?.application_id) {
-  //     const assetStatus = application?.progress?.find((p: any) => p.subsection_name === 'Asset information')?.status || 'Incomplete';
-  //     setAssetInformationStatus(assetStatus);
-  //   }
-  // }, [application?.application_id, application?.progress]);
-
   return (
     <div className="govuk-width-container">
       <SensitiveAreaBanner status={sensitiveAreaStatus} />

@@ -20,13 +20,13 @@ const PaymentAmountPage: React.FC = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [feeBreakdown, setFeeBreakdown] = useState<any>(null);
 
-  useEffect(() => {
-    // Check if asset information is completed
-    if (!assets || assets.length === 0) {
-      alert('Please complete Asset information section first');
-      navigate(`/s37/${applicationId}/task-list`);
-    }
-  }, [assets, applicationId, navigate]);
+  // useEffect(() => {
+  //   // Check if asset information is completed
+  //   if (!assets || assets.length === 0) {
+  //     alert('Please complete Asset information section first');
+  //     navigate(`/s37/${applicationId}/task-list`);
+  //   }
+  // }, [assets, applicationId, navigate]);
 
   // Fetch payment fees from backend
   useEffect(() => {
@@ -192,7 +192,7 @@ const PaymentAmountPage: React.FC = () => {
               You need to generate an invoice to move to the next step.
             </div>
 
-            {/* Debug information (remove in production) */}
+            {/* Debug information (remove in production)
             {feeBreakdown && (
               <details className="govuk-details" data-module="govuk-details">
                 <summary className="govuk-details__summary">
@@ -212,7 +212,7 @@ const PaymentAmountPage: React.FC = () => {
                   </ul>
                 </div>
               </details>
-            )}
+            )} */}
 
             <div className="govuk-button-group">
               <button

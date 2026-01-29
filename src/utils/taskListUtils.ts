@@ -90,9 +90,14 @@ export function getInitialSections(applicationId?: string, assetInformationStatu
       title: "Consultations",
       items: [
         {
-          name: "Consultation details",
-          status: "Incomplete",
+          name: "Consultations",
+          status: "Cannot start yet",
           link: `${base}/consultation-details`,
+        },
+        {
+          name: "Post consultation actions",
+          status: "Cannot start yet",
+          link: `${base}/post-consultation-actions`,
         },
       ],
     },
