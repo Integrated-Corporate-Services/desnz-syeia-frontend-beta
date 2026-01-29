@@ -128,7 +128,7 @@ const Workbasket = () => {
               {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
             </p>
 
-            {filteredApplications.length > 0 ? (
+            {filteredApplications.length > 0 && (
               <>
                 <ApplicationTable
                   applications={filteredApplications.slice(
@@ -148,8 +148,6 @@ const Workbasket = () => {
                   }}
                 />
               </>
-            ) : (
-              <p className="govuk-body">No applications found.</p>
             )}
           </div>
         </div>
@@ -168,7 +166,7 @@ const Workbasket = () => {
             {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
           </p>
 
-          {filteredApplications.length > 0 ? (
+          {filteredApplications.length > 0 && (
             <>
               <ApplicationTable
                 applications={filteredApplications.slice(
@@ -188,8 +186,6 @@ const Workbasket = () => {
                 }}
               />
             </>
-          ) : (
-            <p className="govuk-body">No applications found.</p>
           )}
         </>
       )}

@@ -15,3 +15,122 @@
   width: auto;
   min-width: unset;
 }
+
+/* ============================================
+   Filter Panel Styles
+   ============================================ */
+
+/* Main filter container - ONE parent box with border */
+.filter-panel {
+  border: 1px solid #b1b4b6; /* GDS grey border */
+  padding: 20px;
+  background-color: #ffffff; /* White background for whole panel */
+}
+
+/* Filter heading */
+.filter-panel .govuk-heading-m {
+  margin-top: 0;
+}
+
+/* Selected filters section - greyish background with border */
+.selected-filters-container {
+  background-color: #f3f2f1; /* GDS light grey */
+  border: 1px solid #b1b4b6; /* GDS grey border */
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.selected-filters-container .govuk-heading-s {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+/* Filter pills container */
+.filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Individual filter pill */
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: #ffffff;
+  color: #0b0c0c;
+  border: 1px solid #b1b4b6;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+/* Remove button inside pill */
+.filter-pill-remove {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.filter-pill-remove:hover {
+  color: #d4351c; /* GDS red for hover state */
+}
+
+.filter-pill-remove:focus {
+  outline: 3px solid #ffdd00; /* GDS focus color */
+  outline-offset: 0;
+}
+
+/* Action buttons container - HORIZONTAL LAYOUT */
+.filter-actions {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* Ensure buttons keep their original styling */
+.filter-actions .govuk-button {
+  margin-bottom: 0; /* Override default margin */
+}
+
+/* Filter form sections - NO individual borders */
+.filter-section {
+  margin-bottom: 30px;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Ensure form groups within filter panel have proper spacing */
+.filter-panel .govuk-form-group {
+  margin-bottom: 30px;
+}
+
+.filter-panel .govuk-form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .filter-panel {
+    padding: 15px;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .selected-filters-container {
+    padding: 10px;
+  }
+}

@@ -87,9 +87,10 @@ export const useWorkbasketFilters = (applications: Application[]) => {
 
       // Case type filter
       if (caseTypes.length > 0) {
-        // For now, defaulting all to 'overhead-lines' as per wireframe
-        // This would need to be matched with actual application type
-        if (!caseTypes.includes("overhead-lines")) return false;
+        const normalizedAppType = normalizeApplicationType(app.type);
+        if (!caseTypes.includes(normalizedAppType)) {
+          return false;
+        }
       }
 
       // Status filter
