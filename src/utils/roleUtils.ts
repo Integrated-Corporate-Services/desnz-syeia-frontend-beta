@@ -7,31 +7,53 @@
 
 import type { AuthUser } from "../types/auth";
 
+// Role Constants (from backend)
+export const APPLICANT = 'Applicant' as const;
+export const NETWORK_OPERATOR = 'Network operator' as const;
+export const CONTACT = 'Contact' as const;
+export const CONSULTANT = 'Consultant' as const;
+export const REVIEWER = 'Reviewer' as const;
+export const DESNZ_ADMIN = 'DESNZ_ADMIN' as const;
+export const DESNZ_CASEWORKER = 'DESNZ_CASEWORKER' as const;
+export const APPLICANT_TEAM_COORDINATOR = 'APPLICANT_TEAM_COORDINATOR' as const;
+export const APPLICANT_USER = 'APPLICANT_USER' as const;
+export const APPLICANT_AGENT = 'APPLICANT_AGENT' as const;
+export const APPLICANT_FINANCE = 'APPLICANT_FINANCE' as const;
+export const BUSINESS_ADMIN = 'BUSINESS_ADMIN' as const;
+export const TECH_ADMIN = 'TECH_ADMIN' as const;
+
+export const ADMIN_ROLES = [
+  DESNZ_ADMIN,
+  BUSINESS_ADMIN,
+  TECH_ADMIN,
+  APPLICANT_TEAM_COORDINATOR,
+] as const;
+
+export type AdminRole = (typeof ADMIN_ROLES)[number];
+export const SUPERUSER = DESNZ_ADMIN;
+
 /**
  * User roles that can exist in the system
  */
 export type UserRole = 
-  | 'APPLICANT'
-  | 'TEAM_COORDINATOR'
-  | 'DESNZ_ADMIN'
-  | 'AGENT'
+  | typeof APPLICANT
+  | typeof NETWORK_OPERATOR
+  | typeof CONTACT
+  | typeof CONSULTANT
+  | typeof REVIEWER
+  | typeof DESNZ_ADMIN
+  | typeof DESNZ_CASEWORKER
+  | typeof APPLICANT_TEAM_COORDINATOR
+  | typeof APPLICANT_USER
+  | typeof APPLICANT_AGENT
+  | typeof APPLICANT_FINANCE
+  | typeof BUSINESS_ADMIN
+  | typeof TECH_ADMIN
   | string; // Allow unknown roles
 
 /**
  * Get default "Submitted by" value based on user role
- * 
- * Business Rules (AC2):
- * - Applicant: "Me" (only see own applications)
- * - Agent: "Me" (only see own applications)
- * - Team Coordinator: "All users" (see team applications)
- * - Admin: "All users" (see organization applications)
- * 
- * @param {UserRole} role - User's role from auth context
- * @returns {'me' | 'all'} Default filter value
- * 
- * @example
- * getDefaultSubmittedBy('TEAM_COORDINATOR') // Returns: 'all'
- * getDefaultSubmittedBy('APPLICANT') // Returns: 'me'
+ * AC2: Applicant/Agent/User/Finance → "me", Team Coordinator/Admin/Caseworker/Reviewer → "all"
  */
 export const getDefaultSubmittedBy = (role?: UserRole): 'me' | 'all' => {
   if (!role) {
@@ -39,15 +61,22 @@ export const getDefaultSubmittedBy = (role?: UserRole): 'me' | 'all' => {
     return 'me';
   }
 
-  const normalizedRole = role.toUpperCase();
-
-  switch (normalizedRole) {
-    case 'TEAM_COORDINATOR':
-    case 'DESNZ_ADMIN':
+  switch (role) {
+    case APPLICANT_TEAM_COORDINATOR:
+    case DESNZ_ADMIN:
+    case DESNZ_CASEWORKER:
+    case BUSINESS_ADMIN:
+    case TECH_ADMIN:
+    case REVIEWER:
       return 'all';
     
-    case 'APPLICANT':
-    case 'AGENT':
+    case APPLICANT:
+    case APPLICANT_USER:
+    case APPLICANT_AGENT:
+    case APPLICANT_FINANCE:
+    case NETWORK_OPERATOR:
+    case CONTACT:
+    case CONSULTANT:
     default:
       return 'me';
   }
@@ -55,32 +84,18 @@ export const getDefaultSubmittedBy = (role?: UserRole): 'me' | 'all' => {
 
 /**
  * Determine if "Submitted by" filter should be visible
- * 
- * Business Rules (AC2):
- * - Agents should NOT see the filter (always "me" enforced by backend)
- * - All other roles should see the filter
- * 
- * @param {UserRole} role - User's role from auth context
- * @returns {boolean} True if filter should be shown
- * 
- * @example
- * shouldShowSubmittedByFilter('AGENT') // Returns: false
- * shouldShowSubmittedByFilter('APPLICANT') // Returns: true
+ * AC2: Agents should NOT see the filter
  */
 export const shouldShowSubmittedByFilter = (role?: UserRole): boolean => {
   if (!role) {
     return true; // Default to showing
   }
 
-  const normalizedRole = role.toUpperCase();
-  return normalizedRole !== 'AGENT';
+  return role !== APPLICANT_AGENT;
 };
 
 /**
  * Get user role from AuthUser object safely
- * 
- * @param {AuthUser | null} user - User from auth context
- * @returns {UserRole | undefined} User's role or undefined
  */
 export const getUserRole = (user: AuthUser | null | undefined): UserRole | undefined => {
   return user?.role;
@@ -88,13 +103,33 @@ export const getUserRole = (user: AuthUser | null | undefined): UserRole | undef
 
 /**
  * Check if user has elevated permissions (coordinator/admin)
- * 
- * @param {UserRole} role - User's role
- * @returns {boolean} True if user is coordinator or admin
  */
 export const hasElevatedPermissions = (role?: UserRole): boolean => {
   if (!role) return false;
   
-  const normalizedRole = role.toUpperCase();
-  return normalizedRole === 'TEAM_COORDINATOR' || normalizedRole === 'DESNZ_ADMIN';
+  return role === APPLICANT_TEAM_COORDINATOR || 
+         role === DESNZ_ADMIN || 
+         role === DESNZ_CASEWORKER ||
+         role === BUSINESS_ADMIN || 
+         role === TECH_ADMIN ||
+         role === REVIEWER;
+};
+
+// For backwards compatibility with CommonJS imports
+export default {
+  APPLICANT,
+  NETWORK_OPERATOR,
+  CONTACT,
+  CONSULTANT,
+  REVIEWER,
+  DESNZ_ADMIN,
+  DESNZ_CASEWORKER,
+  APPLICANT_TEAM_COORDINATOR,
+  APPLICANT_USER,
+  APPLICANT_AGENT,
+  APPLICANT_FINANCE,
+  BUSINESS_ADMIN,
+  TECH_ADMIN,
+  ADMIN_ROLES,
+  SUPERUSER,
 };

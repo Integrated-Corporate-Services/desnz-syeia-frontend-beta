@@ -96,7 +96,7 @@ const Workbasket = () => {
       <main id="main-content">
         {/* Filters and table area */}
         {showFilters ? (
-          <div className="workbasket-layout govuk-!-margin-bottom-6" style={{ maxWidth: '1600px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
+          <div className="workbasket-layout govuk-!-margin-bottom-6" style={{ maxWidth: '1800px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
             <div
               id="workbasket-filters"
               className="workbasket-sidebar"
@@ -154,7 +154,7 @@ const Workbasket = () => {
           </div>
         </div>
       ) : (
-        <div style={{ maxWidth: '1600px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
+        <div style={{ maxWidth: '1800px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
           <WorkbasketTabs
             activeTab={activeTab}
             onTabChange={(tab) => {

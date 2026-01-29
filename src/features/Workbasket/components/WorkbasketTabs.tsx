@@ -17,7 +17,7 @@ export const WorkbasketTabs: React.FC<WorkbasketTabsProps> = ({
    * GDS Pattern: Manual activation with keyboard support
    */
   const handleKeyDown = (e: React.KeyboardEvent, currentIndex: number) => {
-    let targetIndex = currentIndex;
+    let targetIndex: number;
     
     switch (e.key) {
       case 'ArrowLeft':

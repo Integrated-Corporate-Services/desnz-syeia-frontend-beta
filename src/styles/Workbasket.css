@@ -19,6 +19,23 @@
   min-width: 0; /* Prevent grid overflow */
 }
 
+.workbasket-content .govuk-table__cell,
+.workbasket-content .govuk-table__header {
+  white-space: nowrap; 
+}
+
+
+.workbasket-content .govuk-table__cell:nth-child(3),
+.workbasket-content .govuk-table__header:nth-child(3) {
+  white-space: normal;
+  max-width: 150px;
+}
+
+.workbasket-content .govuk-table {
+  width: 100%;
+  table-layout: auto;
+}
+
 /* Responsive: stack on mobile */
 @media (max-width: 768px) {
   .workbasket-layout {
@@ -47,9 +64,6 @@
   min-width: unset;
 }
 
-/* ============================================
-   Filter Panel Styles
-   ============================================ */
 
 /* Main filter container - ONE parent box with border */
 .filter-panel {
@@ -61,7 +75,6 @@
   box-sizing: border-box;
 }
 
-/* FIL-004: Grey header strip - always visible */
 .filter-panel .govuk-heading-m {
   margin: 0;
   background: #f3f2f1; /* Grey header background #F2F4F7 close to GDS */
@@ -212,7 +225,6 @@
   width: 100%;
 }
 
-/* FIL-005 & FIL-006: Checkbox and radio labels - NO truncation, inline display */
 .filter-panel .govuk-checkboxes__label,
 .filter-panel .govuk-radios__label {
   display: block; /* Block display for proper layout */
