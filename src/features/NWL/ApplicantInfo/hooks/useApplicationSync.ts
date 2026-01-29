@@ -30,10 +30,10 @@ export const useApplicationSync = ({
     if (!application) return;
 
     if (
-      application.desnz_ref !== undefined &&
-      application.desnz_ref !== null
+      application.operator_ref !== undefined &&
+      application.operator_ref !== null
     ) {
-      onReferenceSync(application.desnz_ref);
+      onReferenceSync(application.operator_ref);
     }
   }, [application, onReferenceSync]);
 
