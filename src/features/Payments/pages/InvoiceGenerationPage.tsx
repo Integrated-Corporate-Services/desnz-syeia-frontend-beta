@@ -139,7 +139,7 @@ const InvoiceGenerationPage: React.FC = () => {
                       fontFamily: 'Arial, sans-serif',
                       color: '#0b0c0c'
                     }}>
-                      Please do not close this window or navigate away from this page while we generate your invoice.
+                      <strong>Please do not close this window or navigate away from this page while we generate your invoice.</strong>
                     </p>
                   </div>
                 </div>
