@@ -79,25 +79,27 @@ const Workbasket = () => {
   );
 
   return (
-    <div className="govuk-width-container govuk-!-margin-top-8">
-      {/* Skip link for keyboard users */}
-      <a href="#main-content" className="govuk-skip-link">Skip to main content</a>
-      
-      {/* Header and action buttons always at the top, inside container */}
-      <WorkbasketHeader
-        onToggleFilters={() => setShowFilters(!showFilters)}
-        showFilters={showFilters}
-        onStartNewApplication={handleStart}
-      />
+    <>
+      <div className="govuk-width-container govuk-!-margin-top-8" style={{ maxWidth: '1400px', paddingLeft: '20px', paddingRight: '20px' }}>
+        {/* Skip link for keyboard users */}
+        <a href="#main-content" className="govuk-skip-link">Skip to main content</a>
+        
+        {/* Header and action buttons always at the top, inside container */}
+        <WorkbasketHeader
+          onToggleFilters={() => setShowFilters(!showFilters)}
+          showFilters={showFilters}
+          onStartNewApplication={handleStart}
+        />
+      </div>
 
-      {/* Main content area */}
+      {/* Main content area - breaks out of width container for wider layout */}
       <main id="main-content">
         {/* Filters and table area */}
         {showFilters ? (
-          <div className="govuk-grid-row govuk-!-margin-bottom-6">
+          <div className="workbasket-layout govuk-!-margin-bottom-6" style={{ maxWidth: '1600px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
             <div
               id="workbasket-filters"
-              className="govuk-grid-column-one-quarter govuk-!-padding-4 govuk-!-background-color-light-grey"
+              className="workbasket-sidebar"
             >
             <WorkbasketFilters
               showFilters={showFilters}
@@ -114,7 +116,7 @@ const Workbasket = () => {
               onClearFilters={handleClearFilters}
             />
           </div>
-          <div className="govuk-grid-column-three-quarters">
+          <div className="workbasket-content">
             <WorkbasketTabs
               activeTab={activeTab}
               onTabChange={(tab) => {
@@ -152,7 +154,7 @@ const Workbasket = () => {
           </div>
         </div>
       ) : (
-        <>
+        <div style={{ maxWidth: '1600px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
           <WorkbasketTabs
             activeTab={activeTab}
             onTabChange={(tab) => {
@@ -187,10 +189,10 @@ const Workbasket = () => {
               />
             </>
           )}
-        </>
+        </div>
       )}
       </main>
-    </div>
+    </>
   );
 };
 

@@ -421,11 +421,11 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         </fieldset>
       </div>
 
-      {/* Status of application */}
+      {/* Status */}
       <div className="govuk-form-group filter-section">
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
-            Status of application
+            Status
           </legend>
           <div className="govuk-checkboxes">
             {STATUS_OPTIONS.map((option) => (
