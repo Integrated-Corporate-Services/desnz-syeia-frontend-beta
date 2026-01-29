@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { S37_BASE_URL } from '../../../constants/s37';
+import { S37_BASE_URL } from "../../../constants/s37";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import RadioGroup from "../component/RadioGroup";
 // import { useApplicationStore } from "../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
-import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
-
-// Helper to get CSRF token from cookie
-function getCsrfToken() {
-  if (typeof document !== 'undefined') {
-    const match = document.cookie.match(/(?:^|; )_csrf=([^;]*)/);
-    return match ? decodeURIComponent(match[1]) : '';
-  }
-  return '';
-}
+import { useEiaFeesStore } from "../../../store/useEiaFeesStore";
 
 const EIAFeesForm: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +29,7 @@ const EIAFeesForm: React.FC = () => {
     applicationId: undefined,
   });
   const [errors, setErrors] = useState<{ field: string; message: string }[]>(
-    []
+    [],
   );
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -128,7 +119,7 @@ const EIAFeesForm: React.FC = () => {
             isEiaDevelopment: payload.isEiaDevelopment,
             screeningOnly: payload.screeningOnly,
             updatedAt: payload.updatedAt,
-            updatedBy: payload.updatedBy
+            updatedBy: payload.updatedBy,
           });
         } else {
           // Create new EIA Fee using store (POST)
@@ -143,12 +134,11 @@ const EIAFeesForm: React.FC = () => {
             createdAt,
             updatedAt: payload.updatedAt,
             createdBy,
-            updatedBy: payload.updatedBy
+            updatedBy: payload.updatedBy,
           });
         }
         setSuccess(true);
         setForm({
-
           isEiaDevelopment: "",
           screeningOnly: "",
           eiaFeeId: undefined,
@@ -156,7 +146,7 @@ const EIAFeesForm: React.FC = () => {
         });
         // Redirect to tasklist page after success
         const redirectId = payload.applicationId;
-  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
+        navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
       } catch {
         setApiError("Failed to submit EIA Fees. Please try again.");
       } finally {
@@ -195,7 +185,10 @@ const EIAFeesForm: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+            <Link
+              className="govuk-breadcrumbs__link"
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
+            >
               Task list
             </Link>
           </li>
@@ -237,11 +230,6 @@ const EIAFeesForm: React.FC = () => {
               onSubmit={handleSubmit}
               noValidate
             >
-              <input
-                type="hidden"
-                name="_csrf"
-                value={getCsrfToken()}
-              />
               <div className="govuk-form-group">
                 <RadioGroup
                   isEiaDevelopment={form.isEiaDevelopment}
@@ -254,9 +242,7 @@ const EIAFeesForm: React.FC = () => {
               {form.screeningOnly === "true" && (
                 <div
                   className={`govuk-form-group${
-                    hasError("screeningOnly")
-                      ? " govuk-form-group--error"
-                      : ""
+                    hasError("screeningOnly") ? " govuk-form-group--error" : ""
                   }`}
                 >
                   <fieldset

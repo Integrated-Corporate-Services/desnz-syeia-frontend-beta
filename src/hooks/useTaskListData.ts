@@ -12,7 +12,8 @@ export function useTaskListData() {
   const submitApplication = useApplicationStore(state => state.submitApplication);
   const { applicationId } = useParams();
   const { progress, loading: progressLoading, error: progressError, fetchProgress } = useProgressStore();
-  const [sections, setSections] = useState(getInitialSections(application?.application_id || applicationId));
+  const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
+  const [sections, setSections] = useState(getInitialSections(application?.application_id || applicationId, assetInformationStatus));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ inProgress: boolean; completed: number; total: number } | null>(null);
@@ -38,60 +39,19 @@ export function useTaskListData() {
     }
   }, [application?.application_id, applicationId, fetchProgress]);
 
-  // Poll for sensitive area check status
-  /* useEffect(() => {
-    const effectiveId = application?.application_id || applicationId;
-    if (!effectiveId) return;
+  // Get asset information status from progress
+  useEffect(() => {
+    if (progress && progress.length > 0) {
+      const assetStatus = progress.find((p: { subsection_name: string; status: string }) => p.subsection_name === 'Asset information')?.status || 'Incomplete';
+      setAssetInformationStatus(assetStatus);
+    }
+  }, [progress]);
 
-    const checkStatus = async () => {
-      try {
-        const status = await getSensitiveAreaCheckStatus(effectiveId);
-        if (status && status.inProgress) {
-          setSensitiveAreaStatus({
-            inProgress: true,
-            completed: status.completed || 0,
-            total: status.total || 0
-          });
-          
-          // Start polling if not already polling
-          if (!pollingIntervalRef.current) {
-            pollingIntervalRef.current = setInterval(checkStatus, 5000);
-          }
-        } else {
-          setSensitiveAreaStatus(null);
-          // Stop polling if checks are complete
-          if (pollingIntervalRef.current) {
-            clearInterval(pollingIntervalRef.current);
-            pollingIntervalRef.current = null;
-          }
-        }
-      } catch (err) {
-        // If endpoint doesn't exist or errors, just don't show banner
-        setSensitiveAreaStatus(null);
-        if (pollingIntervalRef.current) {
-          clearInterval(pollingIntervalRef.current);
-          pollingIntervalRef.current = null;
-        }
-      }
-    };
-
-    // Check immediately on mount
-    checkStatus();
-
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
-    };
-  }, [application?.application_id, applicationId]);
-  */
-
-  // Update sections when progress or applicationId changes
+  // Update sections when progress or assetInformationStatus changes
   useEffect(() => {
     const effectiveId = application?.application_id || applicationId;
-    setSections(getSectionsWithProgress(typeof effectiveId === 'string' ? effectiveId : undefined, progress));
-  }, [progress, application?.application_id, applicationId]);
+    setSections(getSectionsWithProgress(typeof effectiveId === 'string' ? effectiveId : undefined, progress, assetInformationStatus));
+  }, [progress, assetInformationStatus, application?.application_id, applicationId]);
 
   // Handle location state for banners/popups
   useEffect(() => {

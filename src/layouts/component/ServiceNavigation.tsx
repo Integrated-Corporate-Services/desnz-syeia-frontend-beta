@@ -2,10 +2,15 @@ import { CONTENT } from "../../constants/content";
 import React from "react";
 import { BASE_URL } from "../../constants/routes";
 import { useLocation } from "react-router-dom";
+import { useAuthUserContext } from "../../context/AuthUserContext";
+import { ROLES } from "../../constants/roles";
+import type { AuthUser } from "../../types/auth";
 import { logout } from "../../services/authService";
+import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
   const location = useLocation();
+  const { user } = useAuthUserContext();
 
   // Handle all possible workbasket paths
   const workbasketPaths = ["/", "/workbasket", "/workbasket/"];
@@ -33,60 +38,92 @@ const ServiceNavigation = () => {
     location.pathname.includes("/task-list") ||
     location.pathname.includes("/delete");
 
+  // Check if on organisation/admin pages
+  const isOnOrganisationPages =
+    location.pathname.includes("/admin/") ||
+    location.pathname.includes("/user-management");
+
   if (hideNavPaths.includes(location.pathname)) return null;
 
+  // Check if user has admin role (DTC or DESNZ Admin)
+  const isAdmin =
+    user &&
+    ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+      (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
+
   return (
-    <section
-      aria-label="Service information"
-      className="govuk-service-navigation"
-      data-module="govuk-service-navigation"
-    >
-      <style>{`
-        .govuk-service-navigation__container {
-          background: transparent !important;
-          border: none !important;
-        }
-      `}</style>
-      <div className="govuk-width-container">
-        <div className="govuk-service-navigation__container">
-          <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
+    <div className="govuk-width-container">
+      <section
+        aria-label="Service information"
+        className="govuk-service-navigation"
+      >
+        <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
+          <div className="govuk-service-navigation__wrapper-container">
+            {/* User name on the left */}
+            <span className="govuk-body govuk-service-navigation__user-name">
+              {user
+                ? `${(user as any).first_name || ""} ${
+                    (user as any).last_name || ""
+                  }`.trim() || "\u00A0"
+                : "\u00A0"}
+            </span>
+
+            {/* Navigation links on the right */}
             <ul
-              className="govuk-service-navigation__list"
+              className="govuk-service-navigation__list govuk-service-navigation__list--right"
               id="navigation"
-              style={{
-                display: "flex",
-                justifyContent: isInRegistrationFlow ? "flex-end" : "space-between",
-                alignItems: "center",
-              }}
             >
-              {!isInRegistrationFlow && (
+              {isAdmin && (
                 <li
                   className={`govuk-service-navigation__item ${
-                    isOnApplicationPages
+                    isOnOrganisationPages
                       ? "govuk-service-navigation__item--active"
                       : ""
                   }`}
-                  style={{ display: "flex", alignItems: "center" }}
                 >
                   <a
                     className="govuk-service-navigation__link"
-                    href={`${BASE_URL}/workbasket`}
-                    aria-current={isOnApplicationPages ? "true" : undefined}
+                    href={`${BASE_URL}/admin/user-management`}
+                    aria-current={isOnOrganisationPages ? "true" : undefined}
                   >
-                    {isOnApplicationPages ? (
-                      <strong className="govuk-service-navigation__active-fallback">
-                        {CONTENT.serviceNav[0].text}
-                      </strong>
-                    ) : (
-                      CONTENT.serviceNav[0].text
-                    )}
+                    Organisation
                   </a>
                 </li>
               )}
               <li
-                className="govuk-service-navigation__item"
-                style={{ display: "flex", alignItems: "center", marginLeft: isInRegistrationFlow ? "0" : "auto" }}
+                className={`govuk-service-navigation__item ${
+                  isOnApplicationPages
+                    ? "govuk-service-navigation__item--active"
+                    : ""
+                }`}
               >
+                <a
+                  className="govuk-service-navigation__link"
+                  href={`${BASE_URL}/workbasket`}
+                  aria-current={isOnApplicationPages ? "true" : undefined}
+                >
+                  Applications
+                </a>
+              </li>
+              <li className="govuk-service-navigation__item">
+                <a
+                  className="govuk-service-navigation__link"
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Notifications <span className="moj-notification-badge"></span>
+                </a>
+              </li>
+              <li className="govuk-service-navigation__item">
+                <a
+                  className="govuk-service-navigation__link"
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Account
+                </a>
+              </li>
+              <li className="govuk-service-navigation__item">
                 <a
                   className="govuk-service-navigation__link"
                   href="#"
@@ -98,16 +135,11 @@ const ServiceNavigation = () => {
                   Sign out
                 </a>
               </li>
-              {/*<li className="govuk-service-navigation__item">
-                <a className="govuk-service-navigation__link" href={`${BASE_URL}notifications.html`}>
-                  Notifications <span id="notifications" className="moj-notification-badge">2</span>
-                </a>
-              </li>*/}
             </ul>
-          </nav>
-        </div>
-      </div>
-    </section>
+          </div>
+        </nav>
+      </section>
+    </div>
   );
 };
 export default ServiceNavigation;
