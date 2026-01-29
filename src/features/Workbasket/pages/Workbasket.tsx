@@ -5,15 +5,14 @@ import ApplicationTable from "../components/ApplicationTable";
 import { useAuthUserContext } from "../../../context/AuthUserContext";
 import type { AuthUser } from "../../../types/auth";
 import { ROUTES } from "../../../constants/routes";
-import { ROLES } from "../../../constants/roles";
 import { useWorkbasketFilters } from "../hooks/useWorkbasketFilters";
 import { WorkbasketFilters } from "../components/WorkbasketFilters";
 import { WorkbasketHeader } from "../components/WorkbasketHeader";
+import { WorkbasketTabs } from "../components/WorkbasketTabs";
 import { Pagination } from "../components/Pagination";
 import { DEMO_USER_ID } from "../../../constants/demo";
 
 const Workbasket = () => {
-  // TODO: get from auth/session
   const { user } = useAuthUserContext();
   const created_by =
     (user as AuthUser)?.person_id ||
@@ -29,23 +28,20 @@ const Workbasket = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Use custom filter hook
   const {
-    statusFilter,
-    setStatusFilter,
-    dateFilter,
-    setDateFilter,
+    activeTab,
+    setActiveTab,
     searchText,
     setSearchText,
+    submittedBy,
+    setSubmittedBy,
+    caseTypes,
+    toggleCaseType,
+    statuses,
+    toggleStatus,
     filteredApplications,
-    clearFilters,
+    tabCounts,
   } = useWorkbasketFilters(applications);
-
-  // Check if user has admin role
-  const isAdmin =
-    user &&
-    ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
-      (user as AuthUser)?.role === ROLES.DNO_TEAM_COORDINATOR);
 
   useEffect(() => {
     if (created_by && typeof created_by === "string") {
@@ -54,30 +50,123 @@ const Workbasket = () => {
   }, [created_by, loadApplications]);
 
   const handleStart = () => {
-    navigate(ROUTES.NETWORK_OPERATOR_DETAILS);
+    navigate("/choose-application");
   };
 
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    // Clear search text
+    setSearchText('');
+    // Clear case types
+    caseTypes.forEach(type => toggleCaseType(type));
+    // Clear statuses
+    statuses.forEach(status => toggleStatus(status));
+    // Reset submitted by to default
+    setSubmittedBy('me');
+    // Reset pagination
+    setCurrentPage(1);
+  };
+
+  // Determine if user can see "Submitted by" filter (admin or coordinator only)
+  const canSeeSubmittedByFilter = Boolean(
+    user && (
+      (user as AuthUser)?.role === 'DESNZ_ADMIN' || 
+      (user as AuthUser)?.role === 'TEAM_COORDINATOR'
+    )
+  );
+
   return (
-    <div className="govuk-width-container" style={{ marginTop: "40px" }}>
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-full">
-          <WorkbasketHeader
-            onToggleFilters={() => setShowFilters(!showFilters)}
-            showFilters={showFilters}
-            onDashboardClick={() => navigate("/admin/user-management")}
-            showDashboard={!!isAdmin}
+    <div className="govuk-width-container govuk-!-margin-top-8">
+      {/* Skip link for keyboard users */}
+      <a href="#main-content" className="govuk-skip-link">Skip to main content</a>
+      
+      {/* Header and action buttons always at the top, inside container */}
+      <WorkbasketHeader
+        onToggleFilters={() => setShowFilters(!showFilters)}
+        showFilters={showFilters}
+        onStartNewApplication={handleStart}
+      />
+
+      {/* Main content area */}
+      <main id="main-content">
+        {/* Filters and table area */}
+        {showFilters ? (
+          <div className="govuk-grid-row govuk-!-margin-bottom-6">
+            <div
+              id="workbasket-filters"
+              className="govuk-grid-column-one-quarter govuk-!-padding-4 govuk-!-background-color-light-grey"
+            >
+            <WorkbasketFilters
+              showFilters={showFilters}
+              searchText={searchText}
+              submittedBy={submittedBy}
+              caseTypes={caseTypes}
+              statuses={statuses}
+              showSubmittedByFilter={canSeeSubmittedByFilter}
+              onSearchChange={setSearchText}
+              onSubmittedByChange={setSubmittedBy}
+              onCaseTypeToggle={toggleCaseType}
+              onStatusToggle={toggleStatus}
+              onApplyFilters={handleApplyFilters}
+              onClearFilters={handleClearFilters}
+            />
+          </div>
+          <div className="govuk-grid-column-three-quarters">
+            <WorkbasketTabs
+              activeTab={activeTab}
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                setCurrentPage(1);
+              }}
+              counts={tabCounts}
+            />
+
+            <p className="govuk-body govuk-!-margin-top-6">
+              {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
+            </p>
+
+            {filteredApplications.length > 0 ? (
+              <>
+                <ApplicationTable
+                  applications={filteredApplications.slice(
+                    (currentPage - 1) * itemsPerPage,
+                    currentPage * itemsPerPage
+                  )}
+                  activeTab={activeTab}
+                />
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={Math.ceil(
+                    filteredApplications.length / itemsPerPage
+                  )}
+                  onPageChange={(page) => {
+                    setCurrentPage(page);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              </>
+            ) : (
+              <p className="govuk-body">No applications found.</p>
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          <WorkbasketTabs
+            activeTab={activeTab}
+            onTabChange={(tab) => {
+              setActiveTab(tab);
+              setCurrentPage(1);
+            }}
+            counts={tabCounts}
           />
 
-          <WorkbasketFilters
-            showFilters={showFilters}
-            statusFilter={statusFilter}
-            dateFilter={dateFilter}
-            searchText={searchText}
-            onStatusChange={setStatusFilter}
-            onDateChange={setDateFilter}
-            onSearchChange={setSearchText}
-            onClearFilters={clearFilters}
-          />
+          <p className="govuk-body govuk-!-margin-top-6">
+            {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
+          </p>
 
           {filteredApplications.length > 0 ? (
             <>
@@ -86,7 +175,7 @@ const Workbasket = () => {
                   (currentPage - 1) * itemsPerPage,
                   currentPage * itemsPerPage
                 )}
-                user={user as AuthUser}
+                activeTab={activeTab}
               />
               <Pagination
                 currentPage={currentPage}
@@ -100,10 +189,11 @@ const Workbasket = () => {
               />
             </>
           ) : (
-            <p>No applications found.</p>
+            <p className="govuk-body">No applications found.</p>
           )}
-        </div>
-      </div>
+        </>
+      )}
+      </main>
     </div>
   );
 };

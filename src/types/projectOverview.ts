@@ -7,7 +7,7 @@ export interface RelatedApplication {
   projectId?: string;
   applicationRelationId?: string;
   project_name?: string;
-  operator_ref?: string;
+  desnz_ref?: string;
   value?: string;
   relationType?: string;
   details?: string;

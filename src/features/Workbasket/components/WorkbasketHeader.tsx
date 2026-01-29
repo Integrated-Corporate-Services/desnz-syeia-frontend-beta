@@ -1,55 +1,48 @@
-import React from 'react';
-import StartNewApplicationButton from '../../../components/StartNewApplicationButton';
+import React from "react";
+import "../../../styles/Workbasket.css";
 
 interface WorkbasketHeaderProps {
   onToggleFilters: () => void;
   showFilters: boolean;
-  onDashboardClick?: () => void;
-  showDashboard?: boolean;
+  onStartNewApplication: () => void;
 }
 
 export const WorkbasketHeader: React.FC<WorkbasketHeaderProps> = ({
   onToggleFilters,
   showFilters,
-  onDashboardClick,
-  showDashboard = false,
+  onStartNewApplication,
 }) => {
   return (
-    <div className="govuk-grid-row">
-      <div className="govuk-grid-column-one-half">
-        <h1 className="govuk-heading-l">Your applications</h1>
+    <>
+      <h1 className="govuk-heading-xl">Your applications</h1>
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
+          <p className="govuk-body">
+            This dashboard shows you all the applications for your organisation.
+            Start a new application or use the filters to search for any
+            existing applications.
+          </p>
+        </div>
       </div>
-      <div 
-        className="govuk-grid-column-one-half" 
-        style={{ 
-          display: 'flex', 
-          justifyContent: 'flex-end', 
-          alignItems: 'center', 
-          gap: '10px' 
-        }}
-      >
-        {showDashboard && onDashboardClick && (
-          <button
-            className="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-            onClick={onDashboardClick}
-            style={{ whiteSpace: 'nowrap' }}
-          >
-            Dashboard
-          </button>
-        )}
-        
+
+      <div className="workbasket-header-buttons">
+        <button
+          className="govuk-button"
+          data-module="govuk-button"
+          onClick={onStartNewApplication}
+        >
+          Start new application
+        </button>
         <button
           className="govuk-button govuk-button--secondary"
           data-module="govuk-button"
-          style={{ whiteSpace: 'nowrap' }}
           onClick={onToggleFilters}
+          aria-expanded={showFilters}
+          aria-controls="workbasket-filters"
         >
-          {showFilters ? 'Hide filters' : 'Show filters'}
+          {showFilters ? "Hide search and filter" : "Show search and filter"}
         </button>
-        
-        <StartNewApplicationButton />
       </div>
-    </div>
+    </>
   );
 };
