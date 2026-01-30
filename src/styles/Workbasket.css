@@ -1,10 +1,10 @@
 /* Workbasket Dashboard Styles */
 
-/* Two-column layout: 330px sidebar + flexible content with gap */
+/* Two-column layout: 400px sidebar + flexible content with gap */
 .workbasket-layout {
   display: grid;
-  grid-template-columns: 330px 1fr;
-  gap: 30px;
+  grid-template-columns: 400px 1fr;
+  gap: 30px; /* GDS spacing scale: level 6 (30px = 6 units) - clear gutter between sidebar and content */
   align-items: start;
 }
 
@@ -19,21 +19,23 @@
   min-width: 0; /* Prevent grid overflow */
 }
 
+/* Application table column widths and text wrapping */
 .workbasket-content .govuk-table__cell,
 .workbasket-content .govuk-table__header {
-  white-space: nowrap; 
+  white-space: nowrap; /* Prevent wrapping by default */
 }
 
-
+/* Allow Case type column to wrap */
 .workbasket-content .govuk-table__cell:nth-child(3),
 .workbasket-content .govuk-table__header:nth-child(3) {
-  white-space: normal;
-  max-width: 150px;
+  white-space: normal; /* Allow wrapping for Case type column */
+  max-width: 150px; /* Set reasonable max width for Case type */
 }
 
+/* Ensure table uses available width */
 .workbasket-content .govuk-table {
   width: 100%;
-  table-layout: auto;
+  table-layout: auto; /* Auto layout for better column distribution */
 }
 
 /* Responsive: stack on mobile */
@@ -64,60 +66,74 @@
   min-width: unset;
 }
 
+/* ============================================
+   Filter Panel Styles
+   ============================================ */
 
-/* Main filter container - Figma specifications */
+/* Main filter container - ONE parent box with border */
 .filter-panel {
-  display: flex;
-  width: 330px;
-  padding-bottom: 16px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  flex-shrink: 0;
-  border: 1px solid #B1B4B6;
-  background: #FFF;
+  border: 1px solid #b1b4b6; /* GDS grey border (1px neutral per spec) */
+  padding: 0; /* No padding on container - header and content have their own */
+  background-color: #ffffff; /* White background for whole panel */
+  width: 400px; /* Increased width to accommodate long labels like "Further information requested" */
+  max-width: 100%; /* Responsive fallback */
   box-sizing: border-box;
 }
 
+/* FIL-004: Grey header strip - always visible */
 .filter-panel .govuk-heading-m {
   margin: 0;
-  background: #f3f2f1;
-  padding: 12px 15px;
-  border-bottom: 1px solid #d0d5dd;
+  background: #f3f2f1; /* Grey header background #F2F4F7 close to GDS */
+  padding: 12px 15px; /* GDS spacing */
+  border-bottom: 1px solid #d0d5dd; /* Divider line below header */
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
-  align-self: stretch;
 }
 
-/* Content area padding - gap handles vertical spacing */
-.filter-panel > *:not(.govuk-heading-m):not(.selected-filters-container) {
-  padding-left: 16px;
-  padding-right: 16px;
+/* Content area padding (after header) */
+.filter-panel > *:not(.govuk-heading-m) {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Attach selected filters directly to Filter header (no gap) */
+.filter-panel .govuk-heading-m + .selected-filters-container {
+  margin-top: 0 !important; /* No gap - attach selected filters to header */
+}
+
+/* Add spacing after Filter header when selected filters NOT present */
+.filter-panel .govuk-heading-m + .filter-actions {
+  margin-top: 20px !important; /* Spacing when buttons are first element */
+}
+
+/* Add spacing only after selected filters section */
+.selected-filters-container + * {
+  margin-top: 20px !important; /* Spacing after selected filters */
 }
 
 /* Selected filters section - greyish background with border */
 .selected-filters-container {
-  background-color: #f3f2f1;
-  border: none;
-  border-bottom: 1px solid #d0d5dd;
-  padding: 16px;
-  margin: 0;
-  width: 100%;
-  align-self: stretch;
+  background-color: #f3f2f1; /* GDS light grey */
+  border: none; /* Remove borders to prevent double border effect */
+  border-bottom: 1px solid #d0d5dd; /* Only bottom border as separator */
+  padding: 15px 20px; /* GDS spacing scale: level 3 */
+  margin-bottom: 20px; /* GDS spacing scale: level 4 (20px = 4 units) */
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0; /* Attach directly to Filter header */
   box-sizing: border-box;
 }
 
 .selected-filters-container .govuk-heading-s {
   margin-top: 0;
-  margin-bottom: 12px;
+  margin-bottom: 15px; /* GDS spacing scale: level 3 */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 1.1875rem;
-  font-weight: 700;
+  font-size: 1.1875rem; /* Match Filter heading size (19px) */
+  font-weight: 700; /* Bold like Filter heading */
 }
 
 /* Filter pills container */
@@ -177,26 +193,35 @@
 /* Action buttons container - HORIZONTAL LAYOUT */
 .filter-actions {
   display: flex;
-  gap: 20px;
+  gap: 20px; /* GDS spacing scale: level 4 (20px = 4 units) */
   align-items: center;
-  margin: 0;
+  margin-bottom: 30px; /* GDS spacing scale: level 6 (30px = 6 units) */
   flex-wrap: wrap;
 }
 
 /* Ensure buttons keep their original GDS styling */
 .filter-actions .govuk-button {
-  margin: 0;
-  white-space: nowrap;
+  margin-bottom: 0; /* Override default margin */
+  margin-right: 0; /* Override button-group margin */
+  white-space: nowrap; /* Prevent button text wrapping */
 }
 
-/* Filter form sections - gap handles spacing */
+/* Filter form sections - NO individual borders, proper GDS spacing */
 .filter-section {
-  margin: 0;
+  margin-bottom: 30px; /* GDS spacing scale: level 6 (30px = 6 units) */
 }
 
-/* Ensure form groups within filter panel have no extra margins */
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Ensure form groups within filter panel follow GDS spacing scale */
 .filter-panel .govuk-form-group {
-  margin: 0;
+  margin-bottom: 30px; /* GDS spacing scale: level 6 */
+}
+
+.filter-panel .govuk-form-group:last-child {
+  margin-bottom: 0;
 }
 
 /* ALL labels - fieldset legends should not truncate */
@@ -206,6 +231,7 @@
   width: 100%;
 }
 
+/* FIL-005 & FIL-006: Checkbox and radio labels - NO truncation, inline display */
 .filter-panel .govuk-checkboxes__label,
 .filter-panel .govuk-radios__label {
   display: block; /* Block display for proper layout */
