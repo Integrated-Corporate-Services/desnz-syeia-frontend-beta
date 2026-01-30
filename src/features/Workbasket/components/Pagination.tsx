@@ -53,9 +53,18 @@ export const Pagination: React.FC<PaginationProps> = ({
             className="govuk-link govuk-pagination__link"
             href="#"
             rel="prev"
+            aria-label={`Go to previous page, page ${currentPage - 1} of ${totalPages}`}
+            tabIndex={0}
             onClick={(e) => {
               e.preventDefault();
               onPageChange(currentPage - 1);
+            }}
+            onKeyDown={(e) => {
+              // AC-12: Keyboard accessibility - Enter and Space keys
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onPageChange(currentPage - 1);
+              }
             }}
           >
             <svg
@@ -90,11 +99,19 @@ export const Pagination: React.FC<PaginationProps> = ({
               <a
                 className="govuk-link govuk-pagination__link"
                 href="#"
-                aria-label={`Page ${page}`}
+                aria-label={`${page === currentPage ? 'Current page, ' : 'Go to '}page ${page} of ${totalPages}`}
                 aria-current={page === currentPage ? 'page' : undefined}
+                tabIndex={0}
                 onClick={(e) => {
                   e.preventDefault();
                   if (page !== currentPage) {
+                    onPageChange(page as number);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // AC-12: Keyboard accessibility - Enter and Space keys
+                  if ((e.key === 'Enter' || e.key === ' ') && page !== currentPage) {
+                    e.preventDefault();
                     onPageChange(page as number);
                   }
                 }}
@@ -112,9 +129,18 @@ export const Pagination: React.FC<PaginationProps> = ({
             className="govuk-link govuk-pagination__link"
             href="#"
             rel="next"
+            aria-label={`Go to next page, page ${currentPage + 1} of ${totalPages}`}
+            tabIndex={0}
             onClick={(e) => {
               e.preventDefault();
               onPageChange(currentPage + 1);
+            }}
+            onKeyDown={(e) => {
+              // AC-12: Keyboard accessibility - Enter and Space keys
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onPageChange(currentPage + 1);
+              }
             }}
           >
             <span className="govuk-pagination__link-title">Next</span>

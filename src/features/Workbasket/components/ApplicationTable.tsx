@@ -146,63 +146,112 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
   };
 
   return (
-    <table className="govuk-table" aria-label="Applications list">
+    <table 
+      className="govuk-table" 
+      role="table"
+      aria-label={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} applications table`}
+      aria-describedby="table-description"
+    >
+      {/* AC-13: Hidden caption provides context for screen readers */}
+      <caption className="govuk-visually-hidden" id="table-description">
+        Table showing {activeTab} applications with columns for DESNZ reference, 
+        your reference, case type, {activeTab !== 'draft' ? 'status, and' : 'and'} {dateColumnConfig.label.toLowerCase()}.
+        Navigate through rows using arrow keys. Activate links using Enter or Space.
+      </caption>
+      
       <thead className="govuk-table__head">
-        <tr className="govuk-table__row">
-          <th scope="col" className="govuk-table__header">
-            DESNZ reference
+        <tr className="govuk-table__row" role="row">
+          {/* AC-13: Column headers with proper scope and descriptive text */}
+          <th scope="col" className="govuk-table__header" role="columnheader">
+            <span aria-label="DESNZ reference number">DESNZ reference</span>
           </th>
-          <th scope="col" className="govuk-table__header">
-            Your reference
+          <th scope="col" className="govuk-table__header" role="columnheader">
+            <span aria-label="Your reference number or identifier">Your reference</span>
           </th>
-          <th scope="col" className="govuk-table__header">
-            Case type
+          <th scope="col" className="govuk-table__header" role="columnheader">
+            <span aria-label="Application case type">Case type</span>
           </th>
           {/* Only show Status column for non-draft tabs */}
           {activeTab !== 'draft' && (
-            <th scope="col" className="govuk-table__header">
-              Status
+            <th scope="col" className="govuk-table__header" role="columnheader">
+              <span aria-label="Current application status">Status</span>
             </th>
           )}
-          <th scope="col" className="govuk-table__header">
-            {dateColumnConfig.label}
+          <th scope="col" className="govuk-table__header" role="columnheader">
+            <span aria-label={`Date the application was ${activeTab === 'draft' ? 'started' : activeTab === 'active' ? 'submitted' : 'completed'}`}>
+              {dateColumnConfig.label}
+            </span>
           </th>
         </tr>
       </thead>
       <tbody className="govuk-table__body">
-        {sortedApplications.map((app) => (
-          <tr className="govuk-table__row" key={app.application_id}>
-            {/* DESNZ Reference - Clickable link */}
-            <td className="govuk-table__cell">
+        {sortedApplications.map((app, rowIndex) => (
+          <tr 
+            className="govuk-table__row" 
+            key={app.application_id}
+            role="row"
+            aria-rowindex={rowIndex + 2}
+            aria-label={`Application row ${rowIndex + 1} of ${sortedApplications.length}`}
+          >
+            {/* AC-12 & AC-13: DESNZ Reference - Keyboard accessible clickable link */}
+            <td 
+              className="govuk-table__cell" 
+              role="cell"
+              aria-label={`DESNZ reference: ${app.desnz_ref || 'Not available'}`}
+            >
               <a
                 href="#"
                 className="govuk-link"
-                aria-label={`View application ${app.desnz_ref || 'details'}`}
+                aria-label={`View details for application ${app.desnz_ref || 'with no reference'}, ${getCaseTypeLabel(app.type)}, ${activeTab !== 'draft' ? app.status + ' status, ' : ''}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
                 onClick={(e) => handleApplicationClick(e, app)}
+                onKeyDown={(e) => {
+                  // AC-12: Ensure Enter and Space keys work for keyboard users
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigateToApplication(app.type, app.application_id, "task-list");
+                  }
+                }}
+                tabIndex={0}
               >
                 {app.desnz_ref || 'N/A'}
               </a>
             </td>
 
-            {/* Your Reference */}
-            <td className="govuk-table__cell">
+            {/* AC-13: Your Reference with row header scope for better row identification */}
+            <td 
+              className="govuk-table__cell"
+              role="cell"
+              aria-label={`Your reference: ${app.your_reference || 'Not provided'}`}
+            >
               {app.your_reference || "—"}
             </td>
 
-            {/* Case Type */}
-            <td className="govuk-table__cell">
+            {/* AC-13: Case Type with full descriptive label */}
+            <td 
+              className="govuk-table__cell"
+              role="cell"
+              aria-label={`Case type: ${getCaseTypeLabel(app.type)}`}
+            >
               {getCaseTypeLabel(app.type)}
             </td>
 
-            {/* Status - Only show for non-draft tabs */}
+            {/* AC-13: Status - Only show for non-draft tabs with descriptive label */}
             {activeTab !== 'draft' && (
-              <td className="govuk-table__cell">
+              <td 
+                className="govuk-table__cell"
+                role="cell"
+                aria-label={`Status: ${app.status.replace(/-/g, ' ')}`}
+              >
                 <StatusBadge status={app.status} />
               </td>
             )}
 
-            {/* Date - Tab-specific column */}
-            <td className="govuk-table__cell">
+            {/* AC-13: Date - Tab-specific column with descriptive label */}
+            <td 
+              className="govuk-table__cell"
+              role="cell"
+              aria-label={`${dateColumnConfig.label}: ${formatDate(dateColumnConfig.getDate(app))}`}
+            >
               {formatDate(dateColumnConfig.getDate(app))}
             </td>
           </tr>

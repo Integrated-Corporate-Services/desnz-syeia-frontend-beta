@@ -86,6 +86,17 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   // Early return if filters are hidden (Guard Clause Pattern)
   if (!showFilters) return null;
 
+  /**
+   * AC-12: Keyboard event handler for filter panel interactions
+   * Ensures all filter controls are operable via keyboard
+   */
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+
   // Local state for pending filter selections (not applied until "Apply filters" is clicked)
   const [localSearchText, setLocalSearchText] = useState(searchText);
   const [localSubmittedBy, setLocalSubmittedBy] = useState(submittedBy);
@@ -273,27 +284,48 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     (showSubmittedByFilter && submittedBy === 'all');
 
   return (
-    <form onSubmit={handleFormSubmit} role="search" aria-label="Filter applications" className="filter-panel">
-      <h2 className="govuk-heading-m">Filter</h2>
+    <form 
+      onSubmit={handleFormSubmit} 
+      role="search" 
+      aria-label="Filter and search applications" 
+      className="filter-panel"
+    >
+      {/* AC-13: Main heading with id for aria-labelledby */}
+      <h2 className="govuk-heading-m" id="filter-heading">Filter</h2>
+      
+      {/* AC-13: Screen reader instructions */}
+      <div className="govuk-visually-hidden" id="filter-instructions">
+        Use the controls below to filter applications by search term, submission status, 
+        case type, and application status. Press Apply filters button or Enter key to apply your selections. 
+        Use Clear filters button to reset all filters.
+      </div>
 
       {/* Selected Filters Pills */}
       {filterPills.length > 0 && (
-        <div className="selected-filters-container" data-testid="selected-filters">
+        <div 
+          className="selected-filters-container" 
+          data-testid="selected-filters"
+          role="region"
+          aria-label="Currently active filters"
+        >
           <h3 className="govuk-heading-s">
             Selected filters
           </h3>
-          <div className="filter-pills">
+          <div className="filter-pills" role="list" aria-label="Active filter tags">
             {filterPills.map(pill => (
               <span
                 key={pill.id}
                 className="filter-pill"
+                role="listitem"
               >
-                <span>{pill.label}</span>
+                <span aria-label={`Filter: ${pill.label}`}>{pill.label}</span>
                 <button
                   type="button"
                   onClick={() => handleRemovePill(pill)}
+                  onKeyDown={(e) => handleKeyDown(e, () => handleRemovePill(pill))}
                   aria-label={`Remove ${pill.label} filter`}
                   className="filter-pill-remove"
+                  tabIndex={0}
                 >
                   ×
                 </button>
@@ -304,12 +336,13 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
       )}
 
       {/* Action buttons - Horizontal layout */}
-      <div className="filter-actions">
+      <div className="filter-actions" role="group" aria-label="Filter actions">
         <button
           type="submit"
           className="govuk-button"
           data-module="govuk-button"
-          aria-label="Apply selected filters"
+          aria-label="Apply selected filters to update application list"
+          aria-describedby="filter-instructions"
         >
           Apply filters
         </button>
@@ -320,14 +353,16 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
             className="govuk-button govuk-button--secondary"
             data-module="govuk-button"
             onClick={handleClearFilters}
+            onKeyDown={(e) => handleKeyDown(e, handleClearFilters)}
             aria-label="Clear all filters and reset to default view"
+            tabIndex={0}
           >
             Clear filters
           </button>
         )}
       </div>
 
-      {/* Search */}
+      {/* AC-12 & AC-13: Search with descriptive label */}
       <div className="govuk-form-group filter-section">
         <label
           className="govuk-label govuk-!-font-weight-bold"
@@ -343,6 +378,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
           value={localSearchText}
           onChange={(e) => setLocalSearchText(e.target.value)}
           autoComplete="off"
+          aria-label="Search applications by reference number"
         />
       </div>
 
