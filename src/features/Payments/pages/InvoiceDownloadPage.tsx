@@ -98,6 +98,8 @@ const InvoiceDownloadPage: React.FC = () => {
               >
                 {loading ? 'Downloading...' : 'Download Invoice'}
               </button>
+            </div>
+            <div className="govuk-button-group">
               <button
                 type="button"
                 className="govuk-button govuk-button--secondary"
@@ -106,7 +108,7 @@ const InvoiceDownloadPage: React.FC = () => {
               >
                 {loading ? 'Processing...' : 'Continue to payment'}
               </button>
-            </div>
+            </div>  
           </div>
         </div>
       </main>

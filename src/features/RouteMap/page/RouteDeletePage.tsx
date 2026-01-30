@@ -29,9 +29,9 @@ const RouteDeletePage: React.FC = () => {
 
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (route_id) {
-      await deleteRoute(route_id);
-      if (applicationId && fetchRoutes) await fetchRoutes(applicationId);
+    if (route_id && applicationId) {
+      await deleteRoute(applicationId, route_id);
+      if (fetchRoutes) await fetchRoutes(applicationId);
     }
     // Get the latest routes from the store after fetch
     const latestRoutes = getRouteStore().routes;
