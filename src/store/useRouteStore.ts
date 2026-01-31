@@ -15,25 +15,25 @@ interface RouteState {
   fetchRoutes: (applicationId: string) => Promise<void>;
   createRoute: (applicationId: string, route: Route) => Promise<void>;
   saveRoutes: (applicationId: string, routes: Route[]) => Promise<void>;
-  deleteRoutePoints: (point_ids: string[]) => Promise<void>;
+  deleteRoutePoints: (applicationId: string, point_ids: string[]) => Promise<void>;
   updateRoutePoints: (routeIdx: number, points: any[]) => void;
-  deleteRoute: (route_id: string) => Promise<void>;
+  deleteRoute: (applicationId: string, route_id: string) => Promise<void>;
 }
  
 export const useRouteStore = create<RouteState>((set, get) => ({
-  deleteRoutePoints: async (point_ids: string[]) => {
+  deleteRoutePoints: async (applicationId: string, point_ids: string[]) => {
     set({ loading: true, error: null });
     try {
-      await deleteRoutePoints(point_ids);
+      await deleteRoutePoints(applicationId, point_ids);
     } catch (err: any) {
       set({ error: err.message || 'Failed to delete route points', loading: false });
     }
     set({ loading: false });
   },
-  deleteRoute: async (route_id: string) => {
+  deleteRoute: async (applicationId: string, route_id: string) => {
     set({ loading: true, error: null });
     try {
-      await deleteRoute(route_id);
+      await deleteRoute(applicationId, route_id);
       // Optionally refetch routes if needed
     } catch (err: any) {
       set({ error: err.message || 'Failed to delete route', loading: false });

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
+import { useAssetStore } from '../../../store/useAssetStore';
 
 const PaymentAmountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const PaymentAmountPage: React.FC = () => {
   const { user } = useAuthUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const assets = useAssetStore((state) => state.assets);
 
   // Dynamic payment breakdown - fetched from backend
   const [consentFee, setConsentFee] = useState(0);
@@ -17,6 +19,14 @@ const PaymentAmountPage: React.FC = () => {
   const [eiaFee, setEiaFee] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [feeBreakdown, setFeeBreakdown] = useState<any>(null);
+
+  // useEffect(() => {
+  //   // Check if asset information is completed
+  //   if (!assets || assets.length === 0) {
+  //     alert('Please complete Asset information section first');
+  //     navigate(`/s37/${applicationId}/task-list`);
+  //   }
+  // }, [assets, applicationId, navigate]);
 
   // Fetch payment fees from backend
   useEffect(() => {
@@ -182,7 +192,7 @@ const PaymentAmountPage: React.FC = () => {
               You need to generate an invoice to move to the next step.
             </div>
 
-            {/* Debug information (remove in production) */}
+            {/* Debug information (remove in production)
             {feeBreakdown && (
               <details className="govuk-details" data-module="govuk-details">
                 <summary className="govuk-details__summary">
@@ -202,7 +212,7 @@ const PaymentAmountPage: React.FC = () => {
                   </ul>
                 </div>
               </details>
-            )}
+            )} */}
 
             <div className="govuk-button-group">
               <button

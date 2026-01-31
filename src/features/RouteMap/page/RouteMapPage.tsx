@@ -141,8 +141,8 @@ const RouteMapPage: React.FC = () => {
         }]);
       }
       // After save, delete points if any
-      if (pointsToDelete.length > 0) {
-        await deleteRoutePoints(pointsToDelete);
+      if (pointsToDelete.length > 0 && effectiveApplicationId) {
+        await deleteRoutePoints(effectiveApplicationId, pointsToDelete);
         setPointsToDelete([]); // Clear after successful delete
       }
   navigate(`${S37_BASE_URL}/${effectiveApplicationId}/route-overview`);

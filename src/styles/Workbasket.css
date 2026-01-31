@@ -1,7 +1,6 @@
 /* ===========================================
    Workbasket Dashboard Styles
-   GDS Compliant - WCAG 2.1 AA
-   Consistent 30px spacing pattern per Figma
+   
    =========================================== */
 
 /* Override govuk-main-wrapper padding for workbasket page */
@@ -144,7 +143,6 @@
   max-width: 100%; /* Responsive fallback */
   box-sizing: border-box;
 }
-
 
 .filter-panel .govuk-heading-m {
   margin: 0;
@@ -314,7 +312,6 @@
   width: 100%;
 }
 
-/* FIL-005 & FIL-006: Checkbox and radio labels - NO truncation, inline display */
 .filter-panel .govuk-checkboxes__label,
 .filter-panel .govuk-radios__label {
   display: block; /* Block display for proper layout */
@@ -386,15 +383,10 @@
   }
   
   .filter-pill {
-    max-width: 100%; /* Allow full width on mobile */
+    max-width: 100%;
   }
 }
 
-/* ===========================================
-   Table and Results Area Styling
-   =========================================== */
-
-/* Results area wrapper - contains tabs + table */
 .workbasket-results-column {
   min-width: 0;
 }
