@@ -182,7 +182,7 @@ const PaymentAmountPage: React.FC = () => {
               You need to generate an invoice to move to the next step.
             </div>
 
-            {/* Debug information (remove in production)
+            {/* TODO
             {feeBreakdown && (
               <details className="govuk-details" data-module="govuk-details">
                 <summary className="govuk-details__summary">

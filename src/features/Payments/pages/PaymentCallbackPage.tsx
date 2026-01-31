@@ -26,16 +26,10 @@ const PaymentCallbackPage: React.FC = () => {
         }
 
         // Call backend to verify payment status
-        const response = await fetch(
-          `/backend/api/gov-pay/${paymentId}/verify?applicationId=${applicationId}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
+        const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments/${paymentId}/verify`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
         if (!response.ok) {
         const errorData = await response.json();
         console.error('Payment verification failed:', errorData);
