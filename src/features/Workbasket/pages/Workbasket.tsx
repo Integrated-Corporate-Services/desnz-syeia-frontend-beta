@@ -61,7 +61,7 @@ const Workbasket: React.FC = () => {
     toggleStatus,
     filteredApplications,
     tabCounts,
-  } = useWorkbasketFilters(applications);
+  } = useWorkbasketFilters(applications, created_by);
 
   useEffect(() => {
     if (created_by && typeof created_by === "string") {

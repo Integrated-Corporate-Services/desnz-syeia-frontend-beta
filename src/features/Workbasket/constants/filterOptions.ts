@@ -5,7 +5,7 @@ export const CASE_TYPE_OPTIONS = [
 ];
 
 export const STATUS_OPTIONS = [
-  { value: "application-submitted", label: "Application submitted" },
+  { value: "submitted", label: "Application submitted" },
   { value: "under-review", label: "Under review" },
   { value: "processing-payment", label: "Processing payment" },
   { value: "further-info-requested", label: "Further information requested" },

@@ -3,7 +3,8 @@ import type { Application } from "../../../types/application";
 import type { TabType } from "../constants/filterOptions";
 import { normalizeApplicationType } from "../../../utils/formatters";
 
-export const useWorkbasketFilters = (applications: Application[]) => {
+// Accept currentUserId for "Submitted by" filter
+export const useWorkbasketFilters = (applications: Application[], currentUserId?: string) => {
   const [activeTab, setActiveTab] = useState<TabType>("draft");
   const [searchText, setSearchText] = useState("");
   const [submittedBy, setSubmittedBy] = useState<"me" | "all">("all");
@@ -26,13 +27,80 @@ export const useWorkbasketFilters = (applications: Application[]) => {
     );
   };
 
-  const filteredApplications = useMemo(() => {
+  // Stage 1: Base filtering (search, case type, status, submitted by)
+  const baseFilteredApplications = useMemo(() => {
     return applications.filter((app) => {
+      // Submitted by filter
+      if (submittedBy === "me" && currentUserId) {
+        if (app.created_by !== currentUserId) {
+          return false;
+        }
+      }
+      // Search filter
+      if (searchText) {
+        const searchLower = searchText.toLowerCase();
+        const matchesReference = app.desnz_ref?.toLowerCase().includes(searchLower);
+        const matchesYourRef = app.your_reference?.toLowerCase().includes(searchLower);
+        if (!matchesReference && !matchesYourRef) {
+          return false;
+        }
+      }
+      // Case type filter
+      if (caseTypes.length > 0) {
+        const normalizedAppType = normalizeApplicationType(app.type);
+        if (!caseTypes.includes(normalizedAppType)) {
+          return false;
+        }
+      }
+      // Status filter
+      if (statuses.length > 0) {
+        const normalizedStatus = app.status.toLowerCase().replace(/\s+/g, "-");
+        if (!statuses.includes(normalizedStatus)) return false;
+      }
+      return true;
+    });
+  }, [applications, searchText, submittedBy, caseTypes, statuses, currentUserId]);
+
+  // Stage 2: Tab counts from base filtered set
+  const tabCounts = useMemo(() => {
+    const activeStatuses = [
+      "submitted",
+      "application-submitted",
+      "application submitted",
+      "under-review",
+      "under review",
+      "in-progress",
+      "in progress",
+      "processing-payment",
+      "processing payment",
+      "further-information-requested",
+      "further information requested",
+      "representation-stage",
+      "representation stage",
+      "in-abeyance",
+      "in abeyance",
+    ];
+    const completedStatuses = [
+      "completed",
+      "decision-issued",
+      "decision issued",
+      "granted",
+      "declined",
+    ];
+    const archivedStatuses = ["archived", "withdrawn", "invalid"];
+    return {
+      draft: baseFilteredApplications.filter((app) => app.status.toLowerCase() === "draft").length,
+      active: baseFilteredApplications.filter((app) => activeStatuses.includes(app.status.toLowerCase())).length,
+      completed: baseFilteredApplications.filter((app) => completedStatuses.includes(app.status.toLowerCase())).length,
+      archived: baseFilteredApplications.filter((app) => archivedStatuses.includes(app.status.toLowerCase())).length,
+    } as Record<TabType, number>;
+  }, [baseFilteredApplications]);
+
+  // Stage 3: Apply active tab filter
+  const filteredApplications = useMemo(() => {
+    return baseFilteredApplications.filter((app) => {
       const statusLower = app.status.toLowerCase();
-
-      // Tab filter
       if (activeTab === "draft" && statusLower !== "draft") return false;
-
       if (activeTab === "active") {
         const activeStatuses = [
           "submitted",
@@ -53,7 +121,6 @@ export const useWorkbasketFilters = (applications: Application[]) => {
         ];
         if (!activeStatuses.includes(statusLower)) return false;
       }
-
       if (activeTab === "completed") {
         const completedStatuses = [
           "completed",
@@ -64,88 +131,13 @@ export const useWorkbasketFilters = (applications: Application[]) => {
         ];
         if (!completedStatuses.includes(statusLower)) return false;
       }
-
       if (activeTab === "archived") {
         const archivedStatuses = ["archived", "withdrawn", "invalid"];
         if (!archivedStatuses.includes(statusLower)) return false;
       }
-
-      // Search filter
-      if (searchText) {
-        const searchLower = searchText.toLowerCase();
-        const matchesReference = app.desnz_ref
-          ?.toLowerCase()
-          .includes(searchLower);
-        const matchesYourRef = app.your_reference
-          ?.toLowerCase()
-          .includes(searchLower);
-
-        if (!matchesReference && !matchesYourRef) {
-          return false;
-        }
-      }
-
-      // Case type filter
-      if (caseTypes.length > 0) {
-        const normalizedAppType = normalizeApplicationType(app.type);
-        if (!caseTypes.includes(normalizedAppType)) {
-          return false;
-        }
-      }
-
-      // Status filter
-      if (statuses.length > 0) {
-        const normalizedStatus = app.status.toLowerCase().replace(/\s+/g, "-");
-        if (!statuses.includes(normalizedStatus)) return false;
-      }
-
       return true;
     });
-  }, [applications, activeTab, searchText, submittedBy, caseTypes, statuses]);
-
-  const tabCounts = useMemo(() => {
-    const activeStatuses = [
-      "submitted",
-      "application-submitted",
-      "application submitted",
-      "under-review",
-      "under review",
-      "in-progress",
-      "in progress",
-      "processing-payment",
-      "processing payment",
-      "further-information-requested",
-      "further information requested",
-      "representation-stage",
-      "representation stage",
-      "in-abeyance",
-      "in abeyance",
-    ];
-
-    const completedStatuses = [
-      "completed",
-      "decision-issued",
-      "decision issued",
-      "granted",
-      "declined",
-    ];
-
-    const archivedStatuses = ["archived", "withdrawn", "invalid"];
-
-    return {
-      draft: applications.filter((app) => app.status.toLowerCase() === "draft")
-        .length,
-      active: applications.filter((app) =>
-        activeStatuses.includes(app.status.toLowerCase())
-      ).length,
-      completed: applications.filter((app) =>
-        completedStatuses.includes(app.status.toLowerCase())
-      ).length,
-      archived: applications.filter((app) =>
-        archivedStatuses.includes(app.status.toLowerCase())
-      ).length,
-    } as Record<TabType, number>;
-  }, [applications]);
+  }, [baseFilteredApplications, activeTab]);
 
   return {
     activeTab,

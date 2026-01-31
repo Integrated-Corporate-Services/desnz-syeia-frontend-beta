@@ -185,6 +185,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   // Utility to strip bracketed text
   const stripBrackets = (label: string) => label.replace(/\s*\(.*\)\s*$/, "");
 
+  // Build filter pills from LOCAL state for immediate feedback
   const filterPills = useMemo(() => {
     const pills: Array<{
       id: string;
@@ -193,16 +194,16 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
       value: string;
     }> = [];
 
-    if (searchText.trim()) {
+    if (localSearchText.trim()) {
       pills.push({
         id: 'search',
         type: 'search',
-        label: `Search: ${searchText}`,
-        value: searchText,
+        label: `Search: ${localSearchText}`,
+        value: localSearchText,
       });
     }
 
-    caseTypes.forEach(caseType => {
+    localCaseTypes.forEach(caseType => {
       let label = getFilterLabel('caseType', caseType);
       label = stripBrackets(label);
       pills.push({
@@ -213,7 +214,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
       });
     });
 
-    statuses.forEach(status => {
+    localStatuses.forEach(status => {
       const label = getFilterLabel('status', status);
       pills.push({
         id: `status-${status}`,
@@ -223,7 +224,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
       });
     });
 
-    if (showSubmittedByFilter && submittedBy === 'all') {
+    if (showSubmittedByFilter && localSubmittedBy === 'all') {
       pills.push({
         id: 'submitted-by',
         type: 'submittedBy',
@@ -233,24 +234,25 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     }
 
     return pills;
-  }, [searchText, caseTypes, statuses, submittedBy, showSubmittedByFilter]);
+  }, [localSearchText, localCaseTypes, localStatuses, localSubmittedBy, showSubmittedByFilter]);
 
   /**
    * Handle removing a specific filter pill
    */
+  // Remove pill from LOCAL state for immediate feedback
   const handleRemovePill = (pill: typeof filterPills[0]) => {
     switch (pill.type) {
       case 'search':
-        onSearchChange('');
+        setLocalSearchText("");
         break;
       case 'caseType':
-        onCaseTypeToggle(pill.value);
+        handleLocalCaseTypeToggle(pill.value);
         break;
       case 'status':
-        onStatusToggle(pill.value);
+        handleLocalStatusToggle(pill.value);
         break;
       case 'submittedBy':
-        onSubmittedByChange('me');
+        setLocalSubmittedBy('me');
         break;
     }
   };
