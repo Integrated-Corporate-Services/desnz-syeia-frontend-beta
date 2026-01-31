@@ -57,7 +57,7 @@
 
 .govuk-service-navigation__item:not(:last-child)::after {
   content: "|";
-  margin: 0 8px;
+  margin: 0 12px; /* Increased from 8px to match Figma */
   color: #505a5f;
   font-weight: 400;
 }

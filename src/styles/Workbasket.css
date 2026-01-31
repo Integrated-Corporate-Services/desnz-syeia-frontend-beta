@@ -1,61 +1,92 @@
-/* Workbasket Dashboard Styles */
+/* ===========================================
+   Workbasket Dashboard Styles
+   GDS Compliant - WCAG 2.1 AA
+   Consistent 30px spacing pattern per Figma
+   =========================================== */
 
-/* Two-column layout: 400px sidebar + flexible content with gap */
-.workbasket-layout {
-  display: grid;
-  grid-template-columns: 400px 1fr;
-  gap: 30px; /* GDS spacing scale: level 6 (30px = 6 units) - clear gutter between sidebar and content */
-  align-items: start;
+/* Override govuk-main-wrapper padding for workbasket page */
+.govuk-main-wrapper {
+  padding-top: 0; /* Hero section handles top padding */
+  padding-bottom: 30px; /* 30px gap before footer per Figma */
 }
 
-.workbasket-sidebar {
-  position: relative;
-  z-index: 1;
+/* Hero section inside govuk-width-container
+   Figma: Hero at y=165, phase banner ends ~y=105, gap = 60px */
+.workbasket-hero-section {
+  padding-top: 30px; /* Contributes to 60px total (remaining comes from nav) */
+  padding-bottom: 0; /* Bottom spacing handled by header buttons */
 }
 
-.workbasket-content {
-  position: relative;
-  z-index: 1;
-  min-width: 0; /* Prevent grid overflow */
+/* Hero heading - "Your applications" */
+.workbasket-hero-section .govuk-heading-xl {
+  margin-top: 0;
+  margin-bottom: 30px; /* 30px gap to description text per Figma */
 }
 
-/* Application table column widths and text wrapping */
-.workbasket-content .govuk-table__cell,
-.workbasket-content .govuk-table__header {
-  white-space: nowrap; /* Prevent wrapping by default */
+/* Hero description text */
+.workbasket-hero-section .govuk-body {
+  margin-bottom: 0; /* Button margin-top handles the 30px gap */
 }
 
-/* Allow Case type column to wrap */
-.workbasket-content .govuk-table__cell:nth-child(3),
-.workbasket-content .govuk-table__header:nth-child(3) {
-  white-space: normal; /* Allow wrapping for Case type column */
-  max-width: 150px; /* Set reasonable max width for Case type */
-}
-
-/* Ensure table uses available width */
-.workbasket-content .govuk-table {
+/* Full width container for two-column layout
+   Allows filter to bleed left while results align with hero per Figma */
+.workbasket-full-width-container {
   width: 100%;
-  table-layout: auto; /* Auto layout for better column distribution */
+  max-width: 100%; /* Full width to allow positioning control */
+  margin: 0 auto;
+  padding: 0; /* No padding - grid handles spacing */
+  box-sizing: border-box;
 }
 
-/* Responsive: stack on mobile */
-@media (max-width: 768px) {
-  .workbasket-layout {
-    grid-template-columns: 1fr;
-    gap: 20px; /* GDS spacing scale: level 4 */
-  }
-  
-  .filter-panel {
-    width: 100%;
+/* Two-column layout using CSS Grid - Figma exact positioning
+   Filter bleeds 16px to the left of hero content boundary
+   Filter: 360px | Gap: 24px | Results: fills remaining space and aligns under hero */
+.workbasket-two-column-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px; /* Figma spec: 24px gutter between filter and results */
+  align-items: start;
+  width: 100%;
+  max-width: calc(960px + 360px + 24px); /* Hero max width + filter + gap */
+  margin: 0 auto; /* Center the grid */
+  margin-bottom: 30px; /* 30px gap before footer */
+  margin-top: 0; /* Hero buttons margin-bottom (30px) handles gap above */
+  padding-left: 20px; /* Match container padding */
+  padding-right: 20px;
+  box-sizing: border-box;
+  /* Shift entire grid 16px left so filter bleeds left of hero boundary */
+  transform: translateX(-16px);
+}
+
+/* Filter column - bleeds 16px to the left of hero content per Figma */
+.workbasket-filter-column {
+  position: relative;
+}
+
+/* Results column - aligns exactly under hero left edge */
+.workbasket-results-column {
+  min-width: 0;
+  /* No max-width - fills available space per Figma design */
+}
+
+/* Tablet breakpoint - maintain two-column but remove transform */
+@media (max-width: 1024px) {
+  .workbasket-two-column-layout {
+    transform: none; /* Remove left shift on smaller screens */
+    padding-left: 15px;
+    padding-right: 15px;
   }
 }
 
-/* Header button container - vertical stack, not stretched */
+/* Header button container - vertical stack, not stretched
+   Figma: Button 1 at y=309, Button 2 at y=379
+   Button height = 40px, gap = 379 - (309+40) = 30px */
 .workbasket-header-buttons {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 30px; /* Exact Figma: 30px between Start and Hide buttons */
+  margin-top: 30px; /* Gap from description text */
+  margin-bottom: 30px; /* Exact Figma: 30px gap to grid below */
   align-items: flex-start;
 }
 
@@ -66,36 +97,77 @@
   min-width: unset;
 }
 
-/* ============================================
-   Filter Panel Styles
-   ============================================ */
+/* Application table column widths and text wrapping */
+.workbasket-results-column .govuk-table__cell,
+.workbasket-results-column .govuk-table__header {
+  white-space: nowrap;
+}
 
-/* Main filter container - ONE parent box with border */
+/* Allow Case type column to wrap */
+.workbasket-results-column .govuk-table__cell:nth-child(3),
+.workbasket-results-column .govuk-table__header:nth-child(3) {
+  white-space: normal;
+  max-width: 150px;
+}
+
+/* Ensure table uses available width */
+.workbasket-results-column .govuk-table {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 768px) {
+  .workbasket-two-column-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+  
+  .workbasket-filter-column {
+    margin-left: 0;
+  }
+  
+  .filter-panel {
+    width: 100%;
+  }
+}
+
+/* Main filter container - ONE parent box with border
+   Figma spec: 360px width to fit all labels on single line */
 .filter-panel {
   border: 1px solid #b1b4b6; /* GDS grey border (1px neutral per spec) */
   padding: 0; /* No padding on container - header and content have their own */
   background-color: #ffffff; /* White background for whole panel */
-  width: 400px; /* Increased width to accommodate long labels like "Further information requested" */
+  width: 360px; /* Figma: 360px to accommodate "Further information requested" */
   max-width: 100%; /* Responsive fallback */
   box-sizing: border-box;
 }
 
-/* FIL-004: Grey header strip - always visible */
+
 .filter-panel .govuk-heading-m {
   margin: 0;
-  background: #f3f2f1; /* Grey header background #F2F4F7 close to GDS */
-  padding: 12px 15px; /* GDS spacing */
-  border-bottom: 1px solid #d0d5dd; /* Divider line below header */
-  font-weight: 600;
+  background: #f3f2f1; /* Grey header background per Figma */
+  padding: 18px 16px; /* Height calc: 19px * 1.3 ≈ 25px + 18*2 = 61px ≈ 62px per Figma */
+  border-bottom: 1px solid #b1b4b6; /* Match border color to panel border */
+  font-weight: 700; /* Bold per Figma */
+  font-size: 19px;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-sizing: border-box;
+  height: 62px; /* Exact Figma measurement */
+  display: flex;
+  align-items: center;
 }
 
-/* Content area padding (after header) */
+/* Content area padding (after header)
+   Figma: pills at x=73, panel starts at x=57, so left padding = 16px */
 .filter-panel > *:not(.govuk-heading-m) {
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 /* Attach selected filters directly to Filter header (no gap) */
@@ -113,16 +185,18 @@
   margin-top: 20px !important; /* Spacing after selected filters */
 }
 
-/* Selected filters section - greyish background with border */
+/* Selected filters section - greyish background with border
+   Figma: Pills start at y=567.5, header ends at y=511
+   Gap = 56.5px = 16px margin-top + 20px padding-top + 20px content area */
 .selected-filters-container {
   background-color: #f3f2f1; /* GDS light grey */
   border: none; /* Remove borders to prevent double border effect */
   border-bottom: 1px solid #d0d5dd; /* Only bottom border as separator */
-  padding: 15px 20px; /* GDS spacing scale: level 3 */
-  margin-bottom: 20px; /* GDS spacing scale: level 4 (20px = 4 units) */
+  padding: 16px 16px; /* Figma measured padding */
+  margin-bottom: 32px; /* Figma: 675 - 642.5 = 32.5px to action buttons */
   margin-left: 0;
   margin-right: 0;
-  margin-top: 0; /* Attach directly to Filter header */
+  margin-top: 0; /* Attach directly to Filter header (header padding handles gap) */
   box-sizing: border-box;
 }
 
@@ -136,28 +210,33 @@
   font-weight: 700; /* Bold like Filter heading */
 }
 
-/* Filter pills container */
+/* Filter pills container
+   Figma: pill row gap = 609.5 - (567.5+33) = 9px */
 .filter-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; /* GDS spacing scale: level 2 (10px = 2 units) */
+  gap: 8px; /* Figma measured: ~8-9px between pills */
 }
 
-/* Individual filter pill - aligned with GOV.UK Tag pattern */
+/* Individual filter pill - aligned with GOV.UK Tag pattern
+   Figma: pill height = 33px, so padding needs to achieve that
+   16px font * 1.25 line-height = 20px text, so 6.5px top+bottom ≈ 33px */
 .filter-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
+  gap: 8px; /* Figma measured internal gap */
+  padding: 6px 10px; /* Achieves ~33px total height with 16px/1.25 text */
   background: #ffffff;
   color: #0b0c0c; /* GDS text colour */
-  border: 1px solid #b1b4b6; /* GDS border colour */
+  border: 1px solid #000000; /* Black border per Figma SVG */
   font-weight: 400;
-  font-size: 16px; /* Appropriate scale for tags within 19px body context */
+  font-size: 16px;
   line-height: 1.25;
   white-space: nowrap; /* One-line text per spec */
-  max-width: 260px; /* Allow truncation within 320px container */
+  max-width: 260px; /* Allow truncation within 330px container */
   overflow: hidden;
+  height: 33px; /* Exact Figma measurement */
+  box-sizing: border-box;
 }
 
 .filter-pill > span:first-child {
@@ -190,13 +269,17 @@
   color: #0b0c0c; /* GDS text colour for contrast */
 }
 
-/* Action buttons container - HORIZONTAL LAYOUT */
+/* Action buttons container - HORIZONTAL LAYOUT
+   Figma: buttons at y=675, gap between = 217-73-124 = 20px */
 .filter-actions {
   display: flex;
-  gap: 20px; /* GDS spacing scale: level 4 (20px = 4 units) */
+  gap: 20px; /* Figma: 217 - 73 - 124 = 20px between buttons */
   align-items: center;
-  margin-bottom: 30px; /* GDS spacing scale: level 6 (30px = 6 units) */
+  margin-bottom: 30px; /* 30px before filter form sections */
+  margin-top: 0; /* Selected filters margin-bottom handles gap above */
   flex-wrap: wrap;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 /* Ensure buttons keep their original GDS styling */
@@ -263,11 +346,11 @@
 /* Ensure inputs are properly sized and aligned */
 .filter-panel .govuk-checkboxes__input,
 .filter-panel .govuk-radios__input {
-  flex-shrink: 0 !important; /* Prevent input from shrinking */
-  margin: 0 !important; /* Remove default margins */
-  position: relative !important; /* Override any absolute positioning */
-  width: 40px !important; /* GDS standard size */
-  height: 40px !important; /* GDS standard size */
+  flex-shrink: 0; /* Prevent input from shrinking */
+  margin: 0; /* Remove default margins */
+  position: relative; /* Override any absolute positioning */
+  width: 40px; /* GDS standard size */
+  height: 40px; /* GDS standard size */
 }
 
 /* Ensure input fields are properly sized */
@@ -305,4 +388,70 @@
   .filter-pill {
     max-width: 100%; /* Allow full width on mobile */
   }
+}
+
+/* ===========================================
+   Table and Results Area Styling
+   =========================================== */
+
+/* Results area wrapper - contains tabs + table */
+.workbasket-results-column {
+  min-width: 0;
+}
+
+/* Table wrapper container - bordered frame that includes count + table */
+.workbasket-table-wrapper {
+  border: 1px solid #b1b4b6; /* Outer frame per Figma */
+  padding: 20px; /* 20px padding on all sides creates gap below tabs */
+  margin-top: 0; /* No gap - tabs directly above */
+  margin-bottom: 30px;
+  background: #ffffff;
+  position: relative;
+  z-index: 1; /* Below active tab for seamless overlap */
+}
+
+/* Items count strip - plain text without styling */
+.workbasket-items-count {
+  display: block;
+  background: none; /* No background */
+  border: none; /* No border */
+  padding: 0;
+  font-size: 16px;
+  line-height: 1.25;
+  color: #0b0c0c;
+  margin-bottom: 20px; /* 20px gap to table header */
+}
+
+/* Table styling - inside wrapper */
+.workbasket-table-wrapper .govuk-table {
+  margin: 0;
+  border: none !important; /* No border - wrapper provides frame */
+  width: 100%;
+}
+
+/* Table header - no top border (wrapper provides it) */
+.workbasket-table-wrapper .govuk-table__head {
+  border-top: none;
+}
+
+/* Table header bottom border - separator line */
+.workbasket-table-wrapper .govuk-table__head .govuk-table__row {
+  border-bottom: 1px solid #b1b4b6;
+}
+
+/* Table body rows - bottom border only */
+.workbasket-table-wrapper .govuk-table__body .govuk-table__row {
+  border-bottom: 1px solid #b1b4b6;
+}
+
+.workbasket-table-wrapper .govuk-table__body .govuk-table__row:last-child {
+  border-bottom: none; /* No border after last row */
+}
+
+/* "No items" message styling - when no table shown */
+.workbasket-table-wrapper .workbasket-no-items {
+  margin: 0;
+  padding: 20px 0;
+  text-align: center;
+  color: #505a5f;
 }

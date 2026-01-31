@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import * as GOVUKFrontend from "govuk-frontend";
-import { BrowserRouter, useLocation } from "react-router-dom";
+import { BrowserRouter, useLocation, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import AppRouter from "./routes/AppRouter";
 import NotFound from "./features/NotFound/NotFound";
 import { AuthUserProvider } from "./context/AuthUserContext";
 import { ROUTE_CONFIG } from "./constants/routes";
 import { SessionTimeoutProvider } from "./context/SessionTimeoutContext";
 import SessionTimeout from "./components/SessionTimeout";
 import { useAuthUserContext } from "./context/AuthUserContext";
+import LandingPage from "./features/SignIn/LandingPage";
 
 const AppContent = () => {
   const location = useLocation();
@@ -58,16 +58,50 @@ const AppContent = () => {
       return location.pathname === path;
     });
 
+  // Find the current route configuration to check if it uses layout
+  const currentRoute = useMemo(() => {
+    return ROUTE_CONFIG.find((route) => {
+      if (route.path.includes(":")) {
+        const base = route.path.split("/:")[0];
+        return location.pathname.startsWith(base);
+      }
+      return location.pathname === route.path;
+    });
+  }, [location.pathname]);
+
+  // Check if current route should use MainLayout (default to true)
+  const useLayout = currentRoute?.layout !== false;
+
   return (
     <SessionTimeoutProvider>
       <AuthUserProvider>
         <SessionTimeout />
         {isNotFound ? (
           <NotFound />
-        ) : (
+        ) : useLayout ? (
+          /* Routes with layout: true (or undefined) use MainLayout wrapper */
           <MainLayout>
-            <AppRouter />
+            <Routes>
+              {ROUTE_CONFIG.filter(r => r.layout !== false).map(({ path, component: Component }) => {
+                // If root or /landingPage, always show LandingPage
+                if (path === '/' || path === '/landingPage') {
+                  return <Route key={path} path={path} element={<LandingPage />} />;
+                }
+                return <Route key={path} path={path} element={<Component />} />;
+              })}
+            </Routes>
           </MainLayout>
+        ) : (
+          /* Routes with layout: false render directly without MainLayout */
+          <Routes>
+            {ROUTE_CONFIG.filter(r => r.layout === false).map(({ path, component: Component }) => {
+              // If root or /landingPage, always show LandingPage
+              if (path === '/' || path === '/landingPage') {
+                return <Route key={path} path={path} element={<LandingPage />} />;
+              }
+              return <Route key={path} path={path} element={<Component />} />;
+            })}
+          </Routes>
         )}
       </AuthUserProvider>
     </SessionTimeoutProvider>
