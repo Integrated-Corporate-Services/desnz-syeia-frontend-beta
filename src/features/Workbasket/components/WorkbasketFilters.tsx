@@ -9,6 +9,7 @@
 
 import React, { useMemo, useState, useEffect } from "react";
 import { CASE_TYPE_OPTIONS, STATUS_OPTIONS } from "../constants/filterOptions";
+import "../../../styles/Workbasket.css";
 
 /**
  * Props interface following Interface Segregation Principle
@@ -272,53 +273,27 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     (showSubmittedByFilter && submittedBy === 'all');
 
   return (
-    <form onSubmit={handleFormSubmit} role="search" aria-label="Filter applications">
+    <form onSubmit={handleFormSubmit} role="search" aria-label="Filter applications" className="filter-panel">
       <h2 className="govuk-heading-m">Filter</h2>
 
       {/* Selected Filters Pills */}
       {filterPills.length > 0 && (
-        <div className="govuk-!-margin-bottom-4" data-testid="selected-filters">
-          <h3 className="govuk-heading-s govuk-!-margin-bottom-3">
+        <div className="selected-filters-container" data-testid="selected-filters">
+          <h3 className="govuk-heading-s">
             Selected filters
           </h3>
-          <div 
-            style={{ 
-              display: 'flex', 
-              flexWrap: 'wrap', 
-              gap: '10px', 
-              marginBottom: '15px'
-            }}
-          >
+          <div className="filter-pills">
             {filterPills.map(pill => (
               <span
                 key={pill.id}
-                className="govuk-tag govuk-tag--white filter-pill"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '5px 8px',
-                  background: '#fff',
-                  color: '#0b0c0c',
-                  border: '1px solid #b1b4b6',
-                  fontWeight: 400,
-                }}
+                className="filter-pill"
               >
                 <span>{pill.label}</span>
                 <button
                   type="button"
                   onClick={() => handleRemovePill(pill)}
                   aria-label={`Remove ${pill.label} filter`}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'inherit',
-                    cursor: 'pointer',
-                    padding: '0 0 0 4px',
-                    fontSize: '18px',
-                    lineHeight: '1',
-                    fontWeight: 'bold',
-                  }}
+                  className="filter-pill-remove"
                 >
                   ×
                 </button>
@@ -328,15 +303,15 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         </div>
       )}
 
-      {/* Action buttons - Moved to top after pills */}
-      <div className="govuk-button-group govuk-!-margin-bottom-6">
+      {/* Action buttons - Horizontal layout */}
+      <div className="filter-actions">
         <button
           type="submit"
           className="govuk-button"
           data-module="govuk-button"
           aria-label="Apply selected filters"
         >
-          Apply filter
+          Apply filters
         </button>
 
         {hasActiveFilters && (
@@ -352,14 +327,8 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         )}
       </div>
 
-      {/* Visual separator */}
-      <hr 
-        className="govuk-section-break govuk-section-break--m govuk-section-break--visible" 
-        aria-hidden="true"
-      />
-
       {/* Search */}
-      <div className="govuk-form-group">
+      <div className="govuk-form-group filter-section">
         <label
           className="govuk-label govuk-!-font-weight-bold"
           htmlFor="search"
@@ -378,7 +347,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
       </div>
 
       {/* Submitted by - Always visible, backend enforces role-based filtering */}
-      <div className="govuk-form-group">
+      <div className="govuk-form-group filter-section">
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
             Submitted by
@@ -423,7 +392,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
       </div>
 
       {/* Case type */}
-      <div className="govuk-form-group">
+      <div className="govuk-form-group filter-section">
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
             Case type
@@ -452,11 +421,11 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         </fieldset>
       </div>
 
-      {/* Status of application */}
-      <div className="govuk-form-group">
+      {/* Status */}
+      <div className="govuk-form-group filter-section">
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
-            Status of application
+            Status
           </legend>
           <div className="govuk-checkboxes">
             {STATUS_OPTIONS.map((option) => (

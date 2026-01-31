@@ -104,8 +104,8 @@ const InvoiceGenerationPage: React.FC = () => {
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
+        {/* <div className="govuk-grid-row"> */}
+          {/* <div className="govuk-grid-column-two-thirds"> */}
             {loading && (
               <>
                 {/* Important Banner */}
@@ -139,7 +139,7 @@ const InvoiceGenerationPage: React.FC = () => {
                       fontFamily: 'Arial, sans-serif',
                       color: '#0b0c0c'
                     }}>
-                      Please do not close this window or navigate away from this page while we generate your invoice.
+                      <strong>Please do not close this window or navigate away from this page while we generate your invoice.</strong>
                     </p>
                   </div>
                 </div>
@@ -200,8 +200,8 @@ const InvoiceGenerationPage: React.FC = () => {
                 </button>
               </>
             )}
-          </div>
-        </div>
+          {/* </div> */}
+        {/* </div> */}
       </main>
     </div>
   );
