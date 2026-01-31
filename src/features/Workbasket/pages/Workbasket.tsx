@@ -35,7 +35,6 @@ import "../../../styles/Workbasket.css";
 const Workbasket: React.FC = () => {
   const { user } = useAuthUserContext();
   const created_by =
-    (user as AuthUser)?.person_id ||
     (user as AuthUser)?.user_id ||
     DEMO_USER_ID;
   const applications = useApplicationStore((state) => state.applications);
