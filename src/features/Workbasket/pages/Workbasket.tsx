@@ -1,17 +1,17 @@
 /**
  * Workbasket Page Component
- * 
+ *
  * Applications dashboard with filter sidebar that extends to the left of the main content.
  * This component uses layout: false in routes to have full control over page structure
  * while maintaining GDS compliance.
- * 
+ *
  * GDS Compliance:
  * - WCAG 2.1 AA accessible
  * - GOV.UK Design System patterns
  * - Proper landmark structure (header, main, footer)
  * - Skip link for keyboard navigation
  * - Semantic HTML structure
- * 
+ *
  * @module features/Workbasket/pages/Workbasket
  */
 import React, { useEffect, useState } from "react";
@@ -40,7 +40,7 @@ const Workbasket: React.FC = () => {
     DEMO_USER_ID;
   const applications = useApplicationStore((state) => state.applications);
   const loadApplications = useApplicationStore(
-    (state) => state.loadApplications
+    (state) => state.loadApplications,
   );
   const navigate = useNavigate();
 
@@ -79,35 +79,38 @@ const Workbasket: React.FC = () => {
 
   const handleClearFilters = () => {
     // Clear search text
-    setSearchText('');
+    setSearchText("");
     // Clear case types
-    caseTypes.forEach(type => toggleCaseType(type));
+    caseTypes.forEach((type) => toggleCaseType(type));
     // Clear statuses
-    statuses.forEach(status => toggleStatus(status));
+    statuses.forEach((status) => toggleStatus(status));
     // Reset submitted by to default
-    setSubmittedBy('me');
+    setSubmittedBy("me");
     // Reset pagination
     setCurrentPage(1);
   };
 
   // Determine if user can see "Submitted by" filter (admin or coordinator only)
   const canSeeSubmittedByFilter = Boolean(
-    user && (
-      (user as AuthUser)?.role === 'DESNZ_ADMIN' || 
-      (user as AuthUser)?.role === 'TEAM_COORDINATOR'
-    )
+    user &&
+    ((user as AuthUser)?.role === "DESNZ_ADMIN" ||
+      (user as AuthUser)?.role === "TEAM_COORDINATOR"),
   );
 
   return (
     <>
       {/* GDS Header - Same as MainLayout */}
       <Header />
-      
+
       {/* Service Navigation - Same as MainLayout */}
       <ServiceNavigation />
 
       {/* GDS Skip Link - WCAG 2.1 AA requirement */}
-      <a href="#main-content" className="govuk-skip-link" data-module="govuk-skip-link">
+      <a
+        href="#main-content"
+        className="govuk-skip-link"
+        data-module="govuk-skip-link"
+      >
         Skip to main content
       </a>
 
@@ -129,7 +132,7 @@ const Workbasket: React.FC = () => {
           <div className="workbasket-full-width-container">
             <div className="workbasket-two-column-layout">
               {/* Filter Sidebar - Positioned to the left */}
-              <aside 
+              <aside
                 id="workbasket-filters"
                 className="workbasket-filter-column"
                 aria-label="Filter applications"
@@ -151,7 +154,10 @@ const Workbasket: React.FC = () => {
               </aside>
 
               {/* Results Content - Aligned with hero section */}
-              <section className="workbasket-results-column" aria-label="Application results">
+              <section
+                className="workbasket-results-column"
+                aria-label="Application results"
+              >
                 <WorkbasketTabs
                   activeTab={activeTab}
                   onTabChange={(tab) => {
@@ -163,8 +169,13 @@ const Workbasket: React.FC = () => {
 
                 {/* Table wrapper with items count and table inside */}
                 <div className="workbasket-table-wrapper">
-                  <span className="workbasket-items-count" role="status" aria-live="polite">
-                    {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
+                  <span
+                    className="workbasket-items-count"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {filteredApplications.length}{" "}
+                    {filteredApplications.length === 1 ? "item" : "items"}
                   </span>
 
                   {filteredApplications.length > 0 && (
@@ -172,13 +183,15 @@ const Workbasket: React.FC = () => {
                       <ApplicationTable
                         applications={filteredApplications.slice(
                           (currentPage - 1) * itemsPerPage,
-                          currentPage * itemsPerPage
+                          currentPage * itemsPerPage,
                         )}
                         activeTab={activeTab}
                       />
                       <Pagination
                         currentPage={currentPage}
-                        totalPages={Math.ceil(filteredApplications.length / itemsPerPage)}
+                        totalPages={Math.ceil(
+                          filteredApplications.length / itemsPerPage,
+                        )}
                         onPageChange={(page) => {
                           setCurrentPage(page);
                           window.scrollTo({ top: 0, behavior: "smooth" });
@@ -186,8 +199,6 @@ const Workbasket: React.FC = () => {
                       />
                     </>
                   )}
-
-
                 </div>
               </section>
             </div>
@@ -206,8 +217,13 @@ const Workbasket: React.FC = () => {
 
             {/* Table wrapper with items count and table inside */}
             <div className="workbasket-table-wrapper">
-              <span className="workbasket-items-count" role="status" aria-live="polite">
-                {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
+              <span
+                className="workbasket-items-count"
+                role="status"
+                aria-live="polite"
+              >
+                {filteredApplications.length}{" "}
+                {filteredApplications.length === 1 ? "item" : "items"}
               </span>
 
               {filteredApplications.length > 0 && (
@@ -215,13 +231,15 @@ const Workbasket: React.FC = () => {
                   <ApplicationTable
                     applications={filteredApplications.slice(
                       (currentPage - 1) * itemsPerPage,
-                      currentPage * itemsPerPage
+                      currentPage * itemsPerPage,
                     )}
                     activeTab={activeTab}
                   />
                   <Pagination
                     currentPage={currentPage}
-                    totalPages={Math.ceil(filteredApplications.length / itemsPerPage)}
+                    totalPages={Math.ceil(
+                      filteredApplications.length / itemsPerPage,
+                    )}
                     onPageChange={(page) => {
                       setCurrentPage(page);
                       window.scrollTo({ top: 0, behavior: "smooth" });

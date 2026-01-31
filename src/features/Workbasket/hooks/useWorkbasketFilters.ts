@@ -4,7 +4,10 @@ import type { TabType } from "../constants/filterOptions";
 import { normalizeApplicationType } from "../../../utils/formatters";
 
 // Accept currentUserId for "Submitted by" filter
-export const useWorkbasketFilters = (applications: Application[], currentUserId?: string) => {
+export const useWorkbasketFilters = (
+  applications: Application[],
+  currentUserId?: string,
+) => {
   const [activeTab, setActiveTab] = useState<TabType>("draft");
   const [searchText, setSearchText] = useState("");
   const [submittedBy, setSubmittedBy] = useState<"me" | "all">("all");
@@ -15,7 +18,7 @@ export const useWorkbasketFilters = (applications: Application[], currentUserId?
     setCaseTypes((prev) =>
       prev.includes(caseType)
         ? prev.filter((t) => t !== caseType)
-        : [...prev, caseType]
+        : [...prev, caseType],
     );
   };
 
@@ -23,7 +26,7 @@ export const useWorkbasketFilters = (applications: Application[], currentUserId?
     setStatuses((prev) =>
       prev.includes(status)
         ? prev.filter((s) => s !== status)
-        : [...prev, status]
+        : [...prev, status],
     );
   };
 
@@ -39,8 +42,12 @@ export const useWorkbasketFilters = (applications: Application[], currentUserId?
       // Search filter
       if (searchText) {
         const searchLower = searchText.toLowerCase();
-        const matchesReference = app.desnz_ref?.toLowerCase().includes(searchLower);
-        const matchesYourRef = app.your_reference?.toLowerCase().includes(searchLower);
+        const matchesReference = app.desnz_ref
+          ?.toLowerCase()
+          .includes(searchLower);
+        const matchesYourRef = app.your_reference
+          ?.toLowerCase()
+          .includes(searchLower);
         if (!matchesReference && !matchesYourRef) {
           return false;
         }
@@ -59,7 +66,14 @@ export const useWorkbasketFilters = (applications: Application[], currentUserId?
       }
       return true;
     });
-  }, [applications, searchText, submittedBy, caseTypes, statuses, currentUserId]);
+  }, [
+    applications,
+    searchText,
+    submittedBy,
+    caseTypes,
+    statuses,
+    currentUserId,
+  ]);
 
   // Stage 2: Tab counts from base filtered set
   const tabCounts = useMemo(() => {
@@ -89,10 +103,18 @@ export const useWorkbasketFilters = (applications: Application[], currentUserId?
     ];
     const archivedStatuses = ["archived", "withdrawn", "invalid"];
     return {
-      draft: baseFilteredApplications.filter((app) => app.status.toLowerCase() === "draft").length,
-      active: baseFilteredApplications.filter((app) => activeStatuses.includes(app.status.toLowerCase())).length,
-      completed: baseFilteredApplications.filter((app) => completedStatuses.includes(app.status.toLowerCase())).length,
-      archived: baseFilteredApplications.filter((app) => archivedStatuses.includes(app.status.toLowerCase())).length,
+      draft: baseFilteredApplications.filter(
+        (app) => app.status.toLowerCase() === "draft",
+      ).length,
+      active: baseFilteredApplications.filter((app) =>
+        activeStatuses.includes(app.status.toLowerCase()),
+      ).length,
+      completed: baseFilteredApplications.filter((app) =>
+        completedStatuses.includes(app.status.toLowerCase()),
+      ).length,
+      archived: baseFilteredApplications.filter((app) =>
+        archivedStatuses.includes(app.status.toLowerCase()),
+      ).length,
     } as Record<TabType, number>;
   }, [baseFilteredApplications]);
 

@@ -1,9 +1,9 @@
 /**
  * WorkbasketFilters Component
- * 
+ *
  * Filter panel for Applications Dashboard with Apply/Clear functionality.
  * Follows GOV.UK Design System patterns for forms and filters.
- * 
+ *
  * @module features/Workbasket/components/WorkbasketFilters
  */
 
@@ -43,14 +43,14 @@ interface WorkbasketFiltersProps {
 
 /**
  * WorkbasketFilters - Filter panel with Apply/Clear functionality
- * 
+ *
  * Features:
  * - WCAG 2.1 AA compliant with proper fieldset/legend structure
  * - Keyboard accessible
  * - Screen reader friendly with descriptive labels
  * - Controlled components for predictable state management
  * - Clear button to reset all filters
- * 
+ *
  * @example
  * ```tsx
  * <WorkbasketFilters
@@ -104,10 +104,10 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
    * Toggle local case type selection (not applied to parent yet)
    */
   const handleLocalCaseTypeToggle = (caseType: string) => {
-    setLocalCaseTypes(prev => 
-      prev.includes(caseType) 
-        ? prev.filter(t => t !== caseType)
-        : [...prev, caseType]
+    setLocalCaseTypes((prev) =>
+      prev.includes(caseType)
+        ? prev.filter((t) => t !== caseType)
+        : [...prev, caseType],
     );
   };
 
@@ -115,10 +115,10 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
    * Toggle local status selection (not applied to parent yet)
    */
   const handleLocalStatusToggle = (status: string) => {
-    setLocalStatuses(prev => 
+    setLocalStatuses((prev) =>
       prev.includes(status)
-        ? prev.filter(s => s !== status)
-        : [...prev, status]
+        ? prev.filter((s) => s !== status)
+        : [...prev, status],
     );
   };
 
@@ -129,19 +129,23 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     // Update parent state with all pending changes
     onSearchChange(localSearchText);
     onSubmittedByChange(localSubmittedBy);
-    
+
     // Apply case type changes
-    const caseTypesToAdd = localCaseTypes.filter(ct => !caseTypes.includes(ct));
-    const caseTypesToRemove = caseTypes.filter(ct => !localCaseTypes.includes(ct));
-    caseTypesToAdd.forEach(ct => onCaseTypeToggle(ct));
-    caseTypesToRemove.forEach(ct => onCaseTypeToggle(ct));
-    
+    const caseTypesToAdd = localCaseTypes.filter(
+      (ct) => !caseTypes.includes(ct),
+    );
+    const caseTypesToRemove = caseTypes.filter(
+      (ct) => !localCaseTypes.includes(ct),
+    );
+    caseTypesToAdd.forEach((ct) => onCaseTypeToggle(ct));
+    caseTypesToRemove.forEach((ct) => onCaseTypeToggle(ct));
+
     // Apply status changes
-    const statusesToAdd = localStatuses.filter(s => !statuses.includes(s));
-    const statusesToRemove = statuses.filter(s => !localStatuses.includes(s));
-    statusesToAdd.forEach(s => onStatusToggle(s));
-    statusesToRemove.forEach(s => onStatusToggle(s));
-    
+    const statusesToAdd = localStatuses.filter((s) => !statuses.includes(s));
+    const statusesToRemove = statuses.filter((s) => !localStatuses.includes(s));
+    statusesToAdd.forEach((s) => onStatusToggle(s));
+    statusesToRemove.forEach((s) => onStatusToggle(s));
+
     // Notify parent
     onApplyFilters();
   };
@@ -151,11 +155,11 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
    */
   const handleClearFilters = () => {
     // Clear local state
-    setLocalSearchText('');
-    setLocalSubmittedBy('me');
+    setLocalSearchText("");
+    setLocalSubmittedBy("me");
     setLocalCaseTypes([]);
     setLocalStatuses([]);
-    
+
     // Notify parent to clear
     onClearFilters();
   };
@@ -163,14 +167,17 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   /**
    * Helper to get display label for a filter value
    */
-  const getFilterLabel = (type: 'caseType' | 'status', value: string): string => {
+  const getFilterLabel = (
+    type: "caseType" | "status",
+    value: string,
+  ): string => {
     switch (type) {
-      case 'caseType': {
-        const option = CASE_TYPE_OPTIONS.find(opt => opt.value === value);
+      case "caseType": {
+        const option = CASE_TYPE_OPTIONS.find((opt) => opt.value === value);
         return option ? option.label : value;
       }
-      case 'status': {
-        const option = STATUS_OPTIONS.find(opt => opt.value === value);
+      case "status": {
+        const option = STATUS_OPTIONS.find((opt) => opt.value === value);
         return option ? option.label : value;
       }
       default:
@@ -189,70 +196,76 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   const filterPills = useMemo(() => {
     const pills: Array<{
       id: string;
-      type: 'search' | 'caseType' | 'status' | 'submittedBy';
+      type: "search" | "caseType" | "status" | "submittedBy";
       label: string;
       value: string;
     }> = [];
 
     if (localSearchText.trim()) {
       pills.push({
-        id: 'search',
-        type: 'search',
+        id: "search",
+        type: "search",
         label: `Search: ${localSearchText}`,
         value: localSearchText,
       });
     }
 
-    localCaseTypes.forEach(caseType => {
-      let label = getFilterLabel('caseType', caseType);
+    localCaseTypes.forEach((caseType) => {
+      let label = getFilterLabel("caseType", caseType);
       label = stripBrackets(label);
       pills.push({
         id: `case-type-${caseType}`,
-        type: 'caseType',
+        type: "caseType",
         label: label,
         value: caseType,
       });
     });
 
-    localStatuses.forEach(status => {
-      const label = getFilterLabel('status', status);
+    localStatuses.forEach((status) => {
+      const label = getFilterLabel("status", status);
       pills.push({
         id: `status-${status}`,
-        type: 'status',
+        type: "status",
         label: label,
         value: status,
       });
     });
 
-    if (showSubmittedByFilter && localSubmittedBy === 'all') {
+    if (showSubmittedByFilter && localSubmittedBy === "all") {
       pills.push({
-        id: 'submitted-by',
-        type: 'submittedBy',
-        label: 'Submitted by: All users',
-        value: 'all',
+        id: "submitted-by",
+        type: "submittedBy",
+        label: "Submitted by: All users",
+        value: "all",
       });
     }
 
     return pills;
-  }, [localSearchText, localCaseTypes, localStatuses, localSubmittedBy, showSubmittedByFilter]);
+  }, [
+    localSearchText,
+    localCaseTypes,
+    localStatuses,
+    localSubmittedBy,
+    showSubmittedByFilter,
+  ]);
 
   /**
    * Handle removing a specific filter pill
    */
   // Remove pill from LOCAL state for immediate feedback
-  const handleRemovePill = (pill: typeof filterPills[0]) => {
+  const handleRemovePill = (pill: (typeof filterPills)[0]) => {
     switch (pill.type) {
-      case 'search':
+      case "search":
         setLocalSearchText("");
         break;
-      case 'caseType':
+      case "caseType":
         handleLocalCaseTypeToggle(pill.value);
         break;
-      case 'status':
+      case "status":
         handleLocalStatusToggle(pill.value);
         break;
-      case 'submittedBy':
-        setLocalSubmittedBy('me');
+      case "submittedBy":
+        setLocalSubmittedBy("me");
         break;
     }
   };
@@ -262,34 +275,37 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
    */
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleApplyFilters();  // Use our local handler instead of parent callback
+    handleApplyFilters(); // Use our local handler instead of parent callback
   };
 
   /**
    * Check if any filters are active (for better UX feedback)
    */
-  const hasActiveFilters = 
-    searchText.trim() !== '' || 
-    caseTypes.length > 0 || 
+  const hasActiveFilters =
+    searchText.trim() !== "" ||
+    caseTypes.length > 0 ||
     statuses.length > 0 ||
-    (showSubmittedByFilter && submittedBy === 'all');
+    (showSubmittedByFilter && submittedBy === "all");
 
   return (
-    <form onSubmit={handleFormSubmit} role="search" aria-label="Filter applications" className="filter-panel">
+    <form
+      onSubmit={handleFormSubmit}
+      role="search"
+      aria-label="Filter applications"
+      className="filter-panel"
+    >
       <h2 className="govuk-heading-m">Filter</h2>
 
       {/* Selected Filters Pills */}
       {filterPills.length > 0 && (
-        <div className="selected-filters-container" data-testid="selected-filters">
-          <h3 className="govuk-heading-s">
-            Selected filters
-          </h3>
+        <div
+          className="selected-filters-container"
+          data-testid="selected-filters"
+        >
+          <h3 className="govuk-heading-s">Selected filters</h3>
           <div className="filter-pills">
-            {filterPills.map(pill => (
-              <span
-                key={pill.id}
-                className="filter-pill"
-              >
+            {filterPills.map((pill) => (
+              <span key={pill.id} className="filter-pill">
                 <span>{pill.label}</span>
                 <button
                   type="button"
@@ -457,4 +473,4 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
 };
 
 // Display name for React DevTools
-WorkbasketFilters.displayName = 'WorkbasketFilters';
+WorkbasketFilters.displayName = "WorkbasketFilters";
