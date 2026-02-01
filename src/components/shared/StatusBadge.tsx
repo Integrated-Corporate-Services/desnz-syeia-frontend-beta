@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { getStatusTagClass } from '../../features/Workbasket/constants/statusDisplay';
+import { getStatusDisplay } from '../../features/Workbasket/constants/statusDisplay';
 
 /**
  * Props interface following Interface Segregation Principle
@@ -24,26 +24,6 @@ interface StatusBadgeProps {
 }
 
 /**
- * Formats status text for display (Title Case with proper spacing)
- * Pure function following functional programming principles
- * 
- * @param status - Raw status string
- * @returns Formatted status string
- */
-const formatStatusText = (status: string): string => {
-  if (!status || typeof status !== 'string') {
-    return 'Unknown';
-  }
-
-  return status
-    .toLowerCase()
-    .trim()
-    .split(/[-_\s]+/) // Handle hyphens, underscores, and spaces
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
-
-/**
  * StatusBadge - Displays application status with semantic GOV.UK tag styling
  * 
  * Features:
@@ -52,23 +32,21 @@ const formatStatusText = (status: string): string => {
  * - Screen reader friendly with proper ARIA attributes
  * - Handles unknown statuses gracefully with fallback styling
  * - Type-safe with TypeScript
+ * - Custom display labels (e.g., "Submitted" → "Application submitted")
  * 
  * @example
  * ```tsx
- * <StatusBadge status="under-review" />
- * // Renders: <strong class="govuk-tag govuk-tag--blue">Under Review</strong>
+ * <StatusBadge status="Submitted" />
+ * // Renders: <strong class="govuk-tag govuk-tag--turquoise">Application submitted</strong>
  * 
- * <StatusBadge status="granted" ariaLabel="Application status: Granted" />
+ * <StatusBadge status="In Abeyance" ariaLabel="Application status: In abeyance" />
  * // Renders with custom aria-label
  * ```
  */
 export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
   ({ status, className = '', ariaLabel }) => {
-    // Get semantic CSS class based on status
-    const tagClass = getStatusTagClass(status);
-    
-    // Format status for display
-    const displayText = formatStatusText(status);
+    // Get custom label and CSS class based on status
+    const { label: displayText, className: tagClass } = getStatusDisplay(status);
     
     // Combine classes (Open/Closed Principle - extensible via className prop)
     const combinedClassName = `${tagClass} ${className}`.trim();
@@ -81,6 +59,12 @@ export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
         className={combinedClassName}
         aria-label={ariaLabelText}
         role="status"
+        style={{
+          display: 'inline-flex',
+          whiteSpace: 'nowrap',
+          maxWidth: '100%',
+          overflow: 'visible'
+        }}
       >
         {displayText}
       </strong>
@@ -95,8 +79,3 @@ export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
 
 // Display name for React DevTools
 StatusBadge.displayName = 'StatusBadge';
-
-/**
- * Export helper function for standalone use
- */
-export { formatStatusText };

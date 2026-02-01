@@ -1,13 +1,11 @@
-/**
+/*
  * Role-Based Utilities
- * 
  * Provides role-specific default values and visibility logic
  * for application features.
  */
 
 import type { AuthUser } from "../types/auth";
 
-// Role Constants (from backend)
 export const APPLICANT = 'Applicant' as const;
 export const NETWORK_OPERATOR = 'Network operator' as const;
 export const CONTACT = 'Contact' as const;
@@ -32,9 +30,6 @@ export const ADMIN_ROLES = [
 export type AdminRole = (typeof ADMIN_ROLES)[number];
 export const SUPERUSER = DESNZ_ADMIN;
 
-/**
- * User roles that can exist in the system
- */
 export type UserRole = 
   | typeof APPLICANT
   | typeof NETWORK_OPERATOR
@@ -115,7 +110,7 @@ export const hasElevatedPermissions = (role?: UserRole): boolean => {
          role === REVIEWER;
 };
 
-// For backwards compatibility with CommonJS imports
+
 export default {
   APPLICANT,
   NETWORK_OPERATOR,
