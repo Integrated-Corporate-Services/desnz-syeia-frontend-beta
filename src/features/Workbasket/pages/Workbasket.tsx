@@ -2,7 +2,6 @@
  * Workbasket Page Component
  * 
  * Applications dashboard with optional filter sidebar.
- * Uses layout: false in routes for standalone page structure.
  */
 import React, { useEffect, useState } from "react";
 import { useApplicationStore } from "../../../store/useApplicationStore";
@@ -17,9 +16,6 @@ import { WorkbasketTabs } from "../components/WorkbasketTabs";
 import { Pagination } from "../components/Pagination";
 import { DEMO_USER_ID } from "../../../constants/demo";
 import { shouldShowSubmittedByFilter, getUserRole } from "../../../utils/roleUtils";
-import Header from "../../../layouts/component/Header";
-import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
-import Footer from "../../../layouts/component/Footer";
 import "../../../styles/Workbasket.css";
 
 const Workbasket: React.FC = () => {
@@ -83,17 +79,6 @@ const Workbasket: React.FC = () => {
 
   return (
     <div className="workbasket-page-container">
-      <Header />
-      <ServiceNavigation />
-
-      <a
-        href="#main-content"
-        className="govuk-skip-link"
-        data-module="govuk-skip-link"
-      >
-        Skip to main content
-      </a>
-
       <div className="govuk-width-container">
         <div className="workbasket-hero-section">
           <WorkbasketHeader
@@ -104,9 +89,8 @@ const Workbasket: React.FC = () => {
         </div>
       </div>
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        {showFilters ? (
-          <div className="workbasket-full-width-container">
+      {showFilters ? (
+        <div className="workbasket-full-width-container">
             <div className="workbasket-two-column-layout">
               <aside
                 id="workbasket-filters"
@@ -222,10 +206,7 @@ const Workbasket: React.FC = () => {
             </div>
           </div>
         )}
-      </main>
-
-      <Footer />
-    </div>
+      </div>
   );
 };
 
