@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { applicationApiService } from '../../../services/applicationApiService';
 
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
@@ -21,19 +22,7 @@ const PaymentSuccessPage: React.FC = () => {
       const fetchDesnzRef = async () => {
         try {
           setLoading(true);
-          const response = await fetch(`/backend/api/applications/${applicationId}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch DESNZ reference: ${response.statusText}`);
-          }
-
-          const data = await response.json();
+          const data = await applicationApiService.fetchApplicationDetails(applicationId);
           setDesnzRef(data.desnz_ref || applicationId);
           setError(null);
         } catch (err) {
