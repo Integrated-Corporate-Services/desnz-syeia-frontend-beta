@@ -14,7 +14,7 @@ export const WorkbasketHeader: React.FC<WorkbasketHeaderProps> = ({
 }) => {
   return (
     <>
-      <h1 className="govuk-heading-xl">Your applications</h1>
+      <h1 className="govuk-heading-l">Your applications</h1>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <p className="govuk-body">

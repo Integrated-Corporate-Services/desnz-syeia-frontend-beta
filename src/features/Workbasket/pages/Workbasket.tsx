@@ -2,7 +2,6 @@
  * Workbasket Page Component
  * 
  * Applications dashboard with optional filter sidebar.
- * Uses layout: false in routes for standalone page structure.
  */
 import React, { useEffect, useState } from "react";
 import { useApplicationStore } from "../../../store/useApplicationStore";
@@ -82,31 +81,22 @@ const Workbasket: React.FC = () => {
   const canSeeSubmittedByFilter = shouldShowSubmittedByFilter(getUserRole(user as AuthUser));
 
   return (
-    <div className="workbasket-page-container">
+    <>
       <Header />
       <ServiceNavigation />
-
-      <a
-        href="#main-content"
-        className="govuk-skip-link"
-        data-module="govuk-skip-link"
-      >
-        Skip to main content
-      </a>
-
+      
       <div className="govuk-width-container">
-        <div className="workbasket-hero-section">
+        <main className="govuk-main-wrapper" id="main-content" role="main" style={{ paddingTop: 16, paddingBottom: 16 }}>
+          
+          {/* Hero section - Your applications header */}
           <WorkbasketHeader
             onToggleFilters={() => setShowFilters(!showFilters)}
             showFilters={showFilters}
             onStartNewApplication={handleStart}
           />
-        </div>
-      </div>
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        {showFilters ? (
-          <div className="workbasket-full-width-container">
+          {/* Two-column layout when filters shown */}
+          {showFilters ? (
             <div className="workbasket-two-column-layout">
               <aside
                 id="workbasket-filters"
@@ -176,10 +166,9 @@ const Workbasket: React.FC = () => {
                 </div>
               </section>
             </div>
-          </div>
-        ) : (
-          <div className="govuk-width-container">
-            <WorkbasketTabs
+          ) : (
+            <>
+              <WorkbasketTabs
               activeTab={activeTab}
               onTabChange={(tab) => {
                 setActiveTab(tab);
@@ -220,12 +209,14 @@ const Workbasket: React.FC = () => {
                 </>
               )}
             </div>
-          </div>
-        )}
-      </main>
-
+          </>
+          )}
+          
+        </main>
+      </div>
+      
       <Footer />
-    </div>
+    </>
   );
 };
 

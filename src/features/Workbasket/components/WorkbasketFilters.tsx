@@ -155,14 +155,14 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
       });
     });
 
-    if (showSubmittedByFilter && localSubmittedBy === "all") {
-      pills.push({
-        id: "submitted-by",
-        type: "submittedBy",
-        label: "Submitted by: All users",
-        value: "all",
-      });
-    }
+    // if (showSubmittedByFilter && localSubmittedBy === "all") {
+    //   pills.push({
+    //     id: "submitted-by",
+    //     type: "submittedBy",
+    //     label: "Submitted by: All users",
+    //     value: "all",
+    //   });
+    // }
 
     return pills;
   }, [
@@ -170,7 +170,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     localCaseTypes,
     localStatuses,
     localSubmittedBy,
-    showSubmittedByFilter,
+    //showSubmittedByFilter,
   ]);
 
   /**
@@ -202,8 +202,8 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   const hasActiveFilters =
     searchText.trim() !== "" ||
     caseTypes.length > 0 ||
-    statuses.length > 0 ||
-    (showSubmittedByFilter && submittedBy === "all");
+    statuses.length > 0 ;
+    //||(showSubmittedByFilter && submittedBy === "all");
 
   if (!showFilters) return null;
 
