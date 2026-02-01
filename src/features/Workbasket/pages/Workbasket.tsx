@@ -1,18 +1,8 @@
 /**
  * Workbasket Page Component
- *
- * Applications dashboard with filter sidebar that extends to the left of the main content.
- * This component uses layout: false in routes to have full control over page structure
- * while maintaining GDS compliance.
- *
- * GDS Compliance:
- * - WCAG 2.1 AA accessible
- * - GOV.UK Design System patterns
- * - Proper landmark structure (header, main, footer)
- * - Skip link for keyboard navigation
- * - Semantic HTML structure
- *
- * @module features/Workbasket/pages/Workbasket
+ * 
+ * Applications dashboard with optional filter sidebar.
+ * Uses layout: false in routes for standalone page structure.
  */
 import React, { useEffect, useState } from "react";
 import { useApplicationStore } from "../../../store/useApplicationStore";
@@ -26,7 +16,7 @@ import { WorkbasketHeader } from "../components/WorkbasketHeader";
 import { WorkbasketTabs } from "../components/WorkbasketTabs";
 import { Pagination } from "../components/Pagination";
 import { DEMO_USER_ID } from "../../../constants/demo";
-// Import layout components for standalone page (layout: false)
+import { shouldShowSubmittedByFilter, getUserRole } from "../../../utils/roleUtils";
 import Header from "../../../layouts/component/Header";
 import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
 import Footer from "../../../layouts/component/Footer";
@@ -89,22 +79,13 @@ const Workbasket: React.FC = () => {
     setCurrentPage(1);
   };
 
-  // Determine if user can see "Submitted by" filter (admin or coordinator only)
-  const canSeeSubmittedByFilter = Boolean(
-    user &&
-    ((user as AuthUser)?.role === "DESNZ_ADMIN" ||
-      (user as AuthUser)?.role === "TEAM_COORDINATOR"),
-  );
+  const canSeeSubmittedByFilter = shouldShowSubmittedByFilter(getUserRole(user as AuthUser));
 
   return (
-    <>
-      {/* GDS Header - Same as MainLayout */}
+    <div className="workbasket-page-container">
       <Header />
-
-      {/* Service Navigation - Same as MainLayout */}
       <ServiceNavigation />
 
-      {/* GDS Skip Link - WCAG 2.1 AA requirement */}
       <a
         href="#main-content"
         className="govuk-skip-link"
@@ -113,7 +94,6 @@ const Workbasket: React.FC = () => {
         Skip to main content
       </a>
 
-      {/* Hero Section - Inside govuk-width-container for proper alignment */}
       <div className="govuk-width-container">
         <div className="workbasket-hero-section">
           <WorkbasketHeader
@@ -124,13 +104,10 @@ const Workbasket: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content - Outside govuk-width-container to allow filter bleed */}
       <main className="govuk-main-wrapper" id="main-content" role="main">
         {showFilters ? (
-          /* Two-column layout: Filter + Content */
           <div className="workbasket-full-width-container">
             <div className="workbasket-two-column-layout">
-              {/* Filter Sidebar - Positioned to the left */}
               <aside
                 id="workbasket-filters"
                 className="workbasket-filter-column"
@@ -152,7 +129,6 @@ const Workbasket: React.FC = () => {
                 />
               </aside>
 
-              {/* Results Content - Aligned with hero section */}
               <section
                 className="workbasket-results-column"
                 aria-label="Application results"
@@ -166,7 +142,6 @@ const Workbasket: React.FC = () => {
                   counts={tabCounts}
                 />
 
-                {/* Table wrapper with items count and table inside */}
                 <div className="workbasket-table-wrapper">
                   <span
                     className="workbasket-items-count"
@@ -203,7 +178,6 @@ const Workbasket: React.FC = () => {
             </div>
           </div>
         ) : (
-          /* Single column layout - Standard govuk-width-container */
           <div className="govuk-width-container">
             <WorkbasketTabs
               activeTab={activeTab}
@@ -214,7 +188,6 @@ const Workbasket: React.FC = () => {
               counts={tabCounts}
             />
 
-            {/* Table wrapper with items count and table inside */}
             <div className="workbasket-table-wrapper">
               <span
                 className="workbasket-items-count"
@@ -251,9 +224,8 @@ const Workbasket: React.FC = () => {
         )}
       </main>
 
-      {/* GDS Footer - Same as MainLayout */}
       <Footer />
-    </>
+    </div>
   );
 };
 

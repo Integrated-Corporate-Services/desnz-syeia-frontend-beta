@@ -61,12 +61,8 @@ export const useWorkbasketFilters = (
       }
       // Status filter
       if (statuses.length > 0) {
-      //  const normalizedStatus = app.status.toLowerCase().replace(/\s+/g, "-");
-      // if (!statuses.includes(normalizedStatus)) return false;
-       const normalizedStatus = app.status
-          .toLowerCase()
-          .replace(/[_\s]+/g, "-");
-        if (!statuses.includes(normalizedStatus)) return false;
+        const normalizedDbStatus = app.status.toUpperCase().replace(/[\s-]+/g, "_");
+        if (!statuses.includes(normalizedDbStatus)) return false;
       }
       return true;
     });
@@ -79,53 +75,11 @@ export const useWorkbasketFilters = (
     currentUserId,
   ]);
 
-  // Stage 2: Tab counts from base filtered set
-  const tabCounts = useMemo(() => {
-    const activeStatuses = [
-      "submitted",
-      "application-submitted",
-      "application submitted",
-      "under-review",
-      "under review",
-      "in-progress",
-      "in progress",
-      "processing-payment",
-      "processing payment",
-      "further-information-requested",
-      "further information requested",
-      "representation-stage",
-      "representation stage",
-      "in-abeyance",
-      "in abeyance",
-    ];
-    const completedStatuses = [
-      "completed",
-      "decision-issued",
-      "decision issued",
-      "granted",
-      "declined",
-    ];
-    const archivedStatuses = ["archived", "withdrawn", "invalid"];
-    return {
-      draft: baseFilteredApplications.filter(
-        (app) => app.status.toLowerCase() === "draft",
-      ).length,
-      active: baseFilteredApplications.filter((app) =>
-        activeStatuses.includes(app.status.toLowerCase()),
-      ).length,
-      completed: baseFilteredApplications.filter((app) =>
-        completedStatuses.includes(app.status.toLowerCase()),
-      ).length,
-      archived: baseFilteredApplications.filter((app) =>
-        archivedStatuses.includes(app.status.toLowerCase()),
-      ).length,
-    } as Record<TabType, number>;
-  }, [baseFilteredApplications]);
-
-  // Stage 3: Apply active tab filter
+  // Stage 2: Apply active tab filter first
   const filteredApplications = useMemo(() => {
     return baseFilteredApplications.filter((app) => {
-      const statusLower = app.status.toLowerCase();
+      const statusLower = app.status.toLowerCase().replace(/[_-]/g, " ");
+      
       if (activeTab === "draft" && statusLower !== "draft") return false;
       if (activeTab === "active") {
         const activeStatuses = [
@@ -164,6 +118,50 @@ export const useWorkbasketFilters = (
       return true;
     });
   }, [baseFilteredApplications, activeTab]);
+
+  // Stage 3: Tab counts - count ALL applications in each tab category
+  const tabCounts = useMemo(() => {
+    const activeStatuses = [
+      "submitted",
+      "application-submitted",
+      "application submitted",
+      "under-review",
+      "under review",
+      "in-progress",
+      "in progress",
+      "processing-payment",
+      "processing payment",
+      "further-information-requested",
+      "further information requested",
+      "representation-stage",
+      "representation stage",
+      "in-abeyance",
+      "in abeyance",
+    ];
+    const completedStatuses = [
+      "completed",
+      "decision-issued",
+      "decision issued",
+      "granted",
+      "declined",
+    ];
+    const archivedStatuses = ["archived", "withdrawn", "invalid"];
+    
+    return {
+      draft: baseFilteredApplications.filter(
+        (app) => app.status.toLowerCase() === "draft",
+      ).length,
+      active: baseFilteredApplications.filter((app) =>
+        activeStatuses.includes(app.status.toLowerCase().replace(/[_-]/g, " ")),
+      ).length,
+      completed: baseFilteredApplications.filter((app) =>
+        completedStatuses.includes(app.status.toLowerCase().replace(/[_-]/g, " ")),
+      ).length,
+      archived: baseFilteredApplications.filter((app) =>
+        archivedStatuses.includes(app.status.toLowerCase().replace(/[_-]/g, " ")),
+      ).length,
+    } as Record<TabType, number>;
+  }, [baseFilteredApplications]);
 
   return {
     activeTab,

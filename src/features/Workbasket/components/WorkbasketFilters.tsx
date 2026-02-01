@@ -1,74 +1,22 @@
-/**
- * WorkbasketFilters Component
- *
- * Filter panel for Applications Dashboard with Apply/Clear functionality.
- * Follows GOV.UK Design System patterns for forms and filters.
- *
- * @module features/Workbasket/components/WorkbasketFilters
- */
-
 import React, { useMemo, useState, useEffect } from "react";
 import { CASE_TYPE_OPTIONS, STATUS_OPTIONS } from "../constants/filterOptions";
 import "../../../styles/Workbasket.css";
 
-/**
- * Props interface following Interface Segregation Principle
- */
 interface WorkbasketFiltersProps {
-  /** Whether the filter panel is visible */
   showFilters: boolean;
-  /** Search text value */
   searchText: string;
-  /** Submitted by filter value */
   submittedBy: "me" | "all";
-  /** Selected case types */
   caseTypes: string[];
-  /** Selected statuses */
   statuses: string[];
-  /** Whether to show "Submitted by" filter (only for coordinators/admins) */
   showSubmittedByFilter?: boolean;
-  /** Callback when search text changes */
   onSearchChange: (value: string) => void;
-  /** Callback when submitted by changes */
   onSubmittedByChange: (value: "me" | "all") => void;
-  /** Callback when case type is toggled */
   onCaseTypeToggle: (caseType: string) => void;
-  /** Callback when status is toggled */
   onStatusToggle: (status: string) => void;
-  /** Callback when Apply filters button is clicked */
   onApplyFilters: () => void;
-  /** Callback when Clear filters button is clicked */
   onClearFilters: () => void;
 }
 
-/**
- * WorkbasketFilters - Filter panel with Apply/Clear functionality
- *
- * Features:
- * - WCAG 2.1 AA compliant with proper fieldset/legend structure
- * - Keyboard accessible
- * - Screen reader friendly with descriptive labels
- * - Controlled components for predictable state management
- * - Clear button to reset all filters
- *
- * @example
- * ```tsx
- * <WorkbasketFilters
- *   showFilters={true}
- *   searchText={searchText}
- *   submittedBy="me"
- *   caseTypes={['overhead-lines']}
- *   statuses={['under-review']}
- *   showSubmittedByFilter={isCoordinator}
- *   onSearchChange={setSearchText}
- *   onSubmittedByChange={setSubmittedBy}
- *   onCaseTypeToggle={toggleCaseType}
- *   onStatusToggle={toggleStatus}
- *   onApplyFilters={handleApplyFilters}
- *   onClearFilters={handleClearFilters}
- * />
- * ```
- */
 export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   showFilters,
   searchText,
@@ -83,16 +31,11 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   onApplyFilters,
   onClearFilters,
 }) => {
-  // Early return if filters are hidden (Guard Clause Pattern)
-  if (!showFilters) return null;
-
-  // Local state for pending filter selections (not applied until "Apply filters" is clicked)
   const [localSearchText, setLocalSearchText] = useState(searchText);
   const [localSubmittedBy, setLocalSubmittedBy] = useState(submittedBy);
   const [localCaseTypes, setLocalCaseTypes] = useState<string[]>(caseTypes);
   const [localStatuses, setLocalStatuses] = useState<string[]>(statuses);
 
-  // Sync local state with props when props change (e.g., after clear or apply)
   useEffect(() => {
     setLocalSearchText(searchText);
     setLocalSubmittedBy(submittedBy);
@@ -100,9 +43,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     setLocalStatuses(statuses);
   }, [searchText, submittedBy, caseTypes, statuses]);
 
-  /**
-   * Toggle local case type selection (not applied to parent yet)
-   */
   const handleLocalCaseTypeToggle = (caseType: string) => {
     setLocalCaseTypes((prev) =>
       prev.includes(caseType)
@@ -111,9 +51,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     );
   };
 
-  /**
-   * Toggle local status selection (not applied to parent yet)
-   */
   const handleLocalStatusToggle = (status: string) => {
     setLocalStatuses((prev) =>
       prev.includes(status)
@@ -122,11 +59,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     );
   };
 
-  /**
-   * Apply all pending filters to parent component
-   */
   const handleApplyFilters = () => {
-    // Update parent state with all pending changes
     onSearchChange(localSearchText);
     onSubmittedByChange(localSubmittedBy);
 
@@ -164,9 +97,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     onClearFilters();
   };
 
-  /**
-   * Helper to get display label for a filter value
-   */
   const getFilterLabel = (
     type: "caseType" | "status",
     value: string,
@@ -185,14 +115,8 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     }
   };
 
-  /**
-   * Build filter pills array (memoized for performance)
-   * Uses APPLIED filters (from props), not local pending filters
-   */
-  // Utility to strip bracketed text
   const stripBrackets = (label: string) => label.replace(/\s*\(.*\)\s*$/, "");
 
-  // Build filter pills from LOCAL state for immediate feedback
   const filterPills = useMemo(() => {
     const pills: Array<{
       id: string;
@@ -270,22 +194,18 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     }
   };
 
-  /**
-   * Handle form submission (Enter key support)
-   */
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleApplyFilters(); // Use our local handler instead of parent callback
+    handleApplyFilters();
   };
 
-  /**
-   * Check if any filters are active (for better UX feedback)
-   */
   const hasActiveFilters =
     searchText.trim() !== "" ||
     caseTypes.length > 0 ||
     statuses.length > 0 ||
     (showSubmittedByFilter && submittedBy === "all");
+
+  if (!showFilters) return null;
 
   return (
     <form
@@ -296,7 +216,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
     >
       <h2 className="govuk-heading-m">Filter</h2>
 
-      {/* Selected Filters Pills */}
       {filterPills.length > 0 && (
         <div
           className="selected-filters-container"
@@ -321,7 +240,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         </div>
       )}
 
-      {/* Action buttons - Horizontal layout */}
       <div className="filter-actions">
         <button
           type="submit"
@@ -345,7 +263,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         )}
       </div>
 
-      {/* Search */}
       <div className="govuk-form-group filter-section">
         <label
           className="govuk-label govuk-!-font-weight-bold"
@@ -364,50 +281,51 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         />
       </div>
 
-      {/* Submitted by - Always visible, backend enforces role-based filtering */}
-      <div className="govuk-form-group filter-section">
-        <fieldset className="govuk-fieldset">
-          <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
-            Submitted by
-          </legend>
-          <div className="govuk-radios">
-            <div className="govuk-radios__item">
-              <input
-                className="govuk-radios__input"
-                id="submitted-me"
-                name="submitted-by"
-                type="radio"
-                value="me"
-                checked={localSubmittedBy === "me"}
-                onChange={() => setLocalSubmittedBy("me")}
-              />
-              <label
-                className="govuk-label govuk-radios__label"
-                htmlFor="submitted-me"
-              >
-                Me
-              </label>
+      {showSubmittedByFilter && (
+        <div className="govuk-form-group filter-section">
+          <fieldset className="govuk-fieldset">
+            <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
+              Submitted by
+            </legend>
+            <div className="govuk-radios">
+              <div className="govuk-radios__item">
+                <input
+                  className="govuk-radios__input"
+                  id="submitted-me"
+                  name="submitted-by"
+                  type="radio"
+                  value="me"
+                  checked={localSubmittedBy === "me"}
+                  onChange={() => setLocalSubmittedBy("me")}
+                />
+                <label
+                  className="govuk-label govuk-radios__label"
+                  htmlFor="submitted-me"
+                >
+                  Me
+                </label>
+              </div>
+              <div className="govuk-radios__item">
+                <input
+                  className="govuk-radios__input"
+                  id="submitted-all"
+                  name="submitted-by"
+                  type="radio"
+                  value="all"
+                  checked={localSubmittedBy === "all"}
+                  onChange={() => setLocalSubmittedBy("all")}
+                />
+                <label
+                  className="govuk-label govuk-radios__label"
+                  htmlFor="submitted-all"
+                >
+                  All users
+                </label>
+              </div>
             </div>
-            <div className="govuk-radios__item">
-              <input
-                className="govuk-radios__input"
-                id="submitted-all"
-                name="submitted-by"
-                type="radio"
-                value="all"
-                checked={localSubmittedBy === "all"}
-                onChange={() => setLocalSubmittedBy("all")}
-              />
-              <label
-                className="govuk-label govuk-radios__label"
-                htmlFor="submitted-all"
-              >
-                All users
-              </label>
-            </div>
-          </div>
-        </fieldset>
-      </div>
+          </fieldset>
+        </div>
+      )}
 
       {/* Case type */}
       <div className="govuk-form-group filter-section">
@@ -439,7 +357,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         </fieldset>
       </div>
 
-      {/* Status */}
       <div className="govuk-form-group filter-section">
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">

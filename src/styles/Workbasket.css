@@ -1,12 +1,31 @@
 /* ===========================================
    Workbasket Dashboard Styles
-   
-   =========================================== */
+    =========================================== */
 
-/* Override govuk-main-wrapper padding for workbasket page */
-.govuk-main-wrapper {
-  padding-top: 0; /* Hero section handles top padding */
-  padding-bottom: 30px; /* 30px gap before footer per Figma */
+.workbasket-page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; 
+}
+
+.workbasket-page-container main {
+  flex: 1 0 auto; /* Grow to fill space, push footer down */
+}
+
+.workbasket-page-container footer {
+  flex-shrink: 0; /* Footer stays at bottom */
+}
+
+/* Scope override to workbasket page only to prevent global impact */
+.workbasket-page-container .govuk-main-wrapper {
+  padding-top: 0;
+  padding-bottom: 40px;
+  min-height: calc(100vh - 400px);
+}
+
+/* Increase container width for workbasket to accommodate longer status badges */
+.workbasket-page-container .govuk-width-container {
+  max-width: 1200px;
 }
 
 /* Hero section inside govuk-width-container
@@ -46,7 +65,7 @@
   gap: 24px; /* Figma spec: 24px gutter between filter and results */
   align-items: start;
   width: 100%;
-  max-width: calc(960px + 360px + 24px); /* Hero max width + filter + gap */
+  max-width: 1600px; /* Increased to use more page width */
   margin: 0 auto; /* Center the grid */
   margin-bottom: 30px; /* 30px gap before footer */
   margin-top: 0; /* Hero buttons margin-bottom (30px) handles gap above */
@@ -57,7 +76,6 @@
   transform: translateX(-16px);
 }
 
-/* Filter column - bleeds 16px to the left of hero content per Figma */
 .workbasket-filter-column {
   position: relative;
 }
@@ -65,7 +83,8 @@
 /* Results column - aligns exactly under hero left edge */
 .workbasket-results-column {
   min-width: 0;
-  /* No max-width - fills available space per Figma design */
+  width: 100%;
+  /* No max-width - fills available space */
 }
 
 /* Tablet breakpoint - maintain two-column but remove transform */
@@ -96,23 +115,94 @@
   min-width: unset;
 }
 
-/* Application table column widths and text wrapping */
-.workbasket-results-column .govuk-table__cell,
-.workbasket-results-column .govuk-table__header {
-  white-space: nowrap;
-}
-
-/* Allow Case type column to wrap */
-.workbasket-results-column .govuk-table__cell:nth-child(3),
-.workbasket-results-column .govuk-table__header:nth-child(3) {
-  white-space: normal;
-  max-width: 150px;
-}
-
-/* Ensure table uses available width */
-.workbasket-results-column .govuk-table {
+/* Table wrapper - consistent dimensions across all tabs */
+.workbasket-table-wrapper {
+  margin-top: 20px;
+  margin-bottom: 40px;
   width: 100%;
-  table-layout: auto;
+  padding: 20px; /* Reduced padding */
+  border: 1px solid #b1b4b6;
+  box-sizing: border-box;
+}
+
+/* Items count styling */
+.workbasket-items-count {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 19px;
+  font-weight: 400;
+  color: #0b0c0c;
+}
+
+/* Application table - fixed layout for proper width distribution */
+.workbasket-results-column .govuk-table,
+.govuk-width-container .govuk-table {
+  width: 100%;
+  table-layout: fixed; /* Fixed layout distributes width proportionally */
+  border-collapse: collapse;
+  margin-bottom: 0;
+  border: none;
+}
+
+.workbasket-results-column .govuk-table__cell,
+.workbasket-results-column .govuk-table__header,
+.govuk-width-container .govuk-table__cell,
+.govuk-width-container .govuk-table__header {
+  white-space: nowrap;
+  padding: 10px 20px;
+  vertical-align: middle;
+  border-bottom: 1px solid #b1b4b6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workbasket-results-column .govuk-table__row,
+.govuk-width-container .govuk-table__row {
+  border-bottom: 1px solid #b1b4b6;
+}
+
+/* Column width distribution using percentages */
+.workbasket-results-column .govuk-table__cell:nth-child(1),
+.workbasket-results-column .govuk-table__header:nth-child(1),
+.govuk-width-container .govuk-table__cell:nth-child(1),
+.govuk-width-container .govuk-table__header:nth-child(1) {
+  width: 18%;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.workbasket-results-column .govuk-table__cell:nth-child(2),
+.workbasket-results-column .govuk-table__header:nth-child(2),
+.govuk-width-container .govuk-table__cell:nth-child(2),
+.govuk-width-container .govuk-table__header:nth-child(2) {
+  width: 22%;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.workbasket-results-column .govuk-table__cell:nth-child(3),
+.workbasket-results-column .govuk-table__header:nth-child(3),
+.govuk-width-container .govuk-table__cell:nth-child(3),
+.govuk-width-container .govuk-table__header:nth-child(3) {
+  width: 17%;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.workbasket-results-column .govuk-table__cell:nth-child(4):not(:last-child),
+.workbasket-results-column .govuk-table__header:nth-child(4):not(:last-child),
+.govuk-width-container .govuk-table__cell:nth-child(4):not(:last-child),
+.govuk-width-container .govuk-table__header:nth-child(4):not(:last-child) {
+  width: 27%;
+}
+
+.workbasket-results-column .govuk-table__cell:last-child,
+.workbasket-results-column .govuk-table__header:last-child,
+.govuk-width-container .govuk-table__cell:last-child,
+.govuk-width-container .govuk-table__header:last-child {
+  width: 16%;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 /* Responsive: stack on mobile */
@@ -131,119 +221,151 @@
   .filter-panel {
     width: 100%;
   }
+
+  /* Mobile table - allow horizontal scroll if needed */
+  .workbasket-results-column {
+    overflow-x: auto;
+  }
+
+  .workbasket-results-column .govuk-table__cell,
+  .workbasket-results-column .govuk-table__header {
+    padding: 8px 15px 8px 0;
+    font-size: 16px;
+  }
+
+  /* Reduce column widths on mobile */
+  .workbasket-results-column .govuk-table__cell:nth-child(1),
+  .workbasket-results-column .govuk-table__header:nth-child(1) {
+    width: 120px;
+    min-width: 120px;
+  }
+
+  .workbasket-results-column .govuk-table__cell:nth-child(2),
+  .workbasket-results-column .govuk-table__header:nth-child(2) {
+    width: 140px;
+    min-width: 140px;
+  }
+
+  .workbasket-results-column .govuk-table__cell:nth-child(3),
+  .workbasket-results-column .govuk-table__header:nth-child(3) {
+    width: 120px;
+    min-width: 120px;
+  }
+
+  .workbasket-results-column .govuk-table__cell:nth-child(4):not(:last-child),
+  .workbasket-results-column .govuk-table__header:nth-child(4):not(:last-child) {
+    min-width: 180px;
+  }
+
+  .workbasket-results-column .govuk-table__cell:last-child,
+  .workbasket-results-column .govuk-table__header:last-child {
+    width: 110px;
+    min-width: 110px;
+  }
+
+  /* Status badges on mobile */
+  .govuk-tag {
+    font-size: 16px;
+    line-height: 21px;
+    padding: 4px 6px 3px 6px;
+  }
 }
 
-/* Main filter container - ONE parent box with border
-   Figma spec: 360px width to fit all labels on single line */
 .filter-panel {
-  border: 1px solid #b1b4b6; /* GDS grey border (1px neutral per spec) */
-  padding: 0; /* No padding on container - header and content have their own */
-  background-color: #ffffff; /* White background for whole panel */
-  width: 360px; /* Figma: 360px to accommodate "Further information requested" */
-  max-width: 100%; /* Responsive fallback */
+  border: 1px solid #b1b4b6;
+  padding: 0;
+  background-color: #ffffff;
+  width: 360px;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
 .filter-panel .govuk-heading-m {
   margin: 0;
-  background: #f3f2f1; /* Grey header background per Figma */
-  padding: 18px 16px; /* Height calc: 19px * 1.3 ≈ 25px + 18*2 = 61px ≈ 62px per Figma */
-  border-bottom: 1px solid #b1b4b6; /* Match border color to panel border */
-  font-weight: 700; /* Bold per Figma */
+  background: #f3f2f1;
+  padding: 18px 16px;
+  border-bottom: 1px solid #b1b4b6;
+  font-weight: 700;
   font-size: 19px;
   line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   box-sizing: border-box;
-  height: 62px; /* Exact Figma measurement */
+  height: 62px;
   display: flex;
   align-items: center;
 }
 
-/* Content area padding (after header)
-   Figma: pills at x=73, panel starts at x=57, so left padding = 16px */
 .filter-panel > *:not(.govuk-heading-m) {
   padding-left: 16px;
   padding-right: 16px;
 }
 
-/* Attach selected filters directly to Filter header (no gap) */
 .filter-panel .govuk-heading-m + .selected-filters-container {
-  margin-top: 0 !important; /* No gap - attach selected filters to header */
+  margin-top: 0 !important;
 }
 
-/* Add spacing after Filter header when selected filters NOT present */
 .filter-panel .govuk-heading-m + .filter-actions {
-  margin-top: 20px !important; /* Spacing when buttons are first element */
+  margin-top: 20px !important;
 }
 
-/* Add spacing only after selected filters section */
 .selected-filters-container + * {
-  margin-top: 20px !important; /* Spacing after selected filters */
+  margin-top: 20px !important;
 }
 
-/* Selected filters section - greyish background with border
-   Figma: Pills start at y=567.5, header ends at y=511
-   Gap = 56.5px = 16px margin-top + 20px padding-top + 20px content area */
 .selected-filters-container {
-  background-color: #f3f2f1; /* GDS light grey */
-  border: none; /* Remove borders to prevent double border effect */
-  border-bottom: 1px solid #d0d5dd; /* Only bottom border as separator */
-  padding: 16px 16px; /* Figma measured padding */
-  margin-bottom: 32px; /* Figma: 675 - 642.5 = 32.5px to action buttons */
+  background-color: #f3f2f1;
+  border: none;
+  border-bottom: 1px solid #d0d5dd;
+  padding: 16px 16px;
+  margin-bottom: 32px;
   margin-left: 0;
   margin-right: 0;
-  margin-top: 0; /* Attach directly to Filter header (header padding handles gap) */
+  margin-top: 0;
   box-sizing: border-box;
 }
 
 .selected-filters-container .govuk-heading-s {
   margin-top: 0;
-  margin-bottom: 15px; /* GDS spacing scale: level 3 */
+  margin-bottom: 15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 1.1875rem; /* Match Filter heading size (19px) */
-  font-weight: 700; /* Bold like Filter heading */
+  font-size: 1.1875rem;
+  font-weight: 700;
 }
 
-/* Filter pills container
-   Figma: pill row gap = 609.5 - (567.5+33) = 9px */
 .filter-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px; /* Figma measured: ~8-9px between pills */
+  gap: 8px;
 }
 
-/* Individual filter pill - aligned with GOV.UK Tag pattern
-   Figma: pill height = 33px, so padding needs to achieve that
-   16px font * 1.25 line-height = 20px text, so 6.5px top+bottom ≈ 33px */
 .filter-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px; /* Figma measured internal gap */
-  padding: 6px 10px; /* Achieves ~33px total height with 16px/1.25 text */
+  gap: 8px;
+  padding: 6px 10px;
   background: #ffffff;
-  color: #0b0c0c; /* GDS text colour */
-  border: 1px solid #000000; /* Black border per Figma SVG */
+  color: #0b0c0c;
+  border: 1px solid #000000;
   font-weight: 400;
   font-size: 16px;
   line-height: 1.25;
-  white-space: nowrap; /* One-line text per spec */
-  max-width: 260px; /* Allow truncation within 330px container */
+  white-space: nowrap;
+  max-width: 260px;
   overflow: hidden;
-  height: 33px; /* Exact Figma measurement */
+  height: 33px;
   box-sizing: border-box;
 }
 
 .filter-pill > span:first-child {
   overflow: hidden;
-  text-overflow: ellipsis; /* Ellipsis for long text per spec */
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Remove button inside pill */
 .filter-pill-remove {
   background: none;
   border: none;
@@ -253,59 +375,53 @@
   font-size: 18px;
   line-height: 1;
   font-weight: bold;
-  flex-shrink: 0; /* Prevent × from being hidden */
+  flex-shrink: 0;
 }
 
 .filter-pill-remove:hover {
-  color: #d4351c; /* GDS error red for hover state */
+  color: #d4351c;
 }
 
 .filter-pill-remove:focus {
-  outline: 3px solid #ffdd00; /* GDS focus yellow - WCAG 2.2 compliant */
+  outline: 3px solid #ffdd00;
   outline-offset: 0;
-  background-color: #ffdd00; /* GDS focus yellow background */
-  color: #0b0c0c; /* GDS text colour for contrast */
+  background-color: #ffdd00;
+  color: #0b0c0c;
 }
 
-/* Action buttons container - HORIZONTAL LAYOUT
-   Figma: buttons at y=675, gap between = 217-73-124 = 20px */
 .filter-actions {
   display: flex;
-  gap: 20px; /* Figma: 217 - 73 - 124 = 20px between buttons */
+  gap: 20px;
   align-items: center;
-  margin-bottom: 30px; /* 30px before filter form sections */
-  margin-top: 0; /* Selected filters margin-bottom handles gap above */
+  margin-bottom: 30px;
+  margin-top: 0;
   flex-wrap: wrap;
   padding-left: 16px;
   padding-right: 16px;
 }
 
-/* Ensure buttons keep their original GDS styling */
 .filter-actions .govuk-button {
   margin-bottom: 0; /* Override default margin */
   margin-right: 0; /* Override button-group margin */
   white-space: nowrap; /* Prevent button text wrapping */
 }
 
-/* Filter form sections - NO individual borders, proper GDS spacing */
 .filter-section {
-  margin-bottom: 30px; /* GDS spacing scale: level 6 (30px = 6 units) */
+  margin-bottom: 30px;
 }
 
 .filter-section:last-child {
   margin-bottom: 0;
 }
 
-/* Ensure form groups within filter panel follow GDS spacing scale */
 .filter-panel .govuk-form-group {
-  margin-bottom: 30px; /* GDS spacing scale: level 6 */
+  margin-bottom: 30px;
 }
 
 .filter-panel .govuk-form-group:last-child {
   margin-bottom: 0;
 }
 
-/* ALL labels - fieldset legends should not truncate */
 .filter-panel .govuk-label,
 .filter-panel .govuk-fieldset__legend {
   display: block;
@@ -314,72 +430,65 @@
 
 .filter-panel .govuk-checkboxes__label,
 .filter-panel .govuk-radios__label {
-  display: block; /* Block display for proper layout */
-  padding-left: 0; /* Remove any default padding */
-  white-space: nowrap; /* Prevent text wrapping to multiple lines */
-  overflow: visible; /* Show full text */
+  display: block;
+  padding-left: 0;
+  white-space: nowrap;
+  overflow: visible;
 }
 
-/* Ensure checkboxes and radios items have proper inline layout */
 .filter-panel .govuk-checkboxes__item,
 .filter-panel .govuk-radios__item {
-  display: inline-flex !important; /* Inline-flex for control+label horizontal */
-  align-items: center !important; /* Center vertically for inline appearance */
-  gap: 12px; /* Space between control and label */
-  margin-bottom: 0; /* Remove individual item margin - parent handles spacing */
-  min-height: 40px; /* GDS minimum touch target */
-  width: 100%; /* Full width so items stack vertically in parent */
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px;
+  margin-bottom: 0;
+  min-height: 40px;
+  width: 100%;
 }
 
-/* Ensure checkboxes and radios maintain proper spacing */
 .filter-panel .govuk-checkboxes,
 .filter-panel .govuk-radios {
-  margin-bottom: 0; /* GDS components handle their own spacing */
+  margin-bottom: 0;
   display: flex;
-  flex-direction: column; /* Stack items vertically */
-  gap: 10px; /* Vertical spacing between items */
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* Ensure inputs are properly sized and aligned */
 .filter-panel .govuk-checkboxes__input,
 .filter-panel .govuk-radios__input {
-  flex-shrink: 0; /* Prevent input from shrinking */
-  margin: 0; /* Remove default margins */
-  position: relative; /* Override any absolute positioning */
-  width: 40px; /* GDS standard size */
-  height: 40px; /* GDS standard size */
+  flex-shrink: 0;
+  margin: 0;
+  position: relative;
+  width: 40px;
+  height: 40px;
 }
 
-/* Ensure input fields are properly sized */
 .filter-panel .govuk-input {
   max-width: 100%; /* Full width within container */
   box-sizing: border-box;
 }
 
-/* Add bottom padding to form content */
 .filter-panel form {
-  padding-bottom: 20px; /* GDS spacing scale: level 4 - space from bottom border */
+  padding-bottom: 20px;
 }
 
-/* Ensure last form group has bottom margin for proper spacing */
 .filter-panel .govuk-form-group:last-child {
-  margin-bottom: 20px; /* Add spacing at bottom */
+  margin-bottom: 20px;
 }
 
-/* Responsive adjustments - maintain GDS breakpoints */
 @media (max-width: 640px) {
   .filter-panel {
-    padding: 15px; /* GDS spacing scale: level 3 */
+    padding: 15px;
   }
   
   .filter-actions {
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px; /* GDS spacing scale: level 3 */
+    gap: 15px;
   }
   
   .selected-filters-container {
-    padding: 10px; /* GDS spacing scale: level 2 */
+    padding: 10px;
   }
   
   .filter-pill {
@@ -387,31 +496,25 @@
   }
 }
 
-.workbasket-results-column {
-  min-width: 0;
-}
-
-/* Table wrapper container - bordered frame that includes count + table */
 .workbasket-table-wrapper {
-  border: 1px solid #b1b4b6; /* Outer frame per Figma */
-  padding: 20px; /* 20px padding on all sides creates gap below tabs */
-  margin-top: 0; /* No gap - tabs directly above */
+  border: 1px solid #b1b4b6;
+  padding: 20px;
+  margin-top: 0;
   margin-bottom: 30px;
   background: #ffffff;
   position: relative;
-  z-index: 1; /* Below active tab for seamless overlap */
+  z-index: 1;
 }
 
-/* Items count strip - plain text without styling */
 .workbasket-items-count {
   display: block;
-  background: none; /* No background */
-  border: none; /* No border */
+  background: none;
+  border: none;
   padding: 0;
   font-size: 16px;
   line-height: 1.25;
   color: #0b0c0c;
-  margin-bottom: 20px; /* 20px gap to table header */
+  margin-bottom: 20px;
 }
 
 /* Table styling - inside wrapper */
