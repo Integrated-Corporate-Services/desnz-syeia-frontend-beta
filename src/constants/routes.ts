@@ -276,7 +276,7 @@ export const ROUTE_CONFIG = [
     path: '/workbasket',
     component: Workbasket,
     auth: true,
-    layout: true
+    layout: false
   },
   {
     path:`${NWL_BASE_URL}/who-is-applying`,

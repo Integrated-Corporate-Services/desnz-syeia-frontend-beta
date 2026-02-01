@@ -202,8 +202,8 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   const hasActiveFilters =
     searchText.trim() !== "" ||
     caseTypes.length > 0 ||
-    statuses.length > 0 //||
-    //(showSubmittedByFilter && submittedBy === "all");
+    statuses.length > 0 ;
+    //||(showSubmittedByFilter && submittedBy === "all");
 
   if (!showFilters) return null;
 
