@@ -357,7 +357,6 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
         </fieldset>
       </div>
 
-      {/* Status */}
       <div className="govuk-form-group filter-section">
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">

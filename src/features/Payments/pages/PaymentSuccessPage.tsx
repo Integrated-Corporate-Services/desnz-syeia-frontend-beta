@@ -27,16 +27,16 @@ const PaymentSuccessPage: React.FC = () => {
             
             <table className="govuk-table">
               <tbody className="govuk-table__body">
-                {invoiceNumber && (
-                  <tr className="govuk-table__row">
-                    <th scope="row" className="govuk-table__header">Invoice Number</th>
-                    <td className="govuk-table__cell">{invoiceNumber}</td>
-                  </tr>
-                )}
                 {paymentId && (
                   <tr className="govuk-table__row">
-                    <th scope="row" className="govuk-table__header">Payment ID</th>
+                    <th scope="row" className="govuk-table__header">Payment reference number</th>
                     <td className="govuk-table__cell">{paymentId}</td>
+                  </tr>
+                )}
+                {invoiceNumber && (
+                  <tr className="govuk-table__row">
+                    <th scope="row" className="govuk-table__header">Payment for</th>
+                    <td className="govuk-table__cell">{invoiceNumber}</td>
                   </tr>
                 )}
                 <tr className="govuk-table__row">
