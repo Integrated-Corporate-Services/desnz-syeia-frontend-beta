@@ -5,17 +5,17 @@ export const CASE_TYPE_OPTIONS = [
 ];
 
 export const STATUS_OPTIONS = [
-  { value: "application-submitted", label: "Application submitted" },
-  { value: "under-review", label: "Under review" },
-  { value: "processing-payment", label: "Processing payment" },
-  { value: "further-info-requested", label: "Further information requested" },
-  { value: "in-progress", label: "In progress" },
-  { value: "decision-issued", label: "Decision issued" },
-  { value: "archived", label: "Archived" },
-  { value: "withdrawn", label: "Withdrawn" },
-  { value: "representation-stage", label: "Representation stage" },
-  { value: "in-abeyance", label: "In abeyance" },
-  { value: "invalid", label: "Invalid" },
+  { value: "SUBMITTED", label: "Application submitted" },
+  { value: "UNDER_REVIEW", label: "Under review" },
+  { value: "PROCESSING_PAYMENT", label: "Processing payment" },
+  { value: "FURTHER_INFORMATION_REQUESTED", label: "Further information requested" },
+  { value: "IN_PROGRESS", label: "In progress" },
+  { value: "DECISION_ISSUED", label: "Decision issued" },
+  { value: "ARCHIVED", label: "Archived" },
+  { value: "WITHDRAWN", label: "Withdrawn" },
+  { value: "REPRESENTATION_STAGE", label: "Representation stage" },
+  { value: "IN_ABEYANCE", label: "In abeyance" },
+  { value: "INVALID", label: "Invalid" },
 ];
 
 export type TabType = "draft" | "active" | "completed" | "archived";

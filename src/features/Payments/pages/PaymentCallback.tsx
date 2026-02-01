@@ -24,7 +24,14 @@ export default function PaymentCallback() {
     const maxAttempts = 60; // 3 seconds * 60 = 3 minutes
     const pollStatus = () => {
       setLoading(true);
-      getPaymentStatus(paymentId)
+      const paymentId = sessionStorage.getItem('paymentId');
+      const applicationId = sessionStorage.getItem('applicationId');
+      if (!paymentId || !applicationId) {
+        setError('No payment ID found.');
+        setLoading(false);
+        return;
+      }
+      getPaymentStatus(applicationId, paymentId)
         .then(data => {
           setStatus(data.state?.status || '');
           setReference(data.reference || paymentId);

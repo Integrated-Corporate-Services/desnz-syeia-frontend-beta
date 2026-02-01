@@ -130,19 +130,19 @@ export const ROUTE_CONFIG = [
     path: '/landingPage',
     component: LandingPage,
     auth: false,
-    layout: false
+    layout: true
   },
   {
     path: '/s37-guidance',
     component: Section37GuidancePage,
     auth: false,
-    layout: false
+    layout: true
   },
   {
     path: '/nwl-guidance',
     component: NWLGuidancePage,
     auth: false,
-    layout: false
+    layout: true
   },
 
 
@@ -156,7 +156,7 @@ export const ROUTE_CONFIG = [
     path: '/admin/user-management',
     component: UserManagementDashboard,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/organisation/:organisationId/settings',
@@ -276,7 +276,7 @@ export const ROUTE_CONFIG = [
     path: '/workbasket',
     component: Workbasket,
     auth: true,
-    layout: true
+    layout: false
   },
   {
     path:`${NWL_BASE_URL}/who-is-applying`,
