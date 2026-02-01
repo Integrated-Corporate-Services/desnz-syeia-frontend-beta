@@ -61,7 +61,11 @@ export const useWorkbasketFilters = (
       }
       // Status filter
       if (statuses.length > 0) {
-        const normalizedStatus = app.status.toLowerCase().replace(/\s+/g, "-");
+      //  const normalizedStatus = app.status.toLowerCase().replace(/\s+/g, "-");
+      // if (!statuses.includes(normalizedStatus)) return false;
+       const normalizedStatus = app.status
+          .toLowerCase()
+          .replace(/[_\s]+/g, "-");
         if (!statuses.includes(normalizedStatus)) return false;
       }
       return true;
