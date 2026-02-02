@@ -1,24 +1,29 @@
-export const STATUS_FILTER_OPTIONS = [
-  { value: '', label: 'Select option' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'payment pending', label: 'Payment pending' },
-  { value: 'submitted', label: 'Submitted' },
-  { value: 'on hold', label: 'On hold' },
-  { value: 'granted', label: 'Granted' },
-  { value: 'declined', label: 'Declined' },
+export const CASE_TYPE_OPTIONS = [
+  { value: "overhead-lines", label: "Overhead Lines (S37)" },
+  { value: "necessary-wayleaves", label: "Necessary Wayleaves" },
+  { value: "tree-lopping", label: "Tree Lopping and Felling" },
 ];
 
-export const DATE_FILTER_OPTIONS = [
-  { value: '', label: 'Select date' },
-  { value: 'last-7-days', label: 'Last 7 days' },
-  { value: 'last-14-days', label: 'Last 14 days' },
-  { value: 'last-month', label: 'Last month' },
-  { value: 'last-12-months', label: 'Last 12 months' },
+export const STATUS_OPTIONS = [
+  { value: "SUBMITTED", label: "Application submitted" },
+  { value: "UNDER_REVIEW", label: "Under review" },
+  { value: "PROCESSING_PAYMENT", label: "Processing payment" },
+  { value: "FURTHER_INFORMATION_REQUESTED", label: "Further information requested" },
+  { value: "IN_PROGRESS", label: "In progress" },
+  { value: "DECISION_ISSUED", label: "Decision issued" },
+  { value: "ARCHIVED", label: "Archived" },
+  { value: "WITHDRAWN", label: "Withdrawn" },
+  { value: "REPRESENTATION_STAGE", label: "Representation stage" },
+  { value: "IN_ABEYANCE", label: "In abeyance" },
+  { value: "INVALID", label: "Invalid" },
 ];
 
-export const DATE_FILTER_DAYS = {
-  'last-7-days': 7,
-  'last-14-days': 14,
-  'last-month': 30,
-  'last-12-months': 365,
-} as const;
+export type TabType = "draft" | "active" | "completed" | "archived";
+
+export const TAB_OPTIONS: { value: TabType; label: string; count?: number }[] =
+  [
+    { value: "draft", label: "Draft" },
+    { value: "active", label: "Submitted" },
+    { value: "completed", label: "Completed" },
+    { value: "archived", label: "Archived" },
+  ];

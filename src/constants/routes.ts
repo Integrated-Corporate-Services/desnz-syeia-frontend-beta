@@ -2,9 +2,13 @@ import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
-import ConsultationResponsePage from '../features/Consultation/pages/ConsultationResponsePage';
+import ConsultationResponse from '../features/Consultation/pages/ConsultationResponse';
+import ConsultationResponse2 from '../features/Consultation/pages/ConsultationResponse2';
+import ConsultationResponse3 from '../features/Consultation/pages/ConsultationResponse3';
 import ConsultationNotRequiredPage from '../features/Consultation/pages/ConsultationNotRequiredPage';
 import ConsultationRequestPage from '../features/Consultation/pages/ConsultationRequestPage';
+import ConsultationRequestsRequired from '../features/Consultation/pages/ConsultationRequestsRequired';
+import SelectOtherConsultations from '../features/Consultation/pages/SelectOtherConsultations';
 import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOperatorDetails';
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import Workbasket from '../features/Workbasket/pages/Workbasket';
@@ -130,19 +134,19 @@ export const ROUTE_CONFIG = [
     path: '/landingPage',
     component: LandingPage,
     auth: false,
-    layout: false
+    layout: true
   },
   {
     path: '/s37-guidance',
     component: Section37GuidancePage,
     auth: false,
-    layout: false
+    layout: true
   },
   {
     path: '/nwl-guidance',
     component: NWLGuidancePage,
     auth: false,
-    layout: false
+    layout: true
   },
 
 
@@ -156,7 +160,7 @@ export const ROUTE_CONFIG = [
     path: '/admin/user-management',
     component: UserManagementDashboard,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/organisation/:organisationId/settings',
@@ -276,7 +280,7 @@ export const ROUTE_CONFIG = [
     path: '/workbasket',
     component: Workbasket,
     auth: true,
-    layout: true
+    layout: false
   },
   {
     path:`${NWL_BASE_URL}/who-is-applying`,
@@ -542,9 +546,22 @@ export const ROUTE_CONFIG = [
     auth: true,
     layout: true
   },
+
   {
     path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response`,
-    component: ConsultationResponsePage,
+    component: ConsultationResponse,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response2`,
+    component: ConsultationResponse2,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response3`,
+    component: ConsultationResponse3,
     auth: true,
     layout: true
   },
@@ -557,6 +574,18 @@ export const ROUTE_CONFIG = [
   {
     path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/not-required`,
     component: ConsultationNotRequiredPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/requests-required`,
+    component: ConsultationRequestsRequired,
+    auth: true,
+    layout: true
+  },
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/select-other-consultations`,
+    component: SelectOtherConsultations,
     auth: true,
     layout: true
   },

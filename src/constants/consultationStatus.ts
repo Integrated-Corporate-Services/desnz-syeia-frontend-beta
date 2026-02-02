@@ -7,5 +7,6 @@ export const ConsultationStatus = {
   CLOSED: 'Closed',
   SENT : 'Sent',
   UPLOAD_RESPONSE: 'Upload response',
-  NOT_REQUIRED: 'Not required'
+  NOT_REQUIRED: 'Not required',
+  DRAFT: 'Draft',
 };

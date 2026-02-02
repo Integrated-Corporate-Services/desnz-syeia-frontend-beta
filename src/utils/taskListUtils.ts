@@ -2,13 +2,22 @@ import { S37_BASE_URL } from "../constants/s37";
 
 export type TaskListSection = {
   title: string;
-  items: { name: string; status: string; link: string }[];
+  items: { 
+    name: string; 
+    status: string; 
+    link: string;
+    disabled?: boolean;  // Add this line
+  }[];
 };
 
-export function getInitialSections(applicationId?: string): TaskListSection[] {
+export function getInitialSections(applicationId?: string, assetInformationStatus?: string): TaskListSection[] {
   const base = applicationId
     ? `${S37_BASE_URL}/${applicationId}`
     : `${S37_BASE_URL}/:applicationId`;
+
+  // Determine if Pay and submit should be disabled
+  const isAssetInfoCompleted = assetInformationStatus === 'Completed';
+
   return [
     {
       title: "Applicant details",
@@ -70,7 +79,11 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
           status: "Incomplete",
           link: `${base}/supporting-info`,
         },
-        { name: "EIA fees", status: "Incomplete", link: `${base}/eia-fees` },
+        {
+          name: "EIA fees",
+          status: "Incomplete",
+          link: `${base}/eia-fees`,
+        },
       ],
     },
     {
@@ -79,7 +92,7 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
         {
           name: "Consultations",
           status: "Cannot start yet",
-          link: `${base}/consultation-details`,
+          link: `${base}/consultation/requests-required`,
         },
         {
           name: "Post consultation actions",
@@ -98,8 +111,9 @@ export function getInitialSections(applicationId?: string): TaskListSection[] {
         },
         {
           name: "Pay and submit",
-          status: "Cannot start yet",
-          link: `${base}/pay-and-submit`,
+          status: isAssetInfoCompleted ? "Incomplete" : "Cannot start yet",
+          link: isAssetInfoCompleted ? `${base}/pay-and-submit` : "#",
+          disabled: !isAssetInfoCompleted,  // Add disabled flag
         },
         {
           name: "Submit application",
@@ -117,38 +131,33 @@ export function updateSectionStatus(
   itemIdx: number,
   newStatus: string
 ): TaskListSection[] {
-  return sections.map((section, sIdx) =>
-    sIdx === sectionIdx
-      ? {
-          ...section,
-          items: section.items.map((item, iIdx) =>
-            iIdx === itemIdx ? { ...item, status: newStatus } : item
-          ),
-        }
-      : section
-  );
+  const updated = sections.map((section, idx) => {
+    if (idx === sectionIdx) {
+      return {
+        ...section,
+        items: section.items.map((item, jdx) => {
+          if (jdx === itemIdx) {
+            return { ...item, status: newStatus };
+          }
+          return item;
+        }),
+      };
+    }
+    return section;
+  });
+  return updated;
 }
 
-/**
- * Returns sections with status from progress API if available, else uses default status.
- * @param applicationId
- * @param progress Array of { subsection_name, status } from backend
- */
 export function getSectionsWithProgress(
   applicationId?: string,
-  progress?: { subsection_name: string; status: string }[]
+  progress?: { subsection_name: string; status: string }[],
+  assetInformationStatus?: string
 ): TaskListSection[] {
-  const sections = getInitialSections(applicationId);
-  if (!progress || !Array.isArray(progress) || progress.length === 0)
-    return sections;
+  const sections = getInitialSections(applicationId, assetInformationStatus);
+  if (!progress || progress.length === 0) return sections;
   return applyProgressToSections(sections, progress);
 }
 
-/**
- * Updates the status of each item in sections based on backend progress data.
- * @param sections The initial sections array
- * @param progress Array of { subsection_name, status } from backend
- */
 export function applyProgressToSections(
   sections: TaskListSection[],
   progress: { subsection_name: string; status: string }[]

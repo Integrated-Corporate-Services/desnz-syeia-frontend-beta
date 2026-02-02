@@ -72,12 +72,12 @@ const NetworkOperatorDetails: React.FC = () => {
     application?.application_party?.organisation_name || stateOrgName || "";
 
   // Fetch team coordinators for users who can access them
-  // DNO_AGENT, DNO_USER, DNO_TEAM_COORDINATOR all have permission
+  // APPLICANT_AGENT, APPLICANT_USER, APPLICANT_TEAM_COORDINATOR all have permission
   const canFetchCoordinators =
     user?.role === "DESNZ_ADMIN" ||
-    user?.role === "DNO_TEAM_COORDINATOR" ||
-    user?.role === "DNO_AGENT" ||
-    user?.role === "DNO_USER";
+    user?.role === "APPLICANT_TEAM_COORDINATOR" ||
+    user?.role === "APPLICANT_AGENT" ||
+    user?.role === "APPLICANT_USER";
   const { coordinators } = useTeamCoordinators(
     canFetchCoordinators ? organisationId : undefined
   );

@@ -122,9 +122,9 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                     <td className="govuk-table__cell">
                       {user.role === ROLES.DESNZ_ADMIN
                         ? "DESNZ Admin"
-                        : user.role === ROLES.DNO_TEAM_COORDINATOR
-                        ? "DNO Team Coordinator"
-                        : user.role}
+                        : user.role === ROLES.APPLICANT_TEAM_COORDINATOR
+                          ? "DNO Team Coordinator"
+                          : user.role}
                     </td>
                     <td className="govuk-table__cell">
                       <strong className="govuk-tag govuk-tag--green">

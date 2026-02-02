@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
+import { useAssetStore } from '../../../store/useAssetStore';
 
 const PaymentAmountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const PaymentAmountPage: React.FC = () => {
   const { user } = useAuthUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const assets = useAssetStore((state) => state.assets);
 
   // Dynamic payment breakdown - fetched from backend
   const [consentFee, setConsentFee] = useState(0);
@@ -17,6 +19,14 @@ const PaymentAmountPage: React.FC = () => {
   const [eiaFee, setEiaFee] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [feeBreakdown, setFeeBreakdown] = useState<any>(null);
+
+  // useEffect(() => {
+  //   // Check if asset information is completed
+  //   if (!assets || assets.length === 0) {
+  //     alert('Please complete Asset information section first');
+  //     navigate(`/s37/${applicationId}/task-list`);
+  //   }
+  // }, [assets, applicationId, navigate]);
 
   // Fetch payment fees from backend
   useEffect(() => {
@@ -126,11 +136,6 @@ const PaymentAmountPage: React.FC = () => {
             <p className="govuk-body">
               You need to pay <strong>£{totalAmount.toFixed(2)}</strong> to submit your application.
             </p>
-
-            <p className="govuk-body">
-              Once you generate the invoice, you will be redirected to a secure page to make the payment.
-            </p>
-
             <p className="govuk-body">
               Here is the breakdown of your payment amount:
             </p>
@@ -179,7 +184,15 @@ const PaymentAmountPage: React.FC = () => {
               </tbody>
             </table>
 
-            {/* Debug information (remove in production) */}
+            {/* Invoice Generation Notice - NEW */}
+            <div className="govuk-inset-text" style={{
+              borderLeftColor: '#1d70b8',
+              paddingLeft: '15px'
+            }}>
+              You need to generate an invoice to move to the next step.
+            </div>
+
+            {/* TODO
             {feeBreakdown && (
               <details className="govuk-details" data-module="govuk-details">
                 <summary className="govuk-details__summary">
@@ -199,7 +212,7 @@ const PaymentAmountPage: React.FC = () => {
                   </ul>
                 </div>
               </details>
-            )}
+            )} */}
 
             <div className="govuk-button-group">
               <button
