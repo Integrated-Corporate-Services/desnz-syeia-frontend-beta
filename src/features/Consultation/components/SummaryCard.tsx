@@ -122,9 +122,12 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
             <div className="govuk-summary-card__title-wrapper">
               <h2 className="govuk-summary-card__title">{orgName}</h2>
               <ul className="govuk-summary-card__actions">
+                {orgName && orgName.trim().toLowerCase() === 'natural england' && (
+
                 <li className="govuk-summary-card__action">
                   <Link to={notRequiredPageUrl} className="govuk-link">Not required</Link>
                 </li>
+                )}
                 <li className="govuk-summary-card__action">
                   <Link to={responseUrlWithParams} className="govuk-link">Provide response</Link>
                 </li>

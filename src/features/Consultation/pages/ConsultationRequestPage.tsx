@@ -4,6 +4,7 @@ import FileUpload from '../../../components/FileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { saveConsultationRequest, getConsultationRequest } from '../../../services/consultationRequestService';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import { validateDateComponents } from '../../../utils/validation';
 
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -32,9 +33,9 @@ const ConsultationRequestPage: React.FC = () => {
   // Fetch and bind consultation response on load
   React.useEffect(() => {
     async function fetchData() {
-      if (consultationId) {
+      if (applicationId && consultationId) {
         try {
-          const data = await getConsultationRequest(consultationId);
+          const data = await getConsultationRequest(applicationId, consultationId);
           if (data) {
             // Parse sent date if available
             if (data.sentDate) {
@@ -54,34 +55,16 @@ const ConsultationRequestPage: React.FC = () => {
       }
     }
     fetchData();
-  }, [consultationId]);
+  }, [applicationId, consultationId]);
 
   // Validation function
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
-    // Date validation
-    const { day, month, year } = responseDate;
-    
-    if (!day && !month && !year) {
-      newErrors.responseDate = 'Enter the date the consultation request was sent';
-    } else if (!day || !month || !year) {
-      const missing = [];
-      if (!day) missing.push('day');
-      if (!month) missing.push('month');
-      if (!year) missing.push('year');
-      newErrors.responseDate = `The date the consultation request was sent must include a ${missing.join(', ')}`;
-    } else {
-      // Check if date is valid
-      const dateValue = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-      if (
-        isNaN(dateValue.getTime()) ||
-        dateValue.getDate() !== parseInt(day) ||
-        dateValue.getMonth() !== parseInt(month) - 1 ||
-        dateValue.getFullYear() !== parseInt(year)
-      ) {
-        newErrors.responseDate = 'The date the consultation request was sent must be a real date';
-      }
+    // Date validation using shared utility
+    const dateValidation = validateDateComponents(responseDate, 'consultation request', { required: true });
+    if (!dateValidation.isValid) {
+      newErrors.responseDate = dateValidation.error!;
     }
     
     // File validation
@@ -97,37 +80,10 @@ const ConsultationRequestPage: React.FC = () => {
   const validateFormatOnly = () => {
     const newErrors: { [key: string]: string } = {};
     
-    // Date format validation (only if any field is filled)
-    const { day, month, year } = responseDate;
-    
-    if (day || month || year) {
-      if (!day || !month || !year) {
-        const missing = [];
-        if (!day) missing.push('day');
-        if (!month) missing.push('month');
-        if (!year) missing.push('year');
-        newErrors.responseDate = `The date the consultation request was sent must include a ${missing.join(', ')}`;
-      } else {
-        // Check if values are numeric
-        const dayNum = parseInt(day);
-        const monthNum = parseInt(month);
-        const yearNum = parseInt(year);
-        
-        if (isNaN(dayNum) || isNaN(monthNum) || isNaN(yearNum)) {
-          newErrors.responseDate = 'The date the consultation request was sent must be a real date';
-        } else {
-          // Check if date is valid
-          const dateValue = new Date(yearNum, monthNum - 1, dayNum);
-          if (
-            isNaN(dateValue.getTime()) ||
-            dateValue.getDate() !== dayNum ||
-            dateValue.getMonth() !== monthNum - 1 ||
-            dateValue.getFullYear() !== yearNum
-          ) {
-            newErrors.responseDate = 'The date the consultation request was sent must be a real date';
-          }
-        }
-      }
+    // Date format validation using shared utility (not required)
+    const dateValidation = validateDateComponents(responseDate, 'consultation request', { required: false });
+    if (!dateValidation.isValid) {
+      newErrors.responseDate = dateValidation.error!;
     }
     
     setErrors(newErrors);
@@ -152,6 +108,7 @@ const ConsultationRequestPage: React.FC = () => {
       sentDate = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
     }
     const payload = {
+      applicationId: applicationId || '',
       consultationId: consultationId || '',
       sentDate: sentDate,
       uploadedFiles: uploadedFileObjs,
@@ -185,6 +142,7 @@ const ConsultationRequestPage: React.FC = () => {
       sentDate = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
     }
     const payload = {
+      applicationId: applicationId || '',
       consultationId: consultationId || '',
       sentDate: sentDate || undefined,
       uploadedFiles: uploadedFileObjs,
@@ -315,35 +273,6 @@ const ConsultationRequestPage: React.FC = () => {
                   </div>
                 </fieldset>
               </div>
-{/* 
-              {uploadedFileObjs && uploadedFileObjs.length > 0 && (
-                <div className="govuk-form-group govuk-!-margin-bottom-6">
-                  <h2 className="govuk-heading-m">Documents uploaded</h2>
-                  <ul className="govuk-list">
-                    {uploadedFileObjs.map((file, idx) => (
-                      <li key={idx} className="govuk-!-margin-bottom-2">
-                        <a href="#" className="govuk-link" onClick={e => {
-                          e.preventDefault();
-                          // Handle file download if needed
-                        }}>
-                          {file.filename}
-                        </a>
-                        <a 
-                          href="#" 
-                          className="govuk-link govuk-!-margin-left-4" 
-                          onClick={e => {
-                            e.preventDefault();
-                            setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
-                            setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
-                          }}
-                        >
-                          Delete
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )} */}
               
               <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload ? 'govuk-form-group--error' : ''}`} id="file-upload">
                 <h2 className="govuk-heading-m">Upload evidence of the consultation request</h2>

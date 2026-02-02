@@ -146,7 +146,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
                     <div className="govuk-grid-column-two-thirds">
                       <p className="govuk-body">{lpa.name}</p>
                     </div>
-                    <div className="govuk-grid-column-one-third" style={{ textAlign: "right" }}>
+                    <div className="govuk-grid-column-one-third govuk-!-text-align-right">
                       <a
                         href="#"
                         className="govuk-link"

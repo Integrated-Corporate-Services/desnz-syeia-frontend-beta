@@ -55,16 +55,13 @@ export async function updateAllConsultations(applicationId: string, userId: stri
   const url = `/backend/api/consultations/${applicationId}/update-all-consultations`;
   const payload = { userId };
   
-  console.log('[consultationService] updateAllConsultations calling:', {
-    url,
-    applicationId,
-    userId,
-    payload
-  });
-  
-  const response = await axios.post(url, payload, { withCredentials: true });
-  
-  console.log('[consultationService] updateAllConsultations response:', response.data);
-  
-  return response.data;
+  try {
+    const response = await axios.post(url, payload, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    const originalMessage = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'Unknown error');
+    throw new Error(
+      `Failed to update all consultations for applicationId=${applicationId}, userId=${userId}: ${originalMessage}`
+    );
+  }
 }

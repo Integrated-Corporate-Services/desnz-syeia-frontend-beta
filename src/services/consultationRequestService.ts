@@ -1,8 +1,9 @@
 import { UploadedFile, ApplicationDocument } from '../types/fileUpload';
 
-const API_BASE = '/backend/api/consultations';
+const API_BASE = '/backend/api/applications';
 
 export interface ConsultationRequest {
+  applicationId: string;
   consultationId: string;
   sentDate?: string;
   uploadedFiles?: UploadedFile[];
@@ -24,7 +25,7 @@ export interface ConsultationRequestResponse {
  * Save consultation request with sent date and documents
  */
 export async function saveConsultationRequest(data: ConsultationRequest): Promise<{success: boolean; data?: Record<string, unknown>}> {
-  const url = `${API_BASE}/${data.consultationId}/save-consultation-request`;
+  const url = `${API_BASE}/${data.applicationId}/consultations/${data.consultationId}/request`;
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -43,8 +44,8 @@ export async function saveConsultationRequest(data: ConsultationRequest): Promis
 /**
  * Get consultation request details including sent date and documents
  */
-export async function getConsultationRequest(consultationId: string): Promise<ConsultationRequestResponse> {
-  const url = `${API_BASE}/${consultationId}/get-consultation-request`;
+export async function getConsultationRequest(applicationId: string, consultationId: string): Promise<ConsultationRequestResponse> {
+  const url = `${API_BASE}/${applicationId}/consultations/${consultationId}/request`;
   const res = await fetch(url, { 
     method: 'GET', 
     credentials: 'include' 

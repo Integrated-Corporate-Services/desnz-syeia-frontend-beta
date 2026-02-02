@@ -3,9 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
-import { ConsultationResponse } from '../../../types/ConsultationResponse';
+import type { ConsultationResponse } from '../../../types/ConsultationResponse';
 
-const ConsultationResponseStep1: React.FC = () => {
+const ConsultationResponse: React.FC = () => {
     const { consultationId, applicationId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthUser();
@@ -22,7 +22,7 @@ const ConsultationResponseStep1: React.FC = () => {
         async function fetchData() {
             if (consultationId) {
                 try {
-                    const data = await getConsultationResponse(consultationId);
+                    const data = await getConsultationResponse(consultationId, applicationId);
                     setContactName(data.response_full_name || '');
                     setEmail(data.response_email_address || '');
                     setHasObjection(data.has_objection ? 'yes' : (data.has_objection === false ? 'no' : ''));
@@ -33,7 +33,7 @@ const ConsultationResponseStep1: React.FC = () => {
             }
         }
         fetchData();
-    }, [consultationId]);
+    }, [consultationId, applicationId]);
 
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
@@ -79,21 +79,18 @@ const ConsultationResponseStep1: React.FC = () => {
 
         try {
             // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!);
+            const existingData = await getConsultationResponse(consultationId!, applicationId);
             
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
-                consultation_id: consultationId,
-                response_id: responseId,
                 response_full_name: contactName,
                 response_email_address: email,
                 has_objection: hasObjection === 'yes',
-                created_by: userId,
                 last_updated_by: userId,
                 isSave: true
             };
 
-            await saveConsultationResponse(payload);
+            await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response2`);
         } catch (err) {
             console.error('Error saving consultation response:', err);
@@ -112,7 +109,7 @@ const ConsultationResponseStep1: React.FC = () => {
 
         try {
             // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!);
+            const existingData = await getConsultationResponse(consultationId!, applicationId);
             
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
@@ -126,7 +123,7 @@ const ConsultationResponseStep1: React.FC = () => {
                 isSave: true
             };
 
-            await saveConsultationResponse(payload);
+            await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
         } catch (err) {
             console.error('Error saving consultation response:', err);
@@ -300,4 +297,4 @@ const ConsultationResponseStep1: React.FC = () => {
     );
 };
 
-export default ConsultationResponseStep1;
+export default ConsultationResponse;

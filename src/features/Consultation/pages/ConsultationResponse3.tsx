@@ -21,7 +21,7 @@ const ConsultationResponse3: React.FC = () => {
         async function fetchData() {
             if (consultationId) {
                 try {
-                    const data = await getConsultationResponse(consultationId);
+                    const data = await getConsultationResponse(consultationId, applicationId);
                     setComments(data.response_comments || '');
                     setResponseId(data.response_id || '');
                 } catch (err) {
@@ -30,7 +30,7 @@ const ConsultationResponse3: React.FC = () => {
             }
         }
         fetchData();
-    }, [consultationId]);
+    }, [consultationId, applicationId]);
 
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
@@ -55,20 +55,17 @@ const ConsultationResponse3: React.FC = () => {
 
         try {
             // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!);
+            const existingData = await getConsultationResponse(consultationId!, applicationId);
             
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
-                consultation_id: consultationId,
-                response_id: responseId,
                 response_comments: comments,
-                created_by: userId,
                 last_updated_by: userId,
                 has_all_documents_uploaded: declarationAccepted,
                 isSave: false,
             };
 
-            await saveConsultationResponse(payload);
+            await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
             console.error('Error closing consultation:', err);
@@ -78,7 +75,7 @@ const ConsultationResponse3: React.FC = () => {
     const handleSaveForLater = async () => {
         try {
             // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!);
+            const existingData = await getConsultationResponse(consultationId!, applicationId);
             
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
@@ -91,7 +88,7 @@ const ConsultationResponse3: React.FC = () => {
                 isSave: true
             };
 
-            await saveConsultationResponse(payload);
+            await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
             console.error('Error saving consultation response:', err);

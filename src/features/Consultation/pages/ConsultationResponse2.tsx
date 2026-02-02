@@ -7,6 +7,7 @@ import { getConsultationResponse, saveConsultationResponse } from '../../../serv
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import FileUpload from '../../../components/FileUpload';
+import { validateDateComponents } from '../../../utils/validation';
 
 const ConsultationResponse2: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -25,7 +26,7 @@ const ConsultationResponse2: React.FC = () => {
         async function fetchData() {
             if (consultationId) {
                 try {
-                    const data = await getConsultationResponse(consultationId);
+                    const data = await getConsultationResponse(consultationId, applicationId);
                     if (data.received_at) {
                         const date = new Date(data.received_at);
                         setResponseDate({
@@ -43,7 +44,7 @@ const ConsultationResponse2: React.FC = () => {
             }
         }
         fetchData();
-    }, [consultationId]);
+    }, [consultationId, applicationId]);
 
     const handleUploadedFiles = (files: UploadedFile[], docs: ApplicationDocument[]) => {
         setUploadedFileObjs(prev => [...prev, ...files]);
@@ -52,34 +53,11 @@ const ConsultationResponse2: React.FC = () => {
 
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
-        const { day, month, year } = responseDate;
 
-        if (!day && !month && !year) {
-            newErrors.responseDate = 'Enter the date the consultation response was received';
-        } else if (!day || !month || !year) {
-            const missing = [];
-            if (!day) missing.push('day');
-            if (!month) missing.push('month');
-            if (!year) missing.push('year');
-            newErrors.responseDate = `The date the consultation response was received must include a ${missing.join(', ')}`;
-        } else {
-            const dayNum = parseInt(day);
-            const monthNum = parseInt(month);
-            const yearNum = parseInt(year);
-
-            if (isNaN(dayNum) || isNaN(monthNum) || isNaN(yearNum)) {
-                newErrors.responseDate = 'The date the consultation response was received must be a real date';
-            } else {
-                const dateValue = new Date(yearNum, monthNum - 1, dayNum);
-                if (
-                    isNaN(dateValue.getTime()) ||
-                    dateValue.getDate() !== dayNum ||
-                    dateValue.getMonth() !== monthNum - 1 ||
-                    dateValue.getFullYear() !== yearNum
-                ) {
-                    newErrors.responseDate = 'The date the consultation response was received must be a real date';
-                }
-            }
+        // Date validation using shared utility
+        const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: true });
+        if (!dateValidation.isValid) {
+            newErrors.responseDate = dateValidation.error!;
         }
 
         if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
@@ -92,34 +70,11 @@ const ConsultationResponse2: React.FC = () => {
 
     const validateFormatOnly = () => {
         const newErrors: { [key: string]: string } = {};
-        const { day, month, year } = responseDate;
 
-        if (day || month || year) {
-            if (!day || !month || !year) {
-                const missing = [];
-                if (!day) missing.push('day');
-                if (!month) missing.push('month');
-                if (!year) missing.push('year');
-                newErrors.responseDate = `The date the consultation response was received must include a ${missing.join(', ')}`;
-            } else {
-                const dayNum = parseInt(day);
-                const monthNum = parseInt(month);
-                const yearNum = parseInt(year);
-
-                if (isNaN(dayNum) || isNaN(monthNum) || isNaN(yearNum)) {
-                    newErrors.responseDate = 'The date the consultation response was received must be a real date';
-                } else {
-                    const dateValue = new Date(yearNum, monthNum - 1, dayNum);
-                    if (
-                        isNaN(dateValue.getTime()) ||
-                        dateValue.getDate() !== dayNum ||
-                        dateValue.getMonth() !== monthNum - 1 ||
-                        dateValue.getFullYear() !== yearNum
-                    ) {
-                        newErrors.responseDate = 'The date the consultation response was received must be a real date';
-                    }
-                }
-            }
+        // Date format validation using shared utility (not required)
+        const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: false });
+        if (!dateValidation.isValid) {
+            newErrors.responseDate = dateValidation.error!;
         }
 
         setErrors(newErrors);
@@ -140,21 +95,18 @@ const ConsultationResponse2: React.FC = () => {
         
         try {
             // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!);
+            const existingData = await getConsultationResponse(consultationId!, applicationId);
             
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
-                consultation_id: consultationId,
-                response_id: responseId,
                 received_at: receivedAt,
                 uploaded_files: uploadedFileObjs,
                 application_documents: applicationDocuments,
-                created_by: userId,
                 last_updated_by: userId,
                 isSave: true
             };
 
-            await saveConsultationResponse(payload);
+            await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response3`);
         } catch (err) {
             console.error('Error saving consultation response:', err);
@@ -178,7 +130,7 @@ const ConsultationResponse2: React.FC = () => {
 
         try {
             // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!);
+            const existingData = await getConsultationResponse(consultationId!, applicationId);
             
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
@@ -192,7 +144,7 @@ const ConsultationResponse2: React.FC = () => {
                 isSave: true
             };
 
-            await saveConsultationResponse(payload);
+            await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
         } catch (err) {
             console.error('Error saving consultation response:', err);

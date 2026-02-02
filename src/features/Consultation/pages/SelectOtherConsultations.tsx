@@ -2,14 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import LpaSelector, { Lpa } from "../../../components/LpaSelector";
-import { useDerivedLpas } from "../../../hooks/useDerivedLpas";
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { updateAllConsultations } from '../../../services/consultationService';
 import log from '../../../logger';
-interface LPAEntry {
-    id: string;
-    name: string;
-}
 
 interface OtherConsulteeEntry {
     id: string;
@@ -19,44 +14,32 @@ interface OtherConsulteeEntry {
 const SelectOtherConsultations: React.FC = () => {
     const { applicationId } = useParams();
     const navigate = useNavigate();
-  const { user } = useAuthUser();
+    const { user } = useAuthUser();
 
     const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
-    const [lpaEntries, setLpaEntries] = useState<LPAEntry[]>([]);
-    const [lpaSearchTerm, setLpaSearchTerm] = useState<string>('');
     const [otherEntries, setOtherEntries] = useState<OtherConsulteeEntry[]>([]);
     const [otherSearchTerm, setOtherSearchTerm] = useState<string>('');
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
-const [selectedLpas, setSelectedLpas] = useState<Lpa[]>([]);
+    const [selectedLpas, setSelectedLpas] = useState<Lpa[]>([]);
 
-  const { derivedLpas } = useDerivedLpas(applicationId);
+    const handleLpaSelect = (lpa: Lpa | null) => {
+        // Add to array if not already present
+        if (lpa && !selectedLpas.some((s) => s.lpa_code === lpa.lpa_code)) {
+            setSelectedLpas((prev) => [...prev, lpa]);
+            log.debug("LPA added:", lpa.lpa_name, lpa.lpa_code);
+            // TODO: Later integrate with consultation creation
+            // This could trigger creation of a new consultation with this LPA
+        }
+    };
 
-
-  const handleLpaSelect = (lpa: Lpa | null) => {
-    // Add to array if not already present
-    if (lpa && !selectedLpas.some((s) => s.lpa_code === lpa.lpa_code)) {
-      setSelectedLpas((prev) => [...prev, lpa]);
-      log.debug("LPA added:", lpa.lpa_name, lpa.lpa_code);
-      // TODO: Later integrate with consultation creation
-      // This could trigger creation of a new consultation with this LPA
-    }
-  };
-
-  const handleLpaRemove = (lpaCode: string) => {
-    setSelectedLpas((prev) => prev.filter((lpa) => lpa.lpa_code !== lpaCode));
-    log.debug("LPA removed:", lpaCode);
-  };
+    const handleLpaRemove = (lpaCode: string) => {
+        setSelectedLpas((prev) => prev.filter((lpa) => lpa.lpa_code !== lpaCode));
+        log.debug("LPA removed:", lpaCode);
+    };
 
     // TODO: Load existing selections from backend
     useEffect(() => {
         // Example pre-filled data
-        setLpaEntries([
-            { id: 'lpa-1', name: 'Suffolk Council' },
-            { id: 'lpa-2', name: 'Norfolk Council' }
-        ]);
-        setOtherEntries([
-         
-        ]);
+        setOtherEntries([]);
         setSelectedCategories(new Set([]));
     }, []);
 
@@ -68,21 +51,6 @@ const [selectedLpas, setSelectedLpas] = useState<Lpa[]>([]);
             newCategories.add(category);
         }
         setSelectedCategories(newCategories);
-    };
-
-    const handleAddLPA = () => {
-        if (lpaSearchTerm.trim()) {
-            const newEntry: LPAEntry = {
-                id: `lpa-${Date.now()}`,
-                name: lpaSearchTerm.trim()
-            };
-            setLpaEntries([...lpaEntries, newEntry]);
-            setLpaSearchTerm('');
-        }
-    };
-
-    const handleRemoveLPA = (id: string) => {
-        setLpaEntries(lpaEntries.filter(entry => entry.id !== id));
     };
 
     const handleAddOther = () => {
@@ -102,51 +70,21 @@ const [selectedLpas, setSelectedLpas] = useState<Lpa[]>([]);
 
     const handleSaveAndContinue = async () => {
         try {
-            // Update all consultations with lastUpdatedBy
-            console.log('[SelectOtherConsultations] Current user object:', user);
-            console.log('[SelectOtherConsultations] Application ID:', applicationId);
-            
-            if (!applicationId) {
-                console.error('Application ID is missing');
-                return;
-            }
-            
-            if (!user?.user_id) {
-                console.error('User ID is missing. User object:', user);
+            if (!applicationId || !user?.user_id) {
                 return;
             }
 
-            console.log('[SelectOtherConsultations] Calling updateAllConsultations with:', {
-                applicationId,
-                userId: user.user_id
-            });
-
-            const updateResult = await updateAllConsultations(applicationId, user.user_id);
-            console.log('[SelectOtherConsultations] Consultations updated:', updateResult);
-
-            // TODO: Save selections to backend
-            const payload = {
-                selectedCategories: Array.from(selectedCategories),
-                lpaEntries,
-                otherEntries,
-                lastUpdatedBy: user?.user_id
-            };
-            console.log('[SelectOtherConsultations] Saving payload:', payload);
+            await updateAllConsultations(applicationId, user.user_id);
             
             // Navigate to next step
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
-            console.error('[SelectOtherConsultations] Error saving consultations:', err);
+            log.error('[SelectOtherConsultations] Error saving consultations:', err);
         }
     };
 
     const handleSaveForLater = async () => {
-        try {
-            // TODO: Save current state to backend
-            navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
-        } catch (err) {
-            console.error('Error saving for later:', err);
-        }
+        navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
     };
 
     return (
