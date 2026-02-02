@@ -8,6 +8,11 @@ import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/c
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
+
+	// Scroll to top on mount
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, []);
 	const [reason, setReason] = useState('');
 	const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 	const [uploadedFileObjs, setUploadedFileObjs] = useState<any[]>([]);
@@ -85,7 +90,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
 							</li>
 							<li className="govuk-breadcrumbs__list-item">
-								<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Consultation details</Link>
+							<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
 							</li>
 							<li className="govuk-breadcrumbs__list-item" aria-current="page">Consultation not required</li>
 						</ol>
@@ -138,15 +143,15 @@ const ConsultationNotRequiredPage: React.FC = () => {
 									consultationId={consultationId}
 								/>
 							</div>
-							<div className="govuk-button-group govuk-!-margin-top-6">
-								<button
+						 <div className="govuk-button-group govuk-!-margin-top-6">
+								{/*	<button
 									type="button"
 									className="govuk-button govuk-button--secondary"
 									data-module="govuk-button"
 									onClick={handleSaveForLater}
 								>
 									Save for later
-								</button>
+								</button>*/}
 								<button
 									type="button"
 									className="govuk-button govuk-button--primary"
@@ -155,7 +160,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								>
 									Save and Continue
 								</button>
-							</div>
+							</div> 
 						</form>
 					</main>
 				</div>

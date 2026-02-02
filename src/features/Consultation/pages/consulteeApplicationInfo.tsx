@@ -29,6 +29,12 @@ const consulteeApplicationInfo: React.FC = () => {
   const consultationName = searchParams.get("consultationName") || "";
   const navigate = useNavigate();
   const tabsRef = useRef<HTMLDivElement>(null);
+
+// Scroll to top on mount
+useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
+
 // Add GOV.UK tabs JS initialization to the main component
 useEffect(() => {
   if (window?.GOVUKFrontend && typeof window.GOVUKFrontend.initAll === "function") {
@@ -221,8 +227,16 @@ useEffect(() => {
               Task list
             </Link>
           </li>
+          <li className="govuk-breadcrumbs__list-item">
+            <Link
+              to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
+              className="govuk-breadcrumbs__link"
+            >
+              Manage consultation
+            </Link>
+          </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            Consultation details
+            Application details
           </li>
         </ol>
       </nav>
@@ -414,9 +428,9 @@ useEffect(() => {
             </div>
 
 <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
-  <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater}>
+  {/* <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater}>
     Save for later
-  </button>
+  </button> */}
   <button type="button" className="govuk-button" style={{ backgroundColor: '#00703c' }} onClick={handleSaveAndContinue}>
     Save and Continue
   </button>

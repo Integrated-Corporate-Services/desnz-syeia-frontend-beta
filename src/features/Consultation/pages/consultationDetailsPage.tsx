@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { Link } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
@@ -8,6 +8,11 @@ import { useAuthUser } from "../../../hooks/useAuthUser";
 const ConsultationDetailsPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
     const { consultations } = useConsultationDetails(
       applicationId,

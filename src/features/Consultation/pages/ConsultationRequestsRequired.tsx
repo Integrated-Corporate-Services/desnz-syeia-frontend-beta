@@ -12,6 +12,11 @@ const ConsultationRequestsRequired: React.FC = () => {
     const [addOtherConsultations, setAddOtherConsultations] = useState<string>('');
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+    // Scroll to top on mount
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     // Fetch consultation details from backend
     const { consultations, loading } = useConsultationDetails(applicationId, user?.user_id);
 
@@ -189,7 +194,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                                 </fieldset>
                             </div>
 
-                            <div className="govuk-button-group">
+                         <div className="govuk-button-group">
                                 <button
                                     type="button"
                                     className="govuk-button"
@@ -198,15 +203,15 @@ const ConsultationRequestsRequired: React.FC = () => {
                                 >
                                     Save and continue
                                 </button>
-                                <button
+                                 {/*   <button
                                     type="button"
                                     className="govuk-button govuk-button--secondary"
                                     data-module="govuk-button"
                                     onClick={handleSaveForLater}
                                 >
                                     Save for later
-                                </button>
-                            </div>
+                                </button>*/}
+                            </div> 
                         </form>
                     </main>
                 </div>
