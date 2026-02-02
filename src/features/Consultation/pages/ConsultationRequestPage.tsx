@@ -23,6 +23,11 @@ const ConsultationRequestPage: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const { user } = useAuthUser();
   const navigate = useNavigate();
+
+  // Scroll to top on mount
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   // Handler for FileUpload onUploaded
   const handleUploadedFiles = (uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[]) => {
@@ -168,9 +173,10 @@ const ConsultationRequestPage: React.FC = () => {
                 <li className="govuk-breadcrumbs__list-item">
                   <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
                 </li>
-                <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                  Manage consultation
+                <li className="govuk-breadcrumbs__list-item">
+                  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
                 </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">Consultation request</li>
             </ol>
           </nav>
           
@@ -300,7 +306,7 @@ const ConsultationRequestPage: React.FC = () => {
                 />
               </div>
               
-              <div className="govuk-button-group govuk-!-margin-top-6">
+             <div className="govuk-button-group govuk-!-margin-top-6">
                 <button
                   type="submit"
                   className="govuk-button"
@@ -308,15 +314,15 @@ const ConsultationRequestPage: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                <button
+                {/*  <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   data-module="govuk-button"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
-              </div>
+                </button> */}
+              </div> 
             </form>
           </main>
         </div>

@@ -16,6 +16,11 @@ const ConsultationResponse3: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
 
+    // Scroll to top on mount
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     // Load existing data
     useEffect(() => {
         async function fetchData() {
@@ -79,14 +84,20 @@ const ConsultationResponse3: React.FC = () => {
             
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
-                consultation_id: consultationId,
-                response_id: responseId,
                 response_comments: comments,
                 created_by: userId,
                 last_updated_by: userId,
                 has_all_documents_uploaded: declarationAccepted,
                 isSave: true
             };
+            
+            // Only include IDs if they have valid values
+            if (consultationId) {
+                payload.consultation_id = consultationId;
+            }
+            if (responseId) {
+                payload.response_id = responseId;
+            }
 
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
@@ -104,7 +115,10 @@ const ConsultationResponse3: React.FC = () => {
                             <li className="govuk-breadcrumbs__list-item">
                                 <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
                             </li>
-                            <li className="govuk-breadcrumbs__list-item" aria-current="page">Manage consultation</li>
+                            <li className="govuk-breadcrumbs__list-item">
+                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
+                            </li>
+                            <li className="govuk-breadcrumbs__list-item" aria-current="page">Provide consultation response</li>
                         </ol>
                     </nav>
 
@@ -180,7 +194,7 @@ const ConsultationResponse3: React.FC = () => {
                                 </fieldset>
                             </div>
 
-                            <div className="govuk-button-group">
+                           <div className="govuk-button-group">
                                 <button
                                     type="button"
                                     className="govuk-button"
@@ -189,15 +203,15 @@ const ConsultationResponse3: React.FC = () => {
                                 >
                                     Close consultation
                                 </button>
-                                <button
+                              {/*    <button
                                     type="button"
                                     className="govuk-button govuk-button--secondary"
                                     data-module="govuk-button"
                                     onClick={handleSaveForLater}
                                 >
                                     Save for later
-                                </button>
-                            </div>
+                                </button>*/}
+                            </div> 
                         </form>
                     </main>
                 </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
@@ -9,6 +9,11 @@ const ConsultationRequestSent: React.FC = () => {
   // Get applicationId from query params or state
   const searchParams = new URLSearchParams(location.search);
   const applicationId = useGetApplicationId();
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleBack = () => {
     if (applicationId) {

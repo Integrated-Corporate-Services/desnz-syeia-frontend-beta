@@ -29,6 +29,12 @@ const SendApplicationToConsultee: React.FC = () => {
   const [emailMessage, setEmailMessage] = useState("");
   const { user } = useAuthUser();
   const userId = user?.email || "";
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
@@ -132,15 +138,15 @@ const SendApplicationToConsultee: React.FC = () => {
     <div className="govuk-width-container">
      <div className="govuk-grid-row">
              <div className="govuk-grid-column-two-thirds">
-               <nav className="govuk-breadcrumbs" aria-label="Breadcrumbs">
+               <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                  <ol className="govuk-breadcrumbs__list">
                    <li className="govuk-breadcrumbs__list-item">
                      <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
                    </li>
                    <li className="govuk-breadcrumbs__list-item">
-                     <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Consultations</Link>
+                     <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
                    </li>
-                   <li className="govuk-breadcrumbs__list-item">Summary of consultation request</li>
+                   <li className="govuk-breadcrumbs__list-item" aria-current="page">Summary of consultation request</li>
                  </ol>
                </nav> 
     
