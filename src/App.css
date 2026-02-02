@@ -33,3 +33,55 @@
     color: rgb(0, 90, 48) !important;
     background-color: rgb(204, 226, 216) !important;
   }
+
+  /* Status Badge Styling - Figma Specifications */
+  .govuk-tag {
+    display: inline-flex;
+    padding: 5px 8px 4px 8px;
+    align-items: center;
+    font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 19px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 25px;
+    white-space: nowrap;
+    text-decoration: none;
+    vertical-align: baseline;
+    border: 0;
+  }
+
+  /* Blue tags - Application submitted, Under review, Representation stage */
+  .govuk-tag--blue {
+    background: #BBD4EA !important;
+    color: #0C2D4A !important;
+  }
+
+  /* Yellow tags - In abeyance, Processing payment */
+  .govuk-tag--yellow {
+    background: #FFF7BF !important;
+    color: #594D00 !important;
+  }
+
+  /* Turquoise/Green tags - Decision issued, Granted */
+  .govuk-tag--turquoise {
+    background: #CCE2D8 !important;
+    color: #005A30 !important;
+  }
+
+  /* Red tags - Further information requested, Invalid, Declined */
+  .govuk-tag--red {
+    background: #F6D7D2 !important;
+    color: #942514 !important;
+  }
+
+  /* Grey tags - Draft, Archived, Withdrawn */
+  .govuk-tag--grey {
+    background: #F3F2F1 !important;
+    color: #383F43 !important;
+  }
+
+  /* Purple tag - Representation stage (if using purple variant) */
+  .govuk-tag--purple {
+    background: #E2D5F0 !important;
+    color: #3D2375 !important;
+  }

@@ -11,23 +11,23 @@ export const createPayment = async (
       throw new Error('applicationId is required in metadata');
     }
 
+    const applicationId = metadata.applicationId; 
+
     const payload = {
       amount,
       reference,
       description,
       return_url: returnUrl,
-      applicationId: metadata.applicationId, // Explicitly include at root level
+      applicationId, // Explicitly include at root level
       userId: metadata.userId, // Explicitly include at root level
       metadata
     };
 
     console.log('Creating payment with payload:', payload);
 
-    const response = await fetch('/backend/api/gov-pay/create', {
+    const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
@@ -44,13 +44,11 @@ export const createPayment = async (
   }
 };
 
-export const getPaymentStatus = async (paymentId: string) => {
+export const getPaymentStatus = async (applicationId: string, paymentId: string) => {
   try {
-    const response = await fetch(`/backend/api/gov-pay/${paymentId}/status`, {
+    const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments/${paymentId}/status`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
 
     if (!response.ok) {

@@ -1,26 +1,34 @@
+/**
+ * Workbasket Page Component
+ * 
+ * Applications dashboard with optional filter sidebar.
+ */
 import React, { useEffect, useState } from "react";
 import { useApplicationStore } from "../../../store/useApplicationStore";
 import { useNavigate } from "react-router-dom";
 import ApplicationTable from "../components/ApplicationTable";
 import { useAuthUserContext } from "../../../context/AuthUserContext";
 import type { AuthUser } from "../../../types/auth";
-import { ROUTES } from "../../../constants/routes";
 import { useWorkbasketFilters } from "../hooks/useWorkbasketFilters";
 import { WorkbasketFilters } from "../components/WorkbasketFilters";
 import { WorkbasketHeader } from "../components/WorkbasketHeader";
 import { WorkbasketTabs } from "../components/WorkbasketTabs";
 import { Pagination } from "../components/Pagination";
 import { DEMO_USER_ID } from "../../../constants/demo";
+import { shouldShowSubmittedByFilter, getUserRole } from "../../../utils/roleUtils";
+import Header from "../../../layouts/component/Header";
+import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
+import Footer from "../../../layouts/component/Footer";
+import "../../../styles/Workbasket.css";
 
-const Workbasket = () => {
+const Workbasket: React.FC = () => {
   const { user } = useAuthUserContext();
   const created_by =
-    (user as AuthUser)?.person_id ||
     (user as AuthUser)?.user_id ||
     DEMO_USER_ID;
   const applications = useApplicationStore((state) => state.applications);
   const loadApplications = useApplicationStore(
-    (state) => state.loadApplications
+    (state) => state.loadApplications,
   );
   const navigate = useNavigate();
 
@@ -41,7 +49,7 @@ const Workbasket = () => {
     toggleStatus,
     filteredApplications,
     tabCounts,
-  } = useWorkbasketFilters(applications);
+  } = useWorkbasketFilters(applications, created_by);
 
   useEffect(() => {
     if (created_by && typeof created_by === "string") {
@@ -59,63 +67,108 @@ const Workbasket = () => {
 
   const handleClearFilters = () => {
     // Clear search text
-    setSearchText('');
+    setSearchText("");
     // Clear case types
-    caseTypes.forEach(type => toggleCaseType(type));
+    caseTypes.forEach((type) => toggleCaseType(type));
     // Clear statuses
-    statuses.forEach(status => toggleStatus(status));
+    statuses.forEach((status) => toggleStatus(status));
     // Reset submitted by to default
-    setSubmittedBy('me');
+    setSubmittedBy("me");
     // Reset pagination
     setCurrentPage(1);
   };
 
-  // Determine if user can see "Submitted by" filter (admin or coordinator only)
-  const canSeeSubmittedByFilter = Boolean(
-    user && (
-      (user as AuthUser)?.role === 'DESNZ_ADMIN' || 
-      (user as AuthUser)?.role === 'TEAM_COORDINATOR'
-    )
-  );
+  const canSeeSubmittedByFilter = shouldShowSubmittedByFilter(getUserRole(user as AuthUser));
 
   return (
-    <div className="govuk-width-container govuk-!-margin-top-8">
-      {/* Skip link for keyboard users */}
-      <a href="#main-content" className="govuk-skip-link">Skip to main content</a>
+    <>
+      <Header />
+      <ServiceNavigation />
       
-      {/* Header and action buttons always at the top, inside container */}
-      <WorkbasketHeader
-        onToggleFilters={() => setShowFilters(!showFilters)}
-        showFilters={showFilters}
-        onStartNewApplication={handleStart}
-      />
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content" role="main" style={{ paddingTop: 16, paddingBottom: 16 }}>
+          
+          {/* Hero section - Your applications header */}
+          <WorkbasketHeader
+            onToggleFilters={() => setShowFilters(!showFilters)}
+            showFilters={showFilters}
+            onStartNewApplication={handleStart}
+          />
 
-      {/* Main content area */}
-      <main id="main-content">
-        {/* Filters and table area */}
-        {showFilters ? (
-          <div className="govuk-grid-row govuk-!-margin-bottom-6">
-            <div
-              id="workbasket-filters"
-              className="govuk-grid-column-one-quarter govuk-!-padding-4 govuk-!-background-color-light-grey"
-            >
-            <WorkbasketFilters
-              showFilters={showFilters}
-              searchText={searchText}
-              submittedBy={submittedBy}
-              caseTypes={caseTypes}
-              statuses={statuses}
-              showSubmittedByFilter={canSeeSubmittedByFilter}
-              onSearchChange={setSearchText}
-              onSubmittedByChange={setSubmittedBy}
-              onCaseTypeToggle={toggleCaseType}
-              onStatusToggle={toggleStatus}
-              onApplyFilters={handleApplyFilters}
-              onClearFilters={handleClearFilters}
-            />
-          </div>
-          <div className="govuk-grid-column-three-quarters">
-            <WorkbasketTabs
+          {/* Two-column layout when filters shown */}
+          {showFilters ? (
+            <div className="workbasket-two-column-layout">
+              <aside
+                id="workbasket-filters"
+                className="workbasket-filter-column"
+                aria-label="Filter applications"
+              >
+                <WorkbasketFilters
+                  showFilters={showFilters}
+                  searchText={searchText}
+                  submittedBy={submittedBy}
+                  caseTypes={caseTypes}
+                  statuses={statuses}
+                  showSubmittedByFilter={canSeeSubmittedByFilter}
+                  onSearchChange={setSearchText}
+                  onSubmittedByChange={setSubmittedBy}
+                  onCaseTypeToggle={toggleCaseType}
+                  onStatusToggle={toggleStatus}
+                  onApplyFilters={handleApplyFilters}
+                  onClearFilters={handleClearFilters}
+                />
+              </aside>
+
+              <section
+                className="workbasket-results-column"
+                aria-label="Application results"
+              >
+                <WorkbasketTabs
+                  activeTab={activeTab}
+                  onTabChange={(tab) => {
+                    setActiveTab(tab);
+                    setCurrentPage(1);
+                  }}
+                  counts={tabCounts}
+                />
+
+                <div className="workbasket-table-wrapper">
+                  <span
+                    className="workbasket-items-count"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {filteredApplications.length}{" "}
+                    {filteredApplications.length === 1 ? "item" : "items"}
+                  </span>
+
+                  {filteredApplications.length > 0 && (
+                    <>
+                      <ApplicationTable
+                        applications={filteredApplications.slice(
+                          (currentPage - 1) * itemsPerPage,
+                          currentPage * itemsPerPage,
+                        )}
+                        activeTab={activeTab}
+                      />
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(
+                          filteredApplications.length / itemsPerPage,
+                        )}
+                        onPageChange={(page) => {
+                          setCurrentPage(page);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+              </section>
+            </div>
+          ) : (
+            <>
+              <WorkbasketTabs
               activeTab={activeTab}
               onTabChange={(tab) => {
                 setActiveTab(tab);
@@ -124,77 +177,46 @@ const Workbasket = () => {
               counts={tabCounts}
             />
 
-            <p className="govuk-body govuk-!-margin-top-6">
-              {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
-            </p>
+            <div className="workbasket-table-wrapper">
+              <span
+                className="workbasket-items-count"
+                role="status"
+                aria-live="polite"
+              >
+                {filteredApplications.length}{" "}
+                {filteredApplications.length === 1 ? "item" : "items"}
+              </span>
 
-            {filteredApplications.length > 0 ? (
-              <>
-                <ApplicationTable
-                  applications={filteredApplications.slice(
-                    (currentPage - 1) * itemsPerPage,
-                    currentPage * itemsPerPage
-                  )}
-                  activeTab={activeTab}
-                />
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={Math.ceil(
-                    filteredApplications.length / itemsPerPage
-                  )}
-                  onPageChange={(page) => {
-                    setCurrentPage(page);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                />
-              </>
-            ) : (
-              <p className="govuk-body">No applications found.</p>
-            )}
-          </div>
-        </div>
-      ) : (
-        <>
-          <WorkbasketTabs
-            activeTab={activeTab}
-            onTabChange={(tab) => {
-              setActiveTab(tab);
-              setCurrentPage(1);
-            }}
-            counts={tabCounts}
-          />
-
-          <p className="govuk-body govuk-!-margin-top-6">
-            {filteredApplications.length} {filteredApplications.length === 1 ? 'item' : 'items'}
-          </p>
-
-          {filteredApplications.length > 0 ? (
-            <>
-              <ApplicationTable
-                applications={filteredApplications.slice(
-                  (currentPage - 1) * itemsPerPage,
-                  currentPage * itemsPerPage
-                )}
-                activeTab={activeTab}
-              />
-              <Pagination
-                currentPage={currentPage}
-                totalPages={Math.ceil(
-                  filteredApplications.length / itemsPerPage
-                )}
-                onPageChange={(page) => {
-                  setCurrentPage(page);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              />
-            </>
-          ) : (
-            <p className="govuk-body">No applications found.</p>
+              {filteredApplications.length > 0 && (
+                <>
+                  <ApplicationTable
+                    applications={filteredApplications.slice(
+                      (currentPage - 1) * itemsPerPage,
+                      currentPage * itemsPerPage,
+                    )}
+                    activeTab={activeTab}
+                  />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(
+                      filteredApplications.length / itemsPerPage,
+                    )}
+                    onPageChange={(page) => {
+                      setCurrentPage(page);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  />
+                </>
+              )}
+            </div>
+          </>
           )}
-        </>
-      )}
-      </main>
-    </div>
+          
+        </main>
+      </div>
+      
+      <Footer />
+    </>
   );
 };
 
