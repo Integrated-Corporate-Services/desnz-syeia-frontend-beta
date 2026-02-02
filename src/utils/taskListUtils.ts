@@ -92,7 +92,7 @@ export function getInitialSections(applicationId?: string, assetInformationStatu
         {
           name: "Consultations",
           status: "Cannot start yet",
-          link: `${base}/consultation-details`,
+          link: `${base}/consultation/requests-required`,
         },
         {
           name: "Post consultation actions",

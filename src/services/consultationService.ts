@@ -49,3 +49,19 @@ export async function withdrawConsultationRequest({ applicationId, consultationI
   }
   return response.json();
 }
+
+// Update all consultations for an application with lastUpdatedBy user id
+export async function updateAllConsultations(applicationId: string, userId: string): Promise<any> {
+  const url = `/backend/api/consultations/${applicationId}/update-all-consultations`;
+  const payload = { userId };
+  
+  try {
+    const response = await axios.post(url, payload, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    const originalMessage = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'Unknown error');
+    throw new Error(
+      `Failed to update all consultations for applicationId=${applicationId}, userId=${userId}: ${originalMessage}`
+    );
+  }
+}
