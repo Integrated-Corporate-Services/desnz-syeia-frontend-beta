@@ -316,10 +316,11 @@
   border: 1px solid #b1b4b6;
   padding: 0;
   background-color: #ffffff;
-  width: 360px;
+  width: 380px;
   max-width: 100%;
   box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle depth */
+  margin-bottom: 40px; /* space from footer */
 }
 
 .filter-panel .govuk-heading-m {
@@ -437,20 +438,23 @@
 
 .filter-actions {
   display: flex;
-  gap: 20px;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 30px;
   margin-top: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding-left: 16px;
   padding-right: 16px;
 }
 
 .filter-actions .govuk-button {
   margin-bottom: 0; /* Override default margin */
-  margin-right: 0; /* Override button-group margin */
+  margin-right: 0; /* override default */
   white-space: nowrap; /* Prevent button text wrapping */
 }
+
 
 .filter-section {
   margin-bottom: 30px;
@@ -478,8 +482,13 @@
 .filter-panel .govuk-radios__label {
   display: block;
   padding-left: 0;
-  white-space: nowrap;
+  white-space: normal; /* allow wrapping */
   overflow: visible;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+  flex: 1; /* allow label to take remaining space in the inline-flex item */
+  max-width: 27ch; 
 }
 
 .filter-panel .govuk-checkboxes__item,
@@ -515,7 +524,7 @@
 }
 
 .filter-panel form {
-  padding-bottom: 20px;
+  padding-bottom: 30px; /* extra breathing room before panel end */
 }
 
 .filter-panel .govuk-form-group:last-child {
@@ -531,6 +540,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+    flex-wrap: wrap;
   }
 
   .selected-filters-container {
