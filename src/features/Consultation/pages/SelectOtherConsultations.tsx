@@ -21,6 +21,11 @@ const SelectOtherConsultations: React.FC = () => {
     const [otherSearchTerm, setOtherSearchTerm] = useState<string>('');
     const [selectedLpas, setSelectedLpas] = useState<Lpa[]>([]);
 
+    // Scroll to top on mount
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     const handleLpaSelect = (lpa: Lpa | null) => {
         // Add to array if not already present
         if (lpa && !selectedLpas.some((s) => s.lpa_code === lpa.lpa_code)) {
@@ -266,15 +271,15 @@ const SelectOtherConsultations: React.FC = () => {
                                 >
                                     Save and continue
                                 </button>
-                                <button
+                               {/*  <button
                                     type="button"
                                     className="govuk-button govuk-button--secondary"
                                     data-module="govuk-button"
                                     onClick={handleSaveForLater}
                                 >
                                     Save for later
-                                </button>
-                            </div>
+                                </button> */}
+                            </div> 
                         </form>
                     </main>
                 </div>

@@ -21,6 +21,11 @@ const ConsultationResponse2: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
 
+    // Scroll to top on mount
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     // Load existing data
     useEffect(() => {
         async function fetchData() {
@@ -105,6 +110,14 @@ const ConsultationResponse2: React.FC = () => {
                 last_updated_by: userId,
                 isSave: true
             };
+            
+            // Only include IDs if they have valid values
+            if (consultationId) {
+                payload.consultation_id = consultationId;
+            }
+            if (responseId) {
+                payload.response_id = responseId;
+            }
 
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response3`);
@@ -134,8 +147,6 @@ const ConsultationResponse2: React.FC = () => {
             
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
-                consultation_id: consultationId,
-                response_id: responseId,
                 received_at: receivedAt,
                 uploaded_files: uploadedFileObjs.length > 0 ? uploadedFileObjs : existingData.uploaded_files,
                 application_documents: applicationDocuments.length > 0 ? applicationDocuments : existingData.application_documents,
@@ -143,6 +154,14 @@ const ConsultationResponse2: React.FC = () => {
                 last_updated_by: userId,
                 isSave: true
             };
+            
+            // Only include IDs if they have valid values
+            if (consultationId) {
+                payload.consultation_id = consultationId;
+            }
+            if (responseId) {
+                payload.response_id = responseId;
+            }
 
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
@@ -160,7 +179,10 @@ const ConsultationResponse2: React.FC = () => {
                             <li className="govuk-breadcrumbs__list-item">
                                 <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
                             </li>
-                            <li className="govuk-breadcrumbs__list-item" aria-current="page">Manage consultation</li>
+                            <li className="govuk-breadcrumbs__list-item">
+                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
+                            </li>
+                            <li className="govuk-breadcrumbs__list-item" aria-current="page">Provide consultation response</li>
                         </ol>
                     </nav>
 
@@ -289,7 +311,7 @@ const ConsultationResponse2: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="govuk-button-group">
+                           <div className="govuk-button-group">
                                 <button
                                     type="button"
                                     className="govuk-button"
@@ -298,15 +320,15 @@ const ConsultationResponse2: React.FC = () => {
                                 >
                                     Save and continue
                                 </button>
-                                <button
+                                {/*  <button
                                     type="button"
                                     className="govuk-button govuk-button--secondary"
                                     data-module="govuk-button"
                                     onClick={handleSaveForLater}
                                 >
                                     Save for later
-                                </button>
-                            </div>
+                                </button>*/}
+                            </div> 
                         </form>
                     </main>
                 </div>
