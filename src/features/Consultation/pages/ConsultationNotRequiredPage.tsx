@@ -145,21 +145,21 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								/>
 							</div>
 						 <div className="govuk-button-group govuk-!-margin-top-6">
-								<button
-									type="button"
-									className="govuk-button"
-									data-module="govuk-button"
-									onClick={handleSaveAndContinue}
-								>
-									Save and continue
-								</button>
-								<button
+								{/*	<button
 									type="button"
 									className="govuk-button govuk-button--secondary"
 									data-module="govuk-button"
 									onClick={handleSaveForLater}
 								>
 									Save for later
+								</button>*/}
+								<button
+									type="button"
+									className="govuk-button govuk-button--primary"
+									data-module="govuk-button"
+									onClick={handleSaveAndContinue}
+								>
+									Save and Continue
 								</button>
 							</div> 
 						</form>
