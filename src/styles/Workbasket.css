@@ -1,8 +1,7 @@
-
 .workbasket-page-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; 
+  min-height: 100vh;
 }
 
 .workbasket-page-container main {
@@ -27,19 +26,19 @@
 
 /* Hero section inside govuk-width-container */
 .workbasket-hero-section {
-  padding-top: 30px; 
-  padding-bottom: 0; 
+  padding-top: 30px;
+  padding-bottom: 0;
 }
 
 /* Hero heading - "Your applications" */
 .workbasket-hero-section .govuk-heading-xl {
   margin-top: 0;
-  margin-bottom: 30px; 
+  margin-bottom: 30px;
 }
 
 /* Hero description text */
 .workbasket-hero-section .govuk-body {
-  margin-bottom: 0; 
+  margin-bottom: 0;
 }
 
 /* Full width container for two-column layout
@@ -52,14 +51,13 @@
   box-sizing: border-box;
 }
 
-
 .workbasket-two-column-layout {
   display: grid;
   grid-template-columns: 340px 1fr; /* slightly narrower filter to give table more room */
   gap: 24px; /* compact gutter */
   align-items: start;
   width: 100%;
-  max-width: calc(960px + 360px + 30px); 
+  max-width: calc(960px + 360px + 30px);
   margin: 0 auto;
   margin-top: 0;
   margin-bottom: 20px;
@@ -82,7 +80,6 @@
   width: 150%;
   transform: translateX(-125px); /* only filter moves visually left */
   z-index: 2; /* keep filter above results if needed */
-
 }
 
 /* Tablet breakpoint - maintain two-column but remove transform */
@@ -101,9 +98,9 @@
 .workbasket-header-buttons {
   display: flex;
   flex-direction: column;
-  gap: 30px; 
-  margin-top: 30px; 
-  margin-bottom: 30px; 
+  gap: 30px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   align-items: flex-start;
 }
 
@@ -172,7 +169,7 @@
 /* Column 1: DESNZ Reference */
 .workbasket-results-column .govuk-table__cell:nth-child(1),
 .workbasket-results-column .govuk-table__header:nth-child(1) {
-  width: 15%; 
+  width: 15%;
   min-width: 110px; /* Prevent header crushing */
 }
 
@@ -186,13 +183,13 @@
 /* Column 3: Case Type */
 .workbasket-results-column .govuk-table__cell:nth-child(3),
 .workbasket-results-column .govuk-table__header:nth-child(3) {
-  width: 15%;               /* adjust if you want more space */
-  min-width: 110px;        /* prevents crushing on narrow screens */
-  white-space: normal;     /* allow multiple lines */
+  width: 15%; /* adjust if you want more space */
+  min-width: 110px; /* prevents crushing on narrow screens */
+  white-space: normal; /* allow multiple lines */
   overflow-wrap: break-word;
   word-wrap: break-word;
-  hyphens: auto;           /* use hyphenation when available */
-  word-break: break-word;  /* fallback for long strings */
+  hyphens: auto; /* use hyphenation when available */
+  word-break: break-word; /* fallback for long strings */
 }
 
 /* Column 4: Status (only if present) */
@@ -213,10 +210,10 @@
 .workbasket-results-column .govuk-tag,
 .workbasket-table-wrapper .govuk-tag {
   display: inline-block;
-  font-size: 13px;        /* smaller text */
-  line-height: 1.2;       /* tighter line-height */
-  padding: 4px 8px;       /* reduced horizontal padding */
-  white-space: normal;    /* allow wrapping inside the tag */
+  font-size: 13px; /* smaller text */
+  line-height: 1.2; /* tighter line-height */
+  padding: 4px 8px; /* reduced horizontal padding */
+  white-space: normal; /* allow wrapping inside the tag */
   overflow-wrap: break-word;
   word-wrap: break-word;
   text-align: center;
@@ -255,11 +252,11 @@
     margin-right: 15px;
     transform: none; /* Remove left-bleed on mobile */
   }
-  
+
   .workbasket-filter-column {
     margin-left: 0;
   }
-  
+
   .filter-panel {
     width: 100%;
     box-shadow: none; /* Remove shadow on mobile */
@@ -296,7 +293,8 @@
   }
 
   .workbasket-results-column .govuk-table__cell:nth-child(4):not(:last-child),
-  .workbasket-results-column .govuk-table__header:nth-child(4):not(:last-child) {
+  .workbasket-results-column
+    .govuk-table__header:nth-child(4):not(:last-child) {
     min-width: 180px;
   }
 
@@ -528,17 +526,17 @@
   .filter-panel {
     padding: 15px;
   }
-  
+
   .filter-actions {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .selected-filters-container {
     padding: 10px;
   }
-  
+
   .filter-pill {
     max-width: 100%;
   }
@@ -553,8 +551,6 @@
   position: relative;
   z-index: 1;
 }
-
-
 
 /* Table styling - inside wrapper */
 .workbasket-table-wrapper .govuk-table {
@@ -588,4 +584,136 @@
   padding: 20px 0;
   text-align: center;
   color: #505a5f;
+}
+
+/* Styles migrated from ApplicationsWireframe.css */
+
+/* Custom wider container for applications dashboard (approx 1400px) */
+.app-wide-container {
+  max-width: 1400px; /* Custom width for wider layout */
+  margin: 0 auto;
+  padding: 0 50px; /* govuk-spacing(8) */
+}
+
+.app-wide-container .govuk-grid-row {
+  margin: 0 10px; /* govuk-spacing(2) */
+}
+
+.app-wide-container .govuk-grid-row > [class*="govuk-grid-column"] {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.app-wide-container .govuk-grid-row #tabsPanel {
+  padding-left: 30px; /* govuk-spacing(6) */
+}
+
+/* Temporary: Show Your applications section boundaries - 1286px content area */
+.app-your-applications-section {
+  background-color: transparent;
+  padding: 20px 50px; /* govuk-spacing(4) and govuk-spacing(8) */
+  margin: 0 10px; /* govuk-spacing(2) */
+}
+
+.app-your-applications-section .govuk-main-wrapper {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* When filter is hidden, center tabs to match navigation width */
+#filterTabsWrapper.filter-hidden {
+  max-width: 960px; /* govuk-width-container standard */
+  margin: 0 auto;
+}
+
+#filterTabsWrapper.filter-hidden .govuk-grid-column-full {
+  padding: 0;
+}
+
+/* Filter panel styling */
+.app-filter-panel {
+  background-color: transparent;
+  padding: 0;
+}
+
+.govuk-grid-column-one-quarter.hidden {
+  display: none;
+}
+
+.app-filter-toggle {
+  margin-bottom: 20px; /* govuk-spacing(4) */
+}
+
+.app-selected-filters {
+  background-color: #f3f2f1;
+  padding: 15px; /* govuk-spacing(3) */
+  margin-bottom: 20px; /* govuk-spacing(4) */
+}
+
+.app-filter-tag {
+  display: inline-block;
+  padding: 5px 10px; /* govuk-spacing(1) and govuk-spacing(2) */
+  background-color: #1d70b8;
+  color: white;
+  margin-right: 10px; /* govuk-spacing(2) */
+  margin-bottom: 10px; /* govuk-spacing(2) */
+  font-size: 14px;
+}
+
+.govuk-tabs__panel {
+  padding: 20px 0; /* govuk-spacing(4) */
+}
+
+.govuk-checkboxes__item {
+  margin-bottom: 10px; /* govuk-spacing(2) */
+}
+
+.govuk-radios__item {
+  margin-bottom: 10px; /* govuk-spacing(2) */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .app-wide-container {
+    padding: 0 20px; /* govuk-spacing(4) - reduce padding on tablets */
+  }
+
+  .app-your-applications-section {
+    padding: 15px 20px; /* govuk-spacing(3) and govuk-spacing(4) */
+    margin: 0 5px; /* govuk-spacing(1) */
+  }
+
+  .app-wide-container .govuk-grid-row {
+    margin: 0 5px; /* govuk-spacing(1) */
+  }
+}
+
+@media (max-width: 640px) {
+  .app-wide-container {
+    padding: 0 15px; /* govuk-spacing(3) - smaller on mobile */
+  }
+
+  .app-your-applications-section {
+    padding: 10px 15px; /* govuk-spacing(2) and govuk-spacing(3) */
+    margin: 0;
+  }
+
+  .app-wide-container .govuk-grid-row {
+    margin: 0;
+  }
+
+  /* Remove left padding from tabs when columns stack on mobile */
+  .app-wide-container .govuk-grid-row #tabsPanel {
+    padding-left: 0;
+    margin-top: 20px; /* govuk-spacing(4) - add spacing between stacked filter and tabs */
+  }
+
+  /* Adjust filter panel padding on mobile */
+  .app-filter-panel {
+    padding: 15px; /* govuk-spacing(3) */
+  }
+
+  .app-selected-filters {
+    padding: 10px; /* govuk-spacing(2) */
+  }
 }

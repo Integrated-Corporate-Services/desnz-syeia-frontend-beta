@@ -52,11 +52,12 @@ const ServiceNavigation = () => {
       (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
 
   return (
-    <div className="govuk-width-container">
-      <section
-        aria-label="Service information"
-        className="govuk-service-navigation"
-      >
+    <section
+      aria-label="Service information"
+      className="govuk-service-navigation"
+      data-module="govuk-service-navigation"
+    >
+      <div className="govuk-width-container">
         <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
           <div className="govuk-service-navigation__wrapper-container">
             {/* User name on the left */}
@@ -73,56 +74,63 @@ const ServiceNavigation = () => {
               className="govuk-service-navigation__list govuk-service-navigation__list--right"
               id="navigation"
             >
-              {isAdmin && (
-                <li
-                  className={`govuk-service-navigation__item ${
-                    isOnOrganisationPages
-                      ? "govuk-service-navigation__item--active"
-                      : ""
-                  }`}
-                >
-                  <a
-                    className="govuk-service-navigation__link"
-                    href={`${BASE_URL}/admin/user-management`}
-                    aria-current={isOnOrganisationPages ? "true" : undefined}
+              {!isInRegistrationFlow && (
+                <>
+                  {isAdmin && (
+                    <li
+                      className={`govuk-service-navigation__item ${
+                        isOnOrganisationPages
+                          ? "govuk-service-navigation__item--active"
+                          : ""
+                      }`}
+                    >
+                      <a
+                        className="govuk-service-navigation__link"
+                        href={`${BASE_URL}/admin/user-management`}
+                        aria-current={
+                          isOnOrganisationPages ? "true" : undefined
+                        }
+                      >
+                        Organisation
+                      </a>
+                    </li>
+                  )}
+                  <li
+                    className={`govuk-service-navigation__item ${
+                      isOnApplicationPages
+                        ? "govuk-service-navigation__item--active"
+                        : ""
+                    }`}
                   >
-                    Organisation
-                  </a>
-                </li>
+                    <a
+                      className="govuk-service-navigation__link"
+                      href={`${BASE_URL}/workbasket`}
+                      aria-current={isOnApplicationPages ? "true" : undefined}
+                    >
+                      Applications
+                    </a>
+                  </li>
+                  <li className="govuk-service-navigation__item">
+                    <a
+                      className="govuk-service-navigation__link"
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      Notifications{" "}
+                      <span className="moj-notification-badge"></span>
+                    </a>
+                  </li>
+                  <li className="govuk-service-navigation__item">
+                    <a
+                      className="govuk-service-navigation__link"
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      Account
+                    </a>
+                  </li>
+                </>
               )}
-              <li
-                className={`govuk-service-navigation__item ${
-                  isOnApplicationPages
-                    ? "govuk-service-navigation__item--active"
-                    : ""
-                }`}
-              >
-                <a
-                  className="govuk-service-navigation__link"
-                  href={`${BASE_URL}/workbasket`}
-                  aria-current={isOnApplicationPages ? "true" : undefined}
-                >
-                  Applications
-                </a>
-              </li>
-              <li className="govuk-service-navigation__item">
-                <a
-                  className="govuk-service-navigation__link"
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notifications <span className="moj-notification-badge"></span>
-                </a>
-              </li>
-              <li className="govuk-service-navigation__item">
-                <a
-                  className="govuk-service-navigation__link"
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Account
-                </a>
-              </li>
               <li className="govuk-service-navigation__item">
                 <a
                   className="govuk-service-navigation__link"
@@ -138,8 +146,8 @@ const ServiceNavigation = () => {
             </ul>
           </div>
         </nav>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 };
 export default ServiceNavigation;
