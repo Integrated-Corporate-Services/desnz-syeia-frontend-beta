@@ -168,16 +168,18 @@ const Workbasket: React.FC = () => {
                     )}
                     activeTab={activeTab}
                   />
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={Math.ceil(
-                      filteredApplications.length / itemsPerPage,
-                    )}
-                    onPageChange={(page) => {
-                      setCurrentPage(page);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  />
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(
+                        filteredApplications.length / itemsPerPage,
+                      )}
+                      onPageChange={(page) => {
+                        setCurrentPage(page);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    />
+                  </div>
                 </>
               )}
             </div>
