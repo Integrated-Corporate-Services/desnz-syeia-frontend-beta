@@ -200,10 +200,8 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
   };
 
   const hasActiveFilters =
-    searchText.trim() !== "" ||
-    caseTypes.length > 0 ||
-    statuses.length > 0 ;
-    //||(showSubmittedByFilter && submittedBy === "all");
+    searchText.trim() !== "" || caseTypes.length > 0 || statuses.length > 0;
+  //||(showSubmittedByFilter && submittedBy === "all");
 
   if (!showFilters) return null;
 
@@ -333,7 +331,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
             Case type
           </legend>
-          <div className="govuk-checkboxes">
+          <div className="govuk-checkboxes govuk-checkboxes--small">
             {CASE_TYPE_OPTIONS.map((option) => (
               <div key={option.value} className="govuk-checkboxes__item">
                 <input
@@ -362,7 +360,7 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
           <legend className="govuk-fieldset__legend govuk-!-font-weight-bold">
             Status
           </legend>
-          <div className="govuk-checkboxes">
+          <div className="govuk-checkboxes govuk-checkboxes--small">
             {STATUS_OPTIONS.map((option) => (
               <div key={option.value} className="govuk-checkboxes__item">
                 <input

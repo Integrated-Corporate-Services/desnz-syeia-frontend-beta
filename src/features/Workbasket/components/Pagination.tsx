@@ -46,7 +46,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <nav className="govuk-pagination" role="navigation" aria-label="Pagination">
+    <div className="govuk-!-text-align-center">
+      <nav className="govuk-pagination" role="navigation" aria-label="Pagination">
       {currentPage > 1 && (
         <div className="govuk-pagination__prev">
           <a
@@ -78,49 +79,50 @@ export const Pagination: React.FC<PaginationProps> = ({
             >
               <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
             </svg>
-            <span className="govuk-pagination__link-title">Previous</span>
+            <span className="govuk-pagination__link-title">
+              Previous<span className="govuk-visually-hidden"> page</span>
+            </span>
           </a>
         </div>
       )}
 
       <ul className="govuk-pagination__list">
-        {getPageNumbers().map((page, index) => (
-          <li
-            key={index}
-            className={`govuk-pagination__item ${
-              page === currentPage ? 'govuk-pagination__item--current' : ''
-            }`}
-          >
-            {page === '...' ? (
-              <span className="govuk-pagination__item govuk-pagination__item--ellipses">
-                &ctdot;
-              </span>
-            ) : (
-              <a
-                className="govuk-link govuk-pagination__link"
-                href="#"
-                aria-label={`${page === currentPage ? 'Current page, ' : 'Go to '}page ${page} of ${totalPages}`}
-                aria-current={page === currentPage ? 'page' : undefined}
-                tabIndex={0}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (page !== currentPage) {
-                    onPageChange(page as number);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  // AC-12: Keyboard accessibility - Enter and Space keys
-                  if ((e.key === 'Enter' || e.key === ' ') && page !== currentPage) {
-                    e.preventDefault();
-                    onPageChange(page as number);
-                  }
-                }}
-              >
-                {page}
-              </a>
-            )}
-          </li>
-        ))}
+            {getPageNumbers().map((page, index) => (
+              page === '...' ? (
+                <li key={`ellipsis-${index}`} className="govuk-pagination__item govuk-pagination__item--ellipsis" aria-hidden>
+                  …
+                </li>
+              ) : (
+                <li
+                  key={index}
+                  className={`govuk-pagination__item ${
+                    page === currentPage ? 'govuk-pagination__item--current' : ''
+                  }`}
+                >
+                  <a
+                    className="govuk-link govuk-pagination__link"
+                    href="#"
+                    aria-label={`${page === currentPage ? 'Current page, ' : 'Go to '}page ${page} of ${totalPages}`}
+                    aria-current={page === currentPage ? 'page' : undefined}
+                    tabIndex={0}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page !== currentPage) {
+                        onPageChange(page as number);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === ' ') && page !== currentPage) {
+                        e.preventDefault();
+                        onPageChange(page as number);
+                      }
+                    }}
+                  >
+                    {page}
+                  </a>
+                </li>
+              )
+            ))}
       </ul>
 
       {currentPage < totalPages && (
@@ -143,7 +145,9 @@ export const Pagination: React.FC<PaginationProps> = ({
               }
             }}
           >
-            <span className="govuk-pagination__link-title">Next</span>
+            <span className="govuk-pagination__link-title">
+              Next<span className="govuk-visually-hidden"> page</span>
+            </span>
             <svg
               className="govuk-pagination__icon govuk-pagination__icon--next"
               xmlns="http://www.w3.org/2000/svg"
@@ -158,6 +162,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           </a>
         </div>
       )}
-    </nav>
+      </nav>
+    </div>
   );
 };

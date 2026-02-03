@@ -18,36 +18,38 @@ export const WorkbasketTabs: React.FC<WorkbasketTabsProps> = ({
    */
   const handleKeyDown = (e: React.KeyboardEvent, currentIndex: number) => {
     let targetIndex: number;
-    
+
     switch (e.key) {
-      case 'ArrowLeft':
+      case "ArrowLeft":
         e.preventDefault();
-        targetIndex = currentIndex > 0 ? currentIndex - 1 : TAB_OPTIONS.length - 1;
+        targetIndex =
+          currentIndex > 0 ? currentIndex - 1 : TAB_OPTIONS.length - 1;
         break;
-      case 'ArrowRight':
+      case "ArrowRight":
         e.preventDefault();
-        targetIndex = currentIndex < TAB_OPTIONS.length - 1 ? currentIndex + 1 : 0;
+        targetIndex =
+          currentIndex < TAB_OPTIONS.length - 1 ? currentIndex + 1 : 0;
         break;
-      case 'Home':
+      case "Home":
         e.preventDefault();
         targetIndex = 0;
         break;
-      case 'End':
+      case "End":
         e.preventDefault();
         targetIndex = TAB_OPTIONS.length - 1;
         break;
-      case 'Enter':
-      case ' ':
+      case "Enter":
+      case " ":
         e.preventDefault();
         onTabChange(TAB_OPTIONS[currentIndex].value);
         return;
       default:
         return;
     }
-    
+
     // Focus the target tab (but don't activate until Enter/Space)
     const targetTab = document.querySelector(
-      `[data-tab-index="${targetIndex}"]`
+      `[data-tab-index="${targetIndex}"]`,
     ) as HTMLElement;
     targetTab?.focus();
   };
@@ -65,7 +67,7 @@ export const WorkbasketTabs: React.FC<WorkbasketTabsProps> = ({
             role="presentation"
           >
             <a
-              className="govuk-tabs__tab"
+              className="govuk-tabs__tab govuk-!-font-size-19"
               href={`#${tab.value}`}
               role="tab"
               aria-selected={activeTab === tab.value}
