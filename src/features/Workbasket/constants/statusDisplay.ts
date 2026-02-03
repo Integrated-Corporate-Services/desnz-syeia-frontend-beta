@@ -2,7 +2,7 @@ import { APPLICATION_STATUS } from "../../../constants/status";
 
 // Custom display labels for statuses (user-friendly format)
 export const STATUS_DISPLAY_LABELS: Record<string, string> = {
-  "submitted": "Application submitted",
+  submitted: "Application submitted",
   "under review": "Under review",
   "in progress": "In progress",
   "processing payment": "Processing payment",
@@ -10,16 +10,16 @@ export const STATUS_DISPLAY_LABELS: Record<string, string> = {
   "representation stage": "Representation stage",
   "in abeyance": "In abeyance",
   "decision issued": "Decision issued",
-  "completed": "Completed",
-  "archived": "Archived",
-  "withdrawn": "Withdrawn",
-  "invalid": "Invalid",
-  "draft": "Draft",
-  "granted": "Granted",
-  "declined": "Declined",
+  completed: "Completed",
+  archived: "Archived",
+  withdrawn: "Withdrawn",
+  invalid: "Invalid",
+  draft: "Draft",
+  granted: "Granted",
+  declined: "Declined",
   // Legacy statuses
   "on hold": "On hold",
-  "negotiated": "Negotiated",
+  negotiated: "Negotiated",
   "payment pending": "Payment pending",
   "hearing pending": "Hearing pending",
 };
@@ -39,7 +39,7 @@ export const STATUS_TAG_CLASSES: Record<string, string> = {
   "under review": "govuk-tag govuk-tag--blue",
   "further information requested": "govuk-tag govuk-tag--red",
   "in progress": "govuk-tag govuk-tag--blue",
-  "decision issued": "govuk-tag govuk-tag--turquoise",
+  "decision issued": "govuk-tag govuk-tag--blue",
   archived: "govuk-tag govuk-tag--grey",
   withdrawn: "govuk-tag govuk-tag--grey",
   "representation stage": "govuk-tag govuk-tag--blue",
@@ -57,23 +57,24 @@ export const EDITABLE_STATUSES = [
 
 // Helper function to format status text (fallback if no custom label)
 export const formatStatusText = (status: string): string => {
-  if (!status || typeof status !== 'string') {
-    return 'Unknown';
+  if (!status || typeof status !== "string") {
+    return "Unknown";
   }
   return status
     .toLowerCase()
     .trim()
     .split(/[-_\s]+/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join(" ");
 };
 
 // Get status display label and color class
 export const getStatusDisplay = (status: string) => {
-  const normalizedStatus = status.toLowerCase().replace(/[-_]/g, ' ').trim();
-  const label = STATUS_DISPLAY_LABELS[normalizedStatus] || formatStatusText(status);
+  const normalizedStatus = status.toLowerCase().replace(/[-_]/g, " ").trim();
+  const label =
+    STATUS_DISPLAY_LABELS[normalizedStatus] || formatStatusText(status);
   const className = STATUS_TAG_CLASSES[normalizedStatus] || "govuk-tag";
-  
+
   return { label, className };
 };
 

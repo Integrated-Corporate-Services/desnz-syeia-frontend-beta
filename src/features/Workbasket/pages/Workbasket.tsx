@@ -1,6 +1,6 @@
 /**
  * Workbasket Page Component
- * 
+ *
  * Applications dashboard with optional filter sidebar.
  */
 import React, { useEffect, useState } from "react";
@@ -15,7 +15,10 @@ import { WorkbasketHeader } from "../components/WorkbasketHeader";
 import { WorkbasketTabs } from "../components/WorkbasketTabs";
 import { Pagination } from "../components/Pagination";
 import { DEMO_USER_ID } from "../../../constants/demo";
-import { shouldShowSubmittedByFilter, getUserRole } from "../../../utils/roleUtils";
+import {
+  shouldShowSubmittedByFilter,
+  getUserRole,
+} from "../../../utils/roleUtils";
 import Header from "../../../layouts/component/Header";
 import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
 import Footer from "../../../layouts/component/Footer";
@@ -23,9 +26,7 @@ import "../../../styles/Workbasket.css";
 
 const Workbasket: React.FC = () => {
   const { user } = useAuthUserContext();
-  const created_by =
-    (user as AuthUser)?.user_id ||
-    DEMO_USER_ID;
+  const created_by = (user as AuthUser)?.user_id || DEMO_USER_ID;
   const applications = useApplicationStore((state) => state.applications);
   const loadApplications = useApplicationStore(
     (state) => state.loadApplications,
@@ -78,97 +79,68 @@ const Workbasket: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const canSeeSubmittedByFilter = shouldShowSubmittedByFilter(getUserRole(user as AuthUser));
+  const canSeeSubmittedByFilter = shouldShowSubmittedByFilter(
+    getUserRole(user as AuthUser),
+  );
 
   return (
     <>
       <Header />
       <ServiceNavigation />
-      
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main" style={{ paddingTop: 16, paddingBottom: 16 }}>
-          
-          {/* Hero section - Your applications header */}
-          <WorkbasketHeader
-            onToggleFilters={() => setShowFilters(!showFilters)}
-            showFilters={showFilters}
-            onStartNewApplication={handleStart}
-          />
 
+      <div className="app-wide-container">
+        <div className="app-your-applications-section">
+          <div className="govuk-width-container">
+            <main className="govuk-main-wrapper" id="main-content" role="main">
+              {/* Hero section - Your applications header */}
+              <WorkbasketHeader
+                onToggleFilters={() => setShowFilters(!showFilters)}
+                showFilters={showFilters}
+                onStartNewApplication={handleStart}
+              />
+            </main>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter and tabs section with wider layout */}
+      <div className="app-wide-container">
+        <div
+          className={`govuk-grid-row ${!showFilters ? "filter-hidden" : ""}`}
+          id="filterTabsWrapper"
+        >
           {/* Two-column layout when filters shown */}
-          {showFilters ? (
-            <div className="workbasket-two-column-layout">
-              <aside
-                id="workbasket-filters"
-                className="workbasket-filter-column"
-                aria-label="Filter applications"
-              >
-                <WorkbasketFilters
-                  showFilters={showFilters}
-                  searchText={searchText}
-                  submittedBy={submittedBy}
-                  caseTypes={caseTypes}
-                  statuses={statuses}
-                  showSubmittedByFilter={canSeeSubmittedByFilter}
-                  onSearchChange={setSearchText}
-                  onSubmittedByChange={setSubmittedBy}
-                  onCaseTypeToggle={toggleCaseType}
-                  onStatusToggle={toggleStatus}
-                  onApplyFilters={handleApplyFilters}
-                  onClearFilters={handleClearFilters}
-                />
-              </aside>
-
-              <section
-                className="workbasket-results-column"
-                aria-label="Application results"
-              >
-                <WorkbasketTabs
-                  activeTab={activeTab}
-                  onTabChange={(tab) => {
-                    setActiveTab(tab);
-                    setCurrentPage(1);
-                  }}
-                  counts={tabCounts}
-                />
-
-                <div className="workbasket-table-wrapper">
-                  <span
-                    className="workbasket-items-count"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    {filteredApplications.length}{" "}
-                    {filteredApplications.length === 1 ? "item" : "items"}
-                  </span>
-
-                  {filteredApplications.length > 0 && (
-                    <>
-                      <ApplicationTable
-                        applications={filteredApplications.slice(
-                          (currentPage - 1) * itemsPerPage,
-                          currentPage * itemsPerPage,
-                        )}
-                        activeTab={activeTab}
-                      />
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={Math.ceil(
-                          filteredApplications.length / itemsPerPage,
-                        )}
-                        onPageChange={(page) => {
-                          setCurrentPage(page);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      />
-                    </>
-                  )}
-                </div>
-              </section>
+          <div
+            className={`govuk-grid-column-one-quarter ${!showFilters ? "hidden" : ""}`}
+            id="filterPanel"
+          >
+            <div className="app-filter-panel">
+              <WorkbasketFilters
+                showFilters={showFilters}
+                searchText={searchText}
+                submittedBy={submittedBy}
+                caseTypes={caseTypes}
+                statuses={statuses}
+                showSubmittedByFilter={canSeeSubmittedByFilter}
+                onSearchChange={setSearchText}
+                onSubmittedByChange={setSubmittedBy}
+                onCaseTypeToggle={toggleCaseType}
+                onStatusToggle={toggleStatus}
+                onApplyFilters={handleApplyFilters}
+                onClearFilters={handleClearFilters}
+              />
             </div>
-          ) : (
-            <>
-              <WorkbasketTabs
+          </div>
+
+          <div
+            className={
+              showFilters
+                ? "govuk-grid-column-three-quarters"
+                : "govuk-grid-column-full"
+            }
+            id="tabsPanel"
+          >
+            <WorkbasketTabs
               activeTab={activeTab}
               onTabChange={(tab) => {
                 setActiveTab(tab);
@@ -196,25 +168,25 @@ const Workbasket: React.FC = () => {
                     )}
                     activeTab={activeTab}
                   />
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={Math.ceil(
-                      filteredApplications.length / itemsPerPage,
-                    )}
-                    onPageChange={(page) => {
-                      setCurrentPage(page);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  />
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(
+                        filteredApplications.length / itemsPerPage,
+                      )}
+                      onPageChange={(page) => {
+                        setCurrentPage(page);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    />
+                  </div>
                 </>
               )}
             </div>
-          </>
-          )}
-          
-        </main>
+          </div>
+        </div>
       </div>
-      
+
       <Footer />
     </>
   );
