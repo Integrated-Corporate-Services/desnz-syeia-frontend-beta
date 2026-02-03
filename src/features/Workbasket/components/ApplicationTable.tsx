@@ -9,7 +9,7 @@ const formatDate = (dateString: string | undefined): string => {
 
   try {
     const date = new Date(dateString);
-    
+
     // Check for invalid date
     if (isNaN(date.getTime())) {
       return "—";
@@ -20,42 +20,45 @@ const formatDate = (dateString: string | undefined): string => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   } catch (error) {
-    console.error('Date formatting error:', error);
+    console.error("Date formatting error:", error);
     return "—";
   }
 };
 
 const getCaseTypeLabel = (type: string): string => {
   const typeMap: Record<string, string> = {
-    's37': 'Overhead lines (S37)',
-    's-37': 'Overhead lines (S37)',
-    'nwl': 'Necessary wayleaves',
-    'tlp': 'Tree lopping and felling',
-    'overhead-lines': 'Overhead lines (S37)',
-    'necessary-wayleaves': 'Necessary wayleaves',
-    'tree-lopping': 'Tree lopping and felling',
+    s37: "Overhead lines (S37)",
+    "s-37": "Overhead lines (S37)",
+    nwl: "Necessary wayleaves",
+    tlp: "Tree lopping and felling",
+    "overhead-lines": "Overhead lines (S37)",
+    "necessary-wayleaves": "Necessary wayleaves",
+    "tree-lopping": "Tree lopping and felling",
   };
   const label = typeMap[type.toLowerCase()] || type;
   return label.replace(/\s*\(.*\)\s*$/, "");
 };
 
 // TODO Phase 3: Add completed_at and archived_at fields to Application type
-const DATE_COLUMN_CONFIG: Record<TabType, { label: string; getDate: (app: Application) => string | undefined }> = {
-  draft: { 
-    label: 'Date started', 
-    getDate: (app) => app.created_at 
+const DATE_COLUMN_CONFIG: Record<
+  TabType,
+  { label: string; getDate: (app: Application) => string | undefined }
+> = {
+  draft: {
+    label: "Date started",
+    getDate: (app) => app.created_at,
   },
-  active: { 
-    label: 'Date submitted', 
-    getDate: (app) => app.submitted_at || app.created_at 
+  active: {
+    label: "Date submitted",
+    getDate: (app) => app.submitted_at || app.created_at,
   },
-  completed: { 
-    label: 'Date completed', 
-    getDate: (app) => app.submitted_at || app.created_at 
+  completed: {
+    label: "Date completed",
+    getDate: (app) => app.submitted_at || app.created_at,
   },
-  archived: { 
-    label: 'Date archived', 
-    getDate: (app) => app.created_at 
+  archived: {
+    label: "Date archived",
+    getDate: (app) => app.created_at,
   },
 };
 
@@ -64,12 +67,16 @@ type Props = {
   activeTab?: TabType;
 };
 
-export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'active' }) => {
+export const ApplicationTable: React.FC<Props> = ({
+  applications,
+  activeTab = "active",
+}) => {
   const { navigateToApplication } = useApplicationNavigation();
   const tableId = useId();
   const captionId = `table-description-${tableId}`;
 
-  const dateColumnConfig = DATE_COLUMN_CONFIG[activeTab] || DATE_COLUMN_CONFIG.active;
+  const dateColumnConfig =
+    DATE_COLUMN_CONFIG[activeTab] || DATE_COLUMN_CONFIG.active;
 
   const sortedApplications = useMemo(() => {
     return [...applications].sort((a, b) => {
@@ -81,43 +88,53 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
 
   const handleApplicationClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
-    app: Application
+    app: Application,
   ) => {
     e.preventDefault();
     navigateToApplication(app.type, app.application_id, "task-list");
   };
 
   return (
-    <table 
-      className="govuk-table" 
+    <table
+      className="govuk-table"
       role="table"
       aria-label={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} applications table`}
       aria-describedby={captionId}
     >
       <caption className="govuk-visually-hidden" id={captionId}>
-        Table showing {activeTab} applications with columns for DESNZ reference, 
-        your reference, case type, {activeTab !== 'draft' ? 'status, and' : 'and'} {dateColumnConfig.label.toLowerCase()}.
-        Navigate through rows using arrow keys. Activate links using Enter or Space.
+        Table showing {activeTab} applications with columns for DESNZ reference,
+        your reference, case type,{" "}
+        {activeTab !== "draft" ? "status, and" : "and"}{" "}
+        {dateColumnConfig.label.toLowerCase()}. Navigate through rows using
+        arrow keys. Activate links using Enter or Space.
       </caption>
-      
+
       <thead className="govuk-table__head">
         <tr className="govuk-table__row" role="row">
-          <th scope="col" className="govuk-table__header" role="columnheader">
+          <th
+            scope="col"
+            className="govuk-table__header govuk-!-width-one-tenth"
+            role="columnheader"
+          >
             <span aria-label="DESNZ reference number">DESNZ reference</span>
           </th>
           <th scope="col" className="govuk-table__header" role="columnheader">
-            <span aria-label="Your reference number or identifier">Your reference</span>
+            <span aria-label="Your reference number or identifier">
+              Your reference
+            </span>
           </th>
           <th scope="col" className="govuk-table__header" role="columnheader">
             <span aria-label="Application case type">Case type</span>
           </th>
-          {activeTab !== 'draft' && (
+          {activeTab !== "draft" && (
             <th scope="col" className="govuk-table__header" role="columnheader">
               <span aria-label="Current application status">Status</span>
             </th>
           )}
           <th scope="col" className="govuk-table__header" role="columnheader">
-            <span aria-label={`Date the application was ${activeTab === 'draft' ? 'started' : activeTab === 'active' ? 'submitted' : 'completed'}`}>
+            <span
+              aria-label={`Date the application was ${activeTab === "draft" ? "started" : activeTab === "active" ? "submitted" : "completed"}`}
+            >
               {dateColumnConfig.label}
             </span>
           </th>
@@ -125,44 +142,48 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
       </thead>
       <tbody className="govuk-table__body">
         {sortedApplications.map((app, rowIndex) => (
-          <tr 
-            className="govuk-table__row" 
+          <tr
+            className="govuk-table__row"
             key={app.application_id}
             role="row"
             aria-rowindex={rowIndex + 2}
             aria-label={`Application row ${rowIndex + 1} of ${sortedApplications.length}`}
           >
-            <td 
-              className="govuk-table__cell" 
+            <td
+              className="govuk-table__cell"
               role="cell"
-              aria-label={`DESNZ reference: ${app.desnz_ref || 'Not available'}`}
+              aria-label={`DESNZ reference: ${app.desnz_ref || "Not available"}`}
             >
               <a
                 href="#"
                 className="govuk-link"
-                aria-label={`View details for application ${app.desnz_ref || 'with no reference'}, ${getCaseTypeLabel(app.type)}, ${activeTab !== 'draft' ? app.status + ' status, ' : ''}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
+                aria-label={`View details for application ${app.desnz_ref || "with no reference"}, ${getCaseTypeLabel(app.type)}, ${activeTab !== "draft" ? app.status + " status, " : ""}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
                 onClick={(e) => handleApplicationClick(e, app)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    navigateToApplication(app.type, app.application_id, "task-list");
+                    navigateToApplication(
+                      app.type,
+                      app.application_id,
+                      "task-list",
+                    );
                   }
                 }}
                 tabIndex={0}
               >
-                {app.desnz_ref || 'N/A'}
+                {app.desnz_ref || "N/A"}
               </a>
             </td>
 
-            <td 
+            <td
               className="govuk-table__cell"
               role="cell"
-              aria-label={`Your reference: ${app.your_reference || 'Not provided'}`}
+              aria-label={`Your reference: ${app.your_reference || "Not provided"}`}
             >
               {app.your_reference || "—"}
             </td>
 
-            <td 
+            <td
               className="govuk-table__cell"
               role="cell"
               aria-label={`Case type: ${getCaseTypeLabel(app.type)}`}
@@ -170,17 +191,17 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
               {getCaseTypeLabel(app.type)}
             </td>
 
-            {activeTab !== 'draft' && (
-              <td 
+            {activeTab !== "draft" && (
+              <td
                 className="govuk-table__cell"
                 role="cell"
-                aria-label={`Status: ${app.status.replace(/-/g, ' ')}`}
+                aria-label={`Status: ${app.status.replace(/-/g, " ")}`}
               >
                 <StatusBadge status={app.status} />
               </td>
             )}
 
-            <td 
+            <td
               className="govuk-table__cell"
               role="cell"
               aria-label={`${dateColumnConfig.label}: ${formatDate(dateColumnConfig.getDate(app))}`}
@@ -195,6 +216,6 @@ export const ApplicationTable: React.FC<Props> = ({ applications, activeTab = 'a
 };
 
 // Display name for React DevTools
-ApplicationTable.displayName = 'ApplicationTable';
+ApplicationTable.displayName = "ApplicationTable";
 
 export default ApplicationTable;
