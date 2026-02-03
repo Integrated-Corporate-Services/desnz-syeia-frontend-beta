@@ -65,7 +65,9 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     }`;
   }
   
-  const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required`;
+  const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required${
+    (consultationName || orgName) ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ""
+  }`;
   const withdrawnPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-withdrawn`;
   // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
   function formatDate(dateStr?: string) {
@@ -81,19 +83,25 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
       case ConsultationStatus.NOT_REQUIRED:
         return (
           <>
-            <div className="govuk-summary-card__title-wrapper"></div>
+            <div className="govuk-summary-card__title-wrapper">
+              <h2 className="govuk-summary-card__title">{orgName || consultationName}</h2>
+            </div>
             <div className="govuk-summary-card__content">
               <table className="govuk-table govuk-!-margin-bottom-0">
                 <tbody className="govuk-table__body">
                   <tr className="govuk-table__row">
                     <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
                     <td className="govuk-table__cell">
-                      <span className="govuk-tag govuk-tag--grey">Not required</span>
+                     <span className="govuk-tag govuk-tag--green">Closed</span>
                     </td>
                   </tr>
                   <tr className="govuk-table__row">
-                    <td className="govuk-table__cell govuk-!-font-weight-bold">Reason</td>
-                    <td className="govuk-table__cell">{notRequiredMessage || 'This consultation is not required'}</td>
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Date closed</td>
+                    <td className="govuk-table__cell">{dateClosed ? formatDate(dateClosed) : '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Why this consultation is not required</td>
+                    <td className="govuk-table__cell">{notRequiredMessage || '-'}</td>
                   </tr>
                   {notRequiredDocs && notRequiredDocs.length > 0 && (
                     <tr className="govuk-table__row">

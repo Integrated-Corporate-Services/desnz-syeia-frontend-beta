@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import FileUpload from '../../../components/FileUpload';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -8,6 +8,8 @@ import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/c
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
+	const [searchParams] = useSearchParams();
+	const consultationName = searchParams.get('consultationName')|| '';
 
 	// Scroll to top on mount
 	useEffect(() => {
@@ -43,7 +45,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 
 	// Save and Continue handler
 
-		// Save and Continue handler (set status to NOT_REQUIRED)
+		// Save and Continue handler (set status to CLOSED)
 		const navigate = useNavigate();
 		const handleSaveAndContinue = async () => {
 			if (!consultationId || !notRequiredStatus?.details) return;
@@ -96,11 +98,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 						</ol>
 					</nav>
 					<main className="govuk-main-wrapper govuk-!-margin-bottom-6" id="main-content">
-						<h1 className="govuk-heading-s govuk-hint " style={{ color: '#b1b4b6' }}>Natural England</h1>
-						<h2 className="govuk-heading-l govuk-!-margin-bottom-6">Consultation not required</h2>
+					<h2 className="govuk-caption-xl">{consultationName}</h2>
+						<h1 className="govuk-heading-l govuk-!-margin-bottom-6">Consultation not required</h1>
 						<div className="govuk-!-margin-bottom-6">
-							<h2 className="govuk-heading-m govuk-!-margin-bottom-2">Important information</h2>
-							<h3 className="govuk-heading-s govuk-!-margin-bottom-1">Sites of Special Scientific Interest (SSSI) assent</h3>
+							<h2 className="govuk-heading-m govuk-!-margin-bottom-2">Sites of Special Scientific Interest (SSSI) assent</h2>
 							<p className="govuk-body">You do not need to request Natural England’s assent for activities you believe would not disturb or damage the special features of an SSSI.</p>
 							<p className="govuk-body">You must provide appropriate evidence here to demonstrate this.</p>
 							<p className="govuk-body">Here are some examples of appropriate evidence (this list is not exhaustive):</p>
@@ -116,19 +117,19 @@ const ConsultationNotRequiredPage: React.FC = () => {
 						</div>
 						<form className="govuk-form-group govuk-!-margin-bottom-6" noValidate onSubmit={e => e.preventDefault()}>
 							<div className="govuk-form-group govuk-!-margin-bottom-6">
-								<label className="govuk-label govuk-label--s" htmlFor="reason">Explain why this consultation is not required.</label>
+								<label className="govuk-label" htmlFor="reason">Explain why this consultation is not required</label>
 								<textarea
 									className="govuk-textarea govuk-!-margin-top-2"
 									id="reason"
 									name="reason"
-									rows={4}
+									rows={5}
 									value={reason}
 									onChange={e => setReason(e.target.value)}
 								/>
 							</div>
 							<div className="govuk-form-group govuk-!-margin-bottom-6">
 								<FileUpload
-									title="Upload supporting documents if any"
+									title="Upload any supporting documents"
 									prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}/${consultationId}`}
 									applicationId={applicationId}
 									category={FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}
@@ -144,21 +145,21 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								/>
 							</div>
 						 <div className="govuk-button-group govuk-!-margin-top-6">
-								{/*	<button
+								<button
+									type="button"
+									className="govuk-button"
+									data-module="govuk-button"
+									onClick={handleSaveAndContinue}
+								>
+									Save and continue
+								</button>
+								<button
 									type="button"
 									className="govuk-button govuk-button--secondary"
 									data-module="govuk-button"
 									onClick={handleSaveForLater}
 								>
 									Save for later
-								</button>*/}
-								<button
-									type="button"
-									className="govuk-button govuk-button--primary"
-									data-module="govuk-button"
-									onClick={handleSaveAndContinue}
-								>
-									Save and Continue
 								</button>
 							</div> 
 						</form>
