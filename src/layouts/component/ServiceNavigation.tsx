@@ -52,12 +52,12 @@ const ServiceNavigation = () => {
       (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
 
   return (
-    <section
-      aria-label="Service information"
-      className="govuk-service-navigation"
-      data-module="govuk-service-navigation"
-    >
-      <div className="govuk-width-container">
+    <div className="govuk-width-container">
+      <section
+        aria-label="Service information"
+        className="govuk-service-navigation"
+        data-module="govuk-service-navigation"
+      >
         <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
           <div className="govuk-service-navigation__wrapper-container">
             {/* User name on the left */}
@@ -146,8 +146,8 @@ const ServiceNavigation = () => {
             </ul>
           </div>
         </nav>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 };
 export default ServiceNavigation;
