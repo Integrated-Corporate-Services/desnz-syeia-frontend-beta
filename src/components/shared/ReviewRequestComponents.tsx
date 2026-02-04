@@ -1,5 +1,5 @@
 // Components for reviewing access requests
-import React from 'react';
+import React from "react";
 
 interface RequestData {
   access_request_id: string;
@@ -9,21 +9,26 @@ interface RequestData {
   organisation_name?: string;
   is_agent: boolean;
   requested_at: string;
+  agency_name?: string;
+  company_number?: string;
+  agency_address?: string;
 }
 
 interface ApplicantDetailsProps {
   requestData: RequestData;
 }
 
-export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData }) => {
+export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({
+  requestData,
+}) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -44,7 +49,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData 
       <div className="govuk-summary-list__row">
         <dt className="govuk-summary-list__key">Organisation</dt>
         <dd className="govuk-summary-list__value">
-          {requestData.organisation_name || 'N/A'}
+          {requestData.organisation_name || "N/A"}
         </dd>
       </div>
 
@@ -55,14 +60,35 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData 
           <strong
             className="govuk-tag"
             style={{
-              backgroundColor: !requestData.is_agent ? '#1d70b8' : '#505a5f',
-              color: '#ffffff'
+              backgroundColor: !requestData.is_agent ? "#1d70b8" : "#505a5f",
+              color: "#ffffff",
             }}
           >
-            {!requestData.is_agent ? 'Employee' : 'Agent'}
+            {!requestData.is_agent ? "Employee" : "Agent"}
           </strong>
         </dd>
       </div>
+
+      {requestData.is_agent && (
+        <>
+          <div className="govuk-summary-list__row">
+            <dt className="govuk-summary-list__key">Agency Name</dt>
+            <dd className="govuk-summary-list__value">
+              {requestData.agency_name || "N/A"}
+            </dd>
+          </div>
+          <div className="govuk-summary-list__row">
+            <dt className="govuk-summary-list__key">Agency Address</dt>
+            <dd className="govuk-summary-list__value">
+              {requestData.agency_address ? (
+                <>{requestData.agency_address}</>
+              ) : (
+                "N/A"
+              )}
+            </dd>
+          </div>
+        </>
+      )}
 
       <div className="govuk-summary-list__row">
         <dt className="govuk-summary-list__key">Request submitted</dt>
@@ -89,14 +115,15 @@ export const RejectionReasonForm: React.FC<RejectionReasonFormProps> = ({
   onSubmit,
   onCancel,
   processing,
-  error
+  error,
 }) => (
   <div className="govuk-form-group govuk-!-margin-bottom-6">
     <label className="govuk-label govuk-label--m" htmlFor="reject-reason">
       Reason for rejection
     </label>
     <div className="govuk-hint" id="reject-reason-hint">
-      Explain why this request is being rejected. This will be included in the email sent to the applicant.
+      Explain why this request is being rejected. This will be included in the
+      email sent to the applicant.
     </div>
 
     {error && (
@@ -106,12 +133,14 @@ export const RejectionReasonForm: React.FC<RejectionReasonFormProps> = ({
     )}
 
     <textarea
-      className={`govuk-textarea ${error ? 'govuk-textarea--error' : ''}`}
+      className={`govuk-textarea ${error ? "govuk-textarea--error" : ""}`}
       id="reject-reason"
       rows={4}
       value={rejectReason}
       onChange={(e) => onReasonChange(e.target.value)}
-      aria-describedby={error ? 'reject-reason-error reject-reason-hint' : 'reject-reason-hint'}
+      aria-describedby={
+        error ? "reject-reason-error reject-reason-hint" : "reject-reason-hint"
+      }
     />
 
     <div className="govuk-button-group govuk-!-margin-top-4">
@@ -121,7 +150,7 @@ export const RejectionReasonForm: React.FC<RejectionReasonFormProps> = ({
         onClick={onSubmit}
         disabled={processing}
       >
-        {processing ? 'Processing...' : 'Confirm rejection'}
+        {processing ? "Processing..." : "Confirm rejection"}
       </button>
 
       <a
@@ -149,7 +178,7 @@ interface ActionButtonsProps {
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
   processing,
   onApprove,
-  onReject
+  onReject,
 }) => (
   <div className="govuk-button-group">
     <button
@@ -158,7 +187,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       onClick={onApprove}
       disabled={processing}
     >
-      {processing ? 'Processing...' : 'Approve access'}
+      {processing ? "Processing..." : "Approve access"}
     </button>
 
     <button
@@ -175,15 +204,39 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
 export const RelatedContentSidebar: React.FC = () => (
   <aside className="app-related-items" role="complementary">
     {/* TODO: Move inline styles to CSS file */}
-    <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: '0 0 16px 0' }} />
-    <h2 className="govuk-heading-s" id="related-content-title">Related content</h2>
+    <hr
+      style={{
+        border: "none",
+        borderTop: "1px solid #b1b4b6",
+        margin: "0 0 16px 0",
+      }}
+    />
+    <h2 className="govuk-heading-s" id="related-content-title">
+      Related content
+    </h2>
     <nav role="navigation" aria-labelledby="related-content-title">
       <ul className="govuk-list govuk-list--spaced">
         {/* TODO: Replace placeholder links with actual documentation URLs */}
-        <li><a className="govuk-link" href="#">Guidelines for reviewing requests</a></li>
-        <li><a className="govuk-link" href="#">Types of applicants</a></li>
-        <li><a className="govuk-link" href="#">When to approve or reject</a></li>
-        <li><a className="govuk-link" href="#">Contact support team</a></li>
+        <li>
+          <a className="govuk-link" href="#">
+            Guidelines for reviewing requests
+          </a>
+        </li>
+        <li>
+          <a className="govuk-link" href="#">
+            Types of applicants
+          </a>
+        </li>
+        <li>
+          <a className="govuk-link" href="#">
+            When to approve or reject
+          </a>
+        </li>
+        <li>
+          <a className="govuk-link" href="#">
+            Contact support team
+          </a>
+        </li>
       </ul>
     </nav>
   </aside>

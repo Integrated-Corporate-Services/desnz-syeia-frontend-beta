@@ -1,8 +1,9 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequestStore } from "../../store/accessRequestStore";
+import CompaniesHouseSearch from "./components/CompaniesHouse/CompaniesHouseSearch";
+import { CompanySearchResult } from "../../types/companiesHouse";
 
 const CompanyNamePage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,26 +11,45 @@ const CompanyNamePage: React.FC = () => {
   const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const [agencyName, setAgencyName] = useState(formData.agencyName || "");
+  const [companyNumber, setCompanyNumber] = useState(
+    formData.companyNumber || "",
+  );
+  const [agencyAddress, setAgencyAddress] = useState(
+    formData.agencyAddress || "",
+  );
   const [error, setError] = useState<string>("");
 
-  const handleChange = (value: string) => {
-    // Allow alphanumeric, spaces, hyphens, apostrophes, ampersands, periods, commas
-    const sanitizedValue = value.replace(/[^a-zA-Z0-9\s'\-&.,]/g, '');
-    setAgencyName(sanitizedValue);
-    setError("");
+  const handleCompanySelect = (company: CompanySearchResult | null) => {
+    if (company) {
+      setAgencyName(company.title);
+      setCompanyNumber(company.company_number);
+      setAgencyAddress(company.address_snippet);
+      setError("");
+    } else {
+      setAgencyName("");
+      setCompanyNumber("");
+      setAgencyAddress("");
+    }
+  };
+
+  const handleSearchError = (searchError: string) => {
+    // Only update if different to avoid infinite loops, and ensure we capture search errors
+    if (searchError !== error) {
+      setError(searchError);
+    }
   };
 
   const validate = (): boolean => {
     if (!agencyName.trim()) {
-      setError("Enter your agency name");
+      setError("Search for and select your agency");
       return false;
     }
-    
+
     if (agencyName.trim().length > 4000) {
       setError("You cannot enter more than 4,000 characters");
       return false;
     }
-    
+
     return true;
   };
 
@@ -37,23 +57,23 @@ const CompanyNamePage: React.FC = () => {
     e.preventDefault();
 
     if (!validate()) {
-      // Focus error summary for accessibility
       if (errorSummaryRef.current) {
         errorSummaryRef.current.focus();
-        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        errorSummaryRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }
       return;
     }
 
-    // Update store only - no backend save yet
-    updateFormData({ agencyName });
-
-    // Navigate to select organisations page
+    updateFormData({ agencyName, companyNumber, agencyAddress });
     navigate("/request-access/select-organisations");
   };
 
-  // Convert error to ErrorSummary format
-  const errorSummaryItems = error ? [{ fieldId: "agencyName", message: error }] : [];
+  const errorSummaryItems = error
+    ? [{ fieldId: "company-search", message: error }]
+    : [];
 
   return (
     <div className="govuk-width-container">
@@ -72,30 +92,25 @@ const CompanyNamePage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
-            
-            <h1 className="govuk-heading-l">Enter your agency name</h1>
 
-            <p className="govuk-body">e.g. Fisher Gordon</p>
+            <h1 className="govuk-heading-l">What is your agency's name?</h1>
 
-            <form onSubmit={handleSubmit} noValidate>
-              <TextInput
-                id="agencyName"
-                name="agencyName"
-                label=""
-                value={agencyName}
-                onChange={(e) => handleChange(e.target.value)}
-                error={error}
-                className="govuk-input--width-20"
-              />
+            <CompaniesHouseSearch
+              onCompanySelect={handleCompanySelect}
+              onError={handleSearchError}
+              initialValue={agencyName}
+              hint="Search for your agency in the Companies House register."
+            />
 
+            <div className="govuk-button-group" style={{ marginTop: "30px" }}>
               <button
-                type="submit"
+                onClick={handleSubmit}
                 className="govuk-button"
                 data-module="govuk-button"
               >
                 Save and continue
               </button>
-            </form>
+            </div>
           </div>
         </div>
       </main>

@@ -13,6 +13,8 @@ interface AccessRequestFormData {
   postCode: string;
   isAgent?: boolean;
   agencyName?: string;
+  companyNumber?: string;
+  agencyAddress?: string;
   organisationIds: string[];
 }
 

@@ -16,6 +16,8 @@ export interface SaveAccessRequestPayload {
   isAgent?: boolean;
   organisationIds?: string[];
   agencyName?: string;
+  companyNumber?: string;
+  agencyAddress?: string;
 }
 
 export interface SaveAccessRequestResponse {
@@ -33,7 +35,7 @@ export const useSaveAccessRequest = () => {
   const [error, setError] = useState<string | null>(null);
 
   const saveAccessRequest = async (
-    payload: SaveAccessRequestPayload
+    payload: SaveAccessRequestPayload,
   ): Promise<SaveAccessRequestResponse | null> => {
     setIsLoading(true);
     setError(null);
@@ -41,7 +43,7 @@ export const useSaveAccessRequest = () => {
     try {
       const response = await axios.post<SaveAccessRequestResponse>(
         "/backend/api/access-requests/save",
-        payload
+        payload,
       );
 
       setIsLoading(false);

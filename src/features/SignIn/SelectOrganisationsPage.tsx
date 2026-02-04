@@ -15,7 +15,7 @@ const SelectOrganisationsPage: React.FC = () => {
   const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const [selectedOrgs, setSelectedOrgs] = useState<string[]>(
-    formData.organisationIds || []
+    formData.organisationIds || [],
   );
   const [error, setError] = useState<string>("");
 
@@ -27,7 +27,7 @@ const SelectOrganisationsPage: React.FC = () => {
       setSelectedOrgs((prev) =>
         prev.includes(orgId)
           ? prev.filter((id) => id !== orgId)
-          : [...prev, orgId]
+          : [...prev, orgId],
       );
     } else {
       // Employees can select only one
@@ -44,11 +44,14 @@ const SelectOrganisationsPage: React.FC = () => {
         ? "Select at least one organisation"
         : "Select an organisation";
       setError(errorMsg);
-      
+
       // Focus error summary for accessibility
       if (errorSummaryRef.current) {
         errorSummaryRef.current.focus();
-        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        errorSummaryRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }
       return;
     }
@@ -59,7 +62,7 @@ const SelectOrganisationsPage: React.FC = () => {
 
       // Submit ALL form data to backend in one final save
       const completeFormData = {
-        email: formData.email || user?.email || '',
+        email: formData.email || user?.email || "",
         title: formData.title,
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -71,6 +74,8 @@ const SelectOrganisationsPage: React.FC = () => {
         postCode: formData.postCode,
         isAgent: formData.isAgent,
         agencyName: formData.agencyName,
+        companyNumber: formData.companyNumber,
+        agencyAddress: formData.agencyAddress,
         organisationIds: selectedOrgs,
       };
 
@@ -81,17 +86,22 @@ const SelectOrganisationsPage: React.FC = () => {
     } catch {
       const errorMsg = "Failed to submit request. Please try again.";
       setError(errorMsg);
-      
+
       // Focus error summary for accessibility
       if (errorSummaryRef.current) {
         errorSummaryRef.current.focus();
-        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        errorSummaryRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }
     }
   };
 
   // Convert error to ErrorSummary format
-  const errorSummaryItems = error ? [{ fieldId: "organisations", message: error }] : [];
+  const errorSummaryItems = error
+    ? [{ fieldId: "organisations", message: error }]
+    : [];
 
   if (isLoading) {
     return <div className="govuk-width-container">Loading...</div>;
@@ -100,14 +110,18 @@ const SelectOrganisationsPage: React.FC = () => {
   return (
     <div className="govuk-width-container">
       <a
-        href={isAgent ? "/request-access/company-name" : "/request-access/agent-question"}
+        href={
+          isAgent
+            ? "/request-access/company-name"
+            : "/request-access/agent-question"
+        }
         className="govuk-back-link"
         onClick={(e) => {
           e.preventDefault();
           navigate(
             isAgent
               ? "/request-access/company-name"
-              : "/request-access/agent-question"
+              : "/request-access/agent-question",
           );
         }}
       >
@@ -118,12 +132,12 @@ const SelectOrganisationsPage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
-            
+
             <form onSubmit={handleSubmit} noValidate>
               <div
                 className={`govuk-form-group ${error ? "govuk-form-group--error" : ""}`}
               >
-                <fieldset 
+                <fieldset
                   className="govuk-fieldset"
                   aria-describedby={error ? "organisations-error" : undefined}
                 >
@@ -157,9 +171,7 @@ const SelectOrganisationsPage: React.FC = () => {
                   )}
 
                   <div
-                    className={
-                      isAgent ? "govuk-checkboxes" : "govuk-radios"
-                    }
+                    className={isAgent ? "govuk-checkboxes" : "govuk-radios"}
                     data-module={isAgent ? "govuk-checkboxes" : "govuk-radios"}
                   >
                     {organisations.map((org) => (
@@ -182,9 +194,7 @@ const SelectOrganisationsPage: React.FC = () => {
                           type={isAgent ? "checkbox" : "radio"}
                           value={org.value}
                           checked={selectedOrgs.includes(org.value)}
-                          onChange={() =>
-                            handleCheckboxChange(org.value)
-                          }
+                          onChange={() => handleCheckboxChange(org.value)}
                         />
                         <label
                           className={
