@@ -23,7 +23,7 @@ const CompanyNamePage: React.FC = () => {
     if (company) {
       setAgencyName(company.title);
       setCompanyNumber(company.company_number);
-      setAgencyAddress(company.address_snippet);
+      setAgencyAddress(company.address_snippet || "");
       setError("");
     } else {
       setAgencyName("");
