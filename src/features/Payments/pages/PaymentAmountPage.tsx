@@ -130,14 +130,14 @@ const PaymentAmountPage: React.FC = () => {
             )}
 
             <h1 className="govuk-heading-l">
-              Payment Amount
+              Payment required
             </h1>
 
             <p className="govuk-body">
-              You need to pay <strong>£{totalAmount.toFixed(2)}</strong> to submit your application.
+              You must pay <strong>£{totalAmount.toFixed(2)}</strong> to submit this application.
             </p>
             <p className="govuk-body">
-              Here is the breakdown of your payment amount:
+              Here is the breakdown of your payment:
             </p>
 
             <table className="govuk-table">
@@ -150,18 +150,18 @@ const PaymentAmountPage: React.FC = () => {
               <tbody className="govuk-table__body">
                 {/* Base consent fee */}
                 <tr className="govuk-table__row">
-                  <td className="govuk-table__cell">
-                    {feeBreakdown?.baseDescription || 'Overhead Lines (Section 37): Consent Application'}
-                  </td>
+                  <td className="govuk-table__cell"><strong>
+                    {feeBreakdown?.baseDescription || 'Application for consent for an overhead line with a nominal capacity'}
+                  </strong></td>
                   <td className="govuk-table__cell govuk-table__cell--numeric">£{consentFee.toFixed(2)}</td>
                 </tr>
                 
                 {/* Screening fee - only show if applicable */}
                 {screeningFee > 0 && !eiaFee && (
                   <tr className="govuk-table__row">
-                    <td className="govuk-table__cell">
-                      {feeBreakdown?.screeningDescription || 'Overhead Lines (Section 37): EIA Screening'}
-                    </td>
+                    <td className="govuk-table__cell"><strong>
+                      {feeBreakdown?.screeningDescription || 'Environmental Impact Assessment (EIA) Screening'}
+                    </strong></td>
                     <td className="govuk-table__cell govuk-table__cell--numeric">£{screeningFee.toFixed(2)}</td>
                   </tr>
                 )}
@@ -169,9 +169,9 @@ const PaymentAmountPage: React.FC = () => {
                 {/* Full EIA fee - only show if applicable */}
                 {eiaFee > 0 && (
                   <tr className="govuk-table__row">
-                    <td className="govuk-table__cell">
-                      {feeBreakdown?.eiaDescription || 'Overhead Lines (Section 37): Full EIA Process with Environmental Statement'}
-                    </td>
+                    <td className="govuk-table__cell"><strong>
+                      {feeBreakdown?.eiaDescription || 'Environmental Impact Assessment (EIA)'}
+                    </strong></td>
                     <td className="govuk-table__cell govuk-table__cell--numeric">£{eiaFee.toFixed(2)}</td>
                   </tr>
                 )}
@@ -179,7 +179,7 @@ const PaymentAmountPage: React.FC = () => {
                 {/* Total */}
                 <tr className="govuk-table__row">
                   <td className="govuk-table__cell"><strong>TOTAL</strong></td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric"><strong>£{totalAmount.toFixed(2)}</strong></td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">£{totalAmount.toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
@@ -191,28 +191,6 @@ const PaymentAmountPage: React.FC = () => {
             }}>
               You need to generate an invoice to move to the next step.
             </div>
-
-            {/* TODO
-            {feeBreakdown && (
-              <details className="govuk-details" data-module="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    View fee calculation details
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  <ul className="govuk-list govuk-list--bullet">
-                    <li>Voltage: {feeBreakdown.voltageValue}kV</li>
-                    <li>Chargeable sensitive area: {feeBreakdown.hasChargeableSensitiveArea ? 'Yes' : 'No'}</li>
-                    {feeBreakdown.intersectedLayerIds && feeBreakdown.intersectedLayerIds.length > 0 && (
-                      <li>Intersected layer IDs: {feeBreakdown.intersectedLayerIds.join(', ')}</li>
-                    )}
-                    <li>isEiaDevelopment: {feeBreakdown.isEiaDevelopment ? 'Yes' : 'No'}</li>
-                    <li>Screening only: {feeBreakdown.screeningOnly ? 'Yes' : 'No'}</li>
-                  </ul>
-                </div>
-              </details>
-            )} */}
 
             <div className="govuk-button-group">
               <button
