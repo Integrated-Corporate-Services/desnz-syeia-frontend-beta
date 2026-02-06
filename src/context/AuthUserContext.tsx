@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { useAuthUser } from '../hooks/useAuthUser';
 import type { AuthUser } from '../types/auth';
 
@@ -13,8 +13,9 @@ const AuthUserContext = createContext<AuthUserContextType>({ user: null, loading
 
 export const AuthUserProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, error, authenticated } = useAuthUser();
+  const value = useMemo(() => ({ user, loading, error, authenticated }), [user, loading, error, authenticated]);
   return (
-    <AuthUserContext.Provider value={{ user, loading, error, authenticated }}>
+    <AuthUserContext.Provider value={value}>
       {children}
     </AuthUserContext.Provider>
   );

@@ -156,11 +156,11 @@ const ContactDetailsPage: React.FC = () => {
   return (
     <div className="govuk-width-container">
       <a
-        href="/request-access/intro"
+        href="/request-access"
         className="govuk-back-link"
         onClick={(e) => {
           e.preventDefault();
-          navigate("/request-access/intro");
+          navigate("/request-access");
         }}
       >
         Back

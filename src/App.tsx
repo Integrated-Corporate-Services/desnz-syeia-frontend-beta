@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import * as GOVUKFrontend from "govuk-frontend";
 import { BrowserRouter, useLocation, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
@@ -58,59 +58,72 @@ const AppContent = () => {
       return location.pathname === path;
     });
 
-  // Find the current route configuration to check if it uses layout
-  const currentRoute = useMemo(() => {
-    return ROUTE_CONFIG.find((route) => {
-      if (route.path.includes(":")) {
-        const base = route.path.split("/:")[0];
-        return location.pathname.startsWith(base);
-      }
-      return location.pathname === route.path;
-    });
-  }, [location.pathname]);
-
-  // Check if current route should use MainLayout (default to true)
-  const useLayout = currentRoute?.layout !== false;
-
   return (
-    <SessionTimeoutProvider>
-      <AuthUserProvider>
-        <SessionTimeout />
-        {isNotFound ? (
-          <NotFound />
-        ) : useLayout ? (
-          /* Routes with layout: true (or undefined) use MainLayout wrapper */
-          <MainLayout>
-            <Routes>
-              {ROUTE_CONFIG.filter(r => r.layout !== false).map(({ path, component: Component }) => {
-                // If root or /landingPage, always show LandingPage
-                if (path === '/' || path === '/landingPage') {
-                  return <Route key={path} path={path} element={<LandingPage />} />;
-                }
-                return <Route key={path} path={path} element={<Component />} />;
-              })}
-            </Routes>
-          </MainLayout>
-        ) : (
-          /* Routes with layout: false render directly without MainLayout */
-          <Routes>
-            {ROUTE_CONFIG.filter(r => r.layout === false).map(({ path, component: Component }) => {
-              // If root or /landingPage, always show LandingPage
-              if (path === '/' || path === '/landingPage') {
-                return <Route key={path} path={path} element={<LandingPage />} />;
+    <>
+      <SessionTimeout />
+      {isNotFound ? (
+        <NotFound />
+      ) : (
+        <Routes>
+          {ROUTE_CONFIG.map(({ path, component: Component, layout, auth }) => {
+            let routeElement: React.ReactNode;
+            let shouldUseLayout = layout !== false;
+
+            // Handle public pages
+            if (path === '/landingPage') {
+              routeElement = <LandingPage />;
+              shouldUseLayout = false; // Landing page is standalone
+            } 
+            // Handle root path - special logic for auth vs guest
+            else if (path === '/') {
+              if (user && user.user_id) {
+                // Authenticated: show Workbasket with layout
+                routeElement = <Component />;
+              } else if (!loading) {
+                // Not authenticated: show LandingPage without layout
+                routeElement = <LandingPage />;
+                shouldUseLayout = false;
+              } else {
+                // Still loading: show placeholder
+                routeElement = <Component />;
               }
-              return <Route key={path} path={path} element={<Component />} />;
-            })}
-          </Routes>
-        )}
-      </AuthUserProvider>
-    </SessionTimeoutProvider>
+            }
+            // Handle protected routes
+            else if (auth && !user && !loading) {
+              routeElement = <LandingPage />;
+              shouldUseLayout = false;
+            }
+            // Handle all other routes
+            else {
+              routeElement = <Component />;
+            }
+
+            // Wrap with MainLayout if needed
+            if (shouldUseLayout) {
+              routeElement = <MainLayout>{routeElement}</MainLayout>;
+            }
+
+            return (
+              <Route
+                key={path}
+                path={path}
+                element={routeElement}
+              />
+            );
+          })}
+        </Routes>
+      )}
+    </>
   );
 };
 
 const App = () => (
   <BrowserRouter basename="/frontend">
-    <AppContent />
+    <AuthUserProvider>
+      <SessionTimeoutProvider>
+        <AppContent />
+      </SessionTimeoutProvider>
+    </AuthUserProvider>
   </BrowserRouter>
 );
 
