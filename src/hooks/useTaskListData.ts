@@ -26,8 +26,10 @@ export function useTaskListData() {
 
   // Fetch application if not present in store but available in route params
   useEffect(() => {
-    if (!application && applicationId) {
-      fetchAndSetApplication(applicationId);
+     if (applicationId) {
+      if (!application || application.application_id !== applicationId) {
+        fetchAndSetApplication(applicationId);
+      }
     }
   }, [application, applicationId, fetchAndSetApplication]);
 
