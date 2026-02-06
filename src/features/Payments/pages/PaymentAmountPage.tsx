@@ -193,28 +193,6 @@ const PaymentAmountPage: React.FC = () => {
               You need to generate an invoice to move to the next step.
             </div>
 
-            {/* TODO
-            {feeBreakdown && (
-              <details className="govuk-details" data-module="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    View fee calculation details
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  <ul className="govuk-list govuk-list--bullet">
-                    <li>Voltage: {feeBreakdown.voltageValue}kV</li>
-                    <li>Chargeable sensitive area: {feeBreakdown.hasChargeableSensitiveArea ? 'Yes' : 'No'}</li>
-                    {feeBreakdown.intersectedLayerIds && feeBreakdown.intersectedLayerIds.length > 0 && (
-                      <li>Intersected layer IDs: {feeBreakdown.intersectedLayerIds.join(', ')}</li>
-                    )}
-                    <li>isEiaDevelopment: {feeBreakdown.isEiaDevelopment ? 'Yes' : 'No'}</li>
-                    <li>Screening only: {feeBreakdown.screeningOnly ? 'Yes' : 'No'}</li>
-                  </ul>
-                </div>
-              </details>
-            )} */}
-
             <div className="govuk-button-group">
               <button
                 type="button"
