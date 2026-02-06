@@ -13,7 +13,7 @@ export function useTaskListData() {
   const { applicationId } = useParams();
   const { progress, loading: progressLoading, error: progressError, fetchProgress } = useProgressStore();
   const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
-  const [sections, setSections] = useState(getInitialSections(application?.application_id || applicationId, assetInformationStatus));
+  const [sections, setSections] = useState(getInitialSections(applicationId || application?.application_id, assetInformationStatus));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ inProgress: boolean; completed: number; total: number } | null>(null);
@@ -33,7 +33,7 @@ export function useTaskListData() {
 
   // Fetch progress when applicationId is available
   useEffect(() => {
-    const effectiveId = application?.application_id || applicationId;
+    const effectiveId = applicationId || application?.application_id;
     if (typeof effectiveId === 'string' && effectiveId) {
       fetchProgress(effectiveId);
     }
@@ -49,7 +49,7 @@ export function useTaskListData() {
 
   // Update sections when progress or assetInformationStatus changes
   useEffect(() => {
-    const effectiveId = application?.application_id || applicationId;
+    const effectiveId = applicationId || application?.application_id;
     setSections(getSectionsWithProgress(typeof effectiveId === 'string' ? effectiveId : undefined, progress, assetInformationStatus));
   }, [progress, assetInformationStatus, application?.application_id, applicationId]);
 
