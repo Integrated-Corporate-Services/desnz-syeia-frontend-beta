@@ -196,7 +196,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                   </tr>
                   <tr className="govuk-table__row">
                     <td className="govuk-table__cell govuk-!-font-weight-bold">Date closed</td>
-                    <td className="govuk-table__cell">{dateClosed ? formatDate(dateClosed) : '-'}</td>
+                    <td className="govuk-table__cell">-</td>
                   </tr>
                   <tr className="govuk-table__row">
                     <td className="govuk-table__cell govuk-!-font-weight-bold">Response documents</td>

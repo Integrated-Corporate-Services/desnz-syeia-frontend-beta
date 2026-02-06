@@ -56,7 +56,11 @@ export const useApplicationStore = create<State>((set) => ({
     });
   },
   submitApplication: async (applicationId: string) => {
-    return await applicationApiService.submitApplication(applicationId);
+    const updated = await applicationApiService.submitApplication(applicationId);
+    if (updated) {
+      set({ application: updated, applicationParty: updated.application_party });
+    }
+    return updated;
   },
   updateApplicantInfo: async (applicationId, operatorRef, type, additionalContacts) => {
     const app = await applicationApiService.updateApplicantInfo(applicationId, operatorRef, type, additionalContacts);

@@ -166,25 +166,25 @@ export const ROUTE_CONFIG = [
     path: '/admin/organisation/:organisationId/settings',
     component: ManageOrganisationSettingsPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/organisations/:organisationId/team-coordinators',
     component: TeamCoordinatorsPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
     component: ManageTeamCoordinatorPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/organisations/:organisationId/approved-domains',
     component: ApprovedEmailDomainsPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/request-access',
@@ -238,49 +238,49 @@ export const ROUTE_CONFIG = [
     path: '/admin/review-request/:requestId',
     component: ReviewRequestPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/access-approved',
     component: AccessApprovedPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/access-denied',
     component: AccessDeniedPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/add-user',
     component: AddUserPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/user-created',
     component: UserCreatedPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/access-revoked',
     component: AccessRevokedPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/admin/revoke-user/:userId',
     component: RevokeUserAccessPage,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path: '/workbasket',
     component: Workbasket,
     auth: true,
-    layout: false
+    layout: true
   },
   {
     path:`${NWL_BASE_URL}/who-is-applying`,
