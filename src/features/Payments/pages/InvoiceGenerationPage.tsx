@@ -50,7 +50,8 @@ const InvoiceGenerationPage: React.FC = () => {
         consentFee: consentFee,
         screeningFee: screeningFee,  
         eiaFee: eiaFee,              
-        totalAmount: totalAmount
+        totalAmount: totalAmount,
+        breakdown: breakdown
       };
 
       // Call backend API with applicationId in URL
@@ -80,7 +81,7 @@ const InvoiceGenerationPage: React.FC = () => {
           consentFee,
           screeningFee,  
           eiaFee,        
-          totalAmount
+          totalAmount,
         }
       });
 
