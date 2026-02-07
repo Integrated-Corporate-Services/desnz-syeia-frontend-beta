@@ -22,7 +22,7 @@ const handlePayByCard = async () => {
     setError('You must confirm that you understand the application will be submitted when you pay by card');
     setTimeout(() => {
       const errorSummary = document.querySelector('.govuk-error-summary');
-      if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
+      if (errorSummary) errorSummary.scrollIntoView({  });
     }, 0);
     return;
   }

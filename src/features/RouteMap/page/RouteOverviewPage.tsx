@@ -104,7 +104,7 @@ export const RouteOverviewPage: React.FC = () => {
                   e.preventDefault();
                   const el = document.getElementById('addRouteRadioGroup');
                   if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.scrollIntoView({  block: 'center' });
                     (el as HTMLElement).focus();
                   }
                 }}

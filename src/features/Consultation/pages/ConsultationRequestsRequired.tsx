@@ -55,7 +55,7 @@ const ConsultationRequestsRequired: React.FC = () => {
             const errorSummary = document.getElementById('error-summary');
             if (errorSummary) {
                 errorSummary.focus();
-                errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                errorSummary.scrollIntoView({ block: 'start' });
             }
             return;
         }

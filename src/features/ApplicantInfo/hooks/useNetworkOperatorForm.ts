@@ -35,6 +35,8 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
 
     if (!networkOperatorRef.trim()) {
       newErrors.push(FORM_ERRORS.MISSING_REFERENCE);
+    } else if (!/^[A-Za-z0-9 \-]+$/.test(networkOperatorRef.trim())) {
+      newErrors.push(FORM_ERRORS.INVALID_REFERENCE);
     }
     if (!selectedOrgName.trim()) {
       newErrors.push(FORM_ERRORS.MISSING_OPERATOR);

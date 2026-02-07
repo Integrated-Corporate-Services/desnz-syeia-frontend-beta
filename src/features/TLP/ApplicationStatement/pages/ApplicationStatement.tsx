@@ -43,7 +43,7 @@ const ApplicationStatement: React.FC = () => {
 		} else {
 			setTimeout(() => {
 				const errorSummary = document.querySelector('.govuk-error-summary');
-				if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
+				if (errorSummary) errorSummary.scrollIntoView({  });
 			}, 0);
 		}
 	};

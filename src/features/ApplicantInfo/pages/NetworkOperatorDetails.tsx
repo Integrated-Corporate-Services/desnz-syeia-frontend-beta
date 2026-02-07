@@ -15,6 +15,7 @@ import {
   MAX_REFERENCE_LENGTH,
   BREADCRUMBS,
   FORM_LABELS,
+  FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
 
 /**
@@ -227,7 +228,8 @@ const NetworkOperatorDetails: React.FC = () => {
               {/* Applicant reference details */}
               <div
                 className={`govuk-form-group${
-                  errors.includes("Enter an Applicant’s reference")
+                  errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)
                     ? " govuk-form-group--error"
                     : ""
                 }`}
@@ -238,17 +240,8 @@ const NetworkOperatorDetails: React.FC = () => {
                 >
                   Applicant’s reference
                 </label>
-                {errors.includes("Enter an Applicant’s reference") && (
-                  <p className="govuk-error-message">
-                    Enter an Applicant’s reference
-                  </p>
-                )}
                 <input
-                  className={`govuk-input${
-                    errors.includes("Enter an Applicant’s reference")
-                      ? " govuk-input--error"
-                      : ""
-                  }`}
+                  className={`govuk-input`}
                   id="networkOperatorRef"
                   name="networkOperatorRef"
                   type="text"
@@ -260,7 +253,7 @@ const NetworkOperatorDetails: React.FC = () => {
 
               <div
                 className={`govuk-form-group${
-                  errors.includes("Select the network operator")
+                  errors.includes(FORM_ERRORS.MISSING_OPERATOR)
                     ? " govuk-form-group--error"
                     : ""
                 }`}
@@ -275,11 +268,6 @@ const NetworkOperatorDetails: React.FC = () => {
                   The consent will be issued in the name of the person selected
                   here
                 </div>
-                {errors.includes("Select the network operator") && (
-                  <p className="govuk-error-message">
-                    Select the network operator
-                  </p>
-                )}
                 <select
                   className="govuk-select"
                   id="location"
