@@ -59,6 +59,9 @@ const Workbasket: React.FC = () => {
   }, [created_by, loadApplications]);
 
   const handleStart = () => {
+    // Clear any previously-loaded application from the store so the
+    // subsequent new-application flow starts with a clean slate.
+    useApplicationStore.getState().setApplication(null);
     navigate("/choose-application");
   };
 

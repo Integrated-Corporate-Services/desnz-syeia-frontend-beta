@@ -15,6 +15,7 @@ import {
   MAX_REFERENCE_LENGTH,
   BREADCRUMBS,
   FORM_LABELS,
+  FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
 
 /**
@@ -227,7 +228,8 @@ const NetworkOperatorDetails: React.FC = () => {
               {/* Applicant reference details */}
               <div
                 className={`govuk-form-group${
-                  errors.includes("Enter an Applicant’s reference")
+                  errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)
                     ? " govuk-form-group--error"
                     : ""
                 }`}
@@ -238,14 +240,20 @@ const NetworkOperatorDetails: React.FC = () => {
                 >
                   Applicant’s reference
                 </label>
-                {errors.includes("Enter an Applicant’s reference") && (
+                {(errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)) && (
                   <p className="govuk-error-message">
-                    Enter an Applicant’s reference
+                    {errors.find(
+                      (e) =>
+                        e === FORM_ERRORS.MISSING_REFERENCE ||
+                        e === FORM_ERRORS.INVALID_REFERENCE,
+                    )}
                   </p>
                 )}
                 <input
                   className={`govuk-input${
-                    errors.includes("Enter an Applicant’s reference")
+                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
                       ? " govuk-input--error"
                       : ""
                   }`}
@@ -260,7 +268,7 @@ const NetworkOperatorDetails: React.FC = () => {
 
               <div
                 className={`govuk-form-group${
-                  errors.includes("Select the network operator")
+                  errors.includes(FORM_ERRORS.MISSING_OPERATOR)
                     ? " govuk-form-group--error"
                     : ""
                 }`}
@@ -275,9 +283,9 @@ const NetworkOperatorDetails: React.FC = () => {
                   The consent will be issued in the name of the person selected
                   here
                 </div>
-                {errors.includes("Select the network operator") && (
+                {errors.includes(FORM_ERRORS.MISSING_OPERATOR) && (
                   <p className="govuk-error-message">
-                    Select the network operator
+                    {FORM_ERRORS.MISSING_OPERATOR}
                   </p>
                 )}
                 <select
