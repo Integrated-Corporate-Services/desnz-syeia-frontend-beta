@@ -15,7 +15,7 @@ export const useParishSubmit = (applicationId: string) => {
       // Validation: At least one parish must be added
       if (parishes.length < PARISH_VALIDATION.MIN_REQUIRED) {
         setValidationError(PARISH_VALIDATION.ERROR_MESSAGE);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0 });
         return;
       }
 
@@ -29,7 +29,7 @@ export const useParishSubmit = (applicationId: string) => {
       } catch (error) {
         console.error("Error saving parishes:", error);
         setValidationError("Failed to save parishes. Please try again.");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0 });
       } finally {
         setIsSubmitting(false);
       }

@@ -68,7 +68,7 @@ const ApplicationSubmit: React.FC = () => {
     } catch (err) {
       console.error("Failed to save declaration:", err);
       setValidationError("Failed to save declaration. Please try again.");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0});
     }
   };
 
