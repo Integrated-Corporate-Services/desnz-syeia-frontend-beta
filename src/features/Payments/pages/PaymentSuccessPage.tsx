@@ -8,7 +8,7 @@ const PaymentSuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const applicationId = useGetApplicationId();
   
-  const { invoiceNumber, paymentId, reference, desnz_ref: passedDesnzRef} = location.state || {};
+  const { invoiceNumber, paymentId, reference, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
 
   // State for fetched desnz_ref if not passed
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
@@ -55,6 +55,7 @@ const PaymentSuccessPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            <h1 className="govuk-heading-s" style={{ marginBottom: '10px', fontSize: '24px' }}>Application status</h1>
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">Application submitted</h1>
               <div className="govuk-panel__body">
@@ -91,9 +92,9 @@ const PaymentSuccessPage: React.FC = () => {
                   </tr>
                 )}
                 <tr className="govuk-table__row">
-                  <th scope="row" className="govuk-table__header">Status</th>
+                  <th scope="row" className="govuk-table__header">Total amount</th>
                   <td className="govuk-table__cell">
-                    <strong className="govuk-tag govuk-tag--green">Paid</strong>
+                    {totalAmount ? `£${totalAmount.toFixed(2)}` : 'N/A'}
                   </td>
                 </tr>
               </tbody>
@@ -104,21 +105,16 @@ const PaymentSuccessPage: React.FC = () => {
               You will receive an email to confirm your application has been submitted.
             </p>
             <p className="govuk-body">
-              You can check your application's status in your account or in the email updates we send you.
+              You [relevant application team name] will contact you in due course with<br/>
+              any follow up actions.
             </p>
 
             <div className="govuk-button-group">
               <Link
-                to="/workbasket"
-                className="govuk-button"
-              >
-                Go to workbasket
-              </Link>
-              <Link
                 to={`${S37_BASE_URL}/${applicationId}/task-list`}
                 className="govuk-button govuk-button--secondary"
               >
-                View application
+                Back to applications
               </Link>
             </div>
           </div>

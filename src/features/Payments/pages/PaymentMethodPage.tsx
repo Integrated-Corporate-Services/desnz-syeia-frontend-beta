@@ -37,6 +37,9 @@ const handlePayByCard = async () => {
       userId: user?.user_id
     });
 
+    // Store totalAmount in sessionStorage BEFORE navigating to GOV.UK Pay
+    sessionStorage.setItem('totalAmount', totalAmount.toString());
+
     const result = await createPayment(
       Math.round(totalAmount * 100), // Convert to pence
       applicationId, // reference
