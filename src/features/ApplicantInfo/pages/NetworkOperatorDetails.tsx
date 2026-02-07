@@ -240,8 +240,23 @@ const NetworkOperatorDetails: React.FC = () => {
                 >
                   Applicant’s reference
                 </label>
+                {(errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)) && (
+                  <p className="govuk-error-message">
+                    {errors.find(
+                      (e) =>
+                        e === FORM_ERRORS.MISSING_REFERENCE ||
+                        e === FORM_ERRORS.INVALID_REFERENCE,
+                    )}
+                  </p>
+                )}
                 <input
-                  className={`govuk-input`}
+                  className={`govuk-input${
+                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                      ? " govuk-input--error"
+                      : ""
+                  }`}
                   id="networkOperatorRef"
                   name="networkOperatorRef"
                   type="text"
@@ -251,13 +266,7 @@ const NetworkOperatorDetails: React.FC = () => {
                 />
               </div>
 
-              <div
-                className={`govuk-form-group${
-                  errors.includes(FORM_ERRORS.MISSING_OPERATOR)
-                    ? " govuk-form-group--error"
-                    : ""
-                }`}
-              >
+              <div className="govuk-form-group">
                 <label
                   className="govuk-label govuk-label--s"
                   htmlFor="location"
@@ -324,24 +333,15 @@ const NetworkOperatorDetails: React.FC = () => {
               <div id="landRef-hint" className="govuk-hint">
                 You can add more contact email addresses to this application
               </div>
-              <div
-                className={`govuk-form-group${
-                  emailInputError ? " govuk-form-group--error" : ""
-                }`}
-              >
+              <div className="govuk-form-group">
                 <label
                   className="govuk-label govuk-label--s"
                   htmlFor="emailAddress"
                 >
                   {FORM_LABELS.EMAIL_ADDRESS}
                 </label>
-                {emailInputError && (
-                  <span className="govuk-error-message">{emailInputError}</span>
-                )}
                 <input
-                  className={`govuk-input${
-                    emailInputError ? " govuk-input--error" : ""
-                  }`}
+                  className="govuk-input"
                   id="emailAddress"
                   name="emailAddress"
                   type="text"
