@@ -134,7 +134,7 @@ const Negotiations: React.FC = () => {
     if (Object.keys(newErrors).length > 0) {
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
-        if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
+        if (errorSummary) errorSummary.scrollIntoView({  });
       }, 0);
       return;
     }

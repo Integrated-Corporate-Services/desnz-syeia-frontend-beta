@@ -48,7 +48,7 @@ const ApplicationSubmit: React.FC = () => {
       setValidationError(
         "You must confirm you have read and understood the information"
       );
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0 });
       return;
     }
 
