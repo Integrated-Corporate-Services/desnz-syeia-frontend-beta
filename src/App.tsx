@@ -8,6 +8,7 @@ import { ROUTE_CONFIG } from "./constants/routes";
 import { SessionTimeoutProvider } from "./context/SessionTimeoutContext";
 import SessionTimeout from "./components/SessionTimeout";
 import { useAuthUserContext } from "./context/AuthUserContext";
+import { AutoScrollToTop } from "./components/shared/AutoScrollToTop";
 import LandingPage from "./features/SignIn/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -77,6 +78,7 @@ const AppContent = () => {
     <SessionTimeoutProvider>
       <AuthUserProvider>
         <SessionTimeout />
+        <AutoScrollToTop />
         {isNotFound ? (
           <NotFound />
         ) : useLayout ? (
