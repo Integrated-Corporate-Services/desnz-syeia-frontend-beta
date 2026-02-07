@@ -240,23 +240,8 @@ const NetworkOperatorDetails: React.FC = () => {
                 >
                   Applicant’s reference
                 </label>
-                {(errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)) && (
-                  <p className="govuk-error-message">
-                    {errors.find(
-                      (e) =>
-                        e === FORM_ERRORS.MISSING_REFERENCE ||
-                        e === FORM_ERRORS.INVALID_REFERENCE,
-                    )}
-                  </p>
-                )}
                 <input
-                  className={`govuk-input${
-                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
-                      ? " govuk-input--error"
-                      : ""
-                  }`}
+                  className={`govuk-input`}
                   id="networkOperatorRef"
                   name="networkOperatorRef"
                   type="text"
@@ -283,11 +268,6 @@ const NetworkOperatorDetails: React.FC = () => {
                   The consent will be issued in the name of the person selected
                   here
                 </div>
-                {errors.includes(FORM_ERRORS.MISSING_OPERATOR) && (
-                  <p className="govuk-error-message">
-                    {FORM_ERRORS.MISSING_OPERATOR}
-                  </p>
-                )}
                 <select
                   className="govuk-select"
                   id="location"
