@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { applicationApiService } from '../../../services/applicationApiService';
 
 const PaymentCallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -45,6 +46,18 @@ const PaymentCallbackPage: React.FC = () => {
         if (paymentStatus === 'success' || paymentStatus === 'submitted') {
           setStatus('success');
           
+          // **SUBMIT APPLICATION HERE**
+          try {
+            console.log('Submitting application:', applicationId);
+            await applicationApiService.submitApplication(applicationId);
+            console.log('Application submitted successfully');
+          } catch (submitError) {
+            console.error('Failed to submit application:', submitError);
+            setStatus('failed');
+            setErrorMessage('Payment successful but failed to submit application. Please contact support.');
+            return;
+          }
+
           // Clear session storage
           sessionStorage.removeItem('paymentId');
           sessionStorage.removeItem('paymentLocalId');
@@ -76,6 +89,7 @@ const PaymentCallbackPage: React.FC = () => {
         setStatus('failed');
         setErrorMessage(error instanceof Error ? error.message : 'Failed to verify payment');
       }
+      
     };
 
     verifyPayment();
