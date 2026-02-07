@@ -181,6 +181,9 @@ const NetworkOperatorDetails: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      <Link to="/workbasket" className="govuk-back-link">
+        Workbasket
+      </Link>
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
