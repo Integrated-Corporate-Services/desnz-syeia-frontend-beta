@@ -200,4 +200,27 @@ export const applicationApiService = {
     }
     return response;
   },
+
+/**
+ * Fetch application details including DESNZ reference
+ */
+fetchApplicationDetails: async (applicationId: string, correlationId?: string) => {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    "X-Correlation-ID": correlationId || generateCorrelationId(),
+  };
+  
+  const response = await fetch(`/backend/api/applications/${applicationId}`, {
+    method: 'GET',
+    headers,
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch application details: ${response.statusText}`);
+  }
+
+  return response.json();
+},
+
 };
