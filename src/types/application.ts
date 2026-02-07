@@ -1,3 +1,12 @@
+export type ApplicationPermissions = {
+  canView: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canSubmit: boolean;
+  canDownload: boolean;
+  canWithdraw: boolean;
+};
+
 export type Application = {
   application_id: string;
   type: string;
@@ -10,6 +19,7 @@ export type Application = {
   created_at: string;
   submitted_at: string;
   application_party?: ApplicationParty | undefined; // Optional field for merged backend response
+  permissions?: ApplicationPermissions;
 };
 
 export type ApplicationParty = {

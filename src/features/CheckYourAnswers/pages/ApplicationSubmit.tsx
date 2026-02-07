@@ -46,7 +46,7 @@ const ApplicationSubmit: React.FC = () => {
 
     if (!declarationConfirmed) {
       setValidationError(
-        "You must confirm you have read and understood the information"
+        "You must confirm you have read and understood the information",
       );
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -74,7 +74,7 @@ const ApplicationSubmit: React.FC = () => {
 
   // State for project details, plan documents, layers, and routes
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(
-    null
+    null,
   );
   const [networkOperatorDetails, setNetworkOperatorDetails] =
     useState<NetworkOperatorDetails | null>(null);
@@ -103,9 +103,17 @@ const ApplicationSubmit: React.FC = () => {
   >([]);
   const [eiaFees, setEiaFees] = useState<EIAFees | null>(null);
   const [worksOverview, setWorksOverview] = useState<WorksOverview | null>(
-    null
+    null,
   );
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [permissions, setPermissions] = useState<{
+    canView: boolean;
+    canEdit: boolean;
+    canDelete: boolean;
+    canSubmit: boolean;
+    canDownload: boolean;
+    canWithdraw: boolean;
+  } | null>(null);
 
   // Memoize transformed routes to avoid recalculating on every render
   const transformedRoutes = useMemo(() => {
@@ -220,7 +228,7 @@ const ApplicationSubmit: React.FC = () => {
                 tolerance_required: sensitiveChecks.tolerance_required,
                 tolerance_value: sensitiveChecks.tolerance_value,
               }
-            : null
+            : null,
         );
         // Set sensitive area review data
         const sensitiveReview = data.sections?.sensitiveAreaReview;
@@ -233,7 +241,7 @@ const ApplicationSubmit: React.FC = () => {
                   sensitiveReview.asset_presence_option_id,
                 application_documents: sensitiveReview.application_documents,
               }
-            : null
+            : null,
         );
         // Set routes data from location.route
         const routeArr = data.sections?.location?.route;
@@ -244,34 +252,42 @@ const ApplicationSubmit: React.FC = () => {
         }
         // Set supporting info questions and documents
         setSupportingQuestions(
-          data.sections?.supportingInformation?.supportingQuestions || null
+          data.sections?.supportingInformation?.supportingQuestions || null,
         );
         setSupportingDocuments(
-          data.sections?.supportingInformation?.supportingDocuments || []
+          data.sections?.supportingInformation?.supportingDocuments || [],
         );
         setEiaFees(data.sections?.supportingInformation?.eiaFees || null);
         // Set consultations data
         setConsultations(
           Array.isArray(data.sections?.consultations)
             ? data.sections.consultations
-            : []
+            : [],
         );
         setWorksOverview(data.sections?.worksOverview || null);
         // Set consultations data
         setConsultations(
           Array.isArray(data.sections?.consultations)
             ? data.sections.consultations
-            : []
+            : [],
         );
+        // Set permissions from API response
+        setPermissions(data.permissions || null);
       })
       .catch(() => {
         setProjectDetails(null);
         setPlanDocuments([]);
+        setPermissions(null);
       });
   }, [applicationId]);
 
   return (
     <div className="govuk-width-container">
+      {!permissions?.canEdit && (
+        <Link to="/workbasket" className="govuk-back-link">
+          Workbasket
+        </Link>
+      )}
       <main className="govuk-main-wrapper" id="main-content">
         {validationError && (
           <div
@@ -292,21 +308,23 @@ const ApplicationSubmit: React.FC = () => {
             </div>
           </div>
         )}
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link
-                className="govuk-breadcrumbs__link"
-                to={`${S37_BASE_URL}/${applicationId}/task-list`}
-              >
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              Submit Section 37 application
-            </li>
-          </ol>
-        </nav>
+        {permissions?.canEdit && (
+          <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+              <li className="govuk-breadcrumbs__list-item" aria-current="false">
+                <Link
+                  className="govuk-breadcrumbs__link"
+                  to={`${S37_BASE_URL}/${applicationId}/task-list`}
+                >
+                  Task list
+                </Link>
+              </li>
+              <li className="govuk-breadcrumbs__list-item" aria-current="true">
+                Submit Section 37 application
+              </li>
+            </ol>
+          </nav>
+        )}
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
             <h1 className="govuk-heading-xl">
@@ -391,7 +409,7 @@ const ApplicationSubmit: React.FC = () => {
                         {sensitiveAreaReview?.application_documents &&
                         sensitiveAreaReview.application_documents.length > 0 ? (
                           sensitiveAreaReview.application_documents.map(
-                            (doc) => <li key={doc.document_id}>{doc.title}</li>
+                            (doc) => <li key={doc.document_id}>{doc.title}</li>,
                           )
                         ) : (
                           <li>-</li>
@@ -409,21 +427,22 @@ const ApplicationSubmit: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   Network operator details
                 </h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/network-operator-details`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden">
-                        {" "}
-                        of University of Gloucestershire (University of
-                        Gloucestershire)
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/network-operator-details`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          network operator details
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -449,21 +468,22 @@ const ApplicationSubmit: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   Network operator contact details
                 </h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/network-operator-contact-details`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden">
-                        {" "}
-                        of University of Gloucestershire (University of
-                        Gloucestershire)
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/network-operator-contact-details`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          network operator contact details
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -515,20 +535,22 @@ const ApplicationSubmit: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Project overview</h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/project-overview`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden">
-                        {" "}
-                        from University of Bristol (University of Bristol)
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/project-overview`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          project overview
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -591,7 +613,7 @@ const ApplicationSubmit: React.FC = () => {
                     <dd className="govuk-summary-list__value">
                       {projectDetails?.updated_at
                         ? new Date(
-                            projectDetails.updated_at
+                            projectDetails.updated_at,
                           ).toLocaleDateString()
                         : "-"}
                     </dd>
@@ -622,20 +644,22 @@ const ApplicationSubmit: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Assets</h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/asset-information`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden">
-                        {" "}
-                        asset information
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          asset information
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -727,7 +751,7 @@ const ApplicationSubmit: React.FC = () => {
                   >
                     <div className="govuk-summary-card__title-wrapper">
                       <h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(
-                        65 + idx
+                        65 + idx,
                       )}`}</h2>
                     </div>
                     <div className="govuk-summary-card__content">
@@ -799,20 +823,22 @@ const ApplicationSubmit: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Works overview</h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/works-overview`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden">
-                        {" "}
-                        from University of Bristol (University of Bristol)
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/works-overview`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          works overview
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1045,20 +1071,6 @@ const ApplicationSubmit: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   Sensitive area check
                 </h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/sensitive-area-check`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden">
-                        {" "}
-                        from University of Bristol (University of Bristol)
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1106,20 +1118,22 @@ const ApplicationSubmit: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   Sensitive area review
                 </h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden">
-                        {" "}
-                        from University of Bristol (University of Bristol)
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          sensitive area review
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1140,7 +1154,7 @@ const ApplicationSubmit: React.FC = () => {
                         {sensitiveAreaReview?.application_documents &&
                         sensitiveAreaReview.application_documents.length > 0 ? (
                           sensitiveAreaReview.application_documents.map(
-                            (doc) => <li key={doc.document_id}>{doc.title}</li>
+                            (doc) => <li key={doc.document_id}>{doc.title}</li>,
                           )
                         ) : (
                           <li>-</li>
@@ -1154,7 +1168,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {getAssetPresenceText(
-                        sensitiveAreaReview?.asset_presence_option_id
+                        sensitiveAreaReview?.asset_presence_option_id,
                       )}
                     </dd>
                   </div>
@@ -1168,20 +1182,22 @@ const ApplicationSubmit: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   Supporting information
                 </h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/supporting-info`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden">
-                        {" "}
-                        supporting information
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/supporting-info`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          supporting information
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1276,17 +1292,19 @@ const ApplicationSubmit: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">EIA fees</h2>
-                <ul className="govuk-summary-card__actions">
-                  <li className="govuk-summary-card__action">
-                    <Link
-                      className="govuk-link"
-                      to={`${S37_BASE_URL}/${applicationId}/eia-fees`}
-                    >
-                      Change
-                      <span className="govuk-visually-hidden"> EIA fees</span>
-                    </Link>
-                  </li>
-                </ul>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/eia-fees`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden"> EIA fees</span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1313,11 +1331,11 @@ const ApplicationSubmit: React.FC = () => {
                       !eiaFees.requires_full_eia
                         ? "No"
                         : eiaFees &&
-                          typeof eiaFees.screening_only !== "undefined"
-                        ? eiaFees.screening_only
-                          ? "Yes"
-                          : "No"
-                        : "-"}
+                            typeof eiaFees.screening_only !== "undefined"
+                          ? eiaFees.screening_only
+                            ? "Yes"
+                            : "No"
+                          : "-"}
                     </dd>
                   </div>
                 </dl>
@@ -1352,10 +1370,11 @@ const ApplicationSubmit: React.FC = () => {
                           {consultation.status === "Request Incomplete"
                             ? "-"
                             : consultation.sentAt || consultation.createdAt
-                            ? new Date(
-                                consultation.sentAt || consultation.createdAt!
-                              ).toLocaleDateString()
-                            : "-"}
+                              ? new Date(
+                                  consultation.sentAt ||
+                                    consultation.createdAt!,
+                                ).toLocaleDateString()
+                              : "-"}
                         </dd>
                       </div>
                       <div className="govuk-summary-list__row">
@@ -1364,11 +1383,11 @@ const ApplicationSubmit: React.FC = () => {
                           {consultation.status === "Request Incomplete"
                             ? "-"
                             : consultation.closedAt || consultation.dateClosed
-                            ? new Date(
-                                consultation.closedAt ||
-                                  consultation.dateClosed!
-                              ).toLocaleDateString()
-                            : "-"}
+                              ? new Date(
+                                  consultation.closedAt ||
+                                    consultation.dateClosed!,
+                                ).toLocaleDateString()
+                              : "-"}
                         </dd>
                       </div>
                       <div className="govuk-summary-list__row">
@@ -1379,10 +1398,10 @@ const ApplicationSubmit: React.FC = () => {
                           {consultation.status === "Request Incomplete"
                             ? "-"
                             : typeof consultation.objectionRaised === "boolean"
-                            ? consultation.objectionRaised
-                              ? "Yes"
-                              : "No"
-                            : "-"}
+                              ? consultation.objectionRaised
+                                ? "Yes"
+                                : "No"
+                              : "-"}
                         </dd>
                       </div>
                       <div className="govuk-summary-list__row">
@@ -1401,7 +1420,7 @@ const ApplicationSubmit: React.FC = () => {
                                 consultation.responseDocuments.map(
                                   (doc, didx) => (
                                     <li key={didx}>{doc.name || "Document"}</li>
-                                  )
+                                  ),
                                 )
                               ) : (
                                 <li>-</li>
@@ -1432,75 +1451,78 @@ const ApplicationSubmit: React.FC = () => {
                     </dl>
                   </div>
                 </div>
-              )
+              ),
             )}
             {/* Submit application form */}
-            <div
-              className={`govuk-form-group${
-                validationError ? " govuk-form-group--error" : ""
-              }`}
-            >
-              <form onSubmit={handleSubmit} noValidate>
-                <fieldset className="govuk-fieldset">
-                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-                    Submit application
-                  </legend>
-                  {validationError && (
-                    <p id="organisation-error" className="govuk-error-message">
-                      <span className="govuk-visually-hidden">Error:</span>{" "}
-                      {validationError}
-                    </p>
-                  )}
-                  {declarationError && (
-                    <p id="declaration-error" className="govuk-error-message">
-                      <span className="govuk-visually-hidden">Error:</span>{" "}
-                      {declarationError}
-                    </p>
-                  )}
-                  <div
-                    className="govuk-checkboxes govuk-checkboxes--small"
-                    data-module="govuk-checkboxes"
-                    data-govuk-checkboxes-init=""
-                  >
-                    <div className="govuk-checkboxes__item">
-                      <input
-                        className="govuk-checkboxes__input"
-                        id="organisation"
-                        name="organisation"
-                        type="checkbox"
-                        checked={declarationConfirmed}
-                        onChange={(e) =>
-                          handleDeclarationChange(e.target.checked)
-                        }
-                        aria-describedby={
-                          validationError || declarationError
-                            ? "organisation-error declaration-error"
-                            : undefined
-                        }
-                      />
-                      <label
-                        className="govuk-label govuk-checkboxes__label"
-                        htmlFor="organisation"
+            {permissions?.canEdit && (
+              <div
+                className={`govuk-form-group${validationError ? " govuk-form-group--error" : ""}`}
+              >
+                <form onSubmit={handleSubmit} noValidate>
+                  <fieldset className="govuk-fieldset">
+                    <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                      Submit application
+                    </legend>
+                    {validationError && (
+                      <p
+                        id="organisation-error"
+                        className="govuk-error-message"
                       >
-                        I confirm I’ve read and understood the information I’ve
-                        provided, and that it’s accurate to the best of my
-                        knowledge.
-                      </label>
+                        <span className="govuk-visually-hidden">Error:</span>{" "}
+                        {validationError}
+                      </p>
+                    )}
+                    {declarationError && (
+                      <p id="declaration-error" className="govuk-error-message">
+                        <span className="govuk-visually-hidden">Error:</span>{" "}
+                        {declarationError}
+                      </p>
+                    )}
+                    <div
+                      className="govuk-checkboxes govuk-checkboxes--small"
+                      data-module="govuk-checkboxes"
+                      data-govuk-checkboxes-init=""
+                    >
+                      <div className="govuk-checkboxes__item">
+                        <input
+                          className="govuk-checkboxes__input"
+                          id="organisation"
+                          name="organisation"
+                          type="checkbox"
+                          checked={declarationConfirmed}
+                          onChange={(e) =>
+                            handleDeclarationChange(e.target.checked)
+                          }
+                          aria-describedby={
+                            validationError || declarationError
+                              ? "organisation-error declaration-error"
+                              : undefined
+                          }
+                        />
+                        <label
+                          className="govuk-label govuk-checkboxes__label"
+                          htmlFor="organisation"
+                        >
+                          I confirm I’ve read and understood the information
+                          I’ve provided, and that it’s accurate to the best of
+                          my knowledge.
+                        </label>
+                      </div>
                     </div>
+                  </fieldset>
+                  <div>
+                    <button
+                      type="submit"
+                      className="govuk-button"
+                      data-module="govuk-button"
+                      data-govuk-button-init
+                    >
+                      Pay and submit application
+                    </button>
                   </div>
-                </fieldset>
-                <div>
-                  <button
-                    type="submit"
-                    className="govuk-button"
-                    data-module="govuk-button"
-                    data-govuk-button-init
-                  >
-                    Pay and submit application
-                  </button>
-                </div>
-              </form>
-            </div>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       </main>
