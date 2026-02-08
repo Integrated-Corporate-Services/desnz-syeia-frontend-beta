@@ -94,7 +94,7 @@ const PostConsultation: React.FC = () => {
               />
 
               <FormButtons
-                onSaveLater={(e) => handleSubmit(e, "later")}
+                // onSaveLater={(e) => handleSubmit(e, "later")}
                 onSaveContinue={(e) => handleSubmit(e, "continue")}
                 disabled={saving}
               />
