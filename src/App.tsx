@@ -11,6 +11,9 @@ import { useAuthUserContext } from "./context/AuthUserContext";
 import { AutoScrollToTop } from "./components/shared/AutoScrollToTop";
 import LandingPage from "./features/SignIn/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { createLogger } from "./utils/logger";
+
+const logger = createLogger("App");
 
 const AppContent = () => {
   const location = useLocation();
@@ -41,7 +44,7 @@ const AppContent = () => {
             error.message.includes("already initialised")
           )
         ) {
-          console.error("GOV.UK Frontend initialization error:", error);
+          logger.error("GOV.UK Frontend initialization error:", error);
         }
       }
     }
@@ -60,7 +63,7 @@ const AppContent = () => {
       return location.pathname === path;
     });
 
-  // Find the current route configuration to check if it uses layout
+// Find the current route configuration to check if it uses layout
   const currentRoute = useMemo(() => {
     return ROUTE_CONFIG.find((route) => {
       if (route.path.includes(":")) {
@@ -133,7 +136,11 @@ const AppContent = () => {
 
 const App = () => (
   <BrowserRouter basename="/frontend">
-    <AppContent />
+    <AuthUserProvider>
+      <SessionTimeoutProvider>
+        <AppContent />
+      </SessionTimeoutProvider>
+    </AuthUserProvider>
   </BrowserRouter>
 );
 
