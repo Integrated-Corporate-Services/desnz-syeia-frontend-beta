@@ -6,6 +6,9 @@ import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequestStore } from "../../store/accessRequestStore";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
+import { createLogger } from "../../utils/logger";
+
+const logger = createLogger('ContactDetailsPage');
 
 const ContactDetailsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +37,7 @@ const ContactDetailsPage: React.FC = () => {
           navigate("/request-access/submitted", { replace: true });
         }
       } catch (error: unknown) {
-        console.error("Error checking existing request:", error);
+        logger.error("Error checking existing request:", error);
       }
     };
 

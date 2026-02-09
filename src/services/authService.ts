@@ -1,4 +1,7 @@
 import type { AuthUser } from '../types/auth';
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('authService');
 
 export type AuthUserResponse = {
   authenticated: boolean;
@@ -27,7 +30,7 @@ export async function signOut(): Promise<void> {
 }
 
 export async function logout(): Promise<void> {
-  console.log("Logging out user...");
+  logger.info("Logging out user...");
 
   // Let the backend handle all logout logic including OIDC session destruction
   // The backend will redirect appropriately after destroying sessions

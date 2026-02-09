@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { S37_BASE_URL } from '../../../constants/s37';
 import { ConsultationStatus } from "../../../constants/consultationStatus";
 import { downloadS3File } from '../../../utils/s3DownloadUtil';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('ConsultationSummaryCard');
 
 interface ConsultationSummaryCardProps {
   orgName: string | null;
@@ -166,7 +169,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                               try {
                                 await downloadS3File(key);
                               } catch (error) {
-                                console.error("Failed to download file:", error);
+                                logger.error("Failed to download file:", error);
                               }
                             }}>
                               {doc.filename || doc.name}
@@ -210,7 +213,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                               try {
                                 await downloadS3File(key);
                               } catch (error) {
-                                console.error("Failed to download file:", error);
+                                logger.error("Failed to download file:", error);
                               }
                             }}>
                               {doc.name || doc.fileName}
@@ -260,7 +263,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                               try {
                                 await downloadS3File(key);
                               } catch (error) {
-                                console.error("Failed to download file:", error);
+                                logger.error("Failed to download file:", error);
                               }
                             }}>
                               {doc.filename || doc.name}
@@ -304,7 +307,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                               try {
                                 await downloadS3File(key);
                               } catch (error) {
-                                console.error("Failed to download file:", error);
+                                logger.error("Failed to download file:", error);
                               }
                             }}>
                               {doc.name || doc.fileName}
@@ -390,7 +393,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                               try {
                                 await downloadS3File(key);
                               } catch (error) {
-                                console.error("Failed to download file:", error);
+                                logger.error("Failed to download file:", error);
                               }
                             }}>
                               {doc.filename || doc.name}

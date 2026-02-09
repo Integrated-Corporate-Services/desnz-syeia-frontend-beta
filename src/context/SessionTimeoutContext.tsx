@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback, useMemo } from 'react';
 import { logout } from '../services/authService';
 import { useAuthUserContext } from './AuthUserContext';
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('SessionTimeoutContext');
 
 interface SessionTimeoutContextType {
   showModal: boolean;
@@ -11,8 +14,8 @@ interface SessionTimeoutContextType {
 
 const SessionTimeoutContext = createContext<SessionTimeoutContextType | undefined>(undefined);
 
-const TIMEOUT = 3 * 60; // 3 min in seconds
-const WARNING = 2 * 60; // 2 min in seconds
+const TIMEOUT = 30 * 60; // 30 min in seconds
+const WARNING = 5 * 60; // 5 min in seconds
 
 export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) => {
   const { user, loading: authLoading } = useAuthUserContext();
@@ -22,11 +25,14 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   const idleRef = useRef<number>(0);
   const isAuthenticatedRef = useRef(false);
 
+  // Derive auth state
+  const isAuthenticated = !!user && !authLoading;
+
   // Update auth state ref
   useEffect(() => {
-    isAuthenticatedRef.current = !!user && !authLoading;
-    console.log('🔐 Auth state updated:', { isAuthenticated: isAuthenticatedRef.current, user, authLoading });
-  }, [user, authLoading]);
+    isAuthenticatedRef.current = isAuthenticated;
+    logger.info('Auth state updated:', { isAuthenticated, user, authLoading });
+  }, [isAuthenticated, user, authLoading]);
 
   // Reset timer on user activity - memoized
   const resetTimer = useCallback(() => {
@@ -40,7 +46,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     try {
       await logout();
     } catch (err) {
-      console.error('Logout error:', err);
+      logger.error('Logout error:', err);
       // Force redirect even if logout fails
       window.location.href = '/backend/auth/login';
     }
@@ -48,24 +54,24 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
 
   useEffect(() => {
     // Only track activity for authenticated users
-    if (!isAuthenticatedRef.current) return;
+    if (!isAuthenticated) return;
     
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
     const activity = () => {
       // Only reset timer if modal is NOT shown
       if (!showModal) {
-        console.log('👆 Activity detected - timer reset');
+        logger.info('Activity detected - timer reset');
         resetTimer();
       }
     };
     events.forEach(e => window.addEventListener(e, activity));
     return () => events.forEach(e => window.removeEventListener(e, activity));
-  }, [showModal, resetTimer]);
+  }, [isAuthenticated, showModal, resetTimer]);
 
   useEffect(() => {
     // Only run timer for authenticated users
-    if (!isAuthenticatedRef.current) {
-      console.log('⏱️ Timer NOT started - user not authenticated');
+    if (!isAuthenticated) {
+      logger.debug('Timer NOT started - user not authenticated');
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -73,11 +79,11 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       return;
     }
 
-    console.log('⏱️ Timer STARTED - user authenticated');
+    logger.info('Timer STARTED - user authenticated');
     timerRef.current = window.setInterval(() => {
       idleRef.current += 1;
       if (idleRef.current % 10 === 0) { // Log every 10 seconds
-        console.log(`⏰ Idle time: ${idleRef.current}s (show popup at ${TIMEOUT - WARNING}s, logout at ${TIMEOUT}s)`);
+        logger.debug(`Idle time: ${idleRef.current}s (show popup at ${TIMEOUT - WARNING}s, logout at ${TIMEOUT}s)`);
       }
       if (idleRef.current >= TIMEOUT - WARNING && idleRef.current < TIMEOUT) {
         setShowModal(true);
@@ -92,7 +98,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
         clearInterval(timerRef.current);
       }
     };
-  }, [handleLogout, user, authLoading]);
+  }, [isAuthenticated, handleLogout]);
 
   // Countdown in modal
   useEffect(() => {

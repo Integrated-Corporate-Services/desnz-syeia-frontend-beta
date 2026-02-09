@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useSessionTimeout } from '../context/SessionTimeoutContext';
+import { createLogger } from '../utils/logger';
 import '../styles/SessionTimeout.css'
+
+const logger = createLogger('SessionTimeoutModal');
 
 const formatTime = (sec: number) => {
   const m = Math.floor(sec / 60);
@@ -13,7 +16,7 @@ const SessionTimeoutModal: React.FC = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   React.useEffect(() => {
-    console.log('🎯 SessionTimeout modal - showModal:', showModal, 'remaining:', remaining);
+    logger.debug('SessionTimeout modal - showModal:', showModal, 'remaining:', remaining);
   }, [showModal, remaining]);
 
   const handleLogoutClick = async () => {
@@ -21,7 +24,7 @@ const SessionTimeoutModal: React.FC = () => {
     try {
       await handleLogout();
     } catch (err) {
-      console.error('Logout failed:', err);
+      logger.error('Logout failed:', err);
       // Fallback redirect
       window.location.href = '/backend/auth/login';
     }
