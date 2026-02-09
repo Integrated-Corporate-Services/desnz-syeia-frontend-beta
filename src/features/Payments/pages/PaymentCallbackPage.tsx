@@ -46,18 +46,6 @@ const PaymentCallbackPage: React.FC = () => {
 
         if (paymentStatus === 'success' || paymentStatus === 'submitted') {
           setStatus('success');
-          
-          // **SUBMIT APPLICATION HERE**
-          try {
-            console.log('Submitting application:', applicationId);
-            await applicationApiService.submitApplication(applicationId);
-            console.log('Application submitted successfully');
-          } catch (submitError) {
-            console.error('Failed to submit application:', submitError);
-            setStatus('failed');
-            setErrorMessage('Payment successful but failed to submit application. Please contact support.');
-            return;
-          }
 
           // Clear session storage
           sessionStorage.removeItem('paymentId');
@@ -77,6 +65,19 @@ const PaymentCallbackPage: React.FC = () => {
               }
             });
           }, 500);
+
+          // **SUBMIT APPLICATION HERE**
+          try {
+            console.log('Submitting application:', applicationId);
+            await applicationApiService.submitApplication(applicationId);
+            console.log('Application submitted successfully');
+          } catch (submitError) {
+            console.error('Failed to submit application:', submitError);
+            setStatus('failed');
+            setErrorMessage('Payment successful but failed to submit application. Please contact support.');
+            return;
+          }
+
         } else if (paymentStatus === 'failed') {
           setStatus('failed');
           setErrorMessage('Your payment was not successful. Please try again.');
