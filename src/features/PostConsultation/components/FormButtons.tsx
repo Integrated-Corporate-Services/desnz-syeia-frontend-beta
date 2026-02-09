@@ -1,13 +1,13 @@
 import React from "react";
 
 interface FormButtonsProps {
-  onSaveLater: (e: React.FormEvent) => void;
+  // onSaveLater: (e: React.FormEvent) => void;
   onSaveContinue: (e: React.FormEvent) => void;
   disabled?: boolean;
 }
 
 const FormButtons: React.FC<FormButtonsProps> = ({
-  onSaveLater,
+  // onSaveLater,
   onSaveContinue,
   disabled = false,
 }) => {
