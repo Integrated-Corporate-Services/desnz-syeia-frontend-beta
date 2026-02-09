@@ -619,18 +619,18 @@ export const ROUTE_CONFIG = [
     auth: true,
     layout: true
   },
-  {
-    path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
-    component: CheckYourAnswers,
-    auth: true,
-    layout: true
-  },
-  {
-    path: `${S37_BASE_URL}/:applicationId/application-submit`,
-    component: ApplicationSubmit,
-    auth: true,
-    layout: true
-  },
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
+  //   component: CheckYourAnswers,
+  //   auth: true,
+  //   layout: true
+  // },
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/application-submit`,
+  //   component: ApplicationSubmit,
+  //   auth: true,
+  //   layout: true
+  // },
   {
     path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
     component: CheckYourAnswers,
