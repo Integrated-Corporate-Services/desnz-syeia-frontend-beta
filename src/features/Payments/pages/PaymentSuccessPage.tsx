@@ -105,7 +105,7 @@ const PaymentSuccessPage: React.FC = () => {
               You will receive an email to confirm your application has been submitted.
             </p>
             <p className="govuk-body">
-              You [relevant application team name] will contact you in due course with<br/>
+              You Overhead Lines (Section 37) will contact you in due course with<br/>
               any follow up actions.
             </p>
 
