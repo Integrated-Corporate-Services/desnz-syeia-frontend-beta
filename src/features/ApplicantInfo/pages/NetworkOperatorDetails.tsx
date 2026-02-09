@@ -15,6 +15,7 @@ import {
   MAX_REFERENCE_LENGTH,
   BREADCRUMBS,
   FORM_LABELS,
+  FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
 
 /**
@@ -227,7 +228,8 @@ const NetworkOperatorDetails: React.FC = () => {
               {/* Applicant reference details */}
               <div
                 className={`govuk-form-group${
-                  errors.includes("Enter an Applicant’s reference")
+                  errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)
                     ? " govuk-form-group--error"
                     : ""
                 }`}
@@ -238,14 +240,20 @@ const NetworkOperatorDetails: React.FC = () => {
                 >
                   Applicant’s reference
                 </label>
-                {errors.includes("Enter an Applicant’s reference") && (
+                {(errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)) && (
                   <p className="govuk-error-message">
-                    Enter an Applicant’s reference
+                    {errors.find(
+                      (e) =>
+                        e === FORM_ERRORS.MISSING_REFERENCE ||
+                        e === FORM_ERRORS.INVALID_REFERENCE,
+                    )}
                   </p>
                 )}
                 <input
                   className={`govuk-input${
-                    errors.includes("Enter an Applicant’s reference")
+                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
                       ? " govuk-input--error"
                       : ""
                   }`}
@@ -258,13 +266,7 @@ const NetworkOperatorDetails: React.FC = () => {
                 />
               </div>
 
-              <div
-                className={`govuk-form-group${
-                  errors.includes("Select the network operator")
-                    ? " govuk-form-group--error"
-                    : ""
-                }`}
-              >
+              <div className="govuk-form-group">
                 <label
                   className="govuk-label govuk-label--s"
                   htmlFor="location"
@@ -275,11 +277,6 @@ const NetworkOperatorDetails: React.FC = () => {
                   The consent will be issued in the name of the person selected
                   here
                 </div>
-                {errors.includes("Select the network operator") && (
-                  <p className="govuk-error-message">
-                    Select the network operator
-                  </p>
-                )}
                 <select
                   className="govuk-select"
                   id="location"
@@ -336,24 +333,15 @@ const NetworkOperatorDetails: React.FC = () => {
               <div id="landRef-hint" className="govuk-hint">
                 You can add more contact email addresses to this application
               </div>
-              <div
-                className={`govuk-form-group${
-                  emailInputError ? " govuk-form-group--error" : ""
-                }`}
-              >
+              <div className="govuk-form-group">
                 <label
                   className="govuk-label govuk-label--s"
                   htmlFor="emailAddress"
                 >
                   {FORM_LABELS.EMAIL_ADDRESS}
                 </label>
-                {emailInputError && (
-                  <span className="govuk-error-message">{emailInputError}</span>
-                )}
                 <input
-                  className={`govuk-input${
-                    emailInputError ? " govuk-input--error" : ""
-                  }`}
+                  className="govuk-input"
                   id="emailAddress"
                   name="emailAddress"
                   type="text"

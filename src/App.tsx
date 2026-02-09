@@ -8,7 +8,9 @@ import { ROUTE_CONFIG } from "./constants/routes";
 import { SessionTimeoutProvider } from "./context/SessionTimeoutContext";
 import SessionTimeout from "./components/SessionTimeout";
 import { useAuthUserContext } from "./context/AuthUserContext";
+import { AutoScrollToTop } from "./components/shared/AutoScrollToTop";
 import LandingPage from "./features/SignIn/LandingPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppContent = () => {
   const location = useLocation();
@@ -19,7 +21,7 @@ const AppContent = () => {
     const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
 
     if (LOGIN_DISABLED && !loading && !user && error) {
-      window.location.href = '/backend/auth/login';
+      window.location.href = "/backend/auth/login";
     }
   }, [user, loading, error]);
 
@@ -76,30 +78,51 @@ const AppContent = () => {
     <SessionTimeoutProvider>
       <AuthUserProvider>
         <SessionTimeout />
+        <AutoScrollToTop />
         {isNotFound ? (
           <NotFound />
         ) : useLayout ? (
           /* Routes with layout: true (or undefined) use MainLayout wrapper */
           <MainLayout>
             <Routes>
-              {ROUTE_CONFIG.filter(r => r.layout !== false).map(({ path, component: Component }) => {
+              {ROUTE_CONFIG.filter((r) => r.layout !== false).map((route) => {
+                const { path, component: Component, auth } = route;
                 // If root or /landingPage, always show LandingPage
-                if (path === '/' || path === '/landingPage') {
-                  return <Route key={path} path={path} element={<LandingPage />} />;
+                if (path === "/" || path === "/landingPage") {
+                  return (
+                    <Route key={path} path={path} element={<LandingPage />} />
+                  );
                 }
-                return <Route key={path} path={path} element={<Component />} />;
+                const element = auth ? (
+                  <ProtectedRoute>
+                    <Component />
+                  </ProtectedRoute>
+                ) : (
+                  <Component />
+                );
+                return <Route key={path} path={path} element={element} />;
               })}
             </Routes>
           </MainLayout>
         ) : (
           /* Routes with layout: false render directly without MainLayout */
           <Routes>
-            {ROUTE_CONFIG.filter(r => r.layout === false).map(({ path, component: Component }) => {
+            {ROUTE_CONFIG.filter((r) => r.layout === false).map((route) => {
+              const { path, component: Component, auth } = route;
               // If root or /landingPage, always show LandingPage
-              if (path === '/' || path === '/landingPage') {
-                return <Route key={path} path={path} element={<LandingPage />} />;
+              if (path === "/" || path === "/landingPage") {
+                return (
+                  <Route key={path} path={path} element={<LandingPage />} />
+                );
               }
-              return <Route key={path} path={path} element={<Component />} />;
+              const element = auth ? (
+                <ProtectedRoute>
+                  <Component />
+                </ProtectedRoute>
+              ) : (
+                <Component />
+              );
+              return <Route key={path} path={path} element={element} />;
             })}
           </Routes>
         )}

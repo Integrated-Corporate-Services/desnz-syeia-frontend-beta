@@ -219,7 +219,7 @@ const SupportingInfo: React.FC = () => {
 		 if (newErrors.length > 0) {
 			 // Scroll to error summary
 			 const errorSummary = document.querySelector('.govuk-error-summary');
-			 if (errorSummary) errorSummary.scrollIntoView({ behavior: 'smooth' });
+			 if (errorSummary) errorSummary.scrollIntoView({  });
 			 return;
 		 }
 

@@ -40,7 +40,7 @@ const CompanyNamePage: React.FC = () => {
       // Focus error summary for accessibility
       if (errorSummaryRef.current) {
         errorSummaryRef.current.focus();
-        errorSummaryRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        errorSummaryRef.current.scrollIntoView({ block: "start" });
       }
       return;
     }

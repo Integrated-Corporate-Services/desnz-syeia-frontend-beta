@@ -280,7 +280,7 @@ export const ROUTE_CONFIG = [
     path: '/workbasket',
     component: Workbasket,
     auth: true,
-    layout: true
+    layout: false
   },
   {
     path:`${NWL_BASE_URL}/who-is-applying`,
@@ -619,18 +619,18 @@ export const ROUTE_CONFIG = [
     auth: true,
     layout: true
   },
-  {
-    path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
-    component: CheckYourAnswers,
-    auth: true,
-    layout: true
-  },
-  {
-    path: `${S37_BASE_URL}/:applicationId/application-submit`,
-    component: ApplicationSubmit,
-    auth: true,
-    layout: true
-  },
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
+  //   component: CheckYourAnswers,
+  //   auth: true,
+  //   layout: true
+  // },
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/application-submit`,
+  //   component: ApplicationSubmit,
+  //   auth: true,
+  //   layout: true
+  // },
   {
     path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
     component: CheckYourAnswers,
