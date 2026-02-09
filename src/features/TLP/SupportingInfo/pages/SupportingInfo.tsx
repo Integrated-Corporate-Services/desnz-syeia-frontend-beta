@@ -92,7 +92,7 @@ const SupportingInfo: React.FC = () => {
       // Submit logic here (e.g., API call)
       navigate("/form-negotiations.html");
     } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0});
     }
   };
 

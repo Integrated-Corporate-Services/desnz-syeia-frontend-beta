@@ -91,7 +91,11 @@ export const ApplicationTable: React.FC<Props> = ({
     app: Application,
   ) => {
     e.preventDefault();
-    navigateToApplication(app.type, app.application_id, "task-list");
+    if (app.permissions?.canEdit) {
+      navigateToApplication(app.type, app.application_id, "task-list");
+    } else if (app.permissions?.canView) {
+      navigateToApplication(app.type, app.application_id, "application-submit");
+    }
   };
 
   return (

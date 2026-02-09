@@ -466,7 +466,7 @@ const ProjectOverview = () => {
 					setFieldErrors(newFieldErrors);
 					setIsSubmitting(false);
 					if (newErrors.length > 0) {
-						window.scrollTo({ top: 0, behavior: "smooth" });
+						window.scrollTo({ top: 0 });
 						return;
 					}
 					// Save logic: convert month names to numbers for backend, always send relatedCpoDetails as string

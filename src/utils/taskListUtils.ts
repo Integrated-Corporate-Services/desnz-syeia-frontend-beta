@@ -107,7 +107,7 @@ export function getInitialSections(applicationId?: string, assetInformationStatu
         {
           name: "Check your answers",
           status: "Incomplete",
-          link: `${base}/application-submit`,
+          link: `${base}/check-your-answers`,
         },
         {
           name: "Pay and submit",

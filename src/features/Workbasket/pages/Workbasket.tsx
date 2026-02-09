@@ -59,6 +59,9 @@ const Workbasket: React.FC = () => {
   }, [created_by, loadApplications]);
 
   const handleStart = () => {
+    // Clear any previously-loaded application from the store so the
+    // subsequent new-application flow starts with a clean slate.
+    useApplicationStore.getState().setApplication(null);
     navigate("/choose-application");
   };
 
@@ -176,7 +179,7 @@ const Workbasket: React.FC = () => {
                       )}
                       onPageChange={(page) => {
                         setCurrentPage(page);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        window.scrollTo({ top: 0 });
                       }}
                     />
                   </div>

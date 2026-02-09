@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTaskListData } from '../../../hooks/useTaskListData';
 import TaskListSection from '../components/TaskListSection';
 import SensitiveAreaBanner from '../components/SensitiveAreaBanner';
@@ -38,6 +39,14 @@ const TaskList: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item">
+            <Link className="govuk-breadcrumbs__link" to="/workbasket">Workbasket</Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item govuk-breadcrumbs__list-item--current" aria-current="true">Task list</li>
+        </ol>
+      </nav>
       <SensitiveAreaBanner status={sensitiveAreaStatus} />
       {application?.status?.toLowerCase() === 'submitted' && (
         <div className="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">

@@ -12,7 +12,7 @@ type State = {
   applicationParty: any | null;
   organisation: any | null;
   loadApplications: (created_by: string) => Promise<void>;
-  setApplication: (app: Application) => void;
+  setApplication: (app: Application | null) => void;
   setApplicationParty: (party: ApplicationParty) => void;
   setOrganisation: (org: any) => void;
   startApplication: (applicationData: Partial<Application>) => Promise<Application>;

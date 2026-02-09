@@ -13,7 +13,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({
 }) => {
   return (
     <div className="govuk-button-group">
-      <button
+      {/* <button
         type="button"
         onClick={onSaveLater}
         className="govuk-button govuk-button--secondary"
@@ -21,7 +21,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({
         disabled={disabled}
       >
         Save for later
-      </button>
+      </button> */}
       <button
         type="button"
         onClick={onSaveContinue}
