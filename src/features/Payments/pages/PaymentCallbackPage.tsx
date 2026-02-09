@@ -16,6 +16,7 @@ const PaymentCallbackPage: React.FC = () => {
         const paymentId = searchParams.get('paymentId') || sessionStorage.getItem('paymentId');
         const applicationId = sessionStorage.getItem('applicationId');
         const invoiceNumber = sessionStorage.getItem('invoiceNumber');
+        const totalAmount = sessionStorage.getItem('totalAmount');
 
         console.log('Payment callback - paymentId:', paymentId);
         console.log('Payment callback - applicationId:', applicationId);
@@ -62,7 +63,8 @@ const PaymentCallbackPage: React.FC = () => {
           sessionStorage.removeItem('paymentId');
           sessionStorage.removeItem('paymentLocalId');
           sessionStorage.removeItem('invoiceNumber');
-
+          sessionStorage.removeItem('totalAmount');
+          
           // Redirect to success page after 2 seconds
           setTimeout(() => {
             navigate(`${S37_BASE_URL}/${applicationId}/payment-success`, {
@@ -70,10 +72,11 @@ const PaymentCallbackPage: React.FC = () => {
                 applicationId,
                 invoiceNumber,
                 paymentId,
-                reference: data.reference
+                reference: data.reference,
+                totalAmount: totalAmount ? parseFloat(totalAmount) : undefined // Add this line
               }
             });
-          }, 2000);
+          }, 500);
         } else if (paymentStatus === 'failed') {
           setStatus('failed');
           setErrorMessage('Your payment was not successful. Please try again.');
