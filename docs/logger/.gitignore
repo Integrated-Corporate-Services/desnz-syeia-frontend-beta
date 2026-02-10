@@ -1,0 +1,27 @@
+# Logs directory
+logs/
+!logs/.gitkeep
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Environment files
+.env
+.env.local

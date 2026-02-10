@@ -1,0 +1,40 @@
+{
+  "name": "terminal-logger",
+  "version": "2.0.0",
+  "description": "Comprehensive terminal logging solution with command wrapper and session logger modes",
+  "main": "src/terminal-logger.js",
+  "scripts": {
+    "log": "node src/terminal-logger.js",
+    "session": "node src/session-logger.js",
+    "test": "node src/terminal-logger.js node --version",
+    "help": "node src/terminal-logger.js"
+  },
+  "bin": {
+    "tlog": "./src/terminal-logger.js",
+    "tsession": "./src/session-logger.js"
+  },
+  "keywords": [
+    "terminal",
+    "logger",
+    "logging",
+    "output-capture",
+    "session-logger",
+    "vscode",
+    "debugging"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "files": [
+    "src/",
+    "utils/",
+    "launchers/",
+    "README.md"
+  ]
+}
