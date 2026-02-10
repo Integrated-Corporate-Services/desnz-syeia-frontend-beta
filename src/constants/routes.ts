@@ -18,6 +18,12 @@ import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
 import RouteMapPage from '../features/RouteMap/page/RouteMapPage';
 import SensitiveAreaPage from '../features/sensitiveArea/page/SensitiveAreaPage';
 import SensitiveAreaReviewPage from '../features/sensitiveArea/page/SensitiveAreaReviewPage';
+import ReviewResultsPage from '../features/sensitiveArea/page/ReviewResultsPage';
+import ReviewManualPage from '../features/sensitiveArea/page/ReviewManualPage';
+import AddOtherAreasQuestionPage from '../features/sensitiveArea/page/AddOtherAreasQuestionPage';
+import AddOtherAreasPage from '../features/sensitiveArea/page/AddOtherAreasPage';
+import ReviewPolesPage from '../features/sensitiveArea/page/ReviewPolesPage';
+import ReviewDocumentsPage from '../features/sensitiveArea/page/ReviewDocumentsPage';
 import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
@@ -476,7 +482,37 @@ export const ROUTE_CONFIG = [
   },
   {
   path: `${S37_BASE_URL}/:applicationId/sensitive-area-review`,
-    component: SensitiveAreaReviewPage,
+    component: ReviewResultsPage,
+    auth: true,
+    layout: true
+  },
+  {
+  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/failed`,
+    component: ReviewManualPage,
+    auth: true,
+    layout: true
+  },
+  {
+  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/add-question`,
+    component: AddOtherAreasQuestionPage,
+    auth: true,
+    layout: true
+  },
+  {
+  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/add-areas`,
+    component: AddOtherAreasPage,
+    auth: true,
+    layout: true
+  },
+  {
+  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/poles`,
+    component: ReviewPolesPage,
+    auth: true,
+    layout: true
+  },
+  {
+  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/documents`,
+    component: ReviewDocumentsPage,
     auth: true,
     layout: true
   },

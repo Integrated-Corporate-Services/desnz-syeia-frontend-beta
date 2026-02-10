@@ -7,7 +7,7 @@ enum PoleOption { POLES_WITHIN = 1, ONLY_OVERHEAD = 2, NO_POLES = 3 }
 const ReviewPolesPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
   const navigate = useNavigate();
-  const [option, setOption] = useState<number | null>(null);
+  const [, setOption] = useState<number | null>(null);
 
   const handleContinue = () => navigate(`${S37_BASE_URL}/${applicationId}/sensitive-area-review/documents`);
 
