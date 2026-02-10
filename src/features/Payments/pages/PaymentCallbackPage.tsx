@@ -61,12 +61,12 @@ const PaymentCallbackPage: React.FC = () => {
                 invoiceNumber,
                 paymentId,
                 reference: data.reference,
-                totalAmount: totalAmount ? parseFloat(totalAmount) : undefined // Add this line
+                totalAmount: totalAmount ? parseFloat(totalAmount) : undefined
               }
             });
-          }, 500);
+          }, 2000);
 
-          // **SUBMIT APPLICATION HERE**
+          // **SUBMITING APPLICATION HERE**
           try {
             console.log('Submitting application:', applicationId);
             await applicationApiService.submitApplication(applicationId);
