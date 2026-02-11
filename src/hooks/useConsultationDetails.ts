@@ -10,6 +10,29 @@ interface UseConsultationDetailsReturn {
   refetch: () => Promise<void>;
 }
 
+// Hardcoded consultations matching backend LPAs
+const HARDCODED_CONSULTATIONS: ConsultationDetails[] = [
+  
+  {
+    id: 'nottingham-city-council',
+    applicationId: '',
+    consultationType: 'organisation',
+    consulteeOrganisationId: 'E06000018',
+    consulteeOrganisationName: 'Nottingham City Council',
+    status: 'Not started yet',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'leicester-city-council',
+    applicationId: '',
+    consultationType: 'organisation',
+    consulteeOrganisationId: 'E06000016',
+    consulteeOrganisationName: 'Leicester City Council',
+    status: 'Not started yet',
+    createdAt: new Date().toISOString(),
+  },
+];
+
 /**
  * Custom hook for fetching consultation details for an application
  *
@@ -43,8 +66,16 @@ export const useConsultationDetails = (
         userId
       );
       const data = await fetchConsultationDetails(applicationId, userId);
-      setConsultations(Array.isArray(data) ? data : []);
-      log.debug("Consultation details response:", data);
+       // Merge API data with hardcoded consultations
+      const merged = [
+        ...HARDCODED_CONSULTATIONS.map(consultation => ({
+          ...consultation,
+          applicationId: applicationId
+        })),
+        ...(Array.isArray(data) ? data : [])
+      ];
+      setConsultations(merged);
+      log.debug("Consultation details response:", merged);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
@@ -52,6 +83,12 @@ export const useConsultationDetails = (
           : "Failed to fetch consultation details";
       log.error("Failed to fetch consultation details:", err);
       setError(errorMessage);
+      setConsultations(
+        HARDCODED_CONSULTATIONS.map(consultation => ({
+          ...consultation,
+          applicationId: applicationId
+        }))
+      );
     } finally {
       setLoading(false);
     }

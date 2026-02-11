@@ -59,7 +59,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
   const statusDisplay = statusKey ? ConsultationStatus[statusKey] : status;
 
   const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response`;
-  let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request${
+  let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${
     consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ""
   }`;
   if (statusDisplay === ConsultationStatus.DRAFT) {

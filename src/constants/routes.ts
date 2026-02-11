@@ -86,7 +86,12 @@ import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage'
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
-
+// import ConsultationResponseReceived from '../features/Consultation/pages/ConsultationResponseReceived';
+// import LPAConsultationForm from '../features/Consultation/pages/LPAConsultationForm';
+// import LPADetailsForm from '../features/Consultation/pages/LPADetailsForm';
+// import ProposedDevelopmentForm from '../features/Consultation/pages/ProposedDevelopmentForm';
+// import ConsultationEvidenceNotReceived from '../features/Consultation/pages/ConsultationEvidenceNotReceived';
+import ConsultationInitialQuestion from '../features/Consultation/pages/ConsultationInitialQuestion';
 export const ROUTE_CONFIG = [
   {
   path: `${S37_BASE_URL}/:applicationId/payment-success`,
@@ -94,6 +99,47 @@ export const ROUTE_CONFIG = [
   auth: true,
   layout: true
   },
+
+  {
+  path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/initial-question`,
+  component: ConsultationInitialQuestion,
+  auth: true,
+  layout: true
+  },
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/evidence-not-received`,
+  //   component: ConsultationEvidenceNotReceived,
+  //   auth: true,
+  //   layout: true
+  // },
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response-received`,
+  //   component: ConsultationResponseReceived,
+  //   auth: true,
+  //   layout: true
+  // },
+  
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/lpa-consultation-form`,
+  //   component: LPAConsultationForm,
+  //   auth: true,
+  //   layout: true
+  // },
+
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/lpa-details`,
+  //   component: LPADetailsForm,
+  //   auth: true,
+  //   layout: true
+  // },
+
+  // {
+  //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/proposed-development`,
+  //   component: ProposedDevelopmentForm,
+  //   auth: true,
+  //   layout: true
+  // },
+
   {
     path: '/payment/callback',
     component: PaymentCallbackPage,
