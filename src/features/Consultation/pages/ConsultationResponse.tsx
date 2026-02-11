@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
 import type { ConsultationResponse } from '../../../types/ConsultationResponse';
+import { fetchConsultationDetails } from '../../../services/consultationService';
 
 const ConsultationResponse: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -16,6 +17,8 @@ const ConsultationResponse: React.FC = () => {
     const [hasObjection, setHasObjection] = useState<string>('');
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
+    const [consultationName, setConsultationName] = useState<string>(''); // Add this state
+
 
     // Scroll to top on mount
     useEffect(() => {
@@ -32,13 +35,26 @@ const ConsultationResponse: React.FC = () => {
                     setEmail(data.response_email_address || '');
                     setHasObjection(data.has_objection ? 'yes' : (data.has_objection === false ? 'no' : ''));
                     setResponseId(data.response_id || '');
+                    // Fetch all consultations to get the organization name
+                    const consultations = await fetchConsultationDetails(applicationId!, user?.user_id!);
+                    
+                    // Check if consultations is an array or single object
+                    const consultationsList = Array.isArray(consultations) ? consultations : [consultations];
+                    const currentConsultation = consultationsList.find((c: any) => c.id === consultationId);
+                    
+                    if (currentConsultation) {
+                        const orgName = currentConsultation.consulteeOrganisationName 
+                            || currentConsultation.otherConsultee 
+                            || 'Consultation';
+                        setConsultationName(orgName);
+                    }
                 } catch (err) {
                     console.error('Error fetching consultation response:', err);
                 }
             }
         }
         fetchData();
-    }, [consultationId, applicationId]);
+    }, [consultationId, applicationId, user?.user_id]);
 
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
@@ -187,13 +203,13 @@ const ConsultationResponse: React.FC = () => {
                             </div>
                         )}
 
-                        <h2 className="govuk-caption-xl">Natural England</h2>
+                        <h2 className="govuk-caption-xl">{consultationName}</h2>
                         <h1 className="govuk-heading-l">Provide consultation response</h1>
 
                         <form noValidate>
                             <div className={`govuk-form-group ${errors.contactName ? 'govuk-form-group--error' : ''}`}>
                                 <label className="govuk-label" htmlFor="contactName">
-                                    Consultee contact name
+                                    <strong>Consultee contact name</strong>
                                 </label>
                                 <div id="contactName-hint" className="govuk-hint">
                                     For example: John Smith
@@ -219,7 +235,7 @@ const ConsultationResponse: React.FC = () => {
 
                             <div className={`govuk-form-group ${errors.email ? 'govuk-form-group--error' : ''}`}>
                                 <label className="govuk-label" htmlFor="email">
-                                    Consultee contact email address
+                                    <strong>Consultee contact email address</strong>
                                 </label>
                                 <div id="email-hint" className="govuk-hint">
                                     For example: johnsmith@example.com
@@ -247,7 +263,7 @@ const ConsultationResponse: React.FC = () => {
                             <div className={`govuk-form-group ${errors.hasObjection ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset" aria-describedby={errors.hasObjection ? 'hasObjection-error' : undefined}>
                                     <legend className="govuk-fieldset__legend">
-                                        Does the consultee have any objections to the application?
+                                        <strong>Does the consultee have any objections to the application?</strong>
                                     </legend>
                                     {errors.hasObjection && (
                                         <p id="hasObjection-error" className="govuk-error-message">
