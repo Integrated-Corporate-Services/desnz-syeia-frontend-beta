@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
 import { saveSensitiveAreaReview, getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
-import { S37_BASE_URL } from '../../../constants/routeConstants';
+import { S37_BASE_URL } from '../../../constants/s37';
 
 const ReviewPolesPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
@@ -80,7 +80,7 @@ const ReviewPolesPage: React.FC = () => {
       created_at: review?.created_at || '',
       updated_at: review?.updated_at || '',
       uploaded_files: review?.uploaded_files || [],
-      documents: review?.documents || [],
+      application_documents: review?.application_documents || [],
     };
 
     setLoading(true);

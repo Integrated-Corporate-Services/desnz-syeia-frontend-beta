@@ -71,8 +71,8 @@ const SensitiveAreaReviewPage: React.FC = () => {
       if (Array.isArray(review.uploaded_files)) {
         setUploadedFiles(review.uploaded_files);
       }
-      if (Array.isArray(review.documents)) {
-        setApplicationDocuments(review.documents);
+      if (Array.isArray(review.application_documents)) {
+        setApplicationDocuments(review.application_documents);
       }
     }
   }, [review]);

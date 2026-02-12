@@ -4,7 +4,7 @@ import FileUpload from '../../../components/FileUpload';
 import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { saveSensitiveAreaReview, getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
-import { S37_BASE_URL } from '../../../constants/routeConstants';
+import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 
 const ReviewDocumentsPage: React.FC = () => {
@@ -33,8 +33,8 @@ const ReviewDocumentsPage: React.FC = () => {
         if (existingReview?.uploaded_files) {
           setUploadedFiles(existingReview.uploaded_files);
         }
-        if (existingReview?.documents) {
-          setApplicationDocuments(existingReview.documents);
+        if (existingReview?.application_documents) {
+          setApplicationDocuments(existingReview.application_documents);
         }
       } catch (err: any) {
         setApiError(err?.message || 'Failed to load review data');
@@ -86,7 +86,7 @@ const ReviewDocumentsPage: React.FC = () => {
       created_at: review?.created_at || '',
       updated_at: review?.updated_at || '',
       uploaded_files: uploadedFiles,
-      documents: applicationDocuments,
+      application_documents: applicationDocuments,
     };
 
     setLoading(true);
