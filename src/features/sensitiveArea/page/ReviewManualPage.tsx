@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem } from '../../../services/sensitiveAreaService';
-import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
+import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem, updateManuallySelectedLayers } from '../../../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../../../constants/s37';
 
 /**
@@ -34,9 +33,6 @@ const ReviewManualPage: React.FC = () => {
   const [selectedFailedLayers, setSelectedFailedLayers] = useState<Record<number, boolean>>({});
   const [noneSelected, setNoneSelected] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-
-  // Access review store for save functionality
-  const { saveReview } = useSensitiveAreaReview(effectiveApplicationId);
 
   // ===========================
   // DATA FETCHING
@@ -134,12 +130,19 @@ const ReviewManualPage: React.FC = () => {
     if (!validateForm()) return;
 
     try {
-      // Save the manual review selections
-      await saveReview({
-        application_id: effectiveApplicationId
-        // TODO: Add manual selections to payload when backend is ready
-      });
-      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+      // Save the manual review selections using POST endpoint
+      const selectedLayerIds = Object.keys(selectedFailedLayers)
+        .filter(id => selectedFailedLayers[Number(id)])
+        .map(Number);
+      
+      await updateManuallySelectedLayers(
+        effectiveApplicationId,
+        selectedLayerIds,
+        noneSelected
+      );
+      
+      // Navigate to next page: AddOtherAreasQuestionPage
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`);
     } catch (err) {
       console.error('Failed to save review:', err);
       setError('Failed to save your review. Please try again.');
@@ -153,9 +156,17 @@ const ReviewManualPage: React.FC = () => {
     if (!effectiveApplicationId) return;
 
     try {
-      await saveReview({
-        application_id: effectiveApplicationId
-      });
+      // Save partial progress using POST endpoint
+      const selectedLayerIds = Object.keys(selectedFailedLayers)
+        .filter(id => selectedFailedLayers[Number(id)])
+        .map(Number);
+      
+      await updateManuallySelectedLayers(
+        effectiveApplicationId,
+        selectedLayerIds,
+        noneSelected
+      );
+      
       navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
     } catch (err) {
       console.error('Failed to save for later:', err);

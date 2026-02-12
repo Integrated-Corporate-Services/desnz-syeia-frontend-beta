@@ -47,3 +47,13 @@ export async function startSensitiveAreaCheck(applicationId: string, toleranceRe
   const res = await axios.post(`/backend/api/sensitive-area-check/${applicationId}`, payload);
   return res.data;
 }
+
+// Update manually selected layers in sensitive_area_route_checks table
+export async function updateManuallySelectedLayers(applicationId: string, selectedLayerIds: number[], noneSelected: boolean) {
+  const payload = {
+    selectedLayerIds,
+    noneSelected
+  };
+  const res = await axios.post(`/backend/api/${applicationId}/sensitive-area-review-summary`, payload);
+  return res.data;
+}
