@@ -1,0 +1,262 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { S37_BASE_URL } from '../../../constants/s37';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+
+interface LPADetails {
+    lpaContactName: string;
+    lpaContactEmail: string;
+    lpaContactPhone: string;
+}
+
+const LPADetailsPage: React.FC = () => {
+    const navigate = useNavigate();
+    const applicationId = useGetApplicationId();
+    const { consultationId } = useParams();
+
+    const [formData, setFormData] = useState<LPADetails>({
+        lpaContactName: '',
+        lpaContactEmail: '',
+        lpaContactPhone: '',
+    });
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [loading, setLoading] = useState(false);
+    const [lpaName, setLpaName] = useState('');
+
+    useEffect(() => {
+        // Fetch existing LPA details if available
+        const fetchLPADetails = async () => {
+            try {
+                // TODO: Implement API call to fetch existing LPA details
+                // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/lpa-details`);
+            } catch (error) {
+                console.error('Error fetching LPA details:', error);
+            }
+        };
+
+        if (applicationId && consultationId) {
+            fetchLPADetails();
+        }
+    }, [applicationId, consultationId]);
+
+    const validateForm = (): boolean => {
+        const newErrors: Record<string, string> = {};
+
+        if (!formData.lpaContactName.trim()) {
+            newErrors.lpaContactName = 'LPA contact name is required';
+        }
+
+        if (!formData.lpaContactEmail.trim()) {
+            newErrors.lpaContactEmail = 'LPA contact email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.lpaContactEmail)) {
+            newErrors.lpaContactEmail = 'Enter a valid email address';
+        }
+
+        // Phone is optional, but validate format if provided
+        if (formData.lpaContactPhone && !/^[\d\s\-+()]+$/.test(formData.lpaContactPhone)) {
+            newErrors.lpaContactPhone = 'Enter a valid phone number';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+        // Clear error for this field when user starts typing
+        if (errors[name]) {
+            setErrors((prev) => ({
+                ...prev,
+                [name]: '',
+            }));
+        }
+    };
+
+    const handleSaveAndContinue = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // TODO: Implement API call to save LPA details
+            // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/lpa-details`, {
+            //   method: 'POST',
+            //   headers: { 'Content-Type': 'application/json' },
+            //   body: JSON.stringify(formData)
+            // });
+
+            // Navigate to next step
+            navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development`);
+        } catch (error) {
+            console.error('Error saving LPA details:', error);
+            setErrors((prev) => ({
+                ...prev,
+                submit: 'Failed to save LPA details. Please try again.',
+            }));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSaveForLater = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        setLoading(true);
+        try {
+            // TODO: Implement API call to save LPA details for later
+            // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/lpa-details`, {
+            //   method: 'POST',
+            //   headers: { 'Content-Type': 'application/json' },
+            //   body: JSON.stringify(formData)
+            // });
+
+            // Navigate back to consultation details
+            navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+        } catch (error) {
+            console.error('Error saving LPA details:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="govuk-width-container">
+            <main className="govuk-main-wrapper" id="main-content" role="main">
+                {/* Breadcrumbs */}
+                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+                    <ol className="govuk-breadcrumbs__list">
+                        <li className="govuk-breadcrumbs__list-item">
+                            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                                Task list
+                            </Link>
+                        </li>
+                        <li className="govuk-breadcrumbs__list-item">
+                            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
+                                Manage consultation
+                            </Link>
+                        </li>
+                        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                            LPA details
+                        </li>
+                    </ol>
+                </nav>
+
+                {/* Error Summary */}
+                {Object.keys(errors).length > 0 && (
+                    <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+                        <h2 className="govuk-error-summary__title" id="error-summary-title">
+                            There is a problem
+                        </h2>
+                        <div className="govuk-error-summary__body">
+                            <ul className="govuk-list govuk-error-summary__list">
+                                {Object.entries(errors).map(([key, message]) => (
+                                    <li key={key}>
+                                        <a href={`#${key}`}>{message}</a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
+
+                <div className="govuk-grid-row">
+                    <div className="govuk-grid-column-two-thirds">
+                        {/* Organization Name */}
+                        <p className="govuk-body govuk-!-margin-bottom-7">
+                            <strong>{lpaName}</strong>
+                        </p>
+
+                        {/* Page Heading */}
+                        <h1 className="govuk-heading-l">Local Planning Authority (LPA) details</h1>
+
+                        {/* Form */}
+                        <form onSubmit={handleSaveAndContinue}>
+                            {/* LPA Contact Name */}
+                            <div className={`govuk-form-group ${errors.lpaContactName ? 'govuk-form-group--error' : ''}`}>
+                                <label htmlFor="lpaContactName" className="govuk-label govuk-label--m">
+                                    LPA contact name
+                                </label>
+                                {errors.lpaContactName && (
+                                    <p id="lpaContactName-error" className="govuk-error-message">
+                                        <span className="govuk-visually-hidden">Error:</span> {errors.lpaContactName}
+                                    </p>
+                                )}
+                                <input
+                                    className={`govuk-input ${errors.lpaContactName ? 'govuk-input--error' : ''}`}
+                                    id="lpaContactName"
+                                    name="lpaContactName"
+                                    type="text"
+                                    value={formData.lpaContactName}
+                                    onChange={handleInputChange}
+                                    aria-describedby={errors.lpaContactName ? 'lpaContactName-error' : undefined}
+                                />
+                            </div>
+
+                            {/* LPA Contact Email */}
+                            <div className={`govuk-form-group ${errors.lpaContactEmail ? 'govuk-form-group--error' : ''}`}>
+                                <label htmlFor="lpaContactEmail" className="govuk-label govuk-label--m">
+                                    LPA contact email
+                                </label>
+                                {errors.lpaContactEmail && (
+                                    <p id="lpaContactEmail-error" className="govuk-error-message">
+                                        <span className="govuk-visually-hidden">Error:</span> {errors.lpaContactEmail}
+                                    </p>
+                                )}
+                                <input
+                                    className={`govuk-input ${errors.lpaContactEmail ? 'govuk-input--error' : ''}`}
+                                    id="lpaContactEmail"
+                                    name="lpaContactEmail"
+                                    type="email"
+                                    value={formData.lpaContactEmail}
+                                    onChange={handleInputChange}
+                                    aria-describedby={errors.lpaContactEmail ? 'lpaContactEmail-error' : undefined}
+                                />
+                            </div>
+
+                            {/* LPA Contact Phone (Optional) */}
+                            <div className={`govuk-form-group ${errors.lpaContactPhone ? 'govuk-form-group--error' : ''}`}>
+                                <label htmlFor="lpaContactPhone" className="govuk-label govuk-label--m">
+                                    LPA contact phone number (optional)
+                                </label>
+                                {errors.lpaContactPhone && (
+                                    <p id="lpaContactPhone-error" className="govuk-error-message">
+                                        <span className="govuk-visually-hidden">Error:</span> {errors.lpaContactPhone}
+                                    </p>
+                                )}
+                                <input
+                                    className={`govuk-input ${errors.lpaContactPhone ? 'govuk-input--error' : ''}`}
+                                    id="lpaContactPhone"
+                                    name="lpaContactPhone"
+                                    type="tel"
+                                    value={formData.lpaContactPhone}
+                                    onChange={handleInputChange}
+                                    aria-describedby={errors.lpaContactPhone ? 'lpaContactPhone-error' : undefined}
+                                />
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="govuk-button-group">
+                                <button type="submit" className="govuk-button" disabled={loading}>
+                                    {loading ? 'Saving...' : 'Save and continue'}
+                                </button>
+                                <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater} disabled={loading}>
+                                    Save for later
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+};
+
+export default LPADetailsPage;

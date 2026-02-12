@@ -26,8 +26,8 @@ const ConsultationInitialQuestion: React.FC = () => {
       // Navigate to provide evidence page (existing ConsultationRequestPage)
       navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request?consultationName=${encodeURIComponent(consultationName)}`);
     } else {
-      // Navigate to share application details page
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultee-application-details?consultationName=${encodeURIComponent(consultationName)}`);
+      // Navigate to ConsultationRequestNotSent page when "No" is selected
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-consultation-question?consultationName=${encodeURIComponent(consultationName)}`);
     }
   };
 
