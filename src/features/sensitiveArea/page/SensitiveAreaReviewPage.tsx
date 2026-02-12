@@ -53,7 +53,8 @@ const SensitiveAreaReviewPage: React.FC = () => {
       });
     // Fetch sensitive area review data
     fetchReview();
-  }, [effectiveApplicationId, fetchReview]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveApplicationId]);
 
   // Bind review data to form if available
   useEffect(() => {
