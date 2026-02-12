@@ -8,6 +8,7 @@ interface RequestData {
   email: string;
   organisation_name?: string;
   is_agent: boolean;
+  agency_name?: string;
   requested_at: string;
 }
 
@@ -63,6 +64,13 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData 
           </strong>
         </dd>
       </div>
+
+      {requestData.is_agent && requestData.agency_name && (
+        <div className="govuk-summary-list__row">
+          <dt className="govuk-summary-list__key">Agency name</dt>
+          <dd className="govuk-summary-list__value">{requestData.agency_name}</dd>
+        </div>
+      )}
 
       <div className="govuk-summary-list__row">
         <dt className="govuk-summary-list__key">Request submitted</dt>

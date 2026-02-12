@@ -71,13 +71,18 @@ class UserService {
    */
   async suspendUser(
     userId: string,
-    reason: string
+    reason: string,
+    organisationId?: string
   ): Promise<ServiceResponse<void>> {
     try {
-      logger.debug("Suspending user:", { userId, reason });
+      logger.debug("Suspending user:", { userId, reason, organisationId });
+      const requestBody: { reason: string; organisationId?: string } = { reason };
+      if (organisationId) {
+        requestBody.organisationId = organisationId;
+      }
       const response = await axios.patch(
         `/backend/api/users/${userId}/suspend`,
-        { reason }
+        requestBody
       );
       logger.debug("Suspend user response:", response.data);
       return {

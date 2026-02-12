@@ -16,6 +16,7 @@ export const useManageUsers = () => {
   const { user } = useAuthUserContext();
   const userRole = user?.role;
   const userOrganisation = user?.organisation_name;
+  const userOrganisationId = user?.organisation_id;
   const isDesnzAdminRole = user?.role === ROLES.DESNZ_ADMIN;
 
   const [users, setUsers] = useState<User[]>([]);
@@ -78,7 +79,8 @@ export const useManageUsers = () => {
       try {
         const response = await userService.suspendUser(
           userId,
-          "Access revoked by administrator"
+          "Access revoked by administrator",
+          userOrganisationId
         );
         if (response.success) {
           // Reload users to reflect the change
