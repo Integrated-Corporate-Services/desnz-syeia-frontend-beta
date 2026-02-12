@@ -7,7 +7,7 @@ import {
   removeManualArea,
   PreIdentifiedArea,
   ManuallyAddedArea,
-} from '../../../services/sensitiveAreaService';
+} from '../../../services/sensitiveAreaReviewService';
 import { S37_BASE_URL } from '../../../constants/s37';
 
 /**
