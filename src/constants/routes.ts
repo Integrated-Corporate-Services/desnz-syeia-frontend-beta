@@ -718,6 +718,7 @@ import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
 import RouteMapPage from '../features/RouteMap/page/RouteMapPage';
 import SensitiveAreaPage from '../features/sensitiveArea/page/SensitiveAreaPage';
 import ReviewSensitiveAreaResultsPage from '../features/sensitiveArea/page/ReviewSensitiveAreaResultsPage';
+import ReviewManualPage from '../features/sensitiveArea/page/ReviewManualPage';
 import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
@@ -1177,6 +1178,12 @@ export const ROUTE_CONFIG = [
   {
   path: `${S37_BASE_URL}/:applicationId/sensitive-area-review`,
     component: ReviewSensitiveAreaResultsPage,
+    auth: true,
+    layout: true
+  },
+  {
+  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review-manual`,
+    component: ReviewManualPage,
     auth: true,
     layout: true
   },

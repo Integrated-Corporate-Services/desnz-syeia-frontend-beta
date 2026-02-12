@@ -95,6 +95,8 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
 
   /**
    * Handles "Save and continue"
+   * - If there are failed checks (A2 scenario), navigate to manual review page
+   * - Otherwise navigate to task list
    */
   const handleSaveAndContinue = async () => {
     if (!effectiveApplicationId) return;
@@ -103,7 +105,13 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
       await saveReview({
         application_id: effectiveApplicationId
       });
-      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+      
+      // AC1: If there are failed checks, navigate to manual review page
+      if (hasFailedChecks()) {
+        navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`);
+      } else {
+        navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+      }
     } catch (err) {
       console.error('Failed to save review:', err);
       setError('Failed to save your review. Please try again.');
