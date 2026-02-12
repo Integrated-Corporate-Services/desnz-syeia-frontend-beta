@@ -8,6 +8,7 @@ import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import FileUpload from '../../../components/FileUpload';
 import { validateDateComponents } from '../../../utils/validation';
+import { fetchConsultationDetails } from '../../../services/consultationService';
 
 const ConsultationResponse2: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -20,6 +21,7 @@ const ConsultationResponse2: React.FC = () => {
     const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
+    const [consultationName, setConsultationName] = useState<string>('');
 
     // Scroll to top on mount
     useEffect(() => {
@@ -37,19 +39,30 @@ const ConsultationResponse2: React.FC = () => {
                         setResponseDate({
                             day: String(date.getDate()),
                             month: String(date.getMonth() + 1),
-                            year: String(date.getFullYear())
+                            year: String(date.getFullYear()),
                         });
                     }
                     setUploadedFileObjs(data.uploaded_files || []);
                     setApplicationDocuments(data.application_documents || []);
                     setResponseId(data.response_id || '');
+                    // Fetch all consultations to get the organization name
+                    const consultations = await fetchConsultationDetails(applicationId!, user?.user_id!);
+
+                    // Check if consultations is an array or single object
+                    const consultationsList = Array.isArray(consultations) ? consultations : [consultations];
+                    const currentConsultation = consultationsList.find((c: any) => c.id === consultationId);
+
+                    if (currentConsultation) {
+                        const orgName = currentConsultation.consulteeOrganisationName || currentConsultation.otherConsultee || 'Consultation';
+                        setConsultationName(orgName);
+                    }
                 } catch (err) {
                     console.error('Error fetching consultation response:', err);
                 }
             }
         }
         fetchData();
-    }, [consultationId, applicationId]);
+    }, [consultationId, applicationId, user?.user_id]);
 
     const handleUploadedFiles = (files: UploadedFile[], docs: ApplicationDocument[]) => {
         setUploadedFileObjs(prev => [...prev, ...files]);
@@ -205,7 +218,7 @@ const ConsultationResponse2: React.FC = () => {
                             </div>
                         )}
 
-                        <h2 className="govuk-caption-xl">Natural England</h2>
+                        <h2 className="govuk-caption-xl">{consultationName}</h2>
                         <h1 className="govuk-heading-l">Provide consultation response</h1>
 
                         <form noValidate>

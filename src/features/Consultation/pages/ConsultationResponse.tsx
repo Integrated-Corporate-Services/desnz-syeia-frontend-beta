@@ -17,7 +17,7 @@ const ConsultationResponse: React.FC = () => {
     const [hasObjection, setHasObjection] = useState<string>('');
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
-    const [consultationName, setConsultationName] = useState<string>(''); // Add this state
+    const [consultationName, setConsultationName] = useState<string>(''); 
 
 
     // Scroll to top on mount

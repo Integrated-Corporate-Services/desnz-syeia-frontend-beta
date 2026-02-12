@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
+import { fetchConsultationDetails } from '../../../services/consultationService';
 
 const ConsultationResponse3: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -15,7 +16,7 @@ const ConsultationResponse3: React.FC = () => {
     const [declarationAccepted, setDeclarationAccepted] = useState<boolean>(false);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
-
+    const [consultationName, setConsultationName] = useState<string>('');
     // Scroll to top on mount
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -29,13 +30,24 @@ const ConsultationResponse3: React.FC = () => {
                     const data = await getConsultationResponse(consultationId, applicationId);
                     setComments(data.response_comments || '');
                     setResponseId(data.response_id || '');
+                    // Fetch all consultations to get the organization name
+                    const consultations = await fetchConsultationDetails(applicationId!, user?.user_id!);
+
+                    // Check if consultations is an array or single object
+                    const consultationsList = Array.isArray(consultations) ? consultations : [consultations];
+                    const currentConsultation = consultationsList.find((c: any) => c.id === consultationId);
+
+                    if (currentConsultation) {
+                        const orgName = currentConsultation.consulteeOrganisationName || currentConsultation.otherConsultee || 'Consultation';
+                        setConsultationName(orgName);
+                    }
                 } catch (err) {
                     console.error('Error fetching consultation response:', err);
                 }
             }
         }
         fetchData();
-    }, [consultationId, applicationId]);
+    }, [consultationId, applicationId, user?.user_id]);
 
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
@@ -138,7 +150,7 @@ const ConsultationResponse3: React.FC = () => {
                             </div>
                         )}
 
-                        <h2 className="govuk-caption-xl">Natural England</h2>
+                        <h2 className="govuk-caption-xl">{consultationName}</h2>
                         <h1 className="govuk-heading-l">Provide consultation response</h1>
 
                         <form noValidate>

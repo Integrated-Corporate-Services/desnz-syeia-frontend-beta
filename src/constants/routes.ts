@@ -92,12 +92,21 @@ import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
 // import ProposedDevelopmentForm from '../features/Consultation/pages/ProposedDevelopmentForm';
 // import ConsultationEvidenceNotReceived from '../features/Consultation/pages/ConsultationEvidenceNotReceived';
 import ConsultationInitialQuestion from '../features/Consultation/pages/ConsultationInitialQuestion';
+import ConsultationResponseInitialQuestion from '../features/Consultation/pages/ConsultationResponseInitialQuestion';
+
 export const ROUTE_CONFIG = [
   {
   path: `${S37_BASE_URL}/:applicationId/payment-success`,
   component: PaymentSuccessPage,
   auth: true,
   layout: true
+  },
+
+  {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response-initial`,
+    component: ConsultationResponseInitialQuestion,
+    auth: true,
+    layout: true
   },
 
   {
