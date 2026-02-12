@@ -300,9 +300,9 @@ const ConsultationResponse2: React.FC = () => {
                                 )}
                                 <div id="file-upload">
                                     <p className="govuk-body">Upload documents that show the consultee's response</p>
-                                    <p className="govuk-hint">
+                                    {/* <p className="govuk-hint">
                                         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.
-                                    </p>
+                                    </p> */}
                                     <FileUpload
                                         title=""
                                         prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_RESPONSE}/${consultationId}`}

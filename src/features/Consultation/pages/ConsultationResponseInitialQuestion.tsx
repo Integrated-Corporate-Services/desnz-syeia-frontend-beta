@@ -21,13 +21,12 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
       setError('Select yes if you have received a response from the consultee');
       return;
     }
-
     if (responseReceived === 'yes') {
       // Navigate to the consultation response form
       navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response?consultationName=${encodeURIComponent(consultationName)}`);
     } else {
-      // Navigate back to consultation details
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+      // Navigate to evidence response not received page when 'No' is selected
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/evidence-response-not-received?consultationName=${encodeURIComponent(consultationName)}`);
     }
   };
 

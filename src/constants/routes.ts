@@ -96,6 +96,7 @@ import ConsultationResponseInitialQuestion from '../features/Consultation/pages/
 import ConsultationRequestNotSent from '../features/Consultation/pages/ConsultationRequestNotSent';
 import LPADetailsPage from '../features/Consultation/pages/LPADetailsPage';
 import ProposedDevelopmentPage from '../features/Consultation/pages/ProposedDevelopmentPage';
+import EvidenceResponseNotReceivedPage from '../features/Consultation/pages/EvidenceResponseNotReceivedPage';
 
 export const ROUTE_CONFIG = [
     {
@@ -106,11 +107,18 @@ export const ROUTE_CONFIG = [
     },
 
     {
+    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/evidence-response-not-received`,
+    component: EvidenceResponseNotReceivedPage,
+    auth: true,
+    layout: true,
+    },
+
+    {
     path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/proposed-development`,
     component: ProposedDevelopmentPage,
     auth: true,
     layout: true,
-  },
+   },
 
     {
         path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/lpa-details`,
