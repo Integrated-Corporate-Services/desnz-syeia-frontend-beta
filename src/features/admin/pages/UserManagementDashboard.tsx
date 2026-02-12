@@ -67,12 +67,10 @@ const UserManagementDashboard: React.FC = () => {
 
             {activeTab === "active-users" && (
               <ActiveUsersTab
-                isDesnzAdmin={isDesnzAdmin}
                 totalResults={totalResults}
                 usersError={usersError}
                 usersLoading={usersLoading}
                 paginatedUsers={paginatedUsers}
-                handleExportCSV={handleExportCSV}
                 navigateToRevokeUser={navigateToRevokeUser}
                 currentPage={currentPage}
                 totalPages={totalPages}

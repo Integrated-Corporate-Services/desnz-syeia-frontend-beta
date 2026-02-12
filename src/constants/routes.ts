@@ -70,6 +70,7 @@ import AddUserPage from '../features/admin/pages/AddUserPage';
 import UserCreatedPage from '../features/admin/pages/UserCreatedPage';
 import AccessRevokedPage from '../features/admin/pages/AccessRevokedPage';
 import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
+import ManageUserPage from '../features/admin/pages/ManageUserPage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
@@ -267,6 +268,12 @@ export const ROUTE_CONFIG = [
   {
     path: '/admin/access-revoked',
     component: AccessRevokedPage,
+    auth: true,
+    layout: true
+  },
+  {
+    path: '/admin/manage-user/:userId',
+    component: ManageUserPage,
     auth: true,
     layout: true
   },
