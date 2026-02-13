@@ -59,7 +59,8 @@ const ConsultationDetailsPage: React.FC = () => {
               orgName={consultation.consulteeOrganisationName}
               consultationName={
                 consultation.otherConsultee ||
-                consultation.consulteeOrganisationName
+                consultation.consulteeOrganisationName ||
+                consultation.consultationType
               }
               status={consultation.status}
               consultationId={consultation.id}

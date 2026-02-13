@@ -55,6 +55,9 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     return entry ? entry[0] as keyof typeof ConsultationStatus : undefined;
   }
 
+  // Use consultationName as fallback for title
+  const displayName = orgName || consultationName || 'Consultation';
+
   const statusKey = getStatusKey(status);
   const statusDisplay = statusKey ? ConsultationStatus[statusKey] : status;
 
@@ -90,7 +93,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
           <>
             <div className="govuk-summary-card__title-wrapper">
-              <h2 className="govuk-summary-card__title">{orgName || consultationName}</h2>
+              <h2 className="govuk-summary-card__title">{displayName}</h2>
             </div>
             <div className="govuk-summary-card__content">
               <table className="govuk-table govuk-!-margin-bottom-0">
