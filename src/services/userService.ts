@@ -32,6 +32,7 @@ class UserService {
         role: user.role,
         status: user.status,
         lastLogin: user.last_login_at,
+        agencyName: user.agency_name || null,
       }));
       return {
         success: true,

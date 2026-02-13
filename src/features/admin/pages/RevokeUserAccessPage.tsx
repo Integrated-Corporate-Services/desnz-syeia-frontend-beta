@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import { useManageUsersNavigation } from '../../../hooks/useManageUsersNavigation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
+import { ROLES } from '../../../constants/roles';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -73,6 +74,13 @@ const RevokeUserAccessPage: React.FC = () => {
     });
   };
 
+  const formatRole = (role: string) => {
+    if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
+    if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
+    if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
+    return 'Applicant';
+  };
+
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
@@ -111,8 +119,14 @@ const RevokeUserAccessPage: React.FC = () => {
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Role</dt>
-                <dd className="govuk-summary-list__value">{user.role}</dd>
+                <dd className="govuk-summary-list__value">{formatRole(user.role)}</dd>
               </div>
+              {user.role === ROLES.APPLICANT_AGENT && (
+                <div className="govuk-summary-list__row">
+                  <dt className="govuk-summary-list__key">Agency name</dt>
+                  <dd className="govuk-summary-list__value">{user.agencyName || '-'}</dd>
+                </div>
+              )}
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Status</dt>
                 <dd className="govuk-summary-list__value">
@@ -132,7 +146,6 @@ const RevokeUserAccessPage: React.FC = () => {
               className="govuk-button"
               onClick={handleRevokeAccess}
               disabled={processing}
-              style={{ backgroundColor: '#00703c', boxShadow: '0 2px 0 #002d18' }}
             >
               {processing ? 'Revoking access...' : 'Revoke access'}
             </button>

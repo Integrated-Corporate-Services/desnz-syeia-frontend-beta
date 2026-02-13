@@ -10,7 +10,6 @@ import { PendingRequestsTab } from "../components/PendingRequestsTab";
 
 const UserManagementDashboard: React.FC = () => {
   const {
-    isDesnzAdmin,
     activeTab,
     // showFilters,
     currentPage,
@@ -22,7 +21,6 @@ const UserManagementDashboard: React.FC = () => {
     usersError,
     usersLoading,
     paginatedUsers,
-    handleExportCSV,
     pendingRequests,
     requestsError,
     requestsLoading,

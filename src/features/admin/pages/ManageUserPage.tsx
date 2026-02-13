@@ -25,8 +25,10 @@ const ManageUserPage: React.FC = () => {
   };
 
   const formatRole = (role: string) => {
+    console.log('Formatting role:', role);
     if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
     if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
+    if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
     return 'Applicant';
   };
 
@@ -91,12 +93,18 @@ const ManageUserPage: React.FC = () => {
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Role</dt>
                 <dd className="govuk-summary-list__value">{formatRole(user.role)}</dd>
-                <dd className="govuk-summary-list__actions">
+                {/* <dd className="govuk-summary-list__actions">
                   <a className="govuk-link" href="#">
                     Change<span className="govuk-visually-hidden"> role</span>
                   </a>
-                </dd>
+                </dd> */}
               </div>
+              {user.role === ROLES.APPLICANT_AGENT && (
+                <div className="govuk-summary-list__row">
+                  <dt className="govuk-summary-list__key">Agency name</dt>
+                  <dd className="govuk-summary-list__value">{user.agencyName || user.organisation || '-'}</dd>
+                </div>
+              )}
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Status</dt>
                 <dd className="govuk-summary-list__value">

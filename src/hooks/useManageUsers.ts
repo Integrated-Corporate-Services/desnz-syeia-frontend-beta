@@ -17,6 +17,7 @@ export const useManageUsers = () => {
   const userRole = user?.role;
   const userOrganisation = user?.organisation_name;
   const userOrganisationId = user?.organisation_id;
+  const currentUserId = user?.user_id;
   const isDesnzAdminRole = user?.role === ROLES.DESNZ_ADMIN;
 
   const [users, setUsers] = useState<User[]>([]);
@@ -56,8 +57,8 @@ export const useManageUsers = () => {
     }
   }, [user, userOrganisation, isDesnzAdminRole]);
 
-  // Computed values - API already filters by organisation, no need to filter again
-  const filteredUsers = users;
+  // Computed values - Filter out current user and apply organisation filter if needed
+  const filteredUsers = users.filter((u) => u.id !== currentUserId);
 
   const activeCount = filteredUsers.filter((u) => u.status === "ACTIVE").length;
   const inactiveCount = filteredUsers.filter(

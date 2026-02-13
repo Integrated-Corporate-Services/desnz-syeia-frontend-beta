@@ -1,5 +1,8 @@
+
 export const ROLES = {
   APPLICANT: "Applicant",
+  APPLICANT_AGENT: "APPLICANT_AGENT",
+  APPLICANT_USER: "APPLICANT_USER",
   NETWORK_OPERATOR: "Network operator",
   CONTACT: "Contact",
   DESNZ_ADMIN: "DESNZ_ADMIN",
