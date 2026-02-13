@@ -233,7 +233,10 @@ const ConsultationResponse2: React.FC = () => {
                                                     value={responseDate.day}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, day: e.target.value });
-                                                        if (errors.responseDate) setErrors({ ...errors, responseDate: '' });
+                                                        if (errors.responseDate) {
+                                                            const { responseDate, ...restErrors } = errors;
+                                                            setErrors(restErrors);
+                                                        }
                                                     }}
                                                 />
                                             </div>
@@ -251,7 +254,10 @@ const ConsultationResponse2: React.FC = () => {
                                                     value={responseDate.month}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, month: e.target.value });
-                                                        if (errors.responseDate) setErrors({ ...errors, responseDate: '' });
+                                                        if (errors.responseDate) {
+                                                            const { responseDate, ...restErrors } = errors;
+                                                            setErrors(restErrors);
+                                                        }
                                                     }}
                                                 />
                                             </div>
@@ -269,7 +275,10 @@ const ConsultationResponse2: React.FC = () => {
                                                     value={responseDate.year}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, year: e.target.value });
-                                                        if (errors.responseDate) setErrors({ ...errors, responseDate: '' });
+                                                        if (errors.responseDate) {
+                                                            const { responseDate, ...restErrors } = errors;
+                                                            setErrors(restErrors);
+                                                        }
                                                     }}
                                                 />
                                             </div>
@@ -304,7 +313,10 @@ const ConsultationResponse2: React.FC = () => {
                                         }}
                                         onUploaded={(files, docs) => {
                                             handleUploadedFiles(files, docs);
-                                            if (errors.uploadedFiles) setErrors({ ...errors, uploadedFiles: '' });
+                                            if (errors.uploadedFiles) {
+                                                const { uploadedFiles, ...restErrors } = errors;
+                                                setErrors(restErrors);
+                                            }
                                         }}
                                         consultationId={consultationId}
                                     />
