@@ -104,6 +104,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         }
     };
 
+
     const handleCloseConsultation = async () => {
         if (!validateForm()) {
             const errorSummary = document.getElementById('error-summary');
@@ -114,6 +115,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
             return;
         }
 
+        setLoading(true);
         try {
             // Fetch existing data to preserve all fields
             const existingData = await getConsultationResponse(consultationId!, applicationId);
@@ -125,8 +127,15 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 response_comments: comments,
                 last_updated_by: user?.user_id,
                 has_all_documents_uploaded: formData.declarationAccepted,
-                uploaded_files: uploadedFileObjs.length > 0 ? uploadedFileObjs : existingData.uploaded_files,
+                // Store evidence of response not received files
+                uploaded_files: uploadedFileObjs,
                 application_documents: applicationDocuments.length > 0 ? applicationDocuments : existingData.application_documents,
+                // CRITICAL: Explicitly set these to undefined to clear any previous response data
+                response_full_name: undefined,
+                response_email_address: undefined,
+                has_objection: undefined,
+                // Clear received_at date as well
+                received_at: undefined,
                 isSave: false,
             };
 
@@ -136,6 +145,8 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
             console.error('Error closing consultation:', err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -223,14 +234,16 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
                                 <FileUpload
                                     title=""
-                                    prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_RESPONSE}/${consultationId}`}
+                                    prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}/${consultationId}`}
                                     applicationId={applicationId}
-                                    category={FILE_CATEGORIES.CONSULTATION_RESPONSE}
+                                    category={FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}  // CHANGED THIS LINE
                                     addedBy={user?.user_id || ''}
                                     uploadedFiles={uploadedFileObjs}
                                     onUploaded={(files, docs) => {
-                                        console.log('Files from FileUpload:', files);
-                                        console.log('Docs from FileUpload:', docs);
+                                        console.log('=== EVIDENCE NOT RECEIVED FILE UPLOAD ===');
+                                        console.log('Category:', FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED);
+                                        console.log('Files:', files);
+                                        console.log('Docs:', docs);
                                         setUploadedFileObjs((prev) => [...prev, ...files]);
                                         setApplicationDocuments((prev) => [...prev, ...docs]);
                                         // Clear file error

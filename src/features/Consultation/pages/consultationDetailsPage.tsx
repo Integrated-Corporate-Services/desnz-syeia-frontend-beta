@@ -75,6 +75,7 @@ const ConsultationDetailsPage: React.FC = () => {
               notRequiredMessage={consultation.notRequiredReason}
               notRequiredDocs={consultation.notRequiredDocs}
               consultationRequestDocs={consultation.consultationRequestDocs}
+              evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
             />
           ))}
 
