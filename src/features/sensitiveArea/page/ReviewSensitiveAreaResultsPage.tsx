@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem } from '../../../services/sensitiveAreaService';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -46,14 +46,14 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
         // console.log('Cleared (NO_INTERSECT) - No Screening:', data?.checks?.automated?.cleared?.noScreening?.length || 0);
         // console.log('Failed - Screening Required:', data?.checks?.automated?.failed?.screeningRequired?.length || 0);
         // console.log('Failed - No Screening:', data?.checks?.automated?.failed?.noScreening?.length || 0);
-         const successCount = 
-          (data?.checks?.automated?.passed?.screeningRequired?.length || 0) +
-          (data?.checks?.automated?.passed?.noScreening?.length || 0) +
-          (data?.checks?.automated?.cleared?.screeningRequired?.length || 0) +
-          (data?.checks?.automated?.cleared?.noScreening?.length || 0);
-        const totalFailed = 
-          (data?.checks?.automated?.failed?.screeningRequired?.length || 0) + 
-          (data?.checks?.automated?.failed?.noScreening?.length || 0);
+        //  const successCount = 
+        //   (data?.checks?.automated?.passed?.screeningRequired?.length || 0) +
+        //   (data?.checks?.automated?.passed?.noScreening?.length || 0) +
+        //   (data?.checks?.automated?.cleared?.screeningRequired?.length || 0) +
+        //   (data?.checks?.automated?.cleared?.noScreening?.length || 0);
+        // const totalFailed = 
+        //   (data?.checks?.automated?.failed?.screeningRequired?.length || 0) + 
+        //   (data?.checks?.automated?.failed?.noScreening?.length || 0);
         
         setChecksSummary(data);
         setLoading(false);
@@ -153,71 +153,54 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
   };
 
   // ===========================
-  // RENDER: LOADING & ERROR STATES
+  // RENDER: CONSISTENT WRAPPER WITH CONDITIONAL CONTENT
   // ===========================
-  if (loading) {
-    return (
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-xl">Sensitive area review</h1>
-          <p className="govuk-body">Loading sensitive area check results...</p>
-        </div>
-      </div>
-    );
-  }
+  
+  const layerCategories = getLayerCategories();
+  const { passedAreasScreening, passedAreasNoScreening, failedAreas } = layerCategories || {
+    passedAreasScreening: [],
+    passedAreasNoScreening: [],
+    failedAreas: []
+  };
 
-  if (error) {
-    return (
-      <div className="govuk-grid-row">
+  return (
+    <div className="govuk-width-container">
+      {/* Breadcrumb Navigation - Always visible */}
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item">
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+              Task list
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="page">Sensitive area review</li>
+        </ol>
+      </nav>
+
+      {/* Main Content Area */}
+      <div className='govuk-grid-row'>
         <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-xl">Sensitive area review</h1>
-          <div className="govuk-error-summary" role="alert">
-            <h2 className="govuk-error-summary__title">There is a problem</h2>
-            <div className="govuk-error-summary__body">
-              <p>{error}</p>
+          {/* Page Heading - Always visible */}
+          <h1 className="govuk-heading-l govuk-!-margin-top-2 govuk-!-margin-bottom-2">Sensitive area review</h1>
+
+          {/* CONDITIONAL CONTENT RENDERING */}
+          {loading ? (
+            // Loading State
+            <div>Loading sensitive areas...</div>
+          ) : error ? (
+            // Error State
+            <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+              <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+              <div className="govuk-error-summary__body">
+                <p>{error}</p>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ===========================
-  // RENDER: MAIN CONTENT
-  // ===========================
-  if (!checksSummary) return null;
-
-
-  if (hasExcessiveFailures()) {
-    return (
-      <div className="govuk-width-container">
-        {/* Breadcrumb Navigation */}
-        <div className="govuk-breadcrumbs">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <a
-                className="govuk-breadcrumbs__link"
-                href={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-                }}
-              >
-                Task list
-              </a>
-            </li>
-            <li className="govuk-breadcrumbs__list-item">
-              Sensitive area review
-            </li>
-          </ol>
-        </div>
-
-        <main className="govuk-main-wrapper">
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-two-thirds">
-              {/* Page Title */}
-              <h1 className="govuk-heading-l">Sensitive area review</h1>
-
+          ) : !checksSummary ? (
+            // No data state
+            <div>No data available</div>
+          ) : hasExcessiveFailures() ? (
+            // Excessive Failures Scenario (11+ failed)
+            <>
               {/* Inset Text - Error Message */}
               <div className="govuk-inset-text">
                 We could not complete all the sensitive area checks.
@@ -246,100 +229,83 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
 
               {/* Return to Task List Link */}
               <p className="govuk-body">
-                <a
-                  href={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}
+                <Link
+                  to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}
                   className="govuk-link"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-                  }}
                 >
                   Return to task list
-                </a>
+                </Link>
               </p>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
+            </>
+          ) : (
+            // Success/Partial Success Scenario (0-10 failed)
+            <>
+              {/* Summary Message with Dynamic Counts - Excludes FAILED layers */}
+              <p className="govuk-body">
+                The check was successfully performed on {getSuccessfulCheckCount()} of {checksSummary.checks.summary.totalLayers} sensitive areas.
+              </p>
 
-  const layerCategories = getLayerCategories();
-  if (!layerCategories) return null;
+              {/* Screening Required Message */}
+              {passedAreasScreening.length > 0 && (
+                <>
+                  <p className="govuk-body">
+                    Your route passes through these areas and requires an environmental impact assessment screening. 
+                    This will add a charge of £600.00 to your application fee:
+                  </p>
+                  <ul className="govuk-list govuk-list--bullet">
+                    {passedAreasScreening.map((layer: LayerCheckItem) => (
+                      <li key={layer.layerId}>{layer.layerName}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
 
-  const { passedAreasScreening, passedAreasNoScreening, failedAreas } = layerCategories;
+              {/* No Screening Required Message */}
+              {passedAreasNoScreening.length > 0 && (
+                <>
+                  <p className="govuk-body">
+                    It also passes through these areas which do not require screening:
+                  </p>
+                  <ul className="govuk-list govuk-list--bullet">
+                    {passedAreasNoScreening.map((layer: LayerCheckItem) => (
+                      <li key={layer.layerId}>{layer.layerName}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
 
-  return (
-    <div className="govuk-grid-row">
-      <div className="govuk-grid-column-two-thirds">
-        {/* Page Heading */}
-        <h1 className="govuk-heading-xl">Sensitive area review</h1>
+              {/* Failed/Unchecked Areas Section - Only show if there are failed checks (1-10) */}
+              {hasFailedChecks() && failedAreas.length > 0 && (
+                <>
+                  <h2 className="govuk-heading-m">We could not check these areas</h2>
+                  <ul className="govuk-list govuk-list--bullet">
+                    {failedAreas.map((layer: LayerCheckItem) => (
+                      <li key={layer.layerId}>{layer.layerName}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
 
-        {/* Summary Message with Dynamic Counts - Excludes FAILED layers */}
-        <p className="govuk-body">
-          The check was successfully performed on {getSuccessfulCheckCount()} of {checksSummary.checks.summary.totalLayers} sensitive areas.
-        </p>
+              {/* Action Buttons */}
+              <button
+                type="button"
+                className="govuk-button"
+                data-module="govuk-button"
+                onClick={handleSaveAndContinue}
+              >
+                Save and continue
+              </button>
+              {/* <button
+                type="button"
+                className="govuk-button govuk-button--secondary govuk-!-margin-left-3"
+                data-module="govuk-button"
+                onClick={handleSaveForLater}
+              >
+                Save for later
+              </button> */}
+            </>
+          )}
 
-        {/* Screening Required Message */}
-        {passedAreasScreening.length > 0 && (
-          <>
-            <p className="govuk-body">
-              Your route passes through these areas and requires an environmental impact assessment screening. 
-              This will add a charge of £600.00 to your application fee:
-            </p>
-            <ul className="govuk-list govuk-list--bullet">
-              {passedAreasScreening.map((layer: LayerCheckItem) => (
-                <li key={layer.layerId}>{layer.layerName}</li>
-              ))}
-            </ul>
-          </>
-        )}
-
-        {/* No Screening Required Message */}
-        {passedAreasNoScreening.length > 0 && (
-          <>
-            <p className="govuk-body">
-              It also passes through these areas which do not require screening:
-            </p>
-            <ul className="govuk-list govuk-list--bullet">
-              {passedAreasNoScreening.map((layer: LayerCheckItem) => (
-                <li key={layer.layerId}>{layer.layerName}</li>
-              ))}
-            </ul>
-          </>
-        )}
-
-        {/* Failed/Unchecked Areas Section - Only show if there are failed checks */}
-        {hasFailedChecks() && failedAreas.length > 0 && (
-          <>
-            <h2 className="govuk-heading-m">We could not check these areas</h2>
-            <ul className="govuk-list govuk-list--bullet">
-              {failedAreas.map((layer: LayerCheckItem) => (
-                <li key={layer.layerId}>{layer.layerName}</li>
-              ))}
-            </ul>
-          </>
-        )}
-
-        {/* Action Buttons */}
-        <div className="govuk-button-group">
-          <button
-            type="submit"
-            className="govuk-button"
-            data-module="govuk-button"
-            onClick={handleSaveAndContinue}
-          >
-            Save and continue
-          </button>
-
-          <button
-            type="button"
-            className="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-            onClick={handleSaveForLater}
-          >
-            Save for later
-          </button>
         </div>
       </div>
     </div>

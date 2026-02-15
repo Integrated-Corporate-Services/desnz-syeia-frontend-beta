@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem, updateManuallySelectedLayers } from '../../../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../../../constants/s37';
 
@@ -152,205 +152,207 @@ const ReviewManualPage: React.FC = () => {
   /**
    * Handles "Save for later" without validation
    */
-  const handleSaveForLater = async () => {
-    if (!effectiveApplicationId) return;
+  // const handleSaveForLater = async () => {
+  //   if (!effectiveApplicationId) return;
 
-    try {
-      // Save partial progress using POST endpoint
-      const selectedLayerIds = Object.keys(selectedFailedLayers)
-        .filter(id => selectedFailedLayers[Number(id)])
-        .map(Number);
+  //   try {
+  //     // Save partial progress using POST endpoint
+  //     const selectedLayerIds = Object.keys(selectedFailedLayers)
+  //       .filter(id => selectedFailedLayers[Number(id)])
+  //       .map(Number);
       
-      await updateManuallySelectedLayers(
-        effectiveApplicationId,
-        selectedLayerIds,
-        noneSelected
-      );
+  //     await updateManuallySelectedLayers(
+  //       effectiveApplicationId,
+  //       selectedLayerIds,
+  //       noneSelected
+  //     );
       
-      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-    } catch (err) {
-      console.error('Failed to save for later:', err);
-      setError('Failed to save your progress. Please try again.');
-    }
-  };
+  //     navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+  //   } catch (err) {
+  //     console.error('Failed to save for later:', err);
+  //     setError('Failed to save your progress. Please try again.');
+  //   }
+  // };
 
   // ===========================
-  // RENDER: LOADING & ERROR STATES
+  // RENDER: CONSISTENT WRAPPER WITH CONDITIONAL CONTENT
   // ===========================
-  if (loading) {
-    return (
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-xl">Review the areas we could not check</h1>
-          <p className="govuk-body">Loading sensitive area information...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-xl">Review the areas we could not check</h1>
-          <div className="govuk-error-summary" role="alert">
-            <h2 className="govuk-error-summary__title">There is a problem</h2>
-            <div className="govuk-error-summary__body">
-              <p>{error}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ===========================
-  // RENDER: MAIN CONTENT
-  // ===========================
-  if (!checksSummary) return null;
 
   const failedLayers = getFailedLayers();
 
-  // If no failed layers, redirect back to results page
-  if (failedLayers.length === 0) {
-    navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`);
-    return null;
-  }
-
   return (
-    <div className="govuk-grid-row">
-      <div className="govuk-grid-column-two-thirds">
-        {/* Validation Error Summary */}
-        {validationError && (
-          <div
-            className="govuk-error-summary"
-            aria-labelledby="error-summary-title"
-            role="alert"
-            data-module="govuk-error-summary"
-          >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                <li>
-                  <a href="#failed-areas">{validationError}</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        )}
+    <div className="govuk-width-container">
+      {/* Back Link - Always visible */}
+      <Link 
+        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`} 
+        className="govuk-back-link"
+      >
+        Back
+      </Link>
 
-        {/* Page Heading */}
-        <h1 className="govuk-heading-xl">Review the areas we could not check</h1>
+      {/* Page Heading - Three-quarters width */}
+      <div className='govuk-grid-row'>
+        <div className="govuk-grid-column-three-quarters">
+          <h1 className="govuk-heading-l govuk-!-margin-top-2">Review the areas we could not check</h1>
+        </div>
+      </div>
 
-        {/* Instructions Paragraph */}
-        <p className="govuk-body">
-          You can use these tools to check if your route passes through any sensitive areas we could not check:
-        </p>
-
-        {/* Mapping Tools List */}
-        <ul className="govuk-list govuk-list--bullet">
-          <li>
-            <a
-              href="https://magic.defra.gov.uk/MagicMap.aspx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="govuk-link"
-            >
-              MAGIC (opens in a new tab)
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://datamap.gov.wales/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="govuk-link"
-            >
-              DataMapWales (opens in a new tab)
-            </a>
-          </li>
-        </ul>
-
-        {/* Failed Areas Checkboxes */}
-        <div className="govuk-form-group" id="failed-areas">
-          <fieldset className="govuk-fieldset">
-            <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-              <h2 className="govuk-fieldset__heading">
-                Does your route pass through any of these areas?
-              </h2>
-            </legend>
-            <div className="govuk-hint">
-              Select all areas that apply
-            </div>
-
-            <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-              {/* Failed Layer Checkboxes */}
-              {failedLayers.map(layer => (
-                <div key={layer.layerId} className="govuk-checkboxes__item">
-                  <input
-                    className="govuk-checkboxes__input"
-                    id={`failed-layer-${layer.layerId}`}
-                    name="failedLayers"
-                    type="checkbox"
-                    value={layer.layerId}
-                    checked={selectedFailedLayers[layer.layerId] || false}
-                    onChange={() => handleLayerToggle(layer.layerId)}
-                    disabled={noneSelected}
-                  />
-                  <label
-                    className="govuk-label govuk-checkboxes__label"
-                    htmlFor={`failed-layer-${layer.layerId}`}
-                  >
-                    {layer.layerName}
-                  </label>
-                </div>
-              ))}
-
-              {/* Divider */}
-              <div className="govuk-checkboxes__divider">Or</div>
-
-              {/* None Option */}
-              <div className="govuk-checkboxes__item">
-                <input
-                  className="govuk-checkboxes__input"
-                  id="none-selected"
-                  name="noneSelected"
-                  type="checkbox"
-                  checked={noneSelected}
-                  onChange={handleNoneToggle}
-                />
-                <label
-                  className="govuk-label govuk-checkboxes__label"
-                  htmlFor="none-selected"
-                >
-                  No, my route does not pass through any of these areas
-                </label>
+      {/* Main Content Area - Two-thirds width */}
+      <div className='govuk-grid-row'>
+        <div className="govuk-grid-column-two-thirds">
+          {/* CONDITIONAL CONTENT RENDERING */}
+          {loading ? (
+            // Loading State
+            <div>Loading sensitive areas...</div>
+          ) : error ? (
+            // Error State
+            <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+              <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+              <div className="govuk-error-summary__body">
+                <p>{error}</p>
               </div>
             </div>
-          </fieldset>
-        </div>
+          ) : !checksSummary ? (
+            // No data state
+            <div>No data available</div>
+          ) : failedLayers.length === 0 ? (
+            // No failed layers - redirect (but show message briefly)
+            <>
+              <p className="govuk-body">No failed areas to review. Redirecting...</p>
+              {navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`)}
+            </>
+          ) : (
+            // Main Content - Failed Layers Review
+            <>
+              {/* Validation Error Summary */}
+              {validationError && (
+                <div
+                  className="govuk-error-summary"
+                  aria-labelledby="error-summary-title"
+                  role="alert"
+                  data-module="govuk-error-summary"
+                >
+                  <h2 className="govuk-error-summary__title" id="error-summary-title">
+                    There is a problem
+                  </h2>
+                  <div className="govuk-error-summary__body">
+                    <ul className="govuk-list govuk-error-summary__list">
+                      <li>
+                        <a href="#failed-areas">{validationError}</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
 
-        {/* Action Buttons */}
-        <div className="govuk-button-group">
-          <button
-            type="submit"
-            className="govuk-button"
-            data-module="govuk-button"
-            onClick={handleSaveAndContinue}
-          >
-            Save and continue
-          </button>
+              {/* Instructions Paragraph */}
+              <p className="govuk-body">
+                You can use these tools to check if your route passes through any sensitive areas we could not check:
+              </p>
 
-          <button
-            type="button"
-            className="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-            onClick={handleSaveForLater}
-          >
-            Save for later
-          </button>
+              {/* Mapping Tools List */}
+              <ul className="govuk-list govuk-list--bullet">
+                <li>
+                  <a
+                    href="https://magic.defra.gov.uk/MagicMap.aspx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="govuk-link"
+                  >
+                    MAGIC (opens in a new tab)
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://datamap.gov.wales/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="govuk-link"
+                  >
+                    DataMapWales (opens in a new tab)
+                  </a>
+                </li>
+              </ul>
+
+              {/* Failed Areas Checkboxes */}
+              <div className="govuk-form-group" id="failed-areas">
+                <fieldset className="govuk-fieldset">
+                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    <h4 className="govuk-fieldset__heading">
+                      Does your route pass through any of these areas?
+                    </h4>
+                  </legend>
+                  <div className="govuk-hint">
+                    Select all areas that apply
+                  </div>
+
+                  <div className="govuk-checkboxes" data-module="govuk-checkboxes">
+                    {/* Failed Layer Checkboxes */}
+                    {failedLayers.map(layer => (
+                      <div key={layer.layerId} className="govuk-checkboxes__item">
+                        <input
+                          className="govuk-checkboxes__input"
+                          id={`failed-layer-${layer.layerId}`}
+                          name="failedLayers"
+                          type="checkbox"
+                          value={layer.layerId}
+                          checked={selectedFailedLayers[layer.layerId] || false}
+                          onChange={() => handleLayerToggle(layer.layerId)}
+                          disabled={noneSelected}
+                        />
+                        <label
+                          className="govuk-label govuk-checkboxes__label"
+                          htmlFor={`failed-layer-${layer.layerId}`}
+                        >
+                          {layer.layerName}
+                        </label>
+                      </div>
+                    ))}
+
+                    {/* Divider */}
+                    <div className="govuk-checkboxes__divider">Or</div>
+
+                    {/* None Option */}
+                    <div className="govuk-checkboxes__item">
+                      <input
+                        className="govuk-checkboxes__input"
+                        id="none-selected"
+                        name="noneSelected"
+                        type="checkbox"
+                        checked={noneSelected}
+                        onChange={handleNoneToggle}
+                      />
+                      <label
+                        className="govuk-label govuk-checkboxes__label"
+                        htmlFor="none-selected"
+                      >
+                        No, my route does not pass through any of these areas
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+
+              {/* Action Buttons */}
+              <button
+                type="button"
+                className="govuk-button"
+                data-module="govuk-button"
+                onClick={handleSaveAndContinue}
+              >
+                Save and continue
+              </button>
+              {/* <button
+                type="button"
+                className="govuk-button govuk-button--secondary govuk-!-margin-left-3"
+                data-module="govuk-button"
+                onClick={handleSaveForLater}
+              >
+                Save for later
+              </button> */}
+            </>
+          )}
+
         </div>
       </div>
     </div>
