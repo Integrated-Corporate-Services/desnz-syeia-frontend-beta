@@ -1,21 +1,13 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 
 /**
  * AddOtherAreasQuestionPage Component
  * 
  * Asks the user if they want to add any other sensitive areas that are not automatically checked.
- * Part of the sensitive area review workflow (Wireframe C).
  * 
- * User Flow:
- * - If user selects "Yes": Navigate to AddOtherAreasPage to add manual areas
- * - If user selects "No": Navigate to the next step in the workflow
- * 
- * Features:
- * - GDS-compliant radio button group
- * - Form validation (requires selection)
- * - Save and continue / Save for later functionality
+
  */
 const AddOtherAreasQuestionPage: React.FC = () => {
   // ===========================
@@ -73,109 +65,121 @@ const AddOtherAreasQuestionPage: React.FC = () => {
       // Navigate to AddOtherAreasPage to allow manual entry
       navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-areas`);
     } else {
-      // Navigate to the next step in the workflow (task list for now)
-      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+      // Navigate to Review Poles Page (next step in workflow)
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/poles`);
     }
   };
 
   /**
    * Handles "Save for later" without validation
    */
-  const handleSaveForLater = () => {
-    if (!effectiveApplicationId) return;
+  // const handleSaveForLater = () => {
+  //   if (!effectiveApplicationId) return;
 
-    // Save partial progress and return to task list
-    navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-  };
+  //   // Save partial progress and return to task list
+  //   navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+  // };
 
   // ===========================
   // RENDER
   // ===========================
   return (
-    <div className="govuk-grid-row">
-      <div className="govuk-grid-column-two-thirds">
-        {/* Main Heading */}
-        <h1 className="govuk-heading-xl">
-          Do you want to add any other sensitive areas?
-        </h1>
+    <div className="govuk-width-container">
+      {/* Back Link - Always visible */}
+      <Link 
+        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`} 
+        className="govuk-back-link"
+      >
+        Back
+      </Link>
 
-        {/* Guidance Paragraph */}
-        <p className="govuk-body">
-          These should only be any areas that are not automatically checked.
-        </p>
-
-        {/* Validation Error Summary */}
-        {validationError && (
-          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                <li>
-                  <a href="#add-other-areas-yes">{validationError}</a>
-                </li>
-              </ul>
-            </div>
+      {/* Page Heading - Three-quarters width */}
+      <div className='govuk-grid-row'>
+        <div className="govuk-grid-column-three-quarters">
+          <h1 className="govuk-heading-l govuk-!-margin-top-2 govuk-!-margin-bottom-2">
+            Do you want to add any other sensitive areas?
+          </h1>
+          <div className="govuk-hint">
+            These should only be any areas that are not automatically checked.
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* Radio Button Group */}
-        <div className={`govuk-form-group ${validationError ? 'govuk-form-group--error' : ''}`}>
-          <fieldset className="govuk-fieldset">
-            <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-              <h2 className="govuk-fieldset__heading">
-                Select an option
+      {/* Main Content Area - Two-thirds width */}
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
+
+          {/* Validation Error Summary */}
+          {validationError && (
+            <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
+              <h2 className="govuk-error-summary__title" id="error-summary-title">
+                There is a problem
               </h2>
-            </legend>
-
-            {/* Error Message (displayed above radio buttons) */}
-            {validationError && (
-              <p id="add-other-areas-error" className="govuk-error-message">
-                <span className="govuk-visually-hidden">Error:</span> {validationError}
-              </p>
-            )}
-
-            <div className="govuk-radios" data-module="govuk-radios">
-              {/* Yes Option */}
-              <div className="govuk-radios__item">
-                <input
-                  className="govuk-radios__input"
-                  id="add-other-areas-yes"
-                  name="add-other-areas"
-                  type="radio"
-                  value="yes"
-                  checked={selectedOption === 'yes'}
-                  onChange={() => handleRadioChange('yes')}
-                  aria-describedby={validationError ? 'add-other-areas-error' : undefined}
-                />
-                <label className="govuk-label govuk-radios__label" htmlFor="add-other-areas-yes">
-                  Yes
-                </label>
-              </div>
-
-              {/* No Option */}
-              <div className="govuk-radios__item">
-                <input
-                  className="govuk-radios__input"
-                  id="add-other-areas-no"
-                  name="add-other-areas"
-                  type="radio"
-                  value="no"
-                  checked={selectedOption === 'no'}
-                  onChange={() => handleRadioChange('no')}
-                  aria-describedby={validationError ? 'add-other-areas-error' : undefined}
-                />
-                <label className="govuk-label govuk-radios__label" htmlFor="add-other-areas-no">
-                  No
-                </label>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  <li>
+                    <a href="#add-other-areas-yes">{validationError}</a>
+                  </li>
+                </ul>
               </div>
             </div>
-          </fieldset>
-        </div>
+          )}
 
-        {/* Action Buttons */}
-        <div className="govuk-button-group">
+          {/* Radio Button Group */}
+          <div className={`govuk-form-group ${validationError ? 'govuk-form-group--error' : ''}`}>
+            <fieldset className="govuk-fieldset">
+              {/* <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                <h2 className="govuk-fieldset__heading">
+                  Select an option
+                </h2>
+              </legend> */}
+
+              {/* Error Message (displayed above radio buttons) */}
+              {validationError && (
+                <p id="add-other-areas-error" className="govuk-error-message">
+                  <span className="govuk-visually-hidden">Error:</span> {validationError}
+                </p>
+              )}
+
+              <div className="govuk-radios" data-module="govuk-radios">
+                {/* Yes Option */}
+                <div className="govuk-radios__item">
+                  <input
+                    className="govuk-radios__input"
+                    id="add-other-areas-yes"
+                    name="add-other-areas"
+                    type="radio"
+                    value="yes"
+                    checked={selectedOption === 'yes'}
+                    onChange={() => handleRadioChange('yes')}
+                    aria-describedby={validationError ? 'add-other-areas-error' : undefined}
+                  />
+                  <label className="govuk-label govuk-radios__label" htmlFor="add-other-areas-yes">
+                    Yes
+                  </label>
+                </div>
+
+                {/* No Option */}
+                <div className="govuk-radios__item">
+                  <input
+                    className="govuk-radios__input"
+                    id="add-other-areas-no"
+                    name="add-other-areas"
+                    type="radio"
+                    value="no"
+                    checked={selectedOption === 'no'}
+                    onChange={() => handleRadioChange('no')}
+                    aria-describedby={validationError ? 'add-other-areas-error' : undefined}
+                  />
+                  <label className="govuk-label govuk-radios__label" htmlFor="add-other-areas-no">
+                    No
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          {/* Action Buttons */}
           <button
             type="button"
             className="govuk-button"
@@ -184,15 +188,14 @@ const AddOtherAreasQuestionPage: React.FC = () => {
           >
             Save and continue
           </button>
-
-          <button
+          {/* <button
             type="button"
-            className="govuk-button govuk-button--secondary"
+            className="govuk-button govuk-button--secondary govuk-!-margin-left-3"
             data-module="govuk-button"
             onClick={handleSaveForLater}
           >
             Save for later
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

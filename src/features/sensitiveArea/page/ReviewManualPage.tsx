@@ -9,9 +9,6 @@ import { S37_BASE_URL } from '../../../constants/s37';
  * Allows applicants to manually review and confirm failed sensitive area checks.
  * Displays up to 10 failed layers with checkboxes for manual verification.
  * Includes links to MAGIC and DataMapWales mapping tools.
- * 
- * User Story: As an applicant, I want to be informed if a sensitive area check has failed 
- * so that I can take further action to resolve the issue.
  */
 const ReviewManualPage: React.FC = () => {
   // ===========================
