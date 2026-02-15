@@ -259,6 +259,13 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 );
 
             case ConsultationStatus.CLOSED:
+              // Add debug logging
+                console.log('=== CLOSED CONSULTATION DEBUG ===');
+                console.log('evidenceResponseNotReceivedDocs:', evidenceResponseNotReceivedDocs);
+                console.log('responseDocuments:', responseDocuments);
+                console.log('respondingConsulteeName:', respondingConsulteeName);
+                console.log('respondingConsulteeEmail:', respondingConsulteeEmail);
+                console.log('objectionRaised:', objectionRaised);
                 // CRITICAL FIX: Check for evidence of response NOT received FIRST
                 // If we have evidence that response was NOT received, don't show response fields
                 const hasNotReceivedResponse = !!(evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0);
