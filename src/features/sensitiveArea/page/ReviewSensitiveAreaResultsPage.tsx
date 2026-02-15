@@ -46,6 +46,15 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
 
     getSensitiveAreaReviewSummary(effectiveApplicationId)
       .then(data => {
+        console.log('=== SENSITIVE AREA REVIEW SUMMARY ===');
+        console.log('Full API Response:', data);
+        console.log('Failed - Screening Required:', data?.checks?.automated?.failed?.screeningRequired?.length || 0);
+        console.log('Failed - No Screening:', data?.checks?.automated?.failed?.noScreening?.length || 0);
+        console.log('Total Failed:', 
+          (data?.checks?.automated?.failed?.screeningRequired?.length || 0) + 
+          (data?.checks?.automated?.failed?.noScreening?.length || 0)
+        );
+        console.log('=====================================');
         setChecksSummary(data);
         setLoading(false);
       })
@@ -87,6 +96,19 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
       (checks.automated.failed.screeningRequired?.length || 0) > 0 ||
       (checks.automated.failed.noScreening?.length || 0) > 0
     );
+  };
+
+  /**
+   * Determines if there are excessive failed checks (more than 10 layers)
+   * AC1: When 11+ areas fail, show error page
+   */
+  const hasExcessiveFailures = (): boolean => {
+    if (!checksSummary) return false;
+    const { checks } = checksSummary;
+    const totalFailed = 
+      (checks.automated.failed.screeningRequired?.length || 0) +
+      (checks.automated.failed.noScreening?.length || 0);
+    return totalFailed > 10;
   };
 
   // ===========================
@@ -169,6 +191,83 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
   // RENDER: MAIN CONTENT
   // ===========================
   if (!checksSummary) return null;
+
+  // AC1: Check if failed layers exceed 10 (11+)
+  if (hasExcessiveFailures()) {
+    return (
+      <div className="govuk-width-container">
+        {/* Breadcrumb Navigation */}
+        <div className="govuk-breadcrumbs">
+          <ol className="govuk-breadcrumbs__list">
+            <li className="govuk-breadcrumbs__list-item">
+              <a
+                className="govuk-breadcrumbs__link"
+                href={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+                }}
+              >
+                Task list
+              </a>
+            </li>
+            <li className="govuk-breadcrumbs__list-item">
+              Sensitive area review
+            </li>
+          </ol>
+        </div>
+
+        <main className="govuk-main-wrapper">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              {/* Page Title */}
+              <h1 className="govuk-heading-l">Sensitive area review</h1>
+
+              {/* Inset Text - Error Message */}
+              <div className="govuk-inset-text">
+                We could not complete all the sensitive area checks.
+              </div>
+
+              {/* Next Steps Subheading */}
+              <h2 className="govuk-heading-m">Next steps</h2>
+
+              {/* Instructions - Wait 24 hours */}
+              <p className="govuk-body">
+                Please wait at least 24 hours and run the sensitive area checks again.
+              </p>
+
+              {/* Instructions - Contact team */}
+              <p className="govuk-body">
+                Contact our team at{' '}
+                <a 
+                  href="mailto:37consents@energysecurity.gov.uk" 
+                  className="govuk-link"
+                  aria-label="Email the S37 consents team"
+                >
+                  37consents@energysecurity.gov.uk
+                </a>
+                {' '}if the checks are still not successful after 24 hours.
+              </p>
+
+              {/* Return to Task List Link */}
+              <p className="govuk-body">
+                <a
+                  href={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}
+                  className="govuk-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+                  }}
+                >
+                  Return to task list
+                </a>
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const layerCategories = getLayerCategories();
   if (!layerCategories) return null;
