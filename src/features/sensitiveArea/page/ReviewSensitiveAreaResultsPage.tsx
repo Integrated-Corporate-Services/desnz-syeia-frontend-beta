@@ -6,15 +6,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 
 /**
  * ReviewSensitiveAreaResultsPage Component
- * 
- * Displays sensitive area check results matching Figma designs:
- * - A1 (All Passed): Shows dynamic counts, passed areas with/without screening
- * - A2 (Partial Passed): Shows same as A1 plus "We could not check these areas" section
- * 
- * Simplified per requirements - removed:
- * - Other areas textarea
- * - Document upload
- * - Poles radio buttons
+
  */
 const ReviewSensitiveAreaResultsPage: React.FC = () => {
   // ===========================
@@ -46,15 +38,23 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
 
     getSensitiveAreaReviewSummary(effectiveApplicationId)
       .then(data => {
-        console.log('=== SENSITIVE AREA REVIEW SUMMARY ===');
-        console.log('Full API Response:', data);
-        console.log('Failed - Screening Required:', data?.checks?.automated?.failed?.screeningRequired?.length || 0);
-        console.log('Failed - No Screening:', data?.checks?.automated?.failed?.noScreening?.length || 0);
-        console.log('Total Failed:', 
+        // console.log('=== SENSITIVE AREA REVIEW SUMMARY ===');
+        // console.log('Full API Response:', data);
+        // console.log('Passed (INTERSECT) - Screening Required:', data?.checks?.automated?.passed?.screeningRequired?.length || 0);
+        // console.log('Passed (INTERSECT) - No Screening:', data?.checks?.automated?.passed?.noScreening?.length || 0);
+        // console.log('Cleared (NO_INTERSECT) - Screening Required:', data?.checks?.automated?.cleared?.screeningRequired?.length || 0);
+        // console.log('Cleared (NO_INTERSECT) - No Screening:', data?.checks?.automated?.cleared?.noScreening?.length || 0);
+        // console.log('Failed - Screening Required:', data?.checks?.automated?.failed?.screeningRequired?.length || 0);
+        // console.log('Failed - No Screening:', data?.checks?.automated?.failed?.noScreening?.length || 0);
+         const successCount = 
+          (data?.checks?.automated?.passed?.screeningRequired?.length || 0) +
+          (data?.checks?.automated?.passed?.noScreening?.length || 0) +
+          (data?.checks?.automated?.cleared?.screeningRequired?.length || 0) +
+          (data?.checks?.automated?.cleared?.noScreening?.length || 0);
+        const totalFailed = 
           (data?.checks?.automated?.failed?.screeningRequired?.length || 0) + 
-          (data?.checks?.automated?.failed?.noScreening?.length || 0)
-        );
-        console.log('=====================================');
+          (data?.checks?.automated?.failed?.noScreening?.length || 0);
+        
         setChecksSummary(data);
         setLoading(false);
       })
@@ -68,9 +68,6 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
   // HELPER FUNCTIONS
   // ===========================
 
-  /**
-   * Organizes layer data by category (passed screening, passed no screening, failed)
-   */
   const getLayerCategories = () => {
     if (!checksSummary) return null;
 
@@ -86,9 +83,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     };
   };
 
-  /**
-   * Determines if there are any failed checks (A2 scenario)
-   */
+ 
   const hasFailedChecks = (): boolean => {
     if (!checksSummary) return false;
     const { checks } = checksSummary;
@@ -98,10 +93,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     );
   };
 
-  /**
-   * Determines if there are excessive failed checks (more than 10 layers)
-   * AC1: When 11+ areas fail, show error page
-   */
+ 
   const hasExcessiveFailures = (): boolean => {
     if (!checksSummary) return false;
     const { checks } = checksSummary;
@@ -111,15 +103,19 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     return totalFailed > 10;
   };
 
-  // ===========================
-  // EVENT HANDLERS
-  // ===========================
 
-  /**
-   * Handles "Save and continue"
-   * - If there are failed checks (A2 scenario), navigate to manual review page
-   * - Otherwise navigate to task list
-   */
+  const getSuccessfulCheckCount = (): number => {
+    if (!checksSummary) return 0;
+    const { checks } = checksSummary;
+    return (
+      (checks.automated.passed.screeningRequired?.length || 0) +
+      (checks.automated.passed.noScreening?.length || 0) +
+      (checks.automated.cleared.screeningRequired?.length || 0) +
+      (checks.automated.cleared.noScreening?.length || 0)
+    );
+  };
+
+ 
   const handleSaveAndContinue = async () => {
     if (!effectiveApplicationId) return;
 
@@ -128,8 +124,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
         application_id: effectiveApplicationId
       });
       
-      // AC1: If there are failed checks, navigate to manual review page
-      if (hasFailedChecks()) {
+        if (hasFailedChecks()) {
         navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`);
       } else {
         navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
@@ -192,7 +187,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
   // ===========================
   if (!checksSummary) return null;
 
-  // AC1: Check if failed layers exceed 10 (11+)
+
   if (hasExcessiveFailures()) {
     return (
       <div className="govuk-width-container">
@@ -280,9 +275,9 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
         {/* Page Heading */}
         <h1 className="govuk-heading-xl">Sensitive area review</h1>
 
-        {/* Summary Message with Dynamic Counts from API */}
+        {/* Summary Message with Dynamic Counts - Excludes FAILED layers */}
         <p className="govuk-body">
-          The check was successfully performed on {checksSummary.checks.summary.totalChecked} of {checksSummary.checks.summary.totalLayers} sensitive areas.
+          The check was successfully performed on {getSuccessfulCheckCount()} of {checksSummary.checks.summary.totalLayers} sensitive areas.
         </p>
 
         {/* Screening Required Message */}
