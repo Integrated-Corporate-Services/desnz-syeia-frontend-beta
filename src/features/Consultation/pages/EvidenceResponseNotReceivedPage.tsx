@@ -224,8 +224,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                 <label htmlFor="fileUpload" className="govuk-label govuk-label--m">
                                     Upload a document that shows follow-up emails
                                 </label>
-                                <p className="govuk-body govuk-!-margin-bottom-4">You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.</p>
-
                                 {errors.files && (
                                     <p id="fileUpload-error" className="govuk-error-message">
                                         <span className="govuk-visually-hidden">Error:</span> {errors.files}
