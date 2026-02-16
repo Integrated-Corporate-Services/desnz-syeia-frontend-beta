@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
-import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
-import { saveSensitiveAreaReview, getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
+import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { S37_BASE_URL } from '../../../constants/s37';
 
 const ReviewPolesPage: React.FC = () => {
@@ -10,35 +9,31 @@ const ReviewPolesPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [poleOption, setPoleOption] = useState<SensitiveAreaPoleOption | null>(null);
-  const [review, setReview] = useState<SensitiveAreaReview | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+
+  // Use the store hook (consistent with SensitiveAreaReviewPage)
+  const {
+    review,
+    loading,
+    error: reviewError,
+    fetchReview,
+    saveReview
+  } = useSensitiveAreaReview(applicationId || '');
 
   // Fetch existing review data on mount
   useEffect(() => {
-    const fetchReview = async () => {
-      if (!applicationId) return;
-
-      setLoading(true);
-      try {
-        const data = await getSensitiveAreaReview(applicationId);
-        const existingReview = data?.[0] || null;
-        setReview(existingReview);
-
-        // Pre-populate pole option if exists
-        if (existingReview?.asset_presence_option_id) {
-          setPoleOption(existingReview.asset_presence_option_id as SensitiveAreaPoleOption);
-        }
-      } catch (err: any) {
-        setApiError(err?.message || 'Failed to load review data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    if (!applicationId) return;
     fetchReview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationId]);
+
+  // Pre-populate pole option when review loads
+  useEffect(() => {
+    if (review?.asset_presence_option_id) {
+      setPoleOption(review.asset_presence_option_id as SensitiveAreaPoleOption);
+    }
+  }, [review]);
 
   // Validation function
   const validateForm = (): string[] => {
@@ -67,8 +62,8 @@ const ReviewPolesPage: React.FC = () => {
       }
     }
 
-    // Build payload - preserve all existing data
-    const payload: SensitiveAreaReview = {
+    // Build payload - preserve all existing data (consistent with SensitiveAreaReviewPage)
+    const payload = {
       id: review?.id || '',
       application_id: applicationId || '',
       route_id: review?.route_id || '',
@@ -83,9 +78,8 @@ const ReviewPolesPage: React.FC = () => {
       application_documents: review?.application_documents || [],
     };
 
-    setLoading(true);
     try {
-      await saveSensitiveAreaReview(payload);
+      await saveReview(payload);
 
       // Navigate based on save type
       if (saveType === 'continue') {
@@ -94,10 +88,9 @@ const ReviewPolesPage: React.FC = () => {
         navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
       }
     } catch (err: any) {
-      setApiError(err?.message || 'Failed to save review');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save review';
+      setApiError(errorMessage);
       setFormErrors(['There was a problem saving your data. Please try again.']);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -166,12 +159,12 @@ const ReviewPolesPage: React.FC = () => {
               </div>
             )}
 
-            {/* API Error */}
-            {apiError && (
+            {/* API Error or Store Error */}
+            {(apiError || reviewError) && (
               <div className="govuk-error-summary" role="alert">
                 <h2 className="govuk-error-summary__title">Error</h2>
                 <div className="govuk-error-summary__body">
-                  <p className="govuk-body">{apiError}</p>
+                  <p className="govuk-body">{apiError || reviewError}</p>
                 </div>
               </div>
             )}

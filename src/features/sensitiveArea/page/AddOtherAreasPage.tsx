@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import {
   getAllSensitiveAreas,
@@ -16,19 +16,6 @@ import { S37_BASE_URL } from '../../../constants/s37';
  * Allows applicants to manually add free-text sensitive area names that are not
  * part of the automated check. Displays both pre-identified (cannot remove) and
  * manually added (can remove) sensitive areas.
- * 
- * Business Rules:
- * - Pre-identified areas cannot be removed (from automated check + manual review)
- * - Manually added areas can be removed by the user
- * - No screening fee applies to manually added areas (per Calum Haig 05/02/2026)
- * - User can add unlimited areas (1-200 characters each)
- * 
- * Features:
- * - Free-text input with "Add" button
- * - Validation (required, max length, no duplicates)
- * - Two sections: Pre-identified vs. Manually added
- * - GDS-compliant styling with dividers
- * - Save and continue / Save for later functionality
  */
 const AddOtherAreasPage: React.FC = () => {
   // ===========================
@@ -208,11 +195,11 @@ const AddOtherAreasPage: React.FC = () => {
   /**
    * Handles "Save for later" - returns to task list
    */
-  const handleSaveForLater = () => {
-    if (!effectiveApplicationId) return;
+  // const handleSaveForLater = () => {
+  //   if (!effectiveApplicationId) return;
 
-    navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-  };
+  //   navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+  // };
 
   // ===========================
   // HELPER FUNCTIONS
@@ -225,79 +212,112 @@ const AddOtherAreasPage: React.FC = () => {
     return preIdentifiedAreas.filter(area => area.manuallySelected).length;
   };
 
+  /**
+   * Gets filtered pre-identified areas to display:
+   * - All INTERSECT areas (screening required or not)
+   * - Areas selected by user in ReviewManualPage (manuallySelected = true)
+   */
+  const getFilteredPreIdentifiedAreas = (): PreIdentifiedArea[] => {
+    return preIdentifiedAreas.filter(area => 
+      area.checkStatus === 'INTERSECT' || area.manuallySelected === true
+    );
+  };
+
   // ===========================
   // RENDER
   // ===========================
 
   if (loading) {
     return (
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
-          <p className="govuk-body">Loading...</p>
+      <div className="govuk-width-container">
+        <Link 
+          to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`} 
+          className="govuk-back-link"
+        >
+          Back
+        </Link>
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <h1 className="govuk-heading-l">Add other sensitive areas</h1>
+            <p className="govuk-body">Loading...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="govuk-grid-row">
-      <div className="govuk-grid-column-two-thirds">
-        {/* Main Heading */}
-        <h1 className="govuk-heading-xl">Add other sensitive areas</h1>
+    <div className="govuk-width-container">
+      {/* Back Link - Always visible */}
+      <Link 
+        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`} 
+        className="govuk-back-link"
+      >
+        Back
+      </Link>
 
-        {/* Global Error Message */}
-        {error && (
-          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
-            <div className="govuk-error-summary__body">
-              <p className="govuk-body">{error}</p>
+      {/* Page Heading - Two-thirds width */}
+      <div className='govuk-grid-row'>
+        <div className="govuk-grid-column-two-thirds ">
+          <h1 className="govuk-heading-l govuk-!-margin-top-4">Add other sensitive areas</h1>
+        </div>
+      </div>
+
+      {/* Main Content Area - Two-thirds width */}
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
+          {/* Global Error Message */}
+          {error && (
+            <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
+              <h2 className="govuk-error-summary__title" id="error-summary-title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <p className="govuk-body">{error}</p>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* ============================================================================ */}
-        {/* SECTION 1: Add New Area Input */}
-        {/* ============================================================================ */}
-        <h2 className="govuk-heading-m">Enter the name of a sensitive area</h2>
-        <p className="govuk-body">Once you add the area it will appear in the table below.</p>
-
-        {/* Input Field with Add Button */}
-        <div className={`govuk-form-group ${inputError ? 'govuk-form-group--error' : ''}`}>
-          <label className="govuk-label govuk-visually-hidden" htmlFor="manual-area-input">
-            Sensitive area name
-          </label>
-          
-          {inputError && (
-            <p id="manual-area-input-error" className="govuk-error-message">
-              <span className="govuk-visually-hidden">Error:</span> {inputError}
-            </p>
           )}
 
-          <div className="govuk-input__wrapper" style={{ display: 'flex', gap: '10px' }}>
-            <input
-              className={`govuk-input ${inputError ? 'govuk-input--error' : ''}`}
-              id="manual-area-input"
-              name="manualAreaName"
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              maxLength={200}
-              aria-describedby={inputError ? 'manual-area-input-error' : undefined}
-              style={{ flex: 1 }}
-            />
-            <button
-              type="button"
-              className="govuk-button"
-              data-module="govuk-button"
-              onClick={handleAddArea}
-              disabled={addingArea || inputValue.trim().length === 0}
-            >
-              {addingArea ? 'Adding...' : 'Add'}
-            </button>
+          {/* ============================================================================ */}
+          {/* SECTION 1: Add New Area Input */}
+          {/* ============================================================================ */}
+          <h2 className="govuk-heading-s govuk-!-margin-bottom-1">Enter the name of a sensitive area</h2>
+          <div className="govuk-hint">Once you add the area it will appear in the table below</div>
+
+          {/* Input Field with Add Button */}
+          <div className={`govuk-form-group govuk-!-margin-bottom-5 ${inputError ? 'govuk-form-group--error' : ''}`}>
+            <label className="govuk-label govuk-visually-hidden" htmlFor="manual-area-input">
+              Sensitive area name
+            </label>
+            
+            {inputError && (
+              <p id="manual-area-input-error" className="govuk-error-message">
+                <span className="govuk-visually-hidden">Error:</span> {inputError}
+              </p>
+            )}
+
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <input
+                className={`govuk-input govuk-input--width-10 ${inputError ? 'govuk-input--error' : ''}`}
+                id="manual-area-input"
+                name="manualAreaName"
+                type="text"
+                value={inputValue}
+                onChange={handleInputChange}
+                maxLength={200}
+                aria-describedby={inputError ? 'manual-area-input-error' : undefined}
+              />
+              <button
+                type="button"
+                className="govuk-button"
+                data-module="govuk-button"
+                onClick={handleAddArea}
+                disabled={addingArea || inputValue.trim().length === 0}
+              >
+                {addingArea ? 'Adding...' : 'Add'}
+              </button>
+            </div>
           </div>
-        </div>
 
         {/* Divider */}
         <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
@@ -305,100 +325,84 @@ const AddOtherAreasPage: React.FC = () => {
         {/* ============================================================================ */}
         {/* SECTION 2: Selected Areas */}
         {/* ============================================================================ */}
-        <h2 className="govuk-heading-l">Selected areas</h2>
-        <p className="govuk-body">
-          You can only remove areas you have added manually. All areas identified during our automated
-          sensitive areas check cannot be removed.
-        </p>
-
-        {/* Divider */}
-        <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
-
-        {/* ============================================================================ */}
-        {/* SUBSECTION 2A: Pre-identified areas (cannot be removed) */}
-        {/* ============================================================================ */}
-        <h3 className="govuk-heading-m">Pre-identified areas (cannot be removed)</h3>
-
-        {preIdentifiedAreas.length === 0 ? (
-          <p className="govuk-body">No pre-identified areas found.</p>
-        ) : (
-          <ul className="govuk-list">
-            {preIdentifiedAreas
-              .filter(area => area.manuallySelected)
-              .map(area => (
-                <li key={area.id}>{area.layerName}</li>
-              ))}
-          </ul>
-        )}
-
-        {getPreIdentifiedCount() === 0 && preIdentifiedAreas.length > 0 && (
-          <p className="govuk-body govuk-hint">
-            No areas have been selected during manual review.
+        <div className="govuk-!-margin-top-7">
+          <h2 className="govuk-heading-m govuk-!-margin-bottom-2">Selected areas</h2>
+          <p className="govuk-body govuk-hint govuk-!-margin-top-4">
+            You can only remove areas you have added manually. All areas identified during our automated
+            sensitive areas check cannot be removed.
           </p>
-        )}
 
-        {/* Divider */}
-        <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
+          {/* GOV.UK Table with single column */}
+          <table className="govuk-table govuk-!-margin-top-4">
+            <tbody className="govuk-table__body">
 
-        {/* ============================================================================ */}
-        {/* SUBSECTION 2B: Manually added areas (can be removed) */}
-        {/* ============================================================================ */}
-        <h3 className="govuk-heading-m">Manually added areas (can be removed)</h3>
+              {/* Pre-identified areas rows */}
+              {getFilteredPreIdentifiedAreas().length === 0 ? (
+                <tr className="govuk-table__row">
+                  <td className="govuk-table__cell govuk-hint" style={{ paddingTop: '10px' }}>
+                    No pre-identified areas found.
+                  </td>
+                </tr>
+              ) : (
+                getFilteredPreIdentifiedAreas().map((area) => (
+                  <tr key={area.id} className="govuk-table__row">
+                    <td className="govuk-table__cell">{area.layerName}</td>
+                  </tr>
+                ))
+              )}
 
-        {manualAreas.length === 0 ? (
-          <p className="govuk-body govuk-hint">
-            No manually added areas yet. Use the form above to add areas.
-          </p>
-        ) : (
-          <ul className="govuk-list">
-            {manualAreas.map(area => (
-              <li
-                key={area.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '10px 0',
-                  borderBottom: '1px solid #b1b4b6',
-                }}
-              >
-                <span>{area.manualAreaName}</span>
-                <button
-                  type="button"
-                  className="govuk-button govuk-button--warning"
-                  data-module="govuk-button"
-                  onClick={() => handleRemoveArea(area.id)}
-                  disabled={removingAreaId === area.id}
-                  style={{ marginLeft: '20px' }}
-                >
-                  {removingAreaId === area.id ? 'Removing...' : 'Remove'}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+
+              {/* Manually added areas rows */}
+              {manualAreas.length === 0 ? (
+                <tr className="govuk-table__row">
+                  <td className="govuk-table__cell govuk-hint" style={{ paddingTop: '10px', borderBottom: 'none' }}>
+                    No manually added areas yet. Use the form above to add areas.
+                  </td>
+                </tr>
+              ) : (
+                manualAreas.map((area) => (
+                  <tr key={area.id} className="govuk-table__row">
+                    <td className="govuk-table__cell" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{area.manualAreaName}</span>
+                      <a
+                        href="#"
+                        className="govuk-link govuk-link--destructive"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemoveArea(area.id);
+                        }}
+                        aria-label={`Remove ${area.manualAreaName}`}
+                      >
+                        {removingAreaId === area.id ? 'Removing...' : 'Remove'}
+                      </a>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* ============================================================================ */}
         {/* SECTION 3: Action Buttons */}
         {/* ============================================================================ */}
-        <div className="govuk-button-group" style={{ marginTop: '30px' }}>
-          <button
-            type="button"
-            className="govuk-button"
-            data-module="govuk-button"
-            onClick={handleSaveAndContinue}
-          >
-            Save and continue
-          </button>
-
-          <button
-            type="button"
-            className="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-            onClick={handleSaveForLater}
-          >
-            Save for later
-          </button>
+        <button
+          type="button"
+          className="govuk-button"
+          data-module="govuk-button"
+          onClick={handleSaveAndContinue}
+          style={{ marginTop: '30px' }}
+        >
+          Save and continue
+        </button>
+        {/* <button
+          type="button"
+          className="govuk-button govuk-button--secondary govuk-!-margin-left-3"
+          data-module="govuk-button"
+          onClick={handleSaveForLater}
+        >
+          Save for later
+        </button> */}
         </div>
       </div>
     </div>

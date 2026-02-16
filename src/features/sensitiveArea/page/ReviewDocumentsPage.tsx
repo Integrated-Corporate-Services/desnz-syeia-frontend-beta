@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import FileUpload from '../../../components/FileUpload';
-import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
-import { saveSensitiveAreaReview, getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
+import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
+import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 
@@ -13,38 +13,37 @@ const ReviewDocumentsPage: React.FC = () => {
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
-  const [review, setReview] = useState<SensitiveAreaReview | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+
+  // Use the store hook (consistent with SensitiveAreaReviewPage)
+  const {
+    review,
+    loading,
+    error: reviewError,
+    fetchReview,
+    saveReview
+  } = useSensitiveAreaReview(applicationId || '');
 
   // Fetch existing review data on mount
   useEffect(() => {
-    const fetchReview = async () => {
-      if (!applicationId) return;
-
-      setLoading(true);
-      try {
-        const data = await getSensitiveAreaReview(applicationId);
-        const existingReview = data?.[0] || null;
-        setReview(existingReview);
-
-        // Pre-populate uploaded files if exists
-        if (existingReview?.uploaded_files) {
-          setUploadedFiles(existingReview.uploaded_files);
-        }
-        if (existingReview?.application_documents) {
-          setApplicationDocuments(existingReview.application_documents);
-        }
-      } catch (err: any) {
-        setApiError(err?.message || 'Failed to load review data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    if (!applicationId) return;
     fetchReview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationId]);
+
+  // Bind review data to form if available (match SensitiveAreaReviewPage)
+  useEffect(() => {
+    if (review) {
+      // Load previously uploaded files and documents if present
+      if (Array.isArray(review.uploaded_files)) {
+        setUploadedFiles(review.uploaded_files);
+      }
+      if (Array.isArray(review.application_documents)) {
+        setApplicationDocuments(review.application_documents);
+      }
+    }
+  }, [review]);
 
   // Validation function
   const validateForm = (): string[] => {
@@ -89,17 +88,14 @@ const ReviewDocumentsPage: React.FC = () => {
       application_documents: applicationDocuments,
     };
 
-    setLoading(true);
     try {
-      await saveSensitiveAreaReview(payload);
+      await saveReview(payload);
 
       // Always navigate to task list (this is the final page)
       navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
     } catch (err: any) {
       setApiError(err?.message || 'Failed to save review');
       setFormErrors(['There was a problem saving your data. Please try again.']);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -175,11 +171,12 @@ const ReviewDocumentsPage: React.FC = () => {
             )}
 
             {/* API Error */}
-            {apiError && (
+            {(apiError || reviewError) && (
               <div className="govuk-error-summary" role="alert">
                 <h2 className="govuk-error-summary__title">Error</h2>
                 <div className="govuk-error-summary__body">
-                  <p className="govuk-body">{apiError}</p>
+                  {apiError && <p className="govuk-body">{apiError}</p>}
+                  {reviewError && <p className="govuk-body">{reviewError}</p>}
                 </div>
               </div>
             )}
@@ -250,7 +247,7 @@ const ReviewDocumentsPage: React.FC = () => {
                 prefix={`${applicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
                 applicationId={applicationId || ''}
                 category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
-                addedBy="user" // TODO: Get from auth context
+                addedBy={review?.reviewed_by || 'current-user'}
                 uploadedFiles={uploadedFiles}
                 onUploaded={(newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
                   setUploadedFiles((prev) => [...prev, ...newFiles]);
