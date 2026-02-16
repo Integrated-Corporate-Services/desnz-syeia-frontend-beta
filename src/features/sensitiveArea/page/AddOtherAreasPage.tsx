@@ -208,9 +208,9 @@ const AddOtherAreasPage: React.FC = () => {
   /**
    * Gets the display count for pre-identified areas
    */
-  const getPreIdentifiedCount = (): number => {
-    return preIdentifiedAreas.filter(area => area.manuallySelected).length;
-  };
+  // const getPreIdentifiedCount = (): number => {
+  //   return preIdentifiedAreas.filter(area => area.manuallySelected).length;
+  // };
 
   /**
    * Gets filtered pre-identified areas to display:
