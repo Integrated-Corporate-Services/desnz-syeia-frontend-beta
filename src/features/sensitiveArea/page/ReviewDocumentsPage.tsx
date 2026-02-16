@@ -306,14 +306,14 @@ const ReviewDocumentsPage: React.FC = () => {
                 {loading ? 'Saving...' : 'Save and continue'}
               </button>
 
-              <button
+              {/* <button
                 className="govuk-button govuk-button--secondary"
                 data-module="govuk-button"
                 onClick={() => handleSaveReview('later')}
                 disabled={loading}
               >
                 Save for later
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
