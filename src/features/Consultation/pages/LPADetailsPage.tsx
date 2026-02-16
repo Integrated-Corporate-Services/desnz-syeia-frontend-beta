@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom'
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getConsultationPack } from '../../../services/consultationPackService';
+import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpaDetailsService'; // ✅ NEW
 
 interface LPADetails {
     lpaContactName: string;
@@ -28,23 +29,29 @@ const LPADetailsPage: React.FC = () => {
     const [lpaName, setLpaName] = useState('');
 
     useEffect(() => {
-        // ✅ NEW: Fetch LPA name from consultation pack
         const fetchLPADetails = async () => {
             try {
                 if (!consultationId || !applicationId) return;
                 
+                // Fetch consultation pack for LPA name
                 const data = await getConsultationPack(consultationId, applicationId);
-                
-                // Set LPA name from consultation pack
                 const name = data?.consultation?.org_name || consultationName || 'LPA';
                 setLpaName(name);
                 
-                console.log('=== LPA DETAILS PAGE ===');
-                console.log('Consultation data:', data?.consultation);
-                console.log('LPA Name:', name);
-                console.log('========================');
+                // ✅ NEW: Fetch existing LPA details if any
+                const existingDetails = await getLpaDetails(applicationId, consultationId);
+                if (existingDetails) {
+                    setFormData({
+                        lpaContactName: existingDetails.lpaContactName || '',
+                        lpaContactEmail: existingDetails.lpaContactEmail || '',
+                        lpaContactPhone: existingDetails.lpaContactPhone || '',
+                    });
+                }
                 
-                // TODO: If you have existing form data to load, add it here
+                console.log('=== LPA DETAILS PAGE ===');
+                console.log('LPA Name:', name);
+                console.log('Existing Details:', existingDetails);
+                console.log('========================');
             } catch (error) {
                 console.error('Error fetching LPA details:', error);
             }
@@ -68,7 +75,6 @@ const LPADetailsPage: React.FC = () => {
             newErrors.lpaContactEmail = 'Enter a valid email address';
         }
 
-        // Phone is optional, but validate format if provided
         if (formData.lpaContactPhone && !/^[\d\s\-+()]+$/.test(formData.lpaContactPhone)) {
             newErrors.lpaContactPhone = 'Enter a valid phone number';
         }
@@ -83,7 +89,6 @@ const LPADetailsPage: React.FC = () => {
             ...prev,
             [name]: value,
         }));
-        // Clear error for this field when user starts typing
         if (errors[name]) {
             setErrors((prev) => ({
                 ...prev,
@@ -101,16 +106,12 @@ const LPADetailsPage: React.FC = () => {
 
         setLoading(true);
         try {
-            // TODO: Implement API call to save LPA details
-            // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/lpa-details`, {
-            //   method: 'POST',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify(formData)
-            // });
-
+            // ✅ NEW: Save LPA details to database
+            await saveLpaDetails(applicationId!, consultationId!, formData);
+            
             // Navigate to next step
-                navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
-                } catch (error) {
+            navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
+        } catch (error) {
             console.error('Error saving LPA details:', error);
             setErrors((prev) => ({
                 ...prev,
@@ -126,14 +127,11 @@ const LPADetailsPage: React.FC = () => {
 
         setLoading(true);
         try {
-            // TODO: Implement API call to save LPA details for later
-            // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/lpa-details`, {
-            //   method: 'POST',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify(formData)
-            // });
-
-            // Navigate back to consultation details
+            // ✅ NEW: Save LPA details to database
+            if (formData.lpaContactName || formData.lpaContactEmail) {
+                await saveLpaDetails(applicationId!, consultationId!, formData);
+            }
+            
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (error) {
             console.error('Error saving LPA details:', error);

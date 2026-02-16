@@ -8,6 +8,7 @@ import { PackSection, ConsultationPack } from '../../../types/consultationPack';
 import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCategoryConstants';
 import FileUpload from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
+import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService"; 
 
 const ConsultationRequestNotSent: React.FC = () => {
   const params = useParams();
@@ -38,7 +39,7 @@ const ConsultationRequestNotSent: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // ✅ ADD THIS useEffect (exact copy from LPADetailsPage)
+  // ✅ ADD THIS useEffect 
   useEffect(() => {
     const fetchLPAName = async () => {
       try {
@@ -134,11 +135,64 @@ const ConsultationRequestNotSent: React.FC = () => {
     e.preventDefault();
     handleSave(false);
   };
+// NEW: Load existing Part 1 data on mount
+useEffect(() => {
+    const loadExistingData = async () => {
+      try {
+        if (!consultationId || !applicationId) return;
+        
+        const existingData = await getFormMetadata(applicationId, consultationId);
+        
+        console.log('=== PART 1 - LOADED DATA ===');
+        console.log('Existing Form Metadata:', existingData);
+        console.log('============================');
+        
+        // The applicant details are already populated from consultationPack
+        // This is just for verification/future use
+        
+      } catch (error) {
+        console.error('Error loading form metadata:', error);
+      }
+    };
+
+    if (applicationId && consultationId) {
+      loadExistingData();
+    }
+  }, [applicationId, consultationId]);
 
 // Find the handleSaveAndContinue function and update it:
-const handleSaveAndContinue = () => {
-    // Navigate directly to LPA Details page
-    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/lpa-details?consultationName=${encodeURIComponent(consultationName)}`);
+const handleSaveAndContinue = async () => {
+  try {
+    // Add validation to ensure we have applicant details
+    const orgName = consultationPack?.consultation?.applicant_organisation_name;
+    const contactName = consultationPack?.consultation?.applicant_contact_name;
+    const reference = consultationPack?.consultation?.applicant_reference;
+    
+    if (!orgName || !contactName || !reference) {
+      console.error('Missing applicant details:', { orgName, contactName, reference });
+      setErrorMessage('Applicant details are not available. Please refresh the page and try again.');
+      return;
+    }
+    
+    // Save Part 1 applicant details
+    await updateFormMetadata(applicationId!, consultationId, {
+      applicantOrganisationName: orgName,
+      applicantContactName: contactName,
+      applicantReference: reference
+    });
+    
+    console.log('=== PART 1 - SAVED ===');
+    console.log('Applicant Org:', orgName);
+    console.log('Contact Name:', contactName);
+    console.log('Reference:', reference);
+    console.log('======================');
+    
+    // Navigate to LPA Details page
+    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/lpa-details?consultationName=${encodeURIComponent(lpaName || consultationName)}`);
+  } catch (error) {
+    console.error('Error saving form metadata:', error);
+    setErrorMessage('Failed to save. Please try again.');
+  }
 };
 
   if (loading) return <div>Loading...</div>;

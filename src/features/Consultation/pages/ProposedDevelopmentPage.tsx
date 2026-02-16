@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationPack } from '../../../services/consultationPackService';
+import { getProposedDevelopment, saveProposedDevelopment } from '../../../services/consultationProposedDevelopmentService'; // ✅ NEW
 
 interface ProposedDevelopmentData {
   projectDescription: string;
@@ -16,12 +17,10 @@ const ProposedDevelopmentPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { consultationId } = useParams();
   const { user } = useAuthUser();
-  const userId = user?.user_id;
 
   const [searchParams] = useSearchParams();
   const consultationName = searchParams.get('consultationName') || '';
   
-
   const [formData, setFormData] = useState<ProposedDevelopmentData>({
     projectDescription: '',
     representationsObjections: '',
@@ -32,21 +31,42 @@ const ProposedDevelopmentPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [lpaName, setLpaName] = useState('');
 
-      useEffect(() => {
-    // ✅ COPY EXACT LOGIC FROM LPADetailsPage
+  useEffect(() => {
     const fetchProposedDevelopment = async () => {
       try {
         if (!consultationId || !applicationId) return;
         
         const data = await getConsultationPack(consultationId, applicationId);
-        
-        // ✅ EXACT SAME AS LPADetailsPage
         const name = data?.consultation?.org_name || consultationName || 'LPA';
         setLpaName(name);
         
+        // ✅ NEW: Fetch existing proposed development data
+        const existingData = await getProposedDevelopment(applicationId, consultationId);
+        if (existingData) {
+          setFormData(existingData);
+        } else {
+          // If no saved data, pre-populate from project overview
+          try {
+            const projectResponse = await fetch(`/backend/api/project/${applicationId}`);
+            if (projectResponse.ok) {
+              const projectData = await projectResponse.json();
+              const projectDescription = projectData?.projectDescription || projectData?.project_description || '';
+              
+              if (projectDescription) {
+                setFormData(prev => ({
+                  ...prev,
+                  projectDescription: projectDescription
+                }));
+              }
+            }
+          } catch (projectError) {
+            console.error('Error fetching project overview:', projectError);
+          }
+        }
+        
         console.log('=== PROPOSED DEVELOPMENT PAGE ===');
-        console.log('Consultation data:', data?.consultation);
         console.log('LPA Name:', name);
+        console.log('Existing Data:', existingData);
         console.log('=================================');
         
       } catch (error) {
@@ -80,7 +100,6 @@ const ProposedDevelopmentPage: React.FC = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -98,14 +117,10 @@ const ProposedDevelopmentPage: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: Implement API call to save proposed development details
-      // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/proposed-development`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-
-      // Navigate to next step (Consultee Application Details)
+      // ✅ NEW: Save proposed development to database
+      await saveProposedDevelopment(applicationId!, consultationId!, formData);
+      
+      // Navigate to next step
       navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultee-application-details`);
     } catch (error) {
       console.error('Error saving proposed development:', error);
@@ -123,14 +138,11 @@ const ProposedDevelopmentPage: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: Implement API call to save proposed development details for later
-      // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/proposed-development`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-
-      // Navigate back to consultation details
+      // ✅ NEW: Save proposed development to database
+      if (formData.projectDescription || formData.representationsObjections || formData.complianceDetails) {
+        await saveProposedDevelopment(applicationId!, consultationId!, formData);
+      }
+      
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } catch (error) {
       console.error('Error saving proposed development:', error);
@@ -192,17 +204,14 @@ const ProposedDevelopmentPage: React.FC = () => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {/* Organization Name - NOW WILL DISPLAY */}
             <h2 className="govuk-caption-xl">
               <strong>{lpaName}</strong>
             </h2>
 
-            {/* Page Heading */}
             <h1 className="govuk-heading-l">
               Proposed development
             </h1>
 
-            {/* Form */}
             <form onSubmit={handleSaveAndContinue}>
               <div className={`govuk-form-group ${errors.projectDescription ? 'govuk-form-group--error' : ''}`}>
                 <label htmlFor="projectDescription" className="govuk-label govuk-label--m">
@@ -228,7 +237,6 @@ const ProposedDevelopmentPage: React.FC = () => {
                 />
               </div>
 
-              {/* Representations and Objections */}
               <div className={`govuk-form-group ${errors.representationsObjections ? 'govuk-form-group--error' : ''}`}>
                 <label htmlFor="representationsObjections" className="govuk-label govuk-label--m">
                   Describe any representations or objections received prior to this application submission
@@ -252,7 +260,6 @@ const ProposedDevelopmentPage: React.FC = () => {
                 />
               </div>
 
-              {/* Compliance Details */}
               <div className={`govuk-form-group ${errors.complianceDetails ? 'govuk-form-group--error' : ''}`}>
                 <label htmlFor="complianceDetails" className="govuk-label govuk-label--m">
                   Provide details of the applicant's compliance with their duty as specified under{' '}
@@ -284,7 +291,6 @@ const ProposedDevelopmentPage: React.FC = () => {
                 />
               </div>
 
-              {/* Buttons */}
               <div className="govuk-button-group">
                 <button
                   type="submit"
