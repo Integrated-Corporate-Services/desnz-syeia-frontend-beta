@@ -138,19 +138,19 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
   /**
    * Handles "Save for later"
    */
-  const handleSaveForLater = async () => {
-    if (!effectiveApplicationId) return;
+  // const handleSaveForLater = async () => {
+  //   if (!effectiveApplicationId) return;
 
-    try {
-      await saveReview({
-        application_id: effectiveApplicationId
-      });
-      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-    } catch (err) {
-      console.error('Failed to save for later:', err);
-      setError('Failed to save your progress. Please try again.');
-    }
-  };
+  //   try {
+  //     await saveReview({
+  //       application_id: effectiveApplicationId
+  //     });
+  //     navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+  //   } catch (err) {
+  //     console.error('Failed to save for later:', err);
+  //     setError('Failed to save your progress. Please try again.');
+  //   }
+  // };
 
   // ===========================
   // RENDER: CONSISTENT WRAPPER WITH CONDITIONAL CONTENT

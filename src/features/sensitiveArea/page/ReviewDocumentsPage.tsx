@@ -150,7 +150,8 @@ const ReviewDocumentsPage: React.FC = () => {
   }
 
   return (
-    <div className="govuk-width-container">
+    <main className="govuk-main-wrapper govuk-!-padding-top-2">
+     {/* <div className="govuk-width-container"> */}
       {/* Back link */}
       <Link 
         to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review/poles`}
@@ -159,9 +160,8 @@ const ReviewDocumentsPage: React.FC = () => {
         Back
       </Link>
 
-      <main className="govuk-main-wrapper">
         <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
+          <div className="govuk-grid-column-two-thirds govuk-!-margin-top-4">
             {/* Error Summary */}
             {formErrors.length > 0 && (
               <div
@@ -199,13 +199,13 @@ const ReviewDocumentsPage: React.FC = () => {
             )}
 
             {/* Page Heading */}
-            <h1 className="govuk-heading-l">
+            <h2 className="govuk-heading-l">
               Upload environmental and archaeological documents (optional)
-            </h1>
+            </h2>
 
             {/* Instructions */}
             <p className="govuk-body">
-              You can upload documents to support sensitive area reviews. These may include:
+              Upload documents that supports your application, such as:
             </p>
 
             <ul className="govuk-list govuk-list--bullet">
@@ -219,26 +219,47 @@ const ReviewDocumentsPage: React.FC = () => {
             {uploadedFiles.length > 0 && (
               <div className="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
                 <h2 className="govuk-heading-m">Documents uploaded</h2>
-                <ul className="govuk-list">
-                  {uploadedFiles.map((file) => (
-                    <li key={file.id} className="govuk-!-margin-bottom-2">
-                      <a href="#" className="govuk-link" onClick={(e) => e.preventDefault()}>
-                        {file.filename}
-                      </a>
-                      {' — '}
-                      <a
-                        href="#"
-                        className="govuk-link"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDeleteFile(file.id);
-                        }}
-                      >
-                        Delete
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <table className="govuk-table">
+                  <tbody className="govuk-table__body">
+                    {uploadedFiles.map((file) => (
+                      <tr key={file.id} className="govuk-table__row">
+                        <td className="govuk-table__cell" style={{ width: '70%' }}>
+                          <a
+                            href="#"
+                            className="govuk-link"
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              try {
+                                // Use s3Key or construct from file properties
+                                const s3Key = file.s3Key || `${applicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}/${file.filename}`;
+                                // Import the download utility
+                                const { downloadS3File } = await import('../../../utils/s3DownloadUtil');
+                                await downloadS3File(s3Key);
+                              } catch (error) {
+                                console.error('Failed to download file:', error);
+                                alert('Failed to download file. Please try again.');
+                              }
+                            }}
+                          >
+                            {file.filename}
+                          </a>
+                        </td>
+                        <td className="govuk-table__cell govuk-table__cell--numeric">
+                          <a
+                            href="#"
+                            className="govuk-link"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleDeleteFile(file.id);
+                            }}
+                          >
+                            Delete
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
 
@@ -266,7 +287,6 @@ const ReviewDocumentsPage: React.FC = () => {
                   applicationId={applicationId || ''}
                   category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
                   addedBy={review?.reviewed_by || 'current-user'}
-                  uploadedFiles={uploadedFiles}
                   onUploaded={handleFilesUploaded}
                 />
               </div>
@@ -332,8 +352,8 @@ const ReviewDocumentsPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+    {/* </div> */}
+    </main>
   );
 };
 

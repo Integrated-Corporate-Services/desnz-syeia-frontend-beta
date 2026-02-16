@@ -334,18 +334,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <div className="gds-upload-container">
-      <div
-        className="gds-upload-title"
-        style={{ fontWeight: 700, fontSize: "1.25rem", marginBottom: "0.5rem" }}
-      >
+      <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
         {title}
-      </div>
-      <div
-        style={{ color: "#505a5f", marginBottom: "0.5rem", fontSize: "1rem" }}
-      >
+      </h3>
+      <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
         .xlsx files of up to 25MB each.
-      </div>
+      </p>
       {/* Existing files for this path/prefix (from DB, not S3) */}
       <div className="gds-upload-list">
         {/* Display DB files if provided */}
