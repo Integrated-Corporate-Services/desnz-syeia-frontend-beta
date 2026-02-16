@@ -131,10 +131,10 @@ const ConsultationRequestNotSent: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSave(false);
-  };
+  // const handleSaveForLater = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   handleSave(false);
+  // };
 // NEW: Load existing Part 1 data on mount
 useEffect(() => {
     const loadExistingData = async () => {
@@ -276,13 +276,13 @@ const handleSaveAndContinue = async () => {
               >
                 Save and Continue
               </button>
-              <button 
+              {/* <button 
                 type="button" 
                 className="govuk-button govuk-button--secondary" 
                 onClick={handleSaveForLater}
               >
                 Save for later
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

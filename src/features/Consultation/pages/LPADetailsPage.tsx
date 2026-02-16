@@ -122,23 +122,23 @@ const LPADetailsPage: React.FC = () => {
         }
     };
 
-    const handleSaveForLater = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // const handleSaveForLater = async (e: React.FormEvent) => {
+    //     e.preventDefault();
 
-        setLoading(true);
-        try {
-            // ✅ NEW: Save LPA details to database
-            if (formData.lpaContactName || formData.lpaContactEmail) {
-                await saveLpaDetails(applicationId!, consultationId!, formData);
-            }
+    //     setLoading(true);
+    //     try {
+    //         // ✅ NEW: Save LPA details to database
+    //         if (formData.lpaContactName || formData.lpaContactEmail) {
+    //             await saveLpaDetails(applicationId!, consultationId!, formData);
+    //         }
             
-            navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-        } catch (error) {
-            console.error('Error saving LPA details:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+    //     } catch (error) {
+    //         console.error('Error saving LPA details:', error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     return (
         <div className="govuk-width-container">
@@ -260,9 +260,9 @@ const LPADetailsPage: React.FC = () => {
                                 <button type="submit" className="govuk-button" disabled={loading}>
                                     {loading ? 'Saving...' : 'Save and continue'}
                                 </button>
-                                <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater} disabled={loading}>
+                                {/* <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater} disabled={loading}>
                                     Save for later
-                                </button>
+                                </button> */}
                             </div>
                         </form>
                     </div>

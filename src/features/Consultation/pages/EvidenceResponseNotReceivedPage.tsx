@@ -150,20 +150,20 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         }
     };
 
-    const handleSaveForLater = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // const handleSaveForLater = async (e: React.FormEvent) => {
+    //     e.preventDefault();
 
-        setLoading(true);
-        try {
-            // TODO: Implement API call to save evidence for later
-            // Navigate back to consultation details
-            navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-        } catch (error) {
-            console.error('Error saving evidence:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    //     setLoading(true);
+    //     try {
+    //         // TODO: Implement API call to save evidence for later
+    //         // Navigate back to consultation details
+    //         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+    //     } catch (error) {
+    //         console.error('Error saving evidence:', error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     return (
         <div className="govuk-width-container">
@@ -292,9 +292,9 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                 <button type="button" className="govuk-button" data-module="govuk-button" onClick={handleCloseConsultation}>
                                     Close consultation
                                 </button>
-                                <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater} disabled={loading}>
+                                {/* <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater} disabled={loading}>
                                     Save for later
-                                </button>
+                                </button> */}
                             </div>
                         </form>
                     </div>

@@ -133,23 +133,23 @@ const ProposedDevelopmentPage: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleSaveForLater = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    setLoading(true);
-    try {
-      // ✅ NEW: Save proposed development to database
-      if (formData.projectDescription || formData.representationsObjections || formData.complianceDetails) {
-        await saveProposedDevelopment(applicationId!, consultationId!, formData);
-      }
+  //   setLoading(true);
+  //   try {
+  //     // ✅ NEW: Save proposed development to database
+  //     if (formData.projectDescription || formData.representationsObjections || formData.complianceDetails) {
+  //       await saveProposedDevelopment(applicationId!, consultationId!, formData);
+  //     }
       
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-    } catch (error) {
-      console.error('Error saving proposed development:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+  //   } catch (error) {
+  //     console.error('Error saving proposed development:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="govuk-width-container">
@@ -299,14 +299,14 @@ const ProposedDevelopmentPage: React.FC = () => {
                 >
                   {loading ? 'Saving...' : 'Save and continue'}
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                   disabled={loading}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </div>
