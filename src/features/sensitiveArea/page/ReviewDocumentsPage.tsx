@@ -88,12 +88,27 @@ const ReviewDocumentsPage: React.FC = () => {
       application_documents: applicationDocuments,
     };
 
+    // Enhanced logging for debugging
+    console.log('=== ReviewDocumentsPage Save Debug ===');
+    console.log('Payload structure:', {
+      id: payload.id,
+      application_id: payload.application_id,
+      route_id: payload.route_id,
+      settings_id: payload.settings_id,
+      uploaded_files_count: payload.uploaded_files?.length || 0,
+      application_documents_count: payload.application_documents?.length || 0,
+    });
+    console.log('Uploaded Files:', JSON.stringify(uploadedFiles, null, 2));
+    console.log('Application Documents:', JSON.stringify(applicationDocuments, null, 2));
+    console.log('Full Payload:', JSON.stringify(payload, null, 2));
+
     try {
       await saveReview(payload);
 
       // Always navigate to task list (this is the final page)
       navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
     } catch (err: unknown) {
+      console.error('Save error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to save review';
       setApiError(errorMessage);
       setFormErrors(['There was a problem saving your data. Please try again.']);
@@ -104,6 +119,20 @@ const ReviewDocumentsPage: React.FC = () => {
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
     setApplicationDocuments((prev) => prev.filter((doc) => doc.fileId !== fileId));
+  };
+
+  // Handle files uploaded from FileUpload component
+  const handleFilesUploaded = (newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
+    console.log('[ReviewDocumentsPage] Files uploaded:', { 
+      newFiles, 
+      newDocuments,
+      newFilesCount: newFiles.length,
+      newDocsCount: newDocuments.length 
+    });
+    setUploadedFiles((prev) => [...prev, ...newFiles]);
+    setApplicationDocuments((prev) => [...prev, ...newDocuments]);
+    setFormErrors([]);
+    setApiError(null);
   };
 
   if (loading && !review) {
@@ -188,62 +217,59 @@ const ReviewDocumentsPage: React.FC = () => {
 
             {/* Documents Uploaded Section */}
             {uploadedFiles.length > 0 && (
-              <div style={{ marginTop: '30px', marginBottom: '30px' }}>
+              <div className="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
                 <h2 className="govuk-heading-m">Documents uploaded</h2>
-                <table className="govuk-table">
-                  <tbody className="govuk-table__body">
-                    {uploadedFiles.map((file) => (
-                      <tr key={file.id} className="govuk-table__row">
-                        <td className="govuk-table__cell">
-                          <span className="govuk-body">{file.filename}</span>
-                          <a
-                            href="#"
-                            className="govuk-link govuk-link--destructive govuk-!-margin-left-3"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleDeleteFile(file.id);
-                            }}
-                          >
-                            Remove
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <ul className="govuk-list">
+                  {uploadedFiles.map((file) => (
+                    <li key={file.id} className="govuk-!-margin-bottom-2">
+                      <a href="#" className="govuk-link" onClick={(e) => e.preventDefault()}>
+                        {file.filename}
+                      </a>
+                      {' — '}
+                      <a
+                        href="#"
+                        className="govuk-link"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDeleteFile(file.id);
+                        }}
+                      >
+                        Delete
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
             {/* File Upload Section */}
-            <div
-              id="file-upload-section"
-              className={`govuk-form-group${
-                formErrors.some((err) => err.includes('document'))
-                  ? ' govuk-form-group--error'
-                  : ''
-              }`}
-            >
-              {/* Inline error message */}
-              {formErrors.some((err) => err.includes('document')) && (
-                <span id="file-upload-error" className="govuk-error-message">
-                  <span className="govuk-visually-hidden">Error:</span>
-                  Upload at least one environmental and archaeological document
-                </span>
-              )}
+            <div className="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+              <div
+                id="file-upload-section"
+                className={`govuk-form-group${
+                  formErrors.some((err) => err.includes('document'))
+                    ? ' govuk-form-group--error'
+                    : ''
+                }`}
+              >
+                {/* Inline error message */}
+                {formErrors.some((err) => err.includes('document')) && (
+                  <span id="file-upload-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span>
+                    Upload at least one environmental and archaeological document
+                  </span>
+                )}
 
-              <FileUpload
-                title="Environmental and archaeological documents"
-                prefix={`${applicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
-                applicationId={applicationId || ''}
-                category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
-                addedBy={review?.reviewed_by || 'current-user'}
-                uploadedFiles={uploadedFiles}
-                onUploaded={(newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
-                  setUploadedFiles((prev) => [...prev, ...newFiles]);
-                  setApplicationDocuments((prev) => [...prev, ...newDocuments]);
-                  setFormErrors([]); // Clear errors on successful upload
-                }}
-              />
+                <FileUpload
+                  title="Upload a file"
+                  prefix={`${applicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
+                  applicationId={applicationId || ''}
+                  category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
+                  addedBy={review?.reviewed_by || 'current-user'}
+                  uploadedFiles={uploadedFiles}
+                  onUploaded={handleFilesUploaded}
+                />
+              </div>
             </div>
 
             {/* Details Component */}

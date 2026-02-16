@@ -355,9 +355,9 @@ const AddOtherAreasPage: React.FC = () => {
               {/* Manually added areas rows */}
               {manualAreas.length === 0 ? (
                 <tr className="govuk-table__row">
-                  <td className="govuk-table__cell govuk-hint" style={{ paddingTop: '10px', borderBottom: 'none' }}>
+                  {/* <td className="govuk-table__cell govuk-hint" style={{ paddingTop: '10px', borderBottom: 'none' }}>
                     No manually added areas yet. Use the form above to add areas.
-                  </td>
+                  </td> */}
                 </tr>
               ) : (
                 manualAreas.map((area) => (
