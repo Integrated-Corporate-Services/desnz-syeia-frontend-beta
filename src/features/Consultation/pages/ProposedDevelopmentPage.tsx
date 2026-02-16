@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
+import { getConsultationPack } from '../../../services/consultationPackService';
 
 interface ProposedDevelopmentData {
   projectDescription: string;
@@ -17,6 +18,10 @@ const ProposedDevelopmentPage: React.FC = () => {
   const { user } = useAuthUser();
   const userId = user?.user_id;
 
+  const [searchParams] = useSearchParams();
+  const consultationName = searchParams.get('consultationName') || '';
+  
+
   const [formData, setFormData] = useState<ProposedDevelopmentData>({
     projectDescription: '',
     representationsObjections: '',
@@ -27,12 +32,23 @@ const ProposedDevelopmentPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [lpaName, setLpaName] = useState('');
 
-  useEffect(() => {
-    // Fetch existing proposed development details if available
+      useEffect(() => {
+    // ✅ COPY EXACT LOGIC FROM LPADetailsPage
     const fetchProposedDevelopment = async () => {
       try {
-        // TODO: Implement API call to fetch existing proposed development details
-        // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/proposed-development`);
+        if (!consultationId || !applicationId) return;
+        
+        const data = await getConsultationPack(consultationId, applicationId);
+        
+        // ✅ EXACT SAME AS LPADetailsPage
+        const name = data?.consultation?.org_name || consultationName || 'LPA';
+        setLpaName(name);
+        
+        console.log('=== PROPOSED DEVELOPMENT PAGE ===');
+        console.log('Consultation data:', data?.consultation);
+        console.log('LPA Name:', name);
+        console.log('=================================');
+        
       } catch (error) {
         console.error('Error fetching proposed development:', error);
       }
@@ -41,7 +57,7 @@ const ProposedDevelopmentPage: React.FC = () => {
     if (applicationId && consultationId) {
       fetchProposedDevelopment();
     }
-  }, [applicationId, consultationId]);
+  }, [applicationId, consultationId, consultationName]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -176,10 +192,10 @@ const ProposedDevelopmentPage: React.FC = () => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {/* Organization Name */}
-            <p className="govuk-body govuk-!-margin-bottom-7">
+            {/* Organization Name - NOW WILL DISPLAY */}
+            <h2 className="govuk-caption-xl">
               <strong>{lpaName}</strong>
-            </p>
+            </h2>
 
             {/* Page Heading */}
             <h1 className="govuk-heading-l">
@@ -188,7 +204,6 @@ const ProposedDevelopmentPage: React.FC = () => {
 
             {/* Form */}
             <form onSubmit={handleSaveAndContinue}>
-              {/* Project Description */}
               <div className={`govuk-form-group ${errors.projectDescription ? 'govuk-form-group--error' : ''}`}>
                 <label htmlFor="projectDescription" className="govuk-label govuk-label--m">
                   Describe the proposed development

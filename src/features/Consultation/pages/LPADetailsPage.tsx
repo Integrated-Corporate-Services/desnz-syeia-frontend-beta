@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { getConsultationPack } from '../../../services/consultationPackService';
 
 interface LPADetails {
     lpaContactName: string;
@@ -13,6 +14,8 @@ const LPADetailsPage: React.FC = () => {
     const navigate = useNavigate();
     const applicationId = useGetApplicationId();
     const { consultationId } = useParams();
+    const [searchParams] = useSearchParams();
+    const consultationName = searchParams.get('consultationName') || '';
 
     const [formData, setFormData] = useState<LPADetails>({
         lpaContactName: '',
@@ -25,11 +28,23 @@ const LPADetailsPage: React.FC = () => {
     const [lpaName, setLpaName] = useState('');
 
     useEffect(() => {
-        // Fetch existing LPA details if available
+        // ✅ NEW: Fetch LPA name from consultation pack
         const fetchLPADetails = async () => {
             try {
-                // TODO: Implement API call to fetch existing LPA details
-                // const response = await fetch(`/api/applications/${applicationId}/consultation/${consultationId}/lpa-details`);
+                if (!consultationId || !applicationId) return;
+                
+                const data = await getConsultationPack(consultationId, applicationId);
+                
+                // Set LPA name from consultation pack
+                const name = data?.consultation?.org_name || consultationName || 'LPA';
+                setLpaName(name);
+                
+                console.log('=== LPA DETAILS PAGE ===');
+                console.log('Consultation data:', data?.consultation);
+                console.log('LPA Name:', name);
+                console.log('========================');
+                
+                // TODO: If you have existing form data to load, add it here
             } catch (error) {
                 console.error('Error fetching LPA details:', error);
             }
@@ -38,7 +53,7 @@ const LPADetailsPage: React.FC = () => {
         if (applicationId && consultationId) {
             fetchLPADetails();
         }
-    }, [applicationId, consultationId]);
+    }, [applicationId, consultationId, consultationName]);
 
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
@@ -94,8 +109,8 @@ const LPADetailsPage: React.FC = () => {
             // });
 
             // Navigate to next step
-            navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development`);
-        } catch (error) {
+                navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
+                } catch (error) {
             console.error('Error saving LPA details:', error);
             setErrors((prev) => ({
                 ...prev,
@@ -170,9 +185,9 @@ const LPADetailsPage: React.FC = () => {
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {/* Organization Name */}
-                        <p className="govuk-body govuk-!-margin-bottom-7">
+                        <h2 className="govuk-caption-xl">
                             <strong>{lpaName}</strong>
-                        </p>
+                        </h2>
 
                         {/* Page Heading */}
                         <h1 className="govuk-heading-l">Local Planning Authority (LPA) details</h1>

@@ -29,13 +29,43 @@ const ConsultationRequestNotSent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
+  // ✅ ADD THIS STATE (same as LPADetailsPage)
+  const [lpaName, setLpaName] = useState('');
 
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Fetch consultation pack on mount
+  // ✅ ADD THIS useEffect (exact copy from LPADetailsPage)
+  useEffect(() => {
+    const fetchLPAName = async () => {
+      try {
+        if (!consultationId || !applicationId) return;
+        
+        const data = await getConsultationPack(consultationId, applicationId);
+        
+        // Set LPA name from consultation pack
+        const name = data?.consultation?.org_name || consultationName || 'LPA';
+        setLpaName(name);
+        
+        console.log('=== CONSULTATION REQUEST NOT SENT ===');
+        console.log('Consultation data:', data?.consultation);
+        console.log('LPA Name:', name);
+        console.log('======================================');
+        
+      } catch (error) {
+        console.error('Error fetching LPA name:', error);
+      }
+    };
+
+    if (applicationId && consultationId) {
+      fetchLPAName();
+    }
+  }, [applicationId, consultationId, consultationName]);
+
+  // Fetch consultation pack on mount (KEEP YOUR EXISTING useEffect)
   useEffect(() => {
     const fetchData = async () => {
       if (!consultationId || !applicationId) {
@@ -136,7 +166,7 @@ const handleSaveAndContinue = () => {
 
       <main id="main-content">
         <h2 className="govuk-caption-xl">
-        {consultationPack?.consultation?.org_name || 'LPA'}
+        {lpaName}
         </h2>
         <h1 className="govuk-heading-xl">
           Consultation form for electric overhead lines – Part 1
