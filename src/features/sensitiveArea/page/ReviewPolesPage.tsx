@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -87,7 +87,7 @@ const ReviewPolesPage: React.FC = () => {
       } else {
         navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save review';
       setApiError(errorMessage);
       setFormErrors(['There was a problem saving your data. Please try again.']);
@@ -110,26 +110,13 @@ const ReviewPolesPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      {/* Breadcrumb */}
-      <div className="govuk-breadcrumbs">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <a
-              className="govuk-breadcrumbs__link"
-              href={`${S37_BASE_URL}/${applicationId}/task-list`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
-              }}
-            >
-              Task list
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            Review poles
-          </li>
-        </ol>
-      </div>
+      {/* Back link */}
+      <Link 
+        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review/add-areas`}
+        className="govuk-back-link"
+      >
+        Back
+      </Link>
 
       <main className="govuk-main-wrapper">
         <div className="govuk-grid-row">

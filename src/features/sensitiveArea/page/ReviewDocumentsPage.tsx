@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import FileUpload from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
@@ -93,8 +93,9 @@ const ReviewDocumentsPage: React.FC = () => {
 
       // Always navigate to task list (this is the final page)
       navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
-    } catch (err: any) {
-      setApiError(err?.message || 'Failed to save review');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save review';
+      setApiError(errorMessage);
       setFormErrors(['There was a problem saving your data. Please try again.']);
     }
   };
@@ -121,26 +122,13 @@ const ReviewDocumentsPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      {/* Breadcrumb */}
-      <div className="govuk-breadcrumbs">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <a
-              className="govuk-breadcrumbs__link"
-              href={`${S37_BASE_URL}/${applicationId}/task-list`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
-              }}
-            >
-              Task list
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            Review documents
-          </li>
-        </ol>
-      </div>
+      {/* Back link */}
+      <Link 
+        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review/poles`}
+        className="govuk-back-link"
+      >
+        Back
+      </Link>
 
       <main className="govuk-main-wrapper">
         <div className="govuk-grid-row">
@@ -200,28 +188,29 @@ const ReviewDocumentsPage: React.FC = () => {
 
             {/* Documents Uploaded Section */}
             {uploadedFiles.length > 0 && (
-              <div className="govuk-inset-text" style={{ marginTop: '30px', marginBottom: '30px' }}>
+              <div style={{ marginTop: '30px', marginBottom: '30px' }}>
                 <h2 className="govuk-heading-m">Documents uploaded</h2>
-                <ul className="govuk-list">
-                  {uploadedFiles.map((file) => (
-                    <li key={file.id} style={{ marginBottom: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="govuk-body" style={{ marginRight: '20px' }}>
-                          {file.filename}
-                        </span>
-                        <button
-                          type="button"
-                          className="govuk-button govuk-button--warning govuk-button--small"
-                          data-module="govuk-button"
-                          onClick={() => handleDeleteFile(file.id)}
-                          style={{ marginBottom: '0' }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <table className="govuk-table">
+                  <tbody className="govuk-table__body">
+                    {uploadedFiles.map((file) => (
+                      <tr key={file.id} className="govuk-table__row">
+                        <td className="govuk-table__cell">
+                          <span className="govuk-body">{file.filename}</span>
+                          <a
+                            href="#"
+                            className="govuk-link govuk-link--destructive govuk-!-margin-left-3"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleDeleteFile(file.id);
+                            }}
+                          >
+                            Remove
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
 
