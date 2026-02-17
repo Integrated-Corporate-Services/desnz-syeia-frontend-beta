@@ -136,7 +136,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     if (hasFailedChecks()) {
       navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`);
     } else {
-      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/add-areas`);
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`);
     }
   };
 
@@ -255,7 +255,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
                 <>
                   <p className="govuk-body">
                     Your route passes through these areas and requires an environmental impact assessment screening. 
-                    This will add a charge of £600.00 to your application fee:
+                    This will add a charge of £60.00 to your application fee:
                   </p>
                   <ul className="govuk-list govuk-list--bullet">
                     {passedAreasScreening.map((layer: LayerCheckItem) => (
