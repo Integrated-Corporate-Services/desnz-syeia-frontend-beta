@@ -14,7 +14,6 @@ interface User {
 }
 
   const formatRole = (role: string) => {
-    console.log('Formatting role:', role);
     if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
     if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
     if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
