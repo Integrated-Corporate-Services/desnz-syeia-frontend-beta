@@ -31,9 +31,9 @@ const ConsultationInitialQuestion: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = () => {
-    navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-  };
+  // const handleSaveForLater = () => {
+  //   navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+  // };
 
   return (
     <div className="govuk-width-container govuk-!-margin-top-6 govuk-!-margin-bottom-6">
@@ -140,14 +140,14 @@ const ConsultationInitialQuestion: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   data-module="govuk-button"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </main>

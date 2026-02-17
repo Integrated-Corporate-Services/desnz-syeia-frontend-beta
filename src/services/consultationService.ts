@@ -74,3 +74,26 @@ export async function createLpaConsultations(applicationId: string, lpas: Array<
         throw new Error(`Failed to create LPA consultations for applicationId=${applicationId}: ${originalMessage}`);
     }
 }
+
+/**
+ * Mark consultation as request sent with current date
+ */
+export async function markConsultationAsRequestSent(
+  consultationId: string
+): Promise<{ success: boolean; data?: any }> {
+  const url = `/backend/api/consultations/${consultationId}/mark-request-sent`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include'
+  });
+  
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to mark consultation as request sent');
+  }
+  
+  return await res.json();
+}

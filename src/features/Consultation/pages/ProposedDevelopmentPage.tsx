@@ -5,6 +5,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getProposedDevelopment, saveProposedDevelopment } from '../../../services/consultationProposedDevelopmentService'; // ✅ NEW
+import { markConsultationAsRequestSent } from '../../../services/consultationService';
 
 interface ProposedDevelopmentData {
   projectDescription: string;
@@ -117,11 +118,14 @@ const ProposedDevelopmentPage: React.FC = () => {
 
     setLoading(true);
     try {
-      // ✅ NEW: Save proposed development to database
+      // ✅ Save proposed development to database
       await saveProposedDevelopment(applicationId!, consultationId!, formData);
       
-      // Navigate to next step
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultee-application-details`);
+      // ✅ NEW: Mark consultation as request sent with current date
+      await markConsultationAsRequestSent(consultationId!);
+      
+      // ✅ Navigate to consultation details page
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } catch (error) {
       console.error('Error saving proposed development:', error);
       setErrors(prev => ({
