@@ -236,7 +236,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
           <>
             <div className="govuk-summary-card__title-wrapper">
-              <div className="govuk-summary-card__title"></div>
+              <h2 className="govuk-summary-card__title">{orgName}</h2>
             </div>
             <div className="govuk-summary-card__content">
               <table className="govuk-table govuk-!-margin-bottom-0" style={{ width: '100%' }}>
