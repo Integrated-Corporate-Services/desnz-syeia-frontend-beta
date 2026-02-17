@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem } from '../../../services/sensitiveAreaService';
-import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { S37_BASE_URL } from '../../../constants/s37';
 
 /**
@@ -24,9 +23,6 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Access review store for save functionality
-  const { saveReview } = useSensitiveAreaReview(effectiveApplicationId);
-
   // ===========================
   // DATA FETCHING
   // ===========================
@@ -36,32 +32,48 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    getSensitiveAreaReviewSummary(effectiveApplicationId)
-      .then(data => {
-        // console.log('=== SENSITIVE AREA REVIEW SUMMARY ===');
-        // console.log('Full API Response:', data);
-        // console.log('Passed (INTERSECT) - Screening Required:', data?.checks?.automated?.passed?.screeningRequired?.length || 0);
-        // console.log('Passed (INTERSECT) - No Screening:', data?.checks?.automated?.passed?.noScreening?.length || 0);
-        // console.log('Cleared (NO_INTERSECT) - Screening Required:', data?.checks?.automated?.cleared?.screeningRequired?.length || 0);
-        // console.log('Cleared (NO_INTERSECT) - No Screening:', data?.checks?.automated?.cleared?.noScreening?.length || 0);
-        // console.log('Failed - Screening Required:', data?.checks?.automated?.failed?.screeningRequired?.length || 0);
-        // console.log('Failed - No Screening:', data?.checks?.automated?.failed?.noScreening?.length || 0);
-        //  const successCount = 
-        //   (data?.checks?.automated?.passed?.screeningRequired?.length || 0) +
-        //   (data?.checks?.automated?.passed?.noScreening?.length || 0) +
-        //   (data?.checks?.automated?.cleared?.screeningRequired?.length || 0) +
-        //   (data?.checks?.automated?.cleared?.noScreening?.length || 0);
-        // const totalFailed = 
-        //   (data?.checks?.automated?.failed?.screeningRequired?.length || 0) + 
-        //   (data?.checks?.automated?.failed?.noScreening?.length || 0);
+    let pollInterval: number | null = null;
+
+    const fetchSummary = async () => {
+      try {
+        const data = await getSensitiveAreaReviewSummary(effectiveApplicationId);
         
         setChecksSummary(data);
-        setLoading(false);
-      })
-      .catch(() => {
+
+        // Check if all automated checks are complete
+        const { totalChecked, totalLayers } = data.checks.summary;
+        
+        if (totalChecked < totalLayers) {
+          // Still processing, keep polling every 2 seconds
+          if (!pollInterval) {
+            pollInterval = setInterval(fetchSummary, 2000);
+          }
+        } else {
+          // All checks complete, stop polling
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
+          setLoading(false);
+        }
+      } catch {
         setError('Failed to fetch sensitive area review summary');
         setLoading(false);
-      });
+        if (pollInterval) {
+          clearInterval(pollInterval);
+          pollInterval = null;
+        }
+      }
+    };
+
+    fetchSummary();
+
+    // Cleanup on unmount
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
   }, [effectiveApplicationId]);
 
   // ===========================
@@ -119,19 +131,12 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
   const handleSaveAndContinue = async () => {
     if (!effectiveApplicationId) return;
 
-    try {
-      await saveReview({
-        application_id: effectiveApplicationId
-      });
-      
-        if (hasFailedChecks()) {
-        navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`);
-      } else {
-        navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-      }
-    } catch (err) {
-      console.error('Failed to save review:', err);
-      setError('Failed to save your review. Please try again.');
+    // No need to save on this page - just navigate
+    // The review will be saved on subsequent pages (Poles, Documents)
+    if (hasFailedChecks()) {
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`);
+    } else {
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/add-areas`);
     }
   };
 
