@@ -438,6 +438,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     </>
                 );
 
+<<<<<<< feature/SYEIA-1154-LPA-Consultation
             case ConsultationStatus.WITHDRAWN:
                 return (
                     <>
@@ -533,6 +534,283 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     </>
                 );
         }
+=======
+                <li className="govuk-summary-card__action">
+                  <Link to={notRequiredPageUrl} className="govuk-link">Not required</Link>
+                </li>
+                )}
+                <li className="govuk-summary-card__action">
+                  <Link to={responseUrlWithParams} className="govuk-link">Provide response</Link>
+                </li>
+              </ul>
+            </div>
+            <div className="govuk-summary-card__content">
+              <table className="govuk-table govuk-!-margin-bottom-0">
+                <tbody className="govuk-table__body">
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
+                    <td className="govuk-table__cell">
+                      <span className="govuk-tag govuk-tag--blue">{statusDisplay}</span>
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Date of consultation request</td>
+                    <td className="govuk-table__cell">{dateRequestCreated ? formatDate(dateRequestCreated) : '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
+                    <td className="govuk-table__cell">
+                      {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
+                        consultationRequestDocs.map((doc: any, idx: number) => (
+                          <div key={idx}>
+                            <a href="#" className="govuk-link" onClick={async e => {
+                              e.preventDefault();
+                              const key = doc.key || doc.url;
+                              try {
+                                await downloadS3File(key);
+                              } catch (error) {
+                                logger.error("Failed to download file:", error);
+                              }
+                            }}>
+                              {doc.filename || doc.name}
+                            </a>
+                          </div>
+                        ))
+                      ) : evidenceUrl ? (
+                        <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                      ) : '-'}
+                    </td>
+                  </tr>
+               <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Consultee contact name</td>
+                    <td className="govuk-table__cell">{respondingConsulteeName || '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Consultee contact email address</td>
+                    <td className="govuk-table__cell">
+                      {respondingConsulteeEmail ? (
+                        <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
+                      ) : '-'}
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Objection raised</td>
+                    <td className="govuk-table__cell">{typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Date closed</td>
+                    <td className="govuk-table__cell">-</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Response documents</td>
+                    <td className="govuk-table__cell">
+                      {responseDocuments && responseDocuments.length > 0 ? (
+                        responseDocuments.map((doc: any, idx: number) => (
+                          <div key={idx}>
+                            <a href="#" className="govuk-link" onClick={async e => {
+                              e.preventDefault();
+                              const key = doc.key || doc.url;
+                              try {
+                                await downloadS3File(key);
+                              } catch (error) {
+                                logger.error("Failed to download file:", error);
+                              }
+                            }}>
+                              {doc.name || doc.fileName}
+                            </a>
+                          </div>
+                        ))
+                      ) : '-'}
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Close Comments</td>
+                    <td className="govuk-table__cell">{closeComments || '-'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
+      case ConsultationStatus.CLOSED:
+        return (
+          <>
+            <div className="govuk-summary-card__title-wrapper">
+              <h2 className="govuk-summary-card__title">{orgName}</h2>
+            </div>
+            <div className="govuk-summary-card__content">
+              <table className="govuk-table govuk-!-margin-bottom-0" style={{ width: '100%' }}>
+                <tbody className="govuk-table__body">
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
+                    <td className="govuk-table__cell">
+                      <span className="govuk-tag govuk-tag--green">Closed</span>
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Date of consultation request</td>
+                    <td className="govuk-table__cell">{dateRequestCreated ? formatDate(dateRequestCreated) : '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
+                    <td className="govuk-table__cell">
+                      {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
+                        consultationRequestDocs.map((doc: any, idx: number) => (
+                          <div key={idx}>
+                            <a href="#" className="govuk-link" onClick={async e => {
+                              e.preventDefault();
+                              const key = doc.key || doc.url;
+                              try {
+                                await downloadS3File(key);
+                              } catch (error) {
+                                logger.error("Failed to download file:", error);
+                              }
+                            }}>
+                              {doc.filename || doc.name}
+                            </a>
+                          </div>
+                        ))
+                      ) : evidenceUrl ? (
+                        <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                      ) : '-'}
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Consultee contact name</td>
+                    <td className="govuk-table__cell">{respondingConsulteeName || '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Consultee contact email address</td>
+                    <td className="govuk-table__cell">
+                      {respondingConsulteeEmail ? (
+                        <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
+                      ) : '-'}
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Objection raised</td>
+                    <td className="govuk-table__cell">{typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Date closed</td>
+                    <td className="govuk-table__cell">{dateClosed ? formatDate(dateClosed) : '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Response documents</td>
+                    <td className="govuk-table__cell">
+                      {responseDocuments && responseDocuments.length > 0 ? (
+                        responseDocuments.map((doc: any, idx: number) => (
+                          <div key={idx}>
+                            <a href="#" className="govuk-link" onClick={async e => {
+                              e.preventDefault();
+                              const key = doc.key || doc.url;
+                              try {
+                                await downloadS3File(key);
+                              } catch (error) {
+                                logger.error("Failed to download file:", error);
+                              }
+                            }}>
+                              {doc.name || doc.fileName}
+                            </a>
+                          </div>
+                        ))
+                      ) : '-'}
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Close Comments</td>
+                    <td className="govuk-table__cell">{closeComments || '-'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
+      case ConsultationStatus.WITHDRAWN:
+        return (
+          <>
+            <div className="govuk-summary-card__title-wrapper"></div>
+            <div className="govuk-summary-card__content">
+              <table className="govuk-table govuk-!-margin-bottom-0">
+                <tbody className="govuk-table__body">
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
+                    <td className="govuk-table__cell">
+                      <span className="govuk-tag  govuk-tag--grey">Withdrawn</span>
+                    </td>
+                  </tr>
+                  {dateRequestCreated && (
+                    <tr className="govuk-table__row">
+                      <td className="govuk-table__cell govuk-!-font-weight-bold">Withdrawal date</td>
+                      <td className="govuk-table__cell">{formatDate(dateRequestCreated)}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
+      default:
+        return (
+          <>
+            <div className="govuk-summary-card__title-wrapper">
+              <h2 className="govuk-summary-card__title">{orgName}</h2>
+              <ul className="govuk-summary-card__actions">
+                {orgName && orgName.trim().toLowerCase() === 'natural england' && (
+                  <li className="govuk-summary-card__action">
+                    <Link to={notRequiredPageUrl} className="govuk-link">Not required</Link>
+                  </li>
+                )}
+                <li className="govuk-summary-card__action">
+                  <Link to={requestUrlWithParams} className="govuk-link">
+                    {statusDisplay === ConsultationStatus.DRAFT ? 'Continue consultation' : 'Start consultation'}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div className="govuk-summary-card__content">
+              <table className="govuk-table govuk-!-margin-bottom-0">
+                <tbody className="govuk-table__body">
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
+                    <td className="govuk-table__cell">
+                      <span className="govuk-tag govuk-tag--blue">{statusDisplay}</span>
+                    </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Date of consultation request</td>
+                    <td className="govuk-table__cell">{dateRequestCreated ? formatDate(dateRequestCreated) : '-'}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
+                    <td className="govuk-table__cell">
+                      {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
+                        consultationRequestDocs.map((doc: any, idx: number) => (
+                          <div key={idx}>
+                            <a href="#" className="govuk-link" onClick={async e => {
+                              e.preventDefault();
+                              const key = doc.key || doc.url;
+                              try {
+                                await downloadS3File(key);
+                              } catch (error) {
+                                logger.error("Failed to download file:", error);
+                              }
+                            }}>
+                              {doc.filename || doc.name}
+                            </a>
+                          </div>
+                        ))
+                      ) : evidenceUrl ? (
+                        <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                      ) : '-'}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
+>>>>>>> develop
     }
 
     return <div className="govuk-summary-card govuk-!-margin-bottom-6 govuk-!-margin-top-6">{renderCardContent()}</div>;

@@ -228,7 +228,10 @@ const ConsultationResponse: React.FC = () => {
                                     value={contactName}
                                     onChange={e => {
                                         setContactName(e.target.value);
-                                        if (errors.contactName) setErrors({ ...errors, contactName: '' });
+                                        if (errors.contactName) {
+                                            const { contactName, ...restErrors } = errors;
+                                            setErrors(restErrors);
+                                        }
                                     }}
                                 />
                             </div>
@@ -255,7 +258,10 @@ const ConsultationResponse: React.FC = () => {
                                     value={email}
                                     onChange={e => {
                                         setEmail(e.target.value);
-                                        if (errors.email) setErrors({ ...errors, email: '' });
+                                        if (errors.email) {
+                                            const { email, ...restErrors } = errors;
+                                            setErrors(restErrors);
+                                        }
                                     }}
                                 />
                             </div>
@@ -281,7 +287,10 @@ const ConsultationResponse: React.FC = () => {
                                                 checked={hasObjection === 'yes'}
                                                 onChange={e => {
                                                     setHasObjection(e.target.value);
-                                                    if (errors.hasObjection) setErrors({ ...errors, hasObjection: '' });
+                                                    if (errors.hasObjection) {
+                                                        const { hasObjection, ...restErrors } = errors;
+                                                        setErrors(restErrors);
+                                                    }
                                                 }}
                                             />
                                             <label className="govuk-label govuk-radios__label" htmlFor="hasObjection">
@@ -298,7 +307,10 @@ const ConsultationResponse: React.FC = () => {
                                                 checked={hasObjection === 'no'}
                                                 onChange={e => {
                                                     setHasObjection(e.target.value);
-                                                    if (errors.hasObjection) setErrors({ ...errors, hasObjection: '' });
+                                                    if (errors.hasObjection) {
+                                                        const { hasObjection, ...restErrors } = errors;
+                                                        setErrors(restErrors);
+                                                    }
                                                 }}
                                             />
                                             <label className="govuk-label govuk-radios__label" htmlFor="hasObjection-2">

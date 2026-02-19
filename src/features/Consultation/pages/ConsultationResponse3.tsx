@@ -194,7 +194,10 @@ const ConsultationResponse3: React.FC = () => {
                                                 checked={declarationAccepted}
                                                 onChange={e => {
                                                     setDeclarationAccepted(e.target.checked);
-                                                    if (errors.declaration) setErrors({ ...errors, declaration: '' });
+                                                    if (errors.declaration) {
+                                                        const { declaration, ...restErrors } = errors;
+                                                        setErrors(restErrors);
+                                                    }
                                                 }}
                                                 aria-describedby={errors.declaration ? 'declaration-error' : undefined}
                                             />
