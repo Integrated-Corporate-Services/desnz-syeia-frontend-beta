@@ -4,7 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationPack } from '../../../services/consultationPackService';
-import { getProposedDevelopment, saveProposedDevelopment } from '../../../services/consultationProposedDevelopmentService'; // ✅ NEW
+import { getProposedDevelopment, saveProposedDevelopment } from '../../../services/consultationProposedDevelopmentService';
 import { markConsultationAsRequestSent } from '../../../services/consultationService';
 
 interface ProposedDevelopmentData {
@@ -41,7 +41,7 @@ const ProposedDevelopmentPage: React.FC = () => {
         const name = data?.consultation?.org_name || consultationName || 'LPA';
         setLpaName(name);
         
-        // ✅ NEW: Fetch existing proposed development data
+        // Fetch existing proposed development data
         const existingData = await getProposedDevelopment(applicationId, consultationId);
         if (existingData) {
           setFormData(existingData);
@@ -118,13 +118,13 @@ const ProposedDevelopmentPage: React.FC = () => {
 
     setLoading(true);
     try {
-      // ✅ Save proposed development to database
+      // Save proposed development to database
       await saveProposedDevelopment(applicationId!, consultationId!, formData);
       
-      // ✅ NEW: Mark consultation as request sent with current date
+      // NEW: Mark consultation as request sent with current date
       await markConsultationAsRequestSent(consultationId!);
       
-      // ✅ Navigate to consultation details page
+      // NEW: Navigate to consultation details page
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } catch (error) {
       console.error('Error saving proposed development:', error);
@@ -142,7 +142,7 @@ const ProposedDevelopmentPage: React.FC = () => {
 
   //   setLoading(true);
   //   try {
-  //     // ✅ NEW: Save proposed development to database
+  //     // NEW: Save proposed development to database
   //     if (formData.projectDescription || formData.representationsObjections || formData.complianceDetails) {
   //       await saveProposedDevelopment(applicationId!, consultationId!, formData);
   //     }

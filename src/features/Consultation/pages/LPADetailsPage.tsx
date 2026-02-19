@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom'
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getConsultationPack } from '../../../services/consultationPackService';
-import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpaDetailsService'; // ✅ NEW
+import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpaDetailsService'; 
 
 interface LPADetails {
     lpaContactName: string;
@@ -38,7 +38,7 @@ const LPADetailsPage: React.FC = () => {
                 const name = data?.consultation?.org_name || consultationName || 'LPA';
                 setLpaName(name);
                 
-                // ✅ NEW: Fetch existing LPA details if any
+                // NEW: Fetch existing LPA details if any
                 const existingDetails = await getLpaDetails(applicationId, consultationId);
                 if (existingDetails) {
                     setFormData({
@@ -106,7 +106,7 @@ const LPADetailsPage: React.FC = () => {
 
         setLoading(true);
         try {
-            // ✅ NEW: Save LPA details to database
+            // NEW: Save LPA details to database
             await saveLpaDetails(applicationId!, consultationId!, formData);
             
             // Navigate to next step
@@ -127,7 +127,7 @@ const LPADetailsPage: React.FC = () => {
 
     //     setLoading(true);
     //     try {
-    //         // ✅ NEW: Save LPA details to database
+    //         // NEW: Save LPA details to database
     //         if (formData.lpaContactName || formData.lpaContactEmail) {
     //             await saveLpaDetails(applicationId!, consultationId!, formData);
     //         }

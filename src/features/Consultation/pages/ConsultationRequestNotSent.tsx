@@ -31,7 +31,7 @@ const ConsultationRequestNotSent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // ✅ ADD THIS STATE (same as LPADetailsPage)
+  // ADD THIS STATE (same as LPADetailsPage)
   const [lpaName, setLpaName] = useState('');
 
   // Scroll to top on mount
@@ -39,7 +39,7 @@ const ConsultationRequestNotSent: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // ✅ ADD THIS useEffect 
+  // ADD THIS useEffect 
   useEffect(() => {
     const fetchLPAName = async () => {
       try {
