@@ -60,8 +60,13 @@ export function useTaskListData() {
   // Update sections when progress or assetInformationStatus changes
   useEffect(() => {
     const effectiveId = applicationId || application?.application_id;
-    setSections(getSectionsWithProgress(typeof effectiveId === 'string' ? effectiveId : undefined, progress, assetInformationStatus));
-  }, [progress, assetInformationStatus, application?.application_id, applicationId]);
+    setSections(getSectionsWithProgress(
+      typeof effectiveId === 'string' ? effectiveId : undefined, 
+      progress, 
+      assetInformationStatus,
+      sensitiveAreaStatus?.inProgress
+    ));
+  }, [progress, assetInformationStatus, application?.application_id, applicationId, sensitiveAreaStatus?.inProgress]);
 
   // Fetch sensitive area check status
   useEffect(() => {
@@ -149,7 +154,7 @@ export function useTaskListData() {
   // Status class helper
   const statusClass = (status: string) => {
     if (status === 'Completed') return 'govuk-tag govuk-tag--green';
-    if (status === 'Incomplete') return 'govuk-tag govuk-tag--blue';
+    if (status === 'Incomplete' || status === 'In progress') return 'govuk-tag govuk-tag--blue';
     if (status === 'Cannot start yet') return 'govuk-tag govuk-tag--grey';
     return '';
   };
