@@ -1,15 +1,12 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { downloadS3File } from "../utils/s3DownloadUtil";
 import "../styles/Fileupload.css";
 import {
   getPresignedUrls,
   uploadFileToS3,
-  getPresignedGetUrl,
-  deleteFileFromS3,
 } from "../services/s3ApiService";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
-import { FILE_CATEGORIES } from "../constants/fileCategoryConstants";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { DEMO_USER_ID } from "../constants/demo";
@@ -20,11 +17,14 @@ export interface FileUploadProps {
   uploadedFiles?: UploadedFile[];
   onFilesChange?: (files: File[]) => void;
   onRemoveFile?: (idx: number) => void;
+  onDeleteFile?: (fileId: string) => void;
   applicationId?: string;
   category?: string;
   subCategory?: string;
   addedBy?: string;
   consultationId?: string;
+  showDocumentsHeading?: boolean;
+  showTitle?: boolean;
   onUploaded?: (
     uploadedFiles: UploadedFile[],
     applicationDocuments: ApplicationDocument[]
@@ -32,16 +32,19 @@ export interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
-  title = "Upload site photographs",
+  title = "Upload a file",
   prefix = "",
   uploadedFiles,
   onFilesChange,
   onRemoveFile,
+  onDeleteFile,
   applicationId,
   category,
   subCategory,
-  addedBy,
+  addedBy, // eslint-disable-line @typescript-eslint/no-unused-vars
   consultationId,
+  showDocumentsHeading = true,
+  showTitle = true,
   onUploaded,
 }) => {
   // Get user from auth context
@@ -52,17 +55,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
     DEMO_USER_ID;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [statuses, setStatuses] = useState<string[]>([]);
-  const [removeIdx, setRemoveIdx] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
-  const [existingFiles, setExistingFiles] = useState<
-    Array<{ key: string; size: number; lastModified: string }>
-  >([]);
-  const [existingFilesLoading, setExistingFilesLoading] = useState(false);
-  const [existingFilesError, setExistingFilesError] = useState<string | null>(
-    null
-  );
-  const [removeError, setRemoveError] = useState<string | null>(null);
 
   // S3 file listing is disabled; display files from uploadedFiles prop/state instead
 
@@ -171,6 +167,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     e.preventDefault();
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleRemoveFile = (idx: number) => {
     if (onRemoveFile) {
       onRemoveFile(idx);
@@ -281,21 +278,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
-      // Refresh existing files after upload
-      if (prefix) {
-        setExistingFilesLoading(true);
-        import("../services/s3ApiService").then(({ listFilesByPrefix }) => {
-          listFilesByPrefix(prefix)
-            .then((data) => {
-              setExistingFiles(data.files || []);
-              setExistingFilesLoading(false);
-            })
-            .catch((err) => {
-              setExistingFilesError(err.message || "Failed to fetch files");
-              setExistingFilesLoading(false);
-            });
-        });
-      }
     } catch (err) {
       setStatuses(
         Array(uploadFiles.length).fill(
@@ -305,121 +287,69 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   };
 
-  // Download handler for each file
-  const handleDownloadFile = async (key: string) => {
-    try {
-      const res = await getPresignedGetUrl(key);
-      if (res.url) window.open(res.url, "_blank");
-    } catch (err) {
-      alert(
-        "Failed to download: " +
-          (err instanceof Error ? err.message : String(err))
-      );
-    }
-  };
-
-  // Remove handler for S3 files
-  const handleRemoveS3File = async (key: string) => {
-    try {
-      await deleteFileFromS3(key);
-      setExistingFiles((prev) => prev.filter((f) => f.key !== key));
-      setRemoveError(null);
-    } catch (err) {
-      setRemoveError(
-        "Failed to remove file: " +
-          (err instanceof Error ? err.message : String(err))
-      );
-    }
-  };
-
   return (
     <div className="gds-upload-container">
-      <div
-        className="gds-upload-title"
-        style={{ fontWeight: 700, fontSize: "1.25rem", marginBottom: "0.5rem" }}
-      >
-        {title}
-      </div>
-      <div
-        style={{ color: "#505a5f", marginBottom: "0.5rem", fontSize: "1rem" }}
-      >
+      {/* Documents Uploaded Section - Show uploaded files first */}
+      {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
+        <div className="govuk-!-margin-bottom-6">
+          <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2>
+          <table className="govuk-table">
+            <tbody className="govuk-table__body">
+              {uploadedFiles.map((file: UploadedFile, idx: number) => (
+                <tr key={file.id} className="govuk-table__row">
+                  <td className="govuk-table__cell">
+                    <a
+                      href="#"
+                      className="govuk-link"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (file.s3Key) {
+                          try {
+                            await downloadS3File(file.s3Key);
+                          } catch (error) {
+                            console.error('Failed to download file:', error);
+                            alert('Failed to download file. Please try again.');
+                          }
+                        }
+                      }}
+                    >
+                      {file.filename ? file.filename.split("/").pop() : ""}
+                    </a>
+                  </td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                    <a
+                      href="#"
+                      className="govuk-link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (onDeleteFile) {
+                          onDeleteFile(file.id);
+                        } else if (onRemoveFile) {
+                          onRemoveFile(idx);
+                        }
+                      }}
+                    >
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* File Upload Section - Upload controls appear after uploaded files */}
+      {showTitle && (
+        <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
+          {title}
+        </h3>
+      )}
+      <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
-        .xlsx files of up to 25MB each.
-      </div>
-      {/* Existing files for this path/prefix (from DB, not S3) */}
-      <div className="gds-upload-list">
-        {/* Display DB files if provided */}
-        {Array.isArray(uploadedFiles) && uploadedFiles.length === 0 && (
-          <div style={{ color: "#505a5f" }}>No files found.</div>
-        )}
-        {Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
-          <div style={{ marginBottom: 16 }}>
-            {uploadedFiles.map((file: UploadedFile, idx: number) => (
-              <div
-                key={file.id}
-                className="gds-upload-file-row"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  borderBottom: "1px solid #b1b4b6",
-                  padding: "8px 0",
-                }}
-              >
-                <a
-                  href="#"
-                  className="govuk-link gds-upload-file-link"
-                  style={{
-                    flex: "1",
-                    color: "#1d70b8",
-                    textDecoration: "underline",
-                    fontWeight: 400,
-                    fontSize: "1rem",
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (file.s3Key) downloadS3File(file.s3Key);
-                  }}
-                >
-                  {file.filename ? file.filename.split("/").pop() : ""}
-                </a>
-                <span
-                  className="gds-upload-file-size"
-                  style={{
-                    flex: "0 0 100px",
-                    textAlign: "center",
-                    color: "#505a5f",
-                    fontSize: "1rem",
-                  }}
-                >
-                  {file.fileSizeBytes && !isNaN(Number(file.fileSizeBytes))
-                    ? `${Math.round(Number(file.fileSizeBytes) / 1024)} KB`
-                    : "0 KB"}
-                </span>
-                <a
-                  href="#"
-                  className="govuk-link gds-upload-remove-link"
-                  style={{
-                    flex: "0 0 120px",
-                    textAlign: "right",
-                    color: "#1d70b8",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                    fontWeight: 400,
-                    fontSize: "1rem",
-                    marginLeft: "auto",
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (onRemoveFile) onRemoveFile(idx);
-                  }}
-                >
-                  Remove file
-                </a>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        .xlsx files of up to 25MB each. Files can not be password protected.
+      </p>
+
       <div
         className="gds-upload-dropzone"
         onDrop={handleDrop}
@@ -430,7 +360,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           type="file"
           multiple
           ref={fileInputRef}
-          style={{ display: "none" }}
+          className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
         />
