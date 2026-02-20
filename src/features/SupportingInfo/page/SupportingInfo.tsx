@@ -161,6 +161,12 @@ const SupportingInfo: React.FC = () => {
 
   const hasError = (key: string) => errors.some(e => e.key === key);
 
+  // Handle file deletion
+  const handleDeleteFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+  };
+
   return (
   <div className="govuk-body" style={{ maxWidth: 700, fontSize: '19px', lineHeight: '1.31579' }}>
   <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
@@ -395,12 +401,14 @@ const SupportingInfo: React.FC = () => {
             </span>
           )}
           <FileUpload
-            title=""
+            title="Upload a file"
             prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}/`}
             applicationId={applicationId}
             category={FILE_CATEGORIES.SUPPORT_INFO}
             addedBy={userId}
             uploadedFiles={uploadedFiles}
+            showDocumentsHeading={true}
+            onDeleteFile={handleDeleteFile}
             onUploaded={(newUploadedFiles, newProjectDocuments) => {
               setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
               setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
