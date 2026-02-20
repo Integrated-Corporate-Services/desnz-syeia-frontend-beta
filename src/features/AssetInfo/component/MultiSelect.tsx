@@ -59,12 +59,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       style={{ maxWidth: 320 }}
     >
       <fieldset className="govuk-fieldset" aria-describedby={`${id}-hint`}>
-        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-          {label}
-        </legend>
-        <span id={`${id}-hint`} className="govuk-hint">
+        {label && (
+          <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+            {label}
+          </legend>
+        )}
+        <div id={`${id}-hint`} className="govuk-hint">
           Select all that apply
-        </span>
+        </div>
         {error && (
           <span className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span> {error}

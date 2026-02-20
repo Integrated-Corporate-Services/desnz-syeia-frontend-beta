@@ -7,8 +7,10 @@ import { CommonInputProps } from '../../../types/form';
 
 const TextArea: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, maxLength, showCount, style, disabled }) => {
   const count = value.length;
+  const remainingChars = maxLength ? maxLength - count : 0;
+  
   return (
-    <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
+    <div className={`govuk-form-group${showCount && maxLength ? ' govuk-character-count' : ''}${error ? ' govuk-form-group--error' : ''}`} data-module={showCount && maxLength ? "govuk-character-count" : undefined} data-maxlength={showCount && maxLength ? maxLength : undefined}>
       <label className="govuk-label" htmlFor={id}>{label}</label>
       {error && (
         <span className="govuk-error-message">
@@ -16,7 +18,7 @@ const TextArea: React.FC<CommonInputProps> = ({ id, name, label, value, error, o
         </span>
       )}
       <textarea
-        className={`govuk-textarea${error ? ' govuk-textarea--error' : ''}`}
+        className={`govuk-textarea${showCount && maxLength ? ' govuk-js-character-count' : ''}${error ? ' govuk-textarea--error' : ''}`}
         id={id}
         name={name}
         value={value}
@@ -29,7 +31,7 @@ const TextArea: React.FC<CommonInputProps> = ({ id, name, label, value, error, o
       />
       {showCount && maxLength && (
         <div id={`${id}-info`} className="govuk-hint govuk-character-count__message">
-          You have {maxLength - count} characters remaining
+          You have {remainingChars} characters remaining
         </div>
       )}
     </div>

@@ -44,8 +44,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
   const contactDetails = formatContactDetails(party);
 
   return (
-    <div className="govuk-grid-row">
-      <div className="govuk-grid-column-two-thirds">
+    <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -61,8 +60,10 @@ const NetworkOperatorContactDetails: React.FC = () => {
             </li>
           </ol>
         </nav>
-
-        <h1 className="govuk-heading-xl">{LABELS.PAGE_TITLE}</h1>
+        <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
+        <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
+        <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
         {error && (
           <div
@@ -100,6 +101,8 @@ const NetworkOperatorContactDetails: React.FC = () => {
           </div>
         </form>
       </div>
+      </div>
+      </main>
     </div>
   );
 };

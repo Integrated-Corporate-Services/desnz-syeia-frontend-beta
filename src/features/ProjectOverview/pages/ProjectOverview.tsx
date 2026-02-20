@@ -101,6 +101,14 @@ const ProjectOverview = () => {
 			relatedApplications: prev.relatedApplications.filter((ra: any) => ra.value !== value),
 		}));
 	};
+	// Handle file deletion
+	const handleDeleteFile = (fileId: string) => {
+		setFormState(prev => ({
+			...prev,
+			uploadedFiles: prev.uploadedFiles.filter(file => file.id !== fileId),
+			applicationDocuments: prev.applicationDocuments.filter(doc => doc.fileId !== fileId)
+		}));
+	};
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -256,20 +264,22 @@ const ProjectOverview = () => {
 			<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 				<ol className="govuk-breadcrumbs__list">
 					<li className="govuk-breadcrumbs__list-item">
-									<Link
-										className="govuk-breadcrumbs__link"
-										to={`${S37_BASE_URL}/${applicationId}/task-list`}
-									>
-										{projectOverview.breadcrumb.taskList}
-									</Link>
+						<Link
+							className="govuk-breadcrumbs__link"
+							to={`${S37_BASE_URL}/${applicationId}/task-list`}
+						>
+							{projectOverview.breadcrumb.taskList}
+						</Link>
 					</li>
-					<li className="govuk-breadcrumbs__list-item" aria-current="page">{projectOverview.breadcrumb.current}</li>
+					<li className="govuk-breadcrumbs__list-item" aria-current="page">
+						{projectOverview.breadcrumb.current}
+					</li>
 				</ol>
 			</nav>
-			<main className="govuk-main-wrapper" id="main-content" role="main">
-				<h1 className="govuk-heading-xl">{projectOverview.heading}</h1>
+			<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
+				<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
 				{errors.length > 0 && (
-					<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} style={{ marginBottom: '2rem', maxWidth: 600 }}>
+					<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
 						<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
 						<div className="govuk-error-summary__body">
 							<ul className="govuk-list govuk-error-summary__list">
@@ -534,9 +544,11 @@ const ProjectOverview = () => {
 					return;
 				}}>
 
-					<div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 600 }}>
+					{/* Project Name Section */}
+					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project name</h2>
+				<div className="govuk-form-group govuk-!-width-two-thirds">
 						<TextInput
-							label={projectOverview.projectName}
+							label=""
 							id="projectName-inputValue"
 							name="projectName.inputValue"
 							value={formState.projectName}
@@ -546,10 +558,11 @@ const ProjectOverview = () => {
 						/>
 					</div>
 
-					{/* Project Description */}
-					<div className="govuk-form-group govuk-character-count govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 600 }}>
+					{/* Project Description Section */}
+					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project description</h2>
+				<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 						<TextArea
-							label={projectOverview.projectDescription}
+							label=""
 							id="projectDescription-inputValue"
 							name="projectDescription.inputValue"
 							value={formState.projectDescription}
@@ -569,7 +582,7 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Details: What type of information should be provided */}
-					<details className="govuk-details">
+					<details className="govuk-details govuk-!-margin-bottom-6" data-module="govuk-details">
 						<summary className="govuk-details__summary">
 							<span className="govuk-details__summary-text">{projectOverview.infoDetailsSummary}</span>
 						</summary>
@@ -580,11 +593,11 @@ const ProjectOverview = () => {
 						</div>
 					</details>
 
-					{/* Tallest Pole Height */}
-
-					<div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds" style={{ maxWidth: 320 }}>
+					{/* Tallest Pole Height Section */}
+					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">What is the height of the tallest proposed pole?</h2>
+				<div className="govuk-!-margin-bottom-6 govuk-!-width-one-third">
 						<NumberInput
-							label={projectOverview.tallestPoleHeight}
+							label=""
 							suffix={projectOverview.tallestPoleHeightSuffix}
 							id="tallestPoleHeight-inputValue"
 							name="tallestPoleHeight.inputValue"
@@ -595,10 +608,11 @@ const ProjectOverview = () => {
 						/>
 					</div>
 
-					{/* Plan Reference */}
-					<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.planReference ? " govuk-form-group--error" : ""}`} style={{ maxWidth: 600 }}>
-						<label className="govuk-label" htmlFor="planReference-inputValue">
-							{projectOverview.planReference}
+					{/* Plan Reference Section */}
+					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Plan reference</h2>
+				<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.planReference ? " govuk-form-group--error" : ""}`}>
+						<label className="govuk-label govuk-visually-hidden" htmlFor="planReference-inputValue">
+							Plan reference
 						</label>
 						{fieldErrors?.planReference && (
 							<p id="planReference-inputValue-error" className="govuk-error-message">
@@ -618,7 +632,7 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Work Start Dates Known */}
-					<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.areWorkStartDatesKnown ? " govuk-form-group--error" : ""}`} style={{ maxWidth: 600 }}>
+				<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-three-quarters${fieldErrors?.areWorkStartDatesKnown ? " govuk-form-group--error" : ""}`}>
 						<fieldset className="govuk-fieldset" aria-describedby={fieldErrors?.areWorkStartDatesKnown ? "areWorkStartDatesKnown-error" : undefined}>
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 								<h2 className="govuk-fieldset__heading">
@@ -744,51 +758,54 @@ const ProjectOverview = () => {
 					{/* Plan Information Documents */}
 					<div id="planInformationDocuments" className={`govuk-form-group${fieldErrors?.uploadedFiles ? " govuk-form-group--error" : ""}`}> 
 						<fieldset className="govuk-fieldset">
-							<label className="govuk-label" style={{ fontWeight: 600 }}>
-								{projectOverview.planInformationDocuments}
-							</label>
-							{fieldErrors?.uploadedFiles && (
-								<p id="planInformationDocuments-error" className="govuk-error-message">
-									<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
-								</p>
-							)}
-							<FileUpload
-								title=''
-								prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
-								applicationId={applicationId}
-								category={FILE_CATEGORIES.PLAN_INFO}
-								addedBy={userId}
-								uploadedFiles={formState.uploadedFiles}
-								onUploaded={(newUploadedFiles, newProjectDocuments) => {
-									setFormState(prev => ({
-										...prev,
-										uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
-										applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
-									}));
-								}}
-							/>
-						</fieldset>
-					</div>
-
-					{/* Details: What information should be included in the plan */}
-					<details className="govuk-details">
-						<summary className="govuk-details__summary">
-							<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
-						</summary>
-						<div className="govuk-details__text">
-							<p className="govuk-body">
-								{projectOverview.planDetailsText}
+						<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+							{projectOverview.planInformationDocuments}
+						</legend>
+						{fieldErrors?.uploadedFiles && (
+							<p id="planInformationDocuments-error" className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
 							</p>
-						</div>
-					</details>
+						)}
+						<FileUpload
+							title='Upload a file'
+							showTitle={false}
+							prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
+							applicationId={applicationId}
+							category={FILE_CATEGORIES.PLAN_INFO}
+							addedBy={userId}
+							uploadedFiles={formState.uploadedFiles}
+							showDocumentsHeading={true}
+							onDeleteFile={handleDeleteFile}
+						onUploaded={(newUploadedFiles, newProjectDocuments) => {
+							setFormState(prev => ({
+								...prev,
+								uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
+								applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
+							}));
+						}}
+					/>
+				</fieldset>
+			</div>
 
-					{/* Related Applications */}
+			{/* Details: What information should be included in the plan */}
+		<details className="govuk-details govuk-!-margin-top-4 govuk-!-margin-bottom-6">
+				<summary className="govuk-details__summary">
+					<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
+				</summary>
+				<div className="govuk-details__text">
+					<p className="govuk-body">
+						{projectOverview.planDetailsText}
+					</p>
+				</div>
+			</details>
+
+			{/* Related Applications */}
 					<div className={`govuk-form-group${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`}>
 						<fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()} id="relatedApplications-section">
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 								<h2 className="govuk-fieldset__heading">{projectOverview.relatedApplications}</h2>
 							</legend>
-							<div className="govuk-hint" id="fieldset-5-hint">
+							<div className="govuk-hint govuk-!-width-two-thirds" id="fieldset-5-hint">
 								{projectOverview.relatedApplicationsHint}
 							</div>
 							{fieldErrors?.hasRelatedApplications && (
@@ -804,7 +821,7 @@ const ProjectOverview = () => {
 								{formState.hasRelatedApplications === "true" && (
 									<div className="govuk-radios__conditional" id="hasRelatedApplications-hidden">
 										{/* Related applications table */}
-										<table className="govuk-table govuk-!-margin-bottom-6" style={{ maxWidth: 600 }}>
+									<table className="govuk-table govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
 											<thead className="govuk-table__head">
 												<tr className="govuk-table__row">
 													<th scope="col" className="govuk-table__header govuk-!-width-one-half">Related applications</th>
@@ -854,7 +871,7 @@ const ProjectOverview = () => {
 												onFocus={() => setShowDropdown(true)}
 												onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
 												placeholder="Type to search project names..."
-												style={{ fontSize: '16px', lineHeight: '1.2', marginBottom: 0 }}
+
 											/>
 											{showDropdown && (
 												<ul
