@@ -50,6 +50,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                   </span>
                 ) : item.name === 'Submit application' ? (
                   <div className="govuk-button-group">
+                    {/*
                     <button
                       className="govuk-button govuk-button--warning"
                       type="button"
@@ -59,6 +60,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                     >
                       Delete application
                     </button>
+                    */}
                     <button
                       className="govuk-button"
                       type="button"
