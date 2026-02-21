@@ -292,7 +292,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
-          <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2>
+          {/* <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2> */}
           <table className="govuk-table">
             <tbody className="govuk-table__body">
               {uploadedFiles.map((file: UploadedFile, idx: number) => (
@@ -316,7 +316,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                       {file.filename ? file.filename.split("/").pop() : ""}
                     </a>
                   </td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                  {/* <td className="govuk-table__cell govuk-table__cell--numeric">
                     <a
                       href="#"
                       className="govuk-link"
@@ -331,7 +331,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     >
                       Delete
                     </a>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

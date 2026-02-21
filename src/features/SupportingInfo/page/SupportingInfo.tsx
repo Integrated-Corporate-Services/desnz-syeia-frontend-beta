@@ -401,7 +401,7 @@ const SupportingInfo: React.FC = () => {
             </span>
           )}
           <FileUpload
-            title="Upload a file"
+            title=""
             prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}/`}
             applicationId={applicationId}
             category={FILE_CATEGORIES.SUPPORT_INFO}
