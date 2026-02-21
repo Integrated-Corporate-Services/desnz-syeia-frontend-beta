@@ -54,7 +54,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 
   return (
     <div
-      className="govuk-form-group"
+      className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}
       ref={dropdownRef}
       style={{ maxWidth: 320 }}
     >
@@ -80,6 +80,9 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               width: "100%",
               textAlign: "left",
               border: error ? "2px solid #d4351c" : undefined,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
             onClick={() => !disabled && setOpen(!open)}
             disabled={disabled}

@@ -308,22 +308,20 @@ const getApplicationId = () => {
 
         {/* Line voltage */}
         <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Line voltage</h2>
-        <div className="govuk-!-width-two-thirds">
-          <MultiSelectDropdown
-            id="lineVoltage"
-            name="lineVoltage"
-            label=""
-            options={VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))}
-            selected={form.lineVoltage}
-            onChange={(selected: string[]) => setForm(prev => ({ ...prev, lineVoltage: selected }))}
-            error={errors.lineVoltage}
-            disabled={isReadOnly}
-          />
-        </div>
+        <MultiSelectDropdown
+          id="lineVoltage"
+          name="lineVoltage"
+          label=""
+          options={VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))}
+          selected={form.lineVoltage}
+          onChange={(selected: string[]) => setForm(prev => ({ ...prev, lineVoltage: selected }))}
+          error={errors.lineVoltage}
+          disabled={isReadOnly}
+        />
 
         {/* Line Length */}
         <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Line length</h2>
-        <div className="govuk-form-group govuk-!-width-one-third">
+        <div className={`govuk-form-group govuk-!-width-one-third${errors.lineLength ? ' govuk-form-group--error' : ''}`}>
           <label className="govuk-label govuk-visually-hidden" htmlFor="lineLength">Line length</label>
           {errors.lineLength && (
             <span className="govuk-error-message">
