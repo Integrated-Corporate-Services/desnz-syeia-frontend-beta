@@ -61,22 +61,10 @@ const PaymentCallbackPage: React.FC = () => {
                 invoiceNumber,
                 paymentId,
                 reference: data.reference,
-                totalAmount: totalAmount ? parseFloat(totalAmount) : undefined // Add this line
+                totalAmount: totalAmount ? parseFloat(totalAmount) : undefined
               }
             });
-          }, 500);
-
-          // **SUBMIT APPLICATION HERE**
-          try {
-            console.log('Submitting application:', applicationId);
-            await applicationApiService.submitApplication(applicationId);
-            console.log('Application submitted successfully');
-          } catch (submitError) {
-            console.error('Failed to submit application:', submitError);
-            setStatus('failed');
-            setErrorMessage('Payment successful but failed to submit application. Please contact support.');
-            return;
-          }
+          }, 1000);
 
         } else if (paymentStatus === 'failed') {
           setStatus('failed');

@@ -560,7 +560,7 @@ const ProjectOverview = () => {
 
 					{/* Project Description Section */}
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project description</h2>
-				<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
+				<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 						<TextArea
 							label=""
 							id="projectDescription-inputValue"
@@ -756,7 +756,7 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Plan Information Documents */}
-					<div id="planInformationDocuments" className={`govuk-form-group${fieldErrors?.uploadedFiles ? " govuk-form-group--error" : ""}`}> 
+					<div id="planInformationDocuments" className={`govuk-form-group${fieldErrors?.uploadedFiles ? " govuk-form-group--error" : ""} govuk-!-margin-bottom-0`}> 
 						<fieldset className="govuk-fieldset">
 						<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 							{projectOverview.planInformationDocuments}
@@ -788,7 +788,7 @@ const ProjectOverview = () => {
 			</div>
 
 			{/* Details: What information should be included in the plan */}
-		<details className="govuk-details govuk-!-margin-top-4 govuk-!-margin-bottom-6">
+		<details className="govuk-details govuk-!-margin-bottom-6">
 				<summary className="govuk-details__summary">
 					<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
 				</summary>
