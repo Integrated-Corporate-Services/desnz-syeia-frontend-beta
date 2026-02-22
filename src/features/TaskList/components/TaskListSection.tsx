@@ -6,7 +6,13 @@ import { S37_BASE_URL } from '../../../constants/s37';
 interface TaskListSectionProps {
   section: {
     title: string;
-    items: { name: string; status: string; link: string; disabled?: boolean }[];
+    items: { 
+      name: string; 
+      status: string; 
+      link: string; 
+      disabled?: boolean;
+      plainTextStatus?: boolean;  // Status renders as plain text, not a tag
+    }[];
   };
   idx: number;
   applicationId?: string;
@@ -32,31 +38,27 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
   const canEdit = !isSubmitted || isAdmin;
 
   return (
-    <div style={{ marginTop: '2rem' }}>
-      <h2 className="govuk-heading-m" style={{ marginBottom: '15px' }}>{idx + 1}. {section.title}</h2>
-      <hr className="govuk-section-break govuk-section-break--visible" style={{ marginBottom: '0' }} />
+    <div className="govuk-!-margin-top-8">
+      <h2 className="govuk-heading-m govuk-!-margin-bottom-4">{idx + 1}. {section.title}</h2>
+      <hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
       <table className="govuk-table">
         <tbody className="govuk-table__body">
-          {section.items.map((item, itemIdx) => (
+          {section.items.map((item) => (
             <tr className="govuk-table__row" key={item.name}>
               <td className="govuk-table__cell">
                 {/* Check if item is disabled */}
                 {item.disabled ? (
-                  <span 
-                    className="govuk-link govuk-link--disabled" 
-                    style={{ fontWeight: 700, color: '#626a6e', cursor: 'not-allowed' }}
-                  >
+                  <span className="govuk-body govuk-!-font-weight-bold" style={{ color: '#626a6e' }}>
                     {item.name}
                   </span>
                 ) : item.name === 'Submit application' ? (
                   <div className="govuk-button-group">
                     {/*
                     <button
-                      className="govuk-button govuk-button--warning"
+                      className="govuk-button govuk-button--warning govuk-!-margin-right-3"
                       type="button"
                       onClick={() => navigate(`${S37_BASE_URL}/${applicationId}/delete`)}
                       disabled={submitting || !canEdit}
-                      style={{ marginRight: '1rem' }}
                     >
                       Delete application
                     </button>
@@ -74,30 +76,34 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                   item.name === 'Route' ? (
                     <RouteEntry applicationId={applicationId}>
                       <Link 
-                        className="govuk-link" 
+                        className="govuk-link govuk-!-font-weight-bold" 
                         to={item.link}
-                        style={{ fontWeight: 700 }}
                       >
                         {item.name}
                       </Link>
                     </RouteEntry>
                   ) : (
                     <Link 
-                      className="govuk-link" 
+                      className="govuk-link govuk-!-font-weight-bold" 
                       to={item.link}
-                      style={{ fontWeight: 700 }}
                     >
                       {item.name}
                     </Link>
                   )
                 ) : (
-                  <span className="govuk-link govuk-link--disabled" style={{ fontWeight: 700 }}>{item.name}</span>
+                  <span className="govuk-link govuk-link--disabled govuk-!-font-weight-bold">{item.name}</span>
                 )}
               </td>
-              <td className="govuk-table__cell" style={{ textAlign: 'right' }}>
-                <span className={statusClass(item.status)}>
-                  {item.status}
-                </span>
+              <td className="govuk-table__cell govuk-!-text-align-right">
+                {item.plainTextStatus ? (
+                  <span>
+                    {item.status}
+                  </span>
+                ) : (
+                  <span className={statusClass(item.status)}>
+                    {item.status}
+                  </span>
+                )}
               </td>
             </tr>
           ))}
