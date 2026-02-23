@@ -3,65 +3,97 @@ import { ConsultationDetails } from '../types/ConsultationDetails';
 
 // Save 'Consultation Not Required' status
 export async function saveNotRequiredStatus(consultationId: string, consultationDetails: any): Promise<any> {
-  // consultationDetails should include all details, uploadedFiles, applicationDocuments, and updated reason
-  const response = await axios.post(`/backend/api/consultations/${consultationId}/savenotrequiredstatus`, { consultationDetails });
-  return response.data;
+    // consultationDetails should include all details, uploadedFiles, applicationDocuments, and updated reason
+    const response = await axios.post(`/backend/api/consultations/${consultationId}/savenotrequiredstatus`, { consultationDetails });
+    return response.data;
 }
 
 // Fetch 'Consultation Not Required' status
 export async function getNotRequiredStatus(consultationId: string, applicationId: string): Promise<any> {
-  const response = await axios.get(`/backend/api/consultations/${consultationId}/${applicationId}/getnotrequiredstatus`);
-  return response.data;
+    const response = await axios.get(`/backend/api/consultations/${consultationId}/${applicationId}/getnotrequiredstatus`);
+    return response.data;
 }
 
 export async function fetchConsultationDetails(applicationId: string, userId: string): Promise<ConsultationDetails> {
-  const response = await axios.get('/backend/api/consultations/getConsultationById', {
-    params: { applicationId, userId }
-  });
-  return response.data;
+    const response = await axios.get('/backend/api/consultations/getConsultationById', {
+        params: { applicationId, userId },
+    });
+    return response.data;
 }
 
 export async function getConsultationDetailsById(consultationId: string): Promise<ConsultationDetails> {
-  const response = await axios.get(`/backend/api/consultations/${consultationId}/details`);
-  return response.data;
+    const response = await axios.get(`/backend/api/consultations/${consultationId}/details`);
+    return response.data;
 }
 
 export async function saveConsultationMessage(consultationId: string, message: string, consulteeEmailAddress: string): Promise<any> {
-  const response = await axios.post(`/backend/api/consultations/${consultationId}/save-message`, { message, consulteeEmailAddress });
-  return response.data;
+    const response = await axios.post(`/backend/api/consultations/${consultationId}/save-message`, { message, consulteeEmailAddress });
+    return response.data;
 }
 
-export async function withdrawConsultationRequest({ applicationId, consultationId, updatedBy }: { applicationId: string, consultationId: string, updatedBy: string }): Promise<any> {
-  const url = `/backend/api/consultations/${applicationId}/${consultationId}/withdraw-consultation`;
-  const response = await fetch(
-    url,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ applicationId, consultationId, updatedBy }),
+export async function withdrawConsultationRequest({ applicationId, consultationId, updatedBy }: { applicationId: string; consultationId: string; updatedBy: string }): Promise<any> {
+    const url = `/backend/api/consultations/${applicationId}/${consultationId}/withdraw-consultation`;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ applicationId, consultationId, updatedBy }),
+    });
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Failed to withdraw consultation');
     }
-  );
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to withdraw consultation");
-  }
-  return response.json();
+    return response.json();
 }
 
 // Update all consultations for an application with lastUpdatedBy user id
 export async function updateAllConsultations(applicationId: string, userId: string): Promise<any> {
-  const url = `/backend/api/consultations/${applicationId}/update-all-consultations`;
-  const payload = { userId };
+    const url = `/backend/api/consultations/${applicationId}/update-all-consultations`;
+    const payload = { userId };
+
+    try {
+        const response = await axios.post(url, payload, { withCredentials: true });
+        return response.data;
+    } catch (error: any) {
+        const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+        throw new Error(`Failed to update all consultations for applicationId=${applicationId}, userId=${userId}: ${originalMessage}`);
+    }
+}
+
+// Create LPA consultations for selected LPAs
+export async function createLpaConsultations(applicationId: string, lpas: Array<{ lpa_code: string; lpa_name: string }>, userId: string): Promise<any> {
+    const url = `/backend/api/applications/${applicationId}/consultations`;
+    const payload = { lpas, userId };
+
+    try {
+        const response = await axios.post(url, payload, { withCredentials: true });
+        return response.data;
+    } catch (error: any) {
+        const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+        throw new Error(`Failed to create LPA consultations for applicationId=${applicationId}: ${originalMessage}`);
+    }
+}
+
+/**
+ * Mark consultation as request sent with current date
+ */
+export async function markConsultationAsRequestSent(
+  consultationId: string
+): Promise<{ success: boolean; data?: any }> {
+  const url = `/backend/api/consultations/${consultationId}/mark-request-sent`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include'
+  });
   
-  try {
-    const response = await axios.post(url, payload, { withCredentials: true });
-    return response.data;
-  } catch (error: any) {
-    const originalMessage = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'Unknown error');
-    throw new Error(
-      `Failed to update all consultations for applicationId=${applicationId}, userId=${userId}: ${originalMessage}`
-    );
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to mark consultation as request sent');
   }
+  
+  return await res.json();
 }
