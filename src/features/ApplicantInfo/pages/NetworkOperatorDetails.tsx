@@ -198,10 +198,10 @@ const NetworkOperatorDetails: React.FC = () => {
           </li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-xl">Applicant details</h1>
+            <h1 className="govuk-heading-l">Applicant details</h1>
             {/* Error summary */}
             {showErrorSummary && (
               <div
@@ -235,7 +235,7 @@ const NetworkOperatorDetails: React.FC = () => {
                 }`}
               >
                 <label
-                  className="govuk-label govuk-label--s"
+                  className="govuk-label govuk-label--s govuk-!-margin-bottom-2"
                   htmlFor="networkOperatorRef"
                 >
                   Applicant’s reference
@@ -326,7 +326,7 @@ const NetworkOperatorDetails: React.FC = () => {
               )}
 
               {/* Additional contacts */}
-              <h2 className="govuk-heading-m">
+              <h2 className="govuk-heading-s govuk-!-margin-bottom-2">
                 Additional contacts{" "}
                 <span className="govuk-hint">(optional)</span>
               </h2>
@@ -335,7 +335,7 @@ const NetworkOperatorDetails: React.FC = () => {
               </div>
               <div className="govuk-form-group">
                 <label
-                  className="govuk-label govuk-label--s"
+                  className="govuk-label govuk-label--s govuk-!-margin-bottom-2"
                   htmlFor="emailAddress"
                 >
                   {FORM_LABELS.EMAIL_ADDRESS}

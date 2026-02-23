@@ -8,8 +8,8 @@ import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import RadioGroup from '../component/RadioGroup';
-import MultiSelectDropdown from '../component/MultiSelect';
 import TextArea from '../component/TextArea';
+import MultiSelectDropdown from '../component/MultiSelect';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
@@ -236,7 +236,7 @@ const getApplicationId = () => {
       )}
       <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
         {submitted && Object.keys(errors).length > 0 && (
-          <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary" style={{ marginBottom: '2rem', maxWidth: 600 }}>
+          <div className="govuk-error-summary govuk-!-margin-bottom-6 govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
             <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">
@@ -251,18 +251,22 @@ const getApplicationId = () => {
             </div>
           </div>
         )}
+        <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
+        <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
         <h1 className="govuk-heading-l">Asset information</h1>
 
         {/* Standard specification reference number */}
-        <div className="govuk-!-margin-bottom-6" style={{ maxWidth: 480 }}>
+        <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Standard specification reference number</h2>
+        <div className="govuk-form-group">
           <TextInput
             id="referenceNumber"
             name="referenceNumber"
-            label="Standard specification reference number"
+            label=""
             value={form.referenceNumber}
             error={errors.referenceNumber}
             onChange={handleChange}
-            widthClass="govuk-input--width-20"
+            //widthClass="govuk-input--width-20"
             ref={errors.referenceNumber ? firstErrorRef : undefined}
             disabled={isReadOnly}
           />
@@ -270,10 +274,11 @@ const getApplicationId = () => {
 
 
         {/* Type of Line */}
-        <div className="govuk-!-margin-bottom-6">
+        <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Type of line</h2>
+        <div className="govuk-form-group">
           <RadioGroup
             id="lineType"
-            label="Type of Line"
+            label=""
             name="lineType"
             value={form.lineType}
             error={errors.lineType}
@@ -284,8 +289,10 @@ const getApplicationId = () => {
             ]}
             disabled={isReadOnly}
           />
-          {form.lineType === 'transmission' && (
-            <div className="govuk-!-margin-top-2" style={{ maxWidth: 600 }}>
+        </div>
+        
+        {form.lineType === 'transmission' && (
+            <div className="govuk-!-margin-top-2 govuk-!-width-two-thirds">
               <TextArea
                 id="tori_noi"
                 name="tori_noi"
@@ -294,34 +301,28 @@ const getApplicationId = () => {
                 onChange={handleChange}
                 maxLength={4000}
                 showCount
-                style={{ width: '100%', maxWidth: 600 }}
                 disabled={isReadOnly}
               />
             </div>
           )}
-        </div>
 
         {/* Line voltage */}
-        <div className="govuk-!-margin-bottom-6">
-          <div className={`govuk-form-group${errors.lineVoltage ? ' govuk-form-group--error' : ''}`}>  
-            <div className="multi-select-ellipsis" style={{ maxWidth: 480 }}>
-              <MultiSelectDropdown
-                id="lineVoltage"
-                name="lineVoltage"
-                label="Line voltage"
-                options={VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))}
-                selected={Array.isArray(form.lineVoltage) ? form.lineVoltage : form.lineVoltage ? [form.lineVoltage] : []}
-                onChange={(selected: string[]) => setForm(prev => ({ ...prev, lineVoltage: selected }))}
-                error={errors.lineVoltage}
-                disabled={isReadOnly}
-              />
-            </div>
-          </div>
-        </div>
+        <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Line voltage</h2>
+        <MultiSelectDropdown
+          id="lineVoltage"
+          name="lineVoltage"
+          label=""
+          options={VOLTAGE_CLASS_OPTIONS.map(opt => ({ value: opt.code, label: opt.label }))}
+          selected={form.lineVoltage}
+          onChange={(selected: string[]) => setForm(prev => ({ ...prev, lineVoltage: selected }))}
+          error={errors.lineVoltage}
+          disabled={isReadOnly}
+        />
 
         {/* Line Length */}
-        <div className={`govuk-form-group govuk-!-margin-bottom-6${errors.lineLength ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 320 }}>
-          <label className="govuk-label govuk-!-font-size-19" htmlFor="lineLength">Line length</label>
+        <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Line length</h2>
+        <div className={`govuk-form-group govuk-!-width-one-third${errors.lineLength ? ' govuk-form-group--error' : ''}`}>
+          <label className="govuk-label govuk-visually-hidden" htmlFor="lineLength">Line length</label>
           {errors.lineLength && (
             <span className="govuk-error-message">
               <span className="govuk-visually-hidden">Error:</span> {errors.lineLength}
@@ -346,6 +347,9 @@ const getApplicationId = () => {
         {!isReadOnly && (
           <button type="submit" className="govuk-button govuk-!-margin-top-4">Save and continue</button>
         )}
+        </div>
+        </div>
+        </main>
       </form>
     </div>
   );

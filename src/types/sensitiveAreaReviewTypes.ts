@@ -10,6 +10,6 @@ export interface SensitiveAreaReview {
   reviewed_at?: string;
   created_at?: string;
   updated_at?: string;
-  documents?: ApplicationDocument[];
+  application_documents?: ApplicationDocument[];
   uploaded_files?: UploadedFile[];
 }
