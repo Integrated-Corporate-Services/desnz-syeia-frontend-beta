@@ -54,17 +54,19 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 
   return (
     <div
-      className="govuk-form-group"
+      className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}
       ref={dropdownRef}
       style={{ maxWidth: 320 }}
     >
       <fieldset className="govuk-fieldset" aria-describedby={`${id}-hint`}>
-        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-          {label}
-        </legend>
-        <span id={`${id}-hint`} className="govuk-hint">
+        {label && (
+          <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+            {label}
+          </legend>
+        )}
+        <div id={`${id}-hint`} className="govuk-hint">
           Select all that apply
-        </span>
+        </div>
         {error && (
           <span className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span> {error}
@@ -78,6 +80,9 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               width: "100%",
               textAlign: "left",
               border: error ? "2px solid #d4351c" : undefined,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
             onClick={() => !disabled && setOpen(!open)}
             disabled={disabled}

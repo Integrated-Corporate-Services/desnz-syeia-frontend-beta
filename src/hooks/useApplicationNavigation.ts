@@ -3,23 +3,58 @@ import { NWL_BASE_URL } from '../constants/nwl';
 import { TLP_BASE_URL } from '../constants/tlp';
 import { S37_BASE_URL } from '../constants/s37';
 import { APPLICATION_TYPES } from '../constants/applicationTypes';
+import { BASE_URL } from '../constants/routes';
 
 export const useApplicationNavigation = () => {
   const navigate = useNavigate();
 
+//   const getNavigationPath = (appType: string, appId: string, route: string): string => {
+//     const base = (BASE_URL || '').toString().replace(/\/$/, '');
+//     if (appType === APPLICATION_TYPES.NWL) {
+//     //   return `${NWL_BASE_URL}/${appId}/${route}`;
+//     // } else if (appType === APPLICATION_TYPES.TLP) {
+//     //   return `${TLP_BASE_URL}/${appId}/${route}`;
+//     // } else {
+//     //   return `${S37_BASE_URL}/${appId}/${route}`;
+//     return `${base}${NWL_BASE_URL}/${appId}/${route}`;
+//     } else if (appType === APPLICATION_TYPES.TLP) {
+//       return `${base}${TLP_BASE_URL}/${appId}/${route}`;
+//     } else {
+//       return `${base}${S37_BASE_URL}/${appId}/${route}`;
+//     }
+//   };
+
+//   const navigateToApplication = (appType: string, appId: string, route: string) => {
+//     const path = getNavigationPath(appType, appId, route);
+//         const base = (BASE_URL || '').toString().replace(/\/$/, '');
+//     const navigatePath = base && path.startsWith(base) ? path.slice(base.length) : path;
+//     const finalPath = navigatePath.startsWith('/') ? navigatePath : `/${navigatePath}`;
+//     navigate(finalPath);
+//   };
+
+//   return {
+//     getNavigationPath,
+//     navigateToApplication,
+//   };
+// };
+
+const NORMALISED_BASE = (BASE_URL || '').toString().replace(/\/$/, '');
+
   const getNavigationPath = (appType: string, appId: string, route: string): string => {
     if (appType === APPLICATION_TYPES.NWL) {
-      return `${NWL_BASE_URL}/${appId}/${route}`;
+      return `${NORMALISED_BASE}${NWL_BASE_URL}/${appId}/${route}`;
     } else if (appType === APPLICATION_TYPES.TLP) {
-      return `${TLP_BASE_URL}/${appId}/${route}`;
+      return `${NORMALISED_BASE}${TLP_BASE_URL}/${appId}/${route}`;
     } else {
-      return `${S37_BASE_URL}/${appId}/${route}`;
+      return `${NORMALISED_BASE}${S37_BASE_URL}/${appId}/${route}`;
     }
   };
 
   const navigateToApplication = (appType: string, appId: string, route: string) => {
     const path = getNavigationPath(appType, appId, route);
-    navigate(path);
+    const navigatePath = NORMALISED_BASE && path.startsWith(NORMALISED_BASE) ? path.slice(NORMALISED_BASE.length) : path;
+    const finalPath = navigatePath.startsWith('/') ? navigatePath : `/${navigatePath}`;
+    navigate(finalPath);
   };
 
   return {

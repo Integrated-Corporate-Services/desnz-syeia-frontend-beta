@@ -24,6 +24,7 @@ const ServiceNavigation = () => {
     "/s37-guidance",
     "/nwl-guidance",
     "/tlp-guidance",
+    "/access-revoked"
   ];
 
   // Check if user is in registration/access request flow

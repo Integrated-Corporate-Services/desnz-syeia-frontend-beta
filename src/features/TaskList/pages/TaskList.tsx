@@ -71,9 +71,9 @@ const TaskList: React.FC = () => {
               <h1 className="govuk-heading-l">Loading application...</h1>
             </>
           ) : (
-            <>
+            <div className="govuk-!-margin-top-2">
               <span className="govuk-caption-l">{application.operator_name || application.application_party?.organisation_name || ''}</span>
-              <h1 className="govuk-heading-l">{application.type === 'S37' ? 'Section 37' : application.type} application</h1>
+              <h1 className="govuk-heading-l govuk-!-margin-top-2 govuk-!-margin-bottom-2">{application.type === 'S37' ? 'Section 37' : application.type} application</h1>
               <p className="govuk-body" style={{ color: '#505a5f' }}>
                 {application.status?.toLowerCase() === 'submitted' 
                   ? (isAdmin 
@@ -81,7 +81,7 @@ const TaskList: React.FC = () => {
                       : 'This application has been submitted. You can view the information but cannot make changes.')
                   : 'Complete the following sections in order to create and submit your application'}
               </p>
-            </>
+            </div>
           )}
           <ErrorMessage error={submitError} />
           {sections.map((section, idx) => (

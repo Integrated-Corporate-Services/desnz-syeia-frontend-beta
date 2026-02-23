@@ -171,7 +171,7 @@ const Workbasket: React.FC = () => {
                     )}
                     activeTab={activeTab}
                   />
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+                  <div className="app-pagination-container govuk-!-margin-top-6">
                     <Pagination
                       currentPage={currentPage}
                       totalPages={Math.ceil(

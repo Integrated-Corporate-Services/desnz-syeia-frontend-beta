@@ -16,7 +16,15 @@ export function useTaskListData() {
   const [sections, setSections] = useState(getInitialSections(applicationId || application?.application_id, assetInformationStatus));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ inProgress: boolean; completed: number; total: number } | null>(null);
+  const [sensitiveAreaStatus, setSensitiveAreaStatus] = useState<{ 
+    inProgress: boolean; 
+    completed: number; 
+    total: number;
+    passed?: number;
+    cleared?: number;
+    failed?: number;
+    runStatus?: 'in_progress' | 'completed' | 'partial' | 'failed';
+  } | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const [showBanner, setShowBanner] = useState(false);
@@ -52,8 +60,58 @@ export function useTaskListData() {
   // Update sections when progress or assetInformationStatus changes
   useEffect(() => {
     const effectiveId = applicationId || application?.application_id;
-    setSections(getSectionsWithProgress(typeof effectiveId === 'string' ? effectiveId : undefined, progress, assetInformationStatus));
-  }, [progress, assetInformationStatus, application?.application_id, applicationId]);
+    setSections(getSectionsWithProgress(
+      typeof effectiveId === 'string' ? effectiveId : undefined, 
+      progress, 
+      assetInformationStatus,
+      sensitiveAreaStatus?.inProgress
+    ));
+  }, [progress, assetInformationStatus, application?.application_id, applicationId, sensitiveAreaStatus?.inProgress]);
+
+  // Fetch sensitive area check status
+  useEffect(() => {
+    const effectiveId = applicationId || application?.application_id;
+    if (!effectiveId) return;
+
+    const fetchStatus = async () => {
+      try {
+        const status = await getSensitiveAreaCheckStatus(effectiveId);
+        setSensitiveAreaStatus(status);
+        
+        // If check is in progress, poll for updates
+        if (status.inProgress) {
+          if (!pollingIntervalRef.current) {
+            pollingIntervalRef.current = setInterval(async () => {
+              try {
+                const updatedStatus = await getSensitiveAreaCheckStatus(effectiveId);
+                setSensitiveAreaStatus(updatedStatus);
+                
+                // Stop polling when complete
+                if (!updatedStatus.inProgress && pollingIntervalRef.current) {
+                  clearInterval(pollingIntervalRef.current);
+                  pollingIntervalRef.current = null;
+                }
+              } catch (err) {
+                console.error('Failed to poll sensitive area status', err);
+              }
+            }, 3000); // Poll every 3 seconds
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch sensitive area status', err);
+      }
+    };
+
+    fetchStatus();
+
+    // Cleanup polling on unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, [applicationId, application?.application_id]);
 
   // Handle location state for banners/popups
   useEffect(() => {
@@ -96,7 +154,7 @@ export function useTaskListData() {
   // Status class helper
   const statusClass = (status: string) => {
     if (status === 'Completed') return 'govuk-tag govuk-tag--green';
-    if (status === 'Incomplete') return 'govuk-tag govuk-tag--blue';
+    if (status === 'Incomplete' || status === 'In progress') return 'govuk-tag govuk-tag--blue';
     if (status === 'Cannot start yet') return 'govuk-tag govuk-tag--grey';
     return '';
   };

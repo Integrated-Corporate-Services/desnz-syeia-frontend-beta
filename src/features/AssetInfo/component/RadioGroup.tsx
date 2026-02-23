@@ -4,14 +4,14 @@ import { CommonInputProps } from '../../../types/form';
 const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, options = [], children, disabled }) => (
   <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
     <fieldset className="govuk-fieldset">
-      <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">{label}</legend>
+      {label && <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">{label}</legend>}
       {error && (
         <span className="govuk-error-message">
           <span className="govuk-visually-hidden">Error:</span> {error}
         </span>
       )}
-      <div className="govuk-radios">
-        {options.map((opt, idx) => (
+      <div className="govuk-radios" data-module="govuk-radios">
+        {options.map((opt) => (
           <React.Fragment key={opt.value}>
             <div className="govuk-radios__item">
               <input
@@ -29,7 +29,7 @@ const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error,
               </label>
             </div>
             {opt.value === 'transmission' && value === 'transmission' && children && (
-              <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
+              <div className="govuk-radios__conditional govuk-!-padding-left-4">
                 {children}
               </div>
             )}

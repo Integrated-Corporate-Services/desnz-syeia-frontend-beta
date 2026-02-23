@@ -10,6 +10,7 @@ export interface User {
   createdAt?: string;
   phone?: string;
   location?: string;
+  agencyName?: string;
 }
 
 export interface CreateUserData {

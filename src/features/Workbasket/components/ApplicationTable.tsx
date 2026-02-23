@@ -71,7 +71,7 @@ export const ApplicationTable: React.FC<Props> = ({
   applications,
   activeTab = "active",
 }) => {
-  const { navigateToApplication } = useApplicationNavigation();
+   const { navigateToApplication, getNavigationPath } = useApplicationNavigation();
   const tableId = useId();
   const captionId = `table-description-${tableId}`;
 
@@ -159,7 +159,7 @@ export const ApplicationTable: React.FC<Props> = ({
               aria-label={`DESNZ reference: ${app.desnz_ref || "Not available"}`}
             >
               <a
-                href="#"
+                href={getNavigationPath(app.type, app.application_id, app.permissions?.canEdit ? 'task-list' : 'application-submit')}
                 className="govuk-link"
                 aria-label={`View details for application ${app.desnz_ref || "with no reference"}, ${getCaseTypeLabel(app.type)}, ${activeTab !== "draft" ? app.status + " status, " : ""}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
                 onClick={(e) => handleApplicationClick(e, app)}
