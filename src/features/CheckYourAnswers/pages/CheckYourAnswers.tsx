@@ -15,6 +15,7 @@ import {
   EIAFees,
   WorksOverview,
   Consultation,
+  Parish,
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 
@@ -68,7 +69,7 @@ const ApplicationSubmit: React.FC = () => {
     } catch (err) {
       console.error("Failed to save declaration:", err);
       setValidationError("Failed to save declaration. Please try again.");
-      window.scrollTo({ top: 0});
+      window.scrollTo({ top: 0 });
     }
   };
 
@@ -115,6 +116,8 @@ const ApplicationSubmit: React.FC = () => {
     canWithdraw: boolean;
   } | null>(null);
 
+  const [parishes, setParishes] = useState<Parish[]>([]);
+  
   // Memoize transformed routes to avoid recalculating on every render
   const transformedRoutes = useMemo(() => {
     return routes
@@ -159,13 +162,52 @@ const ApplicationSubmit: React.FC = () => {
     fetch(`/backend/api/applications/${applicationId}/review`)
       .then((res) => res.json())
       .then((data) => {
+        // Log the entire response to see structure
+        console.log("Full API response:", data);
+        console.log(
+          "Network operator section:",
+          data.sections?.networkOperator,
+        );
+
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
+        console.log("Network operator details:", networkOpDetails);
+
         if (networkOpDetails) {
+          const party = networkOpDetails.application_party;
+          console.log("Application party:", party);
+          console.log(
+            "Additional contact BEFORE setting state:",
+            networkOpDetails.additional_contact,
+          );
+
           setNetworkOperatorDetails({
             operator_ref: networkOpDetails.operator_ref,
-            ...networkOpDetails.application_party,
+            organisation_name: party?.organisation_name,
+            organisation_contact_name: party?.contact_person_name,
+            // Map contact person fields to display fields
+            line1: party?.contact_person_line1,
+            line2: party?.contact_person_line2,
+            town_city: party?.contact_person_city,
+            county: party?.contact_person_county,
+            postcode: party?.contact_person_postcode,
+            email: party?.contact_person_email,
+            phone: party?.contact_person_phone,
+            additional_contact: party?.additional_contact,
           });
+
+          console.log(
+            "Additional contacts from API:",
+            party?.additional_contact,
+          );
+          console.log(
+            "Additional contacts type:",
+            typeof party?.additional_contact,
+          );
+          console.log(
+            "Additional contacts length:",
+            party?.additional_contact?.length,
+          );
         } else {
           setNetworkOperatorDetails(null);
         }
@@ -271,6 +313,11 @@ const ApplicationSubmit: React.FC = () => {
             ? data.sections.consultations
             : [],
         );
+
+        const parishesData = data.parishes || data.sections?.parishes || [];
+        setParishes(Array.isArray(parishesData) ? parishesData : []);
+        console.log('Parishes loaded:', parishesData);
+        console.log('Parishes array length:', parishesData?.length);
         // Set permissions from API response
         setPermissions(data.permissions || null);
       })
@@ -331,7 +378,7 @@ const ApplicationSubmit: React.FC = () => {
               Check your answers before sending your application
             </h1>
             {/* Applicant documents summary card */}
-            <h2 className="govuk-heading-m">Applicant documents</h2>
+            {/* <h2 className="govuk-heading-m">Applicant documents</h2>
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Project Overview</h2>
@@ -359,9 +406,9 @@ const ApplicationSubmit: React.FC = () => {
                   </div>
                 </dl>
               </div>
-            </div>
+            </div> */}
             {/* Supporting information summary card */}
-            <div className="govuk-summary-card">
+            {/* <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
                   Supporting information
@@ -390,9 +437,9 @@ const ApplicationSubmit: React.FC = () => {
                   </div>
                 </dl>
               </div>
-            </div>
+            </div> */}
             {/* Sensitive area review summary card */}
-            <div className="govuk-summary-card">
+            {/* <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
                   Sensitive area review
@@ -419,7 +466,7 @@ const ApplicationSubmit: React.FC = () => {
                   </div>
                 </dl>
               </div>
-            </div>
+            </div> */}
             {/* Applicant details summary card */}
             <h2 className="govuk-heading-m">Applicant details</h2>
             <div className="govuk-summary-card">
@@ -447,28 +494,20 @@ const ApplicationSubmit: React.FC = () => {
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
                   <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Reference</dt>
-                    <dd className="govuk-summary-list__value">
-                      {networkOperatorDetails?.operator_ref || "-"}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Network operator contact
-                    </dt>
+                    <dt className="govuk-summary-list__key">Applicant name</dt>
                     <dd className="govuk-summary-list__value">
                       {networkOperatorDetails?.organisation_name || "-"}
                     </dd>
                   </div>
-                </dl>
+                  {/* </dl>
               </div>
-            </div>
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">
+            </div> */}
+                  {/* <div className="govuk-summary-card"> */}
+                  {/* <div className="govuk-summary-card__title-wrapper"> */}
+                  {/* <h2 className="govuk-summary-card__title">
                   Network operator contact details
-                </h2>
-                {permissions?.canEdit && (
+                </h2> */}
+                  {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -483,14 +522,16 @@ const ApplicationSubmit: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
+                )} */}
+                  {/* </div> */}
+                  {/* <div className="govuk-summary-card__content"> */}
+                  {/* <dl className="govuk-summary-list"> */}
                   <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Name</dt>
+                    <dt className="govuk-summary-list__key">
+                      Applicant contact name
+                    </dt>
                     <dd className="govuk-summary-list__value">
-                      {networkOperatorDetails?.organisation_name || "-"}
+                      {networkOperatorDetails?.organisation_contact_name || "-"}
                     </dd>
                   </div>
                   <div className="govuk-summary-list__row">
@@ -526,9 +567,46 @@ const ApplicationSubmit: React.FC = () => {
                       {networkOperatorDetails?.phone || "-"}
                     </dd>
                   </div>
+                  {networkOperatorDetails?.additional_contact &&
+                    networkOperatorDetails.additional_contact.trim().length >
+                      0 && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Additional contacts
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          <ul className="govuk-list">
+                            {networkOperatorDetails.additional_contact
+                              .split(",")
+                              .map((email) => email.trim())
+                              .filter((email) => email.length > 0)
+                              .map((email, idx) => (
+                                <li key={idx}>
+                                  <a
+                                    className="govuk-link"
+                                    href={`mailto:${email}`}
+                                  >
+                                    {email}
+                                  </a>
+                                </li>
+                              ))}
+                          </ul>
+                        </dd>
+                      </div>
+                    )}
+
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Applicant Reference
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {networkOperatorDetails?.operator_ref || "-"}
+                    </dd>
+                  </div>
                 </dl>
               </div>
             </div>
+
             {/* Project details summary card */}
             <h2 className="govuk-heading-m">Project details</h2>
             {/* Project overview summary card */}
@@ -717,7 +795,7 @@ const ApplicationSubmit: React.FC = () => {
                 </dl>
               </div>
             </div>
-            <h2 className="govuk-heading-m">Location</h2>
+            <h2 className="govuk-heading-m">Routes</h2>
             {/* Route map summary card*/}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -1065,6 +1143,49 @@ const ApplicationSubmit: React.FC = () => {
                 </dl>
               </div>
             </div>
+
+            {/* Parishes summary card */}
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">Parishes</h2>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/parishes`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden"> parishes</span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Parishes 
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {parishes.length > 0 ? (
+                        <ul className="govuk-list">
+                          {parishes.map((parish) => (
+                            <li key={parish.parish_code}>
+                              {parish.parish_name}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        "-"
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+            
             {/* Sensitive area check summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -1314,8 +1435,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {eiaFees &&
-                      typeof eiaFees.requires_full_eia !== "undefined"
-                        ? eiaFees.requires_full_eia
+                      typeof eiaFees.is_eia_development !== "undefined"
+                        ? eiaFees.is_eia_development
                           ? "Yes"
                           : "No"
                         : "-"}
@@ -1327,8 +1448,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {eiaFees &&
-                      typeof eiaFees.requires_full_eia !== "undefined" &&
-                      !eiaFees.requires_full_eia
+                      typeof eiaFees.is_eia_development !== "undefined" &&
+                      !eiaFees.is_eia_development
                         ? "No"
                         : eiaFees &&
                             typeof eiaFees.screening_only !== "undefined"
