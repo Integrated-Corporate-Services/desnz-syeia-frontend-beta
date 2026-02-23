@@ -314,7 +314,8 @@ const ApplicationSubmit: React.FC = () => {
             : [],
         );
 
-        const parishesData = data.parishes || data.sections?.parishes || [];
+        // const parishesData = data.parishes || data.sections?.parishes || [];
+        const parishesData = data.sections?.parishes || null;
         setParishes(Array.isArray(parishesData) ? parishesData : []);
         console.log('Parishes loaded:', parishesData);
         console.log('Parishes array length:', parishesData?.length);
