@@ -33,6 +33,8 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     setError(null);
 
     let pollInterval: number | null = null;
+    let pollCount = 0;
+    const MAX_POLL_COUNT = 30;
 
     const fetchSummary = async () => {
       try {
@@ -43,13 +45,22 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
         // Check if all automated checks are complete
         const { totalChecked, totalLayers } = data.checks.summary;
         
-        if (totalChecked < totalLayers) {
-          // Still processing, keep polling every 2 seconds
+        if (totalChecked < totalLayers && totalChecked > 0 && pollCount < MAX_POLL_COUNT) {
           if (!pollInterval) {
-            pollInterval = setInterval(fetchSummary, 2000);
+            pollInterval = setInterval(() => {
+              pollCount++;
+              if (pollCount >= MAX_POLL_COUNT) {
+                if (pollInterval) {
+                  clearInterval(pollInterval);
+                  pollInterval = null;
+                }
+                setLoading(false);
+              } else {
+                fetchSummary();
+              }
+            }, 2000);
           }
         } else {
-          // All checks complete, stop polling
           if (pollInterval) {
             clearInterval(pollInterval);
             pollInterval = null;
