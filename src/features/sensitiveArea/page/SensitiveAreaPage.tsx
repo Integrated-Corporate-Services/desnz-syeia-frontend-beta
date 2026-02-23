@@ -80,7 +80,8 @@ const SensitiveAreaPage: React.FC = () => {
       // Redirect to task list page after starting check, pass state for notification
       navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`, { state: { showSensitiveAreaPopup: true } });
     } catch (err: any) {
-      setError(err?.response?.data?.error || 'Failed to start sensitive area check');
+      // Show user-friendly message from backend (validation or system error)
+      setError(err?.response?.data?.message || err?.response?.data?.error || 'Failed to start sensitive area check');
     } finally {
       setLoading(false);
     }
