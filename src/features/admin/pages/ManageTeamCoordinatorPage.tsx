@@ -10,31 +10,11 @@ const ManageTeamCoordinatorPage: React.FC = () => {
   }>();
   const navigate = useNavigate();
 
-  console.log("[ManageTeamCoordinatorPage] Component rendering", {
-    organisationId,
-    coordinatorId,
-  });
-
   const { coordinator, loading, error, updateCoordinator } = useTeamCoordinator(
     organisationId,
     coordinatorId
   );
 
-  console.log("[ManageTeamCoordinatorPage] Hook state:", {
-    coordinator,
-    loading,
-    error,
-  });
-
-  if (coordinator) {
-    console.log("[ManageTeamCoordinatorPage] Coordinator fields:", {
-      first_name: coordinator.first_name,
-      last_name: coordinator.last_name,
-      email: coordinator.email,
-      phone_number: coordinator.phone_number,
-      fullObject: coordinator,
-    });
-  }
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
 

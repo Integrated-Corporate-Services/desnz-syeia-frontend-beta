@@ -67,3 +67,9 @@ button:focus-visible {
   }
 }
 */
+
+/* Utility class for centering pagination - extends GDS */
+.app-pagination-container {
+  display: flex;
+  justify-content: center;
+}
