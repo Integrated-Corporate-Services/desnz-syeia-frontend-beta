@@ -73,7 +73,6 @@ export const useUserManagementDashboard = () => {
   const handleExportCSV = () => {
     const csvData = activeUsers.map((user) => ({
       Name: user.fullName,
-      Organisation: user.organisation,
       Email: user.email,
       Role: user.role,
       Status: user.status,

@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { authenticated, loading } = useAuthUserContext();
+  const { authenticated, loading, user } = useAuthUserContext();
   const location = useLocation();
 
   if (loading) {
@@ -26,6 +26,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!authenticated) {
     return <Navigate to="/landingPage" state={{ from: location }} replace />;
+  }
+
+  // Check if user status is INACTIVE - redirect to access revoked page
+  if (user?.status === 'INACTIVE') {
+    return <Navigate to="/access-revoked" replace />;
   }
 
   return <>{children}</>;

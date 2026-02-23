@@ -1,29 +1,34 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
-import { useManageUsersNavigation } from '../../../hooks/useManageUsersNavigation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
 
-const RevokeUserAccessPage: React.FC = () => {
+const ManageUserPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
-  const navigate = useNavigate();
-  const { users, loading, confirmRevokeAccess } = useManageUsers();
-  const { navigateToAccessRevoked, navigateToDashboard } = useManageUsersNavigation();
-  const [processing, setProcessing] = useState(false);
+  const { users, loading } = useManageUsers();
 
   const user = users.find(u => u.id === userId);
 
-  const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    navigate(`/admin/manage-user/${userId}`);
+  const formatLastLogin = (lastLogin: string | null) => {
+    if (!lastLogin) return 'Never';
+    const date = new Date(lastLogin);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }) + ' at ' + date.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).replace(':', ':');
   };
 
-  const handleRevokeAccess = async () => {
-    if (!userId) return;
-    setProcessing(true);
-    await confirmRevokeAccess(userId, navigateToAccessRevoked);
-    setProcessing(false);
+  const formatRole = (role: string) => {
+    if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
+    if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
+    if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
+    return 'Applicant';
   };
 
   if (loading) {
@@ -45,62 +50,29 @@ const RevokeUserAccessPage: React.FC = () => {
               User not found
             </h2>
             <div className="govuk-error-summary__body">
-              <p className="govuk-body">The user you are trying to revoke access for could not be found.</p>
+              <p className="govuk-body">The user you are trying to manage could not be found.</p>
             </div>
           </div>
-          <a
-            href="#"
-            className="govuk-link"
-            onClick={handleBack}
-          >
+          <Link to="/admin/user-management" className="govuk-link">
             Return to user management
-          </a>
+          </Link>
         </main>
       </div>
     );
   }
 
-  const formatLastLogin = (lastLogin: string | null) => {
-    if (!lastLogin) return 'Never';
-    const date = new Date(lastLogin);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    }) + ' at ' + date.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  };
-
-  const formatRole = (role: string) => {
-    if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
-    if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
-    if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
-    return 'Applicant';
-  };
-
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
-        <a
-          href="#"
-          className="govuk-back-link"
-          onClick={handleBack}
-        >
+        <Link to="/admin/user-management" className="govuk-back-link">
           Back
-        </a>
+        </Link>
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-l">Revoke access</h1>
+            <h1 className="govuk-heading-l">Manage user</h1>
 
-            <p className="govuk-body">
-              This action cannot be undone. This user will no longer be able to coordinate access requests for this organisation and will no longer be able to submit applications on the organisation's behalf.
-            </p>
-
-            <dl className="govuk-summary-list govuk-!-margin-bottom-6">
+            <dl className="govuk-summary-list">
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Full name</dt>
                 <dd className="govuk-summary-list__value">{user.fullName}</dd>
@@ -120,17 +92,24 @@ const RevokeUserAccessPage: React.FC = () => {
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Role</dt>
                 <dd className="govuk-summary-list__value">{formatRole(user.role)}</dd>
+                {/* <dd className="govuk-summary-list__actions">
+                  <a className="govuk-link" href="#">
+                    Change<span className="govuk-visually-hidden"> role</span>
+                  </a>
+                </dd> */}
               </div>
               {user.role === ROLES.APPLICANT_AGENT && (
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Agency name</dt>
-                  <dd className="govuk-summary-list__value">{user.agencyName || '-'}</dd>
+                  <dd className="govuk-summary-list__value">{user.agencyName || user.organisation || '-'}</dd>
                 </div>
               )}
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Status</dt>
                 <dd className="govuk-summary-list__value">
-                  <strong className="govuk-tag govuk-tag--green">Active</strong>
+                  <strong className="govuk-tag govuk-tag--green">
+                    Active
+                  </strong>
                 </dd>
               </div>
               <div className="govuk-summary-list__row">
@@ -141,27 +120,24 @@ const RevokeUserAccessPage: React.FC = () => {
               </div>
             </dl>
 
-            <button
-              type="button"
-              className="govuk-button"
-              onClick={handleRevokeAccess}
-              disabled={processing}
-            >
-              {processing ? 'Revoking access...' : 'Revoke access'}
-            </button>
-
-            <p className="govuk-body">
-              <a
-                href="#"
-                className="govuk-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigateToDashboard();
-                }}
-              >
-                Return to dashboard
-              </a>
-            </p>
+            <div className="govuk-!-margin-top-6">
+              <p className="govuk-body">
+                <Link 
+                  to={`/admin/revoke-user/${userId}`}
+                  className="govuk-link"
+                >
+                  Revoke access
+                </Link>
+              </p>
+              <p className="govuk-body">
+                <Link 
+                  to="/admin/user-management"
+                  className="govuk-link"
+                >
+                  Return to dashboard
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </main>
@@ -169,4 +145,4 @@ const RevokeUserAccessPage: React.FC = () => {
   );
 };
 
-export default RevokeUserAccessPage;
+export default ManageUserPage;

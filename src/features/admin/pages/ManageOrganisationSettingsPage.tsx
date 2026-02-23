@@ -12,7 +12,6 @@ const ManageOrganisationSettingsPage: React.FC = () => {
 
   const handleSaveChanges = () => {
     // TODO: Implement save functionality
-    console.log('Saving changes:', organisation);
     setHasChanges(false);
     // Show success message or navigate
   };

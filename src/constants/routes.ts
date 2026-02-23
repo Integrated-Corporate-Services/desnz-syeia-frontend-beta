@@ -702,6 +702,14 @@ import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
+
+type RouteConfig = {
+  path: string;
+  component: React.ComponentType;
+  auth?: boolean;
+  layout?: boolean | 'minimal';
+};
+
 import ConsultationResponse from '../features/Consultation/pages/ConsultationResponse';
 import ConsultationResponse2 from '../features/Consultation/pages/ConsultationResponse2';
 import ConsultationResponse3 from '../features/Consultation/pages/ConsultationResponse3';
@@ -775,6 +783,8 @@ import AddUserPage from '../features/admin/pages/AddUserPage';
 import UserCreatedPage from '../features/admin/pages/UserCreatedPage';
 import AccessRevokedPage from '../features/admin/pages/AccessRevokedPage';
 import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
+import UserAccessRevokedPage from '../features/auth/pages/UserAccessRevokedPage';
+import ManageUserPage from '../features/admin/pages/ManageUserPage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
