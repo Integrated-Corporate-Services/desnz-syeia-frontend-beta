@@ -16,6 +16,7 @@ import {
   WorksOverview,
   Consultation,
   Parish,
+  PostConsultationOutcome,
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 
@@ -107,6 +108,8 @@ const ApplicationSubmit: React.FC = () => {
     null,
   );
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [postConsultationOutcome, setPostConsultationOutcome] = useState<PostConsultationOutcome | null>(null);
+
   const [permissions, setPermissions] = useState<{
     canView: boolean;
     canEdit: boolean;
@@ -117,7 +120,7 @@ const ApplicationSubmit: React.FC = () => {
   } | null>(null);
 
   const [parishes, setParishes] = useState<Parish[]>([]);
-  
+
   // Memoize transformed routes to avoid recalculating on every render
   const transformedRoutes = useMemo(() => {
     return routes
@@ -267,9 +270,9 @@ const ApplicationSubmit: React.FC = () => {
         setSensitiveAreaChecks(
           sensitiveChecks
             ? {
-                tolerance_required: sensitiveChecks.tolerance_required,
-                tolerance_value: sensitiveChecks.tolerance_value,
-              }
+              tolerance_required: sensitiveChecks.tolerance_required,
+              tolerance_value: sensitiveChecks.tolerance_value,
+            }
             : null,
         );
         // Set sensitive area review data
@@ -277,12 +280,12 @@ const ApplicationSubmit: React.FC = () => {
         setSensitiveAreaReview(
           sensitiveReview
             ? {
-                other_sensitive_areas_note:
-                  sensitiveReview.other_sensitive_areas_note,
-                asset_presence_option_id:
-                  sensitiveReview.asset_presence_option_id,
-                application_documents: sensitiveReview.application_documents,
-              }
+              other_sensitive_areas_note:
+                sensitiveReview.other_sensitive_areas_note,
+              asset_presence_option_id:
+                sensitiveReview.asset_presence_option_id,
+              application_documents: sensitiveReview.application_documents,
+            }
             : null,
         );
         // Set routes data from location.route
@@ -321,6 +324,8 @@ const ApplicationSubmit: React.FC = () => {
         console.log('Parishes array length:', parishesData?.length);
         // Set permissions from API response
         setPermissions(data.permissions || null);
+
+        setPostConsultationOutcome(data.sections?.postConsultationOutcome || null);
       })
       .catch(() => {
         setProjectDetails(null);
@@ -570,7 +575,7 @@ const ApplicationSubmit: React.FC = () => {
                   </div>
                   {networkOperatorDetails?.additional_contact &&
                     networkOperatorDetails.additional_contact.trim().length >
-                      0 && (
+                    0 && (
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
                           Additional contacts
@@ -661,8 +666,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {projectDetails &&
-                      projectDetails.earliest_work_start_date_month &&
-                      projectDetails.earliest_work_start_date_year
+                        projectDetails.earliest_work_start_date_month &&
+                        projectDetails.earliest_work_start_date_year
                         ? `${projectDetails.earliest_work_start_date_month}/${projectDetails.earliest_work_start_date_year}`
                         : "-"}
                     </dd>
@@ -673,8 +678,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {projectDetails &&
-                      projectDetails.latest_work_start_date_month &&
-                      projectDetails.latest_work_start_date_year
+                        projectDetails.latest_work_start_date_month &&
+                        projectDetails.latest_work_start_date_year
                         ? `${projectDetails.latest_work_start_date_month}/${projectDetails.latest_work_start_date_year}`
                         : "-"}
                     </dd>
@@ -692,8 +697,8 @@ const ApplicationSubmit: React.FC = () => {
                     <dd className="govuk-summary-list__value">
                       {projectDetails?.updated_at
                         ? new Date(
-                            projectDetails.updated_at,
-                          ).toLocaleDateString()
+                          projectDetails.updated_at,
+                        ).toLocaleDateString()
                         : "-"}
                     </dd>
                   </div>
@@ -743,7 +748,7 @@ const ApplicationSubmit: React.FC = () => {
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
                   {(projectDetails?.assetInformation &&
-                  projectDetails.assetInformation.length > 0
+                    projectDetails.assetInformation.length > 0
                     ? projectDetails.assetInformation
                     : ([{}] as AssetInformation[])
                   ).map((asset, idx) => (
@@ -763,7 +768,7 @@ const ApplicationSubmit: React.FC = () => {
                         <dd className="govuk-summary-list__value">
                           {asset.type_of_line
                             ? asset.type_of_line.charAt(0).toUpperCase() +
-                              asset.type_of_line.slice(1)
+                            asset.type_of_line.slice(1)
                             : "-"}
                         </dd>
                       </div>
@@ -843,7 +848,7 @@ const ApplicationSubmit: React.FC = () => {
                         </thead>
                         <tbody className="govuk-table__body">
                           {Array.isArray(route.gridPoints) &&
-                          route.gridPoints.length > 0 ? (
+                            route.gridPoints.length > 0 ? (
                             route.gridPoints.map((point, pidx) => (
                               <tr
                                 className="govuk-table__row"
@@ -928,7 +933,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.addingOrReplacingPoles ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.addingOrReplacingPoles
                           ? "Yes"
                           : "No"
@@ -988,7 +993,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.addingOrReplacingLines ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.addingOrReplacingLines
                           ? "Yes"
                           : "No"
@@ -1027,7 +1032,7 @@ const ApplicationSubmit: React.FC = () => {
                         </dt>
                         <dd className="govuk-summary-list__value">
                           {typeof worksOverview?.roadClosuresRequired ===
-                          "boolean"
+                            "boolean"
                             ? worksOverview.roadClosuresRequired
                               ? "Yes"
                               : "No"
@@ -1066,7 +1071,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.vegetationClearanceRequired ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.vegetationClearanceRequired
                           ? "Yes"
                           : "No"
@@ -1091,7 +1096,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.usingExistingAccessRoutes ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.usingExistingAccessRoutes
                           ? "Yes"
                           : "No"
@@ -1115,7 +1120,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.removingExistingEquipment ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.removingExistingEquipment
                           ? "Yes"
                           : "No"
@@ -1167,7 +1172,7 @@ const ApplicationSubmit: React.FC = () => {
                 <dl className="govuk-summary-list">
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">
-                      Parishes 
+                      Parishes
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {parishes.length > 0 ? (
@@ -1186,7 +1191,7 @@ const ApplicationSubmit: React.FC = () => {
                 </dl>
               </div>
             </div>
-            
+
             {/* Sensitive area check summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -1202,7 +1207,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof sensitiveAreaChecks?.tolerance_required ===
-                      "boolean"
+                        "boolean"
                         ? sensitiveAreaChecks.tolerance_required
                           ? "Yes"
                           : "No"
@@ -1274,7 +1279,7 @@ const ApplicationSubmit: React.FC = () => {
                     <dd className="govuk-summary-list__value">
                       <ul className="govuk-list">
                         {sensitiveAreaReview?.application_documents &&
-                        sensitiveAreaReview.application_documents.length > 0 ? (
+                          sensitiveAreaReview.application_documents.length > 0 ? (
                           sensitiveAreaReview.application_documents.map(
                             (doc) => <li key={doc.document_id}>{doc.title}</li>,
                           )
@@ -1294,6 +1299,67 @@ const ApplicationSubmit: React.FC = () => {
                       )}
                     </dd>
                   </div>
+                </dl>
+              </div>
+            </div>
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">Post consultation actions</h2>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          post consultation actions
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Were LPA conditions imposed?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {postConsultationOutcome?.lpa_conditions_imposed === true
+                        ? "Yes"
+                        : postConsultationOutcome?.lpa_conditions_imposed === false
+                          ? "No"
+                          : "-"}
+                    </dd>
+                  </div>
+                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Were LPA conditions accepted?
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_accepted === true
+                          ? "Yes"
+                          : postConsultationOutcome?.lpa_conditions_accepted === false
+                            ? "No"
+                            : "-"}
+                      </dd>
+                    </div>
+                  )}
+                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Reason for not accepting conditions
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>
@@ -1329,7 +1395,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {supportingQuestions &&
-                      typeof supportingQuestions.wayleaves_obtained ===
+                        typeof supportingQuestions.wayleaves_obtained ===
                         "boolean"
                         ? supportingQuestions.wayleaves_obtained
                           ? "Yes"
@@ -1356,7 +1422,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {supportingQuestions &&
-                      typeof supportingQuestions.esqcr_2002_compliance_confirmed ===
+                        typeof supportingQuestions.esqcr_2002_compliance_confirmed ===
                         "boolean"
                         ? supportingQuestions.esqcr_2002_compliance_confirmed
                           ? "Yes"
@@ -1370,7 +1436,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {supportingQuestions &&
-                      typeof supportingQuestions.has_additional_supporting_documents ===
+                        typeof supportingQuestions.has_additional_supporting_documents ===
                         "boolean"
                         ? supportingQuestions.has_additional_supporting_documents
                           ? "Yes"
@@ -1436,7 +1502,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {eiaFees &&
-                      typeof eiaFees.is_eia_development !== "undefined"
+                        typeof eiaFees.is_eia_development !== "undefined"
                         ? eiaFees.is_eia_development
                           ? "Yes"
                           : "No"
@@ -1449,11 +1515,11 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {eiaFees &&
-                      typeof eiaFees.is_eia_development !== "undefined" &&
-                      !eiaFees.is_eia_development
+                        typeof eiaFees.is_eia_development !== "undefined" &&
+                        !eiaFees.is_eia_development
                         ? "No"
                         : eiaFees &&
-                            typeof eiaFees.screening_only !== "undefined"
+                          typeof eiaFees.screening_only !== "undefined"
                           ? eiaFees.screening_only
                             ? "Yes"
                             : "No"
@@ -1493,9 +1559,9 @@ const ApplicationSubmit: React.FC = () => {
                             ? "-"
                             : consultation.sentAt || consultation.createdAt
                               ? new Date(
-                                  consultation.sentAt ||
-                                    consultation.createdAt!,
-                                ).toLocaleDateString()
+                                consultation.sentAt ||
+                                consultation.createdAt!,
+                              ).toLocaleDateString()
                               : "-"}
                         </dd>
                       </div>
@@ -1506,9 +1572,9 @@ const ApplicationSubmit: React.FC = () => {
                             ? "-"
                             : consultation.closedAt || consultation.dateClosed
                               ? new Date(
-                                  consultation.closedAt ||
-                                    consultation.dateClosed!,
-                                ).toLocaleDateString()
+                                consultation.closedAt ||
+                                consultation.dateClosed!,
+                              ).toLocaleDateString()
                               : "-"}
                         </dd>
                       </div>
@@ -1538,7 +1604,7 @@ const ApplicationSubmit: React.FC = () => {
                           ) : (
                             <ul className="govuk-list">
                               {Array.isArray(consultation.responseDocuments) &&
-                              consultation.responseDocuments.length > 0 ? (
+                                consultation.responseDocuments.length > 0 ? (
                                 consultation.responseDocuments.map(
                                   (doc, didx) => (
                                     <li key={didx}>{doc.name || "Document"}</li>

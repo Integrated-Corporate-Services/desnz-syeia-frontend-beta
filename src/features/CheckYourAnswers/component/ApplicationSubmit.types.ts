@@ -125,3 +125,9 @@ export interface Consultation {
 	responseDocuments?: ResponseDocument[];
 	consulteeEmailAddress?: string | null;
 }
+
+export interface PostConsultationOutcome {
+  lpa_conditions_imposed?: boolean | null;
+  lpa_conditions_accepted?: boolean | null;
+  lpa_conditions_not_accepted_reason?: string | null;
+}
