@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import LpaSelector, { Lpa } from "../../../components/LpaSelector";
-import { useAuthUser } from "../../../hooks/useAuthUser";
-import { updateAllConsultations } from '../../../services/consultationService';
+import LpaSelector, { Lpa } from '../../../components/LpaSelector';
+import { useAuthUser } from '../../../hooks/useAuthUser';
+import { updateAllConsultations, createLpaConsultations } from '../../../services/consultationService';
 import log from '../../../logger';
 
 interface OtherConsulteeEntry {
@@ -30,7 +30,7 @@ const SelectOtherConsultations: React.FC = () => {
         // Add to array if not already present
         if (lpa && !selectedLpas.some((s) => s.lpa_code === lpa.lpa_code)) {
             setSelectedLpas((prev) => [...prev, lpa]);
-            log.debug("LPA added:", lpa.lpa_name, lpa.lpa_code);
+            log.debug('LPA added:', lpa.lpa_name, lpa.lpa_code);
             // TODO: Later integrate with consultation creation
             // This could trigger creation of a new consultation with this LPA
         }
@@ -38,7 +38,7 @@ const SelectOtherConsultations: React.FC = () => {
 
     const handleLpaRemove = (lpaCode: string) => {
         setSelectedLpas((prev) => prev.filter((lpa) => lpa.lpa_code !== lpaCode));
-        log.debug("LPA removed:", lpaCode);
+        log.debug('LPA removed:', lpaCode);
     };
 
     // TODO: Load existing selections from backend
@@ -62,7 +62,7 @@ const SelectOtherConsultations: React.FC = () => {
         if (otherSearchTerm.trim()) {
             const newEntry: OtherConsulteeEntry = {
                 id: `other-${Date.now()}`,
-                name: otherSearchTerm.trim()
+                name: otherSearchTerm.trim(),
             };
             setOtherEntries([...otherEntries, newEntry]);
             setOtherSearchTerm('');
@@ -70,7 +70,7 @@ const SelectOtherConsultations: React.FC = () => {
     };
 
     const handleRemoveOther = (id: string) => {
-        setOtherEntries(otherEntries.filter(entry => entry.id !== id));
+        setOtherEntries(otherEntries.filter((entry) => entry.id !== id));
     };
 
     const handleSaveAndContinue = async () => {
@@ -79,8 +79,17 @@ const SelectOtherConsultations: React.FC = () => {
                 return;
             }
 
+            // Create LPA consultations if any LPAs were selected
+            if (selectedLpas.length > 0) {
+                log.debug('[SelectOtherConsultations] Creating manually selected LPA consultations', {
+                    count: selectedLpas.length,
+                });
+                await createLpaConsultations(applicationId, selectedLpas, user.user_id);
+                log.debug('[SelectOtherConsultations] Manually selected LPA consultations created successfully');
+            }
+
             await updateAllConsultations(applicationId, user.user_id);
-            
+
             // Navigate to next step
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
@@ -112,22 +121,20 @@ const SelectOtherConsultations: React.FC = () => {
                     <main id="main-content">
                         <h1 className="govuk-heading-l">Select other consultations</h1>
 
-                        <p className="govuk-body">
-                            You can add other consultations that are relevant to your application.
-                        </p>
+                        <p className="govuk-body">You can add other consultations that are relevant to your application.</p>
 
                         <form noValidate>
-                        {/* Other consultation categories */}
+                            {/* Other consultation categories */}
                             <div className="govuk-form-group">
                                 <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                                      <div className="govuk-checkboxes__item">
-                                       <LpaSelector
-                                                selectedLpaCodes={selectedLpas.map((lpa) => lpa.lpa_code)}
-                                                onLpaSelect={handleLpaSelect}
-                                                onRemove={handleLpaRemove}
-                                                showRemoveButton={true}
-                                                showCheckbox={true}
-                                            />
+                                    <div className="govuk-checkboxes__item">
+                                        <LpaSelector
+                                            selectedLpaCodes={selectedLpas.map((lpa) => lpa.lpa_code)}
+                                            onLpaSelect={handleLpaSelect}
+                                            onRemove={handleLpaRemove}
+                                            showRemoveButton={true}
+                                            showCheckbox={true}
+                                        />
                                     </div>
                                     <div className="govuk-checkboxes__item">
                                         <input
@@ -223,7 +230,12 @@ const SelectOtherConsultations: React.FC = () => {
                                                     type="button"
                                                     className="govuk-link govuk-!-margin-left-2"
                                                     onClick={() => handleRemoveOther(entry.id)}
-                                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        padding: 0,
+                                                        cursor: 'pointer',
+                                                    }}
                                                 >
                                                     Remove
                                                 </button>
@@ -248,12 +260,7 @@ const SelectOtherConsultations: React.FC = () => {
                                                         }
                                                     }}
                                                 />
-                                                <button
-                                                    type="button"
-                                                    className="govuk-button govuk-!-margin-left-2"
-                                                    data-module="govuk-button"
-                                                    onClick={handleAddOther}
-                                                >
+                                                <button type="button" className="govuk-button govuk-!-margin-left-2" data-module="govuk-button" onClick={handleAddOther}>
                                                     Add
                                                 </button>
                                             </div>
@@ -263,15 +270,10 @@ const SelectOtherConsultations: React.FC = () => {
                             </div>
 
                             <div className="govuk-button-group">
-                                <button
-                                    type="button"
-                                    className="govuk-button"
-                                    data-module="govuk-button"
-                                    onClick={handleSaveAndContinue}
-                                >
+                                <button type="button" className="govuk-button" data-module="govuk-button" onClick={handleSaveAndContinue}>
                                     Save and continue
                                 </button>
-                               {/*  <button
+                                {/*  <button
                                     type="button"
                                     className="govuk-button govuk-button--secondary"
                                     data-module="govuk-button"
@@ -279,7 +281,7 @@ const SelectOtherConsultations: React.FC = () => {
                                 >
                                     Save for later
                                 </button> */}
-                            </div> 
+                            </div>
                         </form>
                     </main>
                 </div>

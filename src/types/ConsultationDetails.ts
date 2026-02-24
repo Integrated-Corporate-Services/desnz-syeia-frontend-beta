@@ -39,4 +39,5 @@ export interface ConsultationDetails {
   // Consultation request documents (evidence of request)
   consultationRequestDocs ?: { name: string; url: string; key?: string; filename?: string }[];
   dateRequestCreated?: string;
+  evidenceResponseNotReceivedDocs?: { url: string; name: string; key?: string; filename?: string }[]; 
 }
