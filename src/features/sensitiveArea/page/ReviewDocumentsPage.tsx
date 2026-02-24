@@ -233,6 +233,13 @@ const ReviewDocumentsPage: React.FC = () => {
                   </span>
                 )}
 
+                {/* Page-level heading shown when documents table is present (after upload) */}
+                {applicationDocuments && applicationDocuments.length > 0 && (
+                  <div className="govuk-!-margin-top-2">
+                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                  </div>
+                )}
+
                 <FileUpload
                   title="Upload a file"
                   prefix={`${applicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
