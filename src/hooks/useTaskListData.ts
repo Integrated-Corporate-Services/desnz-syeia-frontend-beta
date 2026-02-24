@@ -90,6 +90,7 @@ export function useTaskListData() {
                 if (!updatedStatus.inProgress && pollingIntervalRef.current) {
                   clearInterval(pollingIntervalRef.current);
                   pollingIntervalRef.current = null;
+                  fetchProgress(effectiveId);
                 }
               } catch (err) {
                 console.error('Failed to poll sensitive area status', err);
@@ -111,7 +112,7 @@ export function useTaskListData() {
         pollingIntervalRef.current = null;
       }
     };
-  }, [applicationId, application?.application_id]);
+  }, [applicationId, application?.application_id,fetchProgress]);
 
   // Handle location state for banners/popups
   useEffect(() => {

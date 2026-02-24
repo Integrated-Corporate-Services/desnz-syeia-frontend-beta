@@ -183,40 +183,54 @@ export function applyProgressToSections(
   }));
 }
 
-// Apply special logic when sensitive area checks are in progress
+// when sensitive area checks are in progress
 export function applySensitiveAreaCheckLogic(
   sections: TaskListSection[],
   inProgress?: boolean
 ): TaskListSection[] {
-  if (!inProgress) return sections;
-
   return sections.map((section) => {
     if (section.title === "Location") {
+      const sensitiveCheckItem = section.items.find(item => item.name === "Sensitive area checks");
+      const checksCompleted = sensitiveCheckItem?.status === "Completed";
+      
       return {
         ...section,
         items: section.items.map((item) => {
-          // Route: make unclickable, status as plain text
-          if (item.name === "Route") {
+          if (item.name === "Route" && inProgress) {
             return { ...item, disabled: true, plainTextStatus: true };
           }
-          // Sensitive area checks: change status to "In progress"
-          if (item.name === "Sensitive area checks") {
+          if (item.name === "Sensitive area checks" && inProgress) {
             return { ...item, status: "In progress" };
           }
-          // Sensitive area review: make unclickable, status as plain text
           if (item.name === "Sensitive area review") {
-            return { ...item, disabled: true, plainTextStatus: true };
+            if (inProgress) {
+              return { 
+                ...item, 
+                disabled: true, 
+                plainTextStatus: true,
+                link: "#"
+              };
+            }
+            if (!checksCompleted) {
+              return { 
+                ...item, 
+                status: "Cannot start yet",
+                disabled: true, 
+                plainTextStatus: true,
+                link: "#"
+              };
+            }
+            return item;
           }
           return item;
         }),
       };
     }
-    if (section.title === "Consultations") {
+    if (section.title === "Consultations" && inProgress) {
       return {
         ...section,
         items: section.items.map((item) => {
-          // Make all consultation items unclickable with plain text status
-          return { ...item, disabled: true, plainTextStatus: true };
+           return { ...item, disabled: true, plainTextStatus: true };
         }),
       };
     }
