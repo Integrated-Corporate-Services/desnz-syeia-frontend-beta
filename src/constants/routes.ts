@@ -86,6 +86,7 @@ import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage'
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
+import RouteMapOnlyPage from '../features/RouteMap/page/RouteMapOnlyPage';
 
 export const ROUTE_CONFIG = [
   {
@@ -648,7 +649,15 @@ export const ROUTE_CONFIG = [
     component: WhoIsApplying,
     auth: true,
     layout: true
-  }
+  },
+
+{
+  path: `${S37_BASE_URL}/:applicationId/route-map-only`,
+  component: RouteMapOnlyPage,
+  auth: true,
+  layout: true // or true, depending on your layout needs
+}
+
 ];
 
 export const SANDBOX_ROUTE_CONFIG = [
