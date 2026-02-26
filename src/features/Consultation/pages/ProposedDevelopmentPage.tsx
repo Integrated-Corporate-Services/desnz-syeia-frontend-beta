@@ -6,6 +6,9 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getProposedDevelopment, saveProposedDevelopment } from '../../../services/consultationProposedDevelopmentService';
 import { markConsultationAsRequestSent } from '../../../services/consultationService';
+import { createLogger } from '../../../utils/logger';
+
+const log = createLogger('ProposedDevelopmentPage');
 
 interface ProposedDevelopmentData {
   projectDescription: string;
@@ -63,17 +66,17 @@ const ProposedDevelopmentPage: React.FC = () => {
               }
             }
           } catch (projectError) {
-            console.error('Error fetching project overview:', projectError);
+            log.error('Error fetching project overview:', projectError);
           }
         }
         
-        console.log('=== PROPOSED DEVELOPMENT PAGE ===');
-        console.log('LPA Name:', name);
-        console.log('Existing Data:', existingData);
-        console.log('=================================');
+        log.debug('=== PROPOSED DEVELOPMENT PAGE ===');
+        log.debug('LPA Name:', name);
+        log.debug('Existing Data:', existingData);
+        log.debug('=================================');
         
       } catch (error) {
-        console.error('Error fetching proposed development:', error);
+        log.error('Error fetching proposed development:', error);
       }
     };
 
@@ -141,7 +144,7 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
     setSubmitted(false); // Reset after successful submit
     navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
   } catch (error) {
-    console.error('Error saving proposed development:', error);
+    log.error('Error saving proposed development:', error);
     setErrors({});
     setSubmitError('Failed to save proposed development details. Please try again.');
   } finally {
@@ -160,7 +163,7 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
       
   //     navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
   //   } catch (error) {
-  //     console.error('Error saving proposed development:', error);
+  //     log.error('Error saving proposed development:', error);
   //   } finally {
   //     setLoading(false);
   //   }

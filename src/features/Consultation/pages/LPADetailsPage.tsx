@@ -4,6 +4,9 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpaDetailsService'; 
+import { createLogger } from '../../../utils/logger';
+
+const log = createLogger('LPADetailsPage');
 
 interface LPADetails {
     lpaContactName: string;
@@ -49,12 +52,12 @@ const LPADetailsPage: React.FC = () => {
                     });
                 }
                 
-                console.log('=== LPA DETAILS PAGE ===');
-                console.log('LPA Name:', name);
-                console.log('Existing Details:', existingDetails);
-                console.log('========================');
+                log.debug('=== LPA DETAILS PAGE ===');
+                log.debug('LPA Name:', name);
+                log.debug('Existing Details:', existingDetails);
+                log.debug('========================');
             } catch (error) {
-                console.error('Error fetching LPA details:', error);
+                log.error('Error fetching LPA details:', error);
             }
         };
 
@@ -114,7 +117,7 @@ const LPADetailsPage: React.FC = () => {
             setSubmitted(false); // Reset after successful submit
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
         } catch (error) {
-            console.error('Error saving LPA details:', error);
+            log.error('Error saving LPA details:', error);
             setErrors((prev) => ({
                 ...prev,
                 submit: 'Failed to save LPA details. Please try again.',
@@ -136,7 +139,7 @@ const LPADetailsPage: React.FC = () => {
             
     //         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     //     } catch (error) {
-    //         console.error('Error saving LPA details:', error);
+    //         log.error('Error saving LPA details:', error);
     //     } finally {
     //         setLoading(false);
     //     }
