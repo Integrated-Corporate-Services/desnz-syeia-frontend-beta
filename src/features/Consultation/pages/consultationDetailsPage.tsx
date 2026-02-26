@@ -5,6 +5,9 @@ import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import ConsultationSummaryCard from "../components/SummaryCard";
 import { useConsultationDetails } from "../../../hooks/useConsultationDetails";
 import { useAuthUser } from "../../../hooks/useAuthUser";
+import { withdrawConsultationRequest } from "../../../services/consultationService";
+import log from "../../../logger";
+
 const ConsultationDetailsPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
@@ -14,10 +17,42 @@ const ConsultationDetailsPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-    const { consultations } = useConsultationDetails(
+    const { consultations, refetch } = useConsultationDetails(
       applicationId,
       user?.user_id
     );
+
+  // Separate consultations into regular and OTHER types
+  const regularConsultations = consultations.filter(c => c.consultationType !== 'OTHER');
+  const otherConsultations = consultations.filter(c => c.consultationType === 'OTHER');
+
+  const handleRemoveConsultation = async (consultationId: string) => {
+    if (!window.confirm('Are you sure you want to remove this consultation?')) {
+      return;
+    }
+
+    try {
+      if (!user?.user_id) {
+        log.error('[ConsultationDetailsPage] No user ID available');
+        return;
+      }
+      
+      await withdrawConsultationRequest({
+        applicationId,
+        consultationId,
+        updatedBy: user.user_id
+      });
+      
+      log.info('[ConsultationDetailsPage] Consultation removed successfully');
+      
+      // Refresh consultations
+      await refetch();
+    } catch (error) {
+      log.error('[ConsultationDetailsPage] Error removing consultation:', error);
+      alert('Failed to remove consultation. Please try again.');
+    }
+  };
+
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -51,9 +86,9 @@ const ConsultationDetailsPage: React.FC = () => {
             </ul>
             <p>For Natural England, you can mark the consultation as 'Not required' and you will be asked to explain why it is not required.</p>
           </div>
-          
- 
-          {consultations.map((consultation) => (
+
+          {/* Regular consultations */}
+          {regularConsultations.map((consultation) => (
             <ConsultationSummaryCard
               key={consultation.id}
               orgName={consultation.consulteeOrganisationName}
@@ -79,12 +114,59 @@ const ConsultationDetailsPage: React.FC = () => {
             />
           ))}
 
-          <Link
-            to={`${S37_BASE_URL}/${applicationId}/task-list`}
-            className="govuk-button govuk-button--secondary"
-          >
-            Go back to task list
-          </Link>
+          {/* Other consultations section */}
+          <h2 className="govuk-heading-m govuk-!-margin-top-6">Other consultations</h2>
+          <p className="govuk-body">You can add and remove any consultations in this optional section.</p>
+          
+          {otherConsultations.map((consultation) => (
+            <ConsultationSummaryCard
+              key={consultation.id}
+              orgName={consultation.consulteeOrganisationName}
+              consultationName={
+                consultation.otherConsultee ||
+                consultation.consulteeOrganisationName ||
+                consultation.consultationType
+              }
+              status={consultation.status}
+              consultationId={consultation.id}
+              applicationId={applicationId}
+              dateRequestCreated={consultation.dateRequestCreated ?? undefined}
+              dateClosed={consultation.dateClosed ?? undefined}
+              objectionRaised={consultation.objectionRaised}
+              closeComments={consultation.closeComments}
+              responseDocuments={consultation.responseDocuments}
+              respondingConsulteeName={consultation.respondingConsulteeName}
+              respondingConsulteeEmail={consultation.respondingConsulteeEmail}
+              notRequiredMessage={consultation.notRequiredReason}
+              notRequiredDocs={consultation.notRequiredDocs}
+              consultationRequestDocs={consultation.consultationRequestDocs}
+              evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
+              consultationType={consultation.consultationType}
+              onRemove={() => handleRemoveConsultation(consultation.id)}
+            />
+          ))}
+
+          <div className="govuk-!-margin-bottom-6 ">
+            <Link
+              to={`${S37_BASE_URL}/${applicationId}/consultation/select-other-consultations`}
+              className="govuk-button govuk-button--secondary "
+            >
+              Add more consultations
+            </Link>
+          </div>
+          
+          <div className="govuk-button-group">
+            <button type="submit" className="govuk-button" data-module="govuk-button">
+              Save and continue
+            </button>
+            <Link
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
+              className="govuk-button govuk-button--secondary"
+              data-module="govuk-button"
+            >
+              Save for later
+            </Link>
+          </div>
         </div>
       </div>
     </div>

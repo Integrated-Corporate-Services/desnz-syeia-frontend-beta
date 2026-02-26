@@ -97,3 +97,66 @@ export async function markConsultationAsRequestSent(
   
   return await res.json();
 }
+
+/**
+ * Fetch all consultee organisations with consultation_type = 'OTHER'
+ * @param applicationId - The application ID
+ * @returns {Promise<Array>} Array of other consultee organisations
+ */
+export async function getOtherConsulteeOrganisations(applicationId: string): Promise<any> {
+  const url = `/backend/api/consultations/${applicationId}/other-consultees`;
+  
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error: any) {
+    const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+    throw new Error(`Failed to fetch OTHER consultee organisations: ${originalMessage}`);
+  }
+}
+
+/**
+ * Create OTHER consultations for selected consultees
+ * @param applicationId - The application ID
+ * @param consultees - Array of consultee objects with either consulteeOrganisationId or otherConsulteeName
+ * @param userId - The user ID
+ * @returns {Promise<any>}
+ */
+export async function createOtherConsultations(
+  applicationId: string,
+  consultees: Array<{ consulteeOrganisationId?: string; otherConsulteeName?: string }>,
+  userId: string
+): Promise<any> {
+  const url = `/backend/api/applications/${applicationId}/other-consultations`;
+  const payload = { consultees, userId };
+
+  try {
+    const response = await axios.post(url, payload, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+    throw new Error(`Failed to create OTHER consultations for applicationId=${applicationId}: ${originalMessage}`);
+  }
+}
+
+/**
+ * Create PUBLIC consultation for lines of 132kV or more
+ * @param applicationId - The application ID
+ * @param userId - The user ID
+ * @returns {Promise<any>}
+ */
+export async function createPublicConsultation(
+  applicationId: string,
+  userId: string
+): Promise<any> {
+  const url = `/backend/api/applications/${applicationId}/public-consultation`;
+  const payload = { userId };
+
+  try {
+    const response = await axios.post(url, payload, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+    throw new Error(`Failed to create PUBLIC consultation for applicationId=${applicationId}: ${originalMessage}`);
+  }
+}

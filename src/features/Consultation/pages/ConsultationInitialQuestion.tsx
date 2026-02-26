@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { getConsultationDetailsById } from '../../../services/consultationService';
 
 const ConsultationInitialQuestion: React.FC = () => {
   const { applicationId, consultationId } = useParams();
@@ -11,10 +12,40 @@ const ConsultationInitialQuestion: React.FC = () => {
 
   const [alreadySent, setAlreadySent] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Fetch consultation details and redirect if not LPA
+  useEffect(() => {
+    const fetchConsultationDetails = async () => {
+      if (!consultationId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const consultationDetails = await getConsultationDetailsById(consultationId);
+        
+        // If consultation type is not LPA, redirect to ConsultationRequestPage
+        if (consultationDetails?.consultationType !== 'LPA') {
+          navigate(
+            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request?consultationName=${encodeURIComponent(consultationName)}`
+          );
+          return;
+        }
+        
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching consultation details:', error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchConsultationDetails();
+  }, [consultationId, applicationId, consultationName, navigate]);
 
   const handleSaveAndContinue = () => {
     if (!alreadySent) {
@@ -58,7 +89,11 @@ const ConsultationInitialQuestion: React.FC = () => {
           </nav>
 
           <main id="main-content">
-            {error && (
+            {isLoading ? (
+              <div className="govuk-body">Loading...</div>
+            ) : (
+              <>
+                {error && (
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
@@ -150,6 +185,8 @@ const ConsultationInitialQuestion: React.FC = () => {
                 </button> */}
               </div>
             </form>
+            </>
+            )}
           </main>
         </div>
       </div>

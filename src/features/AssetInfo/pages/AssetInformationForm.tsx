@@ -13,6 +13,7 @@ import MultiSelectDropdown from '../component/MultiSelect';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
+import { createPublicConsultation } from '../../../services/consultationService';
 import '../component/AssetInformationForm.css'
 
 interface AssetFormState {
@@ -146,6 +147,30 @@ const getApplicationId = () => {
     return newErrors;
   };
 
+  // Helper function to check if voltage is >= 132kV
+  const hasHighVoltage = (voltages: string[]): boolean => {
+    const highVoltageThresholds = ['132kV', '275kV', '400kV'];
+    return voltages.some(voltage => highVoltageThresholds.includes(voltage));
+  };
+
+  // Helper function to create PUBLIC consultation if voltage >= 132kV
+  const handlePublicConsultation = async () => {
+    if (!user?.user_id) {
+      console.error('User ID not available for creating PUBLIC consultation');
+      return;
+    }
+
+    if (hasHighVoltage(form.lineVoltage)) {
+      try {
+        await createPublicConsultation(effectiveApplicationId, user.user_id);
+        console.log('PUBLIC consultation created successfully for voltage >= 132kV');
+      } catch (error) {
+        console.error('Failed to create PUBLIC consultation:', error);
+        // Non-blocking error - don't prevent navigation
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isReadOnly) {
@@ -185,7 +210,8 @@ const getApplicationId = () => {
     if (assets && assets[0]?.assetId) {
       // Update existing asset
       updateAsset(assetPayload)
-        .then(() => {
+        .then(async () => {
+          await handlePublicConsultation();
           fetchAssets(effectiveApplicationId);
           navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
         })
@@ -195,7 +221,8 @@ const getApplicationId = () => {
     } else {
       // Create new asset
       createAsset(assetPayload)
-        .then(() => {
+        .then(async () => {
+          await handlePublicConsultation();
           fetchAssets(effectiveApplicationId);
           navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
         })

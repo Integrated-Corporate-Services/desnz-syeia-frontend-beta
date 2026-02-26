@@ -7,6 +7,14 @@ import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('ConsultationSummaryCard');
 
+interface DocumentType {
+    url: string;
+    name?: string;
+    key?: string;
+    filename?: string;
+    fileName?: string;
+}
+
 interface ConsultationSummaryCardProps {
     orgName: string | null;
     consultationName?: string | null;
@@ -22,13 +30,15 @@ interface ConsultationSummaryCardProps {
     dateClosed?: string;
     objectionRaised?: boolean;
     closeComments?: string;
-    responseDocuments?: { url: string; name: string }[];
+    responseDocuments?: DocumentType[];
     respondingConsulteeName?: string;
     respondingConsulteeEmail?: string;
     notRequiredMessage?: string;
-    notRequiredDocs?: { url: string; name: string }[];
-    consultationRequestDocs?: { url: string; name: string; key?: string; filename?: string }[];
-    evidenceResponseNotReceivedDocs?: { url: string; name: string; key?: string; filename?: string }[];
+    notRequiredDocs?: DocumentType[];
+    consultationRequestDocs?: DocumentType[];
+    evidenceResponseNotReceivedDocs?: DocumentType[];
+    consultationType?: string;
+    onRemove?: () => void;
 }
 
 const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
@@ -50,6 +60,8 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     notRequiredDocs,
     consultationRequestDocs,
     evidenceResponseNotReceivedDocs,
+    consultationType,
+    onRemove,
 }) => {
     // Normalize status to key in ConsultationStatus
     function getStatusKey(statusValue: string): keyof typeof ConsultationStatus | undefined {
@@ -71,7 +83,6 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     }
 
     const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
-    const withdrawnPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-withdrawn`;
     // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
     function formatDate(dateStr?: string) {
         if (!dateStr) return '';
@@ -82,6 +93,58 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
 
     // Render different card layouts based on status
     function renderCardContent() {
+        // Special simplified view for OTHER consultations that haven't started
+        if (consultationType === 'OTHER' && statusDisplay === ConsultationStatus.NOT_STARTED) {
+            return (
+                <>
+                    <div className="govuk-summary-card__title-wrapper">
+                        <h2 className="govuk-summary-card__title">{displayName}</h2>
+                        <ul className="govuk-summary-card__actions">
+                            {onRemove && (
+                                <li className="govuk-summary-card__action">
+                                    <a
+                                        href="#"
+                                        className="govuk-link"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onRemove();
+                                        }}
+                                    >
+                                        Remove
+                                    </a>
+                                </li>
+                            )}
+                            <li className="govuk-summary-card__action">
+                                <Link to={requestUrlWithParams} className="govuk-link">
+                                    Start consultation
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+                    <div className="govuk-summary-card__content">
+                        <table className="govuk-table govuk-!-margin-bottom-0">
+                            <tbody className="govuk-table__body">
+                                <tr className="govuk-table__row">
+                                    <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
+                                    <td className="govuk-table__cell">
+                                        <span className="govuk-tag govuk-tag--blue">{statusDisplay}</span>
+                                    </td>
+                                </tr>
+                                <tr className="govuk-table__row">
+                                    <td className="govuk-table__cell govuk-!-font-weight-bold">Date of consultation request</td>
+                                    <td className="govuk-table__cell">-</td>
+                                </tr>
+                                <tr className="govuk-table__row">
+                                    <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
+                                    <td className="govuk-table__cell">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            );
+        }
+
         switch (statusDisplay) {
             case ConsultationStatus.NOT_REQUIRED:
                 return (
@@ -110,7 +173,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                         <tr className="govuk-table__row">
                                             <td className="govuk-table__cell govuk-!-font-weight-bold">Supporting documents</td>
                                             <td className="govuk-table__cell">
-                                                {notRequiredDocs.map((doc: any, idx: number) => (
+                                                {notRequiredDocs.map((doc, idx) => (
                                                     <div key={idx}>
                                                         <a
                                                             href="#"
@@ -170,7 +233,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                         <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
                                         <td className="govuk-table__cell">
                                             {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
-                                                consultationRequestDocs.map((doc: any, idx: number) => (
+                                                consultationRequestDocs.map((doc, idx) => (
                                                     <div key={idx}>
                                                         <a
                                                             href="#"
@@ -226,7 +289,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                         <td className="govuk-table__cell govuk-!-font-weight-bold">Response documents</td>
                                         <td className="govuk-table__cell">
                                             {responseDocuments && responseDocuments.length > 0
-                                                ? responseDocuments.map((doc: any, idx: number) => (
+                                                ? responseDocuments.map((doc, idx) => (
                                                       <div key={idx}>
                                                           <a
                                                               href="#"
@@ -258,7 +321,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     </>
                 );
 
-            case ConsultationStatus.CLOSED:
+            case ConsultationStatus.CLOSED: {
               // Add debug logging
                 console.log('=== CLOSED CONSULTATION DEBUG ===');
                 console.log('evidenceResponseNotReceivedDocs:', evidenceResponseNotReceivedDocs);
@@ -308,7 +371,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                         <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
                                         <td className="govuk-table__cell">
                                             {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
-                                                consultationRequestDocs.map((doc: any, idx: number) => (
+                                                consultationRequestDocs.map((doc, idx) => (
                                                     <div key={idx}>
                                                         <a
                                                             href="#"
@@ -365,7 +428,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                                 <td className="govuk-table__cell govuk-!-font-weight-bold">Response documents</td>
                                                 <td className="govuk-table__cell">
                                                     {responseDocuments && responseDocuments.length > 0
-                                                        ? responseDocuments.map((doc: any, idx: number) => (
+                                                        ? responseDocuments.map((doc, idx) => (
                                                               <div key={idx}>
                                                                   <a
                                                                       href="#"
@@ -403,7 +466,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                             <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of response not received</td>
                                             <td className="govuk-table__cell">
                                                 {evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0
-                                                    ? evidenceResponseNotReceivedDocs.map((doc: any, idx: number) => (
+                                                    ? evidenceResponseNotReceivedDocs.map((doc, idx) => (
                                                           <div key={idx}>
                                                               <a
                                                                   href="#"
@@ -437,6 +500,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         </div>
                     </>
                 );
+            }
 
             case ConsultationStatus.WITHDRAWN:
                 return (
@@ -499,7 +563,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                         <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
                                         <td className="govuk-table__cell">
                                             {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
-                                                consultationRequestDocs.map((doc: any, idx: number) => (
+                                                consultationRequestDocs.map((doc, idx) => (
                                                     <div key={idx}>
                                                         <a
                                                             href="#"

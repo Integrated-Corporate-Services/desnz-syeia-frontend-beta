@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import LpaSelector, { Lpa } from '../../../components/LpaSelector';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-import { updateAllConsultations, createLpaConsultations } from '../../../services/consultationService';
+import { updateAllConsultations, createLpaConsultations, getOtherConsulteeOrganisations, createOtherConsultations } from '../../../services/consultationService';
 import log from '../../../logger';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 interface OtherConsulteeEntry {
     id: string;
     name: string;
 }
 
+interface ConsulteeOrganisation {
+    id: string;
+    org_name: string;
+    consultation_type: string;
+    is_offline: boolean;
+    default_email: string | null;
+}
+
 const SelectOtherConsultations: React.FC = () => {
-    const { applicationId } = useParams();
+    const  applicationId  = useGetApplicationId();
     const navigate = useNavigate();
     const { user } = useAuthUser();
 
@@ -20,11 +29,40 @@ const SelectOtherConsultations: React.FC = () => {
     const [otherEntries, setOtherEntries] = useState<OtherConsulteeEntry[]>([]);
     const [otherSearchTerm, setOtherSearchTerm] = useState<string>('');
     const [selectedLpas, setSelectedLpas] = useState<Lpa[]>([]);
+    const [otherConsultees, setOtherConsultees] = useState<ConsulteeOrganisation[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isOtherSelected, setIsOtherSelected] = useState(false);
 
     // Scroll to top on mount
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
+    // Fetch OTHER consultee organisations from the database
+    useEffect(() => {
+        const fetchOtherConsultees = async () => {
+            try {
+                if (!applicationId) {
+                    log.warn('[SelectOtherConsultations] No applicationId available');
+                    setLoading(false);
+                    return;
+                }
+                
+                setLoading(true);
+                const response = await getOtherConsulteeOrganisations(applicationId);
+                if (response.success && response.data) {
+                    setOtherConsultees(response.data);
+                    log.debug('[SelectOtherConsultations] Fetched OTHER consultees:', response.data);
+                }
+            } catch (error) {
+                log.error('[SelectOtherConsultations] Error fetching OTHER consultees:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOtherConsultees();
+    }, [applicationId]);
 
     const handleLpaSelect = (lpa: Lpa | null) => {
         // Add to array if not already present
@@ -88,6 +126,31 @@ const SelectOtherConsultations: React.FC = () => {
                 log.debug('[SelectOtherConsultations] Manually selected LPA consultations created successfully');
             }
 
+            // Create OTHER consultations if any OTHER consultees were selected
+            const otherConsulteesData: Array<{ consulteeOrganisationId?: string; otherConsulteeName?: string }> = [];
+
+            // Add selected consultees from database (those with consulteeOrganisationId)
+            selectedCategories.forEach((consulteeId) => {
+                otherConsulteesData.push({
+                    consulteeOrganisationId: consulteeId,
+                });
+            });
+
+            // Add manually entered consultees (those with otherConsulteeName)
+            otherEntries.forEach((entry) => {
+                otherConsulteesData.push({
+                    otherConsulteeName: entry.name,
+                });
+            });
+
+            if (otherConsulteesData.length > 0) {
+                log.debug('[SelectOtherConsultations] Creating OTHER consultations', {
+                    count: otherConsulteesData.length,
+                });
+                await createOtherConsultations(applicationId, otherConsulteesData, user.user_id);
+                log.debug('[SelectOtherConsultations] OTHER consultations created successfully');
+            }
+
             await updateAllConsultations(applicationId, user.user_id);
 
             // Navigate to next step
@@ -95,10 +158,6 @@ const SelectOtherConsultations: React.FC = () => {
         } catch (err) {
             log.error('[SelectOtherConsultations] Error saving consultations:', err);
         }
-    };
-
-    const handleSaveForLater = async () => {
-        navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
     };
 
     return (
@@ -136,114 +195,72 @@ const SelectOtherConsultations: React.FC = () => {
                                             showCheckbox={true}
                                         />
                                     </div>
-                                    <div className="govuk-checkboxes__item">
-                                        <input
-                                            className="govuk-checkboxes__input"
-                                            id="fire-rescue"
-                                            name="consultationType"
-                                            type="checkbox"
-                                            checked={selectedCategories.has('fire-rescue')}
-                                            onChange={() => handleCategoryChange('fire-rescue')}
-                                        />
-                                        <label className="govuk-label govuk-checkboxes__label" htmlFor="fire-rescue">
-                                            County Fire and Rescue Service
-                                        </label>
-                                    </div>
 
-                                    <div className="govuk-checkboxes__item">
-                                        <input
-                                            className="govuk-checkboxes__input"
-                                            id="environment-agency"
-                                            name="consultationType"
-                                            type="checkbox"
-                                            checked={selectedCategories.has('environment-agency')}
-                                            onChange={() => handleCategoryChange('environment-agency')}
-                                        />
-                                        <label className="govuk-label govuk-checkboxes__label" htmlFor="environment-agency">
-                                            Environment Agency
-                                        </label>
-                                    </div>
+                                    {/* Dynamic OTHER consultees from database */}
+                                    {loading ? (
+                                        <p className="govuk-body">Loading consultees...</p>
+                                    ) : (
+                                        otherConsultees.map((consultee) => (
+                                            <div key={consultee.id} className="govuk-checkboxes__item">
+                                                <input
+                                                    className="govuk-checkboxes__input"
+                                                    id={consultee.id}
+                                                    name="consultationType"
+                                                    type="checkbox"
+                                                    checked={selectedCategories.has(consultee.id)}
+                                                    onChange={() => handleCategoryChange(consultee.id)}
+                                                />
+                                                <label className="govuk-label govuk-checkboxes__label" htmlFor={consultee.id}>
+                                                    {consultee.org_name}
+                                                </label>
+                                            </div>
+                                        ))
+                                    )}
 
+                                    {/* Static "Other" checkbox */}
                                     <div className="govuk-checkboxes__item">
                                         <input
                                             className="govuk-checkboxes__input"
-                                            id="highways-england"
+                                            id="other-checkbox"
                                             name="consultationType"
                                             type="checkbox"
-                                            checked={selectedCategories.has('highways-england')}
-                                            onChange={() => handleCategoryChange('highways-england')}
+                                            checked={isOtherSelected}
+                                            onChange={() => setIsOtherSelected(!isOtherSelected)}
                                         />
-                                        <label className="govuk-label govuk-checkboxes__label" htmlFor="highways-england">
-                                            Highways England
-                                        </label>
-                                    </div>
-
-                                    <div className="govuk-checkboxes__item">
-                                        <input
-                                            className="govuk-checkboxes__input"
-                                            id="wildfire-trust"
-                                            name="consultationType"
-                                            type="checkbox"
-                                            checked={selectedCategories.has('wildfire-trust')}
-                                            onChange={() => handleCategoryChange('wildfire-trust')}
-                                        />
-                                        <label className="govuk-label govuk-checkboxes__label" htmlFor="wildfire-trust">
-                                            Local Wildfire Trust
-                                        </label>
-                                    </div>
-
-                                    <div className="govuk-checkboxes__item">
-                                        <input
-                                            className="govuk-checkboxes__input"
-                                            id="rspb"
-                                            name="consultationType"
-                                            type="checkbox"
-                                            checked={selectedCategories.has('rspb')}
-                                            onChange={() => handleCategoryChange('rspb')}
-                                        />
-                                        <label className="govuk-label govuk-checkboxes__label" htmlFor="rspb">
-                                            RSPB
-                                        </label>
-                                    </div>
-
-                                    <div className="govuk-checkboxes__item">
-                                        <input
-                                            className="govuk-checkboxes__input"
-                                            id="other"
-                                            name="consultationType"
-                                            type="checkbox"
-                                            checked={selectedCategories.has('other')}
-                                            onChange={() => handleCategoryChange('other')}
-                                        />
-                                        <label className="govuk-label govuk-checkboxes__label" htmlFor="other">
+                                        <label className="govuk-label govuk-checkboxes__label" htmlFor="other-checkbox">
                                             Other
                                         </label>
                                     </div>
                                 </div>
 
-                                {selectedCategories.has('other') && (
+                                {/* Show text input if "Other" checkbox is selected */}
+                                {isOtherSelected && (
                                     <div className="govuk-!-margin-top-4 govuk-!-margin-left-4">
-                                        {otherEntries.map((entry) => (
-                                            <div key={entry.id} className="govuk-!-margin-bottom-2">
-                                                <span className="govuk-body">{entry.name}</span>
-                                                <button
-                                                    type="button"
-                                                    className="govuk-link govuk-!-margin-left-2"
-                                                    onClick={() => handleRemoveOther(entry.id)}
-                                                    style={{
-                                                        background: 'none',
-                                                        border: 'none',
-                                                        padding: 0,
-                                                        cursor: 'pointer',
-                                                    }}
-                                                >
-                                                    Remove
-                                                </button>
-                                            </div>
-                                        ))}
+                                        {otherEntries.length === 0 ? (
+                                            <p className="govuk-body govuk-hint">No items have been added yet.</p>
+                                        ) : (
+                                            otherEntries.map((entry) => (
+                                                <div key={entry.id} className="govuk-!-margin-bottom-2">
+                                                    <span className="govuk-body">{entry.name}</span>
+                                                    <button
+                                                        type="button"
+                                                        className="govuk-link govuk-!-margin-left-2"
+                                                        onClick={() => handleRemoveOther(entry.id)}
+                                                        style={{
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            padding: 0,
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
                                         <div className="govuk-!-margin-top-3">
                                             <label className="govuk-label" htmlFor="other-search">
-                                                Enter a consultee's name
+                                                Other consultee organisation
                                             </label>
                                             <div className="govuk-input__wrapper govuk-!-display-flex">
                                                 <input
