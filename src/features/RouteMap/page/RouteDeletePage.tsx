@@ -2,6 +2,7 @@ import React from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
+import { useProgressStore } from '../../../store/useProgressStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 const RouteDeletePage: React.FC = () => {
@@ -13,6 +14,7 @@ const RouteDeletePage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { deleteRoute, fetchRoutes } = useRouteStore();
   const getRouteStore = useRouteStore.getState;
+  const progressStore = useProgressStore();
 
   // If no route details, redirect back
   React.useEffect(() => {
@@ -36,8 +38,16 @@ const RouteDeletePage: React.FC = () => {
     // Get the latest routes from the store after fetch
     const latestRoutes = getRouteStore().routes;
     const hasRoutes = Array.isArray(latestRoutes) && latestRoutes.length > 0;
-    const bannerState = { state: { routeDeletedName: routeName } };
+    type BannerState = { state: { routeDeletedName?: string | null; progressUpdateFailed?: boolean } };
+    let bannerState: BannerState = { state: { routeDeletedName: routeName } };
     if (!hasRoutes) {
+      try {
+        await progressStore.updateProgress(applicationId!, 'Route', 'Incomplete');
+        await progressStore.updateProgress(applicationId!, 'Sensitive area checks', 'Cannot start yet');
+        await progressStore.updateProgress(applicationId!, 'Sensitive area review', 'Cannot start yet');
+      } catch (err) {
+         bannerState.state = { ...bannerState.state, progressUpdateFailed: true };
+      }
       navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);
     } else {
       navigate(`${S37_BASE_URL}/${applicationId || ''}/route-overview`, bannerState);
