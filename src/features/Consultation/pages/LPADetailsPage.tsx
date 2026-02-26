@@ -27,6 +27,7 @@ const LPADetailsPage: React.FC = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
     const [lpaName, setLpaName] = useState('');
+    const [submitted, setSubmitted] = useState(false);
 
     useEffect(() => {
         const fetchLPADetails = async () => {
@@ -95,10 +96,12 @@ const LPADetailsPage: React.FC = () => {
                 [name]: '',
             }));
         }
+        setSubmitted(false);
     };
 
     const handleSaveAndContinue = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSubmitted(true);
 
         if (!validateForm()) {
             return;
@@ -106,10 +109,9 @@ const LPADetailsPage: React.FC = () => {
 
         setLoading(true);
         try {
-            // NEW: Save LPA details to database
             await saveLpaDetails(applicationId!, consultationId!, formData);
-            
-            // Navigate to next step
+            setErrors({});
+            setSubmitted(false); // Reset after successful submit
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
         } catch (error) {
             console.error('Error saving LPA details:', error);
@@ -163,7 +165,7 @@ const LPADetailsPage: React.FC = () => {
                 </nav>
 
                 {/* Error Summary */}
-                {Object.keys(errors).length > 0 && (
+                {submitted && Object.keys(errors).length > 0 && (
                     <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem

@@ -29,6 +29,8 @@ const ProposedDevelopmentPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string>('');
+  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lpaName, setLpaName] = useState('');
 
@@ -80,6 +82,11 @@ const ProposedDevelopmentPage: React.FC = () => {
     }
   }, [applicationId, consultationId, consultationName]);
 
+  useEffect(() => {
+    setErrors({});
+    setSubmitError('');
+  }, []);
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -87,56 +94,60 @@ const ProposedDevelopmentPage: React.FC = () => {
       newErrors.projectDescription = 'Project description is required';
     }
 
+    if (!formData.representationsObjections.trim()) {
+      newErrors.representationsObjections = 'Representations or objections are required';
+    }
+
     if (!formData.complianceDetails.trim()) {
       newErrors.complianceDetails = 'Compliance details are required';
     }
 
     setErrors(newErrors);
+    setSubmitError('');
     return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+  const { name, value } = e.target;
+  setFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
+  if (errors[name]) {
+    setErrors(prev => ({
       ...prev,
-      [name]: value
+      [name]: ''
     }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
+  }
+  setSubmitted(false); 
+};
 
-  const handleSaveAndContinue = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSaveAndContinue = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setSubmitted(true);
 
-    if (!validateForm()) {
-      return;
-    }
+  if (!validateForm()) {
+    return;
+  }
 
-    setLoading(true);
-    try {
-      // Save proposed development to database
-      await saveProposedDevelopment(applicationId!, consultationId!, formData);
-      
-      // NEW: Mark consultation as request sent with current date
-      await markConsultationAsRequestSent(consultationId!);
-      
-      // NEW: Navigate to consultation details page
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-    } catch (error) {
-      console.error('Error saving proposed development:', error);
-      setErrors(prev => ({
-        ...prev,
-        submit: 'Failed to save proposed development details. Please try again.'
-      }));
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  setSubmitError('');
+  try {
+    await saveProposedDevelopment(applicationId!, consultationId!, formData);
+    await markConsultationAsRequestSent(consultationId!);
 
+    setErrors({});
+    setSubmitError('');
+    setSubmitted(false); // Reset after successful submit
+    navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+  } catch (error) {
+    console.error('Error saving proposed development:', error);
+    setErrors({});
+    setSubmitError('Failed to save proposed development details. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
   // const handleSaveForLater = async (e: React.FormEvent) => {
   //   e.preventDefault();
 
@@ -183,12 +194,12 @@ const ProposedDevelopmentPage: React.FC = () => {
           </ol>
         </nav>
 
-        {/* Error Summary */}
-        {Object.keys(errors).length > 0 && (
-          <div 
-            className="govuk-error-summary" 
-            role="alert" 
-            aria-labelledby="error-summary-title" 
+        {/* Error Summary for field errors */}
+        {submitted && Object.keys(errors).length > 0 && (
+          <div
+            className="govuk-error-summary"
+            role="alert"
+            aria-labelledby="error-summary-title"
             tabIndex={-1}
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -202,6 +213,16 @@ const ProposedDevelopmentPage: React.FC = () => {
                   </li>
                 ))}
               </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Submit/Backend error */}
+        {submitError && Object.keys(errors).length === 0 && (
+          <div className="govuk-error-summary" role="alert" tabIndex={-1}>
+            <h2 className="govuk-error-summary__title">There is a problem</h2>
+            <div className="govuk-error-summary__body">
+              <p>{submitError}</p>
             </div>
           </div>
         )}
