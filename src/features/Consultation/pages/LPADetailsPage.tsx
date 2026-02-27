@@ -4,6 +4,9 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpaDetailsService'; 
+import { createLogger } from '../../../utils/logger';
+
+const log = createLogger('LPADetailsPage');
 
 interface LPADetails {
     lpaContactName: string;
@@ -27,6 +30,7 @@ const LPADetailsPage: React.FC = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
     const [lpaName, setLpaName] = useState('');
+    const [submitted, setSubmitted] = useState(false);
 
     useEffect(() => {
         const fetchLPADetails = async () => {
@@ -48,12 +52,12 @@ const LPADetailsPage: React.FC = () => {
                     });
                 }
                 
-                console.log('=== LPA DETAILS PAGE ===');
-                console.log('LPA Name:', name);
-                console.log('Existing Details:', existingDetails);
-                console.log('========================');
+                log.debug('=== LPA DETAILS PAGE ===');
+                log.debug('LPA Name:', name);
+                log.debug('Existing Details:', existingDetails);
+                log.debug('========================');
             } catch (error) {
-                console.error('Error fetching LPA details:', error);
+                log.error('Error fetching LPA details:', error);
             }
         };
 
@@ -95,10 +99,12 @@ const LPADetailsPage: React.FC = () => {
                 [name]: '',
             }));
         }
+        setSubmitted(false);
     };
 
     const handleSaveAndContinue = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSubmitted(true);
 
         if (!validateForm()) {
             return;
@@ -106,13 +112,12 @@ const LPADetailsPage: React.FC = () => {
 
         setLoading(true);
         try {
-            // NEW: Save LPA details to database
             await saveLpaDetails(applicationId!, consultationId!, formData);
-            
-            // Navigate to next step
+            setErrors({});
+            setSubmitted(false); // Reset after successful submit
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
         } catch (error) {
-            console.error('Error saving LPA details:', error);
+            log.error('Error saving LPA details:', error);
             setErrors((prev) => ({
                 ...prev,
                 submit: 'Failed to save LPA details. Please try again.',
@@ -134,7 +139,7 @@ const LPADetailsPage: React.FC = () => {
             
     //         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     //     } catch (error) {
-    //         console.error('Error saving LPA details:', error);
+    //         log.error('Error saving LPA details:', error);
     //     } finally {
     //         setLoading(false);
     //     }
@@ -163,7 +168,7 @@ const LPADetailsPage: React.FC = () => {
                 </nav>
 
                 {/* Error Summary */}
-                {Object.keys(errors).length > 0 && (
+                {submitted && Object.keys(errors).length > 0 && (
                     <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem
