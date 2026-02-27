@@ -111,19 +111,28 @@ export interface ResponseDocument {
 }
 
 export interface Consultation {
-	id?: string;
-	applicationId?: string;
-	consultationType?: string;
-	consulteeOrganisationId?: string;
-	consulteeOrganisationName?: string;
-	status?: string;
-	sentAt?: string | null;
-	createdAt?: string;
-	closedAt?: string | null;
-	dateClosed?: string | null;
-	objectionRaised?: boolean | null;
-	responseDocuments?: ResponseDocument[];
-	consulteeEmailAddress?: string | null;
+    id?: string;
+    applicationId?: string;
+    consultationType?: string;
+    consulteeOrganisationId?: string;
+    consulteeOrganisationName?: string;
+    status?: string;
+    sentAt?: string | null;
+    createdAt?: string;
+    closedAt?: string | null;
+    dateClosed?: string | null;
+    objectionRaised?: boolean | null;
+    responseDocuments?: ResponseDocument[];
+    consulteeEmailAddress?: string | null;
+    requestEvidenceDocuments?: ResponseDocument[];
+    evidenceResponseNotReceivedDocs?: ResponseDocument[];
+    consulteeContactName?: string;
+    closeComments?: string;
+    consultationRequestDocs?: { name: string; url: string; key?: string; filename?: string }[];
+    respondingConsulteeName?: string;
+    respondingConsulteeEmail?: string;
+    notRequiredReason?: string;
+    notRequiredDocs?: { name: string; url: string; key?: string; filename?: string }[];
 }
 
 export interface PostConsultationOutcome {
