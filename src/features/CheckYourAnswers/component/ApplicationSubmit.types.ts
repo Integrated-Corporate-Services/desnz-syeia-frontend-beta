@@ -9,6 +9,15 @@ export interface NetworkOperatorDetails {
 	postcode?: string;
 	email?: string;
 	phone?: string;
+	organisation_contact_name?: string;
+    additional_contact?: string;
+}
+
+export interface Parish {
+    parish_code: string;
+    parish_name: string;
+    lpa_code: string;
+    country: string;
 }
 
 export interface AssetInformation {
@@ -69,7 +78,7 @@ export interface SupportingDocument {
 }
 
 export interface EIAFees {
-	requires_full_eia?: boolean;
+	is_eia_development?: boolean;
 	screening_only?: boolean;
 }
 
@@ -115,4 +124,10 @@ export interface Consultation {
 	objectionRaised?: boolean | null;
 	responseDocuments?: ResponseDocument[];
 	consulteeEmailAddress?: string | null;
+}
+
+export interface PostConsultationOutcome {
+  lpa_conditions_imposed?: boolean | null;
+  lpa_conditions_accepted?: boolean | null;
+  lpa_conditions_not_accepted_reason?: string | null;
 }

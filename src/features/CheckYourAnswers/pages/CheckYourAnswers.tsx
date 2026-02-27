@@ -15,6 +15,8 @@ import {
   EIAFees,
   WorksOverview,
   Consultation,
+  Parish,
+  PostConsultationOutcome,
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 
@@ -68,7 +70,7 @@ const ApplicationSubmit: React.FC = () => {
     } catch (err) {
       console.error("Failed to save declaration:", err);
       setValidationError("Failed to save declaration. Please try again.");
-      window.scrollTo({ top: 0});
+      window.scrollTo({ top: 0 });
     }
   };
 
@@ -106,6 +108,8 @@ const ApplicationSubmit: React.FC = () => {
     null,
   );
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [postConsultationOutcome, setPostConsultationOutcome] = useState<PostConsultationOutcome | null>(null);
+
   const [permissions, setPermissions] = useState<{
     canView: boolean;
     canEdit: boolean;
@@ -114,6 +118,8 @@ const ApplicationSubmit: React.FC = () => {
     canDownload: boolean;
     canWithdraw: boolean;
   } | null>(null);
+
+  const [parishes, setParishes] = useState<Parish[]>([]);
 
   // Memoize transformed routes to avoid recalculating on every render
   const transformedRoutes = useMemo(() => {
@@ -159,13 +165,52 @@ const ApplicationSubmit: React.FC = () => {
     fetch(`/backend/api/applications/${applicationId}/review`)
       .then((res) => res.json())
       .then((data) => {
+        // Log the entire response to see structure
+        console.log("Full API response:", data);
+        console.log(
+          "Network operator section:",
+          data.sections?.networkOperator,
+        );
+
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
+        console.log("Network operator details:", networkOpDetails);
+
         if (networkOpDetails) {
+          const party = networkOpDetails.application_party;
+          console.log("Application party:", party);
+          console.log(
+            "Additional contact BEFORE setting state:",
+            networkOpDetails.additional_contact,
+          );
+
           setNetworkOperatorDetails({
             operator_ref: networkOpDetails.operator_ref,
-            ...networkOpDetails.application_party,
+            organisation_name: party?.organisation_name,
+            organisation_contact_name: party?.contact_person_name,
+            // Map contact person fields to display fields
+            line1: party?.contact_person_line1,
+            line2: party?.contact_person_line2,
+            town_city: party?.contact_person_city,
+            county: party?.contact_person_county,
+            postcode: party?.contact_person_postcode,
+            email: party?.contact_person_email,
+            phone: party?.contact_person_phone,
+            additional_contact: party?.additional_contact,
           });
+
+          console.log(
+            "Additional contacts from API:",
+            party?.additional_contact,
+          );
+          console.log(
+            "Additional contacts type:",
+            typeof party?.additional_contact,
+          );
+          console.log(
+            "Additional contacts length:",
+            party?.additional_contact?.length,
+          );
         } else {
           setNetworkOperatorDetails(null);
         }
@@ -225,9 +270,9 @@ const ApplicationSubmit: React.FC = () => {
         setSensitiveAreaChecks(
           sensitiveChecks
             ? {
-                tolerance_required: sensitiveChecks.tolerance_required,
-                tolerance_value: sensitiveChecks.tolerance_value,
-              }
+              tolerance_required: sensitiveChecks.tolerance_required,
+              tolerance_value: sensitiveChecks.tolerance_value,
+            }
             : null,
         );
         // Set sensitive area review data
@@ -235,12 +280,12 @@ const ApplicationSubmit: React.FC = () => {
         setSensitiveAreaReview(
           sensitiveReview
             ? {
-                other_sensitive_areas_note:
-                  sensitiveReview.other_sensitive_areas_note,
-                asset_presence_option_id:
-                  sensitiveReview.asset_presence_option_id,
-                application_documents: sensitiveReview.application_documents,
-              }
+              other_sensitive_areas_note:
+                sensitiveReview.other_sensitive_areas_note,
+              asset_presence_option_id:
+                sensitiveReview.asset_presence_option_id,
+              application_documents: sensitiveReview.application_documents,
+            }
             : null,
         );
         // Set routes data from location.route
@@ -271,8 +316,16 @@ const ApplicationSubmit: React.FC = () => {
             ? data.sections.consultations
             : [],
         );
+
+        // const parishesData = data.parishes || data.sections?.parishes || [];
+        const parishesData = data.sections?.parishes || null;
+        setParishes(Array.isArray(parishesData) ? parishesData : []);
+        console.log('Parishes loaded:', parishesData);
+        console.log('Parishes array length:', parishesData?.length);
         // Set permissions from API response
         setPermissions(data.permissions || null);
+
+        setPostConsultationOutcome(data.sections?.postConsultationOutcome || null);
       })
       .catch(() => {
         setProjectDetails(null);
@@ -331,7 +384,7 @@ const ApplicationSubmit: React.FC = () => {
               Check your answers before sending your application
             </h1>
             {/* Applicant documents summary card */}
-            <h2 className="govuk-heading-m">Applicant documents</h2>
+            {/* <h2 className="govuk-heading-m">Applicant documents</h2>
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Project Overview</h2>
@@ -359,9 +412,9 @@ const ApplicationSubmit: React.FC = () => {
                   </div>
                 </dl>
               </div>
-            </div>
+            </div> */}
             {/* Supporting information summary card */}
-            <div className="govuk-summary-card">
+            {/* <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
                   Supporting information
@@ -390,9 +443,9 @@ const ApplicationSubmit: React.FC = () => {
                   </div>
                 </dl>
               </div>
-            </div>
+            </div> */}
             {/* Sensitive area review summary card */}
-            <div className="govuk-summary-card">
+            {/* <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
                   Sensitive area review
@@ -419,7 +472,7 @@ const ApplicationSubmit: React.FC = () => {
                   </div>
                 </dl>
               </div>
-            </div>
+            </div> */}
             {/* Applicant details summary card */}
             <h2 className="govuk-heading-m">Applicant details</h2>
             <div className="govuk-summary-card">
@@ -447,28 +500,20 @@ const ApplicationSubmit: React.FC = () => {
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
                   <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Reference</dt>
-                    <dd className="govuk-summary-list__value">
-                      {networkOperatorDetails?.operator_ref || "-"}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Network operator contact
-                    </dt>
+                    <dt className="govuk-summary-list__key">Applicant name</dt>
                     <dd className="govuk-summary-list__value">
                       {networkOperatorDetails?.organisation_name || "-"}
                     </dd>
                   </div>
-                </dl>
+                  {/* </dl>
               </div>
-            </div>
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">
+            </div> */}
+                  {/* <div className="govuk-summary-card"> */}
+                  {/* <div className="govuk-summary-card__title-wrapper"> */}
+                  {/* <h2 className="govuk-summary-card__title">
                   Network operator contact details
-                </h2>
-                {permissions?.canEdit && (
+                </h2> */}
+                  {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -483,14 +528,16 @@ const ApplicationSubmit: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
+                )} */}
+                  {/* </div> */}
+                  {/* <div className="govuk-summary-card__content"> */}
+                  {/* <dl className="govuk-summary-list"> */}
                   <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Name</dt>
+                    <dt className="govuk-summary-list__key">
+                      Applicant contact name
+                    </dt>
                     <dd className="govuk-summary-list__value">
-                      {networkOperatorDetails?.organisation_name || "-"}
+                      {networkOperatorDetails?.organisation_contact_name || "-"}
                     </dd>
                   </div>
                   <div className="govuk-summary-list__row">
@@ -526,9 +573,46 @@ const ApplicationSubmit: React.FC = () => {
                       {networkOperatorDetails?.phone || "-"}
                     </dd>
                   </div>
+                  {networkOperatorDetails?.additional_contact &&
+                    networkOperatorDetails.additional_contact.trim().length >
+                    0 && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Additional contacts
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          <ul className="govuk-list">
+                            {networkOperatorDetails.additional_contact
+                              .split(",")
+                              .map((email) => email.trim())
+                              .filter((email) => email.length > 0)
+                              .map((email, idx) => (
+                                <li key={idx}>
+                                  <a
+                                    className="govuk-link"
+                                    href={`mailto:${email}`}
+                                  >
+                                    {email}
+                                  </a>
+                                </li>
+                              ))}
+                          </ul>
+                        </dd>
+                      </div>
+                    )}
+
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Applicant Reference
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {networkOperatorDetails?.operator_ref || "-"}
+                    </dd>
+                  </div>
                 </dl>
               </div>
             </div>
+
             {/* Project details summary card */}
             <h2 className="govuk-heading-m">Project details</h2>
             {/* Project overview summary card */}
@@ -582,8 +666,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {projectDetails &&
-                      projectDetails.earliest_work_start_date_month &&
-                      projectDetails.earliest_work_start_date_year
+                        projectDetails.earliest_work_start_date_month &&
+                        projectDetails.earliest_work_start_date_year
                         ? `${projectDetails.earliest_work_start_date_month}/${projectDetails.earliest_work_start_date_year}`
                         : "-"}
                     </dd>
@@ -594,8 +678,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {projectDetails &&
-                      projectDetails.latest_work_start_date_month &&
-                      projectDetails.latest_work_start_date_year
+                        projectDetails.latest_work_start_date_month &&
+                        projectDetails.latest_work_start_date_year
                         ? `${projectDetails.latest_work_start_date_month}/${projectDetails.latest_work_start_date_year}`
                         : "-"}
                     </dd>
@@ -613,8 +697,8 @@ const ApplicationSubmit: React.FC = () => {
                     <dd className="govuk-summary-list__value">
                       {projectDetails?.updated_at
                         ? new Date(
-                            projectDetails.updated_at,
-                          ).toLocaleDateString()
+                          projectDetails.updated_at,
+                        ).toLocaleDateString()
                         : "-"}
                     </dd>
                   </div>
@@ -664,7 +748,7 @@ const ApplicationSubmit: React.FC = () => {
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
                   {(projectDetails?.assetInformation &&
-                  projectDetails.assetInformation.length > 0
+                    projectDetails.assetInformation.length > 0
                     ? projectDetails.assetInformation
                     : ([{}] as AssetInformation[])
                   ).map((asset, idx) => (
@@ -684,7 +768,7 @@ const ApplicationSubmit: React.FC = () => {
                         <dd className="govuk-summary-list__value">
                           {asset.type_of_line
                             ? asset.type_of_line.charAt(0).toUpperCase() +
-                              asset.type_of_line.slice(1)
+                            asset.type_of_line.slice(1)
                             : "-"}
                         </dd>
                       </div>
@@ -717,11 +801,21 @@ const ApplicationSubmit: React.FC = () => {
                 </dl>
               </div>
             </div>
-            <h2 className="govuk-heading-m">Location</h2>
+            <h2 className="govuk-heading-m">Routes</h2>
             {/* Route map summary card*/}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Route map</h2>
+                <h2 className="govuk-summary-card__title">Route map
+                  <a
+                    href={`/frontend${S37_BASE_URL}/${applicationId}/route-map-only`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="govuk-link"
+                    style={{ marginLeft: 12, fontWeight: 400, fontSize: '1rem' }}
+                  >
+                    View map (Opens in new tab)
+                  </a>
+                </h2>
               </div>
               <div className="govuk-summary-card__content">
                 <div
@@ -764,7 +858,7 @@ const ApplicationSubmit: React.FC = () => {
                         </thead>
                         <tbody className="govuk-table__body">
                           {Array.isArray(route.gridPoints) &&
-                          route.gridPoints.length > 0 ? (
+                            route.gridPoints.length > 0 ? (
                             route.gridPoints.map((point, pidx) => (
                               <tr
                                 className="govuk-table__row"
@@ -849,7 +943,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.addingOrReplacingPoles ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.addingOrReplacingPoles
                           ? "Yes"
                           : "No"
@@ -909,7 +1003,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.addingOrReplacingLines ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.addingOrReplacingLines
                           ? "Yes"
                           : "No"
@@ -948,7 +1042,7 @@ const ApplicationSubmit: React.FC = () => {
                         </dt>
                         <dd className="govuk-summary-list__value">
                           {typeof worksOverview?.roadClosuresRequired ===
-                          "boolean"
+                            "boolean"
                             ? worksOverview.roadClosuresRequired
                               ? "Yes"
                               : "No"
@@ -987,7 +1081,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.vegetationClearanceRequired ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.vegetationClearanceRequired
                           ? "Yes"
                           : "No"
@@ -1012,7 +1106,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.usingExistingAccessRoutes ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.usingExistingAccessRoutes
                           ? "Yes"
                           : "No"
@@ -1036,7 +1130,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.removingExistingEquipment ===
-                      "boolean"
+                        "boolean"
                         ? worksOverview.removingExistingEquipment
                           ? "Yes"
                           : "No"
@@ -1065,6 +1159,49 @@ const ApplicationSubmit: React.FC = () => {
                 </dl>
               </div>
             </div>
+
+            {/* Parishes summary card */}
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">Parishes</h2>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/parishes`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden"> parishes</span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Parishes
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {parishes.length > 0 ? (
+                        <ul className="govuk-list">
+                          {parishes.map((parish) => (
+                            <li key={parish.parish_code}>
+                              {parish.parish_name}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        "-"
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
             {/* Sensitive area check summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -1080,7 +1217,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof sensitiveAreaChecks?.tolerance_required ===
-                      "boolean"
+                        "boolean"
                         ? sensitiveAreaChecks.tolerance_required
                           ? "Yes"
                           : "No"
@@ -1152,7 +1289,7 @@ const ApplicationSubmit: React.FC = () => {
                     <dd className="govuk-summary-list__value">
                       <ul className="govuk-list">
                         {sensitiveAreaReview?.application_documents &&
-                        sensitiveAreaReview.application_documents.length > 0 ? (
+                          sensitiveAreaReview.application_documents.length > 0 ? (
                           sensitiveAreaReview.application_documents.map(
                             (doc) => <li key={doc.document_id}>{doc.title}</li>,
                           )
@@ -1172,6 +1309,67 @@ const ApplicationSubmit: React.FC = () => {
                       )}
                     </dd>
                   </div>
+                </dl>
+              </div>
+            </div>
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">Post consultation actions</h2>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          post consultation actions
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Were LPA conditions imposed?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {postConsultationOutcome?.lpa_conditions_imposed === true
+                        ? "Yes"
+                        : postConsultationOutcome?.lpa_conditions_imposed === false
+                          ? "No"
+                          : "-"}
+                    </dd>
+                  </div>
+                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Were LPA conditions accepted?
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_accepted === true
+                          ? "Yes"
+                          : postConsultationOutcome?.lpa_conditions_accepted === false
+                            ? "No"
+                            : "-"}
+                      </dd>
+                    </div>
+                  )}
+                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Reason for not accepting conditions
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>
@@ -1207,7 +1405,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {supportingQuestions &&
-                      typeof supportingQuestions.wayleaves_obtained ===
+                        typeof supportingQuestions.wayleaves_obtained ===
                         "boolean"
                         ? supportingQuestions.wayleaves_obtained
                           ? "Yes"
@@ -1234,7 +1432,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {supportingQuestions &&
-                      typeof supportingQuestions.esqcr_2002_compliance_confirmed ===
+                        typeof supportingQuestions.esqcr_2002_compliance_confirmed ===
                         "boolean"
                         ? supportingQuestions.esqcr_2002_compliance_confirmed
                           ? "Yes"
@@ -1248,7 +1446,7 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {supportingQuestions &&
-                      typeof supportingQuestions.has_additional_supporting_documents ===
+                        typeof supportingQuestions.has_additional_supporting_documents ===
                         "boolean"
                         ? supportingQuestions.has_additional_supporting_documents
                           ? "Yes"
@@ -1314,8 +1512,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {eiaFees &&
-                      typeof eiaFees.requires_full_eia !== "undefined"
-                        ? eiaFees.requires_full_eia
+                        typeof eiaFees.is_eia_development !== "undefined"
+                        ? eiaFees.is_eia_development
                           ? "Yes"
                           : "No"
                         : "-"}
@@ -1327,11 +1525,11 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {eiaFees &&
-                      typeof eiaFees.requires_full_eia !== "undefined" &&
-                      !eiaFees.requires_full_eia
+                        typeof eiaFees.is_eia_development !== "undefined" &&
+                        !eiaFees.is_eia_development
                         ? "No"
                         : eiaFees &&
-                            typeof eiaFees.screening_only !== "undefined"
+                          typeof eiaFees.screening_only !== "undefined"
                           ? eiaFees.screening_only
                             ? "Yes"
                             : "No"
@@ -1371,9 +1569,9 @@ const ApplicationSubmit: React.FC = () => {
                             ? "-"
                             : consultation.sentAt || consultation.createdAt
                               ? new Date(
-                                  consultation.sentAt ||
-                                    consultation.createdAt!,
-                                ).toLocaleDateString()
+                                consultation.sentAt ||
+                                consultation.createdAt!,
+                              ).toLocaleDateString()
                               : "-"}
                         </dd>
                       </div>
@@ -1384,9 +1582,9 @@ const ApplicationSubmit: React.FC = () => {
                             ? "-"
                             : consultation.closedAt || consultation.dateClosed
                               ? new Date(
-                                  consultation.closedAt ||
-                                    consultation.dateClosed!,
-                                ).toLocaleDateString()
+                                consultation.closedAt ||
+                                consultation.dateClosed!,
+                              ).toLocaleDateString()
                               : "-"}
                         </dd>
                       </div>
@@ -1416,7 +1614,7 @@ const ApplicationSubmit: React.FC = () => {
                           ) : (
                             <ul className="govuk-list">
                               {Array.isArray(consultation.responseDocuments) &&
-                              consultation.responseDocuments.length > 0 ? (
+                                consultation.responseDocuments.length > 0 ? (
                                 consultation.responseDocuments.map(
                                   (doc, didx) => (
                                     <li key={didx}>{doc.name || "Document"}</li>
