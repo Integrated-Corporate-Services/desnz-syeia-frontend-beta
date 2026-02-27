@@ -31,9 +31,14 @@ const RouteDeletePage: React.FC = () => {
 
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
+    let deleteResult: any = null;
     if (route_id && applicationId) {
-      await deleteRoute(applicationId, route_id);
-      if (fetchRoutes) await fetchRoutes(applicationId);
+      try {
+        deleteResult = await deleteRoute(applicationId, route_id);
+        if (fetchRoutes) await fetchRoutes(applicationId);
+      } catch (err) {
+        deleteResult = null;
+      }
     }
     // Get the latest routes from the store after fetch
     const latestRoutes = getRouteStore().routes;
@@ -41,12 +46,8 @@ const RouteDeletePage: React.FC = () => {
     type BannerState = { state: { routeDeletedName?: string | null; progressUpdateFailed?: boolean } };
     let bannerState: BannerState = { state: { routeDeletedName: routeName } };
     if (!hasRoutes) {
-      try {
-        await progressStore.updateProgress(applicationId!, 'Route', 'Incomplete');
-        await progressStore.updateProgress(applicationId!, 'Sensitive area checks', 'Cannot start yet');
-        await progressStore.updateProgress(applicationId!, 'Sensitive area review', 'Cannot start yet');
-      } catch (err) {
-         bannerState.state = { ...bannerState.state, progressUpdateFailed: true };
+      if (deleteResult && deleteResult.progressUpdated === false) {
+        bannerState.state = { ...bannerState.state, progressUpdateFailed: true };
       }
       navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);
     } else {
