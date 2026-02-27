@@ -6,7 +6,8 @@ export type TaskListSection = {
     name: string; 
     status: string; 
     link: string;
-    disabled?: boolean;  // Add this line
+    disabled?: boolean;
+    plainTextStatus?: boolean;  // Status should render as plain text, not a tag
   }[];
 };
 
@@ -151,11 +152,15 @@ export function updateSectionStatus(
 export function getSectionsWithProgress(
   applicationId?: string,
   progress?: { subsection_name: string; status: string }[],
-  assetInformationStatus?: string
+  assetInformationStatus?: string,
+  sensitiveAreaInProgress?: boolean
 ): TaskListSection[] {
   const sections = getInitialSections(applicationId, assetInformationStatus);
-  if (!progress || progress.length === 0) return sections;
-  return applyProgressToSections(sections, progress);
+  if (!progress || progress.length === 0) {
+    return applySensitiveAreaCheckLogic(sections, sensitiveAreaInProgress);
+  }
+  const sectionsWithProgress = applyProgressToSections(sections, progress);
+  return applySensitiveAreaCheckLogic(sectionsWithProgress, sensitiveAreaInProgress);
 }
 
 export function applyProgressToSections(
@@ -176,4 +181,59 @@ export function applyProgressToSections(
       return item;
     }),
   }));
+}
+
+// when sensitive area checks are in progress
+export function applySensitiveAreaCheckLogic(
+  sections: TaskListSection[],
+  inProgress?: boolean
+): TaskListSection[] {
+  return sections.map((section) => {
+    if (section.title === "Location") {
+      const sensitiveCheckItem = section.items.find(item => item.name === "Sensitive area checks");
+      const checksCompleted = sensitiveCheckItem?.status === "Completed";
+      
+      return {
+        ...section,
+        items: section.items.map((item) => {
+          if (item.name === "Route" && inProgress) {
+            return { ...item, disabled: true, plainTextStatus: true };
+          }
+          if (item.name === "Sensitive area checks" && inProgress) {
+            return { ...item, status: "In progress" };
+          }
+          if (item.name === "Sensitive area review") {
+            if (inProgress) {
+              return { 
+                ...item, 
+                disabled: true, 
+                plainTextStatus: true,
+                link: "#"
+              };
+            }
+            if (!checksCompleted) {
+              return { 
+                ...item, 
+                status: "Cannot start yet",
+                disabled: true, 
+                plainTextStatus: true,
+                link: "#"
+              };
+            }
+            return item;
+          }
+          return item;
+        }),
+      };
+    }
+    if (section.title === "Consultations" && inProgress) {
+      return {
+        ...section,
+        items: section.items.map((item) => {
+           return { ...item, disabled: true, plainTextStatus: true };
+        }),
+      };
+    }
+    return section;
+  });
 }

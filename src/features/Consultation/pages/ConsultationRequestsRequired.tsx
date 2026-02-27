@@ -3,7 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
-import { updateAllConsultations } from '../../../services/consultationService';
+import { useDerivedLpas } from '../../../hooks/useDerivedLpas';
+import { updateAllConsultations, createLpaConsultations } from '../../../services/consultationService';
+import log from '../../../logger';
 
 const ConsultationRequestsRequired: React.FC = () => {
     const { applicationId } = useParams();
@@ -20,24 +22,25 @@ const ConsultationRequestsRequired: React.FC = () => {
     // Fetch consultation details from backend
     const { consultations, loading } = useConsultationDetails(applicationId, user?.user_id);
 
+    // Fetch derived LPAs from parishes
+    const { derivedLpas, loading: lpasLoading } = useDerivedLpas(applicationId);
+
     // Check if any consultation has lastUpdatedBy and redirect to consultation details
     useEffect(() => {
         if (!loading && consultations && consultations.length > 0) {
             // Check if any consultation has been updated (has lastUpdatedBy or has status other than initial)
-            const hasUpdatedConsultations = consultations.some(
-                c => c.lastUpdatedBy 
-            );
-            
+            const hasUpdatedConsultations = consultations.some((c) => c.lastUpdatedBy);
+
             if (hasUpdatedConsultations) {
-                navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`, { replace: true });
+                navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`, {
+                    replace: true,
+                });
             }
         }
     }, [consultations, loading, navigate, applicationId]);
 
     // Extract required consultees from fetched consultations
-    const requiredConsultees = consultations.map(c => 
-        c.otherConsultee || c.consulteeOrganisationName
-    ).filter(Boolean);
+    const requiredConsultees = consultations.map((c) => c.otherConsultee || c.consulteeOrganisationName).filter(Boolean);
 
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
@@ -61,17 +64,22 @@ const ConsultationRequestsRequired: React.FC = () => {
         }
 
         try {
-            // TODO: Save selection to backend
-            
+            // Create LPA consultations from derived parishes before proceeding
+            if (user?.user_id && applicationId && derivedLpas.length > 0) {
+                log.debug('[ConsultationRequestsRequired] Creating LPA consultations from derived parishes', { count: derivedLpas.length });
+                await createLpaConsultations(applicationId, derivedLpas, user.user_id);
+                log.debug('[ConsultationRequestsRequired] LPA consultations created successfully');
+            }
+
             if (addOtherConsultations === 'yes') {
                 navigate(`${S37_BASE_URL}/${applicationId}/consultation/select-other-consultations`);
             } else {
                 // Update all consultations with lastUpdatedBy when user doesn't want to add other consultations
                 if (user?.user_id && applicationId) {
                     const updateResult = await updateAllConsultations(applicationId, user.user_id);
-                    console.log('Consultations updated:', updateResult);
+                    log.debug('Consultations updated:', updateResult);
                 }
-                
+
                 // Navigate to consultation details
                 navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
             }
@@ -114,7 +122,9 @@ const ConsultationRequestsRequired: React.FC = () => {
                                     <div className="govuk-error-summary__body">
                                         <ul className="govuk-list govuk-error-summary__list">
                                             {errors.addOtherConsultations && (
-                                                <li><a href="#addOtherConsultations">{errors.addOtherConsultations}</a></li>
+                                                <li>
+                                                    <a href="#addOtherConsultations">{errors.addOtherConsultations}</a>
+                                                </li>
                                             )}
                                         </ul>
                                     </div>
@@ -124,24 +134,23 @@ const ConsultationRequestsRequired: React.FC = () => {
 
                         <h1 className="govuk-heading-l">Consultation requests required</h1>
 
-                        {loading ? (
+                        {loading || lpasLoading ? (
                             <p className="govuk-body">Loading consultations...</p>
-                        ) : requiredConsultees.length > 0 ? (
+                        ) : requiredConsultees.length > 0 || derivedLpas.length > 0 ? (
                             <div className="govuk-inset-text">
-                                <p className="govuk-body">
-                                    You must send requests to the following consultees, based on the sensitive areas check review and your previous answers:
-                                </p>
+                                <p className="govuk-body">You must send requests to the following consultees, based on the sensitive areas check review and your previous answers:</p>
                                 <ul className="govuk-list govuk-list--bullet">
                                     {requiredConsultees.map((consultee, index) => (
                                         <li key={index}>{consultee}</li>
+                                    ))}
+                                    {derivedLpas.map((lpa) => (
+                                        <li key={lpa.lpa_code}>{lpa.lpa_name}</li>
                                     ))}
                                 </ul>
                             </div>
                         ) : (
                             <div className="govuk-inset-text">
-                                <p className="govuk-body">
-                                    No required consultations found. Please complete the previous steps first.
-                                </p>
+                                <p className="govuk-body">No required consultations found. Please complete the previous steps first.</p>
                             </div>
                         )}
 
@@ -149,13 +158,9 @@ const ConsultationRequestsRequired: React.FC = () => {
                             <div className={`govuk-form-group ${errors.addOtherConsultations ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset" aria-describedby={errors.addOtherConsultations ? 'addOtherConsultations-error' : undefined}>
                                     <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                                        <h2 className="govuk-fieldset__heading">
-                                            Do you want to add any other consultations that are relevant to your application? (Optional)
-                                        </h2>
+                                        <h2 className="govuk-fieldset__heading">Do you want to add any other consultations that are relevant to your application? (Optional)</h2>
                                     </legend>
-                                    <p className="govuk-hint">
-                                        You can select these on the next page.
-                                    </p>
+                                    <p className="govuk-hint">You can select these on the next page.</p>
                                     {errors.addOtherConsultations && (
                                         <p id="addOtherConsultations-error" className="govuk-error-message">
                                             <span className="govuk-visually-hidden">Error:</span> {errors.addOtherConsultations}
@@ -194,16 +199,11 @@ const ConsultationRequestsRequired: React.FC = () => {
                                 </fieldset>
                             </div>
 
-                         <div className="govuk-button-group">
-                                <button
-                                    type="button"
-                                    className="govuk-button"
-                                    data-module="govuk-button"
-                                    onClick={handleSaveAndContinue}
-                                >
+                            <div className="govuk-button-group">
+                                <button type="button" className="govuk-button" data-module="govuk-button" onClick={handleSaveAndContinue}>
                                     Save and continue
                                 </button>
-                                 {/*   <button
+                                {/*   <button
                                     type="button"
                                     className="govuk-button govuk-button--secondary"
                                     data-module="govuk-button"
@@ -211,7 +211,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                                 >
                                     Save for later
                                 </button>*/}
-                            </div> 
+                            </div>
                         </form>
                     </main>
                 </div>

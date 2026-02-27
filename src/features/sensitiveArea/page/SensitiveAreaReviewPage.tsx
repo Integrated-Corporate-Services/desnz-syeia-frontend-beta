@@ -5,7 +5,7 @@ import FileUpload from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { getSensitiveAreas } from '../../../services/sensitiveAreaService';
+import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary } from '../../../services/sensitiveAreaService';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 
@@ -17,7 +17,8 @@ const SensitiveAreaReviewPage: React.FC = () => {
   const queryId = queryParams.get('id');
   const effectiveApplicationId = applicationId || queryId || '';
 
-  const [areas, setAreas] = useState<any[]>([]);
+  const [checksSummary, setChecksSummary] = useState<SensitiveAreaReviewSummary | null>(null);
+  const [selectedFailedLayers, setSelectedFailedLayers] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [otherAreas, setOtherAreas] = useState('');
@@ -41,19 +42,18 @@ const SensitiveAreaReviewPage: React.FC = () => {
     if (!effectiveApplicationId) return;
     setLoading(true);
     setError(null);
-    getSensitiveAreas(effectiveApplicationId)
+    getSensitiveAreaReviewSummary(effectiveApplicationId)
       .then(data => {
-        // Support both { layers: [...] } and { checks: { layers: [...] } }
-        const layers = data?.layers || data?.checks?.layers || [];
-        setAreas(layers);
+        setChecksSummary(data);
         setLoading(false);
       })
-      .catch(err => {
-        setError('Failed to fetch sensitive areas');
+      .catch(() => {
+        setError('Failed to fetch sensitive area review summary');
         setLoading(false);
       });
     // Fetch sensitive area review data
     fetchReview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveApplicationId]);
 
   // Bind review data to form if available
@@ -71,28 +71,46 @@ const SensitiveAreaReviewPage: React.FC = () => {
       if (Array.isArray(review.uploaded_files)) {
         setUploadedFiles(review.uploaded_files);
       }
-      if (Array.isArray(review.documents)) {
-        setApplicationDocuments(review.documents);
+      if (Array.isArray(review.application_documents)) {
+        setApplicationDocuments(review.application_documents);
       }
     }
   }, [review]);
 
   // Save handler for review
-  const handleSaveReview = async () => {
+  const handleSaveReview = async (saveType: 'continue' | 'later' = 'continue') => {
     setFormErrors([]);
     setApiError(null);
     const errors: string[] = [];
-    // Validation: require at least one document
-    if (!uploadedFiles || uploadedFiles.length === 0) {
-      errors.push('Upload at least one environmental and archaeological document');
+    
+    // Validation only for "continue" action
+    if (saveType === 'continue') {
+      // Validation: require at least one document
+      if (!uploadedFiles || uploadedFiles.length === 0) {
+        errors.push('Upload at least one environmental and archaeological document');
+      }
+      if (poleOption === null) {
+        errors.push('Select whether there are poles or overhead lines within the sensitive areas');
+      }
+      
+      // Validate failed areas checkboxes if there are failed areas
+      const failedAreas = [
+        ...(checksSummary?.checks?.automated?.failed?.screeningRequired || []),
+        ...(checksSummary?.checks?.automated?.failed?.noScreening || [])
+      ];
+      if (failedAreas.length > 0) {
+        const hasSelectedAtLeastOne = Object.values(selectedFailedLayers).some(v => v);
+        if (!hasSelectedAtLeastOne) {
+          errors.push('Please confirm whether your route passes through any of the failed sensitive areas');
+        }
+      }
     }
-    if (poleOption === null) {
-      errors.push('Select whether there are poles or overhead lines within the sensitive areas');
-    }
+    
     if (errors.length > 0) {
       setFormErrors(errors);
       return;
     }
+    
     const payload = {
       id: review?.id || '',
       application_id: effectiveApplicationId,
@@ -108,12 +126,38 @@ const SensitiveAreaReviewPage: React.FC = () => {
       application_documents: applicationDocuments,
     };
     try {
-  await saveReview(payload);
-  navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-    } catch (err: any) {
-      setApiError(err?.message || 'Failed to save sensitive area review');
+      await saveReview(payload);
+      if (saveType === 'continue') {
+        navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+      } else {
+        navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save sensitive area review';
+      setApiError(errorMessage);
     }
   };
+
+  const handleFailedLayerToggle = (layerId: number) => {
+    setSelectedFailedLayers(prev => ({
+      ...prev,
+      [layerId]: !prev[layerId]
+    }));
+  };
+
+  // Extract areas for display
+  const passedAreasScreening = checksSummary?.checks?.automated?.passed?.screeningRequired || [];
+  const passedAreasNoScreening = checksSummary?.checks?.automated?.passed?.noScreening || [];
+  const failedAreasScreening = checksSummary?.checks?.automated?.failed?.screeningRequired || [];
+  const failedAreasNoScreening = checksSummary?.checks?.automated?.failed?.noScreening || [];
+  const clearedAreas = [
+    ...(checksSummary?.checks?.automated?.cleared?.screeningRequired || []),
+    ...(checksSummary?.checks?.automated?.cleared?.noScreening || [])
+  ];
+  
+  const allFailedAreas = [...failedAreasScreening, ...failedAreasNoScreening];
+  const allPassedAreas = [...passedAreasScreening, ...passedAreasNoScreening];
+  const hasAnyFailedAreas = allFailedAreas.length > 0;
 
   return (
     <div className="govuk-width-container">
@@ -143,26 +187,129 @@ const SensitiveAreaReviewPage: React.FC = () => {
                   let href = "#";
                   if (err === 'Upload at least one environmental and archaeological document') href = '#document-upload';
                   if (err === 'Select whether there are poles or overhead lines within the sensitive areas') href = '#pole-radio-group';
+                  if (err === 'Please confirm whether your route passes through any of the failed sensitive areas') href = '#failed-areas-checkboxes';
                   return <li key={idx}><a href={href}>{err}</a></li>;
                 })}
                 {apiError && <li><a href="#">{apiError}</a></li>}
               </ul>
             </div>
           )}
-          {areas.length === 0 ? (
-            <div className="govuk-inset-text">The route does not pass through any of the automatically checked areas</div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '2rem', marginTop: '2.5rem' }}>
-              <div style={{ borderLeft: '8px solid #b1b4b6', paddingLeft: '1.5rem', background: 'none' }}>
-                <div style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
-                  The route passes through the following sensitive areas:
-                </div>
-                <ul className="govuk-list govuk-list--bullet govuk-!-margin-bottom-6" style={{ fontSize: '1.15rem' }}>
-                  {areas.map((area, idx) => (
-                    <li key={idx}>{area}</li>
-                  ))}
-                </ul>
+
+          {/* Passed Areas - Screening Required */}
+          {passedAreasScreening.length > 0 && (
+            <div className="govuk-!-margin-bottom-6" style={{ padding: '20px', backgroundColor: '#f3f2f1', border: '5px solid #00703c' }}>
+              <h2 className="govuk-heading-m" style={{ marginTop: 0 }}>
+                The following sensitive areas passed the checks and require screening:
+              </h2>
+              <ul className="govuk-list govuk-list--bullet">
+                {passedAreasScreening.map((area) => (
+                  <li key={area.layerId}>{area.layerName}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Passed Areas - No Screening Required */}
+          {passedAreasNoScreening.length > 0 && (
+            <div className="govuk-!-margin-bottom-6" style={{ padding: '20px', backgroundColor: '#f3f2f1', border: '5px solid #00703c' }}>
+              <h2 className="govuk-heading-m" style={{ marginTop: 0 }}>
+                The route passes through the following sensitive areas:
+              </h2>
+              <ul className="govuk-list govuk-list--bullet">
+                {passedAreasNoScreening.map((area) => (
+                  <li key={area.layerId}>{area.layerName}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Failed Areas Section */}
+          {hasAnyFailedAreas && (
+            <div 
+              id="failed-areas-section" 
+              className="govuk-!-margin-bottom-6" 
+              style={{ padding: '20px', backgroundColor: '#fff8e6', border: '5px solid #d4351c' }}
+            >
+              <h2 className="govuk-heading-m" style={{ marginTop: 0, color: '#d4351c' }}>
+                Sensitive area checks failed
+              </h2>
+              <p className="govuk-body">
+                We could not automatically check whether your route passes through the following sensitive areas (up to {allFailedAreas.length} areas).
+              </p>
+              <p className="govuk-body">
+                Please use{' '}
+                <a 
+                  href="https://magic.defra.gov.uk/MagicMap.aspx" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="govuk-link"
+                  aria-label="MAGIC map (opens in new tab)"
+                >
+                  MAGIC
+                </a>
+                {' '}or{' '}
+                <a 
+                  href="https://datamap.gov.wales/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="govuk-link"
+                  aria-label="DataMapWales (opens in new tab)"
+                >
+                  DataMapWales
+                </a>
+                {' '}to manually verify if your route passes through any of these areas.
+              </p>
+
+              <div 
+                id="failed-areas-checkboxes" 
+                className={`govuk-form-group${formErrors.includes('Please confirm whether your route passes through any of the failed sensitive areas') ? ' govuk-form-group--error' : ''}`}
+              >
+                <fieldset className="govuk-fieldset" aria-describedby="failed-areas-hint">
+                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    <h3 className="govuk-heading-s">
+                      Confirm which of the following sensitive areas your route passes through:
+                    </h3>
+                  </legend>
+                  {formErrors.includes('Please confirm whether your route passes through any of the failed sensitive areas') && (
+                    <span id="failed-areas-error" className="govuk-error-message">
+                      <span className="govuk-visually-hidden">Error:</span> Please confirm whether your route passes through any of the failed sensitive areas
+                    </span>
+                  )}
+                  <div className="govuk-checkboxes" data-module="govuk-checkboxes">
+                    {allFailedAreas.map((area) => (
+                      <div className="govuk-checkboxes__item" key={area.layerId}>
+                        <input
+                          className="govuk-checkboxes__input"
+                          id={`failed-area-${area.layerId}`}
+                          name={`failed-area-${area.layerId}`}
+                          type="checkbox"
+                          checked={!!selectedFailedLayers[area.layerId]}
+                          onChange={() => handleFailedLayerToggle(area.layerId)}
+                          aria-describedby={area.errorMessage ? `failed-area-${area.layerId}-hint` : undefined}
+                        />
+                        <label 
+                          className="govuk-label govuk-checkboxes__label" 
+                          htmlFor={`failed-area-${area.layerId}`}
+                        >
+                          {area.layerName}
+                          {area.errorMessage && (
+                            <span className="govuk-hint govuk-checkboxes__hint" id={`failed-area-${area.layerId}-hint`}>
+                              Error: {area.errorMessage}
+                            </span>
+                          )}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </fieldset>
               </div>
+            </div>
+          )}
+
+          {/* No sensitive areas passed */}
+          {allPassedAreas.length === 0 && !hasAnyFailedAreas && clearedAreas.length === 0 && (
+            <div className="govuk-inset-text">
+              The route does not pass through any of the automatically checked sensitive areas
             </div>
           )}
 
@@ -273,10 +420,19 @@ const SensitiveAreaReviewPage: React.FC = () => {
 
           <button
             type="button"
-            className="govuk-button govuk-!-margin-bottom-6"
-            onClick={handleSaveReview}
+            className="govuk-button"
+            data-module="govuk-button"
+            onClick={() => handleSaveReview('continue')}
           >
             Save and continue
+          </button>
+          <button
+            type="button"
+            className="govuk-button govuk-button--secondary govuk-!-margin-left-3"
+            data-module="govuk-button"
+            onClick={() => handleSaveReview('later')}
+          >
+            Save for later
           </button>
         </>
       )}

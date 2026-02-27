@@ -113,11 +113,13 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
           </table>
 
           {totalPages > 1 && (
-            <PaginationComponent
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+            <div className="app-pagination-container govuk-!-margin-top-6">
+              <PaginationComponent
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           )}
         </>
       )}

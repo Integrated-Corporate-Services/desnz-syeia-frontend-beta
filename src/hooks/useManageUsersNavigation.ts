@@ -21,7 +21,7 @@ export const useManageUsersNavigation = () => {
   };
 
   const navigateToRevokeUser = (userId: string) => {
-    navigate(`/admin/revoke-user/${userId}`);
+    navigate(`/admin/manage-user/${userId}`);
   };
 
   const navigateToReviewRequest = (accessRequestId: string) => {
