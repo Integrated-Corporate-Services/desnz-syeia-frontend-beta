@@ -18,6 +18,7 @@ const ConsultationResponse3: React.FC = () => {
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>('');
     const [consultationType, setConsultationType] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     
     // Scroll to top on mount
     useEffect(() => {
@@ -29,6 +30,7 @@ const ConsultationResponse3: React.FC = () => {
         async function fetchData() {
             if (consultationId) {
                 try {
+                    setIsLoading(true);
                     const data = await getConsultationResponse(consultationId, applicationId);
                     setComments(data.response_comments || '');
                     setResponseId(data.response_id || '');
@@ -46,6 +48,8 @@ const ConsultationResponse3: React.FC = () => {
                     }
                 } catch (err) {
                     console.error('Error fetching consultation response:', err);
+                } finally {
+                    setIsLoading(false);
                 }
             }
         }
@@ -141,6 +145,10 @@ const ConsultationResponse3: React.FC = () => {
                     </nav>
 
                     <main id="main-content">
+                        {isLoading ? (
+                            <p className="govuk-body">Loading...</p>
+                        ) : (
+                            <>
                         {Object.keys(errors).length > 0 && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
@@ -241,6 +249,8 @@ const ConsultationResponse3: React.FC = () => {
                                 </button>*/}
                             </div> 
                         </form>
+                            </>
+                        )}
                     </main>
                 </div>
             </div>
