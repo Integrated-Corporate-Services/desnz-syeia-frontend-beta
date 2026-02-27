@@ -160,3 +160,45 @@ export async function createPublicConsultation(
     throw new Error(`Failed to create PUBLIC consultation for applicationId=${applicationId}: ${originalMessage}`);
   }
 }
+
+/**
+ * Remove a consultation by setting its status to INACTIVE
+ * @param consultationId - The consultation ID
+ * @returns {Promise<any>}
+ */
+export async function removeConsultation(consultationId: string): Promise<any> {
+  const url = `/backend/api/consultations/${consultationId}/remove`;
+  const payload = { userId: localStorage.getItem('user_id') };
+
+  try {
+    const response = await axios.post(url, payload, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+    throw new Error(`Failed to remove consultation ${consultationId}: ${originalMessage}`);
+  }
+}
+
+/**
+ * Manage PUBLIC consultation based on voltage - create if high voltage, mark as inactive if not
+ * @param applicationId - The application ID
+ * @param userId - The user ID
+ * @param hasHighVoltage - Whether the application has high voltage (>=132kV)
+ * @returns {Promise<any>}
+ */
+export async function managePublicConsultationByVoltage(
+  applicationId: string,
+  userId: string,
+  hasHighVoltage: boolean
+): Promise<any> {
+  const url = `/backend/api/applications/${applicationId}/public-consultation/manage`;
+  const payload = { userId, hasHighVoltage };
+
+  try {
+    const response = await axios.post(url, payload, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+    throw new Error(`Failed to manage PUBLIC consultation for applicationId=${applicationId}: ${originalMessage}`);
+  }
+}

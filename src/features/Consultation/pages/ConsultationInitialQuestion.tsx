@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { getConsultationDetailsById } from '../../../services/consultationService';
+import log from '../../../logger';
 
 const ConsultationInitialQuestion: React.FC = () => {
   const { applicationId, consultationId } = useParams();
@@ -27,10 +28,21 @@ const ConsultationInitialQuestion: React.FC = () => {
       }
 
       try {
+        log.debug('[ConsultationInitialQuestion] Fetching consultation details', { consultationId });
         const consultationDetails = await getConsultationDetailsById(consultationId);
         
-        // If consultation type is not LPA, redirect to ConsultationRequestPage
+        // If consultation type is PUBLIC, redirect to PublicNoticesEvidence page
+        if (consultationDetails?.consultationType === 'PUBLIC') {
+          log.info('[ConsultationInitialQuestion] Redirecting to public notices page for PUBLIC consultation');
+          navigate(
+            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`
+          );
+          return;
+        }
+        
+        // If consultation type is not LPA (and not PUBLIC), redirect to ConsultationRequestPage
         if (consultationDetails?.consultationType !== 'LPA') {
+          log.info('[ConsultationInitialQuestion] Redirecting to consultation request page for non-LPA consultation');
           navigate(
             `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request?consultationName=${encodeURIComponent(consultationName)}`
           );
@@ -39,7 +51,7 @@ const ConsultationInitialQuestion: React.FC = () => {
         
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching consultation details:', error);
+        log.error('[ConsultationInitialQuestion] Error fetching consultation details:', error);
         setIsLoading(false);
       }
     };

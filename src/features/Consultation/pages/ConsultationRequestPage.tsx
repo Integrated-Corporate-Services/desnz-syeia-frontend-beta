@@ -5,6 +5,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { saveConsultationRequest, getConsultationRequest } from '../../../services/consultationRequestService';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { validateDateComponents } from '../../../utils/validation';
+import log from '../../../logger';
 
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -40,6 +41,7 @@ const ConsultationRequestPage: React.FC = () => {
     async function fetchData() {
       if (applicationId && consultationId) {
         try {
+          log.debug('[ConsultationRequestPage] Fetching consultation request data', { applicationId, consultationId });
           const data = await getConsultationRequest(applicationId, consultationId);
           if (data) {
             // Parse sent date if available
@@ -53,9 +55,10 @@ const ConsultationRequestPage: React.FC = () => {
             }
             setUploadedFileObjs(data.uploadedFiles || []);
             setApplicationDocuments(data.applicationDocuments || []);
+            log.debug('[ConsultationRequestPage] Consultation data loaded successfully');
           }
         } catch (error) {
-          console.error('Error fetching consultation request:', error);
+          log.error('[ConsultationRequestPage] Error fetching consultation request:', error);
         }
       }
     }
@@ -123,10 +126,12 @@ const ConsultationRequestPage: React.FC = () => {
       status: ConsultationStatus.REQUEST_SENT,
     };
     try {
+      log.debug('[ConsultationRequestPage] Saving consultation request', { status: ConsultationStatus.REQUEST_SENT });
       await saveConsultationRequest(payload);
+      log.info('[ConsultationRequestPage] Consultation request saved successfully');
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } catch (error) {
-      console.error('Error saving consultation request:', error);
+      log.error('[ConsultationRequestPage] Error saving consultation request:', error);
     }
   };
 
@@ -157,10 +162,12 @@ const ConsultationRequestPage: React.FC = () => {
       status: ConsultationStatus.DRAFT,
     };
     try {
+      log.debug('[ConsultationRequestPage] Saving consultation draft', { status: ConsultationStatus.DRAFT });
       await saveConsultationRequest(payload);
+      log.info('[ConsultationRequestPage] Consultation draft saved successfully');
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } catch (error) {
-      console.error('Error saving consultation request for later:', error);
+      log.error('[ConsultationRequestPage] Error saving consultation request for later:', error);
     }
   };
 

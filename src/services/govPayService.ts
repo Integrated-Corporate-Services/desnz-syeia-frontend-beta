@@ -1,3 +1,5 @@
+import log from '../logger';
+
 export const createPayment = async (
   amount: number,
   reference: string,
@@ -8,6 +10,7 @@ export const createPayment = async (
   try {
     // Validate applicationId before sending
     if (!metadata?.applicationId) {
+      log.error('[createPayment] applicationId is required in metadata');
       throw new Error('applicationId is required in metadata');
     }
 
@@ -23,7 +26,7 @@ export const createPayment = async (
       metadata
     };
 
-    console.log('Creating payment with payload:', payload);
+    log.debug('[createPayment] Creating payment', { applicationId, amount, reference });
 
     const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments`, {
       method: 'POST',
@@ -33,31 +36,34 @@ export const createPayment = async (
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Payment creation failed:', errorData);
+      log.error('[createPayment] Payment creation failed:', errorData);
       throw new Error(errorData.error || 'Failed to create payment');
     }
 
+    log.info('[createPayment] Payment created successfully');
     return await response.json();
   } catch (error) {
-    console.error('Error creating payment:', error);
+    log.error('[createPayment] Error creating payment:', error);
     throw error;
   }
 };
 
 export const getPaymentStatus = async (applicationId: string, paymentId: string) => {
   try {
+    log.debug('[getPaymentStatus] Fetching payment status', { applicationId, paymentId });
     const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments/${paymentId}/status`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
 
     if (!response.ok) {
+      log.error('[getPaymentStatus] Failed to get payment status');
       throw new Error('Failed to get payment status');
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error getting payment status:', error);
+    log.error('[getPaymentStatus] Error getting payment status:', error);
     throw error;
   }
 };

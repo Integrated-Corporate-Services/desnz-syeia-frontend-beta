@@ -22,6 +22,7 @@ const ConsultationResponse2: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>('');
+    const [consultationType, setConsultationType] = useState<string>('');
 
     // Scroll to top on mount
     useEffect(() => {
@@ -55,6 +56,7 @@ const ConsultationResponse2: React.FC = () => {
                     if (currentConsultation) {
                         const orgName = currentConsultation.consulteeOrganisationName || currentConsultation.otherConsultee || 'Consultation';
                         setConsultationName(orgName);
+                        setConsultationType(currentConsultation.consultationType || '');
                     }
                 } catch (err) {
                     console.error('Error fetching consultation response:', err);
@@ -72,14 +74,20 @@ const ConsultationResponse2: React.FC = () => {
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
 
-        // Date validation using shared utility
-        const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: true });
-        if (!dateValidation.isValid) {
-            newErrors.responseDate = dateValidation.error!;
+        // For PUBLIC consultations, skip date validation
+        if (consultationType !== 'PUBLIC') {
+            // Date validation using shared utility
+            const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: true });
+            if (!dateValidation.isValid) {
+                newErrors.responseDate = dateValidation.error!;
+            }
         }
 
         if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
-            newErrors.uploadedFiles = 'Upload at least one document that shows the consultee\'s response';
+            const errorMessage = consultationType === 'PUBLIC' 
+                ? 'Upload at least one document that shows public responses'
+                : 'Upload at least one document that shows the consultee\'s response';
+            newErrors.uploadedFiles = errorMessage;
         }
 
         setErrors(newErrors);
@@ -89,10 +97,13 @@ const ConsultationResponse2: React.FC = () => {
     const validateFormatOnly = () => {
         const newErrors: { [key: string]: string } = {};
 
-        // Date format validation using shared utility (not required)
-        const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: false });
-        if (!dateValidation.isValid) {
-            newErrors.responseDate = dateValidation.error!;
+        // For PUBLIC consultations, skip date validation
+        if (consultationType !== 'PUBLIC') {
+            // Date format validation using shared utility (not required)
+            const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: false });
+            if (!dateValidation.isValid) {
+                newErrors.responseDate = dateValidation.error!;
+            }
         }
 
         setErrors(newErrors);
@@ -109,7 +120,11 @@ const ConsultationResponse2: React.FC = () => {
             return;
         }
 
-        const receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
+        // For PUBLIC consultations, don't set received_at date
+        let receivedAt;
+        if (consultationType !== 'PUBLIC' && responseDate.year && responseDate.month && responseDate.day) {
+            receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
+        }
         
         try {
             // Fetch existing data to preserve all fields
@@ -218,10 +233,12 @@ const ConsultationResponse2: React.FC = () => {
                             </div>
                         )}
 
-                        <h2 className="govuk-caption-xl">{consultationName}</h2>
-                        <h1 className="govuk-heading-l">Provide consultation response</h1>
+                        {consultationType === 'PUBLIC' && <h2 className="govuk-caption-xl">Public notices</h2>}
+                        {consultationType !== 'PUBLIC' && <h2 className="govuk-caption-xl">{consultationName}</h2>}
+                        <h1 className="govuk-heading-l">{consultationType === 'PUBLIC' ? 'Upload public responses' : 'Provide consultation response'}</h1>
 
                         <form noValidate>
+                            {consultationType !== 'PUBLIC' && (
                             <div className={`govuk-form-group ${errors.responseDate ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset" role="group" aria-describedby={errors.responseDate ? 'responseDate-error' : undefined}>
                                     <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
@@ -299,6 +316,7 @@ const ConsultationResponse2: React.FC = () => {
                                     </div>
                                 </fieldset>
                             </div>
+                            )}
 
                             <div className={`govuk-form-group ${errors.uploadedFiles ? 'govuk-form-group--error' : ''}`}>
                                 <h2 className="govuk-heading-m">Documents uploaded</h2>
@@ -308,7 +326,7 @@ const ConsultationResponse2: React.FC = () => {
                                     </p>
                                 )}
                                 <div id="file-upload">
-                                    <p className="govuk-body">Upload documents that show the consultee's response</p>
+                                    <p className="govuk-body">{consultationType === 'PUBLIC' ? 'Upload documents that show public responses' : "Upload documents that show the consultee's response"}</p>
                                     {/* <p className="govuk-hint">
                                         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.
                                     </p> */}

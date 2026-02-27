@@ -17,6 +17,8 @@ const ConsultationResponse3: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>('');
+    const [consultationType, setConsultationType] = useState<string>('');
+    
     // Scroll to top on mount
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -40,6 +42,7 @@ const ConsultationResponse3: React.FC = () => {
                     if (currentConsultation) {
                         const orgName = currentConsultation.consulteeOrganisationName || currentConsultation.otherConsultee || 'Consultation';
                         setConsultationName(orgName);
+                        setConsultationType(currentConsultation.consultationType || '');
                     }
                 } catch (err) {
                     console.error('Error fetching consultation response:', err);
@@ -53,7 +56,10 @@ const ConsultationResponse3: React.FC = () => {
         const newErrors: { [key: string]: string } = {};
 
         if (!declarationAccepted) {
-            newErrors.declaration = 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this consultation';
+            const errorMessage = consultationType === 'PUBLIC'
+                ? 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this public consultation'
+                : 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this consultation';
+            newErrors.declaration = errorMessage;
         }
 
         setErrors(newErrors);
@@ -150,16 +156,19 @@ const ConsultationResponse3: React.FC = () => {
                             </div>
                         )}
 
-                        <h2 className="govuk-caption-xl">{consultationName}</h2>
-                        <h1 className="govuk-heading-l">Provide consultation response</h1>
+                        {consultationType === 'PUBLIC' && <h2 className="govuk-caption-xl">Public notices</h2>}
+                        {consultationType !== 'PUBLIC' && <h2 className="govuk-caption-xl">{consultationName}</h2>}
+                        <h1 className="govuk-heading-l">{consultationType === 'PUBLIC' ? 'Add additional comments about public responses (optional)' : 'Provide consultation response'}</h1>
 
                         <form noValidate>
                             <div className="govuk-form-group">
+                                {consultationType !== 'PUBLIC' && (
                                 <h2 className="govuk-label-wrapper">
                                     <label className="govuk-label govuk-label--m" htmlFor="comments">
                                         Add any additional comments (optional)
                                     </label>
                                 </h2>
+                                )}
                                 <div id="comments-hint" className="govuk-hint">
                                     You can add any additional information or comments here.
                                 </div>
@@ -176,9 +185,11 @@ const ConsultationResponse3: React.FC = () => {
 
                             <div className={`govuk-form-group ${errors.declaration ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset">
+                                    {consultationType !== 'PUBLIC' && (
                                     <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                                         <h2 className="govuk-fieldset__heading">Declaration</h2>
                                     </legend>
+                                    )}
                                     {errors.declaration && (
                                         <p id="declaration-error" className="govuk-error-message">
                                             <span className="govuk-visually-hidden">Error:</span> {errors.declaration}
@@ -202,7 +213,9 @@ const ConsultationResponse3: React.FC = () => {
                                                 aria-describedby={errors.declaration ? 'declaration-error' : undefined}
                                             />
                                             <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
-                                                Confirm you have provided all relevant information, uploaded all supporting documents and want to close this consultation. You cannot undo this action.
+                                                {consultationType === 'PUBLIC' 
+                                                    ? 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this public consultation. You cannot undo this action.'
+                                                    : 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this consultation. You cannot undo this action.'}
                                             </label>
                                         </div>
                                     </div>

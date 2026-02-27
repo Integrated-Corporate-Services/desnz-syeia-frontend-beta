@@ -102,12 +102,14 @@ const SelectOtherConsultations: React.FC = () => {
                 id: `other-${Date.now()}`,
                 name: otherSearchTerm.trim(),
             };
+            log.debug('[SelectOtherConsultations] Adding manual OTHER consultee', { name: newEntry.name });
             setOtherEntries([...otherEntries, newEntry]);
             setOtherSearchTerm('');
         }
     };
 
     const handleRemoveOther = (id: string) => {
+        log.debug('[SelectOtherConsultations] Removing manual OTHER consultee', { id });
         setOtherEntries(otherEntries.filter((entry) => entry.id !== id));
     };
 
@@ -185,16 +187,13 @@ const SelectOtherConsultations: React.FC = () => {
                         <form noValidate>
                             {/* Other consultation categories */}
                             <div className="govuk-form-group">
-                                <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                                    <div className="govuk-checkboxes__item">
                                         <LpaSelector
                                             selectedLpaCodes={selectedLpas.map((lpa) => lpa.lpa_code)}
                                             onLpaSelect={handleLpaSelect}
                                             onRemove={handleLpaRemove}
-                                            showRemoveButton={true}
                                             showCheckbox={true}
                                         />
-                                    </div>
+                                <div className="govuk-checkboxes" data-module="govuk-checkboxes">
 
                                     {/* Dynamic OTHER consultees from database */}
                                     {loading ? (
@@ -235,36 +234,36 @@ const SelectOtherConsultations: React.FC = () => {
 
                                 {/* Show text input if "Other" checkbox is selected */}
                                 {isOtherSelected && (
-                                    <div className="govuk-!-margin-top-4 govuk-!-margin-left-4">
-                                        {otherEntries.length === 0 ? (
-                                            <p className="govuk-body govuk-hint">No items have been added yet.</p>
-                                        ) : (
-                                            otherEntries.map((entry) => (
-                                                <div key={entry.id} className="govuk-!-margin-bottom-2">
-                                                    <span className="govuk-body">{entry.name}</span>
-                                                    <button
-                                                        type="button"
-                                                        className="govuk-link govuk-!-margin-left-2"
-                                                        onClick={() => handleRemoveOther(entry.id)}
-                                                        style={{
-                                                            background: 'none',
-                                                            border: 'none',
-                                                            padding: 0,
-                                                            cursor: 'pointer',
-                                                        }}
-                                                    >
-                                                        Remove
-                                                    </button>
-                                                </div>
-                                            ))
+                                    <div className="govuk-checkboxes__conditional">
+                                        {otherEntries.length > 0 && (
+                                            <div className="govuk-!-margin-bottom-4" style={{ width: '100%' }}>
+                                                {otherEntries.map((entry) => (
+                                                    <div key={entry.id} className="govuk-!-padding-bottom-2 govuk-!-padding-top-2" style={{ borderBottom: '1px solid #b1b4b6', width: '100%' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '1rem' }}>
+                                                            <span className="govuk-body" style={{ margin: 0, flex: '1 1 auto', minWidth: 0, wordBreak: 'break-word' }}>{entry.name}</span>
+                                                            <a
+                                                                href="#"
+                                                                className="govuk-link"
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    handleRemoveOther(entry.id);
+                                                                }}
+                                                                style={{ whiteSpace: 'nowrap', flex: '0 0 auto' }}
+                                                            >
+                                                                Remove
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         )}
-                                        <div className="govuk-!-margin-top-3">
+                                        <div className="govuk-form-group">
                                             <label className="govuk-label" htmlFor="other-search">
-                                                Other consultee organisation
+                                                Enter a consultee's name
                                             </label>
-                                            <div className="govuk-input__wrapper govuk-!-display-flex">
+                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                                                 <input
-                                                    className="govuk-input govuk-!-width-two-thirds"
+                                                    className="govuk-input"
                                                     id="other-search"
                                                     name="other-search"
                                                     type="text"
@@ -277,7 +276,13 @@ const SelectOtherConsultations: React.FC = () => {
                                                         }
                                                     }}
                                                 />
-                                                <button type="button" className="govuk-button govuk-!-margin-left-2" data-module="govuk-button" onClick={handleAddOther}>
+                                                <button 
+                                                    type="button" 
+                                                    className="govuk-button" 
+                                                    data-module="govuk-button" 
+                                                    onClick={handleAddOther}
+                                                    style={{ margin: 0 }}
+                                                >
                                                     Add
                                                 </button>
                                             </div>

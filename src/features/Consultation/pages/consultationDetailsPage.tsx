@@ -1,23 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { S37_BASE_URL } from "../../../constants/s37";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import ConsultationSummaryCard from "../components/SummaryCard";
 import { useConsultationDetails } from "../../../hooks/useConsultationDetails";
 import { useAuthUser } from "../../../hooks/useAuthUser";
-import { withdrawConsultationRequest } from "../../../services/consultationService";
-import log from "../../../logger";
+import { ConsultationStatus } from "../../../constants/consultationStatus";
+import { progressApiService } from "../../../services/progressApiService";
 
 const ConsultationDetailsPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
+  const navigate = useNavigate();
+  const [error, setError] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-    const { consultations, refetch } = useConsultationDetails(
+    const { consultations } = useConsultationDetails(
       applicationId,
       user?.user_id
     );
@@ -26,30 +29,56 @@ const ConsultationDetailsPage: React.FC = () => {
   const regularConsultations = consultations.filter(c => c.consultationType !== 'OTHER');
   const otherConsultations = consultations.filter(c => c.consultationType === 'OTHER');
 
-  const handleRemoveConsultation = async (consultationId: string) => {
-    if (!window.confirm('Are you sure you want to remove this consultation?')) {
+  const handleRemoveConsultation = (consultationId: string, consultationName: string) => {
+    // Navigate to the Remove Consultation page
+    navigate(
+      `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/remove?consultationName=${encodeURIComponent(consultationName)}`
+    );
+  };
+
+  const handleSaveAndContinue = async () => {
+    // Clear any existing errors
+    setError('');
+
+    // Check if all consultations are closed or not required
+    const allConsultationsClosed = consultations.every(
+      (consultation) => 
+        consultation.status.toLowerCase() === ConsultationStatus.CLOSED.toLowerCase() ||
+        consultation.status.toLowerCase() === ConsultationStatus.NOT_REQUIRED.toLowerCase()
+    );
+
+    if (!allConsultationsClosed) {
+      setError('All consultations must be closed or marked as not required before you can continue');
+      // Scroll to error summary
+      const errorSummary = document.getElementById('error-summary');
+      if (errorSummary) {
+        errorSummary.focus();
+        errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       return;
     }
 
     try {
-      if (!user?.user_id) {
-        log.error('[ConsultationDetailsPage] No user ID available');
-        return;
-      }
-      
-      await withdrawConsultationRequest({
+      setIsSubmitting(true);
+      // Mark consultations as completed
+      await progressApiService.updateApplicationProgress(
         applicationId,
-        consultationId,
-        updatedBy: user.user_id
-      });
+        'Consultations',
+        'Completed'
+      );
       
-      log.info('[ConsultationDetailsPage] Consultation removed successfully');
-      
-      // Refresh consultations
-      await refetch();
-    } catch (error) {
-      log.error('[ConsultationDetailsPage] Error removing consultation:', error);
-      alert('Failed to remove consultation. Please try again.');
+      // Navigate to task list
+      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+    } catch (err) {
+      console.error('Error updating progress:', err);
+      setError('Failed to save progress. Please try again.');
+      const errorSummary = document.getElementById('error-summary');
+      if (errorSummary) {
+        errorSummary.focus();
+        errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -72,6 +101,23 @@ const ConsultationDetailsPage: React.FC = () => {
       </nav>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
+          {error && (
+            <div
+              className="govuk-error-summary"
+              data-module="govuk-error-summary"
+              id="error-summary"
+              tabIndex={-1}
+              role="alert"
+            >
+              <h2 className="govuk-error-summary__title">There is a problem</h2>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  <li>{error}</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
           <h1 className="govuk-heading-xl">Manage consultations</h1>
           <p className="govuk-body">
             You must send a consultation request to every organisation shown on this page.
@@ -101,6 +147,7 @@ const ConsultationDetailsPage: React.FC = () => {
               consultationId={consultation.id}
               applicationId={applicationId}
               dateRequestCreated={consultation.dateRequestCreated ?? undefined}
+              secondDatePublished={consultation.secondDate ?? undefined}
               dateClosed={consultation.dateClosed ?? undefined}
               objectionRaised={consultation.objectionRaised}
               closeComments={consultation.closeComments}
@@ -111,6 +158,7 @@ const ConsultationDetailsPage: React.FC = () => {
               notRequiredDocs={consultation.notRequiredDocs}
               consultationRequestDocs={consultation.consultationRequestDocs}
               evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
+              consultationType={consultation.consultationType}
             />
           ))}
 
@@ -131,6 +179,7 @@ const ConsultationDetailsPage: React.FC = () => {
               consultationId={consultation.id}
               applicationId={applicationId}
               dateRequestCreated={consultation.dateRequestCreated ?? undefined}
+              secondDatePublished={consultation.secondDate ?? undefined}
               dateClosed={consultation.dateClosed ?? undefined}
               objectionRaised={consultation.objectionRaised}
               closeComments={consultation.closeComments}
@@ -142,7 +191,10 @@ const ConsultationDetailsPage: React.FC = () => {
               consultationRequestDocs={consultation.consultationRequestDocs}
               evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
               consultationType={consultation.consultationType}
-              onRemove={() => handleRemoveConsultation(consultation.id)}
+              onRemove={() => handleRemoveConsultation(
+                consultation.id,
+                consultation.otherConsultee || consultation.consulteeOrganisationName || consultation.consultationType || 'Consultee'
+              )}
             />
           ))}
 
@@ -155,17 +207,29 @@ const ConsultationDetailsPage: React.FC = () => {
             </Link>
           </div>
           
+          {error && (
+            <p className="govuk-error-message" id="save-error">
+              <span className="govuk-visually-hidden">Error:</span> {error}
+            </p>
+          )}
+          
           <div className="govuk-button-group">
-            <button type="submit" className="govuk-button" data-module="govuk-button">
-              Save and continue
+            <button 
+              type="button" 
+              className="govuk-button" 
+              data-module="govuk-button"
+              onClick={handleSaveAndContinue}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Save and continue'}
             </button>
-            <Link
+            {/* <Link
               to={`${S37_BASE_URL}/${applicationId}/task-list`}
               className="govuk-button govuk-button--secondary"
               data-module="govuk-button"
             >
               Save for later
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
