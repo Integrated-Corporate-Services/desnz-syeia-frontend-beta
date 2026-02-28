@@ -2,7 +2,6 @@ import React from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
-import { useProgressStore } from '../../../store/useProgressStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 const RouteDeletePage: React.FC = () => {
@@ -14,7 +13,6 @@ const RouteDeletePage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { deleteRoute, fetchRoutes } = useRouteStore();
   const getRouteStore = useRouteStore.getState;
-  const progressStore = useProgressStore();
 
   // If no route details, redirect back
   React.useEffect(() => {
@@ -31,24 +29,15 @@ const RouteDeletePage: React.FC = () => {
 
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
-    let deleteResult: any = null;
     if (route_id && applicationId) {
-      try {
-        deleteResult = await deleteRoute(applicationId, route_id);
-        if (fetchRoutes) await fetchRoutes(applicationId);
-      } catch (err) {
-        deleteResult = null;
-      }
+      await deleteRoute(applicationId, route_id);
+      if (fetchRoutes) await fetchRoutes(applicationId);
     }
     // Get the latest routes from the store after fetch
     const latestRoutes = getRouteStore().routes;
     const hasRoutes = Array.isArray(latestRoutes) && latestRoutes.length > 0;
-    type BannerState = { state: { routeDeletedName?: string | null; progressUpdateFailed?: boolean } };
-    let bannerState: BannerState = { state: { routeDeletedName: routeName } };
+    const bannerState = { state: { routeDeletedName: routeName } };
     if (!hasRoutes) {
-      if (deleteResult && deleteResult.progressUpdated === false) {
-        bannerState.state = { ...bannerState.state, progressUpdateFailed: true };
-      }
       navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);
     } else {
       navigate(`${S37_BASE_URL}/${applicationId || ''}/route-overview`, bannerState);
