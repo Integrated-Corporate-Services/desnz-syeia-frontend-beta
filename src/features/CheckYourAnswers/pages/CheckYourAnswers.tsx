@@ -173,26 +173,32 @@ const ApplicationSubmit: React.FC = () => {
           data.sections?.networkOperator,
         );
 
-        const requiredSections = [
-        "Applicant details",
-        "Project details",
-        "Asset information",
-        "Route",
-        "Works overview",
-        "Sensitive area checks",
-        "Sensitive area review",
-        "Parishes",
-        "Supporting questions",
-          "EIA fees",
-          "Consultations",
-          "Post consultation actions"
-        ];
-        const allCompleted = requiredSections.every(sectionName =>
-          data.sectionsStatus?.find(
-            (s: { name: string; status: string }) => s.name === sectionName && s.status === "Completed"
-          )
-        );
-        setAllSectionsCompleted(allCompleted);
+        // List of required sections
+      const requiredSections = [
+        { key: "networkOperator", path: ["sections", "networkOperator", "details"] },
+        { key: "projectDetails", path: ["sections", "projectDetails", "overview"] },
+        { key: "assetInformation", path: ["sections", "projectDetails", "assetInformation"] },
+        { key: "location", path: ["sections", "location", "route"] },
+        { key: "worksOverview", path: ["sections", "worksOverview"] },
+        { key: "sensitiveAreaChecks", path: ["sections", "sensitiveAreaChecks"] },
+        { key: "sensitiveAreaReview", path: ["sections", "sensitiveAreaReview"] },
+        { key: "parishes", path: ["sections", "parishes"] },
+        { key: "supportingQuestions", path: ["sections", "supportingInformation", "supportingQuestions"] },
+        { key: "eiaFees", path: ["sections", "supportingInformation", "eiaFees"] },
+        { key: "postConsultationOutcome", path: ["sections", "postConsultationOutcome"] },
+      ];
+        // Helper to get nested value by path
+      const getByPath = (obj: any, pathArr: string[]): any =>
+        pathArr.reduce((acc: any, key: string) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
+
+      // All sections are considered "started" if they exist and are not null/empty
+      const allStarted = requiredSections.every(section => {
+        const value = getByPath(data, section.path);
+        if (Array.isArray(value)) return value.length > 0;
+        return value !== undefined && value !== null && value !== "";
+      });
+      
+      setAllSectionsCompleted(allStarted);
 
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
