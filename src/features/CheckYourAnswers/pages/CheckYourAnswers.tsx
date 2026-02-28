@@ -316,7 +316,7 @@ const ApplicationSubmit: React.FC = () => {
             : []
         );
         setWorksOverview(data.sections?.worksOverview || null);
-
+        setParishes(data.sections?.parishes || null);
         // Set permissions from API response
         setPermissions(data.permissions || null);
 
@@ -1175,24 +1175,19 @@ const ApplicationSubmit: React.FC = () => {
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Parishes
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {parishes.length > 0 ? (
-                        <ul className="govuk-list">
-                          {parishes.map((parish) => (
-                            <li key={parish.parish_code}>
-                              {parish.parish_name}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        "-"
-                      )}
-                    </dd>
-                  </div>
+                  {parishes.length > 0 ? (
+                    parishes.map((parish, idx) => (
+                      <div className="govuk-summary-list__row" key={parish.parish_code || parish.id || idx}>
+                        <dt className="govuk-summary-list__key">Parish</dt>
+                        <dd className="govuk-summary-list__value">{parish.parish_name || parish.name}</dd>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">Parishes</dt>
+                      <dd className="govuk-summary-list__value">-</dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>
