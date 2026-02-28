@@ -109,6 +109,7 @@ const ApplicationSubmit: React.FC = () => {
   );
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [postConsultationOutcome, setPostConsultationOutcome] = useState<PostConsultationOutcome | null>(null);
+  const [allSectionsCompleted, setAllSectionsCompleted] = useState(false);
 
   const [permissions, setPermissions] = useState<{
     canView: boolean;
@@ -171,6 +172,27 @@ const ApplicationSubmit: React.FC = () => {
           "Network operator section:",
           data.sections?.networkOperator,
         );
+
+        const requiredSections = [
+        "Applicant details",
+        "Project details",
+        "Asset information",
+        "Route",
+        "Works overview",
+        "Sensitive area checks",
+        "Sensitive area review",
+        "Parishes",
+        "Supporting questions",
+          "EIA fees",
+          "Consultations",
+          "Post consultation actions"
+        ];
+        const allCompleted = requiredSections.every(sectionName =>
+          data.sectionsStatus?.find(
+            (s: { name: string; status: string }) => s.name === sectionName && s.status === "Completed"
+          )
+        );
+        setAllSectionsCompleted(allCompleted);
 
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
@@ -1177,9 +1199,9 @@ const ApplicationSubmit: React.FC = () => {
                 <dl className="govuk-summary-list">
                   {parishes.length > 0 ? (
                     parishes.map((parish, idx) => (
-                      <div className="govuk-summary-list__row" key={parish.parish_code || parish.id || idx}>
+                      <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
                         <dt className="govuk-summary-list__key">Parish</dt>
-                        <dd className="govuk-summary-list__value">{parish.parish_name || parish.name}</dd>
+                        <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
                       </div>
                     ))
                   ) : (
@@ -1772,6 +1794,7 @@ const ApplicationSubmit: React.FC = () => {
                       className="govuk-button"
                       data-module="govuk-button"
                       data-govuk-button-init
+                      disabled={!allSectionsCompleted || !declarationConfirmed}
                     >
                       Pay and submit application
                     </button>
