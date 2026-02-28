@@ -1177,9 +1177,9 @@ const ApplicationSubmit: React.FC = () => {
                 <dl className="govuk-summary-list">
                   {parishes.length > 0 ? (
                     parishes.map((parish, idx) => (
-                      <div className="govuk-summary-list__row" key={parish.parish_code || parish.id || idx}>
+                      <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
                         <dt className="govuk-summary-list__key">Parish</dt>
-                        <dd className="govuk-summary-list__value">{parish.parish_name || parish.name}</dd>
+                        <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
                       </div>
                     ))
                   ) : (
