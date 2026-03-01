@@ -5,10 +5,10 @@ import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
 
 type RouteConfig = {
-  path: string;
-  component: React.ComponentType;
-  auth?: boolean;
-  layout?: boolean | 'minimal';
+    path: string;
+    component: React.ComponentType;
+    auth?: boolean;
+    layout?: boolean | 'minimal';
 };
 
 import ConsultationResponse from '../features/Consultation/pages/ConsultationResponse';
@@ -95,7 +95,12 @@ import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswer
 import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
-import PostConsultationActions from '../features/PostConsultation/pages/PostConsultation';
+import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
+import PostConsultationLpaConditions from '../features/PostConsultation/pages/PostConsultationLpaConditions';
+import PostConsultationLpaReason from '../features/PostConsultation/pages/PostConsultationLpaReason';
+import PostConsultationConsulteesRecommendations from '../features/PostConsultation/pages/PostConsultationConsulteesRecommendations';
+import PostConsultationConsulteesAcceptance from '../features/PostConsultation/pages/PostConsultationConsulteesAcceptance';
+import PostConsultationConsulteesReason from '../features/PostConsultation/pages/PostConsultationConsulteesReason';
 import PaymentAmountPage from '../features/Payments/pages/PaymentAmountPage';
 import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
@@ -124,18 +129,18 @@ export const ROUTE_CONFIG = [
     },
 
     {
-    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/evidence-response-not-received`,
-    component: EvidenceResponseNotReceivedPage,
-    auth: true,
-    layout: true,
+        path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/evidence-response-not-received`,
+        component: EvidenceResponseNotReceivedPage,
+        auth: true,
+        layout: true,
     },
 
     {
-    path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/proposed-development`,
-    component: ProposedDevelopmentPage,
-    auth: true,
-    layout: true,
-   },
+        path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/proposed-development`,
+        component: ProposedDevelopmentPage,
+        auth: true,
+        layout: true,
+    },
 
     {
         path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/lpa-details`,
@@ -577,7 +582,7 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-   
+
     {
         path: `${S37_BASE_URL}/:applicationId/works-overview`,
         component: WorksOverview,
@@ -633,8 +638,38 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-        path: `${S37_BASE_URL}/:applicationId/post-consultation-actions`,
-        component: PostConsultationActions,
+        path: `${S37_BASE_URL}/:applicationId/post-consultation-actions/lpa-agreement`,
+        component: PostConsultationLpaAgreement,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/post-consultation-actions/lpa-conditions`,
+        component: PostConsultationLpaConditions,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/post-consultation-actions/lpa-reason`,
+        component: PostConsultationLpaReason,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/post-consultation-actions/consultees-recommendations`,
+        component: PostConsultationConsulteesRecommendations,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/post-consultation-actions/consultees-recommendations-acceptance`,
+        component: PostConsultationConsulteesAcceptance,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/post-consultation-actions/consultees-recommendations-reason`,
+        component: PostConsultationConsulteesReason,
         auth: true,
         layout: true,
     },
@@ -717,7 +752,7 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    
+
     {
         path: `${S37_BASE_URL}/:applicationId/check-your-answers`,
         component: CheckYourAnswers,
@@ -737,79 +772,75 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-    path: '/access-revoked',
-    component: UserAccessRevokedPage,
-    auth: false,
-    layout: 'minimal'
-  },
-  {
-    path: '/admin/manage-user/:userId',
-    component: ManageUserPage,
-    auth: true,
-    layout: true
-  },
+        path: '/access-revoked',
+        component: UserAccessRevokedPage,
+        auth: false,
+        layout: 'minimal',
+    },
+    {
+        path: '/admin/manage-user/:userId',
+        component: ManageUserPage,
+        auth: true,
+        layout: true,
+    },
 
-  
-  {
-  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review`,
-    component: ReviewSensitiveAreaResultsPage,
-    auth: true,
-    layout: true
-  },
-  {
-  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review-manual`,
-    component: ReviewManualPage,
-    auth: true,
-    layout: true
-  },
-  {
-  path: `${S37_BASE_URL}/:applicationId/sensitive-area-add-question`,
-    component: AddOtherAreasQuestionPage,
-    auth: true,
-    layout: true
-  },
-  {
-  path: `${S37_BASE_URL}/:applicationId/sensitive-area-add-areas`,
-    component: AddOtherAreasPage,
-    auth: true,
-    layout: true
-  },
-  {
-  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/poles`,
-    component: ReviewPolesPage,
-    auth: true,
-    layout: true
-  },
-  {
-  path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/documents`,
-    component: ReviewDocumentsPage,
-    auth: true,
-    layout: true
-  },
-  {
-    path: `${S37_BASE_URL}/who-is-applying`,
-    component: WhoIsApplying,
-    auth: true,
-    layout: true
-  },
+    {
+        path: `${S37_BASE_URL}/:applicationId/sensitive-area-review`,
+        component: ReviewSensitiveAreaResultsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/sensitive-area-review-manual`,
+        component: ReviewManualPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/sensitive-area-add-question`,
+        component: AddOtherAreasQuestionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/sensitive-area-add-areas`,
+        component: AddOtherAreasPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/poles`,
+        component: ReviewPolesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/sensitive-area-review/documents`,
+        component: ReviewDocumentsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/who-is-applying`,
+        component: WhoIsApplying,
+        auth: true,
+        layout: true,
+    },
 
-{
-  path: `${S37_BASE_URL}/:applicationId/route-map-only`,
-  component: RouteMapOnlyPage,
-  auth: true,
-  layout: true // or true, depending on your layout needs
-}
-
+    {
+        path: `${S37_BASE_URL}/:applicationId/route-map-only`,
+        component: RouteMapOnlyPage,
+        auth: true,
+        layout: true, // or true, depending on your layout needs
+    },
 ];
 
-export const SANDBOX_ROUTE_CONFIG = [
-  
-];
+export const SANDBOX_ROUTE_CONFIG = [];
 
 export const ROUTES = {
-  NETWORK_OPERATOR_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-details`,
-  TASK_LIST: `${S37_BASE_URL}/:applicationId/task-list`,
-  NETWORK_OPERATOR_CONTACT_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-contact-details`,
+    NETWORK_OPERATOR_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-details`,
+    TASK_LIST: `${S37_BASE_URL}/:applicationId/task-list`,
+    NETWORK_OPERATOR_CONTACT_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-contact-details`,
 };
 
 export const BASE_URL = import.meta.env.BASE_URL;

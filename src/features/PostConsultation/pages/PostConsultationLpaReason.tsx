@@ -1,0 +1,137 @@
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FormButtons } from "../components";
+import {
+  usePostConsultationData,
+  usePostConsultationNavigation,
+} from "../hooks";
+import {
+  POST_CONSULTATION_CONSTANTS,
+  POST_CONSULTATION_QUESTIONS,
+} from "../constants";
+import { SaveType } from "../types";
+
+const PostConsultationLpaReason: React.FC = () => {
+  const { applicationId, getTaskListUrl, getConsulteesRecommendationsUrl } =
+    usePostConsultationNavigation();
+  const navigate = useNavigate();
+  const {
+    explanation,
+    setExplanation,
+    loading,
+    saving,
+    error,
+    explanationError,
+    saveData,
+  } = usePostConsultationData(applicationId);
+
+  const handleSubmit = async (e: React.FormEvent, saveType: SaveType) => {
+    e.preventDefault();
+    const success = await saveData(saveType, "lpa-reason");
+    if (success && saveType === "continue") {
+      navigate(getConsulteesRecommendationsUrl());
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content">
+          <p className="govuk-body">
+            {POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}
+          </p>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="govuk-width-container">
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item" aria-current="false">
+            <Link className="govuk-breadcrumbs__link" to={getTaskListUrl()}>
+              Task list
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">
+            {POST_CONSULTATION_CONSTANTS.BREADCRUMB_LABEL}
+          </li>
+        </ol>
+      </nav>
+      <main className="govuk-main-wrapper" id="main-content">
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            {(error || explanationError) && (
+              <div
+                className="govuk-error-summary"
+                aria-labelledby="error-summary-title"
+                role="alert"
+                tabIndex={-1}
+                data-module="govuk-error-summary"
+              >
+                <h2
+                  className="govuk-error-summary__title"
+                  id="error-summary-title"
+                >
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <ul className="govuk-list govuk-error-summary__list">
+                    {error && <li>{error}</li>}
+                    {explanationError && (
+                      <li>
+                        <a href="#explanation">{explanationError}</a>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            )}
+            <form noValidate>
+              <div
+                className={`govuk-form-group ${
+                  explanationError ? "govuk-form-group--error" : ""
+                }`}
+              >
+                <h1 className="govuk-label-wrapper">
+                  <label
+                    className="govuk-label govuk-label--l"
+                    htmlFor="explanation"
+                  >
+                    {POST_CONSULTATION_QUESTIONS.LPA_REASON}
+                  </label>
+                </h1>
+                {explanationError && (
+                  <p id="explanation-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span>{" "}
+                    {explanationError}
+                  </p>
+                )}
+                <textarea
+                  className={`govuk-textarea ${
+                    explanationError ? "govuk-textarea--error" : ""
+                  }`}
+                  id="explanation"
+                  name="explanation"
+                  rows={5}
+                  value={explanation || ""}
+                  onChange={(e) => setExplanation(e.target.value)}
+                  aria-describedby={
+                    explanationError ? "explanation-error" : undefined
+                  }
+                />
+              </div>
+              <FormButtons
+                onSaveContinue={(e) => handleSubmit(e, "continue")}
+                disabled={saving}
+              />
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default PostConsultationLpaReason;
