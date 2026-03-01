@@ -42,6 +42,12 @@ const ConsultationRequestsRequired: React.FC = () => {
     // Extract required consultees from fetched consultations
     const requiredConsultees = consultations.map((c) => c.otherConsultee || c.consulteeOrganisationName).filter(Boolean);
 
+    const existingConsulteeNames = new Set(requiredConsultees.map((n) => (n || '').toString().toLowerCase()));
+    const dedupedDerivedLpas = Array.isArray(derivedLpas)
+        ? derivedLpas.filter((l) => !existingConsulteeNames.has((l.lpa_name || '').toLowerCase()))
+        : [];
+
+
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
 
@@ -136,14 +142,14 @@ const ConsultationRequestsRequired: React.FC = () => {
 
                         {loading || lpasLoading ? (
                             <p className="govuk-body">Loading consultations...</p>
-                        ) : requiredConsultees.length > 0 || derivedLpas.length > 0 ? (
+                        ) : requiredConsultees.length > 0 || dedupedDerivedLpas.length > 0 ? (
                             <div className="govuk-inset-text">
                                 <p className="govuk-body">You must send requests to the following consultees, based on the sensitive areas check review and your previous answers:</p>
                                 <ul className="govuk-list govuk-list--bullet">
                                     {requiredConsultees.map((consultee, index) => (
                                         <li key={index}>{consultee}</li>
                                     ))}
-                                    {derivedLpas.map((lpa) => (
+                                    {dedupedDerivedLpas.map((lpa) => (
                                         <li key={lpa.lpa_code}>{lpa.lpa_name}</li>
                                     ))}
                                 </ul>
