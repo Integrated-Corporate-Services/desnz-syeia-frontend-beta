@@ -102,10 +102,10 @@ const WhoIsApplying: React.FC = () => {
                     If you do not know who the team coordinator is then contact
                     the service desk for advice at{" "}
                     <a
-                      href="mailto:ukop@nstauthority.co.uk"
+                      href="mailto:xxx@desnz.com"
                       className="govuk-link"
                     >
-                      ukop@nstauthority.co.uk
+                      xxx@desnz.com
                     </a>
                   </p>
                 </div>

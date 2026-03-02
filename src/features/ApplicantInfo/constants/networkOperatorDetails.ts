@@ -39,5 +39,5 @@ export const MESSAGES = {
     "You must contact the team coordinator in your organisation that you want to create an application for to provide you with access to their organisation.",
   CONTACT_NOT_LISTED_TEXT_2:
     "If you do not know who the team coordinator is then contact the service desk for advice at",
-  SERVICE_DESK_EMAIL: "ukop@nstauthority.co.uk",
+  SERVICE_DESK_EMAIL: "xxx@desnz.com",
 } as const;

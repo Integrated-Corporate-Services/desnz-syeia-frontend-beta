@@ -48,6 +48,11 @@ export async function startSensitiveAreaCheck(applicationId: string, toleranceRe
   return res.data;
 }
 
+export async function saveSensitiveReview(reviewPayload: any) {
+  const res = await axios.post(`/backend/api/save-sensitivereview`, reviewPayload);
+  return res.data;
+}
+
 // Update manually selected layers in sensitive_area_route_checks table
 export async function updateManuallySelectedLayers(applicationId: string, selectedLayerIds: number[], noneSelected: boolean) {
   const payload = {

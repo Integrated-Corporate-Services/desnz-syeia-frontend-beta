@@ -192,32 +192,56 @@ export function applySensitiveAreaCheckLogic(
     if (section.title === "Location") {
       const sensitiveCheckItem = section.items.find(item => item.name === "Sensitive area checks");
       const checksCompleted = sensitiveCheckItem?.status === "Completed";
-      
+      const routeItem = section.items.find(item => item.name === "Route");
+      const routeCompleted = routeItem?.status === "Completed";
+
       return {
         ...section,
         items: section.items.map((item) => {
           if (item.name === "Route" && inProgress) {
             return { ...item, disabled: true, plainTextStatus: true };
           }
+
+          if (item.name === "Sensitive area checks" && !routeCompleted) {
+            return {
+              ...item,
+              status: "Cannot start yet",
+              disabled: true,
+              plainTextStatus: true,
+              link: "#",
+            };
+          }
+
           if (item.name === "Sensitive area checks" && inProgress) {
             return { ...item, status: "In progress" };
           }
+
+          if (
+            item.name === "Sensitive area checks" &&
+            !inProgress &&
+            routeCompleted &&
+            item.status !== "Completed" &&
+            item.status !== "In progress"
+          ) {
+            return { ...item, status: "Not started" };
+          }
+
           if (item.name === "Sensitive area review") {
             if (inProgress) {
-              return { 
-                ...item, 
-                disabled: true, 
+              return {
+                ...item,
+                disabled: true,
                 plainTextStatus: true,
-                link: "#"
+                link: "#",
               };
             }
             if (!checksCompleted) {
-              return { 
-                ...item, 
+              return {
+                ...item,
                 status: "Cannot start yet",
-                disabled: true, 
+                disabled: true,
                 plainTextStatus: true,
-                link: "#"
+                link: "#",
               };
             }
             return item;
