@@ -34,7 +34,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
 
     let pollInterval: number | null = null;
     let pollCount = 0;
-    const MAX_POLL_COUNT = 30;
+    const MAX_POLL_COUNT = 0;
 
     const fetchSummary = async () => {
       try {

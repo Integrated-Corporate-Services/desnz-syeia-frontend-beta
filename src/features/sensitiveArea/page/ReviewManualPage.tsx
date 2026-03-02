@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem, updateManuallySelectedLayers } from '../../../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -37,39 +37,64 @@ const ReviewManualPage: React.FC = () => {
   useEffect(() => {
     if (!effectiveApplicationId) return;
 
+    let mounted = true;
     setLoading(true);
     setError(null);
 
-    getSensitiveAreaReviewSummary(effectiveApplicationId)
-      .then(data => {
+    (async () => {
+      try {
+        const data = await getSensitiveAreaReviewSummary(effectiveApplicationId);
+        if (!mounted) return;
         setChecksSummary(data);
-        setLoading(false);
-      })
-      .catch(() => {
+
+        // Pre-populate checkbox state from backend
+        const selected: Record<number, boolean> = {};
+        const failed = [
+          ...(data.checks?.automated?.failed?.screeningRequired || []),
+          ...(data.checks?.automated?.failed?.noScreening || []),
+        ];
+        for (const item of failed) {
+          if (item.manuallySelected) selected[item.layerId] = true;
+        }
+        for (const m of data.checks?.manual?.selected || []) {
+          selected[m.layerId] = true;
+        }
+        setSelectedFailedLayers(selected);
+      } catch (err) {
+        if (!mounted) return;
         setError('Failed to fetch sensitive area review summary');
+      } finally {
+        if (!mounted) return;
         setLoading(false);
-      });
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
   }, [effectiveApplicationId]);
 
   // ===========================
   // HELPER FUNCTIONS
   // ===========================
 
-  /**
-   * Gets list of failed layers (up to 10)
-   */
-  const getFailedLayers = (): LayerCheckItem[] => {
+  // Derive failed layers (memoized) - keeps render cheap and stable
+  const failedLayers = useMemo<LayerCheckItem[]>(() => {
     if (!checksSummary) return [];
-
     const { checks } = checksSummary;
-    const failedLayers = [
+    const failed = [
       ...(checks.automated.failed.screeningRequired || []),
-      ...(checks.automated.failed.noScreening || [])
+      ...(checks.automated.failed.noScreening || []),
     ];
+    return failed.slice(0, 10);
+  }, [checksSummary]);
 
-    // Limit to 10 layers as per AC
-    return failedLayers.slice(0, 10);
-  };
+  // If there are no failed layers after load, navigate away (effect, not render)
+  useEffect(() => {
+    if (!loading && checksSummary && failedLayers.length === 0) {
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`);
+    }
+  }, [loading, checksSummary, failedLayers, navigate, effectiveApplicationId]);
 
   /**
    * Validates form inputs before save
@@ -95,27 +120,22 @@ const ReviewManualPage: React.FC = () => {
    * Handles checkbox toggle for failed layers
    */
   const handleLayerToggle = (layerId: number) => {
-    setSelectedFailedLayers(prev => ({
-      ...prev,
-      [layerId]: !prev[layerId]
-    }));
-    
-    // If a layer is selected, uncheck "None" option
-    if (!selectedFailedLayers[layerId]) {
-      setNoneSelected(false);
-    }
+    setSelectedFailedLayers((prev) => {
+      const next = { ...prev, [layerId]: !prev[layerId] };
+      if (next[layerId]) setNoneSelected(false);
+      return next;
+    });
   };
 
   /**
    * Handles "None" checkbox toggle
    */
   const handleNoneToggle = () => {
-    setNoneSelected(!noneSelected);
-    
-    // If "None" is selected, uncheck all layers
-    if (!noneSelected) {
-      setSelectedFailedLayers({});
-    }
+    setNoneSelected((prev) => {
+      const next = !prev;
+      if (next) setSelectedFailedLayers({});
+      return next;
+    });
   };
 
   /**
@@ -175,8 +195,6 @@ const ReviewManualPage: React.FC = () => {
   // RENDER: CONSISTENT WRAPPER WITH CONDITIONAL CONTENT
   // ===========================
 
-  const failedLayers = getFailedLayers();
-
   return (
     <div className="govuk-width-container">
       {/* Back Link - Always visible */}
@@ -216,7 +234,6 @@ const ReviewManualPage: React.FC = () => {
             // No failed layers - redirect (but show message briefly)
             <>
               <p className="govuk-body">No failed areas to review. Redirecting...</p>
-              {navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`)}
             </>
           ) : (
             // Main Content - Failed Layers Review

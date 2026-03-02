@@ -21,6 +21,7 @@ interface ConsultationSummaryCardProps {
     evidenceLabel?: string;
     dateClosed?: string;
     objectionRaised?: boolean;
+    consultationType?: string;
     closeComments?: string;
     responseDocuments?: { url: string; name: string }[];
     respondingConsulteeName?: string;
@@ -37,6 +38,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     status,
     consultationId,
     applicationId,
+    consultationType,
     dateRequestCreated,
     evidenceUrl,
     evidenceLabel,
@@ -65,8 +67,15 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
 
     const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response-initial${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
 
-    let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
+    let requestUrlWithParams: string;
     if (statusDisplay === ConsultationStatus.DRAFT) {
+        // Always go to /consultation-request for DRAFT
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
+    } else if (consultationType === 'LPA') {
+        // LPA type goes to initial-question
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
+    } else {
+        // All others go directly to consultation-request
         requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
     }
 
