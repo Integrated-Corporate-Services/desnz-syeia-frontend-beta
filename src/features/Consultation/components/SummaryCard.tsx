@@ -30,6 +30,7 @@ interface ConsultationSummaryCardProps {
     evidenceLabel?: string;
     dateClosed?: string;
     objectionRaised?: boolean;
+    consultationType?: string;
     closeComments?: string;
     responseDocuments?: DocumentType[];
     respondingConsulteeName?: string;
@@ -38,7 +39,6 @@ interface ConsultationSummaryCardProps {
     notRequiredDocs?: DocumentType[];
     consultationRequestDocs?: DocumentType[];
     evidenceResponseNotReceivedDocs?: DocumentType[];
-    consultationType?: string;
     onRemove?: () => void;
 }
 
@@ -48,6 +48,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     status,
     consultationId,
     applicationId,
+    consultationType,
     dateRequestCreated,
     secondDatePublished,
     evidenceUrl,
@@ -62,7 +63,6 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     notRequiredDocs,
     consultationRequestDocs,
     evidenceResponseNotReceivedDocs,
-    consultationType,
     onRemove,
 }) => {
     // ============================================================================
@@ -77,9 +77,30 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return entry ? (entry[0] as keyof typeof ConsultationStatus) : undefined;
     }
 
-    /**
-     * Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
-     */
+    // ============================================================================
+    // COMPUTED VALUES
+    // ============================================================================
+
+    // Use consultationName as fallback for title
+    const displayName = orgName || consultationName || 'Consultation';
+
+    const statusKey = getStatusKey(status);
+    const statusDisplay = statusKey ? ConsultationStatus[statusKey] : status;
+    
+    // Determine response path based on consultation type
+    const responsePath = consultationType === 'LPA' ? 'response-initial' : 'response';
+    const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
+
+    // Determine request URL based on consultation type and status
+    let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
+    if (consultationType === 'PUBLIC') {
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`;
+    } else if (statusDisplay === ConsultationStatus.DRAFT) {
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
+    }
+
+    const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
+    // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
     function formatDate(dateStr?: string) {
         if (!dateStr) return '';
         const date = new Date(dateStr);
@@ -130,28 +151,6 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     function renderStatusTag(statusText: string, color: 'blue' | 'green' | 'grey' = 'blue') {
         return <span className={`govuk-tag govuk-tag--${color}`} style={{ whiteSpace: 'normal', display: 'inline-block' }}>{statusText}</span>;
     }
-
-    // ============================================================================
-    // COMPUTED VALUES
-    // ============================================================================
-
-    const displayName = orgName || consultationName || 'Consultation';
-    const statusKey = getStatusKey(status);
-    const statusDisplay = statusKey ? ConsultationStatus[statusKey] : status;
-    
-    // Determine response path based on consultation type
-    const responsePath = consultationType === 'LPA' ? 'response-initial' : 'response';
-    const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
-
-    // Determine request URL based on consultation type and status
-    let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
-    if (consultationType === 'PUBLIC') {
-        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`;
-    } else if (statusDisplay === ConsultationStatus.DRAFT) {
-        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
-    }
-
-    const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
 
     // ============================================================================
     // RENDER FUNCTIONS FOR SPECIFIC STATES

@@ -102,6 +102,7 @@ import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage'
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
+import RouteMapOnlyPage from '../features/RouteMap/page/RouteMapOnlyPage';
 // import ConsultationResponseReceived from '../features/Consultation/pages/ConsultationResponseReceived';
 // import LPAConsultationForm from '../features/Consultation/pages/LPAConsultationForm';
 // import LPADetailsForm from '../features/Consultation/pages/LPADetailsForm';
@@ -801,6 +802,20 @@ export const ROUTE_CONFIG = [
     auth: true,
     layout: true
   },
+  {
+    path: `${S37_BASE_URL}/who-is-applying`,
+    component: WhoIsApplying,
+    auth: true,
+    layout: true
+  },
+
+{
+  path: `${S37_BASE_URL}/:applicationId/route-map-only`,
+  component: RouteMapOnlyPage,
+  auth: true,
+  layout: true // or true, depending on your layout needs
+}
+
 ];
 
 export const SANDBOX_ROUTE_CONFIG = [

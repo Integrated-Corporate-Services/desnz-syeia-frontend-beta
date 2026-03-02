@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { getSensitiveAreaReviewSummary } from '../../../services/sensitiveAreaService';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -27,6 +28,54 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   // ===========================
   // VALIDATION LOGIC
   // ===========================
+  // LocalStorage helpers
+  const lsKey = (appId: string) => `sensitive_add_other_${appId}`;
+  const readSavedOption = (appId: string): 'yes' | 'no' | null => {
+    try {
+      const v = localStorage.getItem(lsKey(appId));
+      if (v === 'yes' || v === 'no') return v;
+    } catch (e) {
+      // ignore localStorage errors
+    }
+    return null;
+  };
+  const saveOption = (appId: string, option: 'yes' | 'no' | null) => {
+    try {
+      if (!option) {
+        localStorage.removeItem(lsKey(appId));
+      } else {
+        localStorage.setItem(lsKey(appId), option);
+      }
+    } catch (e) {
+      // ignore write errors
+    }
+  };
+
+  // Pre-populate from localStorage first, fallback to server pre-fill
+  useEffect(() => {
+    if (!effectiveApplicationId) return;
+
+    const saved = readSavedOption(effectiveApplicationId);
+    if (saved) {
+      setSelectedOption(saved);
+      return; // prefer localStorage-only persistence
+    }
+
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await getSensitiveAreaReviewSummary(effectiveApplicationId);
+        if (!mounted || !data) return;
+        const customAdded = data.checks?.manual?.customAdded || [];
+        if (customAdded.length > 0) {
+          setSelectedOption('yes');
+        }
+      } catch (err) {
+        // ignore — non-fatal for pre-fill
+      }
+    })();
+    return () => { mounted = false; };
+  }, [effectiveApplicationId]);
   
   /**
    * Validates that user has selected an option
@@ -50,6 +99,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   const handleRadioChange = (option: 'yes' | 'no') => {
     setSelectedOption(option);
     setValidationError(null); // Clear validation error on selection
+    if (effectiveApplicationId) saveOption(effectiveApplicationId, option);
   };
 
   /**
@@ -59,6 +109,9 @@ const AddOtherAreasQuestionPage: React.FC = () => {
     if (!effectiveApplicationId) return;
 
     if (!validateForm()) return;
+
+    // Persist selection to localStorage (ensure saved before navigation)
+    saveOption(effectiveApplicationId, selectedOption);
 
     // Navigate based on user's selection
     if (selectedOption === 'yes') {

@@ -1314,8 +1314,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {eiaFees &&
-                      typeof eiaFees.requires_full_eia !== "undefined"
-                        ? eiaFees.requires_full_eia
+                      typeof eiaFees.is_eia_development !== "undefined"
+                        ? eiaFees.is_eia_development
                           ? "Yes"
                           : "No"
                         : "-"}
@@ -1327,8 +1327,8 @@ const ApplicationSubmit: React.FC = () => {
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {eiaFees &&
-                      typeof eiaFees.requires_full_eia !== "undefined" &&
-                      !eiaFees.requires_full_eia
+                      typeof eiaFees.is_eia_development !== "undefined" &&
+                      !eiaFees.is_eia_development
                         ? "No"
                         : eiaFees &&
                             typeof eiaFees.screening_only !== "undefined"

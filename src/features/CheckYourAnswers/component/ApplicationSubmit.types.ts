@@ -9,6 +9,15 @@ export interface NetworkOperatorDetails {
 	postcode?: string;
 	email?: string;
 	phone?: string;
+	organisation_contact_name?: string;
+    additional_contact?: string;
+}
+
+export interface Parish {
+    parish_code: string;
+    parish_name: string;
+    lpa_code: string;
+    country: string;
 }
 
 export interface AssetInformation {
@@ -69,7 +78,7 @@ export interface SupportingDocument {
 }
 
 export interface EIAFees {
-	requires_full_eia?: boolean;
+	is_eia_development?: boolean;
 	screening_only?: boolean;
 }
 
@@ -102,17 +111,32 @@ export interface ResponseDocument {
 }
 
 export interface Consultation {
-	id?: string;
-	applicationId?: string;
-	consultationType?: string;
-	consulteeOrganisationId?: string;
-	consulteeOrganisationName?: string;
-	status?: string;
-	sentAt?: string | null;
-	createdAt?: string;
-	closedAt?: string | null;
-	dateClosed?: string | null;
-	objectionRaised?: boolean | null;
-	responseDocuments?: ResponseDocument[];
-	consulteeEmailAddress?: string | null;
+    id?: string;
+    applicationId?: string;
+    consultationType?: string;
+    consulteeOrganisationId?: string;
+    consulteeOrganisationName?: string;
+    status?: string;
+    sentAt?: string | null;
+    createdAt?: string;
+    closedAt?: string | null;
+    dateClosed?: string | null;
+    objectionRaised?: boolean | null;
+    responseDocuments?: ResponseDocument[];
+    consulteeEmailAddress?: string | null;
+    requestEvidenceDocuments?: ResponseDocument[];
+    evidenceResponseNotReceivedDocs?: ResponseDocument[];
+    consulteeContactName?: string;
+    closeComments?: string;
+    consultationRequestDocs?: { name: string; url: string; key?: string; filename?: string }[];
+    respondingConsulteeName?: string;
+    respondingConsulteeEmail?: string;
+    notRequiredReason?: string;
+    notRequiredDocs?: { name: string; url: string; key?: string; filename?: string }[];
+}
+
+export interface PostConsultationOutcome {
+  lpa_conditions_imposed?: boolean | null;
+  lpa_conditions_accepted?: boolean | null;
+  lpa_conditions_not_accepted_reason?: string | null;
 }

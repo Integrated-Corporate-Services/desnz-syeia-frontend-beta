@@ -146,6 +146,7 @@ const ConsultationDetailsPage: React.FC = () => {
               status={consultation.status}
               consultationId={consultation.id}
               applicationId={applicationId}
+              consultationType={consultation.consultationType}
               dateRequestCreated={consultation.dateRequestCreated ?? undefined}
               secondDatePublished={consultation.secondDate ?? undefined}
               dateClosed={consultation.dateClosed ?? undefined}
