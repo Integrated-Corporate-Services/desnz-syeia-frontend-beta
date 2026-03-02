@@ -29,6 +29,7 @@ export interface UpdateEiaFeePayload {
 // Service to fetch EIA Fees details from the backend
 export const fetchEiaFeesDetails = async (applicationId: string): Promise<EiaFees> => {
   try {
+    log.debug('[fetchEiaFeesDetails] Fetching EIA Fees details', { applicationId });
     const response = await fetch(`/backend/api/applications/${applicationId}/eia-fees`);
     if (!response.ok) throw new Error('Failed to fetch EIA Fees details');
     const data = await response.json();
@@ -39,7 +40,7 @@ export const fetchEiaFeesDetails = async (applicationId: string): Promise<EiaFee
     // If backend returns a flat object, just return it
     return data;
   } catch (error) {
-    console.error('Error fetching EIA Fees details:', error);
+    log.error('[fetchEiaFeesDetails] Error fetching EIA Fees details:', error);
     throw error;
   }
 };

@@ -1,5 +1,5 @@
 import { S37_BASE_URL } from '../../../constants/s37';
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
@@ -13,6 +13,8 @@ import MultiSelectDropdown from '../component/MultiSelect';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
+import { managePublicConsultationByVoltage } from '../../../services/consultationService';
+import log from '../../../logger';
 import '../component/AssetInformationForm.css'
 
 interface AssetFormState {
@@ -39,6 +41,7 @@ const AssetInformationForm: React.FC = () => {
   const [form, setForm] = useState<AssetFormState>(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [originalVoltage, setOriginalVoltage] = useState<string[]>([]);
   const { assets, fetchAssets, updateAsset } = useAssetStore();
   const { application, fetchAndSetApplication } = useApplicationStore();
   const { user } = useAuthUserContext();
@@ -111,6 +114,8 @@ const getApplicationId = () => {
         lineVoltage: voltageArr,
         lineLength: asset.lineLength?.toString() || '',
       });
+      // Store original voltage for comparison on submit
+      setOriginalVoltage(voltageArr);
     }
   }, [assets]);
 
@@ -144,6 +149,51 @@ const getApplicationId = () => {
     }
     if (!data.lineVoltage || !Array.isArray(data.lineVoltage) || data.lineVoltage.length === 0) newErrors.lineVoltage = ASSET_ERROR_MESSAGES.lineVoltage;
     return newErrors;
+  };
+
+  // Helper function to check if voltage is >= 132kV
+  const hasHighVoltage = (voltages: string[]): boolean => {
+    const highVoltageThresholds = ['132kV', '275kV', '400kV'];
+    return voltages.some(voltage => highVoltageThresholds.includes(voltage));
+  };
+
+  // Helper function to manage PUBLIC consultation based on voltage changes
+  const handlePublicConsultation = async () => {
+    if (!user?.user_id) {
+      log.error('[AssetInformationForm] User ID not available for managing PUBLIC consultation');
+      return;
+    }
+
+    const hadHighVoltage = hasHighVoltage(originalVoltage);
+    const hasHighVoltageNow = hasHighVoltage(form.lineVoltage);
+
+    log.debug('[AssetInformationForm] Managing PUBLIC consultation', {
+      applicationId: effectiveApplicationId,
+      hadHighVoltage,
+      hasHighVoltageNow,
+      originalVoltage,
+      currentVoltage: form.lineVoltage
+    });
+
+    try {
+      // Call backend to manage PUBLIC consultation based on voltage
+      await managePublicConsultationByVoltage(
+        effectiveApplicationId,
+        user.user_id,
+        hasHighVoltageNow
+      );
+      
+      if (hasHighVoltageNow && !hadHighVoltage) {
+        log.info('[AssetInformationForm] PUBLIC consultation created - voltage upgraded to >= 132kV');
+      } else if (!hasHighVoltageNow && hadHighVoltage) {
+        log.info('[AssetInformationForm] PUBLIC consultation marked as INACTIVE - voltage downgraded to < 132kV');
+      } else if (hasHighVoltageNow) {
+        log.debug('[AssetInformationForm] PUBLIC consultation ensured for voltage >= 132kV');
+      }
+    } catch (error) {
+      log.error('[AssetInformationForm] Failed to manage PUBLIC consultation:', error);
+      // Non-blocking error - don't prevent navigation
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -184,22 +234,30 @@ const getApplicationId = () => {
     };
     if (assets && assets[0]?.assetId) {
       // Update existing asset
+      log.debug('[AssetInformationForm] Updating existing asset', { assetId: assets[0].assetId });
       updateAsset(assetPayload)
-        .then(() => {
+        .then(async () => {
+          log.info('[AssetInformationForm] Asset updated successfully');
+          await handlePublicConsultation();
           fetchAssets(effectiveApplicationId);
           navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
         })
-        .catch(() => {
+        .catch((error) => {
+          log.error('[AssetInformationForm] Failed to update asset:', error);
           setErrors({ assetId: '', referenceNumber: ASSET_ERROR_MESSAGES.referenceNumber, lineType: ASSET_ERROR_MESSAGES.lineType, tori_noi: '', lineVoltage: ASSET_ERROR_MESSAGES.lineVoltage, lineLength: ASSET_ERROR_MESSAGES.lineLength });
         });
     } else {
       // Create new asset
+      log.debug('[AssetInformationForm] Creating new asset');
       createAsset(assetPayload)
-        .then(() => {
+        .then(async () => {
+          log.info('[AssetInformationForm] Asset created successfully');
+          await handlePublicConsultation();
           fetchAssets(effectiveApplicationId);
           navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
         })
-        .catch(() => {
+        .catch((error) => {
+          log.error('[AssetInformationForm] Failed to create asset:', error);
           setErrors({ assetId: '', referenceNumber: ASSET_ERROR_MESSAGES.referenceNumber, lineType: ASSET_ERROR_MESSAGES.lineType, tori_noi: '', lineVoltage: ASSET_ERROR_MESSAGES.lineVoltage, lineLength: ASSET_ERROR_MESSAGES.lineLength });
         });
     }

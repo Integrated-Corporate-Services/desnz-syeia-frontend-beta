@@ -6,6 +6,7 @@ export interface ConsultationRequest {
   applicationId: string;
   consultationId: string;
   sentDate?: string;
+  secondDate?: string;
   uploadedFiles?: UploadedFile[];
   applicationDocuments?: ApplicationDocument[];
   createdBy?: string;
@@ -16,6 +17,7 @@ export interface ConsultationRequest {
 export interface ConsultationRequestResponse {
   consultationId: string;
   sentDate?: string;
+  secondDate?: string;
   uploadedFiles: UploadedFile[];
   applicationDocuments: ApplicationDocument[];
   consultationDetails?: Record<string, unknown>;

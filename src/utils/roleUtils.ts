@@ -5,6 +5,7 @@
  */
 
 import type { AuthUser } from "../types/auth";
+import log from '../logger';
 
 export const APPLICANT = 'Applicant' as const;
 export const NETWORK_OPERATOR = 'Network operator' as const;
@@ -52,7 +53,7 @@ export type UserRole =
  */
 export const getDefaultSubmittedBy = (role?: UserRole): 'me' | 'all' => {
   if (!role) {
-    console.warn('getDefaultSubmittedBy: No role provided, defaulting to "me"');
+    log.warn('[getDefaultSubmittedBy] No role provided, defaulting to "me"');
     return 'me';
   }
 
