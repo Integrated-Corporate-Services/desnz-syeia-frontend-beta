@@ -26,7 +26,7 @@ const RouteMapOnlyPage: React.FC = () => {
     }));
 
   return (
-    <div style={{ width: "56vw", height: "70vh", background: "#fff" }}>
+    <div style={{ width: "38vw", height: "60vh", background: "#fff" }}>
       <SensitiveAreaCheckMap
         routes={transformedRoutes}
         mode="overview"

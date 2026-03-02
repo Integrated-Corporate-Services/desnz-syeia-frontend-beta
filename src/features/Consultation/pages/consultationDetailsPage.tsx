@@ -5,6 +5,7 @@ import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import ConsultationSummaryCard from "../components/SummaryCard";
 import { useConsultationDetails } from "../../../hooks/useConsultationDetails";
 import { useAuthUser } from "../../../hooks/useAuthUser";
+
 const ConsultationDetailsPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
@@ -65,6 +66,7 @@ const ConsultationDetailsPage: React.FC = () => {
               status={consultation.status}
               consultationId={consultation.id}
               applicationId={applicationId}
+              consultationType={consultation.consultationType}
               dateRequestCreated={consultation.dateRequestCreated ?? undefined}
               dateClosed={consultation.dateClosed ?? undefined}
               objectionRaised={consultation.objectionRaised}

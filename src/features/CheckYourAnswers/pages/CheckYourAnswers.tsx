@@ -1326,7 +1326,7 @@ const ApplicationSubmit: React.FC = () => {
                 <dl className="govuk-summary-list">
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">
-                      Were LPA conditions imposed?
+                      Was the Local Planning Authority's (LPA) agreement to the proposal subject to modifications or conditions being applied to the consent?
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {postConsultationOutcome?.lpa_conditions_imposed === true
@@ -1339,7 +1339,7 @@ const ApplicationSubmit: React.FC = () => {
                   {postConsultationOutcome?.lpa_conditions_imposed === true && (
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">
-                        Were LPA conditions accepted?
+                        Do you accept all the conditions imposed by the LPA?
                       </dt>
                       <dd className="govuk-summary-list__value">
                         {postConsultationOutcome?.lpa_conditions_accepted === true
@@ -1353,7 +1353,7 @@ const ApplicationSubmit: React.FC = () => {
                   {postConsultationOutcome?.lpa_conditions_accepted === false && (
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">
-                        Reason for not accepting conditions
+                        Explain why you do not accept all the LPA's conditions
                       </dt>
                       <dd className="govuk-summary-list__value">
                         {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
