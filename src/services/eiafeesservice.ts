@@ -3,6 +3,7 @@
 
 // EIA Fees type
 import { EiaFees } from '../types/eiaFees';
+import log from '../logger';
 
 // Payload for creating EIA Fee
 export interface CreateEiaFeePayload {
