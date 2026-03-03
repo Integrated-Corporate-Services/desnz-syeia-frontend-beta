@@ -11,6 +11,7 @@ interface LPAModificationsQuestionProps {
     explanationError?: string;
 }
 
+
 const LPAModificationsQuestion: React.FC<LPAModificationsQuestionProps> = ({ lpaModifications, acceptConditions, explanation, onLpaModificationsChange, onAcceptConditionsChange, onExplanationChange, lpaModificationsError, explanationError }) => {
     return (
         <div className={`govuk-form-group${lpaModificationsError ? ' govuk-form-group--error' : ''}`}>
