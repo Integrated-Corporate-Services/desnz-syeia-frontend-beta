@@ -129,14 +129,14 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   data-module="govuk-button"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </main>
