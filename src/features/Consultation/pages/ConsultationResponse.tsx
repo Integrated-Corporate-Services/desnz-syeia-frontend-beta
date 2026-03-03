@@ -18,7 +18,8 @@ const ConsultationResponse: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>(''); 
-
+    const [consultationType, setConsultationType] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     // Scroll to top on mount
     useEffect(() => {
@@ -30,6 +31,7 @@ const ConsultationResponse: React.FC = () => {
         async function fetchData() {
             if (consultationId) {
                 try {
+                    setIsLoading(true);
                     const data = await getConsultationResponse(consultationId, applicationId);
                     setContactName(data.response_full_name || '');
                     setEmail(data.response_email_address || '');
@@ -47,9 +49,12 @@ const ConsultationResponse: React.FC = () => {
                             || currentConsultation.otherConsultee 
                             || 'Consultation';
                         setConsultationName(orgName);
+                        setConsultationType(currentConsultation.consultationType || '');
                     }
                 } catch (err) {
                     console.error('Error fetching consultation response:', err);
+                } finally {
+                    setIsLoading(false);
                 }
             }
         }
@@ -59,18 +64,26 @@ const ConsultationResponse: React.FC = () => {
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
 
-        if (!contactName.trim()) {
-            newErrors.contactName = 'Enter the consultee contact name';
-        }
+        // For PUBLIC consultations, only validate objection field
+        if (consultationType === 'PUBLIC') {
+            if (!hasObjection) {
+                newErrors.hasObjection = 'Select yes if there are any objections to the application';
+            }
+        } else {
+            // For non-PUBLIC consultations, validate all fields
+            if (!contactName.trim()) {
+                newErrors.contactName = 'Enter the consultee contact name';
+            }
 
-        if (!email.trim()) {
-            newErrors.email = 'Enter the consultee contact email address';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            newErrors.email = 'Enter an email address in the correct format, like name@example.com';
-        }
+            if (!email.trim()) {
+                newErrors.email = 'Enter the consultee contact email address';
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                newErrors.email = 'Enter an email address in the correct format, like name@example.com';
+            }
 
-        if (!hasObjection) {
-            newErrors.hasObjection = 'Select yes if the consultee has any objections to the application';
+            if (!hasObjection) {
+                newErrors.hasObjection = 'Select yes if the consultee has any objections to the application';
+            }
         }
 
         setErrors(newErrors);
@@ -182,6 +195,10 @@ const ConsultationResponse: React.FC = () => {
                     </nav>
 
                     <main id="main-content">
+                        {isLoading ? (
+                            <p className="govuk-body">Loading...</p>
+                        ) : (
+                            <>
                         {Object.keys(errors).length > 0 && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
@@ -203,10 +220,12 @@ const ConsultationResponse: React.FC = () => {
                             </div>
                         )}
 
-                        <h2 className="govuk-caption-xl">{consultationName}</h2>
-                        <h1 className="govuk-heading-l">Provide consultation response</h1>
+                        {consultationType === 'PUBLIC' && <h2 className="govuk-caption-xl">Public notices</h2>}
+                        {consultationType !== 'PUBLIC' && <h2 className="govuk-caption-xl">{consultationName}</h2>}
+                        <h1 className="govuk-heading-l">{consultationType === 'PUBLIC' ? 'Are there any objections to the application?' : 'Provide consultation response'}</h1>
 
                         <form noValidate>
+                            {consultationType !== 'PUBLIC' && (
                             <div className={`govuk-form-group ${errors.contactName ? 'govuk-form-group--error' : ''}`}>
                                 <label className="govuk-label" htmlFor="contactName">
                                     <strong>Consultee contact name</strong>
@@ -235,7 +254,9 @@ const ConsultationResponse: React.FC = () => {
                                     }}
                                 />
                             </div>
+                            )}
 
+                            {consultationType !== 'PUBLIC' && (
                             <div className={`govuk-form-group ${errors.email ? 'govuk-form-group--error' : ''}`}>
                                 <label className="govuk-label" htmlFor="email">
                                     <strong>Consultee contact email address</strong>
@@ -265,12 +286,15 @@ const ConsultationResponse: React.FC = () => {
                                     }}
                                 />
                             </div>
+                            )}
 
                             <div className={`govuk-form-group ${errors.hasObjection ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset" aria-describedby={errors.hasObjection ? 'hasObjection-error' : undefined}>
+                                    {consultationType !== 'PUBLIC' && (
                                     <legend className="govuk-fieldset__legend">
                                         <strong>Does the consultee have any objections to the application?</strong>
                                     </legend>
+                                    )}
                                     {errors.hasObjection && (
                                         <p id="hasObjection-error" className="govuk-error-message">
                                             <span className="govuk-visually-hidden">Error:</span> {errors.hasObjection}
@@ -340,6 +364,8 @@ const ConsultationResponse: React.FC = () => {
                                 </button> */}
                             </div> 
                         </form>
+                            </>
+                        )}
                     </main>
                 </div>
             </div>

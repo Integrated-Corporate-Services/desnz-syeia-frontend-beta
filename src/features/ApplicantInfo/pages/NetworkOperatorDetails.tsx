@@ -379,9 +379,9 @@ const NetworkOperatorDetails: React.FC = () => {
                     the service desk for advice at{" "}
                     <a
                       className="govuk-link"
-                      href="mailto:ukop@nstauthority.co.uk"
+                      href="mailto:xxx@desnz.com"
                     >
-                      ukop@nstauthority.co.uk
+                      xxx@desnz.com
                     </a>
                   </p>
                 </div>

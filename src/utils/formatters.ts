@@ -1,3 +1,5 @@
+import log from '../logger';
+
 // Date formatting utilities
 /**
  * Format date string to readable format
@@ -54,14 +56,14 @@ const TYPE_MAP: Record<string, string> = {
  */
 export const normalizeApplicationType = (appType: string): string => {
   if (!appType) {
-    console.warn('normalizeApplicationType: Received empty type');
+    log.warn('[normalizeApplicationType] Received empty type');
     return 'unknown';
   }
 
   const normalized = TYPE_MAP[appType.toLowerCase()];
   
   if (!normalized) {
-    console.warn(`normalizeApplicationType: Unknown type "${appType}"`);
+    log.warn(`[normalizeApplicationType] Unknown type "${appType}"`);
     return appType.toLowerCase();
   }
 

@@ -119,6 +119,8 @@ import ConsultationRequestNotSent from '../features/Consultation/pages/Consultat
 import LPADetailsPage from '../features/Consultation/pages/LPADetailsPage';
 import ProposedDevelopmentPage from '../features/Consultation/pages/ProposedDevelopmentPage';
 import EvidenceResponseNotReceivedPage from '../features/Consultation/pages/EvidenceResponseNotReceivedPage';
+import RemoveConsultation from '../features/Consultation/pages/RemoveConsultation';
+import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
 
 export const ROUTE_CONFIG = [
     {
@@ -166,6 +168,20 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/initial-question`,
         component: ConsultationInitialQuestion,
+        auth: true,
+        layout: true,
+    },
+
+    {
+        path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/remove`,
+        component: RemoveConsultation,
+        auth: true,
+        layout: true,
+    },
+
+    {
+        path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/public-notices`,
+        component: PublicNoticesEvidence,
         auth: true,
         layout: true,
     },

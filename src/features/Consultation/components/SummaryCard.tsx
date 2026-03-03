@@ -7,6 +7,14 @@ import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('ConsultationSummaryCard');
 
+interface DocumentType {
+    url: string;
+    name?: string;
+    key?: string;
+    filename?: string;
+    fileName?: string;
+}
+
 interface ConsultationSummaryCardProps {
     orgName: string | null;
     consultationName?: string | null;
@@ -17,18 +25,21 @@ interface ConsultationSummaryCardProps {
     consultationId: string;
     applicationId: string;
     dateRequestCreated?: string;
+    secondDatePublished?: string;
     evidenceUrl?: string;
     evidenceLabel?: string;
     dateClosed?: string;
     objectionRaised?: boolean;
+    consultationType?: string;
     closeComments?: string;
-    responseDocuments?: { url: string; name: string }[];
+    responseDocuments?: DocumentType[];
     respondingConsulteeName?: string;
     respondingConsulteeEmail?: string;
     notRequiredMessage?: string;
-    notRequiredDocs?: { url: string; name: string }[];
-    consultationRequestDocs?: { url: string; name: string; key?: string; filename?: string }[];
-    evidenceResponseNotReceivedDocs?: { url: string; name: string; key?: string; filename?: string }[];
+    notRequiredDocs?: DocumentType[];
+    consultationRequestDocs?: DocumentType[];
+    evidenceResponseNotReceivedDocs?: DocumentType[];
+    onRemove?: () => void;
 }
 
 const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
@@ -37,7 +48,9 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     status,
     consultationId,
     applicationId,
+    consultationType,
     dateRequestCreated,
+    secondDatePublished,
     evidenceUrl,
     evidenceLabel,
     dateClosed,
@@ -50,28 +63,43 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     notRequiredDocs,
     consultationRequestDocs,
     evidenceResponseNotReceivedDocs,
+    onRemove,
 }) => {
-    // Normalize status to key in ConsultationStatus
+    // ============================================================================
+    // HELPER FUNCTIONS
+    // ============================================================================
+
+    /**
+     * Normalize status string to ConsultationStatus enum key
+     */
     function getStatusKey(statusValue: string): keyof typeof ConsultationStatus | undefined {
         const entry = Object.entries(ConsultationStatus).find(([, v]) => v.toLowerCase() === statusValue.toLowerCase());
         return entry ? (entry[0] as keyof typeof ConsultationStatus) : undefined;
     }
+
+    // ============================================================================
+    // COMPUTED VALUES
+    // ============================================================================
 
     // Use consultationName as fallback for title
     const displayName = orgName || consultationName || 'Consultation';
 
     const statusKey = getStatusKey(status);
     const statusDisplay = statusKey ? ConsultationStatus[statusKey] : status;
+    
+    // Determine response path based on consultation type
+    const responsePath = consultationType === 'LPA' ? 'response-initial' : 'response';
+    const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
 
-    const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response-initial${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
-
+    // Determine request URL based on consultation type and status
     let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
-    if (statusDisplay === ConsultationStatus.DRAFT) {
+    if (consultationType === 'PUBLIC') {
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`;
+    } else if (statusDisplay === ConsultationStatus.DRAFT) {
         requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
     }
 
     const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
-    const withdrawnPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-withdrawn`;
     // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
     function formatDate(dateStr?: string) {
         if (!dateStr) return '';
@@ -80,458 +108,423 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     }
 
-    // Render different card layouts based on status
+    /**
+     * Render a clickable document link with S3 download
+     */
+    function renderDocumentLink(doc: DocumentType, idx: number) {
+        return (
+            <div key={idx}>
+                <a
+                    href="#"
+                    className="govuk-link"
+                    onClick={async (e) => {
+                        e.preventDefault();
+                        const key = doc.key || doc.url;
+                        try {
+                            await downloadS3File(key);
+                        } catch (error) {
+                            logger.error('Failed to download file:', error);
+                        }
+                    }}
+                >
+                    {doc.filename || doc.name || doc.fileName}
+                </a>
+            </div>
+        );
+    }
+
+    /**
+     * Render a table row with label and value
+     */
+    function renderTableRow(label: string, value: React.ReactNode, additionalClass: string = '') {
+        return (
+            <tr className="govuk-table__row">
+                <td className={`govuk-table__cell govuk-!-font-weight-bold ${additionalClass}`}>{label}</td>
+                <td className={`govuk-table__cell ${additionalClass}`}>{value}</td>
+            </tr>
+        );
+    }
+
+    /**
+     * Render status tag
+     */
+    function renderStatusTag(statusText: string, color: 'blue' | 'green' | 'grey' = 'blue') {
+        return <span className={`govuk-tag govuk-tag--${color}`} style={{ whiteSpace: 'normal', display: 'inline-block' }}>{statusText}</span>;
+    }
+
+    // ============================================================================
+    // RENDER FUNCTIONS FOR SPECIFIC STATES
+    // ============================================================================
+
+    /**
+     * Render card for OTHER consultation type with NOT_STARTED status
+     */
+    function renderOtherNotStarted() {
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title">{displayName}</h2>
+                    <ul className="govuk-summary-card__actions">
+                        {onRemove && (
+                            <li className="govuk-summary-card__action">
+                                <a
+                                    href="#"
+                                    className="govuk-link"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        onRemove();
+                                    }}
+                                >
+                                    Remove
+                                </a>
+                            </li>
+                        )}
+                        <li className="govuk-summary-card__action">
+                            <Link to={requestUrlWithParams} className="govuk-link">
+                                Start consultation
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag(statusDisplay))}
+                            {renderTableRow('Date of consultation request', '-')}
+                            {renderTableRow('Evidence of request', '-')}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for NOT_REQUIRED status
+     */
+    function renderNotRequired() {
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title">{displayName}</h2>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag('Closed', 'green'))}
+                            {renderTableRow('Date closed', dateClosed ? formatDate(dateClosed) : '-')}
+                            {renderTableRow('Why this consultation is not required', notRequiredMessage || '-')}
+                            {notRequiredDocs && notRequiredDocs.length > 0 && renderTableRow(
+                                'Supporting documents',
+                                <>{notRequiredDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for PUBLIC consultation with REQUEST_SENT status
+     */
+    function renderPublicRequestSent() {
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title">{displayName}</h2>
+                    <ul className="govuk-summary-card__actions">
+                        <li className="govuk-summary-card__action">
+                            <Link to={responseUrlWithParams} className="govuk-link" style={{ whiteSpace: 'nowrap' }}>
+                                Record public responses
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag('Public notices published'))}
+                            {renderTableRow('First date published', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
+                            {renderTableRow('Second date published', secondDatePublished ? formatDate(secondDatePublished) : '-')}
+                            {renderTableRow(
+                                'Evidence of publication',
+                                consultationRequestDocs && consultationRequestDocs.length > 0
+                                    ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : '-'
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for non-PUBLIC consultation with REQUEST_SENT status
+     */
+    function renderStandardRequestSent() {
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title">{orgName}</h2>
+                    <ul className="govuk-summary-card__actions">
+                        {orgName && orgName.trim().toLowerCase() === 'natural england' && (
+                            <li className="govuk-summary-card__action">
+                                <Link to={notRequiredPageUrl} className="govuk-link">
+                                    Not required
+                                </Link>
+                            </li>
+                        )}
+                        <li className="govuk-summary-card__action">
+                            <Link to={responseUrlWithParams} className="govuk-link">
+                                Provide response
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag(statusDisplay))}
+                            {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
+                            {renderTableRow(
+                                'Evidence of request',
+                                consultationRequestDocs && consultationRequestDocs.length > 0
+                                    ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : evidenceUrl
+                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        : '-'
+                            )}
+                            {renderTableRow('Consultee contact name', respondingConsulteeName || '-')}
+                            {renderTableRow(
+                                'Consultee contact email address',
+                                respondingConsulteeEmail
+                                    ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
+                                    : '-'
+                            )}
+                            {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
+                            {renderTableRow('Date closed', '')}
+                            {renderTableRow(
+                                'Response documents',
+                                responseDocuments && responseDocuments.length > 0
+                                    ? <>{responseDocuments.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : '-'
+                            )}
+                            {renderTableRow('Close Comments', closeComments || '-')}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for PUBLIC consultation with CLOSED status
+     */
+    function renderPublicClosed() {
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title">{displayName}</h2>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag('Closed', 'green'))}
+                            {renderTableRow('First date published', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
+                            {renderTableRow('Second date published', secondDatePublished ? formatDate(secondDatePublished) : '-')}
+                            {renderTableRow(
+                                'Evidence of publication',
+                                consultationRequestDocs && consultationRequestDocs.length > 0
+                                    ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : '-'
+                            )}
+                            {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
+                            {renderTableRow(
+                                'Public response documents',
+                                responseDocuments && responseDocuments.length > 0
+                                    ? <>{responseDocuments.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : '-'
+                            )}
+                            {renderTableRow('Comments', closeComments || '-')}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for non-PUBLIC consultation with CLOSED status
+     */
+    function renderStandardClosed() {
+        // Check for evidence of response NOT received
+        const hasNotReceivedResponse = !!(evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0);
+
+        // Only consider it as "received response" if we don't have evidence of not received
+        const hasReceivedResponse =
+            !hasNotReceivedResponse &&
+            !!(
+                (respondingConsulteeName && respondingConsulteeName.trim() !== '') ||
+                (respondingConsulteeEmail && respondingConsulteeEmail.trim() !== '') ||
+                (objectionRaised !== null && objectionRaised !== undefined) ||
+                (responseDocuments && responseDocuments.length > 0)
+            );
+
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <div className="govuk-summary-card__title">{orgName}</div>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
+                        <tbody className="govuk-table__body">
+                            {/* Always show Status */}
+                            {renderTableRow('Status', renderStatusTag('Closed', 'green'))}
+
+                            {/* Always show Date of consultation request */}
+                            {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
+
+                            {/* Always show Evidence of request */}
+                            {renderTableRow(
+                                'Evidence of request',
+                                consultationRequestDocs && consultationRequestDocs.length > 0
+                                    ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : evidenceUrl
+                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        : '-'
+                            )}
+
+                            {/* Show response fields only if response was received */}
+                            {hasReceivedResponse && (
+                                <>
+                                    {renderTableRow('Consultee contact name', respondingConsulteeName || '-')}
+                                    {renderTableRow(
+                                        'Consultee contact email address',
+                                        respondingConsulteeEmail
+                                            ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
+                                            : '-'
+                                    )}
+                                    {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
+                                    {renderTableRow(
+                                        'Response documents',
+                                        responseDocuments && responseDocuments.length > 0
+                                            ? <>{responseDocuments.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                            : '-'
+                                    )}
+                                    {renderTableRow('Close Comments', closeComments || '-')}
+                                </>
+                            )}
+
+                            {/* Show evidence of response not received if applicable */}
+                            {hasNotReceivedResponse && renderTableRow(
+                                'Evidence of response not received',
+                                evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0
+                                    ? <>{evidenceResponseNotReceivedDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : '-'
+                            )}
+
+                            {/* Always show Date closed */}
+                            {renderTableRow('Date closed', dateClosed ? formatDate(dateClosed) : '-')}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for WITHDRAWN status
+     */
+    function renderWithdrawn() {
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper"></div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag('Withdrawn', 'grey'))}
+                            {dateRequestCreated && renderTableRow('Withdrawal date', formatDate(dateRequestCreated))}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for default/DRAFT status
+     */
+    function renderDefault() {
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title">{orgName}</h2>
+                    <ul className="govuk-summary-card__actions">
+                        {orgName && orgName.trim().toLowerCase() === 'natural england' && (
+                            <li className="govuk-summary-card__action">
+                                <Link to={notRequiredPageUrl} className="govuk-link">
+                                    Not required
+                                </Link>
+                            </li>
+                        )}
+                        <li className="govuk-summary-card__action">
+                            <Link to={requestUrlWithParams} className="govuk-link">
+                                {statusDisplay === ConsultationStatus.DRAFT ? 'Continue consultation' : 'Start consultation'}
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag(statusDisplay))}
+                            {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
+                            {renderTableRow(
+                                'Evidence of request',
+                                consultationRequestDocs && consultationRequestDocs.length > 0
+                                    ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : evidenceUrl
+                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        : '-'
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    // ============================================================================
+    // MAIN RENDER LOGIC
+    // ============================================================================
+
+    /**
+     * Determine which card content to render based on status and consultation type
+     */
     function renderCardContent() {
+        // Special case: OTHER consultation type with NOT_STARTED status
+        if (consultationType === 'OTHER' && statusDisplay === ConsultationStatus.NOT_STARTED) {
+            return renderOtherNotStarted();
+        }
+
+        // Render based on status
         switch (statusDisplay) {
             case ConsultationStatus.NOT_REQUIRED:
-                return (
-                    <>
-                        <div className="govuk-summary-card__title-wrapper">
-                            <h2 className="govuk-summary-card__title">{displayName}</h2>
-                        </div>
-                        <div className="govuk-summary-card__content">
-                            <table className="govuk-table govuk-!-margin-bottom-0">
-                                <tbody className="govuk-table__body">
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
-                                        <td className="govuk-table__cell">
-                                            <span className="govuk-tag govuk-tag--green">Closed</span>
-                                        </td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Date closed</td>
-                                        <td className="govuk-table__cell">{dateClosed ? formatDate(dateClosed) : '-'}</td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Why this consultation is not required</td>
-                                        <td className="govuk-table__cell">{notRequiredMessage || '-'}</td>
-                                    </tr>
-                                    {notRequiredDocs && notRequiredDocs.length > 0 && (
-                                        <tr className="govuk-table__row">
-                                            <td className="govuk-table__cell govuk-!-font-weight-bold">Supporting documents</td>
-                                            <td className="govuk-table__cell">
-                                                {notRequiredDocs.map((doc: any, idx: number) => (
-                                                    <div key={idx}>
-                                                        <a
-                                                            href="#"
-                                                            className="govuk-link"
-                                                            onClick={async (e) => {
-                                                                e.preventDefault();
-                                                                const key = doc.key || doc.url;
-                                                                downloadS3File(key);
-                                                            }}
-                                                        >
-                                                            {doc.name}
-                                                        </a>
-                                                    </div>
-                                                ))}
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </>
-                );
+                return renderNotRequired();
+
             case ConsultationStatus.REQUEST_SENT:
-                return (
-                    <>
-                        <div className="govuk-summary-card__title-wrapper">
-                            <h2 className="govuk-summary-card__title">{orgName}</h2>
-                            <ul className="govuk-summary-card__actions">
-                                {orgName && orgName.trim().toLowerCase() === 'natural england' && (
-                                    <li className="govuk-summary-card__action">
-                                        <Link to={notRequiredPageUrl} className="govuk-link">
-                                            Not required
-                                        </Link>
-                                    </li>
-                                )}
-                                <li className="govuk-summary-card__action">
-                                    <Link to={responseUrlWithParams} className="govuk-link">
-                                        Provide response
-                                    </Link>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="govuk-summary-card__content">
-                            <table className="govuk-table govuk-!-margin-bottom-0">
-                                <tbody className="govuk-table__body">
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
-                                        <td className="govuk-table__cell">
-                                            <span className="govuk-tag govuk-tag--blue">{statusDisplay}</span>
-                                        </td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Date of consultation request</td>
-                                        <td className="govuk-table__cell">{dateRequestCreated ? formatDate(dateRequestCreated) : '-'}</td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
-                                        <td className="govuk-table__cell">
-                                            {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
-                                                consultationRequestDocs.map((doc: any, idx: number) => (
-                                                    <div key={idx}>
-                                                        <a
-                                                            href="#"
-                                                            className="govuk-link"
-                                                            onClick={async (e) => {
-                                                                e.preventDefault();
-                                                                const key = doc.key || doc.url;
-                                                                try {
-                                                                    await downloadS3File(key);
-                                                                } catch (error) {
-                                                                    logger.error('Failed to download file:', error);
-                                                                }
-                                                            }}
-                                                        >
-                                                            {doc.filename || doc.name}
-                                                        </a>
-                                                    </div>
-                                                ))
-                                            ) : evidenceUrl ? (
-                                                <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">
-                                                    {evidenceLabel || evidenceUrl}
-                                                </a>
-                                            ) : (
-                                                '-'
-                                            )}
-                                        </td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Consultee contact name</td>
-                                        <td className="govuk-table__cell">{respondingConsulteeName || '-'}</td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Consultee contact email address</td>
-                                        <td className="govuk-table__cell">
-                                            {respondingConsulteeEmail ? (
-                                                <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">
-                                                    {respondingConsulteeEmail}
-                                                </a>
-                                            ) : (
-                                                '-'
-                                            )}
-                                        </td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Objection raised</td>
-                                        <td className="govuk-table__cell">{typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-'}</td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Date closed</td>
-                                        <td className="govuk-table__cell"></td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Response documents</td>
-                                        <td className="govuk-table__cell">
-                                            {responseDocuments && responseDocuments.length > 0
-                                                ? responseDocuments.map((doc: any, idx: number) => (
-                                                      <div key={idx}>
-                                                          <a
-                                                              href="#"
-                                                              className="govuk-link"
-                                                              onClick={async (e) => {
-                                                                  e.preventDefault();
-                                                                  const key = doc.key || doc.url;
-                                                                  try {
-                                                                      await downloadS3File(key);
-                                                                  } catch (error) {
-                                                                      logger.error('Failed to download file:', error);
-                                                                  }
-                                                              }}
-                                                          >
-                                                              {doc.name || doc.fileName}
-                                                          </a>
-                                                      </div>
-                                                  ))
-                                                : '-'}
-                                        </td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Close Comments</td>
-                                        <td className="govuk-table__cell">{closeComments || '-'}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </>
-                );
+                return consultationType === 'PUBLIC' ? renderPublicRequestSent() : renderStandardRequestSent();
 
             case ConsultationStatus.CLOSED:
-              // Add debug logging
-                console.log('=== CLOSED CONSULTATION DEBUG ===');
-                console.log('evidenceResponseNotReceivedDocs:', evidenceResponseNotReceivedDocs);
-                console.log('responseDocuments:', responseDocuments);
-                console.log('respondingConsulteeName:', respondingConsulteeName);
-                console.log('respondingConsulteeEmail:', respondingConsulteeEmail);
-                console.log('objectionRaised:', objectionRaised);
-                // CRITICAL FIX: Check for evidence of response NOT received FIRST
-                // If we have evidence that response was NOT received, don't show response fields
-                const hasNotReceivedResponse = !!(evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0);
-
-                // Only consider it as "received response" if we DON'T have evidence of not received
-                // and we have actual response data
-                const hasReceivedResponse =
-                    !hasNotReceivedResponse &&
-                    !!(
-                        (respondingConsulteeName && respondingConsulteeName.trim() !== '') ||
-                        (respondingConsulteeEmail && respondingConsulteeEmail.trim() !== '') ||
-                        (objectionRaised !== null && objectionRaised !== undefined) ||
-                        (responseDocuments && responseDocuments.length > 0)
-                    );
-
-                return (
-                    <>
-                        <div className="govuk-summary-card__title-wrapper">
-                            <div className="govuk-summary-card__title">{orgName}</div>
-                        </div>
-                        <div className="govuk-summary-card__content">
-                            <table className="govuk-table govuk-!-margin-bottom-0" style={{ width: '100%' }}>
-                                <tbody className="govuk-table__body">
-                                    {/* Always show Status */}
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
-                                        <td className="govuk-table__cell">
-                                            <span className="govuk-tag govuk-tag--green">Closed</span>
-                                        </td>
-                                    </tr>
-
-                                    {/* Always show Date of consultation request */}
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Date of consultation request</td>
-                                        <td className="govuk-table__cell">{dateRequestCreated ? formatDate(dateRequestCreated) : '-'}</td>
-                                    </tr>
-
-                                    {/* Always show Evidence of request */}
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
-                                        <td className="govuk-table__cell">
-                                            {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
-                                                consultationRequestDocs.map((doc: any, idx: number) => (
-                                                    <div key={idx}>
-                                                        <a
-                                                            href="#"
-                                                            className="govuk-link"
-                                                            onClick={async (e) => {
-                                                                e.preventDefault();
-                                                                const key = doc.key || doc.url;
-                                                                try {
-                                                                    await downloadS3File(key);
-                                                                } catch (error) {
-                                                                    logger.error('Failed to download file:', error);
-                                                                }
-                                                            }}
-                                                        >
-                                                            {doc.filename || doc.name}
-                                                        </a>
-                                                    </div>
-                                                ))
-                                            ) : evidenceUrl ? (
-                                                <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">
-                                                    {evidenceLabel || evidenceUrl}
-                                                </a>
-                                            ) : (
-                                                '-'
-                                            )}
-                                        </td>
-                                    </tr>
-
-                                    {/* ONLY show if response WAS received (and we don't have evidence of not received) */}
-                                    {hasReceivedResponse && (
-                                        <>
-                                            <tr className="govuk-table__row">
-                                                <td className="govuk-table__cell govuk-!-font-weight-bold">Consultee contact name</td>
-                                                <td className="govuk-table__cell">{respondingConsulteeName || '-'}</td>
-                                            </tr>
-                                            <tr className="govuk-table__row">
-                                                <td className="govuk-table__cell govuk-!-font-weight-bold">Consultee contact email address</td>
-                                                <td className="govuk-table__cell">
-                                                    {respondingConsulteeEmail ? (
-                                                        <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">
-                                                            {respondingConsulteeEmail}
-                                                        </a>
-                                                    ) : (
-                                                        '-'
-                                                    )}
-                                                </td>
-                                            </tr>
-                                            <tr className="govuk-table__row">
-                                                <td className="govuk-table__cell govuk-!-font-weight-bold">Objection raised</td>
-                                                <td className="govuk-table__cell">{typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-'}</td>
-                                            </tr>
-                                            
-                                            <tr className="govuk-table__row">
-                                                <td className="govuk-table__cell govuk-!-font-weight-bold">Response documents</td>
-                                                <td className="govuk-table__cell">
-                                                    {responseDocuments && responseDocuments.length > 0
-                                                        ? responseDocuments.map((doc: any, idx: number) => (
-                                                              <div key={idx}>
-                                                                  <a
-                                                                      href="#"
-                                                                      className="govuk-link"
-                                                                      onClick={async (e) => {
-                                                                          e.preventDefault();
-                                                                          const key = doc.key || doc.url;
-                                                                          try {
-                                                                              await downloadS3File(key);
-                                                                          } catch (error) {
-                                                                              logger.error('Failed to download file:', error);
-                                                                          }
-                                                                      }}
-                                                                  >
-                                                                      {doc.name || doc.fileName}
-                                                                  </a>
-                                                              </div>
-                                                          ))
-                                                        : '-'}
-                                                </td>
-                                            </tr>
-
-                                            {/* ADD THIS: Close Comments - Always show for CLOSED consultations */}
-                                            <tr className="govuk-table__row">
-                                                <td className="govuk-table__cell govuk-!-font-weight-bold">Close Comments</td>
-                                                <td className="govuk-table__cell">{closeComments || '-'}</td>
-                                            </tr>
-
-                                        </>
-                                    )}
-
-                                    {/* ONLY show if response was NOT received */}
-                                    {hasNotReceivedResponse && (
-                                        <tr className="govuk-table__row">
-                                            <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of response not received</td>
-                                            <td className="govuk-table__cell">
-                                                {evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0
-                                                    ? evidenceResponseNotReceivedDocs.map((doc: any, idx: number) => (
-                                                          <div key={idx}>
-                                                              <a
-                                                                  href="#"
-                                                                  className="govuk-link"
-                                                                  onClick={async (e) => {
-                                                                      e.preventDefault();
-                                                                      const key = doc.key || doc.url;
-                                                                      try {
-                                                                          await downloadS3File(key);
-                                                                      } catch (error) {
-                                                                          logger.error('Failed to download file:', error);
-                                                                      }
-                                                                  }}
-                                                              >
-                                                                  {doc.filename || doc.name}
-                                                              </a>
-                                                          </div>
-                                                      ))
-                                                    : '-'}
-                                            </td>
-                                        </tr>
-                                    )}
-
-                                    {/* Always show Date closed */}
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Date closed</td>
-                                        <td className="govuk-table__cell">{dateClosed ? formatDate(dateClosed) : '-'}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </>
-                );
+                return consultationType === 'PUBLIC' ? renderPublicClosed() : renderStandardClosed();
 
             case ConsultationStatus.WITHDRAWN:
-                return (
-                    <>
-                        <div className="govuk-summary-card__title-wrapper"></div>
-                        <div className="govuk-summary-card__content">
-                            <table className="govuk-table govuk-!-margin-bottom-0">
-                                <tbody className="govuk-table__body">
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
-                                        <td className="govuk-table__cell">
-                                            <span className="govuk-tag  govuk-tag--grey">Withdrawn</span>
-                                        </td>
-                                    </tr>
-                                    {dateRequestCreated && (
-                                        <tr className="govuk-table__row">
-                                            <td className="govuk-table__cell govuk-!-font-weight-bold">Withdrawal date</td>
-                                            <td className="govuk-table__cell">{formatDate(dateRequestCreated)}</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </>
-                );
+                return renderWithdrawn();
+
             default:
-                return (
-                    <>
-                        <div className="govuk-summary-card__title-wrapper">
-                            <h2 className="govuk-summary-card__title">{orgName}</h2>
-                            <ul className="govuk-summary-card__actions">
-                                {orgName && orgName.trim().toLowerCase() === 'natural england' && (
-                                    <li className="govuk-summary-card__action">
-                                        <Link to={notRequiredPageUrl} className="govuk-link">
-                                            Not required
-                                        </Link>
-                                    </li>
-                                )}
-                                <li className="govuk-summary-card__action">
-                                    <Link to={requestUrlWithParams} className="govuk-link">
-                                        {statusDisplay === ConsultationStatus.DRAFT ? 'Continue consultation' : 'Start consultation'}
-                                    </Link>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="govuk-summary-card__content">
-                            <table className="govuk-table govuk-!-margin-bottom-0">
-                                <tbody className="govuk-table__body">
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Status</td>
-                                        <td className="govuk-table__cell">
-                                            <span className="govuk-tag govuk-tag--blue">{statusDisplay}</span>
-                                        </td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Date of consultation request</td>
-                                        <td className="govuk-table__cell">{dateRequestCreated ? formatDate(dateRequestCreated) : '-'}</td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                        <td className="govuk-table__cell govuk-!-font-weight-bold">Evidence of request</td>
-                                        <td className="govuk-table__cell">
-                                            {consultationRequestDocs && consultationRequestDocs.length > 0 ? (
-                                                consultationRequestDocs.map((doc: any, idx: number) => (
-                                                    <div key={idx}>
-                                                        <a
-                                                            href="#"
-                                                            className="govuk-link"
-                                                            onClick={async (e) => {
-                                                                e.preventDefault();
-                                                                const key = doc.key || doc.url;
-                                                                try {
-                                                                    await downloadS3File(key);
-                                                                } catch (error) {
-                                                                    logger.error('Failed to download file:', error);
-                                                                }
-                                                            }}
-                                                        >
-                                                            {doc.filename || doc.name}
-                                                        </a>
-                                                    </div>
-                                                ))
-                                            ) : evidenceUrl ? (
-                                                <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">
-                                                    {evidenceLabel || evidenceUrl}
-                                                </a>
-                                            ) : (
-                                                '-'
-                                            )}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </>
-                );
+                return renderDefault();
         }
     }
 

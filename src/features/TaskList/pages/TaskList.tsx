@@ -47,7 +47,6 @@ const TaskList: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item govuk-breadcrumbs__list-item--current" aria-current="true">Task list</li>
         </ol>
       </nav>
-      <SensitiveAreaBanner status={sensitiveAreaStatus} />
       {application?.status?.toLowerCase() === 'submitted' && (
         <div className="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
           <div className="govuk-notification-banner__header">
@@ -66,6 +65,7 @@ const TaskList: React.FC = () => {
       )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
+          <SensitiveAreaBanner status={sensitiveAreaStatus} />
           {!application ? (
             <>
               <h1 className="govuk-heading-l">Loading application...</h1>
