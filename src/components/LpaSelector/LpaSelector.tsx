@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLpas } from "../../hooks/useLpas";
+import log from "../../logger";
 
 export interface Lpa {
   lpa_code: string;
@@ -11,7 +12,6 @@ interface LpaSelectorProps {
   selectedLpa?: Lpa | null;
   selectedLpaCodes?: string[];
   onRemove?: (lpaCode: string) => void;
-  showRemoveButton?: boolean;
   showCheckbox?: boolean;
 }
 
@@ -20,7 +20,6 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
   selectedLpa,
   selectedLpaCodes = [],
   onRemove,
-  showRemoveButton = false,
   showCheckbox = true,
 }) => {
   const { lpas, loading, error } = useLpas();
@@ -36,6 +35,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
   useEffect(() => {
     if (selectedLpa) {
       // Single LPA mode (for consultation details page)
+      log.debug('[LpaSelector] Initializing with single LPA', { lpaCode: selectedLpa.lpa_code, lpaName: selectedLpa.lpa_name });
       setSelectedLpas([
         { code: selectedLpa.lpa_code, name: selectedLpa.lpa_name },
       ]);
@@ -48,6 +48,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
         })
         .filter((lpa): lpa is { code: string; name: string } => lpa !== null);
 
+      log.debug('[LpaSelector] Initializing with multiple LPAs', { count: initialLpas.length });
       setSelectedLpas(initialLpas);
     }
   }, [lpas, selectedLpaCodes, selectedLpa]);
@@ -67,6 +68,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
   }, [searchTerm, lpas]);
 
   const handleRemove = (code: string) => {
+    log.debug('[LpaSelector] Removing LPA', { lpaCode: code });
     setSelectedLpas((prev) => prev.filter((lpa) => lpa.code !== code));
     // Call parent onRemove if provided
     if (onRemove) {
@@ -76,6 +78,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
 
   const handleAdd = (code: string, name: string) => {
     if (!selectedLpas.some((s) => s.code === code)) {
+      log.debug('[LpaSelector] Adding LPA', { lpaCode: code, lpaName: name });
       const newLpa = { code, name };
       setSelectedLpas((prev) => [...prev, newLpa]);
       if (onLpaSelect) {
@@ -84,14 +87,18 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
       }
       setSearchTerm("");
       setShowDropdown(false);
+    } else {
+      log.debug('[LpaSelector] LPA already selected, skipping', { lpaCode: code });
     }
   };
 
   if (loading) {
+    log.debug('[LpaSelector] Loading LPAs...');
     return <p className="govuk-body">Loading local planning authorities...</p>;
   }
 
   if (error) {
+    log.error('[LpaSelector] Error loading LPAs:', error);
     return (
       <div className="govuk-error-message">
         <span className="govuk-visually-hidden">Error:</span> {error}
@@ -106,7 +113,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
         <>
 
           {/* Checkbox to toggle LPA selector */}
-          <div className="govuk-checkboxes" data-module="govuk-checkboxes">
+          <div className="govuk-checkboxes govuk-!-margin-bottom-2" data-module="govuk-checkboxes">
             <div className="govuk-checkboxes__item">
               <input
                 className="govuk-checkboxes__input"
@@ -131,40 +138,31 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
         <h2 className="govuk-heading-m">Local planning authority</h2>
       )}
 
-      {/* Conditional content - shown when checkbox is checked OR when no checkbox */}
-      {hasLpaConsultee && (
-        <div
-          className={showCheckbox ? "govuk-checkboxes__conditional" : ""}
-          id={showCheckbox ? "hasLpaConsultee-hidden" : undefined}
-        >
-          {/* Show selected LPAs */}
-          {selectedLpas.length > 0 && (
-            <div className="govuk-!-margin-bottom-2">
-              {selectedLpas.map((lpa, index) => (
-                <div key={lpa.code}>
-                  <div className="govuk-grid-row">
-                    <div className="govuk-grid-column-two-thirds">
-                      <p className="govuk-body">{lpa.name}</p>
-                    </div>
-                    <div className="govuk-grid-column-one-third govuk-!-text-align-right">
-                      <a
-                        href="#"
-                        className="govuk-link"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleRemove(lpa.code);
-                        }}
-                      >
-                        Remove
-                      </a>
-                    </div>
-                  </div>
-                  {index < selectedLpas.length - 1 && <hr className="govuk-section-break govuk-section-break--visible govuk-section-break--m" />}
-                </div>
-              ))}
-            </div>
-          )}
-
+    { hasLpaConsultee&& (
+                                    <div className="govuk-checkboxes__conditional">
+                                        {selectedLpas.length > 0 && (
+                                            <div className="govuk-!-margin-bottom-4" style={{ width: '100%' }}>
+                                                {selectedLpas.map((entry) => (
+                                                    <div key={entry.code} className="govuk-!-padding-bottom-2 govuk-!-padding-top-2" style={{ borderBottom: '1px solid #b1b4b6', width: '100%' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '1rem' }}>
+                                                            <span className="govuk-body" style={{ margin: 0, flex: '1 1 auto', minWidth: 0, wordBreak: 'break-word' }}>{entry.name}</span>
+                                                            <a
+                                                                href="#"
+                                                                className="govuk-link"
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    handleRemove(entry.code);
+                                                                }}
+                                                                style={{ whiteSpace: 'nowrap' }}
+                                                            >
+                                                                Remove
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                               
           {/* Hidden input to store selected LPA codes */}
           <input
             type="hidden"
@@ -174,7 +172,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
           />
 
           {/* Search selector */}
-          <div className="govuk-form-group">
+          <div className="govuk-form-group govuk-!-margin-top-4">
             <label
               className="govuk-label"
               htmlFor="lpaConsulteeSelect"
@@ -183,50 +181,63 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
               Start typing an LPA's name
             </label>
 
-            <div>
-              <input
-                type="text"
-                id="lpaConsulteeSelect"
-                name="lpaConsulteeSelect"
-                className="govuk-input govuk-input--width-20"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder=""
-                autoComplete="off"
-              />
+            <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  id="lpaConsulteeSelect"
+                  name="lpaConsulteeSelect"
+                  className="govuk-input"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder=""
+                  autoComplete="off"
+                />
 
-              {/* Dropdown results */}
-              {showDropdown && filteredLpas.length > 0 && (
-                <ul className="govuk-list govuk-!-margin-top-50">
-                  {filteredLpas.map((lpa) => (
-                    <li key={lpa.lpa_code}>
-                      <a
-                        href="#"
-                        className="govuk-link"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleAdd(lpa.lpa_code, lpa.lpa_name);
-                        }}
-                      >
-                        {lpa.lpa_name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {showDropdown &&
-                filteredLpas.length === 0 &&
-                searchTerm.length > 0 && (
-                  <div className="govuk-body govuk-!-margin-top-2">
-                    No results found
-                  </div>
+                {/* Dropdown results */}
+                {showDropdown && filteredLpas.length > 0 && (
+                  <ul 
+                    className="govuk-list" 
+                    style={{
+                     
+                      backgroundColor: 'white',
+                      border: '1px solid',
+                     
+                    }}
+                  >
+                    {filteredLpas.map((lpa) => (
+                      <li key={lpa.lpa_code} style={{ borderBottom: '1px solid #b1b4b6' }}>
+                        <a
+                          href="#"
+                          className="govuk-link"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAdd(lpa.lpa_code, lpa.lpa_name);
+                          }}
+                          style={{
+                            display: 'block',
+                            padding: '0.75rem 1rem',
+                            textDecoration: 'none'
+                          }}
+                        >
+                          {lpa.lpa_name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 )}
 
-              <span
-                id="selector-lpaConsulteeSelect-aria"
-                className="govuk-visually-hidden"
-              ></span>
+                {showDropdown &&
+                  filteredLpas.length === 0 &&
+                  searchTerm.length > 0 && (
+                    <div className="govuk-body govuk-!-margin-top-2">
+                      No results found
+                    </div>
+                  )}
+
+                <span
+                  id="selector-lpaConsulteeSelect-aria"
+                  className="govuk-visually-hidden"
+                ></span>
             </div>
           </div>
         </div>

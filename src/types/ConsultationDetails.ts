@@ -16,6 +16,7 @@ export interface ConsultationDetails {
   allDocumentsUploaded?: boolean;
   sentBy?: string | null;
   sentAt?: string | null;
+  secondDate?: string | null;
   closedBy?: string | null;
   closedAt?: string | null;
   createdAt?: string;

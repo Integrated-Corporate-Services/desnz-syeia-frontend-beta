@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { getSensitiveAreaReviewSummary } from '../../../services/sensitiveAreaService';
+import { getSensitiveAreaReviewSummary, saveSensitiveReview } from '../../../services/sensitiveAreaService';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -110,17 +110,28 @@ const AddOtherAreasQuestionPage: React.FC = () => {
 
     if (!validateForm()) return;
 
-    // Persist selection to localStorage (ensure saved before navigation)
     saveOption(effectiveApplicationId, selectedOption);
 
-    // Navigate based on user's selection
-    if (selectedOption === 'yes') {
-      // Navigate to AddOtherAreasPage to allow manual entry
-      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-areas`);
-    } else {
-      // Navigate to Review Poles Page (next step in workflow)
-      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/poles`);
-    }
+    const payload = {
+      application_id: effectiveApplicationId,
+      add_other_areas_choice: selectedOption
+    };
+
+    (async () => {
+      try {
+        await saveSensitiveReview(payload);
+        saveOption(effectiveApplicationId, null);
+      } catch (err) {
+        // If save fails, keep local stash so user choice isn't lost; optionally surface error
+        // For now we silently fallback to local stash
+      } finally {
+        if (selectedOption === 'yes') {
+          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-areas`);
+        } else {
+          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/poles`);
+        }
+      }
+    })();
   };
 
   /**
