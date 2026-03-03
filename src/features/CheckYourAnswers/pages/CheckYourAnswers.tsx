@@ -1638,7 +1638,7 @@ const ApplicationSubmit: React.FC = () => {
                                         className="govuk-link"
                                         onClick={async (e) => {
                                           e.preventDefault();
-                                          const key = doc.key || doc.url;
+                                          const key = doc.url;
                                           try {
                                             await downloadS3File(key);
                                           } catch (error) {
@@ -1699,7 +1699,7 @@ const ApplicationSubmit: React.FC = () => {
                                             className="govuk-link"
                                             onClick={async (e) => {
                                               e.preventDefault();
-                                              const key = doc.key || doc.url;
+                                              const key = doc.url;
                                               try {
                                                 await downloadS3File(key);
                                               } catch (error) {
@@ -1745,7 +1745,7 @@ const ApplicationSubmit: React.FC = () => {
                                             className="govuk-link"
                                             onClick={async (e) => {
                                               e.preventDefault();
-                                              const key = doc.key || doc.url;
+                                              const key = doc.url;
                                               try {
                                                 await downloadS3File(key);
                                               } catch (error) {
