@@ -165,53 +165,80 @@ export function applyProgressToSections(sections: TaskListSection[], progress: {
 }
 
 // when sensitive area checks are in progress
-export function applySensitiveAreaCheckLogic(sections: TaskListSection[], inProgress?: boolean): TaskListSection[] {
-    return sections.map((section) => {
-        if (section.title === 'Location') {
-            const sensitiveCheckItem = section.items.find((item) => item.name === 'Sensitive area checks');
-            const checksCompleted = sensitiveCheckItem?.status === 'Completed';
+export function applySensitiveAreaCheckLogic(
+  sections: TaskListSection[],
+  inProgress?: boolean
+): TaskListSection[] {
+  return sections.map((section) => {
+    if (section.title === "Location") {
+      const sensitiveCheckItem = section.items.find(item => item.name === "Sensitive area checks");
+      const checksCompleted = sensitiveCheckItem?.status === "Completed";
+      const routeItem = section.items.find(item => item.name === "Route");
+      const routeCompleted = routeItem?.status === "Completed";
 
+      return {
+        ...section,
+        items: section.items.map((item) => {
+          if (item.name === "Route" && inProgress) {
+            return { ...item, disabled: true, plainTextStatus: true };
+          }
+
+          if (item.name === "Sensitive area checks" && !routeCompleted) {
             return {
-                ...section,
-                items: section.items.map((item) => {
-                    if (item.name === 'Route' && inProgress) {
-                        return { ...item, disabled: true, plainTextStatus: true };
-                    }
-                    if (item.name === 'Sensitive area checks' && inProgress) {
-                        return { ...item, status: 'In progress' };
-                    }
-                    if (item.name === 'Sensitive area review') {
-                        if (inProgress) {
-                            return {
-                                ...item,
-                                disabled: true,
-                                plainTextStatus: true,
-                                link: '#',
-                            };
-                        }
-                        if (!checksCompleted) {
-                            return {
-                                ...item,
-                                status: 'Cannot start yet',
-                                disabled: true,
-                                plainTextStatus: true,
-                                link: '#',
-                            };
-                        }
-                        return item;
-                    }
-                    return item;
-                }),
+              ...item,
+              status: "Cannot start yet",
+              disabled: true,
+              plainTextStatus: true,
+              link: "#",
             };
-        }
-        if (section.title === 'Consultations' && inProgress) {
-            return {
-                ...section,
-                items: section.items.map((item) => {
-                    return { ...item, disabled: true, plainTextStatus: true };
-                }),
-            };
-        }
-        return section;
-    });
+          }
+
+          if (item.name === "Sensitive area checks" && inProgress) {
+            return { ...item, status: "In progress" };
+          }
+
+          if (
+            item.name === "Sensitive area checks" &&
+            !inProgress &&
+            routeCompleted &&
+            item.status !== "Completed" &&
+            item.status !== "In progress"
+          ) {
+            return { ...item, status: "Not started" };
+          }
+
+          if (item.name === "Sensitive area review") {
+            if (inProgress) {
+              return {
+                ...item,
+                disabled: true,
+                plainTextStatus: true,
+                link: "#",
+              };
+            }
+            if (!checksCompleted) {
+              return {
+                ...item,
+                status: "Cannot start yet",
+                disabled: true,
+                plainTextStatus: true,
+                link: "#",
+              };
+            }
+            return item;
+          }
+          return item;
+        }),
+      };
+    }
+    if (section.title === "Consultations" && inProgress) {
+      return {
+        ...section,
+        items: section.items.map((item) => {
+           return { ...item, disabled: true, plainTextStatus: true };
+        }),
+      };
+    }
+    return section;
+  });
 }
