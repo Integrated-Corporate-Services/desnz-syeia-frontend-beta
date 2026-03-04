@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { getSensitiveAreaReviewSummary, saveSensitiveReview } from '../../../services/sensitiveAreaService';
+import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
+import { getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -61,14 +62,19 @@ const AddOtherAreasQuestionPage: React.FC = () => {
       return; // prefer localStorage-only persistence
     }
 
+    // Fetch from server - check the saved review record
     let mounted = true;
     (async () => {
       try {
-        const data = await getSensitiveAreaReviewSummary(effectiveApplicationId);
-        if (!mounted || !data) return;
-        const customAdded = data.checks?.manual?.customAdded || [];
-        if (customAdded.length > 0) {
-          setSelectedOption('yes');
+        const reviews = await getSensitiveAreaReview(effectiveApplicationId);
+        if (!mounted || !reviews || reviews.length === 0) return;
+        
+        // Get the most recent review
+        const latestReview = reviews[0];
+        
+        // Pre-populate from saved add_other_areas_choice
+        if (latestReview.add_other_areas_choice === 'yes' || latestReview.add_other_areas_choice === 'no') {
+          setSelectedOption(latestReview.add_other_areas_choice);
         }
       } catch (err) {
         // ignore — non-fatal for pre-fill
