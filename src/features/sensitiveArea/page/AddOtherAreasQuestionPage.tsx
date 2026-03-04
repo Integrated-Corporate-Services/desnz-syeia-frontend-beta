@@ -25,6 +25,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   // Form State
   const [selectedOption, setSelectedOption] = useState<'yes' | 'no' | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [existingReview, setExistingReview] = useState<any>(null); // Store fetched review
 
   // ===========================
   // VALIDATION LOGIC
@@ -59,20 +60,19 @@ const AddOtherAreasQuestionPage: React.FC = () => {
     const saved = readSavedOption(effectiveApplicationId);
     if (saved) {
       setSelectedOption(saved);
-      return; // prefer localStorage-only persistence
+      return;
     }
 
-    // Fetch from server - check the saved review record
+
     let mounted = true;
     (async () => {
       try {
         const reviews = await getSensitiveAreaReview(effectiveApplicationId);
         if (!mounted || !reviews || reviews.length === 0) return;
         
-        // Get the most recent review
         const latestReview = reviews[0];
+        setExistingReview(latestReview);
         
-        // Pre-populate from saved add_other_areas_choice
         if (latestReview.add_other_areas_choice === 'yes' || latestReview.add_other_areas_choice === 'no') {
           setSelectedOption(latestReview.add_other_areas_choice);
         }
@@ -117,11 +117,23 @@ const AddOtherAreasQuestionPage: React.FC = () => {
     if (!validateForm()) return;
 
     saveOption(effectiveApplicationId, selectedOption);
-
-    const payload = {
+    // Include id if updating existing review, otherwise create new
+    const payload: any = {
       application_id: effectiveApplicationId,
       add_other_areas_choice: selectedOption
     };
+    
+    if (existingReview?.id) {
+      payload.id = existingReview.id;
+      payload.route_id = existingReview.route_id;
+      payload.settings_id = existingReview.settings_id;
+      payload.asset_presence_option_id = existingReview.asset_presence_option_id;
+      payload.other_sensitive_areas_note = existingReview.other_sensitive_areas_note;
+      payload.reviewed_by = existingReview.reviewed_by;
+      payload.reviewed_at = existingReview.reviewed_at;
+      payload.uploaded_files = existingReview.uploaded_files || [];
+      payload.application_documents = existingReview.application_documents || [];
+    }
 
     (async () => {
       try {
