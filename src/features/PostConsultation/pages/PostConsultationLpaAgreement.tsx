@@ -66,7 +66,7 @@ const PostConsultationLpaAgreement: React.FC = () => {
           </li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(error || lpaModificationsError) && (

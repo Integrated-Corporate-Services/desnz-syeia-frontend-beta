@@ -56,7 +56,7 @@ const PostConsultationConsultees: React.FC = () => {
             <main className="govuk-main-wrapper" id="main-content">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
-                        <h1 className="govuk-heading-xl">{POST_CONSULTATION_CONSTANTS.PAGE_TITLE}</h1>
+                        <h1 className="govuk-heading-l">{POST_CONSULTATION_CONSTANTS.PAGE_TITLE}</h1>
 
                         {(error || consulteesRecommendationsError || consulteesRecommendationsReasonError) && (
                             <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">

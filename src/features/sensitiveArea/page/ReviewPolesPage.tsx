@@ -70,6 +70,7 @@ const ReviewPolesPage: React.FC = () => {
       settings_id: review?.settings_id || '',
       asset_presence_option_id: poleOption ?? undefined,
       other_sensitive_areas_note: review?.other_sensitive_areas_note || '',
+      add_other_areas_choice: review?.add_other_areas_choice || null,
       reviewed_by: review?.reviewed_by || '',
       reviewed_at: review?.reviewed_at || '',
       created_at: review?.created_at || '',
