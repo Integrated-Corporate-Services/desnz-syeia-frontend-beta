@@ -8,11 +8,11 @@ export interface ConsultationOutcomeFormData {
 }
 
 export interface ConsultationOutcomeApiData {
-    lpa_conditions_imposed?: boolean;
-    lpa_conditions_accepted?: boolean;
+    lpa_conditions_imposed?: boolean | null;
+    lpa_conditions_accepted?: boolean | null;
     lpa_conditions_not_accepted_reason?: string | null;
-    consultees_recommendations_made?: boolean;
-    consultees_recommendations_accepted?: boolean;
+    consultees_recommendations_made?: boolean | null;
+    consultees_recommendations_accepted?: boolean | null;
     consultees_recommendations_not_accepted_reason?: string | null;
 }
 

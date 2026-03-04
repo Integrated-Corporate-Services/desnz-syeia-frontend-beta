@@ -25,8 +25,8 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   // Form State
   const [selectedOption, setSelectedOption] = useState<'yes' | 'no' | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [existingReview, setExistingReview] = useState<any>(null); // Store fetched review
-
+  const [existingReview, setExistingReview] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   // ===========================
   // VALIDATION LOGIC
   // ===========================
@@ -55,11 +55,15 @@ const AddOtherAreasQuestionPage: React.FC = () => {
 
   // Pre-populate from localStorage first, fallback to server pre-fill
   useEffect(() => {
-    if (!effectiveApplicationId) return;
+    if (!effectiveApplicationId) {
+      setLoading(false);
+      return;
+    }
 
     const saved = readSavedOption(effectiveApplicationId);
     if (saved) {
       setSelectedOption(saved);
+      setLoading(false);
       return;
     }
 
@@ -68,16 +72,20 @@ const AddOtherAreasQuestionPage: React.FC = () => {
     (async () => {
       try {
         const reviews = await getSensitiveAreaReview(effectiveApplicationId);
-        if (!mounted || !reviews || reviews.length === 0) return;
+        if (!mounted) return;
         
-        const latestReview = reviews[0];
-        setExistingReview(latestReview);
-        
-        if (latestReview.add_other_areas_choice === 'yes' || latestReview.add_other_areas_choice === 'no') {
-          setSelectedOption(latestReview.add_other_areas_choice);
+        if (reviews && reviews.length > 0) {
+          const latestReview = reviews[0];
+          setExistingReview(latestReview);
+          
+          if (latestReview.add_other_areas_choice === 'yes' || latestReview.add_other_areas_choice === 'no') {
+            setSelectedOption(latestReview.add_other_areas_choice);
+          }
         }
       } catch (err) {
         // ignore — non-fatal for pre-fill
+      } finally {
+        if (mounted) setLoading(false);
       }
     })();
     return () => { mounted = false; };
@@ -165,6 +173,22 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   // ===========================
   // RENDER
   // ===========================
+  
+  // Show loading state while fetching data
+  if (loading) {
+    return (
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              <p className="govuk-body">Loading...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="govuk-width-container">
       {/* Back Link - Always visible */}
