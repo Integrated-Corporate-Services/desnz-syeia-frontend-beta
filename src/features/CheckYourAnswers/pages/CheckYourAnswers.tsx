@@ -111,6 +111,8 @@ const ApplicationSubmit: React.FC = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [postConsultationOutcome, setPostConsultationOutcome] = useState<PostConsultationOutcome | null>(null);
 
+  const [allSectionsCompleted, setAllSectionsCompleted] = useState(false);
+
   const [permissions, setPermissions] = useState<{
     canView: boolean;
     canEdit: boolean;
@@ -172,6 +174,33 @@ const ApplicationSubmit: React.FC = () => {
           "Network operator section:",
           data.sections?.networkOperator,
         );
+
+        // List of required sections
+      const requiredSections = [
+        { key: "networkOperator", path: ["sections", "networkOperator", "details"] },
+        { key: "projectDetails", path: ["sections", "projectDetails", "overview"] },
+        { key: "assetInformation", path: ["sections", "projectDetails", "assetInformation"] },
+        { key: "location", path: ["sections", "location", "route"] },
+        { key: "worksOverview", path: ["sections", "worksOverview"] },
+        { key: "sensitiveAreaChecks", path: ["sections", "sensitiveAreaChecks"] },
+        { key: "sensitiveAreaReview", path: ["sections", "sensitiveAreaReview"] },
+        { key: "parishes", path: ["sections", "parishes"] },
+        { key: "supportingQuestions", path: ["sections", "supportingInformation", "supportingQuestions"] },
+        { key: "eiaFees", path: ["sections", "supportingInformation", "eiaFees"] },
+        { key: "postConsultationOutcome", path: ["sections", "postConsultationOutcome"] },
+      ];
+        // Helper to get nested value by path
+      const getByPath = (obj: any, pathArr: string[]): any =>
+        pathArr.reduce((acc: any, key: string) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
+
+      // All sections are considered "started" if they exist and are not null/empty
+      const allStarted = requiredSections.every(section => {
+        const value = getByPath(data, section.path);
+        if (Array.isArray(value)) return value.length > 0;
+        return value !== undefined && value !== null && value !== "";
+      });
+      
+      setAllSectionsCompleted(allStarted);
 
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
@@ -1638,7 +1667,7 @@ const ApplicationSubmit: React.FC = () => {
                                         className="govuk-link"
                                         onClick={async (e) => {
                                           e.preventDefault();
-                                          const key = doc.key || doc.url;
+                                          const key = doc.url;
                                           try {
                                             await downloadS3File(key);
                                           } catch (error) {
@@ -1699,7 +1728,7 @@ const ApplicationSubmit: React.FC = () => {
                                             className="govuk-link"
                                             onClick={async (e) => {
                                               e.preventDefault();
-                                              const key = doc.key || doc.url;
+                                              const key = doc.url;
                                               try {
                                                 await downloadS3File(key);
                                               } catch (error) {
@@ -1745,7 +1774,7 @@ const ApplicationSubmit: React.FC = () => {
                                             className="govuk-link"
                                             onClick={async (e) => {
                                               e.preventDefault();
-                                              const key = doc.key || doc.url;
+                                              const key = doc.url;
                                               try {
                                                 await downloadS3File(key);
                                               } catch (error) {
@@ -1833,6 +1862,7 @@ const ApplicationSubmit: React.FC = () => {
                       className="govuk-button"
                       data-module="govuk-button"
                       data-govuk-button-init
+                      disabled={!allSectionsCompleted || !declarationConfirmed}
                     >
                       Pay and submit application
                     </button>

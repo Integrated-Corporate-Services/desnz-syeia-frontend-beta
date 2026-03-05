@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { getSensitiveAreaReviewSummary, saveSensitiveReview } from '../../../services/sensitiveAreaService';
+import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
+import { getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -24,7 +25,8 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   // Form State
   const [selectedOption, setSelectedOption] = useState<'yes' | 'no' | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-
+  const [existingReview, setExistingReview] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   // ===========================
   // VALIDATION LOGIC
   // ===========================
@@ -53,25 +55,37 @@ const AddOtherAreasQuestionPage: React.FC = () => {
 
   // Pre-populate from localStorage first, fallback to server pre-fill
   useEffect(() => {
-    if (!effectiveApplicationId) return;
+    if (!effectiveApplicationId) {
+      setLoading(false);
+      return;
+    }
 
     const saved = readSavedOption(effectiveApplicationId);
     if (saved) {
       setSelectedOption(saved);
-      return; // prefer localStorage-only persistence
+      setLoading(false);
+      return;
     }
+
 
     let mounted = true;
     (async () => {
       try {
-        const data = await getSensitiveAreaReviewSummary(effectiveApplicationId);
-        if (!mounted || !data) return;
-        const customAdded = data.checks?.manual?.customAdded || [];
-        if (customAdded.length > 0) {
-          setSelectedOption('yes');
+        const reviews = await getSensitiveAreaReview(effectiveApplicationId);
+        if (!mounted) return;
+        
+        if (reviews && reviews.length > 0) {
+          const latestReview = reviews[0];
+          setExistingReview(latestReview);
+          
+          if (latestReview.add_other_areas_choice === 'yes' || latestReview.add_other_areas_choice === 'no') {
+            setSelectedOption(latestReview.add_other_areas_choice);
+          }
         }
       } catch (err) {
         // ignore — non-fatal for pre-fill
+      } finally {
+        if (mounted) setLoading(false);
       }
     })();
     return () => { mounted = false; };
@@ -111,11 +125,23 @@ const AddOtherAreasQuestionPage: React.FC = () => {
     if (!validateForm()) return;
 
     saveOption(effectiveApplicationId, selectedOption);
-
-    const payload = {
+    // Include id if updating existing review, otherwise create new
+    const payload: any = {
       application_id: effectiveApplicationId,
       add_other_areas_choice: selectedOption
     };
+    
+    if (existingReview?.id) {
+      payload.id = existingReview.id;
+      payload.route_id = existingReview.route_id;
+      payload.settings_id = existingReview.settings_id;
+      payload.asset_presence_option_id = existingReview.asset_presence_option_id;
+      payload.other_sensitive_areas_note = existingReview.other_sensitive_areas_note;
+      payload.reviewed_by = existingReview.reviewed_by;
+      payload.reviewed_at = existingReview.reviewed_at;
+      payload.uploaded_files = existingReview.uploaded_files || [];
+      payload.application_documents = existingReview.application_documents || [];
+    }
 
     (async () => {
       try {
@@ -147,6 +173,22 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   // ===========================
   // RENDER
   // ===========================
+  
+  // Show loading state while fetching data
+  if (loading) {
+    return (
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              <p className="govuk-body">Loading...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="govuk-width-container">
       {/* Back Link - Always visible */}
