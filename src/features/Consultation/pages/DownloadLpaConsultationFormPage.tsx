@@ -104,18 +104,18 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleSaveForLater = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    setLoading(true);
-    try {
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-    } catch (error) {
-      log.error('Error saving for later:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   setLoading(true);
+  //   try {
+  //     navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+  //   } catch (error) {
+  //     log.error('Error saving for later:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="govuk-width-container">
@@ -279,14 +279,14 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
                 >
                   {loading ? 'Saving...' : 'Save and continue'}
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                   disabled={loading}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </div>

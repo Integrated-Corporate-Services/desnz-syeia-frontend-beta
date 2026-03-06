@@ -169,30 +169,30 @@ const ProvideEvidencePage: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = async (e: React.FormEvent) => {
-    e.preventDefault();
+//   const handleSaveForLater = async (e: React.FormEvent) => {
+//     e.preventDefault();
 
-    setLoading(true);
-    try {
-      // Save partial data if available
-      if (dateDay && dateMonth && dateYear) {
-        const consultationDate = `${dateYear}-${dateMonth.padStart(2, '0')}-${dateDay.padStart(2, '0')}`;
-        await saveConsultationRequest({
-          applicationId: applicationId!,
-          consultationId: consultationId!,
-          sentDate: consultationDate,
-          uploadedFiles: uploadedFileObjs,
-          applicationDocuments,
-        });
-      }
+//     setLoading(true);
+//     try {
+//       // Save partial data if available
+//       if (dateDay && dateMonth && dateYear) {
+//         const consultationDate = `${dateYear}-${dateMonth.padStart(2, '0')}-${dateDay.padStart(2, '0')}`;
+//         await saveConsultationRequest({
+//           applicationId: applicationId!,
+//           consultationId: consultationId!,
+//           sentDate: consultationDate,
+//           uploadedFiles: uploadedFileObjs,
+//           applicationDocuments,
+//         });
+//       }
       
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-    } catch (error) {
-      log.error('Error saving for later:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+//       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+//     } catch (error) {
+//       log.error('Error saving for later:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
 //   const handleDeleteFile = async (fileId: string) => {
 //     // Remove from state
@@ -458,14 +458,14 @@ const ProvideEvidencePage: React.FC = () => {
                 >
                   {loading ? 'Saving...' : 'Save and continue'}
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                   disabled={loading}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </div>
