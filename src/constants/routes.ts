@@ -121,6 +121,7 @@ import ProposedDevelopmentPage from '../features/Consultation/pages/ProposedDeve
 import EvidenceResponseNotReceivedPage from '../features/Consultation/pages/EvidenceResponseNotReceivedPage';
 import RemoveConsultation from '../features/Consultation/pages/RemoveConsultation';
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
+import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
 
 export const ROUTE_CONFIG = [
     {
@@ -140,6 +141,13 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/proposed-development`,
         component: ProposedDevelopmentPage,
+        auth: true,
+        layout: true,
+    },
+
+    {
+        path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/download-form`,
+        component: DownloadLpaConsultationFormPage,
         auth: true,
         layout: true,
     },
