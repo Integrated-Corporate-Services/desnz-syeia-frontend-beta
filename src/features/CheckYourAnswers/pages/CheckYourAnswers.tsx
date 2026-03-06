@@ -1340,7 +1340,7 @@ const ApplicationSubmit: React.FC = () => {
                     <li className="govuk-summary-card__action">
                       <Link
                         className="govuk-link"
-                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions`}
+                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions/lpa-agreement`}
                       >
                         Change
                         <span className="govuk-visually-hidden">
@@ -1367,29 +1367,81 @@ const ApplicationSubmit: React.FC = () => {
                     </dd>
                   </div>
                   {postConsultationOutcome?.lpa_conditions_imposed === true && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        Do you accept all the conditions imposed by the LPA?
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_accepted === true
-                          ? "Yes"
-                          : postConsultationOutcome?.lpa_conditions_accepted === false
-                            ? "No"
-                            : "-"}
-                      </dd>
-                    </div>
-                  )}
-                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        Explain why you do not accept all the LPA's conditions
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
-                      </dd>
-                    </div>
-                  )}
+  <div className="govuk-summary-list__row">
+    <dt className="govuk-summary-list__key">
+      Do you accept all the conditions imposed by the LPA?
+    </dt>
+    <dd className="govuk-summary-list__value">
+      {postConsultationOutcome?.lpa_conditions_accepted === true
+        ? "Yes"
+        : postConsultationOutcome?.lpa_conditions_accepted === false
+          ? "No"
+          : "-"}
+    </dd>
+  </div>
+)}
+
+{postConsultationOutcome?.lpa_conditions_accepted === false && (
+  <div className="govuk-summary-list__row">
+    <dt className="govuk-summary-list__key">
+      Explain why you do not accept all the LPA's conditions
+    </dt>
+    <dd className="govuk-summary-list__value">
+      {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
+    </dd>
+  </div>
+)}
+
+{/* ADD: lpa_conditions_accepted !== true */}
+{postConsultationOutcome?.lpa_conditions_imposed !== false && 
+ postConsultationOutcome?.lpa_conditions_accepted !== true &&
+ postConsultationOutcome?.consultees_recommendations_made !== undefined &&
+postConsultationOutcome?.consultees_recommendations_made !== null && (
+  <div className="govuk-summary-list__row">
+    <dt className="govuk-summary-list__key">
+      Were any recommendations made or conditions requested by the consultees? (Not including the LPA)
+    </dt>
+    <dd className="govuk-summary-list__value">
+      {postConsultationOutcome?.consultees_recommendations_made === true
+        ? "Yes"
+        : postConsultationOutcome?.consultees_recommendations_made === false
+          ? "No"
+          : "-"}
+    </dd>
+  </div>
+)}
+
+{/* ADD: lpa_conditions_accepted !== true */}
+{postConsultationOutcome?.lpa_conditions_imposed !== false && 
+ postConsultationOutcome?.lpa_conditions_accepted !== true &&
+ postConsultationOutcome?.consultees_recommendations_made === true && (
+  <div className="govuk-summary-list__row">
+    <dt className="govuk-summary-list__key">
+      Do you accept the recommendations made by the consultees?
+    </dt>
+    <dd className="govuk-summary-list__value">
+      {postConsultationOutcome?.consultees_recommendations_accepted === true
+        ? "Yes"
+        : postConsultationOutcome?.consultees_recommendations_accepted === false
+          ? "No"
+          : "-"}
+    </dd>
+  </div>
+)}
+
+{/* ADD: lpa_conditions_accepted !== true */}
+{postConsultationOutcome?.lpa_conditions_imposed !== false && 
+ postConsultationOutcome?.lpa_conditions_accepted !== true &&
+ postConsultationOutcome?.consultees_recommendations_accepted === false && (
+  <div className="govuk-summary-list__row">
+    <dt className="govuk-summary-list__key">
+      Explain why you do not accept all the consultees' recommendations
+    </dt>
+    <dd className="govuk-summary-list__value">
+      {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
+    </dd>
+  </div>
+)}
                 </dl>
               </div>
             </div>
