@@ -1738,20 +1738,25 @@ const ApplicationSubmit: React.FC = () => {
                           </div>
                           {responseReceived ? (
                             <>
-                              <div className="govuk-summary-list__row">
-                                <dt className="govuk-summary-list__key">Consultee contact name</dt>
-                                <dd className="govuk-summary-list__value">
-                                  {consultation.consulteeContactName || "-"}
-                                </dd>
-                              </div>
-                              <div className="govuk-summary-list__row">
-                                <dt className="govuk-summary-list__key">Consultee contact email</dt>
-                                <dd className="govuk-summary-list__value">
-                                  {consultation.consulteeEmailAddress ? (
-                                    <a href={`mailto:${consultation.consulteeEmailAddress}`}>{consultation.consulteeEmailAddress}</a>
-                                  ) : "-"}
-                                </dd>
-                              </div>
+                              {/* Only show consultee contact fields for non-PUBLIC consultations */}
+                              {consultation.consultationType !== 'PUBLIC' && (
+                                <>
+                                  <div className="govuk-summary-list__row">
+                                    <dt className="govuk-summary-list__key">Consultee contact name</dt>
+                                    <dd className="govuk-summary-list__value">
+                                      {consultation.consulteeContactName || "-"}
+                                    </dd>
+                                  </div>
+                                  <div className="govuk-summary-list__row">
+                                    <dt className="govuk-summary-list__key">Consultee contact email</dt>
+                                    <dd className="govuk-summary-list__value">
+                                      {consultation.consulteeEmailAddress ? (
+                                        <a href={`mailto:${consultation.consulteeEmailAddress}`}>{consultation.consulteeEmailAddress}</a>
+                                      ) : "-"}
+                                    </dd>
+                                  </div>
+                                </>
+                              )}
                               <div className="govuk-summary-list__row">
                                 <dt className="govuk-summary-list__key">Objection raised</dt>
                                 <dd className="govuk-summary-list__value">
