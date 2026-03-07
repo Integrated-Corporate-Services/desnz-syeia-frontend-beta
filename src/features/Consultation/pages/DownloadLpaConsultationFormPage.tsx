@@ -3,9 +3,23 @@ import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom'
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getConsultationPack } from '../../../services/consultationPackService';
+import { getFormMetadata, downloadConsultationForm } from '../../../services/consultationFormMetadataService';
 import { createLogger } from '../../../utils/logger';
 
 const log = createLogger('DownloadLpaConsultationFormPage');
+
+/**
+ * Format file size in bytes to human-readable format
+ * Industry best practice: Show file size with appropriate unit (KB, MB)
+ * @param bytes - File size in bytes
+ * @returns Formatted string (e.g., "83KB", "1.2MB")
+ */
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0KB';
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+};
 
 const DownloadLpaConsultationFormPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +33,12 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [documentMetadata, setDocumentMetadata] = useState<{
+    fileSize: number;
+    filename: string;
+    exists: boolean;
+  } | null>(null);
+  const [loadingMetadata, setLoadingMetadata] = useState(true);
 
   useEffect(() => {
     const fetchConsultationDetails = async () => {
@@ -42,35 +62,75 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
     }
   }, [applicationId, consultationId, consultationName]);
 
+  // Fetch form metadata (now includes document metadata)
+  // Only fetch when component is actually mounted and visible
+  useEffect(() => {
+    const fetchDocumentMetadata = async () => {
+      try {
+        if (!consultationId || !applicationId) {
+          log.debug('Skipping metadata fetch: missing IDs');
+          return;
+        }
+        
+        // Additional check: only fetch if we're on the download-form page
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes('/download-form')) {
+          log.debug('Skipping metadata fetch: not on download-form page');
+          return;
+        }
+        
+        setLoadingMetadata(true);
+        log.debug('Fetching form metadata (includes document metadata)...');
+        
+        // Use the merged form-metadata endpoint (includes document metadata)
+        const formData = await getFormMetadata(applicationId, consultationId);
+
+        if (formData?.document) {
+          setDocumentMetadata({
+            fileSize: formData.document.fileSize || 0,
+            filename: formData.document.filename || 'LPA_Consultation_Form.docx',
+            exists: formData.document.exists,
+          });
+          
+          log.debug('Document metadata fetched from form-metadata:', formData.document);
+        } else {
+          log.warn('No document metadata in form-metadata response');
+        }
+      } catch (error) {
+        log.error('Error fetching form metadata:', error);
+      } finally {
+        setLoadingMetadata(false);
+      }
+    };
+
+    if (applicationId && consultationId) {
+      fetchDocumentMetadata();
+    }
+  }, [applicationId, consultationId]);
+
   const handleDownloadForm = async () => {
     try {
-      // TODO: Implement actual document download
-      const response = await fetch(
-        `/backend/api/applications/${applicationId}/consultations/${consultationId}/download-form`,
-        {
-          method: 'GET',
-          credentials: 'include',
-        }
-      );
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `LPA_Consultation_Form_${lpaName.replace(/\s+/g, '_')}.docx`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } else {
-        log.error('Failed to download form');
-        // For now, show alert - in production, use proper error handling
-        alert('Download functionality will be implemented in the next phase.');
+      if (!applicationId || !consultationId) {
+        log.error('Missing applicationId or consultationId');
+        return;
       }
+
+      log.debug('Downloading consultation form...');
+      const blob = await downloadConsultationForm(applicationId, consultationId);
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `LPA_Consultation_Form_${lpaName.replace(/\s+/g, '_')}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      log.debug('Download completed successfully');
     } catch (error) {
       log.error('Error downloading form:', error);
-      alert('Download functionality will be implemented in the next phase.');
+      alert('Failed to download consultation form. Please try again.');
     }
   };
 
@@ -95,8 +155,8 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
 
     setLoading(true);
     try {
-      // Navigate to provide evidence page
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/provide-evidence?consultationName=${encodeURIComponent(lpaName)}`);
+      // Navigate to consultation details page (manage consultations)
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } catch (error) {
       log.error('Error saving:', error);
     } finally {
@@ -197,8 +257,11 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
                 type="button"
                 className="govuk-button govuk-button--secondary"
                 onClick={handleDownloadForm}
+                disabled={loadingMetadata}
               >
-                Download LPA consultation form (Word, 83KB)
+                {loadingMetadata
+                  ? 'Loading document...'
+                  : `Download LPA consultation form (Word, ${formatFileSize(documentMetadata?.fileSize || 0)})`}
               </button>
             </p>
 
