@@ -3,13 +3,53 @@
  */
 
 /**
- * Validate email format
+ * Validate email format using GDS-compliant validation
+ * Based on HTML5 email validation pattern with additional checks
  * @param email - Email address to validate
  * @returns true if valid email format
  */
 export const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  if (!email || email.trim() === '') {
+    return false;
+  }
+  
+  // Remove leading/trailing whitespace
+  const trimmedEmail = email.trim();
+  
+  // Basic format check: must contain @ and at least one dot after @
+  const basicEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!basicEmailRegex.test(trimmedEmail)) {
+    return false;
+  }
+  
+  // Additional checks for GDS compliance
+  const parts = trimmedEmail.split('@');
+  if (parts.length !== 2) {
+    return false;
+  }
+  
+  const [localPart, domain] = parts;
+  
+  // Local part validation (before @)
+  if (localPart.length === 0 || localPart.length > 64) {
+    return false;
+  }
+  
+  // Domain part validation (after @)
+  if (domain.length === 0 || domain.length > 255) {
+    return false;
+  }
+  
+  // Domain must contain at least one dot and valid characters
+  const domainParts = domain.split('.');
+  if (domainParts.length < 2 || domainParts.some(part => part.length === 0)) {
+    return false;
+  }
+  
+  // More comprehensive regex for final validation
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  
+  return emailRegex.test(trimmedEmail);
 };
 
 /**
