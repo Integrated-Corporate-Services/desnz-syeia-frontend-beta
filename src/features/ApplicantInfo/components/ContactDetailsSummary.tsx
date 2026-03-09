@@ -42,6 +42,19 @@ export function ContactDetailsSummary({
         <dt className="govuk-summary-list__key">{LABELS.PHONE}</dt>
         <dd className="govuk-summary-list__value">{contactDetails.phone}</dd>
       </div>
+      {contactDetails.additionalContacts?.length > 0 && (
+        <div className="govuk-summary-list__row">
+          <dt className="govuk-summary-list__key">{LABELS.ADDITIONAL_CONTACTS}</dt>
+          <dd className="govuk-summary-list__value">
+            {contactDetails.additionalContacts.map((email, index) => (
+              <div key={index}>
+                {email}
+                {index < contactDetails.additionalContacts.length - 1 && <br />}
+              </div>
+            ))}
+          </dd>
+        </div>
+      )}
     </dl>
   );
 }
