@@ -39,16 +39,10 @@ const SessionTimeoutModal: React.FC = () => {
     resetTimer();
   }, [resetTimer]);
 
-  // Memoize answer warning to prevent recalculation
+  // Always show the same warning message on all pages
   const answerWarning = useMemo(() => {
-    const path = location.pathname;
-    const hasFormData = path.includes('/questions/') || 
-                       path.includes('/application/') || 
-                       path.includes('/consultation/') ||
-                       path.includes('/registration/');
-    
-    return hasFormData ? "Any answers you have not submitted may be lost." : null;
-  }, [location.pathname]);
+    return "Any answers you have not submitted may be lost.";
+  }, []);
 
   // Memoize time display format
   const timeDisplay = useMemo(() => {
