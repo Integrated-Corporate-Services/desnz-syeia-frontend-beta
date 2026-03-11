@@ -60,7 +60,7 @@ const SessionTimeoutModal: React.FC = () => {
     logger.debug('SessionTimeout modal - showModal:', showModal, 'remaining:', remaining);
   }, [showModal, remaining]);
 
-  // Focus management and accessibility (AC9) - only when modal first shows
+  // Focus management and accessibility - only when modal first shows
   useEffect(() => {
     if (showModal && modalRef.current) {
       // Only focus and announce when modal first appears, not on every countdown update
@@ -91,7 +91,7 @@ const SessionTimeoutModal: React.FC = () => {
     }
   }, [showModal, remaining]);
 
-  // Keyboard navigation and focus trapping (AC9)
+  // Keyboard navigation and focus trapping
   useEffect(() => {
     if (!showModal) return;
 

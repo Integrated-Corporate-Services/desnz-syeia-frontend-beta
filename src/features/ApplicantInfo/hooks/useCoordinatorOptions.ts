@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import type { ApplicationParty } from "../../../types/application";
 import type { TeamCoordinator } from "../../../types/organisation";
+import { createLogger } from "../../../utils/logger";
+
+const logger = createLogger("useCoordinatorOptions");
 
 interface UseCoordinatorOptionsParams {
   coordinators: TeamCoordinator[];
@@ -10,7 +13,7 @@ interface UseCoordinatorOptionsParams {
 
 /**
  * Custom hook to map team coordinators to dropdown options
- * Memoized for performance
+ * Filters coordinators by organization ID and memoized for performance
  */
 export const useCoordinatorOptions = ({
   coordinators,
@@ -19,10 +22,31 @@ export const useCoordinatorOptions = ({
 }: UseCoordinatorOptionsParams): ApplicationParty[] => {
   return useMemo(() => {
     if (!organisationId || !coordinators.length) {
+      logger.debug("No organisation ID provided or no coordinators available", {
+        organisationId,
+        coordinatorsCount: coordinators.length,
+      });
       return [];
     }
 
-    return coordinators.map((coord: TeamCoordinator) => ({
+    // Filter coordinators to only include those from the selected organization
+    const filteredCoordinators = coordinators.filter(
+      (coord: TeamCoordinator) => coord.organisation_id === organisationId
+    );
+
+    logger.debug("Filtering coordinators by organisation", {
+      organisationId,
+      organisationName,
+      totalCoordinators: coordinators.length,
+      filteredCoordinators: filteredCoordinators.length,
+      coordinatorOrgs: coordinators.map(coord => ({ 
+        name: `${coord.first_name} ${coord.last_name}`, 
+        orgId: coord.organisation_id,
+        orgName: coord.organisation_name
+      })),
+    });
+
+    return filteredCoordinators.map((coord: TeamCoordinator) => ({
       organisation_id: organisationId,
       organisation_name: organisationName,
       // IMPORTANT: Use person_id (not user_id) - backend stores this in contact_person_id
