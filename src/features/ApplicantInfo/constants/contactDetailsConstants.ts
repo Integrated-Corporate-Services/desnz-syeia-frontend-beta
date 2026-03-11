@@ -18,6 +18,7 @@ export const LABELS = {
   ADDRESS: "Address",
   EMAIL: "Email address",
   PHONE: "Phone number",
+  ADDITIONAL_CONTACTS: "Additional contacts",
   CONFIRMATION_QUESTION: "Are all contact details available and correct?",
   YES: "Yes",
   NO: "No",

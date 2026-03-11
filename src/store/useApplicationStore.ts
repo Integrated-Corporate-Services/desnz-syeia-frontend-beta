@@ -17,7 +17,7 @@ type State = {
   setOrganisation: (org: any) => void;
   startApplication: (applicationData: Partial<Application>) => Promise<Application>;
   fetchAndSetApplication: (id: string) => Promise<void>;
-  saveNetworkOperator: (data: any) => Promise<void>;
+  saveNetworkOperator: (data: any) => Promise<any>;
   submitApplication: (applicationId: string) => Promise<any>;
   updateApplicantInfo: (applicationId: string, operatorRef: string, type: string, additionalContacts: string) => Promise<Application | null>;
 };
@@ -54,6 +54,7 @@ export const useApplicationStore = create<State>((set) => ({
       application: result.application,
       applicationParty: result.application_party
     });
+    return result;
   },
   submitApplication: async (applicationId: string) => {
     const updated = await applicationApiService.submitApplication(applicationId);
