@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
-import { downloadS3File } from "../../../utils/s3DownloadUtil";
+import { downloadS3File, downloadS3FileOnSameTab} from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { applicationApiService } from "../../../services/applicationApiService";
 import {
@@ -18,6 +18,7 @@ import {
   Consultation,
   Parish,
   PostConsultationOutcome,
+  SensitiveAreaReviewDocument,
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 
@@ -91,11 +92,7 @@ const ApplicationSubmit: React.FC = () => {
   const [sensitiveAreaReview, setSensitiveAreaReview] = useState<{
     other_sensitive_areas_note?: string;
     asset_presence_option_id?: number;
-    application_documents?: {
-      document_id?: string;
-      title?: string;
-      file_id?: string;
-    }[];
+    application_documents?: SensitiveAreaReviewDocument[];
   } | null>(null);
 
   // Add state for supporting info
@@ -736,8 +733,25 @@ const ApplicationSubmit: React.FC = () => {
                         {planDocuments.length > 0 ? (
                           planDocuments.map((doc) => (
                             <li key={doc.document_id}>
-                              {doc.title}{" "}
-                              {doc.description && <>- {doc.description}</>}
+                              <a
+                                href="#"
+                                className="govuk-link"
+                                onClick={async (e) => {
+                                  e.preventDefault();
+                                  // Use s3_key if available, otherwise file_id
+                                  const key = doc.s3_key || doc.file_id;
+                                  if (key) {
+                                    try {
+                                      await downloadS3FileOnSameTab(key);
+                                    } catch (error) {
+                                      console.error('Failed to download file:', error);
+                                    }
+                                  }
+                                }}
+                              >
+                                {doc.title}
+                              </a>
+                              {doc.description && <> - {doc.description}</>}
                             </li>
                           ))
                         ) : (
@@ -1310,9 +1324,28 @@ const ApplicationSubmit: React.FC = () => {
                       <ul className="govuk-list">
                         {sensitiveAreaReview?.application_documents &&
                           sensitiveAreaReview.application_documents.length > 0 ? (
-                          sensitiveAreaReview.application_documents.map(
-                            (doc) => <li key={doc.document_id}>{doc.title}</li>,
-                          )
+                          sensitiveAreaReview.application_documents.map((doc) => (
+                            <li key={doc.document_id}>
+                              <a
+                                href="#"
+                                className="govuk-link"
+                                onClick={async (e) => {
+                                  e.preventDefault();
+                                  // Use s3_key if available, otherwise file_id
+                                  const key = doc.s3_key || doc.file_id;
+                                  if (key) {
+                                    try {
+                                      await downloadS3FileOnSameTab(key);
+                                    } catch (error) {
+                                      console.error('Failed to download file:', error);
+                                    }
+                                  }
+                                }}
+                              >
+                                {doc.title}
+                              </a>
+                            </li>
+                          ))
                         ) : (
                           <li>-</li>
                         )}
@@ -1545,8 +1578,25 @@ const ApplicationSubmit: React.FC = () => {
                         {supportingDocuments.length > 0 ? (
                           supportingDocuments.map((doc) => (
                             <li key={doc.document_id}>
-                              {doc.title}{" "}
-                              {doc.description && <>- {doc.description}</>}
+                              <a
+                                href="#"
+                                className="govuk-link"
+                                onClick={async (e) => {
+                                  e.preventDefault();
+                                  // Use s3_key if available, otherwise file_id
+                                  const key = doc.s3_key || doc.file_id;
+                                  if (key) {
+                                    try {
+                                      await downloadS3FileOnSameTab(key);
+                                    } catch (error) {
+                                      console.error('Failed to download file:', error);
+                                    }
+                                  }
+                                }}
+                              >
+                                {doc.title}
+                              </a>
+                              {doc.description && <> - {doc.description}</>}
                             </li>
                           ))
                         ) : (
@@ -1655,7 +1705,7 @@ const ApplicationSubmit: React.FC = () => {
                                       e.preventDefault();
                                       const key = doc.key || doc.url;
                                       try {
-                                        await downloadS3File(key);
+                                        await downloadS3FileOnSameTab(key);
                                       } catch (error) {
                                         // Optionally show error to user
                                         console.error('Failed to download file:', error);
@@ -1721,7 +1771,7 @@ const ApplicationSubmit: React.FC = () => {
                                           e.preventDefault();
                                           const key = doc.url;
                                           try {
-                                            await downloadS3File(key);
+                                            await downloadS3FileOnSameTab(key);
                                           } catch (error) {
                                             // Optionally show error to user
                                             console.error('Failed to download file:', error);
@@ -1787,7 +1837,7 @@ const ApplicationSubmit: React.FC = () => {
                                               e.preventDefault();
                                               const key = doc.url;
                                               try {
-                                                await downloadS3File(key);
+                                                await downloadS3FileOnSameTab(key);
                                               } catch (error) {
                                                 // Optionally show error to user
                                                 console.error('Failed to download file:', error);
@@ -1833,7 +1883,7 @@ const ApplicationSubmit: React.FC = () => {
                                               e.preventDefault();
                                               const key = doc.url;
                                               try {
-                                                await downloadS3File(key);
+                                                await downloadS3FileOnSameTab(key);
                                               } catch (error) {
                                                 // Optionally show error to user
                                                 console.error('Failed to download file:', error);
