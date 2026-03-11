@@ -121,8 +121,15 @@ import ProposedDevelopmentPage from '../features/Consultation/pages/ProposedDeve
 import EvidenceResponseNotReceivedPage from '../features/Consultation/pages/EvidenceResponseNotReceivedPage';
 import RemoveConsultation from '../features/Consultation/pages/RemoveConsultation';
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
+import SignedOutPage from '../pages/SignedOutPage';
 
 export const ROUTE_CONFIG = [
+    {
+        path: '/signed-out',
+        component: SignedOutPage,
+        auth: false,
+        layout: true,
+    },
     {
         path: `${S37_BASE_URL}/:applicationId/payment-success`,
         component: PaymentSuccessPage,
@@ -751,19 +758,19 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-        path: `${S37_BASE_URL}/:applicationId/delete`,
+        path: `${S37_BASE_URL}/:applicationId/delete-application`,
         component: DeleteApplicationPage,
         auth: true,
         layout: true,
     },
     {
-        path: `${NWL_BASE_URL}/:applicationId/delete`,
+        path: `${NWL_BASE_URL}/:applicationId/delete-application`,
         component: DeleteApplicationPage,
         auth: true,
         layout: true,
     },
     {
-        path: `${TLP_BASE_URL}/:applicationId/delete`,
+        path: `${TLP_BASE_URL}/:applicationId/delete-application`,
         component: DeleteApplicationPage,
         auth: true,
         layout: true,

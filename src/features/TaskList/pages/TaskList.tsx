@@ -97,6 +97,19 @@ const TaskList: React.FC = () => {
               statusClass={statusClass}
             />
           ))}
+          
+          {/* Delete application button - positioned at the end */}
+          {application && (application.status?.toLowerCase() !== 'submitted' || isAdmin) && (
+            <div className="govuk-!-margin-top-6">
+              <Link 
+                to={`/s37/${application.application_id}/delete-application`}
+                className="govuk-button govuk-button--warning"
+                role="button"
+              >
+                Delete application
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

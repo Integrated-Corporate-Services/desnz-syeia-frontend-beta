@@ -14,8 +14,8 @@ interface SessionTimeoutContextType {
 
 const SessionTimeoutContext = createContext<SessionTimeoutContextType | undefined>(undefined);
 
-const TIMEOUT = 30 * 60; // 30 min in seconds
-const WARNING = 5 * 60; // 5 min in seconds
+const TIMEOUT = 5 * 60; // 5 min in seconds (for testing - change to 30 * 60 for production)
+const WARNING = 2 * 60; // 2 min warning in seconds
 
 export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) => {
   const { user, loading: authLoading } = useAuthUserContext();
@@ -31,7 +31,11 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   // Update auth state ref
   useEffect(() => {
     isAuthenticatedRef.current = isAuthenticated;
-    logger.info('Auth state updated:', { isAuthenticated, user, authLoading });
+    logger.info('Auth state updated:', { 
+      isAuthenticated, 
+      user: user ? { user_id: user.user_id, role: user.role } : null, 
+      authLoading 
+    });
   }, [isAuthenticated, user, authLoading]);
 
   // Reset timer on user activity - memoized
@@ -57,12 +61,16 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     if (!isAuthenticated) return;
     
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-    const activity = () => {
-      // Only reset timer if modal is NOT shown
-      if (!showModal) {
-        logger.info('Activity detected - timer reset');
-        resetTimer();
+    const activity = (event: Event) => {
+      // When modal is showing, ignore all general activity
+      // Only allow modal button handlers to control the session
+      if (showModal) {
+        return; // Don't reset timer - let user choose via modal buttons
       }
+      
+      // Normal activity tracking when modal is not showing
+      logger.debug('Activity detected - timer reset. Current idle time:', idleRef.current);
+      resetTimer();
     };
     events.forEach(e => window.addEventListener(e, activity));
     return () => events.forEach(e => window.removeEventListener(e, activity));
@@ -86,9 +94,13 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
         logger.debug(`Idle time: ${idleRef.current}s (show popup at ${TIMEOUT - WARNING}s, logout at ${TIMEOUT}s)`);
       }
       if (idleRef.current >= TIMEOUT - WARNING && idleRef.current < TIMEOUT) {
-        setShowModal(true);
+        if (!showModal) {
+          logger.info('Showing session timeout modal');
+          setShowModal(true);
+        }
         setRemaining(TIMEOUT - idleRef.current);
       } else if (idleRef.current >= TIMEOUT) {
+        logger.info('Session timeout - logging out');
         setShowModal(false);
         handleLogout();
       }
