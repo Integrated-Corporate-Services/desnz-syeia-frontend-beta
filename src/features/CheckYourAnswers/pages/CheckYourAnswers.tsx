@@ -176,31 +176,31 @@ const ApplicationSubmit: React.FC = () => {
         );
 
         // List of required sections
-      const requiredSections = [
-        { key: "networkOperator", path: ["sections", "networkOperator", "details"] },
-        { key: "projectDetails", path: ["sections", "projectDetails", "overview"] },
-        { key: "assetInformation", path: ["sections", "projectDetails", "assetInformation"] },
-        { key: "location", path: ["sections", "location", "route"] },
-        { key: "worksOverview", path: ["sections", "worksOverview"] },
-        { key: "sensitiveAreaChecks", path: ["sections", "sensitiveAreaChecks"] },
-        { key: "sensitiveAreaReview", path: ["sections", "sensitiveAreaReview"] },
-        { key: "parishes", path: ["sections", "parishes"] },
-        { key: "supportingQuestions", path: ["sections", "supportingInformation", "supportingQuestions"] },
-        { key: "eiaFees", path: ["sections", "supportingInformation", "eiaFees"] },
-        { key: "postConsultationOutcome", path: ["sections", "postConsultationOutcome"] },
-      ];
+        const requiredSections = [
+          { key: "networkOperator", path: ["sections", "networkOperator", "details"] },
+          { key: "projectDetails", path: ["sections", "projectDetails", "overview"] },
+          { key: "assetInformation", path: ["sections", "projectDetails", "assetInformation"] },
+          { key: "location", path: ["sections", "location", "route"] },
+          { key: "worksOverview", path: ["sections", "worksOverview"] },
+          { key: "sensitiveAreaChecks", path: ["sections", "sensitiveAreaChecks"] },
+          { key: "sensitiveAreaReview", path: ["sections", "sensitiveAreaReview"] },
+          { key: "parishes", path: ["sections", "parishes"] },
+          { key: "supportingQuestions", path: ["sections", "supportingInformation", "supportingQuestions"] },
+          { key: "eiaFees", path: ["sections", "supportingInformation", "eiaFees"] },
+          { key: "postConsultationOutcome", path: ["sections", "postConsultationOutcome"] },
+        ];
         // Helper to get nested value by path
-      const getByPath = (obj: any, pathArr: string[]): any =>
-        pathArr.reduce((acc: any, key: string) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
+        const getByPath = (obj: any, pathArr: string[]): any =>
+          pathArr.reduce((acc: any, key: string) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
 
-      // All sections are considered "started" if they exist and are not null/empty
-      const allStarted = requiredSections.every(section => {
-        const value = getByPath(data, section.path);
-        if (Array.isArray(value)) return value.length > 0;
-        return value !== undefined && value !== null && value !== "";
-      });
-      
-      setAllSectionsCompleted(allStarted);
+        // All sections are considered "started" if they exist and are not null/empty
+        const allStarted = requiredSections.every(section => {
+          const value = getByPath(data, section.path);
+          if (Array.isArray(value)) return value.length > 0;
+          return value !== undefined && value !== null && value !== "";
+        });
+
+        setAllSectionsCompleted(allStarted);
 
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
@@ -1340,7 +1340,7 @@ const ApplicationSubmit: React.FC = () => {
                     <li className="govuk-summary-card__action">
                       <Link
                         className="govuk-link"
-                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions`}
+                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions/lpa-agreement`}
                       >
                         Change
                         <span className="govuk-visually-hidden">
@@ -1380,6 +1380,7 @@ const ApplicationSubmit: React.FC = () => {
                       </dd>
                     </div>
                   )}
+
                   {postConsultationOutcome?.lpa_conditions_accepted === false && (
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">
@@ -1390,6 +1391,57 @@ const ApplicationSubmit: React.FC = () => {
                       </dd>
                     </div>
                   )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
+                    postConsultationOutcome?.consultees_recommendations_made !== null && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Were any recommendations made or conditions requested by the consultees? (Not including the LPA)
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_made === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_made === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made === true && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Do you accept the recommendations made by the consultees?
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_accepted === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_accepted === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Explain why you do not accept all the consultees' recommendations
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
+                        </dd>
+                      </div>
+                    )}
                 </dl>
               </div>
             </div>
@@ -1686,20 +1738,25 @@ const ApplicationSubmit: React.FC = () => {
                           </div>
                           {responseReceived ? (
                             <>
-                              <div className="govuk-summary-list__row">
-                                <dt className="govuk-summary-list__key">Consultee contact name</dt>
-                                <dd className="govuk-summary-list__value">
-                                  {consultation.consulteeContactName || "-"}
-                                </dd>
-                              </div>
-                              <div className="govuk-summary-list__row">
-                                <dt className="govuk-summary-list__key">Consultee contact email</dt>
-                                <dd className="govuk-summary-list__value">
-                                  {consultation.consulteeEmailAddress ? (
-                                    <a href={`mailto:${consultation.consulteeEmailAddress}`}>{consultation.consulteeEmailAddress}</a>
-                                  ) : "-"}
-                                </dd>
-                              </div>
+                              {/* Only show consultee contact fields for non-PUBLIC consultations */}
+                              {consultation.consultationType !== 'PUBLIC' && (
+                                <>
+                                  <div className="govuk-summary-list__row">
+                                    <dt className="govuk-summary-list__key">Consultee contact name</dt>
+                                    <dd className="govuk-summary-list__value">
+                                      {consultation.consulteeContactName || "-"}
+                                    </dd>
+                                  </div>
+                                  <div className="govuk-summary-list__row">
+                                    <dt className="govuk-summary-list__key">Consultee contact email</dt>
+                                    <dd className="govuk-summary-list__value">
+                                      {consultation.consulteeEmailAddress ? (
+                                        <a href={`mailto:${consultation.consulteeEmailAddress}`}>{consultation.consulteeEmailAddress}</a>
+                                      ) : "-"}
+                                    </dd>
+                                  </div>
+                                </>
+                              )}
                               <div className="govuk-summary-list__row">
                                 <dt className="govuk-summary-list__key">Objection raised</dt>
                                 <dd className="govuk-summary-list__value">

@@ -4,6 +4,15 @@ export interface FormMetadata {
   applicantOrganisationName?: string;
   applicantContactName?: string;
   applicantReference?: string;
+  // Document metadata (added by backend service layer)
+  document?: {
+    documentId?: string;
+    filename?: string;
+    fileSize?: number;
+    contentType?: string;
+    exists: boolean;
+    createdAt?: string;
+  };
 }
 
 /**
@@ -46,4 +55,21 @@ export async function updateFormMetadata(
   }
   
   return await res.json();
+}
+
+/**
+ * Download LPA consultation form as DOCX
+ */
+export async function downloadConsultationForm(
+  applicationId: string,
+  consultationId: string
+): Promise<Blob> {
+  const url = `${API_BASE}/${applicationId}/consultations/${consultationId}/download-form`;
+  const res = await fetch(url, { credentials: 'include' });
+  
+  if (!res.ok) {
+    throw new Error('Failed to download consultation form');
+  }
+  
+  return await res.blob();
 }

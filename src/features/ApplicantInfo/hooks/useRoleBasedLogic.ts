@@ -28,17 +28,14 @@ interface UseRoleBasedLogicReturn {
  * - Auto-add Applicant Agent email to additional contacts
  */
 export const useRoleBasedLogic = ({
-  coordinators,
   options,
   setSelectedOrgName,
   setSelectedOrganisation,
-  additionalContacts,
-  setAdditionalContacts,
+
 }: UseRoleBasedLogicParams): UseRoleBasedLogicReturn => {
   const { user } = useAuthUserContext();
   const [hasAutoSelectedDefault, setHasAutoSelectedDefault] = useState(false);
-  const [hasAutoAddedAgentEmail, setHasAutoAddedAgentEmail] = useState(false);
-
+  
   // No filtering needed - backend now provides role-based filtering
   // Return all options as provided by the backend
   const filteredOptions = options;
