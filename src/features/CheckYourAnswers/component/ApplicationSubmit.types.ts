@@ -149,6 +149,11 @@ export interface Consultation {
     respondingConsulteeEmail?: string;
     notRequiredReason?: string;
     notRequiredDocs?: { name: string; url: string; key?: string; filename?: string }[];
+	// PUBLIC consultation specific fields
+    firstDatePublished?: string | null;
+    secondDatePublished?: string | null;
+    evidenceOfPublicationDocs?: ResponseDocument[];
+    publicResponseDocuments?: ResponseDocument[];
 }
 
 export interface PostConsultationOutcome {
