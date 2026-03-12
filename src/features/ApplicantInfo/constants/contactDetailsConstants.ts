@@ -26,8 +26,6 @@ export const LABELS = {
 };
 
 export const CONDITIONAL_TEXT = {
-  INCORRECT_DETAILS_P1:
-    "If any of the contact details are not correct or missing then the contact person must update their account details on EIP. You will not be allowed to submit the application until all details are provided and correct.",
-  INCORRECT_DETAILS_P2:
-    "The contact can update their details by logging into their account on EIP and going to the 'Update My Details' link shown in the left-hand menu on the workbasket page.",
+  INCORRECT_DETAILS:
+    "If any details are missing or incorrect then the named contact person must update their account details on the Energy Information Portal (EIP). You cannot submit this application if any details are missing.",
 };

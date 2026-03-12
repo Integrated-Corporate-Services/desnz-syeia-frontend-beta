@@ -3,13 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { applicationApiService } from "../../../../services/applicationApiService";
 import type { AuthUser } from "../../../../types/auth";
-
-type NetworkOperator = {
-  organisation_id: string;
-  organisation_name: string;
-  full_name: string;
-  line1?: string;
-};
+import type { OrganizationOption } from "../hooks/useNetworkOperators";
 
 /**
  * Custom hook to handle form submission and navigation
@@ -24,7 +18,7 @@ export const useWhoIsApplyingForm = () => {
   const handleSubmit = async (
     e: React.FormEvent,
     selectedOrgName: string,
-    selectedOrganisation: NetworkOperator | null,
+    selectedOrganisation: OrganizationOption | null,
     user: AuthUser | null
   ) => {
     e.preventDefault();
@@ -47,6 +41,10 @@ export const useWhoIsApplyingForm = () => {
       app = await useApplicationStore.getState().startApplication(newAppData);
     }
 
+    // Extract address information from the first user in the organization
+    const firstUser = selectedOrganisation?.users?.[0];
+    const organizationAddress = firstUser?.address_line1 || "";
+
     const updatedApp = {
       ...app,
       application_party: {
@@ -54,7 +52,7 @@ export const useWhoIsApplyingForm = () => {
         party_type: app?.application_party?.party_type ?? "",
         organisation_id: selectedOrganisation?.organisation_id || "",
         organisation_name: selectedOrganisation?.organisation_name || "",
-        line1: selectedOrganisation?.line1 || "",
+        line1: organizationAddress,
         is_primary: true,
       },
     };
@@ -64,7 +62,7 @@ export const useWhoIsApplyingForm = () => {
       app.application_id,
       selectedOrganisation?.organisation_id || "",
       selectedOrganisation?.organisation_name || "",
-      selectedOrganisation?.line1
+      organizationAddress
     );
 
     // Update local store
