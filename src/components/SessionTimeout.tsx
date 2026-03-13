@@ -136,22 +136,17 @@ const SessionTimeoutModal: React.FC = () => {
         className="govuk-modal govuk-!-margin-auto" 
         tabIndex={-1}
       >
-        <h2 className="govuk-heading-m" id="timeout-title">You're about to be signed out</h2>
+        <h1 className="govuk-heading-m" id="timeout-title">You're about to be signed out</h1>
         <div id="timeout-description">
           <p className="govuk-body">
             For your security, we will sign you out in{' '}
-            <strong>{timeDisplay}</strong>.
+            <strong>2 minutes</strong>.
           </p>
-          {answerWarning && (
-            <p className="govuk-body govuk-!-text-colour-secondary">
-              {answerWarning}
-            </p>
-          )}
         </div>
-        <div className="govuk-button-group">
+        <div className="govuk-!-margin-top-4">
           <button 
             ref={staySignedInRef}
-            className="govuk-button" 
+            className="govuk-button govuk-button--success" 
             type="button" 
             onClick={handleContinueClick}
             disabled={isLoggingOut}
@@ -163,16 +158,19 @@ const SessionTimeoutModal: React.FC = () => {
           <span id="stay-description" className="govuk-visually-hidden">
             This will refresh your session and keep you signed in
           </span>
-          <button 
-            className="govuk-link govuk-!-display-block govuk-!-margin-top-3" 
-            type="button" 
-            onClick={handleLogoutClick}
-            disabled={isLoggingOut}
-            style={{ background: 'none', border: 'none', textDecoration: 'underline', color: '#1d70b8', cursor: 'pointer' }}
-            aria-describedby="signout-description"
-          >
-            {isLoggingOut ? 'Signing out...' : 'Sign out'}
-          </button>
+          <p className="govuk-!-margin-top-3">
+            <a 
+              href="#"
+              className="govuk-link" 
+              onClick={(e) => {
+                e.preventDefault();
+                handleLogoutClick();
+              }}
+              aria-describedby="signout-description"
+            >
+              {isLoggingOut ? 'Signing out...' : 'Sign out'}
+            </a>
+          </p>
           <span id="signout-description" className="govuk-visually-hidden">
             This will immediately sign you out and end your session
           </span>
