@@ -46,6 +46,21 @@
   transition: none !important;
 }
 
+/* Custom styling for session timeout button - green initially, yellow on hover */
+.govuk-modal .govuk-button.govuk-button--success {
+  background-color: #00703c !important;
+  border-color: #00703c !important;
+  color: #ffffff !important;
+}
+
+.govuk-modal .govuk-button.govuk-button--success:hover,
+.govuk-modal .govuk-button.govuk-button--success:active,
+.govuk-modal .govuk-button.govuk-button--success:focus {
+  background-color: #ffdd00 !important;
+  border-color: #ffdd00 !important;
+  color: #0b0c0c !important;
+}
+
 /* .govuk-button-group {
   display: flex;
   gap: 1rem;

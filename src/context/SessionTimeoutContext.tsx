@@ -14,7 +14,7 @@ interface SessionTimeoutContextType {
 
 const SessionTimeoutContext = createContext<SessionTimeoutContextType | undefined>(undefined);
 
-const TIMEOUT = 5 * 60; // 5 min in seconds (for testing - change to 30 * 60 for production)
+const TIMEOUT = 3 * 60; // 5 min in seconds (for testing - change to 30 * 60 for production)
 const WARNING = 2 * 60; // 2 min warning in seconds
 
 export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) => {
@@ -48,11 +48,13 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   // Logout logic - memoized and properly async
   const handleLogout = useCallback(async () => {
     try {
+      logger.info('Starting logout process...');
       await logout();
+      // The logout function should redirect, but ensure fallback
     } catch (err) {
       logger.error('Logout error:', err);
       // Force redirect even if logout fails
-      window.location.href = '/backend/auth/login';
+      window.location.href = '/signed-out';
     }
   }, []);
 
@@ -100,8 +102,11 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
         }
         setRemaining(TIMEOUT - idleRef.current);
       } else if (idleRef.current >= TIMEOUT) {
-        logger.info('Session timeout - logging out');
+        logger.info('Session timeout - logging out automatically');
         setShowModal(false);
+        // Ensure automatic logout works by forcing redirect
+        clearInterval(timerRef.current!);
+        timerRef.current = null;
         handleLogout();
       }
     }, 1000);
@@ -118,6 +123,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     const modalTimer = setInterval(() => {
       setRemaining(prev => {
         if (prev <= 1) {
+          logger.info('Modal countdown finished - logging out automatically');
           setShowModal(false);
           handleLogout();
           return 0;

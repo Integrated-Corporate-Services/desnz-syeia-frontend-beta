@@ -63,9 +63,9 @@ export function ContactConfirmationRadios({
           </div>
           {contactIsConfirmed === false && (
             <div className="govuk-radios__conditional">
-              <div className="govuk-inset-text">
+              <p className="govuk-body">
                 {CONDITIONAL_TEXT.INCORRECT_DETAILS}
-              </div>
+              </p>
             </div>
           )}
         </div>
