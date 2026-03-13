@@ -50,6 +50,9 @@ const SessionTimeoutModal: React.FC = () => {
     return showCountdown ? formatSeconds(remaining) : "2 minutes";
   }, [remaining]);
 
+  // Track if we've already announced to screen readers
+  const [hasAnnounced, setHasAnnounced] = useState(false);
+
   React.useEffect(() => {
     logger.debug('SessionTimeout modal - showModal:', showModal, 'remaining:', remaining);
   }, [showModal, remaining]);
@@ -66,10 +69,11 @@ const SessionTimeoutModal: React.FC = () => {
     }
   }, [showModal]); // Remove 'remaining' dependency to prevent re-runs
 
-  // Separate effect for screen reader announcements only when necessary
+  // Separate effect for screen reader announcements only when modal first shows
   useEffect(() => {
-    if (showModal && remaining === 119) { // Only announce when modal first shows (2 min = 120s - 1s)
-      const announcement = `You're about to be signed out. For your security, we will sign you out in 2 minutes.`;
+    if (showModal && !hasAnnounced) {
+      setHasAnnounced(true);
+      const announcement = `You're about to be signed out. For your security, we will sign you out in ${timeDisplay}.`;
       const ariaLive = document.createElement('div');
       ariaLive.setAttribute('aria-live', 'assertive');
       ariaLive.setAttribute('aria-atomic', 'true');
@@ -83,7 +87,14 @@ const SessionTimeoutModal: React.FC = () => {
         }
       }, 1000);
     }
-  }, [showModal, remaining]);
+  }, [showModal, hasAnnounced, timeDisplay]);
+
+  // Reset announcement state when modal is hidden
+  useEffect(() => {
+    if (!showModal) {
+      setHasAnnounced(false);
+    }
+  }, [showModal]);
 
   // Keyboard navigation and focus trapping
   useEffect(() => {
@@ -140,7 +151,10 @@ const SessionTimeoutModal: React.FC = () => {
         <div id="timeout-description">
           <p className="govuk-body">
             For your security, we will sign you out in{' '}
-            <strong>2 minutes</strong>.
+            <strong>{timeDisplay}</strong>.
+          </p>
+          <p className="govuk-body">
+            {answerWarning}
           </p>
         </div>
         <div className="govuk-!-margin-top-4">
