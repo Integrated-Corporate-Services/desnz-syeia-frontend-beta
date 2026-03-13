@@ -38,6 +38,7 @@ interface ConsultationSummaryCardProps {
     notRequiredMessage?: string;
     notRequiredDocs?: DocumentType[];
     consultationRequestDocs?: DocumentType[];
+    lpaConsultationForm?: DocumentType[];
     evidenceResponseNotReceivedDocs?: DocumentType[];
     onRemove?: () => void;
 }
@@ -62,6 +63,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     notRequiredMessage,
     notRequiredDocs,
     consultationRequestDocs,
+    lpaConsultationForm,
     evidenceResponseNotReceivedDocs,
     onRemove,
 }) => {
@@ -120,14 +122,15 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     onClick={async (e) => {
                         e.preventDefault();
                         const key = doc.key || doc.url;
+                        const filename = doc.filename || doc.name || doc.fileName;
                         try {
-                            await downloadS3File(key);
+                            await downloadS3File(key, filename);
                         } catch (error) {
                             logger.error('Failed to download file:', error);
                         }
                     }}
                 >
-                    {doc.filename || doc.name || doc.fileName}
+                    {doc.name || doc.filename || doc.fileName}
                 </a>
             </div>
         );
@@ -287,6 +290,12 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     <table className="govuk-table govuk-!-margin-bottom-0">
                         <tbody className="govuk-table__body">
                             {renderTableRow('Status', renderStatusTag(statusDisplay))}
+                            {renderTableRow(
+                                'Consultation request document',
+                                lpaConsultationForm && lpaConsultationForm.length > 0
+                                    ? <>{lpaConsultationForm.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : '-'
+                            )}
                             {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
                             {renderTableRow(
                                 'Evidence of request',
