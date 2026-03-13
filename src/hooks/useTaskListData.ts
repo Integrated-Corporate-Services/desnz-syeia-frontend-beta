@@ -155,7 +155,7 @@ export function useTaskListData() {
   // Status class helper
   const statusClass = (status: string) => {
     if (status === 'Completed') return 'govuk-tag govuk-tag--green';
-    if (status === 'Incomplete' || status === 'In progress') return 'govuk-tag govuk-tag--blue';
+    if (status === 'Not completed' || status === 'In progress') return 'govuk-tag govuk-tag--blue';
     if (status === 'Cannot start yet') return 'govuk-tag govuk-tag--grey';
     return '';
   };

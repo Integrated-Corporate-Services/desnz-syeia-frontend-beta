@@ -49,7 +49,7 @@ export type UserRole =
 
 /**
  * Get default "Submitted by" value based on user role
- * AC2: Applicant/Agent/User/Finance → "me", Team Coordinator/Admin/Caseworker/Reviewer → "all"
+ * Applicant/Agent/User/Finance → "me", Team Coordinator/Admin/Caseworker/Reviewer → "all"
  */
 export const getDefaultSubmittedBy = (role?: UserRole): 'me' | 'all' => {
   if (!role) {
@@ -80,7 +80,7 @@ export const getDefaultSubmittedBy = (role?: UserRole): 'me' | 'all' => {
 
 /**
  * Determine if "Submitted by" filter should be visible
- * AC2: Agents should NOT see the filter
+ * Agents should NOT see the filter
  */
 export const shouldShowSubmittedByFilter = (role?: UserRole): boolean => {
   if (!role) {

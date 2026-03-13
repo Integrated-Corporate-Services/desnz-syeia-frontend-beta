@@ -168,7 +168,7 @@ const handleSaveAndContinue = async () => {
     const contactName = consultationPack?.consultation?.applicant_contact_name;
     const reference = consultationPack?.consultation?.applicant_reference;
     
-    if (!orgName || !contactName || !reference) {
+    if (!orgName || !contactName) {
       console.error('Missing applicant details:', { orgName, contactName, reference });
       setErrorMessage('Applicant details are not available. Please refresh the page and try again.');
       return;
