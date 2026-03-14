@@ -89,11 +89,16 @@ const ApplicationSubmit: React.FC = () => {
     tolerance_required?: boolean;
     tolerance_value?: number;
   } | null>(null);
+
   const [sensitiveAreaReview, setSensitiveAreaReview] = useState<{
-    other_sensitive_areas_note?: string;
-    asset_presence_option_id?: number;
-    application_documents?: SensitiveAreaReviewDocument[];
-  } | null>(null);
+  other_sensitive_areas_note?: string;
+  asset_presence_option_id?: number;
+  application_documents?: SensitiveAreaReviewDocument[];
+  manual?: {
+    selected?: { layerName: string }[];
+    customAdded?: { layerName: string }[];
+  };
+} | null>(null);
 
   // Add state for supporting info
   const [supportingQuestions, setSupportingQuestions] =
@@ -307,11 +312,13 @@ const ApplicationSubmit: React.FC = () => {
         setSensitiveAreaReview(
           sensitiveReview
             ? {
-              other_sensitive_areas_note:
-                sensitiveReview.other_sensitive_areas_note,
-              asset_presence_option_id:
-                sensitiveReview.asset_presence_option_id,
+              other_sensitive_areas_note: sensitiveReview.other_sensitive_areas_note,
+              asset_presence_option_id: sensitiveReview.asset_presence_option_id,
               application_documents: sensitiveReview.application_documents,
+              manual: {
+                selected: sensitiveReview.manual?.selected || [],
+                customAdded: sensitiveReview.manual?.customAdded || [],
+              },
             }
             : null,
         );
@@ -1313,7 +1320,28 @@ const ApplicationSubmit: React.FC = () => {
                       Other areas the route passes through
                     </dt>
                     <dd className="govuk-summary-list__value">
-                      {sensitiveAreaReview?.other_sensitive_areas_note || "-"}
+                      {(() => {
+                        const selectedLayers = sensitiveAreaReview?.manual?.selected || [];
+                        const customAddedLayers = sensitiveAreaReview?.manual?.customAdded || [];
+                        const allManualLayers = [...selectedLayers, ...customAddedLayers];
+
+                        if (allManualLayers.length === 0) {
+                          return "-";
+                        }
+
+                        // Get unique layer names
+                        const uniqueLayerNames = Array.from(
+                          new Set(allManualLayers.map(layer => layer.layerName).filter(Boolean))
+                        );
+
+                        return (
+                          <ul className="govuk-list govuk-list--bullet">
+                            {uniqueLayerNames.map((layerName, index) => (
+                              <li key={index}>{layerName}</li>
+                            ))}
+                          </ul>
+                        );
+                      })()}
                     </dd>
                   </div>
                   <div className="govuk-summary-list__row">
