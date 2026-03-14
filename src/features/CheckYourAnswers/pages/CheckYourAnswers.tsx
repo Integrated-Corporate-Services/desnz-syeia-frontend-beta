@@ -1210,7 +1210,7 @@ const ApplicationSubmit: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Parishes</h2>
-                {permissions?.canEdit && (
+                {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -1222,7 +1222,7 @@ const ApplicationSubmit: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
+                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
