@@ -1,3 +1,6 @@
+import { createLogger } from './logger';
+const logger = createLogger('s3DownloadUtil');
+
 // Utility to get presigned S3 URL and open in new tab
 export async function downloadS3File(keyOrUrl: string) {
   const { getPresignedGetUrl } = await import('../services/s3ApiService');
@@ -6,17 +9,15 @@ export async function downloadS3File(keyOrUrl: string) {
     if (result.url) {
       window.open(result.url, '_blank');
     } else {
-      alert('Failed to get download URL');
+      logger.error('Failed to get download URL', { keyOrUrl });
+      throw new Error('Failed to get download URL');
     }
   } catch (err) {
-    alert('Failed to download file');
+    logger.error('Download error on same tab', { keyOrUrl, error: err });
+    throw new Error('Failed to download file');
   }
 }
 
-
-// Utility to get presigned S3 URL and download file directly
-// Utility to get presigned S3 URL and download file directly
-// Simple redirect approach - no CORS issues
 export async function downloadS3FileOnSameTab(keyOrUrl: string) {
   const { getPresignedGetUrlForDownload } = await import('../services/s3ApiService');
   try {
@@ -26,10 +27,11 @@ export async function downloadS3FileOnSameTab(keyOrUrl: string) {
       // The browser will either download or display based on Content-Type
       window.location.href = result.url;
     } else {
-      alert('Failed to get download URL');
+      logger.error('Failed to get download URL for same tab', { keyOrUrl });
+      throw new Error('Failed to get download URL for same tab');
     }
   } catch (err) {
-    console.error('Download error:', err);
-    alert('Failed to download file');
+    logger.error('Download error on same tab', { keyOrUrl, error: err });
+    throw err;
   }
 }
