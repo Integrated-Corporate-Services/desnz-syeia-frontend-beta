@@ -12,7 +12,7 @@ export const BREADCRUMBS = {
 export const FORM_ERRORS = {
   MISSING_REFERENCE: "Enter an Applicant's reference",
   INVALID_REFERENCE: "Only letters, numbers, spaces, and hyphens are allowed",
-  MISSING_OPERATOR: "Select the network operator",
+  MISSING_OPERATOR: "Select an applicant contact name",
   INVALID_EMAIL: "Enter a valid email address",
   DUPLICATE_EMAIL: "This email address has already been added",
   MISSING_ORGANISATION_ID:

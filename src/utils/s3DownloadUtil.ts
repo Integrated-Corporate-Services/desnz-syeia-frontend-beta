@@ -7,7 +7,21 @@ export async function downloadS3File(keyOrUrl: string) {
   try {
     const result = await getPresignedGetUrl(keyOrUrl);
     if (result.url) {
-      window.open(result.url, '_blank');
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = result.url;
+      
+      // Extract filename from URL if not provided
+      if (filename) {
+        link.download = filename;
+      }
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
     } else {
       logger.error('Failed to get download URL', { keyOrUrl });
       throw new Error('Failed to get download URL');

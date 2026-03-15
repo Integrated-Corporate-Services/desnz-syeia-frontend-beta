@@ -37,6 +37,8 @@ export interface ConsultationDetails {
   notRequiredDocs ?: { name: string; url: string; key?: string; filename?: string }[];
   uploadedFiles ?: { name: string; url: string }[];
   applicationDocuments ?: { name: string; url: string }[];
+  // LPA Consultation Form (generated document)
+  lpaConsultationForm?: { name: string; url: string; key?: string; filename?: string }[];
   // Consultation request documents (evidence of request)
   consultationRequestDocs ?: { name: string; url: string; key?: string; filename?: string }[];
   dateRequestCreated?: string;

@@ -74,7 +74,7 @@ const WhoIsApplying: React.FC = () => {
                   </option>
                   {options.map((opt) => (
                     <option
-                      key={opt.organisation_name}
+                      key={opt.organisation_id}
                       value={opt.organisation_name}
                     >
                       {opt.organisation_name}

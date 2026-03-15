@@ -5,7 +5,7 @@ import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import type { AuthUser } from "../../../../types/auth";
 import type { ApplicationParty } from "../../../../types/application";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { useTeamCoordinators } from "../../../../hooks/useTeamCoordinators";
+import { useRoleBasedNetworkOperators } from "../hooks/useRoleBasedNetworkOperators";
 import { useAdditionalContacts } from "../hooks/useAdditionalContacts";
 import { useNetworkOperatorForm } from "../hooks/useNetworkOperatorForm";
 import { useApplicationSync } from "../hooks/useApplicationSync";
@@ -72,9 +72,8 @@ const NetworkOperatorDetails: React.FC = () => {
   const organisationName =
     application?.application_party?.organisation_name || stateOrgName || "";
 
-  // Fetch team coordinators from user's organisation
-  // New endpoint /api/team-coordinators is accessible by all roles (DTC, DA, DU)
-  const { coordinators } = useTeamCoordinators(organisationId);
+  // Fetch role-based network operators using the updated endpoint
+  const { coordinators } = useRoleBasedNetworkOperators();
 
   // Map coordinators to dropdown options
   const options = useCoordinatorOptions({

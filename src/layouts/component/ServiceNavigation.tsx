@@ -1,4 +1,3 @@
-import { CONTENT } from "../../constants/content";
 import React from "react";
 import { BASE_URL } from "../../constants/routes";
 import { useLocation } from "react-router-dom";
@@ -24,7 +23,8 @@ const ServiceNavigation = () => {
     "/s37-guidance",
     "/nwl-guidance",
     "/tlp-guidance",
-    "/access-revoked"
+    "/access-revoked",
+    "/signed-out",
   ];
 
   // Check if user is in registration/access request flow
