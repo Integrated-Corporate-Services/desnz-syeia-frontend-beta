@@ -158,6 +158,7 @@ const ConsultationDetailsPage: React.FC = () => {
               notRequiredMessage={consultation.notRequiredReason}
               notRequiredDocs={consultation.notRequiredDocs}
               consultationRequestDocs={consultation.consultationRequestDocs}
+              lpaConsultationForm={consultation.lpaConsultationForm}
               evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
             />
           ))}
@@ -189,6 +190,7 @@ const ConsultationDetailsPage: React.FC = () => {
               notRequiredMessage={consultation.notRequiredReason}
               notRequiredDocs={consultation.notRequiredDocs}
               consultationRequestDocs={consultation.consultationRequestDocs}
+              lpaConsultationForm={consultation.lpaConsultationForm}
               evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
               consultationType={consultation.consultationType}
               onRemove={() => handleRemoveConsultation(

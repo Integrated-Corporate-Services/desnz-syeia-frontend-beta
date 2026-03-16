@@ -150,21 +150,51 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
         }
     };
 
+    const setLpaModificationsWithClearError = (value: string) => {
+        setLpaModifications(value);
+        setLpaModificationsError(''); // Clear error when user interacts
+    };
+
+    const setAcceptConditionsWithClearError = (value: string) => {
+        setAcceptConditions(value);
+        setAcceptConditionsError(''); // Clear error when user interacts
+    };
+
+    const setExplanationWithClearError = (value: string) => {
+        setExplanation(value);
+        setExplanationError(''); // Clear error when user interacts
+    };
+
+    const setConsulteesRecommendationsWithClearError = (value: string) => {
+        setConsulteesRecommendations(value);
+        setConsulteesRecommendationsError(''); // Clear error when user interacts
+    };
+
+    const setAcceptConsulteesRecommendationsWithClearError = (value: string) => {
+        setAcceptConsulteesRecommendations(value);
+        setAcceptConsulteesRecommendationsError(''); // Clear error when user interacts
+    };
+
+    const setConsulteesExplanationWithClearError = (value: string) => {
+        setConsulteesExplanation(value);
+        setConsulteesRecommendationsReasonError(''); // Clear error when user interacts
+    };
+
     return {
         consulteesRecommendationsDetails,
         setConsulteesRecommendationsDetails,
         lpaModifications,
-        setLpaModifications,
+        setLpaModifications: setLpaModificationsWithClearError,
         acceptConditions,
-        setAcceptConditions,
+        setAcceptConditions: setAcceptConditionsWithClearError,
         explanation,
-        setExplanation,
+        setExplanation: setExplanationWithClearError,
         consulteesRecommendations,
-        setConsulteesRecommendations,
+        setConsulteesRecommendations: setConsulteesRecommendationsWithClearError,
         acceptConsulteesRecommendations,
-        setAcceptConsulteesRecommendations,
+        setAcceptConsulteesRecommendations: setAcceptConsulteesRecommendationsWithClearError,
         consulteesExplanation,
-        setConsulteesExplanation,
+        setConsulteesExplanation: setConsulteesExplanationWithClearError,
         loading,
         saving,
         error,
