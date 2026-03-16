@@ -7,16 +7,13 @@ export async function downloadS3File(keyOrUrl: string) {
   try {
     const result = await getPresignedGetUrl(keyOrUrl);
     if (result.url) {
-      // Create a temporary anchor element to trigger download
+      // Open the presigned URL in a new tab
       const link = document.createElement('a');
       link.href = result.url;
+      link.target = '_blank';  // This opens in a new tab
+      link.rel = 'noopener noreferrer';  // Security best practice
       
-      // Extract filename from URL if not provided
-      if (filename) {
-        link.download = filename;
-      }
-      
-      // Trigger download
+      // Trigger the link
       document.body.appendChild(link);
       link.click();
       
@@ -27,7 +24,7 @@ export async function downloadS3File(keyOrUrl: string) {
       throw new Error('Failed to get download URL');
     }
   } catch (err) {
-    logger.error('Download error on same tab', { keyOrUrl, error: err });
+    logger.error('Download error', { keyOrUrl, error: err });
     throw new Error('Failed to download file');
   }
 }
@@ -46,6 +43,6 @@ export async function downloadS3FileOnSameTab(keyOrUrl: string) {
     }
   } catch (err) {
     logger.error('Download error on same tab', { keyOrUrl, error: err });
-    throw err;
+    throw new Error('Failed to download file on same tab');
   }
 }

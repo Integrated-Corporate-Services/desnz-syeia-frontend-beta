@@ -122,9 +122,9 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     onClick={async (e) => {
                         e.preventDefault();
                         const key = doc.key || doc.url;
-                        const filename = doc.filename || doc.name || doc.fileName;
+                        // const filename = doc.filename || doc.name || doc.fileName;
                         try {
-                            await downloadS3File(key, filename);
+                            await downloadS3File(key);
                         } catch (error) {
                             logger.error('Failed to download file:', error);
                         }
