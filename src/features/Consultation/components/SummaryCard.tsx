@@ -121,14 +121,12 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     className="govuk-link"
                     onClick={async (e) => {
                         e.preventDefault();
-                        // Use s3_key if available, otherwise file_id or key or url
-                        const key = doc.s3_key || doc.file_id || doc.key || doc.url;
-                        if (key) {
-                            try {
-                                await downloadS3FileOnSameTab(key);
-                            } catch (error) {
-                                logger.error('Failed to download file:', error);
-                            }
+                        const key = doc.key || doc.url;
+                        // const filename = doc.filename || doc.name || doc.fileName;
+                        try {
+                            await downloadS3File(key);
+                        } catch (error) {
+                            logger.error('Failed to download file:', error);
                         }
                     }}
                 >
