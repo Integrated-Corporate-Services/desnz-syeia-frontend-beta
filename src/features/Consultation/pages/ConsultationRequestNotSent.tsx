@@ -1,18 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { S37_BASE_URL } from '../../../constants/s37';
-import { Link, useParams, useLocation, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { getConsultationPack, saveConsultationPack } from "../../../services/consultationPackService";
-import { PackSection, ConsultationPack } from '../../../types/consultationPack';
-import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCategoryConstants';
-import FileUpload from '../../../components/FileUpload';
-import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
+import { PackSection } from '../../../types/consultationPack';
 import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService"; 
 
 const ConsultationRequestNotSent: React.FC = () => {
   const params = useParams();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
@@ -20,7 +16,6 @@ const ConsultationRequestNotSent: React.FC = () => {
   const consultationName = searchParams.get("consultationName") || "Consultation";
   
   const navigate = useNavigate();
-  const tabsRef = useRef<HTMLDivElement>(null);
 
   const [consultationPack, setConsultationPack] = useState<any>(null);
   const [packSections, setPackSections] = useState<PackSection[]>([]);
@@ -138,10 +133,6 @@ useEffect(() => {
         
         const existingData = await getFormMetadata(applicationId, consultationId);
         
-        console.log('=== PART 1 - LOADED DATA ===');
-        console.log('Existing Form Metadata:', existingData);
-        console.log('============================');
-        
         // The applicant details are already populated from consultationPack
         // This is just for verification/future use
         
@@ -163,8 +154,13 @@ const handleSaveAndContinue = async () => {
     const contactName = consultationPack?.consultation?.applicant_contact_name;
     const reference = consultationPack?.consultation?.applicant_reference;
     
+    // Fall back to application operator_ref if applicant_reference is null/empty
+    const applicantReference = (reference && reference.trim()) 
+      ? reference 
+      : consultationPack?.application?.operator_ref || '';
+    
     if (!orgName || !contactName) {
-      console.error('Missing applicant details:', { orgName, contactName, reference });
+      console.error('Missing applicant details:', { orgName, contactName, reference, applicantReference });
       setErrorMessage('Applicant details are not available. Please refresh the page and try again.');
       return;
     }
@@ -173,14 +169,10 @@ const handleSaveAndContinue = async () => {
     await updateFormMetadata(applicationId!, consultationId, {
       applicantOrganisationName: orgName,
       applicantContactName: contactName,
-      applicantReference: reference
+      applicantReference: applicantReference
     });
     
-    console.log('=== PART 1 - SAVED ===');
-    console.log('Applicant Org:', orgName);
-    console.log('Contact Name:', contactName);
-    console.log('Reference:', reference);
-    console.log('======================');
+   
     
     // Navigate to proposed development Details page
     navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
