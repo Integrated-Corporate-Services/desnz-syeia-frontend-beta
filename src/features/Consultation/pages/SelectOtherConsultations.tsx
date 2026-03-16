@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import LpaSelector, { Lpa } from '../../../components/LpaSelector';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { updateAllConsultations, createLpaConsultations, getOtherConsulteeOrganisations, createOtherConsultations } from '../../../services/consultationService';
+import { progressApiService } from '../../../services/progressApiService';
 import log from '../../../logger';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
@@ -154,6 +155,15 @@ const SelectOtherConsultations: React.FC = () => {
             }
 
             await updateAllConsultations(applicationId, user.user_id);
+
+            // Update consultation task progress as in progress
+            try {
+                await progressApiService.updateApplicationProgress(applicationId, 'CONSULTATION', 'IN_PROGRESS');
+                log.debug('[SelectOtherConsultations] Consultation task progress updated to IN_PROGRESS');
+            } catch (progressError) {
+                log.error('[SelectOtherConsultations] Error updating consultation progress:', progressError);
+                // Continue with navigation even if progress update fails
+            }
 
             // Navigate to next step
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);

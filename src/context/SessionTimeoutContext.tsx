@@ -50,11 +50,12 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     try {
       logger.info('Starting logout process...');
       await logout();
+      window.location.href = '/frontend/signed-out';
       // The logout function should redirect, but ensure fallback
     } catch (err) {
       logger.error('Logout error:', err);
       // Force redirect even if logout fails
-      window.location.href = '/signed-out';
+      window.location.href = '/frontend/signed-out';
     }
   }, []);
 

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { downloadS3File } from "../utils/s3DownloadUtil";
+import { downloadS3File, downloadS3FileOnSameTab } from "../utils/s3DownloadUtil";
 import "../styles/Fileupload.css";
 import {
   getPresignedUrls,
@@ -305,7 +305,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                         e.preventDefault();
                         if (file.s3Key) {
                           try {
-                            await downloadS3File(file.s3Key);
+                            await downloadS3FileOnSameTab(file.s3Key);
                           } catch (error) {
                             console.error('Failed to download file:', error);
                             alert('Failed to download file. Please try again.');

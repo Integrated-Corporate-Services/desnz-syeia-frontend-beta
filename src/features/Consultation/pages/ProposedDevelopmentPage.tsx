@@ -137,7 +137,7 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
   setSubmitError('');
   try {
     await saveProposedDevelopment(applicationId!, consultationId!, formData);
-    await markConsultationAsRequestSent(consultationId!);
+   // await markConsultationAsRequestSent(consultationId!);
 
     setErrors({});
     setSubmitError('');
