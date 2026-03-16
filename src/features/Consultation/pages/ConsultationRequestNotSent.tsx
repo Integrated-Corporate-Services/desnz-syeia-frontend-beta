@@ -50,12 +50,7 @@ const ConsultationRequestNotSent: React.FC = () => {
         // Set LPA name from consultation pack
         const name = data?.consultation?.org_name || consultationName || 'LPA';
         setLpaName(name);
-        
-        console.log('=== CONSULTATION REQUEST NOT SENT ===');
-        console.log('Consultation data:', data?.consultation);
-        console.log('LPA Name:', name);
-        console.log('======================================');
-        
+     
       } catch (error) {
         console.error('Error fetching LPA name:', error);
       }
@@ -187,8 +182,8 @@ const handleSaveAndContinue = async () => {
     console.log('Reference:', reference);
     console.log('======================');
     
-    // Navigate to LPA Details page
-    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/lpa-details?consultationName=${encodeURIComponent(lpaName || consultationName)}`);
+    // Navigate to proposed development Details page
+    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
   } catch (error) {
     console.error('Error saving form metadata:', error);
     setErrorMessage('Failed to save. Please try again.');

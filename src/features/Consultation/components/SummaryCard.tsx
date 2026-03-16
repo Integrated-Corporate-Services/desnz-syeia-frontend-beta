@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
-import { downloadS3File } from '../../../utils/s3DownloadUtil';
+import { downloadS3File, downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('ConsultationSummaryCard');
@@ -124,7 +124,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         const key = doc.key || doc.url;
                         // const filename = doc.filename || doc.name || doc.fileName;
                         try {
-                            await downloadS3File(key);
+                            await downloadS3FileOnSameTab(key);
                         } catch (error) {
                             logger.error('Failed to download file:', error);
                         }
@@ -264,7 +264,50 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     }
 
     /**
-     * Render card for non-PUBLIC consultation with REQUEST_SENT status
+     * Render card for LPA consultation with REQUEST_SENT status
+     */
+    function renderLpaRequestSent() {
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title">{orgName}</h2>
+                    <ul className="govuk-summary-card__actions">
+                        <li className="govuk-summary-card__action">
+                            <Link to={responseUrlWithParams} className="govuk-link">
+                                Provide response
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag(statusDisplay))}
+                            {lpaConsultationForm && lpaConsultationForm.length > 0 && renderTableRow(
+                                'Consultation request document',
+                                <>{lpaConsultationForm.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                            )}
+                            {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
+                            {renderTableRow(
+                                'Evidence of request',
+                                consultationRequestDocs && consultationRequestDocs.length > 0
+                                    ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : evidenceUrl
+                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        : '-'
+                            )}
+                        </tbody>
+                    </table>
+                    <p className="govuk-body govuk-!-margin-top-3 govuk-!-margin-bottom-0">
+                        If the consultee has not responded within 2 months after you sent the request, you may be able to complete your application without uploading their response. Click 'Provide response' to learn more.
+                    </p>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for non-LPA consultation with REQUEST_SENT status
      */
     function renderStandardRequestSent() {
         return (
@@ -357,6 +400,76 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                     : '-'
                             )}
                             {renderTableRow('Comments', closeComments || '-')}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        );
+    }
+
+    /**
+     * Render card for LPA consultation with CLOSED status
+     */
+    function renderLpaClosed() {
+        // Check for evidence of response NOT received
+        const hasNotReceivedResponse = !!(evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0);
+
+        return (
+            <>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title">{orgName}</h2>
+                </div>
+                <div className="govuk-summary-card__content">
+                    <table className="govuk-table govuk-!-margin-bottom-0">
+                        <tbody className="govuk-table__body">
+                            {renderTableRow('Status', renderStatusTag('Closed', 'green'))}
+                            {lpaConsultationForm && lpaConsultationForm.length > 0 && renderTableRow(
+                                'Consultation request document',
+                                <>{lpaConsultationForm.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                            )}
+                            {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
+                            {renderTableRow(
+                                'Evidence of request',
+                                consultationRequestDocs && consultationRequestDocs.length > 0
+                                    ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : evidenceUrl
+                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        : '-'
+                            )}
+
+                            {/* Show different content based on whether response was received */}
+                            {hasNotReceivedResponse ? (
+                                // No response received - show date closed and evidence of no response
+                                <>
+                                    {renderTableRow('Date closed', dateClosed ? formatDate(dateClosed) : '-')}
+                                    {renderTableRow(
+                                        'Evidence of response not received',
+                                        evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0
+                                            ? <>{evidenceResponseNotReceivedDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                            : '-'
+                                    )}
+                                </>
+                            ) : (
+                                // Response received - show full response details
+                                <>
+                                    {renderTableRow('Consultee contact name', respondingConsulteeName || '-')}
+                                    {renderTableRow(
+                                        'Consultee contact email address',
+                                        respondingConsulteeEmail
+                                            ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
+                                            : '-'
+                                    )}
+                                    {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
+                                    {renderTableRow('Date closed', dateClosed ? formatDate(dateClosed) : '-')}
+                                    {renderTableRow(
+                                        'Response documents',
+                                        responseDocuments && responseDocuments.length > 0
+                                            ? <>{responseDocuments.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                            : '-'
+                                    )}
+                                    {renderTableRow('Close Comments', closeComments || '-')}
+                                </>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -524,10 +637,22 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 return renderNotRequired();
 
             case ConsultationStatus.REQUEST_SENT:
-                return consultationType === 'PUBLIC' ? renderPublicRequestSent() : renderStandardRequestSent();
+                if (consultationType === 'PUBLIC') {
+                    return renderPublicRequestSent();
+                } else if (consultationType === 'LPA') {
+                    return renderLpaRequestSent();
+                } else {
+                    return renderStandardRequestSent();
+                }
 
             case ConsultationStatus.CLOSED:
-                return consultationType === 'PUBLIC' ? renderPublicClosed() : renderStandardClosed();
+                if (consultationType === 'PUBLIC') {
+                    return renderPublicClosed();
+                } else if (consultationType === 'LPA') {
+                    return renderLpaClosed();
+                } else {
+                    return renderStandardClosed();
+                }
 
             case ConsultationStatus.WITHDRAWN:
                 return renderWithdrawn();
