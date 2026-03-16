@@ -48,6 +48,14 @@ export interface PlanDocument {
 	document_id: string;
 	title: string;
 	description?: string;
+	file_id?: string;
+    s3_key?: string;
+    filename?: string;
+    file_size_bytes?: number;
+    file_content_type?: string;
+    bucket_name?: string;
+    storage_provider?: string;
+    uploaded_at_timestamp?: string;
 }
 
 export interface GridPoint {
@@ -75,6 +83,14 @@ export interface SupportingDocument {
 	document_id: string;
 	title: string;
 	description?: string;
+	file_id?: string;
+    s3_key?: string;
+    filename?: string;
+    file_size_bytes?: number;
+    file_content_type?: string;
+    bucket_name?: string;
+    storage_provider?: string;
+    uploaded_at_timestamp?: string;
 }
 
 export interface EIAFees {
@@ -133,6 +149,11 @@ export interface Consultation {
     respondingConsulteeEmail?: string;
     notRequiredReason?: string;
     notRequiredDocs?: { name: string; url: string; key?: string; filename?: string }[];
+	// PUBLIC consultation specific fields
+    firstDatePublished?: string | null;
+    secondDatePublished?: string | null;
+    evidenceOfPublicationDocs?: ResponseDocument[];
+    publicResponseDocuments?: ResponseDocument[];
 }
 
 export interface PostConsultationOutcome {
@@ -142,4 +163,12 @@ export interface PostConsultationOutcome {
   consultees_recommendations_made?: boolean | null;
   consultees_recommendations_accepted?: boolean | null;
   consultees_recommendations_not_accepted_reason?: string | null;
+}
+
+export interface SensitiveAreaReviewDocument {
+  document_id?: string;
+  title?: string;
+  file_id?: string;
+  s3_key?: string;
+  filename?: string;
 }

@@ -46,3 +46,14 @@ export async function deleteFileFromS3(key: string) {
   if (!res.ok) throw new Error('Failed to delete file');
   return await res.json();
 }
+
+// Get presigned GET URL that forces download
+export async function getPresignedGetUrlForDownload(filename: string) {
+  const res = await fetch('/backend/api/file/presigned-url/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename })
+  });
+  if (!res.ok) throw new Error('Failed to get presigned download URL');
+  return await res.json();
+}
