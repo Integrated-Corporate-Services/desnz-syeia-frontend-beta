@@ -3,6 +3,7 @@ import { useSessionTimeout } from '../context/SessionTimeoutContext';
 import { useLocation } from 'react-router-dom';
 import { createLogger } from '../utils/logger';
 import '../styles/SessionTimeout.css'
+import { logout } from '../services/authService';
 
 const logger = createLogger('SessionTimeoutModal');
 
@@ -19,21 +20,10 @@ const formatSeconds = (sec: number) => {
 const SessionTimeoutModal: React.FC = () => {
   const { showModal, remaining, resetTimer, handleLogout } = useSessionTimeout();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const location = useLocation();
+
   const modalRef = useRef<HTMLDivElement>(null);
   const staySignedInRef = useRef<HTMLButtonElement>(null);
 
-  // Memoize callbacks to prevent unnecessary re-renders
-  const handleLogoutClick = useCallback(async () => {
-    setIsLoggingOut(true);
-    try {
-      await handleLogout();
-      window.location.href = '/frontend/signed-out';
-    } catch (err) {
-      logger.error('Logout failed:', err);
-      window.location.href = '/frontend/signed-out';
-    }
-  }, [handleLogout]);
 
   const handleContinueClick = useCallback(() => {
     resetTimer();
@@ -176,10 +166,10 @@ const SessionTimeoutModal: React.FC = () => {
             <a 
               href="#"
               className="govuk-link" 
-              onClick={(e) => {
-                e.preventDefault();
-                handleLogoutClick();
-              }}
+              onClick={async (event) => {
+                                event.preventDefault();
+                                await logout();
+                              }}
               aria-describedby="signout-description"
             >
               {isLoggingOut ? 'Signing out...' : 'Sign out'}

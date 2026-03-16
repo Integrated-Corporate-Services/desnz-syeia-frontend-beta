@@ -181,6 +181,7 @@ const ConsultationDetailsPage: React.FC = () => {
           ? consultation.evidenceOfPublicationDocs
           : consultation.consultationRequestDocs
       }
+      lpaConsultationForm={consultation.lpaConsultationForm}
       evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
     />
   );
@@ -232,6 +233,7 @@ const ConsultationDetailsPage: React.FC = () => {
           ? consultation.evidenceOfPublicationDocs
           : consultation.consultationRequestDocs
       }
+      lpaConsultationForm={consultation.lpaConsultationForm}
       evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
       consultationType={consultation.consultationType}
       onRemove={() => handleRemoveConsultation(

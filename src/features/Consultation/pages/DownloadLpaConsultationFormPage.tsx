@@ -138,7 +138,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
     const newErrors: Record<string, string> = {};
 
     if (!isDeclarationChecked) {
-      newErrors.declaration = 'You must confirm you have sent this consultation request';
+      newErrors.declaration = 'You must confirm you have downloaded the consultation form';
     }
 
     setErrors(newErrors);
@@ -155,8 +155,8 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
 
     setLoading(true);
     try {
-      // Navigate to consultation details page (manage consultations)
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+      // Navigate to consultation request page
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request?consultationName=${encodeURIComponent(lpaName || consultationName)}`);
     } catch (error) {
       log.error('Error saving:', error);
     } finally {
@@ -297,7 +297,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
                 <fieldset className="govuk-fieldset">
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                     <h2 className="govuk-fieldset__heading">
-                      Declaration
+                      Confirm download
                     </h2>
                   </legend>
                   {errors.declaration && (
@@ -327,7 +327,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
                         aria-describedby={errors.declaration ? 'declaration-error' : undefined}
                       />
                       <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
-                        Confirm you have sent this consultation request.
+                        Confirm you have downloaded the LPA consultation form.
                       </label>
                     </div>
                   </div>

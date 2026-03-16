@@ -5,6 +5,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { useDerivedLpas } from '../../../hooks/useDerivedLpas';
 import { updateAllConsultations, createLpaConsultations } from '../../../services/consultationService';
+import { progressApiService } from '../../../services/progressApiService';
 import log from '../../../logger';
 
 const ConsultationRequestsRequired: React.FC = () => {
@@ -70,6 +71,16 @@ const ConsultationRequestsRequired: React.FC = () => {
         }
 
         try {
+            // Update consultation status to "In progress" in task list
+            if (applicationId) {
+                await progressApiService.updateApplicationProgress(
+                    applicationId,
+                    'Consultations',
+                    'In progress'
+                );
+                log.debug('[ConsultationRequestsRequired] Updated consultation status to "In progress"');
+            }
+
             // Create LPA consultations from derived parishes before proceeding
             if (user?.user_id && applicationId && derivedLpas.length > 0) {
                 log.debug('[ConsultationRequestsRequired] Creating LPA consultations from derived parishes', { count: derivedLpas.length });
