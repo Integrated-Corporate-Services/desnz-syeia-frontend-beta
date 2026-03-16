@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback, useMemo } from 'react';
-import { logout } from '../services/authService';
+import { logout, signOut } from '../services/authService';
 import { useAuthUserContext } from './AuthUserContext';
 import { createLogger } from '../utils/logger';
 
@@ -48,13 +48,13 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   // Logout logic - memoized and properly async
   const handleLogout = useCallback(async () => {
     try {
-      logger.info('Starting logout process...');
+      logger.info('Starting session timeout logout process...');
+      // Use logout to destroy session and handle redirect
       await logout();
       window.location.href = '/frontend/signed-out';
-      // The logout function should redirect, but ensure fallback
     } catch (err) {
       logger.error('Logout error:', err);
-      // Force redirect even if logout fails
+      // Force redirect even if signOut fails
       window.location.href = '/frontend/signed-out';
     }
   }, []);
