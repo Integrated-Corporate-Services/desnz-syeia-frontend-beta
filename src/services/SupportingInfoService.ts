@@ -7,13 +7,15 @@ class SupportingInfoService {
     return response.data;
   }
 
-  static async createSupportingInfo(data: SupportingInfoRequest): Promise<void> {
-    await axios.post(`/backend/api/applications/supporting-info`, data);
-  }
+  static async createSupportingInfo(data: SupportingInfoRequest): Promise<SupportingInfoResponse> {
+  const response = await axios.post(`/backend/api/applications/supporting-info`, data);
+  return response.data;
+}
 
-  static async updateSupportingInfo(data: SupportingInfoRequest): Promise<void> {
-    await axios.put(`/backend/api/applications/supporting-info`, data);
-  }
+static async updateSupportingInfo(data: SupportingInfoRequest): Promise<SupportingInfoResponse> {
+  const response = await axios.put(`/backend/api/applications/supporting-info`, data);
+  return response.data;
+}
 }
 
 export default SupportingInfoService;

@@ -42,5 +42,11 @@ export interface ConsultationDetails {
   // Consultation request documents (evidence of request)
   consultationRequestDocs ?: { name: string; url: string; key?: string; filename?: string }[];
   dateRequestCreated?: string;
-  evidenceResponseNotReceivedDocs?: { url: string; name: string; key?: string; filename?: string }[]; 
+  evidenceResponseNotReceivedDocs?: { url: string; name: string; key?: string; filename?: string }[];
+
+  // Public consultation specific fields
+  firstDatePublished?: string | null;
+  secondDatePublished?: string | null;
+  evidenceOfPublicationDocs?: { name: string; url: string }[];
+  publicResponseDocuments?: { name: string; url: string }[];
 }

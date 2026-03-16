@@ -116,35 +116,40 @@ const SupportingInfo: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const errs = validate();
-    setErrors(errs);
+  e.preventDefault();
+  const errs = validate();
+  setErrors(errs);
 
-    if (errs.length === 0) {
-      const data = {
-        application_id: applicationId!,
-        wayleaves_obtained: wayleaves === "yes",
-        wayleaves_not_obtained_reason: wayleaves === "no" ? wayleavesReason : undefined,
-        esqcr_2002_compliance_confirmed: regulations,
-        has_additional_supporting_documents: supportingDocs === "yes",
-        applicant_supporting_comments: comments,
-        uploaded_files: uploadedFiles,
-        application_documents: applicationDocuments,
-      };
-      try {
-        const response: any = await saveSupportingInfo(data);
-        // Try to get application id from backend response, fallback to local applicationId
-        const redirectId =
-          response?.application_id ||
-          response?.application?.application_id ||
-          response?.application_overview?.application_id ||
-          applicationId ||
-          '';
-  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
-      } catch (err: any) {
-        setErrors([{ key: 'save', message: err?.message || 'Failed to save supporting information' }]);
-      }
-    } else {
+  if (errs.length === 0) {
+    const data = {
+      application_id: applicationId!,
+      wayleaves_obtained: wayleaves === "yes",
+      wayleaves_not_obtained_reason: wayleaves === "no" ? wayleavesReason : undefined,
+      esqcr_2002_compliance_confirmed: regulations,
+      has_additional_supporting_documents: supportingDocs === "yes",
+      applicant_supporting_comments: comments,
+      uploaded_files: uploadedFiles,
+      application_documents: applicationDocuments,
+    };
+    
+    try {
+      const response: any = await saveSupportingInfo(data);
+      const redirectId =
+        response?.application_id ||
+        response?.application?.application_id ||
+        response?.application_overview?.application_id ||
+        applicationId ||
+        '';
+      navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
+    } catch (err: any) {
+      console.error('Save failed:', err);
+      setErrors([{ 
+        key: 'save', 
+        message: err?.response?.data?.message || err?.message || 'Failed to save supporting information' 
+      }]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  } else {
       const firstError = errs[0].key;
       if (firstError === "wayleaves" && wayleavesRef.current) wayleavesRef.current.focus();
       if (firstError === "regulations" && regulationsRef.current) regulationsRef.current.focus();
