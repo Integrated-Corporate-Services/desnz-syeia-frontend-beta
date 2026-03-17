@@ -54,7 +54,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
      
     } catch (err) {
       logger.error('Logout error:', err);
-      // Force redirect even if logout fails
+      // Force redirect even if signOut fails
       window.location.href = '/frontend/signed-out';
     }
   }, []);
