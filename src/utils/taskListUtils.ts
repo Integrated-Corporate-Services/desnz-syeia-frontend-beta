@@ -199,7 +199,12 @@ export function applySensitiveAreaCheckLogic(
           }
 
           if (item.name === "Sensitive area checks" && inProgress) {
-            return { ...item, status: "In progress" };
+            return { 
+              ...item, 
+              status: "In progress",
+              disabled: true,
+              link: "#"
+            };
           }
 
           if (
