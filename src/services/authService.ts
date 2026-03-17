@@ -23,7 +23,7 @@ export async function getAuthUser(): Promise<AuthUserResponse> {
 }
 
 export async function signOut(): Promise<void> {
-  await fetch("/backend/auth/signout", {
+  await fetch("/backend/auth/logout", {
     method: "POST",
     credentials: "include",
   });
