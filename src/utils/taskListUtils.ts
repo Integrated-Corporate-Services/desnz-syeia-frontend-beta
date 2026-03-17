@@ -372,22 +372,45 @@ export function applyTaskDependencies(
     // Consultations dependencies
     if (section.title === "Consultations") {
       const locationCompleted = areAllTasksInSectionCompleted("Location");
+      const consultationsCompleted = isTaskCompleted("Consultations");
       
       return {
         ...section,
         items: section.items.map((item) => {
-          if (!locationCompleted) {
-            return {
-              ...item,
-              status: "Cannot start yet",
-              disabled: true,
-              plainTextStatus: true,
-              link: "#"
-            };
+          // Consultations item depends only on Location being completed
+          if (item.name === "Consultations") {
+            if (!locationCompleted) {
+              return {
+                ...item,
+                status: "Cannot start yet",
+                disabled: true,
+                plainTextStatus: true,
+                link: "#"
+              };
+            }
+            if (item.status !== "Completed" && item.status !== "In progress") {
+              return { ...item, status: "Not completed" };
+            }
+            return item;
           }
-          if (item.status !== "Completed" && item.status !== "In progress") {
-            return { ...item, status: "Not completed" };
+
+          // Post consultation actions depends on Consultations being completed
+          if (item.name === "Post consultation actions") {
+            if (!locationCompleted || !consultationsCompleted) {
+              return {
+                ...item,
+                status: "Cannot start yet",
+                disabled: true,
+                plainTextStatus: true,
+                link: "#"
+              };
+            }
+            if (item.status !== "Completed" && item.status !== "In progress") {
+              return { ...item, status: "Not completed" };
+            }
+            return item;
           }
+
           return item;
         }),
       };
