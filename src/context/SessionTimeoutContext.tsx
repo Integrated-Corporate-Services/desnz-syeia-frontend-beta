@@ -49,9 +49,9 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   const handleLogout = useCallback(async () => {
     try {
       logger.info('Starting session timeout logout process...');
-      // Use logout to destroy session and handle redirect
-      await logout();
-      window.location.href = '/frontend/signed-out';
+      // Use logout to destroy session and redirect to signed-out page
+      await logout('/frontend/signed-out');
+     
     } catch (err) {
       logger.error('Logout error:', err);
       // Force redirect even if signOut fails
