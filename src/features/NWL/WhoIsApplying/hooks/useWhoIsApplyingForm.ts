@@ -76,9 +76,15 @@ export const useWhoIsApplyingForm = () => {
     });
   };
 
+  const clearError = () => {
+    setError("");
+    setSubmitted(false);
+  };
+
   return {
     submitted,
     error,
     handleSubmit,
+    clearError,
   };
 };

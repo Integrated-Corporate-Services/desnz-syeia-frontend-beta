@@ -122,7 +122,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
             <div key={idx} className="govuk-!-margin-bottom-1">
                 <a
                     href="#"
-                    className="govuk-link govuk-!-word-break"
+                    className="govuk-link govuk-!-word-break govuk-!-display-inline-block"
                     title={displayName}
                     onClick={async (e) => {
                         e.preventDefault();
