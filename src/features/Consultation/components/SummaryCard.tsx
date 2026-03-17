@@ -114,11 +114,16 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
      * Render a clickable document link with S3 download
      */
     function renderDocumentLink(doc: DocumentType, idx: number) {
+        const displayName = doc.name || doc.filename || doc.fileName || '';
+        // Truncate extremely long filenames for display
+        const truncatedName = displayName.length > 50 ? `${displayName.substring(0, 47)}...` : displayName;
+        
         return (
-            <div key={idx}>
+            <div key={idx} className="govuk-!-margin-bottom-1">
                 <a
                     href="#"
-                    className="govuk-link"
+                    className="govuk-link govuk-!-word-break"
+                    title={displayName}
                     onClick={async (e) => {
                         e.preventDefault();
                         const key = doc.key || doc.url;
@@ -130,7 +135,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         }
                     }}
                 >
-                    {doc.name || doc.filename || doc.fileName}
+                    {truncatedName}
                 </a>
             </div>
         );
@@ -142,8 +147,8 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     function renderTableRow(label: string, value: React.ReactNode, additionalClass: string = '') {
         return (
             <tr className="govuk-table__row">
-                <td className={`govuk-table__cell govuk-!-font-weight-bold ${additionalClass}`}>{label}</td>
-                <td className={`govuk-table__cell ${additionalClass}`}>{value}</td>
+                <td className={`govuk-table__cell govuk-!-font-weight-bold govuk-!-word-break ${additionalClass}`}>{label}</td>
+                <td className={`govuk-table__cell govuk-!-word-break ${additionalClass}`}>{value}</td>
             </tr>
         );
     }
@@ -152,7 +157,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
      * Render status tag
      */
     function renderStatusTag(statusText: string, color: 'blue' | 'green' | 'grey' = 'blue') {
-        return <span className={`govuk-tag govuk-tag--${color}`} style={{ whiteSpace: 'normal', display: 'inline-block' }}>{statusText}</span>;
+        return <span className={`govuk-tag govuk-tag--${color}`}>{statusText}</span>;
     }
 
     // ============================================================================
@@ -166,7 +171,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <h2 className="govuk-summary-card__title">{displayName}</h2>
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{displayName}</h2>
                     <ul className="govuk-summary-card__actions">
                         {onRemove && (
                             <li className="govuk-summary-card__action">
@@ -209,7 +214,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <h2 className="govuk-summary-card__title">{displayName}</h2>
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{displayName}</h2>
                 </div>
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0">
@@ -235,10 +240,10 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <h2 className="govuk-summary-card__title">{displayName}</h2>
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{displayName}</h2>
                     <ul className="govuk-summary-card__actions">
                         <li className="govuk-summary-card__action">
-                            <Link to={responseUrlWithParams} className="govuk-link" style={{ whiteSpace: 'nowrap' }}>
+                            <Link to={responseUrlWithParams} className="govuk-link govuk-!-display-inline-block">
                                 Record public responses
                             </Link>
                         </li>
@@ -270,7 +275,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <h2 className="govuk-summary-card__title">{orgName}</h2>
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{orgName}</h2>
                     <ul className="govuk-summary-card__actions">
                         <li className="govuk-summary-card__action">
                             <Link to={responseUrlWithParams} className="govuk-link">
@@ -293,7 +298,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
                                         : '-'
                             )}
                         </tbody>
@@ -313,7 +318,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <h2 className="govuk-summary-card__title">{orgName}</h2>
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{orgName}</h2>
                     <ul className="govuk-summary-card__actions">
                         {orgName && orgName.trim().toLowerCase() === 'natural england' && (
                             <li className="govuk-summary-card__action">
@@ -345,14 +350,14 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
                                         : '-'
                             )}
                             {renderTableRow('Consultee contact name', respondingConsulteeName || '-')}
                             {renderTableRow(
                                 'Consultee contact email address',
                                 respondingConsulteeEmail
-                                    ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
+                                    ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link govuk-!-word-break">{respondingConsulteeEmail}</a>
                                     : '-'
                             )}
                             {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
@@ -378,7 +383,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <h2 className="govuk-summary-card__title">{displayName}</h2>
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{displayName}</h2>
                 </div>
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0">
@@ -417,7 +422,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <h2 className="govuk-summary-card__title">{orgName}</h2>
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{orgName}</h2>
                 </div>
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0">
@@ -433,7 +438,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
                                         : '-'
                             )}
 
@@ -456,7 +461,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                     {renderTableRow(
                                         'Consultee contact email address',
                                         respondingConsulteeEmail
-                                            ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
+                                            ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link govuk-!-word-break">{respondingConsulteeEmail}</a>
                                             : '-'
                                     )}
                                     {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
@@ -497,7 +502,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <div className="govuk-summary-card__title">{orgName}</div>
+                    <div className="govuk-summary-card__title govuk-!-word-break">{orgName}</div>
                 </div>
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
@@ -514,7 +519,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
                                         : '-'
                             )}
 
@@ -525,7 +530,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                     {renderTableRow(
                                         'Consultee contact email address',
                                         respondingConsulteeEmail
-                                            ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link">{respondingConsulteeEmail}</a>
+                                            ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link govuk-!-word-break">{respondingConsulteeEmail}</a>
                                             : '-'
                                     )}
                                     {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
@@ -582,7 +587,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         return (
             <>
                 <div className="govuk-summary-card__title-wrapper">
-                    <h2 className="govuk-summary-card__title">{orgName}</h2>
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{orgName}</h2>
                     <ul className="govuk-summary-card__actions">
                         {orgName && orgName.trim().toLowerCase() === 'natural england' && (
                             <li className="govuk-summary-card__action">
@@ -608,7 +613,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
                                         : '-'
                             )}
                         </tbody>

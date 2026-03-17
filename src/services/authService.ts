@@ -29,10 +29,15 @@ export async function signOut(): Promise<void> {
   });
 }
 
-export async function logout(): Promise<void> {
-  logger.info("Logging out user...");
+export async function logout(redirectTo?: string): Promise<void> {
+  logger.info("Logging out user...", { redirectTo });
+
+  // Build logout URL with optional redirect parameter
+  const logoutUrl = redirectTo 
+    ? `/backend/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
+    : `/backend/auth/logout?redirectTo=${encodeURIComponent('/frontend/landingPage')}`;
 
   // Let the backend handle all logout logic including OIDC session destruction
   // The backend will redirect appropriately after destroying sessions
-  window.location.assign("/backend/auth/logout");
+  window.location.assign(logoutUrl);
 }

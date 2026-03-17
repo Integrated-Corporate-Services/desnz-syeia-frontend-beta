@@ -182,8 +182,8 @@ const handleSaveAndContinue = async () => {
   }
 };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <div className="govuk-body">Loading...</div>;
+  if (error) return <div className="govuk-error-message">Error: {error}</div>;
 
   return (
     <div className="govuk-width-container">
@@ -234,7 +234,7 @@ const handleSaveAndContinue = async () => {
               <li>a direction under section 90(2) of the Town and Country Planning Act 1990 that planning permission for the proposed development be deemed to be granted</li>
             </ul>
 
-            <div className="govuk-summary-list">
+            <dl className="govuk-summary-list">
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Applicant organisation name</dt>
                 <dd className="govuk-summary-list__value">
@@ -253,9 +253,9 @@ const handleSaveAndContinue = async () => {
                   {consultationPack?.consultation?.applicant_reference || '-'}
                 </dd>
               </div>
-            </div>
+            </dl>
 
-            <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
+            <div className="govuk-button-group govuk-!-margin-top-6">
               <button 
                 type="button" 
                 className="govuk-button" 
