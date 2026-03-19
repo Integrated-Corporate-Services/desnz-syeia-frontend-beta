@@ -1892,10 +1892,44 @@ const ApplicationSubmit: React.FC = () => {
             ) : (
               /* Non-PUBLIC consultation fields - existing code */
               <>
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Date of consultation request</dt>
-                  <dd className="govuk-summary-list__value">
-                    {consultation.sentAt
+
+                  {/* ONLY show for LPA consultations */}
+                  {consultation.consultationType === "LPA" && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">Consultation request document</dt>
+                      <dd className="govuk-summary-list__value">
+                        {consultation.lpaConsultationForm &&
+                          consultation.lpaConsultationForm.length > 0 ? (
+                          <ul className="govuk-list">
+                            {consultation.lpaConsultationForm.map((doc, i) => (
+                              <li key={i}>
+                                <a
+                                  href="#"
+                                  className="govuk-link"
+                                  onClick={async (e) => {
+                                    e.preventDefault();
+                                    const key = doc.url;
+                                    try {
+                                      await downloadS3FileOnSameTab(key);
+                                    } catch (error) {
+                                      console.error('Failed to download file:', error);
+                                    }
+                                  }}
+                                >
+                                  {doc.name}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">Date of consultation request</dt>
+                    <dd className="govuk-summary-list__value">
+                      {consultation.sentAt
                       ? new Date(consultation.sentAt).toLocaleDateString("en-GB", { 
                           day: "2-digit", 
                           month: "long", 
