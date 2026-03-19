@@ -141,6 +141,7 @@ export interface Consultation {
     responseDocuments?: ResponseDocument[];
     consulteeEmailAddress?: string | null;
     requestEvidenceDocuments?: ResponseDocument[];
+	lpaConsultationForm?: ResponseDocument[];
     evidenceResponseNotReceivedDocs?: ResponseDocument[];
     consulteeContactName?: string;
     closeComments?: string;
