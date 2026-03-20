@@ -20,10 +20,15 @@ const ConsultationNotRequiredPage: React.FC = () => {
 	const [uploadedFileObjs, setUploadedFileObjs] = useState<any[]>([]);
 	const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
 	const [notRequiredStatus, setNotRequiredStatus] = useState<any>(null);
+	const [errors, setErrors] = useState<{reason?: string; files?: string}>({});
 	// Handler for FileUpload onUploaded
 	const handleUploadedFiles = (uploadedFiles: any[], applicationDocumentsArr: any[]) => {
 		setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
 		setApplicationDocuments(prev => [...prev, ...applicationDocumentsArr]);
+		// Clear files error when files are uploaded
+		if (errors.files && (uploadedFiles.length > 0 || applicationDocumentsArr.length > 0)) {
+			setErrors(prev => ({ ...prev, files: undefined }));
+		}
 	};
 
 
@@ -49,6 +54,28 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		const navigate = useNavigate();
 		const handleSaveAndContinue = async () => {
 			if (!consultationId || !notRequiredStatus?.details) return;
+			
+			// Validation
+			const newErrors: {reason?: string; files?: string} = {};
+			
+			if (!reason.trim()) {
+				newErrors.reason = 'You must provide a reason why this consultation is not required';
+			}
+			
+			if (uploadedFileObjs.length === 0 && applicationDocuments.length === 0) {
+				newErrors.files = 'You must upload at least one supporting document';
+			}
+			
+			if (Object.keys(newErrors).length > 0) {
+				setErrors(newErrors);
+				// Scroll to top to show errors
+				window.scrollTo(0, 0);
+				return;
+			}
+			
+			// Clear any previous errors
+			setErrors({});
+			
 			const updatedDetails = {
 				...notRequiredStatus.details,
 				status: ConsultationStatus.NOT_REQUIRED,
@@ -67,6 +94,20 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		// Save for later handler (set status to REQUEST_INCOMPLETE)
 		const handleSaveForLater = async () => {
 			if (!consultationId || !notRequiredStatus?.details) return;
+			
+			// For save for later, only require reason (allow saving without files for partial completion)
+			const newErrors: {reason?: string} = {};
+			
+			if (!reason.trim()) {
+				newErrors.reason = 'You must provide a reason why this consultation is not required';
+				setErrors(newErrors);
+				window.scrollTo(0, 0);
+				return;
+			}
+			
+			// Clear any previous errors
+			setErrors({});
+			
 			const updatedDetails = {
 				...notRequiredStatus.details,
 				status: ConsultationStatus.REQUEST_INCOMPLETE,
@@ -98,6 +139,28 @@ const ConsultationNotRequiredPage: React.FC = () => {
 						</ol>
 					</nav>
 					<main className="govuk-main-wrapper govuk-!-margin-bottom-6" id="main-content">
+					{/* Error Summary */}
+					{Object.keys(errors).length > 0 && (
+						<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+							<h2 className="govuk-error-summary__title" id="error-summary-title">
+								There is a problem
+							</h2>
+							<div className="govuk-error-summary__body">
+								<ul className="govuk-list govuk-error-summary__list">
+									{errors.reason && (
+										<li>
+											<a href="#reason">{errors.reason}</a>
+										</li>
+									)}
+									{errors.files && (
+										<li>
+											<a href="#file-upload">{errors.files}</a>
+										</li>
+									)}
+								</ul>
+							</div>
+						</div>
+					)}
 					<h2 className="govuk-caption-xl">{consultationName}</h2>
 						<h1 className="govuk-heading-l govuk-!-margin-bottom-6">Consultation not required</h1>
 						<div className="govuk-!-margin-bottom-6">
@@ -116,18 +179,35 @@ const ConsultationNotRequiredPage: React.FC = () => {
 							<p className="govuk-body">Please note that the upgrade and refurbishment of existing overhead lines within IRZs do not usually require consultation with Natural England.</p>
 						</div>
 						<form className="govuk-form-group govuk-!-margin-bottom-6" noValidate onSubmit={e => e.preventDefault()}>
-							<div className="govuk-form-group govuk-!-margin-bottom-6">
+							<div className={`govuk-form-group ${errors.reason ? 'govuk-form-group--error' : ''} govuk-!-margin-bottom-6`}>
 								<label className="govuk-label" htmlFor="reason">Explain why this consultation is not required</label>
+								{errors.reason && (
+									<p id="reason-error" className="govuk-error-message">
+										<span className="govuk-visually-hidden">Error:</span> {errors.reason}
+									</p>
+								)}
 								<textarea
-									className="govuk-textarea govuk-!-margin-top-2"
+									className={`govuk-textarea govuk-!-margin-top-2 ${errors.reason ? 'govuk-textarea--error' : ''}`}
 									id="reason"
 									name="reason"
 									rows={5}
 									value={reason}
-									onChange={e => setReason(e.target.value)}
+									onChange={e => {
+										setReason(e.target.value);
+										// Clear error when user starts typing
+										if (errors.reason) {
+											setErrors(prev => ({ ...prev, reason: undefined }));
+										}
+									}}
+									aria-describedby={errors.reason ? "reason-error" : undefined}
 								/>
 							</div>
-							<div className="govuk-form-group govuk-!-margin-bottom-6">
+							<div className={`govuk-form-group ${errors.files ? 'govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} id="file-upload">
+								{errors.files && (
+									<p id="files-error" className="govuk-error-message">
+										<span className="govuk-visually-hidden">Error:</span> {errors.files}
+									</p>
+								)}
 								<FileUpload
 									title="Upload any supporting documents"
 									prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}/${consultationId}`}
@@ -139,6 +219,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 										setUploadedFiles(files => files.filter((_, i) => i !== idx));
 										setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
 										setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
+										// Clear files error when removing files (validation will re-trigger on save)
+										if (errors.files) {
+											setErrors(prev => ({ ...prev, files: undefined }));
+										}
 									}}
 									onUploaded={handleUploadedFiles}
 									consultationId={consultationId}
