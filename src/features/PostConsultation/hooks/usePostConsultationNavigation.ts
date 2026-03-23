@@ -11,6 +11,10 @@ export const usePostConsultationNavigation = () => {
         return `${S37_BASE_URL}/${applicationId}/task-list`;
     };
 
+    const getCheckYourAnswersUrl = () => {
+        return `${S37_BASE_URL}/${applicationId}/check-your-answers`;
+    };
+
     const getConsulteesRecommendationsUrl = () => {
         return `${S37_BASE_URL}/${applicationId}/post-consultation-actions/consultees-recommendations`;
     };
@@ -20,10 +24,13 @@ export const usePostConsultationNavigation = () => {
     };
 
     const navigateToTaskList = () => {
-        navigate(getTaskListUrl());
+        navigate(getCheckYourAnswersUrl());
     };
 
-    // Navigation after LPA Reason page
+    const navigateToCheckYourAnswers = () => {
+        navigate(getCheckYourAnswersUrl());
+    };
+
     const handleNavigationAfterLpaReason = (saveType: SaveType, success: boolean) => {
         if (success && saveType === 'continue') {
             navigateToConsulteesRecommendations();
@@ -32,16 +39,18 @@ export const usePostConsultationNavigation = () => {
 
     const handleNavigationAfterSaveConsultees = (saveType: SaveType, success: boolean) => {
         if (success && saveType === 'continue') {
-            navigateToTaskList();
+            navigateToCheckYourAnswers();
         }
     };
 
     return {
         applicationId,
         getTaskListUrl,
+        getCheckYourAnswersUrl,
         getConsulteesRecommendationsUrl,
         navigateToTaskList,
         navigateToConsulteesRecommendations,
+        navigateToCheckYourAnswers,
         handleNavigationAfterLpaReason,
         handleNavigationAfterSaveConsultees,
     };
