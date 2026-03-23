@@ -27,7 +27,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		setApplicationDocuments(prev => [...prev, ...applicationDocumentsArr]);
 		// Clear files error when files are uploaded
 		if (errors.files && (uploadedFiles.length > 0 || applicationDocumentsArr.length > 0)) {
-			setErrors(prev => ({ ...prev, files: undefined }));
+			setErrors(prev => {
+				const { files: _files, ...rest } = prev;
+				return rest;
+			});
 		}
 	};
 
@@ -140,7 +143,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 					</nav>
 					<main className="govuk-main-wrapper govuk-!-margin-bottom-6" id="main-content">
 					{/* Error Summary */}
-					{Object.keys(errors).length > 0 && (
+					{(errors.reason || errors.files) && (
 						<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
 							<h2 className="govuk-error-summary__title" id="error-summary-title">
 								There is a problem
@@ -196,7 +199,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 										setReason(e.target.value);
 										// Clear error when user starts typing
 										if (errors.reason) {
-											setErrors(prev => ({ ...prev, reason: undefined }));
+											setErrors(prev => {
+												const { reason: _reason, ...rest } = prev;
+												return rest;
+											});
 										}
 									}}
 									aria-describedby={errors.reason ? "reason-error" : undefined}
@@ -221,7 +227,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 										setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
 										// Clear files error when removing files (validation will re-trigger on save)
 										if (errors.files) {
-											setErrors(prev => ({ ...prev, files: undefined }));
+											setErrors(prev => {
+												const { files: _files, ...rest } = prev;
+												return rest;
+											});
 										}
 									}}
 									onUploaded={handleUploadedFiles}
