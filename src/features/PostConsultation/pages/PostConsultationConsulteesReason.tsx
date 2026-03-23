@@ -12,7 +12,7 @@ import {
 import { SaveType } from "../types";
 
 const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
-  const { applicationId, getTaskListUrl } = usePostConsultationNavigation();
+  const { applicationId, getTaskListUrl, getCheckYourAnswersUrl } = usePostConsultationNavigation();
   const navigate = useNavigate();
   const {
     consulteesExplanation,
@@ -31,7 +31,7 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
       "consultees-recommendations-reason",
     );
     if (success && saveType === "continue") {
-      navigate(getTaskListUrl());
+      navigate(getCheckYourAnswersUrl());
     }
   };
 

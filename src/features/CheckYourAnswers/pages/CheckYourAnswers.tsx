@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
-import { downloadS3File, downloadS3FileOnSameTab} from "../../../utils/s3DownloadUtil";
+import { downloadS3File, downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { applicationApiService } from "../../../services/applicationApiService";
 import {
@@ -91,14 +91,14 @@ const ApplicationSubmit: React.FC = () => {
   } | null>(null);
 
   const [sensitiveAreaReview, setSensitiveAreaReview] = useState<{
-  other_sensitive_areas_note?: string;
-  asset_presence_option_id?: number;
-  application_documents?: SensitiveAreaReviewDocument[];
-  manual?: {
-    selected?: { layerName: string }[];
-    customAdded?: { layerName: string }[];
-  };
-} | null>(null);
+    other_sensitive_areas_note?: string;
+    asset_presence_option_id?: number;
+    application_documents?: SensitiveAreaReviewDocument[];
+    manual?: {
+      selected?: { layerName: string }[];
+      customAdded?: { layerName: string }[];
+    };
+  } | null>(null);
 
   // Add state for supporting info
   const [supportingQuestions, setSupportingQuestions] =
@@ -773,7 +773,7 @@ const ApplicationSubmit: React.FC = () => {
             {/* Assets summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Assets</h2>
+                <h2 className="govuk-summary-card__title">Assets Information</h2>
                 {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
@@ -847,118 +847,7 @@ const ApplicationSubmit: React.FC = () => {
                 </dl>
               </div>
             </div>
-            <h2 className="govuk-heading-m">Routes</h2>
-            {/* Route map summary card*/}
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Route map
-                  <a
-                    href={`/frontend${S37_BASE_URL}/${applicationId}/route-map-only`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="govuk-link"
-                    style={{ marginLeft: 12, fontWeight: 400, fontSize: '1rem' }}
-                  >
-                    View map (Opens in new tab)
-                  </a>
-                </h2>
-              </div>
-              <div className="govuk-summary-card__content">
-                <div
-                  style={{
-                    width: "100%",
-                    height: 500,
-                    border: "1px solid #b1b4b6",
-                    borderRadius: 4,
-                    overflow: "hidden",
-                    background: "#fff",
-                  }}
-                >
-                  <SensitiveAreaCheckMap
-                    routes={transformedRoutes}
-                    mode="overview"
-                  />
-                </div>
-              </div>
-            </div>
-            {/* Route summary cards */}
-            {routes.length > 0 ? (
-              <>
-                {routes.map((route, idx) => (
-                  <div
-                    className="govuk-summary-card"
-                    key={route.route_id || idx}
-                  >
-                    <div className="govuk-summary-card__title-wrapper">
-                      <h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(
-                        65 + idx,
-                      )}`}</h2>
-                    </div>
-                    <div className="govuk-summary-card__content">
-                      <table className="govuk-table govuk-!-margin-bottom-6">
-                        <thead className="govuk-table__head">
-                          <tr className="govuk-table__row">
-                            <th className="govuk-table__header">Easting</th>
-                            <th className="govuk-table__header">Northing</th>
-                          </tr>
-                        </thead>
-                        <tbody className="govuk-table__body">
-                          {Array.isArray(route.gridPoints) &&
-                            route.gridPoints.length > 0 ? (
-                            route.gridPoints.map((point, pidx) => (
-                              <tr
-                                className="govuk-table__row"
-                                key={point.point_id || pidx}
-                              >
-                                <td className="govuk-table__cell">
-                                  {point.easting}
-                                </td>
-                                <td className="govuk-table__cell">
-                                  {point.northing}
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr className="govuk-table__row">
-                              <td className="govuk-table__cell">-</td>
-                              <td className="govuk-table__cell">-</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                      {route.disconnected_route_justification && (
-                        <div className="govuk-inset-text">
-                          <strong>Disconnected route justification:</strong>{" "}
-                          {route.disconnected_route_justification}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </>
-            ) : (
-              <div className="govuk-summary-card">
-                <div className="govuk-summary-card__title-wrapper">
-                  <h2 className="govuk-summary-card__title">Route</h2>
-                </div>
-                <div className="govuk-summary-card__content">
-                  <table className="govuk-table govuk-!-margin-bottom-6">
-                    <thead className="govuk-table__head">
-                      <tr className="govuk-table__row">
-                        <th className="govuk-table__header">Easting</th>
-                        <th className="govuk-table__header">Northing</th>
-                      </tr>
-                    </thead>
-                    <tbody className="govuk-table__body">
-                      <tr className="govuk-table__row">
-                        <td className="govuk-table__cell">-</td>
-                        <td className="govuk-table__cell">-</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+
             {/* Works overview summary card - dynamic mapping and conditional questions */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -1206,6 +1095,119 @@ const ApplicationSubmit: React.FC = () => {
               </div>
             </div>
 
+            <h2 className="govuk-heading-m">Location</h2>
+            {/* Route map summary card*/}
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">Route map
+                  <a
+                    href={`/frontend${S37_BASE_URL}/${applicationId}/route-map-only`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="govuk-link"
+                    style={{ marginLeft: 12, fontWeight: 400, fontSize: '1rem' }}
+                  >
+                    View map (Opens in new tab)
+                  </a>
+                </h2>
+              </div>
+              <div className="govuk-summary-card__content">
+                <div
+                  style={{
+                    width: "100%",
+                    height: 500,
+                    border: "1px solid #b1b4b6",
+                    borderRadius: 4,
+                    overflow: "hidden",
+                    background: "#fff",
+                  }}
+                >
+                  <SensitiveAreaCheckMap
+                    routes={transformedRoutes}
+                    mode="overview"
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Route summary cards */}
+            {routes.length > 0 ? (
+              <>
+                {routes.map((route, idx) => (
+                  <div
+                    className="govuk-summary-card"
+                    key={route.route_id || idx}
+                  >
+                    <div className="govuk-summary-card__title-wrapper">
+                      <h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(
+                        65 + idx,
+                      )}`}</h2>
+                    </div>
+                    <div className="govuk-summary-card__content">
+                      <table className="govuk-table govuk-!-margin-bottom-6">
+                        <thead className="govuk-table__head">
+                          <tr className="govuk-table__row">
+                            <th className="govuk-table__header">Easting</th>
+                            <th className="govuk-table__header">Northing</th>
+                          </tr>
+                        </thead>
+                        <tbody className="govuk-table__body">
+                          {Array.isArray(route.gridPoints) &&
+                            route.gridPoints.length > 0 ? (
+                            route.gridPoints.map((point, pidx) => (
+                              <tr
+                                className="govuk-table__row"
+                                key={point.point_id || pidx}
+                              >
+                                <td className="govuk-table__cell">
+                                  {point.easting}
+                                </td>
+                                <td className="govuk-table__cell">
+                                  {point.northing}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr className="govuk-table__row">
+                              <td className="govuk-table__cell">-</td>
+                              <td className="govuk-table__cell">-</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                      {route.disconnected_route_justification && (
+                        <div className="govuk-inset-text">
+                          <strong>Disconnected route justification:</strong>{" "}
+                          {route.disconnected_route_justification}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className="govuk-summary-card">
+                <div className="govuk-summary-card__title-wrapper">
+                  <h2 className="govuk-summary-card__title">Route</h2>
+                </div>
+                <div className="govuk-summary-card__content">
+                  <table className="govuk-table govuk-!-margin-bottom-6">
+                    <thead className="govuk-table__head">
+                      <tr className="govuk-table__row">
+                        <th className="govuk-table__header">Easting</th>
+                        <th className="govuk-table__header">Northing</th>
+                      </tr>
+                    </thead>
+                    <tbody className="govuk-table__body">
+                      <tr className="govuk-table__row">
+                        <td className="govuk-table__cell">-</td>
+                        <td className="govuk-table__cell">-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
             {/* Parishes summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -1393,119 +1395,7 @@ const ApplicationSubmit: React.FC = () => {
                 </dl>
               </div>
             </div>
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Post consultation actions</h2>
-                {permissions?.canEdit && (
-                  <ul className="govuk-summary-card__actions">
-                    <li className="govuk-summary-card__action">
-                      <Link
-                        className="govuk-link"
-                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions/lpa-agreement`}
-                      >
-                        Change
-                        <span className="govuk-visually-hidden">
-                          {" "}
-                          post consultation actions
-                        </span>
-                      </Link>
-                    </li>
-                  </ul>
-                )}
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Was the Local Planning Authority's (LPA) agreement to the proposal subject to modifications or conditions being applied to the consent?
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {postConsultationOutcome?.lpa_conditions_imposed === true
-                        ? "Yes"
-                        : postConsultationOutcome?.lpa_conditions_imposed === false
-                          ? "No"
-                          : "-"}
-                    </dd>
-                  </div>
-                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        Do you accept all the conditions imposed by the LPA?
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_accepted === true
-                          ? "Yes"
-                          : postConsultationOutcome?.lpa_conditions_accepted === false
-                            ? "No"
-                            : "-"}
-                      </dd>
-                    </div>
-                  )}
 
-                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        Explain why you do not accept all the LPA's conditions
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
-                      </dd>
-                    </div>
-                  )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
-                    postConsultationOutcome?.consultees_recommendations_made !== null && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          Were any recommendations made or conditions requested by the consultees? (Not including the LPA)
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_made === true
-                            ? "Yes"
-                            : postConsultationOutcome?.consultees_recommendations_made === false
-                              ? "No"
-                              : "-"}
-                        </dd>
-                      </div>
-                    )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_made === true && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          Do you accept the recommendations made by the consultees?
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_accepted === true
-                            ? "Yes"
-                            : postConsultationOutcome?.consultees_recommendations_accepted === false
-                              ? "No"
-                              : "-"}
-                        </dd>
-                      </div>
-                    )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          Explain why you do not accept all the consultees' recommendations
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
-                        </dd>
-                      </div>
-                    )}
-                </dl>
-              </div>
-            </div>
             <h2 className="govuk-heading-m">Supporting information</h2>
             {/* Supporting information summary card - fixed to use state variables and map correct questions/answers */}
             <div className="govuk-summary-card">
@@ -1754,322 +1644,472 @@ const ApplicationSubmit: React.FC = () => {
               ))}
             {/* Consultation cards - render one card per consultee organisation */}
             {(consultations.length > 0 ? consultations : [{}])
-  .filter(c => c.status !== "Not required")
-  .map((consultation, idx) => {
-    // Determine if response was received
-    const responseReceived = !!(
-      consultation.responseDocuments && consultation.responseDocuments.length > 0
-    );
-    const isPublicConsultation = consultation.consultationType === "PUBLIC";
-    
-    return (
-      <div className="govuk-summary-card" key={consultation.id || idx}>
-        <div className="govuk-summary-card__title-wrapper">
-          <h2 className="govuk-summary-card__title">
-            {consultation.consulteeOrganisationName || "Consultation"}
-          </h2>
-        </div>
-        <div className="govuk-summary-card__content">
-          <dl className="govuk-summary-list">
-            <div className="govuk-summary-list__row">
-              <dt className="govuk-summary-list__key">Status</dt>
-              <dd className="govuk-summary-list__value">
-                {consultation.status || "-"}
-              </dd>
+              .filter(c => c.status !== "Not required")
+              .map((consultation, idx) => {
+                // Determine if response was received
+                const responseReceived = !!(
+                  consultation.responseDocuments && consultation.responseDocuments.length > 0
+                );
+                const isPublicConsultation = consultation.consultationType === "PUBLIC";
+
+                return (
+                  <div className="govuk-summary-card" key={consultation.id || idx}>
+                    <div className="govuk-summary-card__title-wrapper">
+                      <h2 className="govuk-summary-card__title">
+                        {consultation.consulteeOrganisationName || "Consultation"}
+                      </h2>
+                    </div>
+                    <div className="govuk-summary-card__content">
+                      <dl className="govuk-summary-list">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Status</dt>
+                          <dd className="govuk-summary-list__value">
+                            {consultation.status || "-"}
+                          </dd>
+                        </div>
+
+                        {/* PUBLIC consultation fields */}
+                        {isPublicConsultation ? (
+                          <>
+                            {/* First date published */}
+                            <div className="govuk-summary-list__row">
+                              <dt className="govuk-summary-list__key">First date published</dt>
+                              <dd className="govuk-summary-list__value">
+                                {consultation.firstDatePublished
+                                  ? new Date(consultation.firstDatePublished).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "long",
+                                    year: "numeric"
+                                  })
+                                  : "-"}
+                              </dd>
+                            </div>
+
+                            {/* Second date published */}
+                            <div className="govuk-summary-list__row">
+                              <dt className="govuk-summary-list__key">Second date published</dt>
+                              <dd className="govuk-summary-list__value">
+                                {consultation.secondDatePublished
+                                  ? new Date(consultation.secondDatePublished).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "long",
+                                    year: "numeric"
+                                  })
+                                  : "-"}
+                              </dd>
+                            </div>
+
+                            {/* Evidence of publication */}
+                            <div className="govuk-summary-list__row">
+                              <dt className="govuk-summary-list__key">Evidence of publication</dt>
+                              <dd className="govuk-summary-list__value">
+                                {consultation.evidenceOfPublicationDocs &&
+                                  consultation.evidenceOfPublicationDocs.length > 0 ? (
+                                  <ul className="govuk-list">
+                                    {consultation.evidenceOfPublicationDocs.map((doc, i) => (
+                                      <li key={i}>
+                                        <a
+                                          href="#"
+                                          className="govuk-link"
+                                          onClick={async (e) => {
+                                            e.preventDefault();
+                                            const key = doc.url;
+                                            try {
+                                              await downloadS3FileOnSameTab(key);
+                                            } catch (error) {
+                                              console.error('Failed to download file:', error);
+                                            }
+                                          }}
+                                        >
+                                          {doc.name}
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : "-"}
+                              </dd>
+                            </div>
+
+                            {/* Objection raised */}
+                            <div className="govuk-summary-list__row">
+                              <dt className="govuk-summary-list__key">Objection raised</dt>
+                              <dd className="govuk-summary-list__value">
+                                {typeof consultation.objectionRaised === "boolean"
+                                  ? consultation.objectionRaised ? "Yes" : "No"
+                                  : "-"}
+                              </dd>
+                            </div>
+
+                            {/* Public response documents */}
+                            <div className="govuk-summary-list__row">
+                              <dt className="govuk-summary-list__key">Public response documents</dt>
+                              <dd className="govuk-summary-list__value">
+                                {consultation.publicResponseDocuments &&
+                                  consultation.publicResponseDocuments.length > 0 ? (
+                                  <ul className="govuk-list">
+                                    {consultation.publicResponseDocuments.map((doc, i) => (
+                                      <li key={i}>
+                                        <a
+                                          href="#"
+                                          className="govuk-link"
+                                          onClick={async (e) => {
+                                            e.preventDefault();
+                                            const key = doc.url;
+                                            try {
+                                              await downloadS3FileOnSameTab(key);
+                                            } catch (error) {
+                                              console.error('Failed to download file:', error);
+                                            }
+                                          }}
+                                        >
+                                          {doc.name}
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : "-"}
+                              </dd>
+                            </div>
+
+                            {/* Comments */}
+                            <div className="govuk-summary-list__row">
+                              <dt className="govuk-summary-list__key">Comments</dt>
+                              <dd className="govuk-summary-list__value">
+                                {consultation.closeComments || "-"}
+                              </dd>
+                            </div>
+                          </>
+                        ) : (
+                          /* Non-PUBLIC consultation fields - existing code */
+                          <>
+
+                            {/* ONLY show for LPA consultations */}
+                            {consultation.consultationType === "LPA" && (
+                              <div className="govuk-summary-list__row">
+                                <dt className="govuk-summary-list__key">Consultation request document</dt>
+                                <dd className="govuk-summary-list__value">
+                                  {consultation.lpaConsultationForm &&
+                                    consultation.lpaConsultationForm.length > 0 ? (
+                                    <ul className="govuk-list">
+                                      {consultation.lpaConsultationForm.map((doc, i) => (
+                                        <li key={i}>
+                                          <a
+                                            href="#"
+                                            className="govuk-link"
+                                            onClick={async (e) => {
+                                              e.preventDefault();
+                                              const key = doc.url;
+                                              try {
+                                                await downloadS3FileOnSameTab(key);
+                                              } catch (error) {
+                                                console.error('Failed to download file:', error);
+                                              }
+                                            }}
+                                          >
+                                            {doc.name}
+                                          </a>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : "-"}
+                                </dd>
+                              </div>
+                            )}
+
+                            <div className="govuk-summary-list__row">
+                              <dt className="govuk-summary-list__key">Date of consultation request</dt>
+                              <dd className="govuk-summary-list__value">
+                                {consultation.sentAt
+                                  ? new Date(consultation.sentAt).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "long",
+                                    year: "numeric"
+                                  })
+                                  : "-"}
+                              </dd>
+                            </div>
+
+                            <div className="govuk-summary-list__row">
+                              <dt className="govuk-summary-list__key">Evidence of request</dt>
+                              <dd className="govuk-summary-list__value">
+                                {consultation.requestEvidenceDocuments &&
+                                  consultation.requestEvidenceDocuments.length > 0 ? (
+                                  <ul className="govuk-list">
+                                    {consultation.requestEvidenceDocuments.map((doc, i) => (
+                                      <li key={i}>
+                                        <a
+                                          href="#"
+                                          className="govuk-link"
+                                          onClick={async (e) => {
+                                            e.preventDefault();
+                                            const key = doc.url;
+                                            try {
+                                              await downloadS3FileOnSameTab(key);
+                                            } catch (error) {
+                                              console.error('Failed to download file:', error);
+                                            }
+                                          }}
+                                        >
+                                          {doc.name}
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : "-"}
+                              </dd>
+                            </div>
+
+                            {responseReceived ? (
+                              <>
+                                <div className="govuk-summary-list__row">
+                                  <dt className="govuk-summary-list__key">Consultee contact name</dt>
+                                  <dd className="govuk-summary-list__value">
+                                    {consultation.consulteeContactName || "-"}
+                                  </dd>
+                                </div>
+
+                                <div className="govuk-summary-list__row">
+                                  <dt className="govuk-summary-list__key">Consultee contact email</dt>
+                                  <dd className="govuk-summary-list__value">
+                                    {consultation.consulteeEmailAddress ? (
+                                      <a href={`mailto:${consultation.consulteeEmailAddress}`}>
+                                        {consultation.consulteeEmailAddress}
+                                      </a>
+                                    ) : "-"}
+                                  </dd>
+                                </div>
+
+                                <div className="govuk-summary-list__row">
+                                  <dt className="govuk-summary-list__key">Objection raised</dt>
+                                  <dd className="govuk-summary-list__value">
+                                    {typeof consultation.objectionRaised === "boolean"
+                                      ? consultation.objectionRaised ? "Yes" : "No"
+                                      : "-"}
+                                  </dd>
+                                </div>
+
+                                <div className="govuk-summary-list__row">
+                                  <dt className="govuk-summary-list__key">Date closed</dt>
+                                  <dd className="govuk-summary-list__value">
+                                    {["Closed", "Completed"].includes(consultation.status ?? "") &&
+                                      consultation.dateClosed
+                                      ? new Date(consultation.dateClosed).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "long",
+                                        year: "numeric"
+                                      })
+                                      : "-"}
+                                  </dd>
+                                </div>
+
+                                <div className="govuk-summary-list__row">
+                                  <dt className="govuk-summary-list__key">Response documents</dt>
+                                  <dd className="govuk-summary-list__value">
+                                    {consultation.responseDocuments &&
+                                      consultation.responseDocuments.length > 0 ? (
+                                      <ul className="govuk-list">
+                                        {consultation.responseDocuments.map((doc, i) => (
+                                          <li key={i}>
+                                            <a
+                                              href="#"
+                                              className="govuk-link"
+                                              onClick={async (e) => {
+                                                e.preventDefault();
+                                                const key = doc.url;
+                                                try {
+                                                  await downloadS3FileOnSameTab(key);
+                                                } catch (error) {
+                                                  console.error('Failed to download file:', error);
+                                                }
+                                              }}
+                                            >
+                                              {doc.name}
+                                            </a>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    ) : "-"}
+                                  </dd>
+                                </div>
+
+                                <div className="govuk-summary-list__row">
+                                  <dt className="govuk-summary-list__key">Close comments</dt>
+                                  <dd className="govuk-summary-list__value">
+                                    {consultation.closeComments || "-"}
+                                  </dd>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="govuk-summary-list__row">
+                                  <dt className="govuk-summary-list__key">Date closed</dt>
+                                  <dd className="govuk-summary-list__value">
+                                    {["Closed", "Completed"].includes(consultation.status ?? "") &&
+                                      consultation.dateClosed
+                                      ? new Date(consultation.dateClosed).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "long",
+                                        year: "numeric"
+                                      })
+                                      : "-"}
+                                  </dd>
+                                </div>
+
+                                <div className="govuk-summary-list__row">
+                                  <dt className="govuk-summary-list__key">Evidence of response not received</dt>
+                                  <dd className="govuk-summary-list__value">
+                                    {consultation.evidenceResponseNotReceivedDocs &&
+                                      consultation.evidenceResponseNotReceivedDocs.length > 0 ? (
+                                      <ul className="govuk-list">
+                                        {consultation.evidenceResponseNotReceivedDocs.map((doc, i) => (
+                                          <li key={i}>
+                                            <a
+                                              href="#"
+                                              className="govuk-link"
+                                              onClick={async (e) => {
+                                                e.preventDefault();
+                                                const key = doc.url;
+                                                try {
+                                                  await downloadS3FileOnSameTab(key);
+                                                } catch (error) {
+                                                  console.error('Failed to download file:', error);
+                                                }
+                                              }}
+                                            >
+                                              {doc.name}
+                                            </a>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    ) : "-"}
+                                  </dd>
+                                </div>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </dl>
+                    </div>
+                  </div>
+                );
+              })
+            }            
+            
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">Post consultation actions</h2>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions/lpa-agreement`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          post consultation actions
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Was the Local Planning Authority's (LPA) agreement to the proposal subject to modifications or conditions being applied to the consent?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {postConsultationOutcome?.lpa_conditions_imposed === true
+                        ? "Yes"
+                        : postConsultationOutcome?.lpa_conditions_imposed === false
+                          ? "No"
+                          : "-"}
+                    </dd>
+                  </div>
+                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Do you accept all the conditions imposed by the LPA?
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_accepted === true
+                          ? "Yes"
+                          : postConsultationOutcome?.lpa_conditions_accepted === false
+                            ? "No"
+                            : "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Explain why you do not accept all the LPA's conditions
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
+                    postConsultationOutcome?.consultees_recommendations_made !== null && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Were any recommendations made or conditions requested by the consultees? (Not including the LPA)
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_made === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_made === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made === true && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Do you accept the recommendations made by the consultees?
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_accepted === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_accepted === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Explain why you do not accept all the consultees' recommendations
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
+                        </dd>
+                      </div>
+                    )}
+                </dl>
+              </div>
             </div>
 
-            {/* PUBLIC consultation fields */}
-            {isPublicConsultation ? (
-              <>
-                {/* First date published */}
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">First date published</dt>
-                  <dd className="govuk-summary-list__value">
-                    {consultation.firstDatePublished
-                      ? new Date(consultation.firstDatePublished).toLocaleDateString("en-GB", { 
-                          day: "2-digit", 
-                          month: "long", 
-                          year: "numeric" 
-                        })
-                      : "-"}
-                  </dd>
-                </div>
-
-                {/* Second date published */}
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Second date published</dt>
-                  <dd className="govuk-summary-list__value">
-                    {consultation.secondDatePublished
-                      ? new Date(consultation.secondDatePublished).toLocaleDateString("en-GB", { 
-                          day: "2-digit", 
-                          month: "long", 
-                          year: "numeric" 
-                        })
-                      : "-"}
-                  </dd>
-                </div>
-
-                {/* Evidence of publication */}
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Evidence of publication</dt>
-                  <dd className="govuk-summary-list__value">
-                    {consultation.evidenceOfPublicationDocs && 
-                     consultation.evidenceOfPublicationDocs.length > 0 ? (
-                      <ul className="govuk-list">
-                        {consultation.evidenceOfPublicationDocs.map((doc, i) => (
-                          <li key={i}>
-                            <a
-                              href="#"
-                              className="govuk-link"
-                              onClick={async (e) => {
-                                e.preventDefault();
-                                const key = doc.url;
-                                try {
-                                  await downloadS3FileOnSameTab(key);
-                                } catch (error) {
-                                  console.error('Failed to download file:', error);
-                                }
-                              }}
-                            >
-                              {doc.name}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : "-"}
-                  </dd>
-                </div>
-
-                {/* Objection raised */}
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Objection raised</dt>
-                  <dd className="govuk-summary-list__value">
-                    {typeof consultation.objectionRaised === "boolean"
-                      ? consultation.objectionRaised ? "Yes" : "No"
-                      : "-"}
-                  </dd>
-                </div>
-
-                {/* Public response documents */}
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Public response documents</dt>
-                  <dd className="govuk-summary-list__value">
-                    {consultation.publicResponseDocuments && 
-                     consultation.publicResponseDocuments.length > 0 ? (
-                      <ul className="govuk-list">
-                        {consultation.publicResponseDocuments.map((doc, i) => (
-                          <li key={i}>
-                            <a
-                              href="#"
-                              className="govuk-link"
-                              onClick={async (e) => {
-                                e.preventDefault();
-                                const key = doc.url;
-                                try {
-                                  await downloadS3FileOnSameTab(key);
-                                } catch (error) {
-                                  console.error('Failed to download file:', error);
-                                }
-                              }}
-                            >
-                              {doc.name}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : "-"}
-                  </dd>
-                </div>
-
-                {/* Comments */}
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Comments</dt>
-                  <dd className="govuk-summary-list__value">
-                    {consultation.closeComments || "-"}
-                  </dd>
-                </div>
-              </>
-            ) : (
-              /* Non-PUBLIC consultation fields - existing code */
-              <>
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Date of consultation request</dt>
-                  <dd className="govuk-summary-list__value">
-                    {consultation.sentAt
-                      ? new Date(consultation.sentAt).toLocaleDateString("en-GB", { 
-                          day: "2-digit", 
-                          month: "long", 
-                          year: "numeric" 
-                        })
-                      : "-"}
-                  </dd>
-                </div>
-                
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Evidence of request</dt>
-                  <dd className="govuk-summary-list__value">
-                    {consultation.requestEvidenceDocuments && 
-                     consultation.requestEvidenceDocuments.length > 0 ? (
-                      <ul className="govuk-list">
-                        {consultation.requestEvidenceDocuments.map((doc, i) => (
-                          <li key={i}>
-                            <a
-                              href="#"
-                              className="govuk-link"
-                              onClick={async (e) => {
-                                e.preventDefault();
-                                const key = doc.url;
-                                try {
-                                  await downloadS3FileOnSameTab(key);
-                                } catch (error) {
-                                  console.error('Failed to download file:', error);
-                                }
-                              }}
-                            >
-                              {doc.name}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : "-"}
-                  </dd>
-                </div>
-
-                {responseReceived ? (
-                  <>
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Consultee contact name</dt>
-                      <dd className="govuk-summary-list__value">
-                        {consultation.consulteeContactName || "-"}
-                      </dd>
-                    </div>
-                    
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Consultee contact email</dt>
-                      <dd className="govuk-summary-list__value">
-                        {consultation.consulteeEmailAddress ? (
-                          <a href={`mailto:${consultation.consulteeEmailAddress}`}>
-                            {consultation.consulteeEmailAddress}
-                          </a>
-                        ) : "-"}
-                      </dd>
-                    </div>
-                    
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Objection raised</dt>
-                      <dd className="govuk-summary-list__value">
-                        {typeof consultation.objectionRaised === "boolean"
-                          ? consultation.objectionRaised ? "Yes" : "No"
-                          : "-"}
-                      </dd>
-                    </div>
-                    
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Date closed</dt>
-                      <dd className="govuk-summary-list__value">
-                        {["Closed", "Completed"].includes(consultation.status ?? "") && 
-                         consultation.dateClosed
-                          ? new Date(consultation.dateClosed).toLocaleDateString("en-GB", { 
-                              day: "2-digit", 
-                              month: "long", 
-                              year: "numeric" 
-                            })
-                          : "-"}
-                      </dd>
-                    </div>
-                    
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Response documents</dt>
-                      <dd className="govuk-summary-list__value">
-                        {consultation.responseDocuments && 
-                         consultation.responseDocuments.length > 0 ? (
-                          <ul className="govuk-list">
-                            {consultation.responseDocuments.map((doc, i) => (
-                              <li key={i}>
-                                <a
-                                  href="#"
-                                  className="govuk-link"
-                                  onClick={async (e) => {
-                                    e.preventDefault();
-                                    const key = doc.url;
-                                    try {
-                                      await downloadS3FileOnSameTab(key);
-                                    } catch (error) {
-                                      console.error('Failed to download file:', error);
-                                    }
-                                  }}
-                                >
-                                  {doc.name}
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : "-"}
-                      </dd>
-                    </div>
-                    
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Close comments</dt>
-                      <dd className="govuk-summary-list__value">
-                        {consultation.closeComments || "-"}
-                      </dd>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Date closed</dt>
-                      <dd className="govuk-summary-list__value">
-                        {["Closed", "Completed"].includes(consultation.status ?? "") && 
-                         consultation.dateClosed
-                          ? new Date(consultation.dateClosed).toLocaleDateString("en-GB", { 
-                              day: "2-digit", 
-                              month: "long", 
-                              year: "numeric" 
-                            })
-                          : "-"}
-                      </dd>
-                    </div>
-                    
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Evidence of response not received</dt>
-                      <dd className="govuk-summary-list__value">
-                        {consultation.evidenceResponseNotReceivedDocs && 
-                         consultation.evidenceResponseNotReceivedDocs.length > 0 ? (
-                          <ul className="govuk-list">
-                            {consultation.evidenceResponseNotReceivedDocs.map((doc, i) => (
-                              <li key={i}>
-                                <a
-                                  href="#"
-                                  className="govuk-link"
-                                  onClick={async (e) => {
-                                    e.preventDefault();
-                                    const key = doc.url;
-                                    try {
-                                      await downloadS3FileOnSameTab(key);
-                                    } catch (error) {
-                                      console.error('Failed to download file:', error);
-                                    }
-                                  }}
-                                >
-                                  {doc.name}
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : "-"}
-                      </dd>
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-          </dl>
-        </div>
-      </div>
-    );
-  })
-}            {/* Submit application form */}
+            {/* Submit application form */}
             {permissions?.canEdit && (
               <div
                 className={`govuk-form-group${validationError ? " govuk-form-group--error" : ""}`}
