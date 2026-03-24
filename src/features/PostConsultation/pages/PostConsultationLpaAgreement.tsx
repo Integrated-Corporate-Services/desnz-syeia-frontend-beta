@@ -13,7 +13,7 @@ import { SaveType } from "../types";
 import { useNavigate } from "react-router-dom";
 
 const PostConsultationLpaAgreement: React.FC = () => {
-  const { applicationId, getCheckYourAnswersUrl, getTaskListUrl } = usePostConsultationNavigation();
+  const { applicationId, getCheckYourAnswersUrl, getTaskListUrl, navigateAfterCompletion } = usePostConsultationNavigation();
   const navigate = useNavigate();
   const {
     lpaModifications,
@@ -35,7 +35,7 @@ const PostConsultationLpaAgreement: React.FC = () => {
       return;
     }
     if (success && lpaModifications === "no") {
-      navigate(getCheckYourAnswersUrl());
+      navigateAfterCompletion();
       return;
     }
   };
