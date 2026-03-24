@@ -12,7 +12,7 @@ import {
 import { SaveType } from "../types";
 
 const PostConsultationConsulteesRecommendations: React.FC = () => {
-  const { applicationId, getTaskListUrl, getCheckYourAnswersUrl } = usePostConsultationNavigation();
+  const { applicationId, getTaskListUrl, getCheckYourAnswersUrl, navigateAfterCompletion } = usePostConsultationNavigation();
   const navigate = useNavigate();
   const {
     consulteesRecommendations,
@@ -33,7 +33,7 @@ const PostConsultationConsulteesRecommendations: React.FC = () => {
           `/s-37/${applicationId}/post-consultation-actions/consultees-recommendations-acceptance`,
         );
       } else {
-        navigate(getCheckYourAnswersUrl());
+        navigateAfterCompletion();
       }
     }
   };

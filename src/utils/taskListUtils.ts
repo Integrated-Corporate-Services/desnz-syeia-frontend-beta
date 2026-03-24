@@ -42,7 +42,7 @@ export function getInitialSections(applicationId?: string, assetInformationStatu
                     link: `${base}/project-overview`,
                 },
                 {
-                    name: 'Asset information',
+                    name: 'Assets',
                     status: 'Not completed',
                     link: `${base}/asset-information`,
                 },
@@ -165,6 +165,45 @@ export function applyProgressToSections(sections: TaskListSection[], progress: {
             return item;
         }),
     }));
+}
+
+/**
+ * Check if all required sections are completed to access Check Your Answers
+ * @param progress - Array of progress items with subsection_name and status
+ * @returns boolean - true if all required sections are completed
+ */
+export function areAllRequiredSectionsCompleted(
+  progress?: { subsection_name: string; status: string }[]
+): boolean {
+  if (!progress || progress.length === 0) {
+    return false;
+  }
+
+  const requiredSubsections = [
+    // Applicant details section
+    'Applicant details',
+    'Check applicant contact details',
+    // Project details section
+    'Project overview',
+    'Assets',
+    'Works overview',
+    // Location section
+    'Route',
+    'Sensitive area checks',
+    'Sensitive area review',
+    'Parishes',
+    // Supporting information section
+    'Supporting questions',
+    'EIA fees',
+    // Consultations section
+    'Consultations',
+    'Post consultation actions'
+  ];
+
+  return requiredSubsections.every(subsection => {
+    const item = progress.find(p => p.subsection_name === subsection);
+    return item?.status === 'Completed';
+  });
 }
 
 // when sensitive area checks are in progress

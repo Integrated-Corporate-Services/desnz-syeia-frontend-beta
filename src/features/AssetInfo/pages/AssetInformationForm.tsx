@@ -275,7 +275,7 @@ const getApplicationId = () => {
               Task list
             </Link>
 					</li>
-					<li className="govuk-breadcrumbs__list-item" aria-current="page">Asset information</li>
+					<li className="govuk-breadcrumbs__list-item" aria-current="page">Assets</li>
 				</ol>
 			</nav>
       {isReadOnly && (
@@ -312,7 +312,7 @@ const getApplicationId = () => {
         <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-        <h1 className="govuk-heading-l">Asset information</h1>
+        <h1 className="govuk-heading-l">Assets</h1>
 
         {/* Standard specification reference number */}
         <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Standard specification reference number</h2>

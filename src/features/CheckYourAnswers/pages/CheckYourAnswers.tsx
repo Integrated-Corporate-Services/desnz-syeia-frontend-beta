@@ -773,7 +773,7 @@ const ApplicationSubmit: React.FC = () => {
             {/* Assets summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Assets Information</h2>
+                <h2 className="govuk-summary-card__title">Assets</h2>
                 {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
@@ -784,7 +784,7 @@ const ApplicationSubmit: React.FC = () => {
                         Change
                         <span className="govuk-visually-hidden">
                           {" "}
-                          asset information
+                          assets
                         </span>
                       </Link>
                     </li>
