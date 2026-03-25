@@ -35,7 +35,8 @@ export const usePostConsultationNavigation = () => {
     };
 
     const navigateAfterCompletion = () => {
-        const allCompleted = areAllRequiredSectionsCompleted(progress);
+      const { progress: currentProgress } = useProgressStore.getState(); // Gets fresh value directly
+      const allCompleted = areAllRequiredSectionsCompleted(currentProgress);
         
         if (allCompleted) {
             navigate(getCheckYourAnswersUrl());
