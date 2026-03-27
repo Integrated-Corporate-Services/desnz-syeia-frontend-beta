@@ -28,6 +28,8 @@ export const useApplicationStore = create<State>((set) => ({
   applicationParty: null,
   organisation: null,
   loadApplications: async (created_by) => {
+    // Clear existing data first
+    set({ applications: [] });
     const apps = await applicationApiService.fetchApplicationsByUser(created_by);
     // Map operator_ref to your_reference for workbasket display
     const mappedApps = apps.map((app: Application) => ({
@@ -45,6 +47,8 @@ export const useApplicationStore = create<State>((set) => ({
     return app;
   },
   fetchAndSetApplication: async (id: string) => {
+    // Clear existing data first
+    set({ application: null, applicationParty: null });
     const app = await applicationApiService.getApplicationById(id);
     set({ application: app , applicationParty: app.application_party });
   },

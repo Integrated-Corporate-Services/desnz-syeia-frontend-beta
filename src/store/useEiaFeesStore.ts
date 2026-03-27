@@ -19,7 +19,7 @@ export const useEiaFeesStore = create<EiaFeesState>((set) => ({
   error: null,
 
   fetchEiaFees: async (applicationId: string) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, eiaFees: null });
     try {
       const data = await fetchEiaFeesDetails(applicationId);
       // If backend returns an array, extract first item; else use data directly

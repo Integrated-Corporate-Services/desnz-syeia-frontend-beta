@@ -19,7 +19,7 @@ export const useProgressStore = create<ProgressState>((set) => ({
   error: null,
 
   fetchProgress: async (applicationId: string) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, progress: null });
     try {
       const data = await progressApiService.fetchApplicationProgress(applicationId);
       set({ progress: data, loading: false });

@@ -29,12 +29,17 @@ export const useProjectStore = create<ProjectStoreState>((set) => ({
   error: null,
 
   fetchProjectOverview: async (applicationId) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, projectOverview: null });
     try {
-      const data = await getProjectOverview(applicationId);
+      let data = null;
+      data = await getProjectOverview(applicationId);
       set({ projectOverview: data, loading: false });
     } catch (err: any) {
+                  set({ projectOverview: null, loading: false });
+
       set({ error: err.message || 'Failed to fetch project overview', loading: false });
+      console.error('Error fetching project overview:', err);
+
     }
   },
 
@@ -49,7 +54,7 @@ export const useProjectStore = create<ProjectStoreState>((set) => ({
   },
 
   fetchProjectList: async (applicationId: string) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, projectList: [] });
     try {
       const list = await listProjects(applicationId);
       // Defensive: ensure all required fields exist

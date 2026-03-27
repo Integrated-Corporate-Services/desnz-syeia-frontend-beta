@@ -10,6 +10,7 @@ export function useSensitiveAreaReview(applicationId: string) {
   async function fetchReview() {
     setLoading(true);
     setError(null);
+    setReview(null); // Clear existing data first
     try {
       const data = await getSensitiveAreaReview(applicationId);
       setReview(data?.[0] || null);

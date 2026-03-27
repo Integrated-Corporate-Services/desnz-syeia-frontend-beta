@@ -42,7 +42,8 @@ const Asset: React.FC = () => {
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<{ lineType?: string; voltage?: string; description?: string }>({});
   const [showErrorSummary, setShowErrorSummary] = useState(false);
-  const { assets: dbAssets, fetchAssets } = useAssetStore();
+  const [currentFetchedAppId, setCurrentFetchedAppId] = useState<string>('');
+  const { assets: dbAssets, loading, fetchAssets } = useAssetStore();
   // Removed unused location variable
   const params = useParams();
   const navigate = useNavigate();
@@ -61,12 +62,22 @@ const Asset: React.FC = () => {
 
   useEffect(() => {
     if (applicationId) {
-      fetchAssets(applicationId);
+      fetchAssets(applicationId).then(() => {
+        setCurrentFetchedAppId(applicationId);
+      });
     }
   }, [applicationId, fetchAssets]);
 
   useEffect(() => {
-    if (dbAssets && dbAssets.length > 0) {
+    // Clear assets when applicationId changes
+    setAssets([]);
+    setCurrentFetchedAppId('');
+  }, [applicationId]);
+
+  useEffect(() => {
+    // Only bind assets if they were fetched for the current application
+    if (dbAssets && dbAssets.length > 0 && applicationId && 
+        currentFetchedAppId === applicationId && !loading) {
       function hasCodeProperty(obj: unknown): obj is { code: string } {
         return (
           typeof obj === 'object' &&
@@ -92,7 +103,8 @@ const Asset: React.FC = () => {
       });
       setAssets(mappedAssets);
     }
-  }, [dbAssets]);
+    // Form stays empty if no assets or assets from wrong application
+  }, [dbAssets, applicationId, currentFetchedAppId, loading]);
 
   const handleAddAsset = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
