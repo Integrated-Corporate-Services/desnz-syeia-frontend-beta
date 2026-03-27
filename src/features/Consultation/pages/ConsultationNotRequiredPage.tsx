@@ -130,7 +130,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		<div className="govuk-width-container govuk-!-margin-top-6 govuk-!-margin-bottom-6">
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
-					<nav className="govuk-breadcrumbs govuk-!-margin-bottom-6" aria-label="Breadcrumb">
+					<nav className="govuk-breadcrumbs govuk-!-margin-bottom-4" aria-label="Breadcrumb">
 						<ol className="govuk-breadcrumbs__list">
 							<li className="govuk-breadcrumbs__list-item">
 								<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
@@ -141,7 +141,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 							<li className="govuk-breadcrumbs__list-item" aria-current="page">Consultation not required</li>
 						</ol>
 					</nav>
-					<main className="govuk-main-wrapper govuk-!-margin-bottom-6" id="main-content">
+					<main className="govuk-main-wrapper govuk-!-padding-top-0 govuk-!-margin-bottom-6" id="main-content">
 					{/* Error Summary */}
 					{(errors.reason || errors.files) && (
 						<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">

@@ -28,7 +28,7 @@ export const useAssetStore = create<AssetStoreState>((set) => {
     loading: false,
     error: null,
     fetchAssets: async (applicationId: string) => {
-      set({ loading: true, error: null });
+      set({ loading: true, error: null, assets: [] });
       try {
         const data = await fetchAssetDetails(applicationId);
         set({ assets: data.assets || [], loading: false });

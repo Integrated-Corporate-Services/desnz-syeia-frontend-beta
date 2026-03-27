@@ -35,6 +35,19 @@ const EIAFeesForm: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
+  // Clear form when applicationId changes
+  useEffect(() => {
+    setForm({
+      isEiaDevelopment: "",
+      screeningOnly: "",
+      eiaFeeId: undefined,
+      applicationId: undefined,
+    });
+    setErrors([]);
+    setApiError(null);
+    setSuccess(false);
+  }, [applicationId]);
+
   // Fetch EIA Fees on mount
   useEffect(() => {
     if (!applicationId) return;
@@ -43,7 +56,7 @@ const EIAFeesForm: React.FC = () => {
 
   // Populate form when EIA Fees are loaded
   useEffect(() => {
-    if (eiaFees) {
+    if (eiaFees && applicationId && eiaFees.applicationId === applicationId) {
       setForm({
         isEiaDevelopment: eiaFees.isEiaDevelopment ? "true" : "false",
         screeningOnly: eiaFees.screeningOnly ? "true" : "false",
@@ -51,7 +64,7 @@ const EIAFeesForm: React.FC = () => {
         applicationId: eiaFees.applicationId,
       });
     }
-  }, [eiaFees]);
+  }, [eiaFees, applicationId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;

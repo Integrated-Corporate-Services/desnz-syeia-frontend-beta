@@ -44,7 +44,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
   loading: false,
   error: null,
   fetchRoutes: async (applicationId: string) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, routes: [] });
     try {
       const data = await getRoutesWithPoints(applicationId);
       set({ routes: data.routes, loading: false });

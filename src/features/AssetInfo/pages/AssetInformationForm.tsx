@@ -16,6 +16,7 @@ import { createAsset } from '../../../services/asset-service';
 import { managePublicConsultationByVoltage } from '../../../services/consultationService';
 import log from '../../../logger';
 import '../component/AssetInformationForm.css'
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 interface AssetFormState {
   assetId: string;
@@ -42,7 +43,8 @@ const AssetInformationForm: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [originalVoltage, setOriginalVoltage] = useState<string[]>([]);
-  const { assets, fetchAssets, updateAsset } = useAssetStore();
+  const [currentFetchedAppId, setCurrentFetchedAppId] = useState<string>('');
+  const { assets, loading, fetchAssets, updateAsset } = useAssetStore();
   const { application, fetchAndSetApplication } = useApplicationStore();
   const { user } = useAuthUserContext();
   const navigate = useNavigate();
@@ -60,42 +62,38 @@ const AssetInformationForm: React.FC = () => {
   }, [errors, submitted]);
 
 
-  // Get applicationId from URL params or query string
- 
-    const params = useParams();
- 
-const getApplicationId = () => {
-        if (params.applicationId) return params.applicationId;
-        if (params.id) return params.id;
-        if (typeof window !== 'undefined') {
-            const searchParams = new URLSearchParams(window.location.search);
-            const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-            if (idFromQuery) return idFromQuery;
-        }
-        return '';
-    };
-    const applicationId = getApplicationId();
- 
- 
-  const location = useLocation();
-  // Try to get ?id=... from query string if not present in params
-  const queryParams = new URLSearchParams(location.search);
-  const queryId = queryParams.get('id');
-  const effectiveApplicationId = applicationId || queryId || '';
+    const applicationId = useGetApplicationId();
 
+  const effectiveApplicationId = useGetApplicationId();
+
+  // Clear form state when applicationId changes
+  useEffect(() => {
+    setForm(initialState);
+    setOriginalVoltage([]);
+    setErrors({});
+    setSubmitted(false);
+    setCurrentFetchedAppId(''); // Clear tracked app ID
+  }, [effectiveApplicationId]);
+ 
   // Fetch asset details on mount
   useEffect(() => {
     if (effectiveApplicationId) {
-      fetchAssets(effectiveApplicationId);
+      fetchAssets(effectiveApplicationId).then(() => {
+        setCurrentFetchedAppId(effectiveApplicationId);
+      });
       fetchAndSetApplication(effectiveApplicationId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveApplicationId]);
 
+
   // Bind asset details to form if available
   useEffect(() => {
-    if (assets && assets.length > 0) {
+    // Only bind data if assets were fetched for the current application
+    if (assets && assets.length > 0 && effectiveApplicationId && 
+        currentFetchedAppId === effectiveApplicationId && !loading) {
       const asset = assets[0];
+      
       let voltageArr: string[] = [];
       if (Array.isArray(asset.lineVoltage)) {
         voltageArr = asset.lineVoltage;
@@ -104,6 +102,7 @@ const getApplicationId = () => {
       } else if (typeof asset.lineVoltage === 'object' && asset.lineVoltage !== null) {
         voltageArr = [(asset.lineVoltage as { code?: string }).code || ''];
       }
+      
       setForm({
         assetId: asset.assetId || '',
         referenceNumber: asset.standardSpecificationReferenceNumber || '',
@@ -117,7 +116,8 @@ const getApplicationId = () => {
       // Store original voltage for comparison on submit
       setOriginalVoltage(voltageArr);
     }
-  }, [assets]);
+    // Note: Form stays in initialState (empty) if no assets or assets from wrong application
+  }, [assets, effectiveApplicationId, currentFetchedAppId, loading]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
   const { name, value } = e.target;
