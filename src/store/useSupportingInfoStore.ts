@@ -16,7 +16,7 @@ export const useSupportingInfoStore = create<State>((set, get) => ({
     error: null,
 
     fetchSupportingInfo: async (applicationId) => {
-        set({ loading: true, error: null });
+        set({ loading: true, error: null, supportingInfo: null });
         try {
             const response = await SupportingInfoService.getSupportingInfo(applicationId);
             set({ supportingInfo: response.supportingInfo[0] || null });

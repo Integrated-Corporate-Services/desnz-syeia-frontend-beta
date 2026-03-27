@@ -19,6 +19,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 // import SearchableDropdown from "../../../components/SearchableDropdown";
 import { useRef } from "react";
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 const emptyProjectOverview: ProjectOverviewModel = {
 	applicationFormId: "",
@@ -112,30 +113,12 @@ const ProjectOverview = () => {
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const application = useApplicationStore(state => state.application);
-	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
 	 const { user } = useAuthUser();
 	  const userId = user?.user_id;
 	// Helper to get applicationId from store, params, or query string
-	const getApplicationId = () => {
-		if (application?.application_id) return application.application_id;
-		if (params.applicationId) return params.applicationId;
-		if (params.id) return params.id;
-		if (typeof window !== 'undefined') {
-			const searchParams = new URLSearchParams(window.location.search);
-			const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-			if (idFromQuery) return idFromQuery;
-		}
-		return '';
-	};
-	const applicationId = getApplicationId();
+	
+	const applicationId = useGetApplicationId();
 
-	useEffect(() => {
-		// Only fetch if application is null and applicationId is available
-		if (application === null && applicationId) {
-			fetchAndSetApplication(applicationId);
-		}
-	}, [applicationId]);
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
 	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview, fetchProjectList, projectList } = useProjectStore();
 	const remainingChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.projectDescription.length);
@@ -143,6 +126,11 @@ const ProjectOverview = () => {
 		typeof val === 'string' ? val : (val && typeof val.field === 'string' ? val.field : '');
 	const relatedCpoDetailsStr = getRelatedCpoDetailsString(formState.relatedCpoDetails);
 	const remainingCpoChars = Math.max(0, MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length);
+
+	// Clear form state when applicationId changes
+	useEffect(() => {
+		setFormState(emptyProjectOverview);
+	}, [applicationId]);
 
 	// Fetch project overview and project list on mount
 	useEffect(() => {
@@ -168,7 +156,7 @@ const ProjectOverview = () => {
 	};
 
 	useEffect(() => {
-		if (projectData) {
+		if (projectData && applicationId && projectData.applicationId === applicationId) {
 			const forms = projectData.forms || {};
 			// Handle CPO details: support both string and object (with 'field')
 			let cpoField = '';
@@ -257,7 +245,7 @@ const ProjectOverview = () => {
 					: []
 			});
 		}
-	}, [projectData]);
+	}, [projectData, applicationId]);
 
 	return (
 		<div className="govuk-width-container">
