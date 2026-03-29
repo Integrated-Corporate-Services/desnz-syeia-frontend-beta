@@ -25,11 +25,6 @@ import {
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
 
-// Importing constants and utilities
-import {
-  generateInvoiceNumber
-} from '../utils/applicationSummaryUtils';
-
 import {
   // PAGE_LABELS,
   SECTION_HEADINGS,
@@ -221,7 +216,7 @@ const ApplicationSummary: React.FC = () => {
           setPaymentDetails(payment);
 
           if (data.desnzRef) {
-            setInvoiceNumber(generateInvoiceNumber(data.desnzRef));
+            setInvoiceNumber(`INV01/${data.desnzRef}.pdf`);
           }
         }
         // List of required sections
