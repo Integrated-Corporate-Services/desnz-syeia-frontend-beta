@@ -21,8 +21,10 @@ import {
   SensitiveAreaReviewDocument,
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
+import { createLogger } from "../../../utils/logger";
 
-const ApplicationSubmit: React.FC = () => {
+const CheckYourAnswers: React.FC = () => {
+  const logger = createLogger("CheckYourAnswers");
   const navigate = useNavigate();
   const params = useParams();
   const getApplicationId = () => {
@@ -60,17 +62,17 @@ const ApplicationSubmit: React.FC = () => {
 
     // Save declaration to database before navigating
     try {
-      console.log("Saving declaration confirmation:", {
+      logger.debug("Saving declaration confirmation", {
         applicationId,
         declarationConfirmed: true,
       });
       await applicationApiService.confirmDeclaration(applicationId, true);
-      console.log("Declaration saved successfully");
+      logger.debug("Declaration saved successfully", { applicationId });
 
       // Navigate to pay and submit page
       navigate(`${S37_BASE_URL}/${applicationId}/pay-and-submit`);
     } catch (err) {
-      console.error("Failed to save declaration:", err);
+      logger.error("Failed to save declaration", err);
       setValidationError("Failed to save declaration. Please try again.");
       window.scrollTo({ top: 0 });
     }
@@ -171,10 +173,10 @@ const ApplicationSubmit: React.FC = () => {
       .then((res) => res.json())
       .then((data) => {
         // Log the entire response to see structure
-        console.log("Full API response:", data);
-        console.log(
-          "Network operator section:",
-          data.sections?.networkOperator,
+        logger.debug("Full API response", { data });
+        logger.debug(
+          "Network operator section",
+          { networkOperator: data.sections?.networkOperator }
         );
 
         // List of required sections
@@ -206,14 +208,14 @@ const ApplicationSubmit: React.FC = () => {
 
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
-        console.log("Network operator details:", networkOpDetails);
+        logger.debug("Network operator details", { networkOpDetails });
 
         if (networkOpDetails) {
           const party = networkOpDetails.application_party;
-          console.log("Application party:", party);
-          console.log(
-            "Additional contact BEFORE setting state:",
-            networkOpDetails.additional_contact,
+          logger.debug("Application party", { party });
+          logger.debug(
+            "Additional contact BEFORE setting state",
+            { additional_contact: networkOpDetails.additional_contact }
           );
 
           setNetworkOperatorDetails({
@@ -231,17 +233,17 @@ const ApplicationSubmit: React.FC = () => {
             additional_contact: party?.additional_contact,
           });
 
-          console.log(
-            "Additional contacts from API:",
-            party?.additional_contact,
+          logger.debug(
+            "Additional contacts from API",
+            { additional_contact: party?.additional_contact }
           );
-          console.log(
-            "Additional contacts type:",
-            typeof party?.additional_contact,
+          logger.debug(
+            "Additional contacts type",
+            { type: typeof party?.additional_contact }
           );
-          console.log(
-            "Additional contacts length:",
-            party?.additional_contact?.length,
+          logger.debug(
+            "Additional contacts length",
+            { length: party?.additional_contact?.length }
           );
         } else {
           setNetworkOperatorDetails(null);
@@ -751,7 +753,7 @@ const ApplicationSubmit: React.FC = () => {
                                     try {
                                       await downloadS3FileOnSameTab(key);
                                     } catch (error) {
-                                      console.error('Failed to download file:', error);
+                                      logger.error('Failed to download file:', { error });
                                     }
                                   }
                                 }}
@@ -1367,7 +1369,7 @@ const ApplicationSubmit: React.FC = () => {
                                     try {
                                       await downloadS3FileOnSameTab(key);
                                     } catch (error) {
-                                      console.error('Failed to download file:', error);
+                                      logger.error('Failed to download file:', { error });
                                     }
                                   }
                                 }}
@@ -1507,7 +1509,7 @@ const ApplicationSubmit: React.FC = () => {
                                     try {
                                       await downloadS3FileOnSameTab(key);
                                     } catch (error) {
-                                      console.error('Failed to download file:', error);
+                                      logger.error('Failed to download file:', { error });
                                     }
                                   }
                                 }}
@@ -1626,7 +1628,7 @@ const ApplicationSubmit: React.FC = () => {
                                         await downloadS3FileOnSameTab(key);
                                       } catch (error) {
                                         // Optionally show error to user
-                                        console.error('Failed to download file:', error);
+                                        logger.error('Failed to download file:', { error });
                                       }
                                     }}
                                   >
@@ -1717,7 +1719,7 @@ const ApplicationSubmit: React.FC = () => {
                                             try {
                                               await downloadS3FileOnSameTab(key);
                                             } catch (error) {
-                                              console.error('Failed to download file:', error);
+                                              logger.error('Failed to download file:', { error });
                                             }
                                           }}
                                         >
@@ -1758,7 +1760,7 @@ const ApplicationSubmit: React.FC = () => {
                                             try {
                                               await downloadS3FileOnSameTab(key);
                                             } catch (error) {
-                                              console.error('Failed to download file:', error);
+                                              logger.error('Failed to download file:', { error });
                                             }
                                           }}
                                         >
@@ -1919,7 +1921,7 @@ const ApplicationSubmit: React.FC = () => {
                                                 try {
                                                   await downloadS3FileOnSameTab(key);
                                                 } catch (error) {
-                                                  console.error('Failed to download file:', error);
+                                                  logger.error('Failed to download file:', { error });
                                                 }
                                               }}
                                             >
@@ -1972,7 +1974,7 @@ const ApplicationSubmit: React.FC = () => {
                                                 try {
                                                   await downloadS3FileOnSameTab(key);
                                                 } catch (error) {
-                                                  console.error('Failed to download file:', error);
+                                                  logger.error('Failed to download file:', { error });
                                                 }
                                               }}
                                             >
@@ -1994,121 +1996,6 @@ const ApplicationSubmit: React.FC = () => {
                 );
               })
             }            
-            
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Post consultation actions</h2>
-                {permissions?.canEdit && (
-                  <ul className="govuk-summary-card__actions">
-                    <li className="govuk-summary-card__action">
-                      <Link
-                        className="govuk-link"
-                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions/lpa-agreement`}
-                      >
-                        Change
-                        <span className="govuk-visually-hidden">
-                          {" "}
-                          post consultation actions
-                        </span>
-                      </Link>
-                    </li>
-                  </ul>
-                )}
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Was the Local Planning Authority's (LPA) agreement to the proposal subject to modifications or conditions being applied to the consent?
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {postConsultationOutcome?.lpa_conditions_imposed === true
-                        ? "Yes"
-                        : postConsultationOutcome?.lpa_conditions_imposed === false
-                          ? "No"
-                          : "-"}
-                    </dd>
-                  </div>
-                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        Do you accept all the conditions imposed by the LPA?
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_accepted === true
-                          ? "Yes"
-                          : postConsultationOutcome?.lpa_conditions_accepted === false
-                            ? "No"
-                            : "-"}
-                      </dd>
-                    </div>
-                  )}
-
-                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        Explain why you do not accept all the LPA's conditions
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
-                      </dd>
-                    </div>
-                  )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
-                    postConsultationOutcome?.consultees_recommendations_made !== null && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          Were any recommendations made or conditions requested by the consultees? (Not including the LPA)
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_made === true
-                            ? "Yes"
-                            : postConsultationOutcome?.consultees_recommendations_made === false
-                              ? "No"
-                              : "-"}
-                        </dd>
-                      </div>
-                    )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_made === true && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          Do you accept the recommendations made by the consultees?
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_accepted === true
-                            ? "Yes"
-                            : postConsultationOutcome?.consultees_recommendations_accepted === false
-                              ? "No"
-                              : "-"}
-                        </dd>
-                      </div>
-                    )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          Explain why you do not accept all the consultees' recommendations
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
-                        </dd>
-                      </div>
-                    )}
-                </dl>
-              </div>
-            </div>
-
             {/* Submit application form */}
             {permissions?.canEdit && (
               <div
@@ -2187,4 +2074,4 @@ const ApplicationSubmit: React.FC = () => {
   );
 };
 
-export default ApplicationSubmit;
+export default CheckYourAnswers;
