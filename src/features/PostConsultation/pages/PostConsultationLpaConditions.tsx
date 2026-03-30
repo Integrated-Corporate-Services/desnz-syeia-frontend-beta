@@ -13,7 +13,7 @@ import { SaveType } from "../types";
 import { useNavigate } from "react-router-dom";
 
 const PostConsultationLpaConditions: React.FC = () => {
-  const { applicationId, getTaskListUrl } = usePostConsultationNavigation();
+  const { applicationId, getTaskListUrl, getCheckYourAnswersUrl, navigateAfterCompletion } = usePostConsultationNavigation();
   const navigate = useNavigate();
   const {
     acceptConditions,
@@ -29,7 +29,7 @@ const PostConsultationLpaConditions: React.FC = () => {
     e.preventDefault();
     const success = await saveData(saveType, "lpa-conditions");
     if (success && acceptConditions === "yes") {
-      navigate(getTaskListUrl());
+      navigateAfterCompletion();
       return;
     }
     if (success && acceptConditions === "no") {

@@ -11,7 +11,7 @@ export const SUBSECTIONS = {
   NETWORK_OPERATOR_DETAILS: 'Network operator details',
   NETWORK_OPERATOR_CONTACT_DETAILS: 'Network operator contact details',
   PROJECT_OVERVIEW: 'Project overview',
-  ASSET_INFORMATION: 'Asset information',
+  ASSET_INFORMATION: 'Assets',
   ROUTE: 'Route',
   WORKS_OVERVIEW: 'Works overview',
   SENSITIVE_AREA_CHECKS: 'Sensitive area checks',

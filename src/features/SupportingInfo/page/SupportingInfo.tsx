@@ -57,13 +57,24 @@ const SupportingInfo: React.FC = () => {
   const supportingDocsRef = useRef<HTMLInputElement>(null);
   const fileUploadRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
+    // Clear form state when applicationId changes
+    setWayleaves("");
+    setRegulations(false);
+    setWayleavesReason("");
+    setSupportingDocs("");
+    setComments("");
+    setUploadedFiles([]);
+    setApplicationDocuments([]);
+  }, [applicationId]);
+
+  useEffect(() => {
     if (applicationId) {
       fetchSupportingInfo(applicationId);
     }
   }, [applicationId, fetchSupportingInfo]);
 
   useEffect(() => {
-    if (supportingInfo) {
+    if (supportingInfo && applicationId && supportingInfo.application_id === applicationId) {
       const {
         wayleaves_obtained,
         esqcr_2002_compliance_confirmed,

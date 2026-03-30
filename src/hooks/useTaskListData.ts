@@ -55,7 +55,7 @@ export function useTaskListData() {
   // Get asset information status from progress
   useEffect(() => {
     if (progress && progress.length > 0) {
-      const assetStatus = progress.find((p: { subsection_name: string; status: string }) => p.subsection_name === 'Asset information')?.status || 'Incomplete';
+      const assetStatus = progress.find((p: { subsection_name: string; status: string }) => p.subsection_name === 'Assets')?.status || 'Incomplete';
       setAssetInformationStatus(assetStatus);
     }
   }, [progress]);

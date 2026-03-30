@@ -163,7 +163,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		<div className="govuk-width-container govuk-!-margin-top-6 govuk-!-margin-bottom-6">
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
-					<nav className="govuk-breadcrumbs govuk-!-margin-bottom-6" aria-label="Breadcrumb">
+					<nav className="govuk-breadcrumbs govuk-!-margin-bottom-4" aria-label="Breadcrumb">
 						<ol className="govuk-breadcrumbs__list">
 							<li className="govuk-breadcrumbs__list-item">
 								<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
@@ -275,6 +275,13 @@ const ConsultationNotRequiredPage: React.FC = () => {
 										setUploadedFiles(files => files.filter((_, i) => i !== idx));
 										setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
 										setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
+										// Clear files error when removing files (validation will re-trigger on save)
+										if (errors.files) {
+											setErrors(prev => {
+												const { files: _files, ...rest } = prev;
+												return rest;
+											});
+										}
 									}}
 									onUploaded={handleUploadedFiles}
 									onValidationErrors={handleFileValidationErrors}

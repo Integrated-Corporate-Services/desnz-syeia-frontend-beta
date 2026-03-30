@@ -42,22 +42,22 @@ export function getInitialSections(applicationId?: string, assetInformationStatu
                     link: `${base}/project-overview`,
                 },
                 {
-                    name: 'Asset information',
+                    name: 'Assets',
                     status: 'Not completed',
                     link: `${base}/asset-information`,
                 },
-                 {
+                {
                     name: 'Works overview',
                     status: 'Not completed',
                     link: `${base}/works-overview`,
-                }
+                },
             ],
         },
         {
             title: 'Location',
             items: [
                 { name: 'Route', status: 'Cannot start yet', link: `${base}/route-overview` },
-               
+
                 {
                     name: 'Sensitive area checks',
                     status: 'Cannot start yet',
@@ -167,323 +167,347 @@ export function applyProgressToSections(sections: TaskListSection[], progress: {
     }));
 }
 
+/**
+ * Check if all required sections are completed to access Check Your Answers
+ * @param progress - Array of progress items with subsection_name and status
+ * @returns boolean - true if all required sections are completed
+ */
+export function areAllRequiredSectionsCompleted(progress?: { subsection_name: string; status: string }[]): boolean {
+    if (!progress || progress.length === 0) {
+        return false;
+    }
+
+    const requiredSubsections = [
+        // Applicant details section
+        'Applicant details',
+        'Check applicant contact details',
+        // Project details section
+        'Project overview',
+        'Assets',
+        'Works overview',
+        // Location section
+        'Route',
+        'Sensitive area checks',
+        'Sensitive area review',
+        'Parishes',
+        // Supporting information section
+        'Supporting questions',
+        'EIA fees',
+        // Consultations section
+        'Consultations',
+        'Post consultation actions',
+    ];
+
+    return requiredSubsections.every((subsection) => {
+        const item = progress.find((p) => p.subsection_name === subsection);
+        return item?.status === 'Completed';
+    });
+}
+
 // when sensitive area checks are in progress
-export function applySensitiveAreaCheckLogic(
-  sections: TaskListSection[],
-  inProgress?: boolean
-): TaskListSection[] {
-  return sections.map((section) => {
-    if (section.title === "Location") {
-      const sensitiveCheckItem = section.items.find(item => item.name === "Sensitive area checks");
-      const checksCompleted = sensitiveCheckItem?.status === "Completed";
-      const routeItem = section.items.find(item => item.name === "Route");
-      const routeCompleted = routeItem?.status === "Completed";
-      const worksOverviewItem = section.items.find(item => item.name === "Works overview");
-      const worksOverviewCompleted = worksOverviewItem?.status === "Completed";
+export function applySensitiveAreaCheckLogic(sections: TaskListSection[], inProgress?: boolean): TaskListSection[] {
+    return sections.map((section) => {
+        if (section.title === 'Location') {
+            const sensitiveCheckItem = section.items.find((item) => item.name === 'Sensitive area checks');
+            const checksCompleted = sensitiveCheckItem?.status === 'Completed';
+            const routeItem = section.items.find((item) => item.name === 'Route');
+            const routeCompleted = routeItem?.status === 'Completed';
+            const worksOverviewItem = section.items.find((item) => item.name === 'Works overview');
+            const worksOverviewCompleted = worksOverviewItem?.status === 'Completed';
 
-      return {
-        ...section,
-        items: section.items.map((item) => {
-          if (item.name === "Route" && inProgress) {
-            return { ...item, disabled: true, plainTextStatus: true };
-          }
-
-          if (item.name === "Sensitive area checks" && !routeCompleted) {
             return {
-              ...item,
-              status: "Cannot start yet",
-              disabled: true,
-              plainTextStatus: true,
-              link: "#",
+                ...section,
+                items: section.items.map((item) => {
+                    if (item.name === 'Route' && inProgress) {
+                        return { ...item, disabled: true, plainTextStatus: true };
+                    }
+
+                    if (item.name === 'Sensitive area checks' && !routeCompleted) {
+                        return {
+                            ...item,
+                            status: 'Cannot start yet',
+                            disabled: true,
+                            plainTextStatus: true,
+                            link: '#',
+                        };
+                    }
+
+                    if (item.name === 'Sensitive area checks' && inProgress) {
+                        return {
+                            ...item,
+                            status: 'In progress',
+                            disabled: true,
+                            link: '#',
+                        };
+                    }
+
+                    if (item.name === 'Sensitive area checks' && !inProgress && routeCompleted && item.status !== 'Completed' && item.status !== 'In progress') {
+                        return { ...item, status: 'Not completed' };
+                    }
+
+                    if (item.name === 'Sensitive area review') {
+                        if (inProgress) {
+                            return {
+                                ...item,
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        if (!checksCompleted) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        return item;
+                    }
+                    return item;
+                }),
             };
-          }
-
-          if (item.name === "Sensitive area checks" && inProgress) {
-            return { 
-              ...item, 
-              status: "In progress",
-              disabled: true,
-              link: "#"
+        }
+        if (section.title === 'Consultations' && inProgress) {
+            return {
+                ...section,
+                items: section.items.map((item) => {
+                    return { ...item, disabled: true, plainTextStatus: true };
+                }),
             };
-          }
-
-          if (
-            item.name === "Sensitive area checks" &&
-            !inProgress &&
-            routeCompleted &&
-            item.status !== "Completed" &&
-            item.status !== "In progress"
-          ) {
-            return { ...item, status: "Not completed" };
-          }
-
-          if (item.name === "Sensitive area review") {
-            if (inProgress) {
-              return {
-                ...item,
-                disabled: true,
-                plainTextStatus: true,
-                link: "#",
-              };
-            }
-            if (!checksCompleted) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#",
-              };
-            }
-            return item;
-          }
-          return item;
-        }),
-      };
-    }
-    if (section.title === "Consultations" && inProgress) {
-      return {
-        ...section,
-        items: section.items.map((item) => {
-           return { ...item, disabled: true, plainTextStatus: true };
-        }),
-      };
-    }
-    return section;
-  });
+        }
+        return section;
+    });
 }
 
 // Apply task dependencies based on business rules
-export function applyTaskDependencies(
-  sections: TaskListSection[],
-  progress?: { subsection_name: string; status: string }[]
-): TaskListSection[] {
-  // Helper function to check if a task is completed
-  const isTaskCompleted = (taskName: string) => {
-    return progress?.find(p => p.subsection_name === taskName)?.status === 'Completed';
-  };
-
-  // Helper function to check if all tasks in a section are completed
-  const areAllTasksInSectionCompleted = (sectionTitle: string) => {
-    const section = sections.find(s => s.title === sectionTitle);
-    if (!section) return false;
-    return section.items.every(item => 
-      progress?.find(p => p.subsection_name === item.name)?.status === 'Completed'
-    );
-  };
-
-  return sections.map((section) => {
-    // Project Details dependencies
-    if (section.title === "Project details") {
-      return section; // No dependencies for project details
-    }
-
-    // Location section dependencies
-    if (section.title === "Location") {
-      // Check if all Project Details tasks are completed
-      const projectDetailsCompleted = areAllTasksInSectionCompleted("Project details");
-      
-      return {
-        ...section,
-        items: section.items.map((item) => {
-          // Route can only start if Project Details is completed
-          if (item.name === "Route") {
-            if (!projectDetailsCompleted) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#"
-              };
-            }
-            // If project details completed but route not started, show "Not completed"
-            if (item.status !== "Completed" && item.status !== "In progress") {
-              return { ...item, status: "Not completed" };
-            }
-            return item;
-          }
-
-          // Sensitive area checks depends on Route being completed
-          if (item.name === "Sensitive area checks") {
-            if (!projectDetailsCompleted || !isTaskCompleted("Route")) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#"
-              };
-            }
-            if (item.status !== "Completed" && item.status !== "In progress") {
-              return { ...item, status: "Not completed" };
-            }
-            return item;
-          }
-
-          // Sensitive area review depends on Sensitive area checks being completed
-          if (item.name === "Sensitive area review") {
-            if (!projectDetailsCompleted || !isTaskCompleted("Route") || !isTaskCompleted("Sensitive area checks")) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#"
-              };
-            }
-            if (item.status !== "Completed" && item.status !== "In progress") {
-              return { ...item, status: "Not completed" };
-            }
-            return item;
-          }
-
-          // Parishes depends on Sensitive area review being completed
-          if (item.name === "Parishes") {
-            if (!projectDetailsCompleted || !isTaskCompleted("Route") || !isTaskCompleted("Sensitive area checks") || !isTaskCompleted("Sensitive area review")) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#"
-              };
-            }
-            if (item.status !== "Completed" && item.status !== "In progress") {
-              return { ...item, status: "Not completed" };
-            }
-            return item;
-          }
-
-          return item;
-        }),
-      };
-    }
-
-    // Supporting information dependencies
-    if (section.title === "Supporting information") {
-      // Supporting information has no dependencies - can be started anytime
-      return {
-        ...section,
-        items: section.items.map((item) => {
-          if (item.status !== "Completed" && item.status !== "In progress") {
-            return { ...item, status: "Not completed" };
-          }
-          return item;
-        }),
-      };
-    }
-
-    // Consultations dependencies
-    if (section.title === "Consultations") {
-      const locationCompleted = areAllTasksInSectionCompleted("Location");
-      const consultationsCompleted = isTaskCompleted("Consultations");
-      
-      return {
-        ...section,
-        items: section.items.map((item) => {
-          // Consultations item depends only on Location being completed
-          if (item.name === "Consultations") {
-            if (!locationCompleted) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#"
-              };
-            }
-            if (item.status !== "Completed" && item.status !== "In progress") {
-              return { ...item, status: "Not completed" };
-            }
-            return item;
-          }
-
-          // Post consultation actions depends on Consultations being completed
-          if (item.name === "Post consultation actions") {
-            if (!locationCompleted || !consultationsCompleted) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#"
-              };
-            }
-            if (item.status !== "Completed" && item.status !== "In progress") {
-              return { ...item, status: "Not completed" };
-            }
-            return item;
-          }
-
-          return item;
-        }),
-      };
-    }
-
-    // Pay and submit dependencies
-    if (section.title === "Pay and submit") {
-      // Check if all previous sections are completed
-      const projectDetailsCompleted = areAllTasksInSectionCompleted("Project details");
-      const locationCompleted = areAllTasksInSectionCompleted("Location");
-      const supportingInfoCompleted = areAllTasksInSectionCompleted("Supporting information");
-      const consultationsCompleted = areAllTasksInSectionCompleted("Consultations");
-      const checkAnswersCompleted = isTaskCompleted("Check your answers");
-
-      return {
-        ...section,
-        items: section.items.map((item) => {
-          // Check your answers depends on all other sections
-          if (item.name === "Check your answers") {
-            if (!projectDetailsCompleted || !locationCompleted || !supportingInfoCompleted || !consultationsCompleted) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#"
-              };
-            }
-            if (item.status !== "Completed" && item.status !== "In progress") {
-              return { ...item, status: "Not completed" };
-            }
-            return item;
-          }
-
-          // Pay and submit depends on Check your answers being completed
-          if (item.name === "Pay and submit") {
-            if (!checkAnswersCompleted) {
-              return {
-                ...item,
-                status: "Cannot start yet",
-                disabled: true,
-                plainTextStatus: true,
-                link: "#"
-              };
-            }
-            // Enable the link when check your answers is completed
-            return { 
-              ...item, 
-              status: item.status !== "Completed" && item.status !== "In progress" ? "Not completed" : item.status,
-              disabled: false,
-              plainTextStatus: false
-            };
-          }
-
-          return item;
-        }),
-      };
-    }
-
-    // For all other sections, update status terminology
-    return {
-      ...section,
-      items: section.items.map((item) => {
-        if (item.status === "Incomplete") {
-          return { ...item, status: "Not completed" };
-        }
-        return item;
-      }),
+export function applyTaskDependencies(sections: TaskListSection[], progress?: { subsection_name: string; status: string }[]): TaskListSection[] {
+    // Helper function to check if a task is completed
+    const isTaskCompleted = (taskName: string) => {
+        return progress?.find((p) => p.subsection_name === taskName)?.status === 'Completed';
     };
-  });
+
+    // Helper function to check if all tasks in a section are completed
+    const areAllTasksInSectionCompleted = (sectionTitle: string) => {
+        const section = sections.find((s) => s.title === sectionTitle);
+        if (!section) return false;
+        return section.items.every((item) => progress?.find((p) => p.subsection_name === item.name)?.status === 'Completed');
+    };
+
+    return sections.map((section) => {
+        // Project Details dependencies
+        if (section.title === 'Project details') {
+            return section; // No dependencies for project details
+        }
+
+        // Location section dependencies
+        if (section.title === 'Location') {
+            // Check if all Project Details tasks are completed
+            const projectDetailsCompleted = areAllTasksInSectionCompleted('Project details');
+
+            return {
+                ...section,
+                items: section.items.map((item) => {
+                    // Route can only start if Project Details is completed
+                    if (item.name === 'Route') {
+                        if (!projectDetailsCompleted) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        // If project details completed but route not started, show "Not completed"
+                        if (item.status !== 'Completed' && item.status !== 'In progress') {
+                            return { ...item, status: 'Not completed' };
+                        }
+                        return item;
+                    }
+
+                    // Sensitive area checks depends on Route being completed
+                    if (item.name === 'Sensitive area checks') {
+                        if (!projectDetailsCompleted || !isTaskCompleted('Route')) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        if (item.status !== 'Completed' && item.status !== 'In progress') {
+                            return { ...item, status: 'Not completed' };
+                        }
+                        return item;
+                    }
+
+                    // Sensitive area review depends on Sensitive area checks being completed
+                    if (item.name === 'Sensitive area review') {
+                        if (!projectDetailsCompleted || !isTaskCompleted('Route') || !isTaskCompleted('Sensitive area checks')) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        if (item.status !== 'Completed' && item.status !== 'In progress') {
+                            return { ...item, status: 'Not completed' };
+                        }
+                        return item;
+                    }
+
+                    // Parishes depends on Sensitive area review being completed
+                    if (item.name === 'Parishes') {
+                        if (!projectDetailsCompleted || !isTaskCompleted('Route') || !isTaskCompleted('Sensitive area checks') || !isTaskCompleted('Sensitive area review')) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        if (item.status !== 'Completed' && item.status !== 'In progress') {
+                            return { ...item, status: 'Not completed' };
+                        }
+                        return item;
+                    }
+
+                    return item;
+                }),
+            };
+        }
+
+        // Supporting information dependencies
+        if (section.title === 'Supporting information') {
+            // Supporting information has no dependencies - can be started anytime
+            return {
+                ...section,
+                items: section.items.map((item) => {
+                    if (item.status !== 'Completed' && item.status !== 'In progress') {
+                        return { ...item, status: 'Not completed' };
+                    }
+                    return item;
+                }),
+            };
+        }
+
+        // Consultations dependencies
+        if (section.title === 'Consultations') {
+            const locationCompleted = areAllTasksInSectionCompleted('Location');
+            const consultationsCompleted = isTaskCompleted('Consultations');
+
+            return {
+                ...section,
+                items: section.items.map((item) => {
+                    // Consultations item depends only on Location being completed
+                    if (item.name === 'Consultations') {
+                        if (!locationCompleted) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        if (item.status !== 'Completed' && item.status !== 'In progress') {
+                            return { ...item, status: 'Not completed' };
+                        }
+                        return item;
+                    }
+
+                    // Post consultation actions depends on Consultations being completed
+                    if (item.name === 'Post consultation actions') {
+                        if (!locationCompleted || !consultationsCompleted) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        if (item.status !== 'Completed' && item.status !== 'In progress') {
+                            return { ...item, status: 'Not completed' };
+                        }
+                        return item;
+                    }
+
+                    return item;
+                }),
+            };
+        }
+
+        // Pay and submit dependencies
+        if (section.title === 'Pay and submit') {
+            // Check if all previous sections are completed
+            const applicantDetailsCompleted = areAllTasksInSectionCompleted('Applicant details');
+            const projectDetailsCompleted = areAllTasksInSectionCompleted('Project details');
+            const locationCompleted = areAllTasksInSectionCompleted('Location');
+            const supportingInfoCompleted = areAllTasksInSectionCompleted('Supporting information');
+            const consultationsCompleted = areAllTasksInSectionCompleted('Consultations');
+            const checkAnswersCompleted = isTaskCompleted('Check your answers');
+
+            return {
+                ...section,
+                items: section.items.map((item) => {
+                    // Check your answers depends on all other sections
+                    if (item.name === 'Check your answers') {
+                        if (!applicantDetailsCompleted || !projectDetailsCompleted || !locationCompleted || !supportingInfoCompleted || !consultationsCompleted) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        if (item.status !== 'Completed' && item.status !== 'In progress') {
+                            return { ...item, status: 'Not completed' };
+                        }
+                        return item;
+                    }
+
+                    // Pay and submit depends on Check your answers being completed
+                    if (item.name === 'Pay and submit') {
+                        if (!checkAnswersCompleted) {
+                            return {
+                                ...item,
+                                status: 'Cannot start yet',
+                                disabled: true,
+                                plainTextStatus: true,
+                                link: '#',
+                            };
+                        }
+                        // Enable the link when check your answers is completed
+                        return {
+                            ...item,
+                            status: item.status !== 'Completed' && item.status !== 'In progress' ? 'Not completed' : item.status,
+                            disabled: false,
+                            plainTextStatus: false,
+                        };
+                    }
+
+                    return item;
+                }),
+            };
+        }
+
+        // For all other sections, update status terminology
+        return {
+            ...section,
+            items: section.items.map((item) => {
+                if (item.status === 'Incomplete') {
+                    return { ...item, status: 'Not completed' };
+                }
+                return item;
+            }),
+        };
+    });
 }

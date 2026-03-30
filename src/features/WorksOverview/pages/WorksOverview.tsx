@@ -79,6 +79,10 @@ const WorksOverview: React.FC = () => {
  
   const effectiveApplicationId = applicationId;
 
+  // Clear form when applicationId changes
+  useEffect(() => {
+    setForm(initialState);
+  }, [effectiveApplicationId]);
 
   // Fetch works overview details on mount
   useEffect(() => {
@@ -86,7 +90,8 @@ const WorksOverview: React.FC = () => {
       if (effectiveApplicationId) {
         try {
           const data = await getWorksOverview(effectiveApplicationId);
-          if (data) {
+          // Check if we have data and it belongs to current application (more flexible validation)
+          if (data && (data.application_id === effectiveApplicationId || data.applicationId === effectiveApplicationId)) {
             setForm({
               addingOrReplacingPoles: data.addingOrReplacingPoles ? 'yes' : 'no',
               poleMaterial: data.poleMaterial || '',
@@ -111,7 +116,12 @@ const WorksOverview: React.FC = () => {
               generalComments: data.generalComments || ''
             });
             setIsEditMode(true);
+          } else if (data === null || data === undefined) {
+            // No data found for this application - reset to initial state
+            setForm(initialState);
+            setIsEditMode(false);
           } else {
+            // Data found but doesn't match current application
             setForm(initialState);
             setIsEditMode(false);
           }

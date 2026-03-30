@@ -42,7 +42,8 @@ const Asset: React.FC = () => {
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<{ lineType?: string; voltage?: string; description?: string }>({});
   const [showErrorSummary, setShowErrorSummary] = useState(false);
-  const { assets: dbAssets, fetchAssets } = useAssetStore();
+  const [currentFetchedAppId, setCurrentFetchedAppId] = useState<string>('');
+  const { assets: dbAssets, loading, fetchAssets } = useAssetStore();
   // Removed unused location variable
   const params = useParams();
   const navigate = useNavigate();
@@ -61,7 +62,9 @@ const Asset: React.FC = () => {
 
   useEffect(() => {
     if (applicationId) {
-      fetchAssets(applicationId);
+      fetchAssets(applicationId).then(() => {
+        setCurrentFetchedAppId(applicationId);
+      });
     }
   }, [applicationId, fetchAssets]);
 

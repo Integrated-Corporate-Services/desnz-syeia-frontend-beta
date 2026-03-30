@@ -4,8 +4,10 @@ import { saveConsultationOutcome, getConsultationOutcome } from '../../../servic
 import { ConsultationOutcomeFormData, SaveType } from '../types';
 import { mapApiToFormData, mapFormDataToApi } from '../utils/mappers';
 import { POST_CONSULTATION_CONSTANTS } from '../constants';
+import { useProgressStore } from '../../../store/useProgressStore';
 
 export const usePostConsultationData = (applicationId: string | undefined) => {
+    const fetchProgress = useProgressStore(state => state.fetchProgress);
     const [consulteesRecommendationsDetails, setConsulteesRecommendationsDetails] = useState<string>('');
     const [lpaModifications, setLpaModifications] = useState<string>('');
     const [acceptConditions, setAcceptConditions] = useState<string>('');
@@ -133,6 +135,11 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
 
             const apiData = mapFormDataToApi(formData);
             await saveConsultationOutcome(applicationId, apiData);
+
+            // Refresh progress after backend update
+            if (applicationId && saveType === 'continue') {
+                await fetchProgress(applicationId);
+            }
 
             if (saveType === 'later') {
                 alert(POST_CONSULTATION_CONSTANTS.SAVE_SUCCESS_MESSAGE);

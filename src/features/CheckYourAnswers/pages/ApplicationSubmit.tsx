@@ -654,7 +654,7 @@ const ApplicationSubmit: React.FC = () => {
                         Change
                         <span className="govuk-visually-hidden">
                           {" "}
-                          asset information
+                          assets
                         </span>
                       </Link>
                     </li>

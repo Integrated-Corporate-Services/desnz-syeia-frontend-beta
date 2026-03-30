@@ -9,10 +9,18 @@ const WhoIsApplying: React.FC = () => {
   const { options, selectedOrganisation, selectedOrgName, handleOrgChange } =
     useNetworkOperators();
 
-  const { submitted, error, handleSubmit } = useWhoIsApplyingForm();
+  const { submitted, error, handleSubmit, clearError } = useWhoIsApplyingForm();
 
   const handleContinue = (e: React.FormEvent) => {
     handleSubmit(e, selectedOrgName, selectedOrganisation, user);
+  };
+
+  const handleOrgSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleOrgChange(e);
+    // Clear any existing errors when user makes a selection
+    if (e.target.value && error) {
+      clearError();
+    }
   };
 
   return (
@@ -63,7 +71,7 @@ const WhoIsApplying: React.FC = () => {
                   name="location"
                   aria-describedby={error ? "location-error" : undefined}
                   value={selectedOrgName}
-                  onChange={handleOrgChange}
+                  onChange={handleOrgSelectChange}
                   disabled={options.length === 0}
                   required
                 >
