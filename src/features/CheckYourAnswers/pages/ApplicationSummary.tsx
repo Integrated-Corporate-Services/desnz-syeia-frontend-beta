@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
+import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { applicationApiService } from "../../../services/applicationApiService";
 import {
   NetworkOperatorDetails,
@@ -64,6 +65,9 @@ const ApplicationSummary: React.FC = () => {
     error: declarationError,
     handleDeclarationChange,
   } = useDeclarationSubmit(applicationId);
+
+  // Get formatting utility functions
+  const { formatCaseType, formatStatus, getStatusTagClass } = useApplicationFormatters();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -394,49 +398,7 @@ const ApplicationSummary: React.FC = () => {
         setPlanDocuments([]);
         setPermissions(null);
       });
-  }, [applicationId]);
-
-  // Helper function to format case type
-  const formatCaseType = (formType?: string) => {
-    const typeMap: Record<string, string> = {
-      'S37': 'Overhead lines (S37)',
-      's37': 'Overhead lines (S37)',
-      'NWL': 'Necessary wayleaves',
-      'TLP': 'Tree lopping'
-    };
-    return typeMap[formType || 'S37'] || 'Overhead lines (S37)';
-  };
-
-  // Helper function to format application status
-  const formatStatus = (status?: string) => {
-    const statusMap: Record<string, string> = {
-      'processing payment': 'Processing payment',
-      'processing-payment': 'Processing payment',
-      'PROCESSING_PAYMENT': 'Processing payment',
-      'payment pending': 'Payment pending',
-      'PAYMENT_PENDING': 'Payment pending',
-      'draft': 'Draft',
-      'DRAFT': 'Draft',
-      'submitted': 'Submitted',
-      'SUBMITTED': 'Submitted'
-    };
-    return statusMap[status?.toLowerCase() || ''] || status || 'Processing payment';
-  };
-
-  // Helper function to get status tag class
-  const getStatusTagClass = (status?: string) => {
-    const statusLower = status?.toLowerCase() || '';
-    if (statusLower.includes('processing') || statusLower.includes('payment')) {
-      return 'govuk-tag--yellow';
-    }
-    if (statusLower === 'draft') {
-      return 'govuk-tag--grey';
-    }
-    if (statusLower === 'submitted') {
-      return 'govuk-tag--green';
-    }
-    return '';
-  };
+  }, [applicationId, formatCaseType, formatStatus, logger]);
 
   return (
     <div className="govuk-width-container">
