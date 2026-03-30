@@ -94,7 +94,7 @@ export const ApplicationTable: React.FC<Props> = ({
     if (app.permissions?.canEdit) {
       navigateToApplication(app.type, app.application_id, "task-list");
     } else if (app.permissions?.canView) {
-      navigateToApplication(app.type, app.application_id, "application-submit");
+      navigateToApplication(app.type, app.application_id, "application-summary");
     }
   };
 
@@ -159,7 +159,7 @@ export const ApplicationTable: React.FC<Props> = ({
               aria-label={`DESNZ reference: ${app.desnz_ref || "Not available"}`}
             >
               <a
-                href={getNavigationPath(app.type, app.application_id, app.permissions?.canEdit ? 'task-list' : 'application-submit')}
+                href={getNavigationPath(app.type, app.application_id, app.permissions?.canEdit ? 'task-list' : 'application-summary')}
                 className="govuk-link"
                 aria-label={`View details for application ${app.desnz_ref || "with no reference"}, ${getCaseTypeLabel(app.type)}, ${activeTab !== "draft" ? app.status + " status, " : ""}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
                 onClick={(e) => handleApplicationClick(e, app)}

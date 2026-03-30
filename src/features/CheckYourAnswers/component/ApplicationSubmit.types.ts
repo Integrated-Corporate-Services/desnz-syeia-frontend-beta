@@ -173,3 +173,20 @@ export interface SensitiveAreaReviewDocument {
   s3_key?: string;
   filename?: string;
 }
+
+export interface ApplicationMetadata {
+  desnzRef?: string;
+  formType?: string;
+  status?: string;
+}
+
+export interface PaymentDetails {
+  payment_id?: string;
+  reference?: string;
+  amount?: number;
+  total_amount?: string;
+  status?: string;
+  is_successful?: boolean;
+  is_complete?: boolean;
+  created_at?: string;
+}
