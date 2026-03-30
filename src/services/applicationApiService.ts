@@ -185,10 +185,25 @@ export const applicationApiService = {
     return response.json();
   },
 
-  deleteApplication: async (applicationId: string) => {
+  // Get deletion preview for an application
+  getApplicationDeletionPreview: async (applicationId: string, correlationId?: string) => {
+    const headers: HeadersInit = {
+      "X-Correlation-ID": correlationId || generateCorrelationId(),
+    };
+    const response = await fetch(`/backend/api/applications/${applicationId}/deletion-preview`, {
+      credentials: "include",
+      headers,
+    });
+    if (!response.ok) {
+      throw new Error("Failed to get deletion preview");
+    }
+    return response.json();
+  },
+
+  deleteApplication: async (applicationId: string, correlationId?: string) => {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
-      "X-Correlation-ID": generateCorrelationId(),
+      "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(`/backend/api/applications/${applicationId}`, {
       method: "DELETE",
@@ -196,9 +211,10 @@ export const applicationApiService = {
       credentials: "include",
     });
     if (!response.ok) {
-      throw new Error("Failed to delete application");
+      const errorData = await response.json().catch(() => ({ error: "Failed to delete application" }));
+      throw new Error(errorData.error || "Failed to delete application");
     }
-    return response;
+    return response.json(); // Return the detailed deletion result
   },
 
 /**

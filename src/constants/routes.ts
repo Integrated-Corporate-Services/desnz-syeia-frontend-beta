@@ -65,6 +65,8 @@ import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
 import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
+import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
+import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
 import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
@@ -766,20 +768,38 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-        path: `${S37_BASE_URL}/:applicationId/delete-application`,
-        component: DeleteApplicationPage,
+        path: `${S37_BASE_URL}/:applicationId/delete-confirmation`,
+        component: ApplicationDeleteConfirmationPage,
         auth: true,
         layout: true,
     },
     {
-        path: `${NWL_BASE_URL}/:applicationId/delete-application`,
-        component: DeleteApplicationPage,
+        path: `${S37_BASE_URL}/:applicationId/delete-success`,
+        component: ApplicationDeleteSuccessPage,
         auth: true,
         layout: true,
     },
     {
-        path: `${TLP_BASE_URL}/:applicationId/delete-application`,
-        component: DeleteApplicationPage,
+        path: `${NWL_BASE_URL}/:applicationId/delete-confirmation`,
+        component: ApplicationDeleteConfirmationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/delete-success`,
+        component: ApplicationDeleteSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${TLP_BASE_URL}/:applicationId/delete-confirmation`,
+        component: ApplicationDeleteConfirmationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${TLP_BASE_URL}/:applicationId/delete-success`,
+        component: ApplicationDeleteSuccessPage,
         auth: true,
         layout: true,
     },
