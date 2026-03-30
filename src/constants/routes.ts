@@ -92,7 +92,7 @@ import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
-import ApplicationSubmit from '../features/CheckYourAnswers/pages/ApplicationSubmit';
+import ApplicationSummary from '../features/CheckYourAnswers/pages/ApplicationSummary';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
@@ -791,8 +791,8 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-        path: `${S37_BASE_URL}/:applicationId/application-submit`,
-        component: ApplicationSubmit,
+        path: `${S37_BASE_URL}/:applicationId/application-summary`,
+        component: ApplicationSummary,
         auth: true,
         layout: true,
     },
