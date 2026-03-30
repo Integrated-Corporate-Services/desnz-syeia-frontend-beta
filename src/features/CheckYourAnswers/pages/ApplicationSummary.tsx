@@ -194,8 +194,9 @@ const ApplicationSummary: React.FC = () => {
 
   useEffect(() => {
     if (!applicationId) return;
-    fetch(`/backend/api/applications/${applicationId}/review`)
-      .then((res) => res.json())
+
+    applicationApiService
+      .getApplicationReview(applicationId)
       .then((data) => {
         // Log the entire response to see structure
         logger.debug("Full API response", { data });
@@ -387,7 +388,8 @@ const ApplicationSummary: React.FC = () => {
         setPermissions(data.permissions || null);
         setPostConsultationOutcome(data.sections?.postConsultationOutcome || null);
       })
-      .catch(() => {
+      .catch((err) => {
+        logger.error("Failed to fetch application review", err);
         setProjectDetails(null);
         setPlanDocuments([]);
         setPermissions(null);
