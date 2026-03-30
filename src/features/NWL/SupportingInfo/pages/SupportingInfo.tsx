@@ -10,6 +10,7 @@ import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constan
 const SupportingInfo: React.FC = () => {
 	// ...existing state declarations...
 	const [errors, setErrors] = useState<string[]>([]);
+	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 	const [id, setId] = useState<string>("");
 	const [signedWayleave, setSignedWayleave] = useState<string>("");
 	const [inheritedWayleave, setInheritedWayleave] = useState<string>("");
@@ -341,11 +342,16 @@ const SupportingInfo: React.FC = () => {
 			<div className="govuk-grid-column-two-thirds">
 				<h1 className="govuk-heading-xl">Supporting information</h1>
 				{/* Error summary */}
-				{errors.length > 0 && (
+				{(errors.length > 0 || fileValidationErrors.length > 0) && (
 					<div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
 						<h2 className="govuk-error-summary__title">There is a problem</h2>
 						<div className="govuk-error-summary__body">
 							<ul className="govuk-list govuk-error-summary__list">
+								{fileValidationErrors.map((error, index) => (
+									<li key={`file-${index}`}>
+										<span>{error}</span>
+									</li>
+								))}
 								{errors.map((msg, idx) => (
 									<li key={idx} dangerouslySetInnerHTML={{ __html: msg }} />
 								))}
@@ -376,6 +382,7 @@ const SupportingInfo: React.FC = () => {
 											{errors.some(e => e.includes('signedWayleave-upload-1-error')) && (
 												<p id="signedWayleave-upload-1-error" className="govuk-error-message">Upload current landowners signed wayleave</p>
 											)}
+											{/* File validation errors removed - shown in error summary above */}
 											<FileUpload
 												title="Upload current landowners signed wayleave"
 												prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_SIGNED_WAYLEAVE}/`}
@@ -385,6 +392,10 @@ const SupportingInfo: React.FC = () => {
 												uploadedFiles={signedWayleaveFiles}
 												onUploaded={handleSignedWayleaveUploaded}
 												addedBy={userId}
+												onValidationErrors={(errors) => {
+													// Handle validation errors
+													setFileValidationErrors(errors);
+												}}
 											/>
 										</>
 									)}
@@ -506,6 +517,10 @@ const SupportingInfo: React.FC = () => {
 																	uploadedFiles={acceptedPaymentsFiles}
 																	onUploaded={handleAcceptedPaymentsUploaded}
 																	addedBy={userId}
+																	onValidationErrors={(errors) => {
+																		// Handle validation errors
+																		setFileValidationErrors(errors);
+																	}}
 																/>
 															</div>
 														)}
@@ -652,8 +667,10 @@ const SupportingInfo: React.FC = () => {
 												subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE}
 												uploadedFiles={writtenTerminationFiles}
 												onUploaded={handleWrittenTerminationUploaded}
-												addedBy={userId}
-											/>
+												addedBy={userId}											onValidationErrors={(errors) => {
+												// Handle validation errors
+												setFileValidationErrors(errors);
+											}}											/>
 										</div>
 									</div>
 								)}
@@ -744,6 +761,10 @@ const SupportingInfo: React.FC = () => {
 											   uploadedFiles={writtenRemovalFiles}
 											   onUploaded={handleWrittenRemovalUploaded}
 											   addedBy={userId}
+											   onValidationErrors={(errors) => {
+												   // Handle validation errors
+												   setFileValidationErrors(errors);
+											   }}
 										   />
 									   </div>
 								   )}
@@ -786,6 +807,7 @@ const SupportingInfo: React.FC = () => {
 		{errors.some(e => e.includes('titlePlan-upload-1-error')) && (
 			<p id="titlePlan-upload-1-error" className="govuk-error-message">Upload the title plan document</p>
 		)}
+		{/* File validation errors removed - shown in error summary above */}
 		<FileUpload
 			title="Upload the title plan document"
 			prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_TITLE_PLAN}/`}
@@ -795,6 +817,10 @@ const SupportingInfo: React.FC = () => {
 			uploadedFiles={titlePlanFiles}
 			onUploaded={handleTitlePlanUploaded}
 			addedBy={userId}
+			onValidationErrors={(errors) => {
+				// Handle validation errors
+				setFileValidationErrors(errors);
+			}}
 		/>
 	</div>
 )}

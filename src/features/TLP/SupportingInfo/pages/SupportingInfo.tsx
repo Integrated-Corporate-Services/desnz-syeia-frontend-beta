@@ -24,6 +24,7 @@ const SupportingInfo: React.FC = () => {
   const [anyPayments, setAnyPayments] = useState("");
   const [anyPaymentsFiles, setAnyPaymentsFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const params = useParams();
@@ -115,26 +116,31 @@ return (
       <div className="govuk-grid-column-two-thirds">
         <h1 className="govuk-heading-xl">Supporting information</h1>
         {/* Error summary for missing radio selections */}
-        {formSubmitted && (!signedWayleave || !inheritedWayleave || !anyPayments) && (
+        {(formSubmitted && (!signedWayleave || !inheritedWayleave || !anyPayments)) || fileValidationErrors.length > 0 ? (
           <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1}>
             <div role="alert">
               <h2 className="govuk-error-summary__title">There is a problem</h2>
               <div className="govuk-error-summary__body">
                 <ul className="govuk-list govuk-error-summary__list">
-                  {!signedWayleave && (
+                  {fileValidationErrors.map((error, index) => (
+                    <li key={`file-${index}`}>
+                      <span>{error}</span>
+                    </li>
+                  ))}
+                  {formSubmitted && !signedWayleave && (
                     <li><a href="#signedWayleave-error">Select if a 21 day Notice has been served</a></li>
                   )}
-                  {!inheritedWayleave && (
+                  {formSubmitted && !inheritedWayleave && (
                     <li><a href="#inheritedWayleave-error">Select if a counter notice has been given by the landowner</a></li>
                   )}
-                  {!anyPayments && (
+                  {formSubmitted && !anyPayments && (
                     <li><a href="#anyPayments-error">Select if your application includes a title plan</a></li>
                   )}
                 </ul>
               </div>
             </div>
           </div>
-        )}
+        ) : null}
         <form onSubmit={handleSubmit} noValidate>
           {/* 21 day notice */}
           <div className={`govuk-form-group${formSubmitted && !signedWayleave ? ' govuk-form-group--error' : ''}`}> 
@@ -185,12 +191,17 @@ return (
                     </fieldset>
                   </div>
                   <div className="govuk-form-group">
+                    {/* File validation errors removed - shown in error summary above */}
                     <FileUpload 
                       title="Upload a document" 
                       prefix={`applications/${applicationId}/signed-wayleave`} 
                       onFilesChange={setSignedWayleaveFiles} 
                       applicationId={applicationId} 
-                      category="SIGNED_WAYLEAVE" 
+                      category="SIGNED_WAYLEAVE"
+                      onValidationErrors={(errors) => {
+                        // Handle validation errors
+                        setFileValidationErrors(errors);
+                      }}
                     />
                   </div>
                 </div>
@@ -251,12 +262,17 @@ return (
                     </fieldset>
                   </div>
                   <div className="govuk-form-group">
+                    {/* File validation errors removed - shown in error summary above */}
                     <FileUpload 
                       title="Upload a document" 
                       prefix={`applications/${applicationId}/inherited-wayleave`}
                       onFilesChange={setInheritedWayleaveFiles} 
                       applicationId={applicationId} 
-                      category="INHERITED_WAYLEAVE" 
+                      category="INHERITED_WAYLEAVE"
+                      onValidationErrors={(errors) => {
+                        // Handle validation errors
+                        setFileValidationErrors(errors);
+                      }}
                     />
                   </div>
                 </div>
@@ -286,12 +302,17 @@ return (
                 </div>
                 <div className="govuk-radios__conditional" id="conditional-anyPayments" style={{display: anyPayments === "Yes" ? "block" : "none"}}>
                   <div className="govuk-form-group">
+                    {/* File validation errors removed - shown in error summary above */}
                     <FileUpload 
                       title="Upload the title plan document" 
                       prefix={`applications/${applicationId}/title-plan`} 
                       onFilesChange={setAnyPaymentsFiles} 
                       applicationId={applicationId} 
-                      category="TITLE_PLAN" 
+                      category="TITLE_PLAN"
+                      onValidationErrors={(errors) => {
+                        // Handle validation errors
+                        setFileValidationErrors(errors);
+                      }}
                     />
                   </div>
                 </div>

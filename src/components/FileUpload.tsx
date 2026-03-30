@@ -1,15 +1,20 @@
-import React, { useRef, useState } from "react";
-import { downloadS3File, downloadS3FileOnSameTab } from "../utils/s3DownloadUtil";
+import React, { useRef, useState, useEffect } from "react";
+import { downloadS3FileOnSameTab } from "../utils/s3DownloadUtil";
 import "../styles/Fileupload.css";
 import {
   getPresignedUrls,
   uploadFileToS3,
-} from "../services/s3ApiService";
+  deleteFileCompletely,
+} from "../services/s3ApiService"; 
+import { createLogger } from "../utils/logger";
+import { validateFiles, formatFileSize, FILE_SIZE_LIMITS } from "../utils/fileUploadValidation";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { DEMO_USER_ID } from "../constants/demo";
+
+const logger = createLogger('FileUpload');
 
 export interface FileUploadProps {
   title?: string;
@@ -25,6 +30,7 @@ export interface FileUploadProps {
   consultationId?: string;
   showDocumentsHeading?: boolean;
   showTitle?: boolean;
+  onValidationErrors?: (errors: string[]) => void;
   onUploaded?: (
     uploadedFiles: UploadedFile[],
     applicationDocuments: ApplicationDocument[]
@@ -45,6 +51,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   consultationId,
   showDocumentsHeading = true,
   showTitle = true,
+  onValidationErrors,
   onUploaded,
 }) => {
   // Get user from auth context
@@ -59,108 +66,131 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [statuses, setStatuses] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
-
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   // S3 file listing is disabled; display files from uploadedFiles prop/state instead
 
   // Local files for upload logic
   const files = internalFiles;
 
-  const allowedTypes = [
-    "application/pdf",
-    "image/jpeg",
-    "image/png",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "application/vnd.ms-outlook",
-    "image/jpg",
-  ];
-  const allowedExtensions = [
-    ".pdf",
-    ".jpg",
-    ".jpeg",
-    ".png",
-    ".msg",
-    ".doc",
-    ".docx",
-    ".xls",
-    ".xlsx",
-  ];
-  const maxFileSize = 25 * 1024 * 1024; // 25MB
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
+    
     const newFiles = Array.from(e.target.files);
-    // Validation: type and size
-    const validatedFiles = newFiles.filter((file) => {
-      const ext = "." + file.name.split(".").pop()?.toLowerCase();
-      const validType =
-        allowedTypes.includes(file.type) || allowedExtensions.includes(ext);
-      const validSize = file.size <= maxFileSize;
-      return validType && validSize;
-    });
-    // Remove duplicates by name and size
-    const allFiles = [...files, ...validatedFiles];
-    const uniqueFiles = allFiles.filter(
-      (file, idx, arr) =>
-        arr.findIndex((f) => f.name === file.name && f.size === file.size) ===
-        idx
-    );
-    if (onFilesChange) {
-      onFilesChange(uniqueFiles);
-    } else {
-      setInternalFiles(uniqueFiles);
+    setValidationErrors([]); // Clear previous errors
+    
+    // Immediately clear parent errors when validation starts
+    if (onValidationErrors) {
+      onValidationErrors([]);
     }
-    setStatuses(Array(uniqueFiles.length).fill(""));
-    setDownloadStatuses(Array(uniqueFiles.length).fill(""));
-    e.target.value = "";
-    // Only upload the newly added files
-    setTimeout(() => {
-      const newFileIndices = uniqueFiles
-        .map((file, idx) => ({ file, idx }))
-        .filter(({ file }) =>
-          validatedFiles.some(
-            (nf) => nf.name === file.name && nf.size === file.size
-          )
-        )
-        .map(({ idx }) => idx);
-      if (newFileIndices.length > 0) {
-        uploadFiles(newFileIndices.map((i) => uniqueFiles[i]));
+    
+    logger.info('Starting file validation', {
+      newFilesCount: newFiles.length,
+      files: newFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
+    });
+    
+    const result = await validateFiles(newFiles, files);
+    
+    logger.info('File validation completed', {
+      validFilesCount: result.validFiles.length,
+      errorsCount: result.errors.length,
+      errors: result.errors
+    });
+    
+    if (result.errors.length > 0) {
+      const errorMessages = result.errors.map(error => error.message);
+      setValidationErrors(errorMessages);
+      if (onValidationErrors) {
+        onValidationErrors(errorMessages);
       }
-    }, 0);
+    } else {
+      setValidationErrors([]);
+      if (onValidationErrors) {
+        onValidationErrors([]);
+      }
+    }
+    
+    if (result.validFiles.length > 0) {
+      const allFiles = [...files, ...result.validFiles];
+      
+      if (onFilesChange) {
+        onFilesChange(allFiles);
+      } else {
+        setInternalFiles(allFiles);
+      }
+      setStatuses(Array(allFiles.length).fill(""));
+      setDownloadStatuses(Array(allFiles.length).fill(""));
+      
+      // Upload the newly validated files
+      setTimeout(() => {
+        const newFileIndices = allFiles
+          .map((file, idx) => ({ file, idx }))
+          .filter(({ file }) =>
+            result.validFiles.some(
+              (nf) => nf.name === file.name && nf.size === file.size
+            )
+          )
+          .map(({ idx }) => idx);
+        if (newFileIndices.length > 0) {
+          uploadFiles(newFileIndices.map((i) => allFiles[i]));
+        }
+      }, 0);
+    }
+    
+    e.target.value = "";
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    
     const droppedFiles = Array.from(e.dataTransfer.files);
-    // Remove duplicates by name and size
-    const allFiles = [...files, ...droppedFiles];
-    const uniqueFiles = allFiles.filter(
-      (file, idx, arr) =>
-        arr.findIndex((f) => f.name === file.name && f.size === file.size) ===
-        idx
-    );
-    if (onFilesChange) {
-      onFilesChange(uniqueFiles);
-    } else {
-      setInternalFiles(uniqueFiles);
+    setValidationErrors([]); // Clear previous errors
+    
+    // Immediately clear parent errors when validation starts
+    if (onValidationErrors) {
+      onValidationErrors([]);
     }
-    setStatuses(Array(uniqueFiles.length).fill(""));
-    setDownloadStatuses(Array(uniqueFiles.length).fill(""));
-    setTimeout(() => {
-      const newFileIndices = uniqueFiles
-        .map((file, idx) => ({ file, idx }))
-        .filter(({ file }) =>
-          droppedFiles.some(
-            (df) => df.name === file.name && df.size === file.size
-          )
-        )
-        .map(({ idx }) => idx);
-      if (newFileIndices.length > 0) {
-        uploadFiles(newFileIndices.map((i) => uniqueFiles[i]));
+    
+    const result = await validateFiles(droppedFiles, files);
+    
+    if (result.errors.length > 0) {
+      const errorMessages = result.errors.map(error => error.message);
+      setValidationErrors(errorMessages);
+      if (onValidationErrors) {
+        onValidationErrors(errorMessages);
       }
-    }, 0);
+    } else {
+      setValidationErrors([]);
+      if (onValidationErrors) {
+        onValidationErrors([]);
+      }
+    }
+    
+    if (result.validFiles.length > 0) {
+      const allFiles = [...files, ...result.validFiles];
+      
+      if (onFilesChange) {
+        onFilesChange(allFiles);
+      } else {
+        setInternalFiles(allFiles);
+      }
+      setStatuses(Array(allFiles.length).fill(""));
+      setDownloadStatuses(Array(allFiles.length).fill(""));
+      
+      // Upload the newly validated files
+      setTimeout(() => {
+        const newFileIndices = allFiles
+          .map((file, idx) => ({ file, idx }))
+          .filter(({ file }) =>
+            result.validFiles.some(
+              (df) => df.name === file.name && df.size === file.size
+            )
+          )
+          .map(({ idx }) => idx);
+        if (newFileIndices.length > 0) {
+          uploadFiles(newFileIndices.map((i) => allFiles[i]));
+        }
+      }, 0);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -176,6 +206,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
     setStatuses((prev) => prev.filter((_, i) => i !== idx));
     setDownloadStatuses((prev) => prev.filter((_, i) => i !== idx));
+    
+    // Clear validation errors when files are removed as space constraints may be resolved
+    setValidationErrors([]);
+    
+    // Also clear parent errors when files are removed
+    if (onValidationErrors) {
+      onValidationErrors([]);
+    }
   };
 
   // Core upload logic, called instantly after file select/drop
@@ -242,6 +280,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
               consultationId: consultationId || "", // Set if applicable
             };
             applicationDocuments.push(applicationDocument);
+            
+            // File uploaded successfully
+            
             // Remove file and its status from local state after successful upload
             setInternalFiles((prevFiles: File[]) => {
               const idxToRemove = prevFiles.findIndex(
@@ -275,6 +316,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         }
       }
       // Call onUploaded callback with built objects
+      // Calling onUploaded callback with files
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
@@ -287,8 +329,46 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   };
 
+  // Handle file deletion from S3
+  const handleDeleteFile = async (fileId: string, s3Key: string) => {
+    try {
+      // Delete from both S3 and database using comprehensive deletion
+      const result = await deleteFileCompletely(fileId, s3Key);
+      
+      // File deleted successfully
+      
+      // Call the onDeleteFile callback to update parent state
+      if (onDeleteFile) {
+        onDeleteFile(fileId);
+      }
+      
+    } catch (error: any) {
+      // Enhanced error logging for deletion failures
+      logger.error('File Deletion Error Details:', {
+        fileId,
+        s3Key,
+        errorName: error?.name,
+        errorMessage: error?.message,
+        errorStatus: error?.status || error?.response?.status,
+        errorData: error?.response?.data,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      });
+      
+      // Log error and show user-friendly error with more context
+      const errorMsg = error?.response?.data?.error || error?.message || 'Unknown error occurred';
+      logger.error('Failed to delete file completely', {
+        fileId,
+        s3Key,
+        errorMessage: errorMsg,
+        error
+      });
+    }
+  };
+
   return (
-    <div className="gds-upload-container">
+    <div className="gds-upload-container" tabIndex={-1}>
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
@@ -307,8 +387,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
                           try {
                             await downloadS3FileOnSameTab(file.s3Key);
                           } catch (error) {
-                            console.error('Failed to download file:', error);
-                            alert('Failed to download file. Please try again.');
+                            logger.error('Failed to download file', {
+                              s3Key: file.s3Key,
+                              filename: file.filename,
+                              error
+                            });
                           }
                         }
                       }}
@@ -316,14 +399,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
                       {file.filename ? file.filename.split("/").pop() : ""}
                     </a>
                   </td>
-                  {/* <td className="govuk-table__cell govuk-table__cell--numeric">
+                  <td className="govuk-table__cell govuk-table__cell--numeric">
                     <a
                       href="#"
                       className="govuk-link"
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.preventDefault();
                         if (onDeleteFile) {
-                          onDeleteFile(file.id);
+                          await handleDeleteFile(file.id, file.s3Key);
                         } else if (onRemoveFile) {
                           onRemoveFile(idx);
                         }
@@ -331,11 +414,21 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     >
                       Delete
                     </a>
-                  </td> */}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* File validation errors display */}
+      {validationErrors.length > 0 && (
+        <div className="govuk-error-message govuk-!-margin-bottom-3">
+          <span className="govuk-visually-hidden">Error:</span>
+          {validationErrors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
         </div>
       )}
 
@@ -347,7 +440,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       )}
       <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
-        .xlsx files of up to 25MB each. Files can not be password protected.
+        .xlsx files of up to 25MB each.
       </p>
 
       <div
@@ -360,6 +453,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           type="file"
           multiple
           ref={fileInputRef}
+          id="file-upload-input" 
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"

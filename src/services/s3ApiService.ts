@@ -47,6 +47,20 @@ export async function deleteFileFromS3(key: string) {
   return await res.json();
 }
 
+// Delete a file completely (from both S3 and database)
+export async function deleteFileCompletely(fileId: string, key: string) {
+  const res = await fetch('/backend/api/file/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, fileId })
+  });
+  if (!res.ok) {
+    const errorResponse = await res.json();
+    throw new Error(errorResponse.error || 'Failed to delete file completely');
+  }
+  return await res.json();
+}
+
 // Get presigned GET URL that forces download
 export async function getPresignedGetUrlForDownload(filename: string) {
   const res = await fetch('/backend/api/file/presigned-url/download', {

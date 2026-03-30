@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { createLogger } from "../../../utils/logger";
+
+const logger = createLogger('ApplicationSubmit');
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { applicationApiService } from "../../../services/applicationApiService";
 import {
@@ -56,12 +59,9 @@ const ApplicationSubmit: React.FC = () => {
 
     // Save declaration to database before navigating
     try {
-      console.log("Saving declaration confirmation:", {
-        applicationId,
-        declarationConfirmed: true,
-      });
+      // Saving declaration confirmation
       await applicationApiService.confirmDeclaration(applicationId, true);
-      console.log("Declaration saved successfully");
+      logger.info("Declaration saved successfully");
 
       // Navigate to pay and submit page
       navigate(`${S37_BASE_URL}/${applicationId}/pay-and-submit`);

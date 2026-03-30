@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -20,10 +20,12 @@ const ConsultationResponse2: React.FC = () => {
     const [uploadedFileObjs, setUploadedFileObjs] = useState<UploadedFile[]>([]);
     const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>('');
     const [consultationType, setConsultationType] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const fileUploadRef = useRef<HTMLDivElement>(null);
 
     // Scroll to top on mount
     useEffect(() => {
@@ -73,6 +75,43 @@ const ConsultationResponse2: React.FC = () => {
     const handleUploadedFiles = (files: UploadedFile[], docs: ApplicationDocument[]) => {
         setUploadedFileObjs(prev => [...prev, ...files]);
         setApplicationDocuments(prev => [...prev, ...docs]);
+        // Clear validation errors when files are uploaded
+        setErrors(prev => ({ ...prev, uploadedFiles: '' }));
+        setFileValidationErrors([]);
+    };
+
+    // Handle file validation errors from FileUpload component
+    const handleFileValidationErrors = (errors: string[]) => {
+        setFileValidationErrors(errors);
+        // Clear form-level errors when file validation errors are present
+        if (errors.length === 0) {
+            setErrors(prev => ({ ...prev, uploadedFiles: '' }));
+        }
+    };
+
+    // Handle error click to focus file upload area
+    const handleErrorClick = (errorType: string) => {
+        if (errorType === 'fileUpload') {
+            const fileUploadSection = document.querySelector('#file-upload');
+            if (fileUploadSection) {
+                // First scroll to the section smoothly
+                fileUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Wait for scroll to complete, then focus the upload container
+                setTimeout(() => {
+                    const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
+                    if (uploadContainer) {
+                        (uploadContainer as HTMLElement).focus();
+                    } else {
+                        // Fallback: try to focus the file input directly
+                        const fileInput = fileUploadSection.querySelector('#file-upload-input');
+                        if (fileInput) {
+                            (fileInput as HTMLElement).focus();
+                        } 
+                    }
+                }, 300);
+            } 
+        }
     };
 
     const validateForm = () => {
@@ -95,7 +134,7 @@ const ConsultationResponse2: React.FC = () => {
         }
 
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
     };
 
     const validateFormatOnly = () => {
@@ -111,7 +150,7 @@ const ConsultationResponse2: React.FC = () => {
         }
 
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
     };
 
     const handleSaveAndContinue = async () => {
@@ -223,17 +262,34 @@ const ConsultationResponse2: React.FC = () => {
                             <p className="govuk-body">Loading...</p>
                         ) : (
                             <>
-                        {Object.keys(errors).length > 0 && (
+                        {(Object.keys(errors).some(key => errors[key]) || fileValidationErrors.length > 0) && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>
                                     <div className="govuk-error-summary__body">
                                         <ul className="govuk-list govuk-error-summary__list">
+                                            {fileValidationErrors.map((error, index) => (
+                                                <li key={`file-${index}`}>
+                                                    <a href="#" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        handleErrorClick('fileUpload');
+                                                    }}>
+                                                        {error}
+                                                    </a>
+                                                </li>
+                                            ))}
                                             {errors.responseDate && (
                                                 <li><a href="#responseDateDay">{errors.responseDate}</a></li>
                                             )}
                                             {errors.uploadedFiles && (
-                                                <li><a href="#file-upload">{errors.uploadedFiles}</a></li>
+                                                <li>
+                                                    <a href="#" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        handleErrorClick('fileUpload');
+                                                    }}>
+                                                        {errors.uploadedFiles}
+                                                    </a>
+                                                </li>
                                             )}
                                         </ul>
                                     </div>
@@ -326,7 +382,12 @@ const ConsultationResponse2: React.FC = () => {
                             </div>
                             )}
 
-                            <div className={`govuk-form-group ${errors.uploadedFiles ? 'govuk-form-group--error' : ''}`}>
+                            <div className={`govuk-form-group ${errors.uploadedFiles || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}
+                                ref={fileUploadRef}
+                                style={(errors.uploadedFiles || fileValidationErrors.length > 0) ? {
+                                    borderLeft: '4px solid #d4351c',
+                                    paddingLeft: 12
+                                } : {}}>
                                 <h2 className="govuk-heading-m">Documents uploaded</h2>
                                 {errors.uploadedFiles && (
                                     <p id="uploadedFiles-error" className="govuk-error-message">
@@ -352,11 +413,8 @@ const ConsultationResponse2: React.FC = () => {
                                         }}
                                         onUploaded={(files, docs) => {
                                             handleUploadedFiles(files, docs);
-                                            if (errors.uploadedFiles) {
-                                                const { uploadedFiles, ...restErrors } = errors;
-                                                setErrors(restErrors);
-                                            }
                                         }}
+                                        onValidationErrors={handleFileValidationErrors}
                                         consultationId={consultationId}
                                     />
                                 </div>

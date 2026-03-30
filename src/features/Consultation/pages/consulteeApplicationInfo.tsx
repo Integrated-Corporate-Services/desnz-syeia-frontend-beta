@@ -24,11 +24,13 @@ const consulteeApplicationInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   // Read consultationId from path params if available, fallback to query param
   const consultationId = params.consultationId || searchParams.get("consultationId") || "";
   const consultationName = searchParams.get("consultationName") || "";
   const navigate = useNavigate();
   const tabsRef = useRef<HTMLDivElement>(null);
+  const fileUploadRef = useRef<{ focus: () => void } | null>(null);
 
 // Scroll to top on mount
 useEffect(() => {
@@ -207,6 +209,23 @@ useEffect(() => {
     handleSave(true);
   };
 
+  // File validation handlers
+  const handleFileValidationErrors = (errors: string[]) => {
+    setFileValidationErrors(errors);
+  };
+
+  const handleErrorClick = (event: React.MouseEvent, errorType: string) => {
+    event.preventDefault();
+    if (errorType.includes('file')) {
+      // Focus on file upload section using its ID
+      const fileUploadElement = document.getElementById('file-upload');
+      if (fileUploadElement) {
+        fileUploadElement.focus();
+        fileUploadElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  };
+
  
 
   
@@ -250,9 +269,32 @@ useEffect(() => {
             <p className="govuk-body">
               Select and review the details you want to share with the consultant.
             </p>
- {errorMessage && (
-  <div className="govuk-error-message" style={{ marginTop: '16px' }}>{errorMessage}</div>
-)}
+            
+            {/* Error Summary */}
+            {(errorMessage || fileValidationErrors.length > 0) && (
+              <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+                <h2 className="govuk-error-summary__title" id="error-summary-title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <ul className="govuk-list govuk-error-summary__list">
+                    {errorMessage && (
+                      <li>
+                        <span>{errorMessage}</span>
+                      </li>
+                    )}
+                    {fileValidationErrors.map((error, index) => (
+                      <li key={index}>
+                        <a href="#file-upload" onClick={(e) => handleErrorClick(e, 'file')}>
+                          {error}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+            
             <div className="govuk-tabs" data-module="govuk-tabs" ref={tabsRef}>
               <h2 className="govuk-tabs__title">Contents</h2>
               <ul className="govuk-tabs__list">
@@ -408,7 +450,7 @@ useEffect(() => {
 
 
             {/* Additional supporting documents upload */}
-            <div style={{ marginTop: '32px', marginBottom: '32px' }}>
+            <div id="file-upload" style={{ marginTop: '32px', marginBottom: '32px' }} tabIndex={-1}>
               <FileUpload
                 title="Additional supporting documents"
                 prefix={applicationId ? `${applicationId}/${FILE_CATEGORIES.CONSULTATION_ADDITIONAL_DOCUMENTS}` : ''}
@@ -416,6 +458,7 @@ useEffect(() => {
                 category={FILE_CATEGORIES.CONSULTATION_ADDITIONAL_DOCUMENTS}
                 addedBy={user?.user_id}
                 uploadedFiles={consultationPack?.uploadedFiles || []}
+                onValidationErrors={handleFileValidationErrors}
                 onUploaded={(newUploadedFiles, newApplicationDocuments) => {
                   setConsultationPack((prev: any) => ({
                     ...prev,

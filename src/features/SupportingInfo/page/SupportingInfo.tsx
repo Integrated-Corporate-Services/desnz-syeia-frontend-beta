@@ -9,7 +9,9 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import "../../../styles/_file_upload.scss";
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../hooks/useAuthUser';
+import { createLogger } from '../../../utils/logger';
 
+const logger = createLogger('SupportingInfo');
 
 // --- Helpers ---
 
@@ -44,6 +46,7 @@ const SupportingInfo: React.FC = () => {
   const MAX_COMMENTS_LENGTH = 4000;
   const remainingCommentChars = MAX_COMMENTS_LENGTH - comments.length;
   const [errors, setErrors] = useState<{ key: string; message: string }[]>([]);
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
 
@@ -52,6 +55,7 @@ const SupportingInfo: React.FC = () => {
   const wayleavesReasonRef = useRef<HTMLTextAreaElement>(null);
   const regulationsRef = useRef<HTMLInputElement>(null);
   const supportingDocsRef = useRef<HTMLInputElement>(null);
+  const fileUploadRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (applicationId) {
       fetchSupportingInfo(applicationId);
@@ -142,7 +146,7 @@ const SupportingInfo: React.FC = () => {
         '';
       navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
     } catch (err: any) {
-      console.error('Save failed:', err);
+      logger.error('Save failed:', err);
       setErrors([{ 
         key: 'save', 
         message: err?.response?.data?.message || err?.message || 'Failed to save supporting information' 
@@ -162,6 +166,34 @@ const SupportingInfo: React.FC = () => {
     if (key === "wayleavesReason" && wayleavesReasonRef.current) wayleavesReasonRef.current.focus();
     if (key === "regulations" && regulationsRef.current) regulationsRef.current.focus();
     if (key === "supportingDocs" && supportingDocsRef.current) supportingDocsRef.current.focus();
+    if (key === "fileUpload" || key === "supportingDocsFiles") {
+      // Focus the file upload area without opening file dialog
+      const fileUploadSection = document.querySelector('#hasSupportingDocuments-hidden');
+      if (fileUploadSection) {
+        // First scroll to the section smoothly
+        fileUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Wait for scroll to complete, then focus the upload container
+        setTimeout(() => {
+          const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
+          if (uploadContainer) {
+            (uploadContainer as HTMLElement).focus();
+            // Successfully focused file upload container
+          } else {
+            // Fallback: try to focus the file input directly
+            const fileInput = fileUploadSection.querySelector('#file-upload-input');
+            if (fileInput && fileUploadRef.current) {
+              fileUploadRef.current = fileInput as HTMLInputElement;
+              fileUploadRef.current.focus();
+            } else {
+              // Could not find file upload elements to focus
+            }
+          }
+        }, 300);
+      } else {
+        // Could not find file upload section
+      }
+    }
   };
 
   const hasError = (key: string) => errors.some(e => e.key === key);
@@ -187,7 +219,7 @@ const SupportingInfo: React.FC = () => {
   </ol>
 </nav>
 
-      {errors.length > 0 && (
+      {(errors.length > 0 || fileValidationErrors.length > 0) && (
         <div
           className="govuk-error-summary"
           role="alert"
@@ -201,6 +233,16 @@ const SupportingInfo: React.FC = () => {
           </h2>
           <div className="govuk-error-summary__body">
             <ul className="govuk-list govuk-error-summary__list">
+              {fileValidationErrors.map((error, index) => (
+                <li key={`file-${index}`}>
+                  <a href="#" onClick={(e) => {
+                    e.preventDefault();
+                    handleErrorClick("fileUpload");
+                  }}>
+                    {error}
+                  </a>
+                </li>
+              ))}
               {errors.map((err, i) => (
                 <li key={i}>
                   <a
@@ -393,17 +435,20 @@ const SupportingInfo: React.FC = () => {
 
     {supportingDocs === "yes" && (
         <div
-          className={`govuk-radios__conditional govuk-form-group${hasError("supportingDocsFiles") ? " govuk-form-group--error" : ""}`}
+          className={`govuk-radios__conditional govuk-form-group${hasError("supportingDocsFiles") || fileValidationErrors.length > 0 ? " govuk-form-group--error" : ""}`}
           id="hasSupportingDocuments-hidden"
-          style={hasError("supportingDocsFiles") ? { borderLeft: '4px solid #d4351c', paddingLeft: 12 } : {}}
+          style={(hasError("supportingDocsFiles") || fileValidationErrors.length > 0) ? { borderLeft: '4px solid #d4351c', paddingLeft: 12 } : {}}
         >
-          <label className="govuk-label" style={{ fontWeight: 600 }}>
-            Upload supporting information documents
-          </label>
-          {hasError("supportingDocsFiles") && (
-            <span className="govuk-error-message" id="supportingDocsFiles-error">
-              <span className="govuk-visually-hidden">Error:</span> Upload at least one supporting document
-            </span>
+        
+          {(hasError("supportingDocsFiles") || fileValidationErrors.length > 0) && (
+            <>
+              {hasError("supportingDocsFiles") && (
+                <span className="govuk-error-message" id="supportingDocsFiles-error">
+                  <span className="govuk-visually-hidden">Error:</span> Upload at least one supporting document
+                </span>
+              )}
+              {/* File validation errors removed - shown in error summary above */}
+            </>
           )}
           <FileUpload
             title="Upload a file"
@@ -414,9 +459,21 @@ const SupportingInfo: React.FC = () => {
             uploadedFiles={uploadedFiles}
             showDocumentsHeading={true}
             onDeleteFile={handleDeleteFile}
+            onValidationErrors={(errors) => {
+              // Handle validation errors
+              // Clear existing file validation errors before setting new ones
+              setFileValidationErrors(errors);
+              // Also clear form-level errors related to file upload
+              if (errors.length === 0) {
+                setErrors(prev => prev.filter(err => err.key !== 'supportingDocsFiles'));
+              }
+            }}
             onUploaded={(newUploadedFiles, newProjectDocuments) => {
               setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
               setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
+              // Clear file upload related errors when files are successfully uploaded
+              setErrors(prev => prev.filter(err => err.key !== 'supportingDocsFiles'));
+              setFileValidationErrors([]);
             }}
           />
         </div>

@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { createLogger } from "../../../utils/logger";
+
+const logger = createLogger('CheckYourAnswers');
 import { downloadS3File, downloadS3FileOnSameTab} from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { applicationApiService } from "../../../services/applicationApiService";
@@ -60,17 +63,14 @@ const ApplicationSubmit: React.FC = () => {
 
     // Save declaration to database before navigating
     try {
-      console.log("Saving declaration confirmation:", {
-        applicationId,
-        declarationConfirmed: true,
-      });
+      // Saving declaration confirmation
       await applicationApiService.confirmDeclaration(applicationId, true);
-      console.log("Declaration saved successfully");
+      logger.info("Declaration saved successfully");
 
       // Navigate to pay and submit page
       navigate(`${S37_BASE_URL}/${applicationId}/pay-and-submit`);
     } catch (err) {
-      console.error("Failed to save declaration:", err);
+      logger.error("Failed to save declaration:", err);
       setValidationError("Failed to save declaration. Please try again.");
       window.scrollTo({ top: 0 });
     }
@@ -170,12 +170,7 @@ const ApplicationSubmit: React.FC = () => {
     fetch(`/backend/api/applications/${applicationId}/review`)
       .then((res) => res.json())
       .then((data) => {
-        // Log the entire response to see structure
-        console.log("Full API response:", data);
-        console.log(
-          "Network operator section:",
-          data.sections?.networkOperator,
-        );
+        // Process API response and validate sections
 
         // List of required sections
         const requiredSections = [
@@ -206,15 +201,11 @@ const ApplicationSubmit: React.FC = () => {
 
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
-        console.log("Network operator details:", networkOpDetails);
+        // Process network operator details
 
         if (networkOpDetails) {
           const party = networkOpDetails.application_party;
-          console.log("Application party:", party);
-          console.log(
-            "Additional contact BEFORE setting state:",
-            networkOpDetails.additional_contact,
-          );
+          // Process application party details
 
           setNetworkOperatorDetails({
             operator_ref: networkOpDetails.operator_ref,
@@ -231,18 +222,7 @@ const ApplicationSubmit: React.FC = () => {
             additional_contact: party?.additional_contact,
           });
 
-          console.log(
-            "Additional contacts from API:",
-            party?.additional_contact,
-          );
-          console.log(
-            "Additional contacts type:",
-            typeof party?.additional_contact,
-          );
-          console.log(
-            "Additional contacts length:",
-            party?.additional_contact?.length,
-          );
+          // Process additional contacts
         } else {
           setNetworkOperatorDetails(null);
         }

@@ -11,9 +11,9 @@ const Footer = () => {
     if (crownRef.current) {
       const bounds = crownRef.current.getBoundingClientRect();
       const computedColor = window.getComputedStyle(crownRef.current).color;
-      console.log('Footer crown SVG visible', { bounds, computedColor });
+      // Footer crown SVG visible
     } else {
-      console.warn('Footer crown SVG not found - check rendering logic');
+      // Footer crown SVG not found
     }
   }, []);
 

@@ -4,6 +4,9 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { useAuthUser } from '../../../hooks/useAuthUser';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('PaymentMethodPage');
 
 const PaymentMethodPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,7 +55,7 @@ const handlePayByCard = async () => {
       }
     );
 
-    console.log('Payment creation result:', result);
+    logger.info('Payment creation result:', result);
 
     // Store payment details in sessionStorage
     if (result.result?.localId) {
@@ -70,7 +73,7 @@ const handlePayByCard = async () => {
     const nextUrl = result.result?._links?.next_url?.href || result.result?.next_url;
     
     if (nextUrl) {
-      console.log('Redirecting to GOV.UK Pay:', nextUrl);
+      logger.info('Redirecting to GOV.UK Pay:', nextUrl);
       window.location.href = nextUrl;
     } else {
       console.error('No redirect URL in response:', result);

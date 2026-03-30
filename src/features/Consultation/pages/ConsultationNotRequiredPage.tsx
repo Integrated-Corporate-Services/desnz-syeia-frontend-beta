@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import FileUpload from '../../../components/FileUpload';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -21,13 +21,50 @@ const ConsultationNotRequiredPage: React.FC = () => {
 	const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
 	const [notRequiredStatus, setNotRequiredStatus] = useState<any>(null);
 	const [errors, setErrors] = useState<{reason?: string; files?: string}>({});
+	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+	// Ref for file upload focus management
+	const fileUploadRef = useRef<HTMLDivElement>(null);
 	// Handler for FileUpload onUploaded
 	const handleUploadedFiles = (uploadedFiles: any[], applicationDocumentsArr: any[]) => {
 		setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
 		setApplicationDocuments(prev => [...prev, ...applicationDocumentsArr]);
 		// Clear files error when files are uploaded
-		if (errors.files && (uploadedFiles.length > 0 || applicationDocumentsArr.length > 0)) {
+		setErrors(prev => ({ ...prev, files: undefined }));
+		setFileValidationErrors([]);
+	};
+
+	// Handle file validation errors from FileUpload component
+	const handleFileValidationErrors = (errors: string[]) => {
+		// Handle validation errors
+		setFileValidationErrors(errors);
+		// Clear form-level errors when file validation errors are present
+		if (errors.length === 0) {
 			setErrors(prev => ({ ...prev, files: undefined }));
+		}
+	};
+
+	// Handle error click to focus file upload area
+	const handleErrorClick = (errorType: string) => {
+		if (errorType === 'fileUpload') {
+			const fileUploadSection = document.querySelector('#file-upload');
+			if (fileUploadSection) {
+				// First scroll to the section smoothly
+				fileUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				
+				// Wait for scroll to complete, then focus the upload container
+				setTimeout(() => {
+					const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
+					if (uploadContainer) {
+						(uploadContainer as HTMLElement).focus();
+					} else {
+						// Fallback: try to focus the file input directly
+						const fileInput = fileUploadSection.querySelector('#file-upload-input');
+						if (fileInput) {
+							(fileInput as HTMLElement).focus();
+						} 
+					}
+				}, 300);
+			} 
 		}
 	};
 
@@ -66,9 +103,8 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				newErrors.files = 'You must upload at least one supporting document';
 			}
 			
-			if (Object.keys(newErrors).length > 0) {
+			if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
 				setErrors(newErrors);
-				// Scroll to top to show errors
 				window.scrollTo(0, 0);
 				return;
 			}
@@ -140,13 +176,23 @@ const ConsultationNotRequiredPage: React.FC = () => {
 					</nav>
 					<main className="govuk-main-wrapper govuk-!-margin-bottom-6" id="main-content">
 					{/* Error Summary */}
-					{Object.keys(errors).length > 0 && (
+					{(Object.keys(errors).length > 0 || fileValidationErrors.length > 0) && (
 						<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
 							<h2 className="govuk-error-summary__title" id="error-summary-title">
 								There is a problem
 							</h2>
 							<div className="govuk-error-summary__body">
 								<ul className="govuk-list govuk-error-summary__list">
+									{fileValidationErrors.map((error, index) => (
+										<li key={`file-${index}`}>
+											<a href="#" onClick={(e) => {
+												e.preventDefault();
+												handleErrorClick('fileUpload');
+											}}>
+												{error}
+											</a>
+										</li>
+									))}
 									{errors.reason && (
 										<li>
 											<a href="#reason">{errors.reason}</a>
@@ -154,7 +200,12 @@ const ConsultationNotRequiredPage: React.FC = () => {
 									)}
 									{errors.files && (
 										<li>
-											<a href="#file-upload">{errors.files}</a>
+											<a href="#" onClick={(e) => {
+												e.preventDefault();
+												handleErrorClick('fileUpload');
+											}}>
+												{errors.files}
+											</a>
 										</li>
 									)}
 								</ul>
@@ -202,7 +253,12 @@ const ConsultationNotRequiredPage: React.FC = () => {
 									aria-describedby={errors.reason ? "reason-error" : undefined}
 								/>
 							</div>
-							<div className={`govuk-form-group ${errors.files ? 'govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} id="file-upload">
+							<div className={`govuk-form-group ${errors.files || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} id="file-upload"
+								ref={fileUploadRef}
+								style={(errors.files || fileValidationErrors.length > 0) ? {
+									borderLeft: '4px solid #d4351c',
+									paddingLeft: 12
+								} : {}}>
 								{errors.files && (
 									<p id="files-error" className="govuk-error-message">
 										<span className="govuk-visually-hidden">Error:</span> {errors.files}
@@ -219,12 +275,9 @@ const ConsultationNotRequiredPage: React.FC = () => {
 										setUploadedFiles(files => files.filter((_, i) => i !== idx));
 										setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
 										setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
-										// Clear files error when removing files (validation will re-trigger on save)
-										if (errors.files) {
-											setErrors(prev => ({ ...prev, files: undefined }));
-										}
 									}}
 									onUploaded={handleUploadedFiles}
+									onValidationErrors={handleFileValidationErrors}
 									consultationId={consultationId}
 								/>
 							</div>

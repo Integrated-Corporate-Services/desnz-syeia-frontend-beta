@@ -123,4 +123,18 @@
   background: #004e2a;
 }
 
+/* Error state for file upload container - matching GDS form patterns */
+.gds-upload-container--error {
+  border-left: 5px solid #d4351c;
+  padding: 15px 0 15px 15px;
+  margin-left: -20px;
+  margin-bottom: 15px;
+}
+
+/* Reset any error styling on dropzone itself */
+.gds-upload-dropzone--error {
+  border-color: inherit;
+  background: inherit;
+}
+
  
