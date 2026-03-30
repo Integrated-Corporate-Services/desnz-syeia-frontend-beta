@@ -54,20 +54,17 @@ export const useTeamCoordinator = (
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    console.log("[useTeamCoordinator] useEffect triggered", {
-      organisationId,
-      coordinatorId,
-    });
+    // useTeamCoordinator useEffect triggered
 
     const fetchCoordinator = async () => {
       if (!organisationId || !coordinatorId) {
-        console.log("[useTeamCoordinator] Missing IDs, aborting");
+        // Missing IDs, aborting
         setLoading(false);
         return;
       }
 
       try {
-        console.log("[useTeamCoordinator] Starting fetch...");
+        // Starting fetch
         setLoading(true);
         setError("");
         logger.debug("Fetching team coordinator", {
@@ -80,15 +77,12 @@ export const useTeamCoordinator = (
           coordinatorId
         );
         logger.debug("Team coordinator fetched successfully");
-        console.log(
-          "[useTeamCoordinator] Fetch successful, setting coordinator:",
-          result
-        );
+        // Fetch successful, setting coordinator
         setCoordinator(result);
       } catch (err: any) {
         const errorMsg =
           err.message || "An error occurred while fetching team coordinator";
-        console.error("[useTeamCoordinator] Fetch failed:", err, {
+        logger.error("[useTeamCoordinator] Fetch failed:", err, {
           errorMsg,
           status: err.response?.status,
         });

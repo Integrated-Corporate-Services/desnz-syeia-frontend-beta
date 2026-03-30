@@ -5,6 +5,9 @@ import { useProgressStore } from '../store/useProgressStore';
 import { getInitialSections, getSectionsWithProgress, updateSectionStatus } from '../utils/taskListUtils';
 import { getSensitiveAreaCheckStatus } from '../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../constants/s37';
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('useTaskListData');
 
 export function useTaskListData() {
   const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
@@ -93,13 +96,13 @@ export function useTaskListData() {
                   fetchProgress(effectiveId);
                 }
               } catch (err) {
-                console.error('Failed to poll sensitive area status', err);
+                logger.error('Failed to poll sensitive area status', err);
               }
             }, 3000); // Poll every 3 seconds
           }
         }
       } catch (err) {
-        console.error('Failed to fetch sensitive area status', err);
+        logger.error('Failed to fetch sensitive area status', err);
       }
     };
 

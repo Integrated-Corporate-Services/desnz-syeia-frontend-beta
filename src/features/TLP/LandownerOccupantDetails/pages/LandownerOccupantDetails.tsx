@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { TLP_BASE_URL } from "../../../../constants/tlp";
+import { createLogger } from "../../../../utils/logger";
+
+const logger = createLogger('LandownerOccupantDetails');
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -36,25 +39,25 @@ const LandownerOccupantDetails: React.FC = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const Id = searchParams.get('id') || searchParams.get('Id') || '';
-    console.log('LandownerOccupantDetails: Id', Id);
+    // Get LandownerOccupantDetails ID
     if (!Id) {
-      console.warn('No Id found in query string.');
+      logger.warn('No Id found in query string.');
       return;
     }
 
     const url = `/backend/api/tlp/landowner-occupant-details/${Id}`;
-    console.log('LandownerOccupantDetails: GET', url);
+    // Fetch landowner details
     fetch(url)
       .then(res => {
-        console.log('LandownerOccupantDetails: response', res);
+        // Process response
         if (!res.ok) {
-          console.error('LandownerOccupantDetails: fetch error', res.status, res.statusText);
+          logger.error('LandownerOccupantDetails: fetch error', res.status, res.statusText);
           throw new Error(`Error ${res.status}: ${res.statusText}`);
         }
         return res.json();
       })
       .then(data => {
-        console.log('LandownerOccupantDetails: data', data);
+        // Process fetched data
         // Use the landOwner object from the backend response
         if (data?.landOwner && (
           data.landOwner.contactType ||
@@ -75,7 +78,7 @@ const LandownerOccupantDetails: React.FC = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('LandownerOccupantDetails: fetch catch', err);
+        logger.error('LandownerOccupantDetails: fetch catch', err);
         setLoading(false);
       });
   }, []);
@@ -124,7 +127,7 @@ const LandownerOccupantDetails: React.FC = () => {
       };
       url = `/backend/api/tlp/landowner-occupant-details/${Id}`;
       method = 'PUT';
-      console.log('LandownerOccupantDetails PUT payload:', payload);
+      // PUT payload prepared
     } else {
       // Create (POST) - send nested structure
       const landOwner = {
@@ -150,7 +153,7 @@ const LandownerOccupantDetails: React.FC = () => {
       };
       url = `/backend/api/tlp/landowner-occupant-details`;
       method = 'POST';
-      console.log('LandownerOccupantDetails POST payload:', payload);
+      // POST payload prepared
     }
     try {
       const response = await fetch(url, {

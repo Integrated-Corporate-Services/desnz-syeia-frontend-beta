@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import FileUpload from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
@@ -6,6 +6,10 @@ import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore'
 import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
+import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('ReviewDocumentsPage');
 
 const ReviewDocumentsPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
@@ -14,7 +18,11 @@ const ReviewDocumentsPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [formErrors, setFormErrors] = useState<string[]>([]);
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
+
+  // Ref for file upload focus management
+  const fileUploadRef = useRef<HTMLDivElement>(null);
 
   // Use the store hook (consistent with SensitiveAreaReviewPage)
   const {
@@ -56,6 +64,37 @@ const ReviewDocumentsPage: React.FC = () => {
     return errors;
   };
 
+  // Handle error click to focus file upload area
+  const handleErrorClick = (errorType: string) => {
+    if (errorType === 'fileUpload') {
+      const fileUploadSection = document.querySelector('#file-upload-section');
+      if (fileUploadSection) {
+        // First scroll to the section smoothly
+        fileUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Wait for scroll to complete, then focus the upload container
+        setTimeout(() => {
+          const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
+          if (uploadContainer) {
+            (uploadContainer as HTMLElement).focus();
+            // Successfully focused file upload container
+          } else {
+            // Fallback: try to focus the file input directly
+            const fileInput = fileUploadSection.querySelector('#file-upload-input');
+            if (fileInput) {
+              (fileInput as HTMLElement).focus();
+              // Focused file input as fallback
+            } else {
+              // Could not find file upload elements to focus
+            }
+          }
+        }, 300);
+      } else {
+        // Could not find file upload section
+      }
+    }
+  };
+
   // Save handler
   const handleSaveReview = async (saveType: 'continue' | 'later' = 'continue') => {
     setFormErrors([]);
@@ -64,7 +103,7 @@ const ReviewDocumentsPage: React.FC = () => {
     // Validate only on 'continue'
     if (saveType === 'continue') {
       const errors = validateForm();
-      if (errors.length > 0) {
+      if (errors.length > 0 || fileValidationErrors.length > 0) {
         setFormErrors(errors);
         // Scroll to error summary
         document.getElementById('error-summary')?.focus();
@@ -72,44 +111,31 @@ const ReviewDocumentsPage: React.FC = () => {
       }
     }
 
-    // Build payload - preserve all existing data
-    const payload: SensitiveAreaReview = {
-      id: review?.id || '',
-      application_id: applicationId || '',
-      route_id: review?.route_id || '',
-      settings_id: review?.settings_id || '',
-      asset_presence_option_id: review?.asset_presence_option_id,
-      other_sensitive_areas_note: review?.other_sensitive_areas_note || '',
-      add_other_areas_choice: review?.add_other_areas_choice || null,
-      reviewed_by: review?.reviewed_by || '',
-      reviewed_at: review?.reviewed_at || '',
-      created_at: review?.created_at || '',
-      updated_at: review?.updated_at || '',
-      uploaded_files: uploadedFiles,
-      application_documents: applicationDocuments,
-    };
-
-    // Enhanced logging for debugging
-    console.log('=== ReviewDocumentsPage Save Debug ===');
-    console.log('Payload structure:', {
-      id: payload.id,
-      application_id: payload.application_id,
-      route_id: payload.route_id,
-      settings_id: payload.settings_id,
-      uploaded_files_count: payload.uploaded_files?.length || 0,
-      application_documents_count: payload.application_documents?.length || 0,
-    });
-    console.log('Uploaded Files:', JSON.stringify(uploadedFiles, null, 2));
-    console.log('Application Documents:', JSON.stringify(applicationDocuments, null, 2));
-    console.log('Full Payload:', JSON.stringify(payload, null, 2));
-
     try {
-      await saveReview(payload);
+      // Build payload - preserve all existing data
+      const payload: SensitiveAreaReview = {
+        id: review?.id || '',
+        application_id: applicationId || '',
+        route_id: review?.route_id || '',
+        settings_id: review?.settings_id || '',
+        asset_presence_option_id: review?.asset_presence_option_id,
+        other_sensitive_areas_note: review?.other_sensitive_areas_note || '',
+        add_other_areas_choice: review?.add_other_areas_choice || null,
+        reviewed_by: review?.reviewed_by || '',
+        reviewed_at: review?.reviewed_at || '',
+        created_at: review?.created_at || '',
+        updated_at: review?.updated_at || '',
+        uploaded_files: uploadedFiles,
+        application_documents: applicationDocuments,
+      };
+
+      // Save the review
+      await saveSensitiveReview(payload);
 
       // Always navigate to task list (this is the final page)
       navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
     } catch (err: unknown) {
-      console.error('Save error:', err);
+      logger.error('Save error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to save review';
       setApiError(errorMessage);
       setFormErrors(['There was a problem saving your data. Please try again.']);
@@ -124,16 +150,22 @@ const ReviewDocumentsPage: React.FC = () => {
 
   // Handle files uploaded from FileUpload component
   const handleFilesUploaded = (newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
-    console.log('[ReviewDocumentsPage] Files uploaded:', { 
-      newFiles, 
-      newDocuments,
-      newFilesCount: newFiles.length,
-      newDocsCount: newDocuments.length 
-    });
+    // Files uploaded successfully
     setUploadedFiles((prev) => [...prev, ...newFiles]);
     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
     setFormErrors([]);
+    setFileValidationErrors([]);
     setApiError(null);
+  };
+
+  // Handle file validation errors from FileUpload component
+  const handleFileValidationErrors = (errors: string[]) => {
+    // Handle validation errors
+    setFileValidationErrors(errors);
+    // Clear form-level errors when file validation errors are present
+    if (errors.length === 0) {
+      setFormErrors(prev => prev.filter(err => !err.includes('document')));
+    }
   };
 
   if (loading && !review) {
@@ -164,7 +196,7 @@ const ReviewDocumentsPage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds govuk-!-margin-top-4">
             {/* Error Summary */}
-            {formErrors.length > 0 && (
+            {(formErrors.length > 0 || fileValidationErrors.length > 0) && (
               <div
                 id="error-summary"
                 className="govuk-error-summary"
@@ -172,15 +204,31 @@ const ReviewDocumentsPage: React.FC = () => {
                 role="alert"
                 tabIndex={-1}
                 data-module="govuk-error-summary"
+                style={{ marginBottom: 32 }}
               >
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
+                    {fileValidationErrors.map((error, index) => (
+                      <li key={`file-${index}`}>
+                        <a href="#" onClick={(e) => {
+                          e.preventDefault();
+                          handleErrorClick('fileUpload');
+                        }}>
+                          {error}
+                        </a>
+                      </li>
+                    ))}
                     {formErrors.map((error, index) => (
-                      <li key={index}>
-                        <a href="#file-upload-section">{error}</a>
+                      <li key={`form-${index}`}>
+                        <a href="#" onClick={(e) => {
+                          e.preventDefault();
+                          handleErrorClick('fileUpload');
+                        }}>
+                          {error}
+                        </a>
                       </li>
                     ))}
                   </ul>
@@ -219,20 +267,26 @@ const ReviewDocumentsPage: React.FC = () => {
             {/* File Upload Section */}
             <div className="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
               <div
+                ref={fileUploadRef}
                 id="file-upload-section"
                 className={`govuk-form-group${
-                  formErrors.some((err) => err.includes('document'))
+                  (formErrors.some((err) => err.includes('document')) || fileValidationErrors.length > 0)
                     ? ' govuk-form-group--error'
                     : ''
                 }`}
+                style={(formErrors.some((err) => err.includes('document')) || fileValidationErrors.length > 0) ? {
+                  borderLeft: '4px solid #d4351c',
+                  paddingLeft: 12
+                } : {}}
               >
-                {/* Inline error message */}
+                {/* Inline error messages */}
                 {formErrors.some((err) => err.includes('document')) && (
                   <span id="file-upload-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span>
                     Upload at least one environmental and archaeological document
                   </span>
                 )}
+                {/* File validation errors removed - shown in error summary above */}
 
                 {/* Page-level heading shown when documents table is present (after upload) */}
                 {applicationDocuments && applicationDocuments.length > 0 && (
@@ -251,6 +305,7 @@ const ReviewDocumentsPage: React.FC = () => {
                   showDocumentsHeading={true}
                   onUploaded={handleFilesUploaded}
                   onDeleteFile={handleDeleteFile}
+                  onValidationErrors={handleFileValidationErrors}
                 />
               </div>
             </div>

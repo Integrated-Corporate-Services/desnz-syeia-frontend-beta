@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import FileUpload from '../../../components/FileUpload';
@@ -31,6 +31,8 @@ const PublicNoticesEvidence: React.FC = () => {
   const [uploadedFileObjs, setUploadedFileObjs] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const fileUploadRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -73,6 +75,49 @@ const PublicNoticesEvidence: React.FC = () => {
   const handleUploadedFiles = (uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[]) => {
     setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
     setApplicationDocuments(prev => [...prev, ...applicationDocuments]);
+    // Clear file upload error when files are uploaded
+    if (errors.fileUpload) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.fileUpload;
+        return newErrors;
+      });
+    }
+    setFileValidationErrors([]);
+  };
+
+  // Handle file validation errors from FileUpload component
+  const handleFileValidationErrors = (errors: string[]) => {
+    // Handle validation errors
+    setFileValidationErrors(errors);
+    // Clear form-level errors when file validation errors are present
+    if (errors.length === 0) {
+      setErrors(prev => ({ ...prev, fileUpload: '' }));
+    }
+  };
+
+  // Handle error click to focus file upload area
+  const handleErrorClick = (errorType: string) => {
+    if (errorType === 'fileUpload') {
+      const fileUploadSection = document.querySelector('#file-upload');
+      if (fileUploadSection) {
+        // First scroll to the section smoothly
+        fileUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Wait for scroll to complete, then focus the upload container
+        setTimeout(() => {
+          const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
+          if (uploadContainer) {
+            (uploadContainer as HTMLElement).focus();
+            // Successfully focused file upload container
+        } else {
+            // Could not find file upload elements to focus
+          }
+        }, 300);
+      } else {
+        // Could not find file upload section
+      }
+    }
   };
 
   const validateForm = () => {
@@ -122,7 +167,7 @@ const PublicNoticesEvidence: React.FC = () => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
   };
 
   const handleSaveAndContinue = async (e: React.FormEvent) => {
@@ -277,12 +322,22 @@ const PublicNoticesEvidence: React.FC = () => {
       <main className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {Object.keys(errors).length > 0 && (
+            {(Object.keys(errors).length > 0 || fileValidationErrors.length > 0) && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                 <div role="alert">
                   <h2 className="govuk-error-summary__title">There is a problem</h2>
                   <div className="govuk-error-summary__body">
                     <ul className="govuk-list govuk-error-summary__list">
+                      {fileValidationErrors.map((error, index) => (
+                        <li key={`file-${index}`}>
+                          <a href="#" onClick={(e) => {
+                            e.preventDefault();
+                            handleErrorClick('fileUpload');
+                          }}>
+                            {error}
+                          </a>
+                        </li>
+                      ))}
                       {errors.firstDate && (
                         <li>
                           <a href="#first-date-day">{errors.firstDate}</a>
@@ -295,7 +350,12 @@ const PublicNoticesEvidence: React.FC = () => {
                       )}
                       {errors.fileUpload && (
                         <li>
-                          <a href="#file-upload">{errors.fileUpload}</a>
+                          <a href="#" onClick={(e) => {
+                            e.preventDefault();
+                            handleErrorClick('fileUpload');
+                          }}>
+                            {errors.fileUpload}
+                          </a>
                         </li>
                       )}
                     </ul>
@@ -511,8 +571,10 @@ const PublicNoticesEvidence: React.FC = () => {
               </div>
 
               {/* File upload section */}
-              <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload ? 'govuk-form-group--error' : ''}`} id="file-upload">
-                <h2 className="govuk-heading-m">Upload evidence of the published public notices</h2>
+              <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
+                <label htmlFor="fileUpload" className="govuk-label govuk-label--m">
+                  Upload evidence of the published public notices
+                </label>
                 {errors.fileUpload && (
                   <p id="fileUpload-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {errors.fileUpload}
@@ -531,12 +593,8 @@ const PublicNoticesEvidence: React.FC = () => {
                   }}
                   onUploaded={(files, docs) => {
                     handleUploadedFiles(files, docs);
-                    if (errors.fileUpload) {
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                      const { fileUpload: _, ...restErrors } = errors;
-                      setErrors(restErrors);
-                    }
                   }}
+                  onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
                 />
               </div>

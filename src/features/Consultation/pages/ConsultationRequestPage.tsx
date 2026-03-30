@@ -22,6 +22,7 @@ const ConsultationRequestPage: React.FC = () => {
   const [uploadedFileObjs, setUploadedFileObjs] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const { user } = useAuthUser();
   const navigate = useNavigate();
 
@@ -34,6 +35,44 @@ const ConsultationRequestPage: React.FC = () => {
   const handleUploadedFiles = (uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[]) => {
     setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
     setApplicationDocuments(prev => [...prev, ...applicationDocuments]);
+    // Clear validation errors when files are uploaded
+    setErrors(prev => ({ ...prev, fileUpload: '' }));
+    setFileValidationErrors([]);
+  };
+
+  // Handle file validation errors from FileUpload component
+  const handleFileValidationErrors = (errors: string[]) => {
+    setFileValidationErrors(errors);
+    // Clear form-level errors when file validation errors are present
+    if (errors.length === 0) {
+      setErrors(prev => ({ ...prev, fileUpload: '' }));
+    }
+  };
+
+  // Handle error click to focus file upload area
+  const handleErrorClick = (event: React.MouseEvent, errorType: string) => {
+    event.preventDefault();
+    if (errorType === 'fileUpload' || errorType === 'file') {
+      const fileUploadSection = document.querySelector('#file-upload');
+      if (fileUploadSection) {
+        // First scroll to the section smoothly
+        fileUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Wait for scroll to complete, then focus the upload container
+        setTimeout(() => {
+          const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
+          if (uploadContainer) {
+            (uploadContainer as HTMLElement).focus();
+          } else {
+            // Fallback: try to focus the file input directly
+            const fileInput = fileUploadSection.querySelector('#file-upload-input');
+            if (fileInput) {
+              (fileInput as HTMLElement).focus();
+            } 
+          }
+        }, 300);
+      } 
+    }
   };
 
   // Fetch and bind consultation response on load
@@ -81,7 +120,7 @@ const ConsultationRequestPage: React.FC = () => {
     }
     
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
   };
 
   // Validation for save for later (only format validation, not required fields)
@@ -188,7 +227,7 @@ const ConsultationRequestPage: React.FC = () => {
           </nav>
           
           <main id="main-content">
-            {Object.keys(errors).length > 0 && (
+            {(Object.keys(errors).length > 0 || fileValidationErrors.length > 0) && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                 <div role="alert">
                   <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -204,6 +243,13 @@ const ConsultationRequestPage: React.FC = () => {
                           <a href="#file-upload">{errors.fileUpload}</a>
                         </li>
                       )}
+                      {fileValidationErrors.map((error, index) => (
+                        <li key={index}>
+                          <a href="#file-upload" onClick={(e) => handleErrorClick(e, 'file')}>
+                            {error}
+                          </a>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -299,7 +345,11 @@ const ConsultationRequestPage: React.FC = () => {
                 </fieldset>
               </div>
               
-              <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload ? 'govuk-form-group--error' : ''}`} id="file-upload">
+              <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload"
+                style={(errors.fileUpload || fileValidationErrors.length > 0) ? {
+                  borderLeft: '4px solid #d4351c',
+                  paddingLeft: 12
+                } : {}}>
                 <h2 className="govuk-heading-m">Upload evidence of the consultation request</h2>
                 {errors.fileUpload && (
                   <p id="fileUpload-error" className="govuk-error-message">
@@ -319,12 +369,8 @@ const ConsultationRequestPage: React.FC = () => {
                   }}
                   onUploaded={(files, docs) => {
                     handleUploadedFiles(files, docs);
-                    if (errors.fileUpload) {
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                      const { fileUpload: _, ...restErrors } = errors;
-                      setErrors(restErrors);
-                    }
                   }}
+                  onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
                 />
               </div>

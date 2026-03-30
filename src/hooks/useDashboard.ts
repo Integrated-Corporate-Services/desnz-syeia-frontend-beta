@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import accessRequestAdminService from '../services/accessRequestAdminService';
 import userService from '../services/userService';
 import type { AccessRequest, DashboardStats } from '../types/accessRequest';
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('useDashboard');
 
 /**
  * Custom hook for managing dashboard data and pending requests
@@ -55,7 +58,7 @@ export const useDashboard = (userRole: string) => {
           setPendingRequests([]);
         }
       } catch (err) {
-        console.error('Failed to load dashboard data:', err);
+        logger.error('Failed to load dashboard data:', err);
         setError('Failed to load dashboard data');
         setPendingRequests([]);
       } finally {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { S37_BASE_URL } from '../../../constants/s37';
+import { useNavigate, useSearchParams } from 'react-router-dom';import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('PaymentCallbackPage');import { S37_BASE_URL } from '../../../constants/s37';
 import { applicationApiService } from '../../../services/applicationApiService';
 
 const PaymentCallbackPage: React.FC = () => {
@@ -18,8 +19,8 @@ const PaymentCallbackPage: React.FC = () => {
         const invoiceNumber = sessionStorage.getItem('invoiceNumber');
         const totalAmount = sessionStorage.getItem('totalAmount');
 
-        console.log('Payment callback - paymentId:', paymentId);
-        console.log('Payment callback - applicationId:', applicationId);
+        logger.info('Payment callback - paymentId:', paymentId);
+        logger.info('Payment callback - applicationId:', applicationId);
 
         if (!paymentId || !applicationId) {
           setStatus('failed');
@@ -39,7 +40,7 @@ const PaymentCallbackPage: React.FC = () => {
       }
 
         const data = await response.json();
-        console.log('Payment verification response:', data);
+        logger.info('Payment verification response:', data);
 
         // Check GOV.UK Pay status
         const paymentStatus = data.state?.status;
