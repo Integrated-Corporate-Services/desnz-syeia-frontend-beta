@@ -239,4 +239,29 @@ fetchApplicationDetails: async (applicationId: string, correlationId?: string) =
   return response.json();
 },
 
+/**
+ * Fetch application review data including all sections for review page
+ */
+getApplicationReview: async (applicationId: string, correlationId?: string) => {
+  const headers: HeadersInit = {
+    "X-Correlation-ID": correlationId || generateCorrelationId(),
+  };
+
+  const response = await fetch(
+    `/backend/api/applications/${applicationId}/review`,
+    {
+      credentials: "include",
+      headers,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch application review: ${response.statusText}`,
+    );
+  }
+
+  return response.json();
+},
+
 };
