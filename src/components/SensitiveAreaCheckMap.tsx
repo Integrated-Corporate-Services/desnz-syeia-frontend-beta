@@ -155,30 +155,44 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
             segLens.push(segLen);
             totalDist += segLen;
           }
-          let midDist = totalDist / 2;
-          let acc = 0, midLatLng = latlngs[0];
-          for (let i = 1; i < latlngs.length; i++) {
-            if (acc + segLens[i-1] >= midDist) {
-              const remain = midDist - acc;
-              const ratio = remain / segLens[i-1];
-              midLatLng = [
-                latlngs[i-1][0] + (latlngs[i][0] - latlngs[i-1][0]) * ratio,
-                latlngs[i-1][1] + (latlngs[i][1] - latlngs[i-1][1]) * ratio
-              ];
-              break;
+          
+          // FIX: Handle zero-length polylines (all points are identical)
+          let midLatLng: [number, number];
+          if (totalDist === 0) {
+            // All points are at the same location, use the first point
+            midLatLng = latlngs[0];
+          } else {
+            let midDist = totalDist / 2;
+            let acc = 0;
+            midLatLng = latlngs[0];
+            for (let i = 1; i < latlngs.length; i++) {
+              if (acc + segLens[i-1] >= midDist) {
+                const remain = midDist - acc;
+                // Prevent division by zero when segment length is 0
+                const ratio = segLens[i-1] > 0 ? remain / segLens[i-1] : 0;
+                midLatLng = [
+                  latlngs[i-1][0] + (latlngs[i][0] - latlngs[i-1][0]) * ratio,
+                  latlngs[i-1][1] + (latlngs[i][1] - latlngs[i-1][1]) * ratio
+                ];
+                break;
+              }
+              acc += segLens[i-1];
             }
-            acc += segLens[i-1];
           }
-          const routeLabelMarker = L.marker(midLatLng as [number, number], {
-            interactive: false,
-            icon: L.divIcon({
-              className: 'route-label',
-              html: `<span class=\"govuk-body\" style=\"font-size: 15px; color: ${ROUTE_COLOR}; white-space: nowrap; display: inline-block; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;\">${label}</span>`,
-              iconSize: undefined,
-              iconAnchor: [50, 12],
-            })
-          }).addTo(map);
-          markersRef.current.push(routeLabelMarker);
+          
+          // Validate coordinates before creating marker
+          if (isFinite(midLatLng[0]) && isFinite(midLatLng[1])) {
+            const routeLabelMarker = L.marker(midLatLng as [number, number], {
+              interactive: false,
+              icon: L.divIcon({
+                className: 'route-label',
+                html: `<span class=\"govuk-body\" style=\"font-size: 15px; color: ${ROUTE_COLOR}; white-space: nowrap; display: inline-block; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;\">${label}</span>`,
+                iconSize: undefined,
+                iconAnchor: [50, 12],
+              })
+            }).addTo(map);
+            markersRef.current.push(routeLabelMarker);
+          }
         }
         // Draw the route polyline if there are at least 2 valid points
         if (safeLatLngs.length >= 2) {
