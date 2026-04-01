@@ -112,6 +112,7 @@ const ProjectOverview = () => {
 	};
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	 const { user } = useAuthUser();
 	  const userId = user?.user_id;
@@ -266,12 +267,17 @@ const ProjectOverview = () => {
 			</nav>
 			<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
 				<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
-				{errors.length > 0 && (
-					<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
+				{(errors.length > 0 || fileValidationErrors.length > 0) && (
+					<div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
 						<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
 						<div className="govuk-error-summary__body">
 							<ul className="govuk-list govuk-error-summary__list">
-												{errors.map((err, idx) => {
+								{fileValidationErrors.map((error, index) => (
+									<li key={`file-${index}`}>
+										<a href="#file-upload">{error}</a>
+									</li>
+								))}
+								{errors.map((err, idx) => {
 													// Parse error string for anchor tag, e.g. '<a href="#fieldId">Message</a>'
 													const anchorMatch = err.match(/<a[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/i);
 													if (anchorMatch) {
@@ -294,7 +300,16 @@ const ProjectOverview = () => {
 						setIsSubmitting(true);
 					const newErrors: string[] = [];
 					const newFieldErrors: Record<string, string> = {};
-						// Example: Add email validation for actual email fields if present
+					
+					// Add file validation errors
+					if (fileValidationErrors.length > 0) {
+						fileValidationErrors.forEach(error => {
+							newErrors.push(`<a href="#file-upload">${error}</a>`);
+						});
+						newFieldErrors.uploadedFiles = fileValidationErrors[0]; // Show first error in field
+					}
+					
+					// Example: Add email validation for actual email fields if present
 						// if (formState.emailField && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(formState.emailField)) {
 						//     newErrors.push('<a href="#emailField-inputValue">Enter a valid email address</a>');
 						//     newFieldErrors.emailField = "Enter a valid email address";
@@ -749,11 +764,7 @@ const ProjectOverview = () => {
 						<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 							{projectOverview.planInformationDocuments}
 						</legend>
-						{fieldErrors?.uploadedFiles && (
-							<p id="planInformationDocuments-error" className="govuk-error-message">
-								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
-							</p>
-						)}
+						{/* Field error removed - validation errors only shown in error summary above */}
 						<FileUpload
 							title='Upload a file'
 							showTitle={false}
@@ -763,8 +774,16 @@ const ProjectOverview = () => {
 							addedBy={userId}
 							uploadedFiles={formState.uploadedFiles}
 							showDocumentsHeading={true}
-							onDeleteFile={handleDeleteFile}
-						onUploaded={(newUploadedFiles, newProjectDocuments) => {
+							onDeleteFile={handleDeleteFile}					onValidationErrors={(errors) => {
+						// Handle validation errors
+						setFileValidationErrors(errors);
+						// Set field error for red border styling, but message only shows in error summary
+						if (errors.length > 0) {
+							setFieldErrors(prev => ({ ...prev, uploadedFiles: 'validation-error' }));
+						} else {
+							setFieldErrors(prev => { const newErrors = {...prev}; delete newErrors.uploadedFiles; return newErrors; });
+						}
+					}}						onUploaded={(newUploadedFiles, newProjectDocuments) => {
 							setFormState(prev => ({
 								...prev,
 								uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],

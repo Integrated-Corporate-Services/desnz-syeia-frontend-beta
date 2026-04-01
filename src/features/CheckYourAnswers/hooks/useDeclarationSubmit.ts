@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { applicationApiService } from "../../../services/applicationApiService";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { createLogger } from "../../../utils/logger";
+
+const logger = createLogger('useDeclarationSubmit');
 
 export const useDeclarationSubmit = (applicationId: string) => {
   const navigate = useNavigate();
@@ -9,7 +12,7 @@ export const useDeclarationSubmit = (applicationId: string) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log("[useDeclarationSubmit] Hook initialized", { applicationId });
+  // Hook initialized
 
   const handleDeclarationChange = (isChecked: boolean) => {
     setDeclarationConfirmed(isChecked);
@@ -30,12 +33,9 @@ export const useDeclarationSubmit = (applicationId: string) => {
     }
 
     try {
-      console.log("Saving declaration confirmation:", {
-        applicationId,
-        declarationConfirmed: true,
-      });
+      // Saving declaration confirmation
       await applicationApiService.confirmDeclaration(applicationId, true);
-      console.log("Declaration saved successfully");
+      logger.info("Declaration saved successfully");
 
       await applicationApiService.submitApplication(applicationId);
       navigate(`${S37_BASE_URL}/${applicationId}/confirmation`);

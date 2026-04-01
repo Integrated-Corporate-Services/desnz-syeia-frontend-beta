@@ -123,7 +123,7 @@ const LandownerOccupantDetails: React.FC = () => {
       if (!repContactPhone) newErrors.repContactPhone = 'Enter the representative phone number';
     }
     if (Object.keys(newErrors).length > 0) {
-      console.log('Validation errors:', newErrors);
+      // Validation errors present
       setErrors(newErrors);
       return;
     }
@@ -252,7 +252,7 @@ const LandownerOccupantDetails: React.FC = () => {
         navigate(`/nwl/${applicationId}/task-list`);
       }
     } catch (err: any) {
-      console.log('Fetch error:', err);
+      logger.error('Fetch error:', err);
       setErrors({ submit: err.message });
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
@@ -10,6 +10,9 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { saveConsultationResponse } from '../../../services/consultationResponseService';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('EvidenceResponseNotReceivedPage');
 
 interface EvidenceData {
     declarationAccepted: boolean;
@@ -32,12 +35,14 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
     const [submitError, setSubmitError] = useState<string>('');
     const [submitted, setSubmitted] = useState(false);    
     const [loading, setLoading] = useState(false);
     const [comments, setComments] = useState<string>('');
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>(consultationNameParam);
+    const fileUploadRef = useRef<{ focus: () => void } | null>(null);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -67,7 +72,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                     }
                 }
             } catch (error) {
-                console.error('Error fetching evidence data:', error);
+                logger.error('Error fetching evidence data:', error);
             }
         };
 
@@ -75,6 +80,11 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
             fetchEvidenceData();
         }
     }, [applicationId, consultationId, user?.user_id]);
+
+    // Debug effect to track uploadedFileObjs changes
+    useEffect(() => {
+        // Track uploaded file objects for state management
+    }, [uploadedFileObjs]);
 
     useEffect(() => {
         setErrors({});
@@ -94,7 +104,41 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
         setErrors(newErrors);
         setSubmitError('');
-        return Object.keys(newErrors).length === 0;
+        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
+    };
+
+    // Handle file validation errors from FileUpload component
+    const handleFileValidationErrors = (errors: string[]) => {
+        // Handle validation errors
+        setFileValidationErrors(errors);
+        // Clear form-level errors when file validation errors are present
+        if (errors.length === 0) {
+            setErrors(prev => ({ ...prev, files: '' }));
+        }
+    };
+
+    // Handle error click to focus file upload area
+    const handleErrorClick = (errorType: string) => {
+        if (errorType === 'fileUpload') {
+            const fileUploadSection = document.querySelector('#file-upload');
+            if (fileUploadSection) {
+                // First scroll to the section smoothly
+                fileUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Wait for scroll to complete, then focus the upload container
+                setTimeout(() => {
+                    const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
+                    if (uploadContainer) {
+                        (uploadContainer as HTMLElement).focus();
+                        // Successfully focused file upload container
+                    } else {
+                        // Could not find file upload elements to focus
+                    }
+                }, 300);
+            } else {
+                // Could not find file upload section
+            }
+        }
     };
 
     const handleDeclarationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,14 +194,15 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 isSave: false,
             };
 
-            console.log('Payload being sent:', JSON.stringify(payload, null, 2));
-
+            // Save the consultation response
             await saveConsultationResponse(payload, applicationId);
+
+            // Success handling
             setErrors({});
             setSubmitted(false);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
-            console.error('Error closing consultation:', err);
+            logger.error('Error closing consultation:', err);
         } finally {
             setLoading(false);
         }
@@ -201,16 +246,36 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 </nav>
 
                 {/* Error Summary */}
-                {submitted && Object.keys(errors).length > 0 && (
+                {submitted && (Object.keys(errors).length > 0 || fileValidationErrors.length > 0) && (
                     <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} id="error-summary">
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem
                         </h2>
                         <div className="govuk-error-summary__body">
                             <ul className="govuk-list govuk-error-summary__list">
+                                {fileValidationErrors.map((error, index) => (
+                                    <li key={`file-${index}`}>
+                                        <a href="#" onClick={(e) => {
+                                            e.preventDefault();
+                                            handleErrorClick('fileUpload');
+                                        }}>
+                                            {error}
+                                        </a>
+                                    </li>
+                                ))}
+                                {/* Business logic errors shown inline, file validation errors only in summary */}
                                 {Object.entries(errors).map(([key, message]) => (
                                     <li key={key}>
-                                        <a href={`#${key}`}>{message}</a>
+                                        {key === 'files' ? (
+                                            <a href="#" onClick={(e) => {
+                                                e.preventDefault();
+                                                handleErrorClick('fileUpload');
+                                            }}>
+                                                {message}
+                                            </a>
+                                        ) : (
+                                            <a href={`#${key}`}>{message}</a>
+                                        )}
                                     </li>
                                 ))}
                             </ul>
@@ -228,7 +293,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
                         <form onSubmit={handleCloseConsultation}>
                             {/* File Upload */}
-                            <div className={`govuk-form-group ${errors.files ? 'govuk-form-group--error' : ''}`} id="file-upload">
+                            <div className={`govuk-form-group ${errors.files || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
                                 <label htmlFor="fileUpload" className="govuk-label govuk-label--m">
                                     Upload a document that shows follow-up emails
                                 </label>
@@ -245,13 +310,20 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                     category={FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}  // CHANGED THIS LINE
                                     addedBy={user?.user_id || ''}
                                     uploadedFiles={uploadedFileObjs}
+                                    onValidationErrors={handleFileValidationErrors}
                                     onUploaded={(files, docs) => {
-                                        console.log('=== EVIDENCE NOT RECEIVED FILE UPLOAD ===');
-                                        console.log('Category:', FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED);
-                                        console.log('Files:', files);
-                                        console.log('Docs:', docs);
-                                        setUploadedFileObjs((prev) => [...prev, ...files]);
-                                        setApplicationDocuments((prev) => [...prev, ...docs]);
+                                        // Handle file upload completion
+                                        
+                                        setUploadedFileObjs((prev) => {
+                                            const updated = [...prev, ...files];
+                                            return updated;
+                                        });
+                                        
+                                        setApplicationDocuments((prev) => {
+                                            const updated = [...prev, ...docs];
+                                            return updated;
+                                        });
+                                        
                                         // Clear file error
                                         if (errors.files) {
                                             setErrors((prev) => ({
@@ -260,6 +332,8 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                             }));
                                         }
                                         setSubmitted(false);
+                                        
+                                        // File upload completion
                                     }}
                                     onRemoveFile={(idx) => {
                                         setUploadedFileObjs((objs) => {
@@ -283,6 +357,11 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                             {/* Declaration */}
                             <div className={`govuk-form-group ${errors.declaration ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset">
+                                    {errors.declaration && (
+                                        <p id="declaration-error" className="govuk-error-message">
+                                            <span className="govuk-visually-hidden">Error:</span> {errors.declaration}
+                                        </p>
+                                    )}
                                     <div className="govuk-checkboxes" data-module="govuk-checkboxes">
                                         <div className="govuk-checkboxes__item">
                                             <input
@@ -299,11 +378,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                             </label>
                                         </div>
                                     </div>
-                                    {errors.declaration && (
-                                        <p id="declaration-error" className="govuk-error-message">
-                                            <span className="govuk-visually-hidden">Error:</span> {errors.declaration}
-                                        </p>
-                                    )}
                                 </fieldset>
                             </div>
 

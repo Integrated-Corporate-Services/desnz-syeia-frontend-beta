@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";import { createLogger } from '../utils/logger';
+
+const logger = createLogger('useGetAccessRequest');import axios from "axios";
 
 export interface AccessRequestData {
   access_request_id: string;
@@ -55,7 +56,7 @@ export const useGetAccessRequest = (email: string | undefined) => {
             ? err.response?.data?.error || "Failed to fetch access request"
             : "Failed to fetch access request";
           setError(errorMessage);
-          console.error("Error fetching access request:", err);
+          logger.error("Error fetching access request:", err);
         }
       } finally {
         setIsLoading(false);

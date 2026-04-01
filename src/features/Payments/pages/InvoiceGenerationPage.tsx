@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('InvoiceGenerationPage');
 
 const InvoiceGenerationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +31,7 @@ const InvoiceGenerationPage: React.FC = () => {
   const handleGenerateInvoice = async () => {
     // Prevent duplicate calls
     if (hasGeneratedRef.current) {
-      console.log('[InvoiceGenerationPage] Invoice already generated, skipping');
+      logger.info('[InvoiceGenerationPage] Invoice already generated, skipping');
       return;
     }
 

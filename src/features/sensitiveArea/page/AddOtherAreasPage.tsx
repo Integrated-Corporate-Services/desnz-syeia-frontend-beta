@@ -9,6 +9,9 @@ import {
   ManuallyAddedArea,
 } from '../../../services/sensitiveAreaReviewService';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('AddOtherAreasPage');
 
 /**
  * AddOtherAreasPage Component (Wireframe D)
@@ -60,7 +63,7 @@ const AddOtherAreasPage: React.FC = () => {
         setManualAreas(data.manuallyAddedAreas || []);
         setLoading(false);
       } catch (err: unknown) {
-        console.error('Failed to fetch areas:', err);
+        logger.error('Failed to fetch areas:', err);
         const axiosError = err as AxiosError<{ details?: string }>;
         setError(axiosError.response?.data?.details || 'Failed to fetch sensitive areas');
         setLoading(false);
@@ -151,7 +154,7 @@ const AddOtherAreasPage: React.FC = () => {
       setInputError(null);
       setAddingArea(false);
     } catch (err: unknown) {
-      console.error('Failed to add area:', err);
+      logger.error('Failed to add area:', err);
       const axiosError = err as AxiosError<{ details?: string; error?: string }>;
       const errorMsg = axiosError.response?.data?.details || axiosError.response?.data?.error || 'Failed to add area';
       setInputError(errorMsg);
@@ -175,7 +178,7 @@ const AddOtherAreasPage: React.FC = () => {
       setManualAreas(prev => prev.filter(area => area.id !== areaId));
       setRemovingAreaId(null);
     } catch (err: unknown) {
-      console.error('Failed to remove area:', err);
+      logger.error('Failed to remove area:', err);
       const axiosError = err as AxiosError<{ details?: string }>;
       setError(axiosError.response?.data?.details || 'Failed to remove area');
       setRemovingAreaId(null);

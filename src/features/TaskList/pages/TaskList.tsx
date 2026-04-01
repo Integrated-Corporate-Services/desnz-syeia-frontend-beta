@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTaskListData } from '../../../hooks/useTaskListData';
 import TaskListSection from '../components/TaskListSection';
 import SensitiveAreaBanner from '../components/SensitiveAreaBanner';
@@ -10,9 +10,14 @@ import { ROLES } from '../../../constants/roles';
 import { getInitialSections } from '../../../utils/taskListUtils';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('TaskList');
 
 const TaskList: React.FC = () => {
   const { user } = useAuthUserContext();
+  const navigate = useNavigate();
+  const location = useLocation();
   const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
   const applicationId = useGetApplicationId();
   const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
@@ -36,6 +41,21 @@ const TaskList: React.FC = () => {
     progressLoading,
     progressError,
   } = useTaskListData();
+
+  // Determine the base URL from the current path
+  const getBaseUrl = () => {
+    const pathname = location.pathname;
+    if (pathname.includes('/s-37/')) return '/s-37';
+    if (pathname.includes('/nwl/')) return '/nwl';
+    if (pathname.includes('/tlp/')) return '/tlp';
+    return '/s-37'; // fallback
+  };
+
+  const handleDeleteClick = () => {
+    logger.info('Delete application button clicked', { applicationId });
+    const baseUrl = getBaseUrl();
+    navigate(`${baseUrl}/${applicationId}/delete-confirmation`);
+  };
 
   return (
     <div className="govuk-width-container">
@@ -84,6 +104,7 @@ const TaskList: React.FC = () => {
             </div>
           )}
           <ErrorMessage error={submitError} />
+          
           {sections.map((section, idx) => (
             <TaskListSection
               key={section.title}
@@ -101,13 +122,13 @@ const TaskList: React.FC = () => {
           {/* Delete application button - positioned at the end */}
           {application && (application.status?.toLowerCase() !== 'submitted' || isAdmin) && (
             <div className="govuk-!-margin-top-6">
-              <Link 
-                to={`/s37/${application.application_id}/delete-application`}
+              <button 
                 className="govuk-button govuk-button--warning"
-                role="button"
+                onClick={handleDeleteClick}
+                disabled={submitting}
               >
                 Delete application
-              </Link>
+              </button>
             </div>
           )}
         </div>

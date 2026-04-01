@@ -2,6 +2,9 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
+import { createLogger } from "../../utils/logger";
+
+const logger = createLogger('AccessRequestIntroPage');
 
 const AccessRequestIntroPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +22,7 @@ const AccessRequestIntroPage: React.FC = () => {
           navigate("/request-access/submitted", { replace: true });
         }
       } catch (error: unknown) {
-        console.error("Error checking existing request:", error);
+        logger.error("Error checking existing request:", error);
       }
     };
 

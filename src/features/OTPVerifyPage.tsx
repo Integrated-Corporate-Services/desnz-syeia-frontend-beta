@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('OTPVerifyPage');
+
 const OTPVerifyPage: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
@@ -25,7 +29,7 @@ const OTPVerifyPage: React.FC = () => {
         body: JSON.stringify({ person_id: personId, otp }),
       });
       const data = await response.json();
-      console.log('OTP verify response:', data);
+      logger.info('OTP verify response:', data);
       if (data.user) {
         useAuthStore.setState({ user: data.user });
       }

@@ -3,6 +3,9 @@ import { useApplicationNavigation } from "../../../hooks";
 import type { Application } from "../../../types/application";
 import { StatusBadge } from "../../../components/shared/StatusBadge";
 import type { TabType } from "../constants/filterOptions";
+import { createLogger } from "../../../utils/logger";
+
+const logger = createLogger('ApplicationTable');
 
 const formatDate = (dateString: string | undefined): string => {
   if (!dateString) return "—";
@@ -20,7 +23,7 @@ const formatDate = (dateString: string | undefined): string => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   } catch (error) {
-    console.error("Date formatting error:", error);
+    logger.error("Date formatting error:", error);
     return "—";
   }
 };

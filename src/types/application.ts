@@ -49,3 +49,9 @@ export type ApplicationParty = {
   person_name?: string;
   additional_contact?: string | null;
 };
+
+// Simplified application deletion - just success/error handling
+export interface ApplicationDeletionResult {
+  success: boolean;
+  applicationId: string;
+}
