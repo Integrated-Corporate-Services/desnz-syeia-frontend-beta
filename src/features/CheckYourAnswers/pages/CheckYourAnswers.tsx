@@ -22,10 +22,10 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
-import { POST_CONSULTATION_QUESTIONS } from "../../PostConsultation";
 
 import {
   SECTION_HEADINGS,
+  POST_CONSULTATION_QUESTIONS,
 } from '../constants/applicationSummaryLabels';
 
 
@@ -1413,7 +1413,7 @@ const CheckYourAnswers: React.FC = () => {
                 <dl className="govuk-summary-list">
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">
-                      Was the Local Planning Authority's (LPA) agreement to the proposal subject to modifications or conditions being applied to the consent?
+                      {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_IMPOSED}
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {postConsultationOutcome?.lpa_conditions_imposed === true
@@ -1426,7 +1426,7 @@ const CheckYourAnswers: React.FC = () => {
                   {postConsultationOutcome?.lpa_conditions_imposed === true && (
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">
-                        Do you accept all the conditions imposed by the LPA?
+                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_ACCEPTED}
                       </dt>
                       <dd className="govuk-summary-list__value">
                         {postConsultationOutcome?.lpa_conditions_accepted === true
@@ -1441,7 +1441,7 @@ const CheckYourAnswers: React.FC = () => {
                   {postConsultationOutcome?.lpa_conditions_accepted === false && (
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">
-                        Explain why you do not accept all the LPA's conditions
+                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_REASON}
                       </dt>
                       <dd className="govuk-summary-list__value">
                         {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
@@ -1456,7 +1456,7 @@ const CheckYourAnswers: React.FC = () => {
                     postConsultationOutcome?.consultees_recommendations_made !== null && (
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
-                          Were any recommendations made or conditions requested by the consultees? (Not including the LPA)
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_RECOMMENDATIONS}
                         </dt>
                         <dd className="govuk-summary-list__value">
                           {postConsultationOutcome?.consultees_recommendations_made === true
@@ -1474,7 +1474,7 @@ const CheckYourAnswers: React.FC = () => {
                     postConsultationOutcome?.consultees_recommendations_made === true && (
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
-                          Do you accept the recommendations made by the consultees?
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_ACCEPTED}
                         </dt>
                         <dd className="govuk-summary-list__value">
                           {postConsultationOutcome?.consultees_recommendations_accepted === true
@@ -1492,7 +1492,7 @@ const CheckYourAnswers: React.FC = () => {
                     postConsultationOutcome?.consultees_recommendations_accepted === false && (
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
-                          Explain why you do not accept all the consultees' recommendations
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_REASON}
                         </dt>
                         <dd className="govuk-summary-list__value">
                           {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
