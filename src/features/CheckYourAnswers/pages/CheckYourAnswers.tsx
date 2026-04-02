@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
-import { downloadS3File, downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
+import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { applicationApiService } from "../../../services/applicationApiService";
 import {
@@ -22,6 +22,12 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
+import { POST_CONSULTATION_QUESTIONS } from "../../PostConsultation";
+
+import {
+  SECTION_HEADINGS,
+} from '../constants/applicationSummaryLabels';
+
 
 const CheckYourAnswers: React.FC = () => {
   const logger = createLogger("CheckYourAnswers");
@@ -1398,6 +1404,105 @@ const CheckYourAnswers: React.FC = () => {
               </div>
             </div>
 
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION_ACTIONS}</h2>
+
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Was the Local Planning Authority's (LPA) agreement to the proposal subject to modifications or conditions being applied to the consent?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {postConsultationOutcome?.lpa_conditions_imposed === true
+                        ? "Yes"
+                        : postConsultationOutcome?.lpa_conditions_imposed === false
+                          ? "No"
+                          : "-"}
+                    </dd>
+                  </div>
+                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Do you accept all the conditions imposed by the LPA?
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_accepted === true
+                          ? "Yes"
+                          : postConsultationOutcome?.lpa_conditions_accepted === false
+                            ? "No"
+                            : "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Explain why you do not accept all the LPA's conditions
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
+                    postConsultationOutcome?.consultees_recommendations_made !== null && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Were any recommendations made or conditions requested by the consultees? (Not including the LPA)
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_made === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_made === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made === true && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Do you accept the recommendations made by the consultees?
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_accepted === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_accepted === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Explain why you do not accept all the consultees' recommendations
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
+                        </dd>
+                      </div>
+                    )}
+                </dl>
+              </div>
+            </div>
+
             <h2 className="govuk-heading-m">Supporting information</h2>
             {/* Supporting information summary card - fixed to use state variables and map correct questions/answers */}
             <div className="govuk-summary-card">
@@ -1995,7 +2100,7 @@ const CheckYourAnswers: React.FC = () => {
                   </div>
                 );
               })
-            }            
+            }
             {/* Submit application form */}
             {permissions?.canEdit && (
               <div
