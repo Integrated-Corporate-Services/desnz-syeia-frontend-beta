@@ -111,9 +111,13 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     const handleFileValidationErrors = (errors: string[]) => {
         // Handle validation errors
         setFileValidationErrors(errors);
-        // Clear form-level errors when file validation errors are present
+        // Clear form-level errors when file validation errors are cleared
         if (errors.length === 0) {
-            setErrors(prev => ({ ...prev, files: '' }));
+            setErrors(prev => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { files: _files, ...rest } = prev;
+                return rest;
+            });
         }
     };
 
@@ -324,12 +328,13 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                             return updated;
                                         });
                                         
-                                        // Clear file error
+                                        // Clear file error - remove the key from errors object
                                         if (errors.files) {
-                                            setErrors((prev) => ({
-                                                ...prev,
-                                                files: '',
-                                            }));
+                                            setErrors((prev) => {
+                                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                const { files: _files, ...rest } = prev;
+                                                return rest;
+                                            });
                                         }
                                         setSubmitted(false);
                                         
@@ -340,10 +345,11 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                             const newObjs = objs.filter((_, i) => i !== idx);
                                             // Clear file error and reset submitted if no files left
                                             if (newObjs.length === 0 && errors.files) {
-                                                setErrors((prev) => ({
-                                                    ...prev,
-                                                    files: '',
-                                                }));
+                                                setErrors((prev) => {
+                                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                    const { files: _files, ...rest } = prev;
+                                                    return rest;
+                                                });
                                             }
                                             setSubmitted(false);
                                             return newObjs;

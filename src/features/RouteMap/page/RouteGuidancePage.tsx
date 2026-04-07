@@ -112,7 +112,7 @@ const RouteGuidancePage: React.FC = () => {
           type="button"
           className="govuk-button govuk-button--primary"
           style={{ marginTop: '2rem' }}
-          onClick={() => navigate(`${S37_BASE_URL}/${applicationId}/route-map`)}
+          onClick={() => navigate(`${S37_BASE_URL}/${applicationId}/route-map`, { state: { isNewRoute: true } })}
         >
           Add a route
         </button>
