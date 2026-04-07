@@ -78,13 +78,12 @@ const AppContent = () => {
   const useLayout = currentRoute?.layout !== false;
 
   return (
-    <SessionTimeoutProvider>
-      <AuthUserProvider>
-        <SessionTimeout />
-        <AutoScrollToTop />
-        {isNotFound ? (
-          <NotFound />
-        ) : useLayout ? (
+    <>
+      <SessionTimeout />
+      <AutoScrollToTop />
+      {isNotFound ? (
+        <NotFound />
+      ) : useLayout ? (
           /* Routes with layout: true (or undefined) use MainLayout wrapper */
           <MainLayout>
             <Routes>
@@ -129,8 +128,7 @@ const AppContent = () => {
             })}
           </Routes>
         )}
-      </AuthUserProvider>
-    </SessionTimeoutProvider>
+    </>
   );
 };
 
