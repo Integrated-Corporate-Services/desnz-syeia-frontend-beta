@@ -17,8 +17,8 @@ const logger = createLogger('passwordProtectionDetector');
  */
 const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
-    const pdfHeader = String.fromCharCode(...uint8Array.slice(0, 20));
-    const hex = uint8ArrayToHex(uint8Array.slice(0, 100));
+    const pdfHeader = String.fromCharCode(...uint8Array.slice(0, 1024));
+    const hex = uint8ArrayToHex(uint8Array.slice(0, 1024));
     
     const isProtected = pdfHeader.includes(PASSWORD_PROTECTION_SIGNATURES.PDF.ENCRYPT_MARKER) || 
                        hex.includes(PASSWORD_PROTECTION_SIGNATURES.PDF.HEX_MARKER);
@@ -44,41 +44,30 @@ const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boole
  */
 const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
-    const hex = uint8ArrayToHex(uint8Array.slice(0, 100));
+    const hex = uint8ArrayToHex(uint8Array.slice(0, 1024));
     const { OFFICE_XML } = PASSWORD_PROTECTION_SIGNATURES;
     
     // Debug: Log the hex content for inspection
     logger.info('Checking Office XML password protection', {
       filename,
-      hexPreview: hex.substring(0, 100),
-      fullHex: hex
+      hexPreview: hex.substring(0, 100)
     });
     
+    // Only check for actual encryption signatures, not generic text
     const isProtected = hex.includes(OFFICE_XML.ENCRYPTED_KEY) ||
                        hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE) ||
                        hex.includes(OFFICE_XML.MS_CONTAINER);
     
-    // Enhanced detection for modern Office formats
-    const hasEncryptionIndicators = hex.includes('456e6372797074') || // "Encrypt"
-                                   hex.includes('50617373776f7264') || // "Password"  
-                                   hex.includes('4d6963726f736f6674') || // "Microsoft"
-                                   hex.includes('0000000000000000') ||  // Common encrypted pattern
-                                   hex.includes('d0cf11e0') ||          // OLE header that might indicate encryption
-                                   uint8Array.length < 50;              // Very small files might be encrypted
-    
-    const finalResult = isProtected || hasEncryptionIndicators;
-    
     logValidationEvent('Office XML password check', filename, {
-      isProtected: finalResult,
+      isProtected,
       hasEncryptedKey: hex.includes(OFFICE_XML.ENCRYPTED_KEY),
       hasEncryptedPackage: hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE),
       hasMsContainer: hex.includes(OFFICE_XML.MS_CONTAINER),
-      hasEncryptionIndicators,
       hexLength: hex.length,
       uint8ArrayLength: uint8Array.length
     });
     
-    return finalResult;
+    return isProtected;
   } catch (error) {
     logger.warn('Error checking Office XML password protection', { filename, error });
     return false;
@@ -93,7 +82,7 @@ const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string):
  */
 const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
-    const hex = uint8ArrayToHex(uint8Array.slice(0, 100));
+    const hex = uint8ArrayToHex(uint8Array.slice(0, 1024));
     const { OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
     
     const hasOleHeader = hex.startsWith(OFFICE_LEGACY.OLE_HEADER);

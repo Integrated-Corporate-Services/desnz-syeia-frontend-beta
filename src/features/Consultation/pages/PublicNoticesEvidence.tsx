@@ -90,9 +90,13 @@ const PublicNoticesEvidence: React.FC = () => {
   const handleFileValidationErrors = (errors: string[]) => {
     // Handle validation errors
     setFileValidationErrors(errors);
-    // Clear form-level errors when file validation errors are present
+    // Clear form-level errors when file validation errors are cleared
     if (errors.length === 0) {
-      setErrors(prev => ({ ...prev, fileUpload: '' }));
+      setErrors(prev => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { fileUpload: _fileUpload, ...rest } = prev;
+        return rest;
+      });
     }
   };
 

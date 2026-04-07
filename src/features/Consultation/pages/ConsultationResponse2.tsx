@@ -75,17 +75,25 @@ const ConsultationResponse2: React.FC = () => {
     const handleUploadedFiles = (files: UploadedFile[], docs: ApplicationDocument[]) => {
         setUploadedFileObjs(prev => [...prev, ...files]);
         setApplicationDocuments(prev => [...prev, ...docs]);
-        // Clear validation errors when files are uploaded
-        setErrors(prev => ({ ...prev, uploadedFiles: '' }));
+        // Clear validation errors when files are uploaded - remove the key from errors object
+        setErrors(prev => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { uploadedFiles: _uploadedFiles, ...rest } = prev;
+            return rest;
+        });
         setFileValidationErrors([]);
     };
 
     // Handle file validation errors from FileUpload component
     const handleFileValidationErrors = (errors: string[]) => {
         setFileValidationErrors(errors);
-        // Clear form-level errors when file validation errors are present
+        // Clear form-level errors when file validation errors are cleared
         if (errors.length === 0) {
-            setErrors(prev => ({ ...prev, uploadedFiles: '' }));
+            setErrors(prev => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { uploadedFiles: _uploadedFiles, ...rest } = prev;
+                return rest;
+            });
         }
     };
 

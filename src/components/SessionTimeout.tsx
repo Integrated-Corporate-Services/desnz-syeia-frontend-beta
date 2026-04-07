@@ -44,7 +44,11 @@ const SessionTimeoutModal: React.FC = () => {
   const [hasAnnounced, setHasAnnounced] = useState(false);
 
   React.useEffect(() => {
-    logger.debug('SessionTimeout modal - showModal:', showModal, 'remaining:', remaining);
+    if (showModal) {
+      logger.info(`SessionTimeout component - MODAL IS VISIBLE, remaining: ${remaining}s`);
+    } else {
+      logger.debug('SessionTimeout component - modal is hidden');
+    }
   }, [showModal, remaining]);
 
   // Focus management and accessibility - only when modal first shows
@@ -122,7 +126,12 @@ const SessionTimeoutModal: React.FC = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showModal]);
 
-  if (!showModal) return null;
+  if (!showModal) {
+    logger.debug('Modal render check: showModal is false, not rendering');
+    return null;
+  }
+
+  logger.info(` Modal render check: showModal is TRUE, RENDERING MODAL NOW with ${remaining}s remaining`);
 
   return (
     <div 
