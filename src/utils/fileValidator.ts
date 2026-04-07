@@ -23,7 +23,7 @@ const logger = createLogger('fileValidator');
 
 export interface FileValidationError {
   filename: string;
-  errorType: 'INVALID_TYPE' | 'SIZE_EXCEEDED' | 'TOTAL_SIZE_EXCEEDED' | 'PASSWORD_PROTECTED' | 'DUPLICATE' | 'UNKNOWN';
+  errorType: 'INVALID_TYPE' | 'SIZE_EXCEEDED' | 'TOTAL_SIZE_EXCEEDED' | 'PASSWORD_PROTECTED' | 'DUPLICATE' | 'EMPTY_FILE' | 'UNKNOWN';
   message: string;
 }
 
@@ -38,6 +38,15 @@ export interface FileValidationResult {
  * Validates file type and individual size constraints
  */
 const validateFileBasics = (file: File): FileValidationError | null => {
+  // Check if file is empty
+  if (file.size === 0) {
+    return {
+      filename: file.name,
+      errorType: 'EMPTY_FILE',
+      message: VALIDATION_ERROR_MESSAGES.EMPTY_FILE
+    };
+  }
+  
   // Check file type
   if (!isValidFileType(file, ALLOWED_FILE_TYPES, ALLOWED_FILE_EXTENSIONS)) {
     return {

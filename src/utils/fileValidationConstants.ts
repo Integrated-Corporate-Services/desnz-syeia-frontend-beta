@@ -37,6 +37,7 @@ export const FILE_SIZE_UNITS = ['Bytes', 'KB', 'MB', 'GB'] as const;
 export const SUPPORTED_FORMATS_DISPLAY = "PDF, JPG, JPEG, PNG, DOCX, XLSX, MSG";
 
 export const VALIDATION_ERROR_MESSAGES = {
+  EMPTY_FILE: "The selected file is empty",
   FILE_SIZE_EXCEEDED: "The selected file must be smaller than 25MB",
   PASSWORD_PROTECTED: "The selected file is password protected and cannot be uploaded",
   INVALID_FILE_TYPE: "You can only upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files",
