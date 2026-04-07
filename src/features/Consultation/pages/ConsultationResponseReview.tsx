@@ -6,7 +6,7 @@ import { getConsultationResponse, saveConsultationResponse } from '../../../serv
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 
-const ConsultationResponse3: React.FC = () => {
+const ConsultationResponseReview: React.FC = () => {
     const { consultationId, applicationId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthUser();
@@ -258,4 +258,4 @@ const ConsultationResponse3: React.FC = () => {
     );
 };
 
-export default ConsultationResponse3;
+export default ConsultationResponseReview;

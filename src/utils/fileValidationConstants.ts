@@ -51,13 +51,19 @@ export const PASSWORD_PROTECTION_SIGNATURES = {
     HEX_MARKER: '456e637279707420', // "Encrypt " in hex
   },
   OFFICE_XML: {
+    // ZIP header for Office XML files (.docx, .xlsx)
+    ZIP_HEADER: '504b0304', // PK.. (ZIP signature)
     ENCRYPTED_KEY: '456e637279707465644b6579', // "EncryptedKey"
     ENCRYPTED_PACKAGE: '456e637279707465645061636b616765', // "EncryptedPackage"
     MS_CONTAINER: '4d6963726f736f66742e436f6e7461696e65722e44617461537061636573', // Microsoft encryption
+    ENCRYPTION_INFO: '456e6372797074696f6e496e666f', // "EncryptionInfo"
+    // AES encryption markers
+    AES_MARKER: '4145533a', // "AES:"
   },
   OFFICE_LEGACY: {
     OLE_HEADER: 'd0cf11e0a1b11ae1',
     ENCRYPTED_OBJECT: '456e637279707465644f626a656374',
     MS_OFFICE_WRITE: '30314d536f66746f66666963655772697465',
+    ENCRYPTION_INFO: '456e6372797074696f6e496e666f', // "EncryptionInfo" stream name
   },
 } as const;

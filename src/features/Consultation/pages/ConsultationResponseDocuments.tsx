@@ -10,7 +10,7 @@ import FileUpload from '../../../components/FileUpload';
 import { validateDateComponents } from '../../../utils/validation';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 
-const ConsultationResponse2: React.FC = () => {
+const ConsultationResponseDocuments: React.FC = () => {
     const { consultationId, applicationId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthUser();
@@ -456,4 +456,4 @@ const ConsultationResponse2: React.FC = () => {
     );
 };
 
-export default ConsultationResponse2;
+export default ConsultationResponseDocuments;

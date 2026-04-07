@@ -45,7 +45,7 @@ const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boole
 const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
     const hex = uint8ArrayToHex(uint8Array.slice(0, 1024));
-    const { OFFICE_XML } = PASSWORD_PROTECTION_SIGNATURES;
+    const { OFFICE_XML, OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
     
     // Debug: Log the hex content for inspection
     logger.info('Checking Office XML password protection', {
@@ -53,16 +53,34 @@ const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string):
       hexPreview: hex.substring(0, 100)
     });
     
-    // Only check for actual encryption signatures, not generic text
-    const isProtected = hex.includes(OFFICE_XML.ENCRYPTED_KEY) ||
-                       hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE) ||
-                       hex.includes(OFFICE_XML.MS_CONTAINER);
+    // Check if it's a ZIP file (normal .docx/.xlsx are ZIP archives)
+    const isZipFile = hex.startsWith(OFFICE_XML.ZIP_HEADER);
+    
+    // If not a ZIP file but has OLE header, it's likely an encrypted Office file
+    // (Encrypted Office XML files are stored in OLE format, not ZIP)
+    const hasOleHeader = hex.startsWith(OFFICE_LEGACY.OLE_HEADER);
+    
+    // Check for specific encryption signatures
+    const hasEncryptionSignatures = 
+      hex.includes(OFFICE_XML.ENCRYPTED_KEY) ||
+      hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE) ||
+      hex.includes(OFFICE_XML.MS_CONTAINER) ||
+      hex.includes(OFFICE_XML.ENCRYPTION_INFO) ||
+      hex.includes(OFFICE_XML.AES_MARKER) ||
+      hex.includes(OFFICE_LEGACY.ENCRYPTION_INFO);
+    
+    // Key indicator: Office XML files (.docx, .xlsx) that have OLE header instead of ZIP are encrypted
+    const isProtected = (!isZipFile && hasOleHeader) || hasEncryptionSignatures;
     
     logValidationEvent('Office XML password check', filename, {
       isProtected,
+      isZipFile,
+      hasOleHeader,
       hasEncryptedKey: hex.includes(OFFICE_XML.ENCRYPTED_KEY),
       hasEncryptedPackage: hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE),
       hasMsContainer: hex.includes(OFFICE_XML.MS_CONTAINER),
+      hasEncryptionInfo: hex.includes(OFFICE_XML.ENCRYPTION_INFO),
+      hasAesMarker: hex.includes(OFFICE_XML.AES_MARKER),
       hexLength: hex.length,
       uint8ArrayLength: uint8Array.length
     });
@@ -87,7 +105,8 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
     
     const hasOleHeader = hex.startsWith(OFFICE_LEGACY.OLE_HEADER);
     const hasEncryption = hex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT) || 
-                         hex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE);
+                         hex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE) ||
+                         hex.includes(OFFICE_LEGACY.ENCRYPTION_INFO);
     
     const isProtected = hasOleHeader && hasEncryption;
     
@@ -95,7 +114,8 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
       isProtected,
       hasOleHeader,
       hasEncryptedObject: hex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT),
-      hasMsOfficeWrite: hex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE)
+      hasMsOfficeWrite: hex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE),
+      hasEncryptionInfo: hex.includes(OFFICE_LEGACY.ENCRYPTION_INFO)
     });
     
     return isProtected;

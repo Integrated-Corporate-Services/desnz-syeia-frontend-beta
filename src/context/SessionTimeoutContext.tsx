@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback, useMemo } from 'react';
-import { logout, signOut } from '../services/authService';
+import { logout } from '../services/authService';
 import { useAuthUserContext } from './AuthUserContext';
 import { createLogger } from '../utils/logger';
 
@@ -14,7 +14,7 @@ interface SessionTimeoutContextType {
 
 const SessionTimeoutContext = createContext<SessionTimeoutContextType | undefined>(undefined);
 
-const TIMEOUT = 5 * 60; // 5 min in seconds
+const TIMEOUT = 30 * 60; // 30 min in seconds
 const WARNING = 2 * 60; // 2 min warning in seconds
 
 export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) => {
@@ -24,6 +24,8 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   const timerRef = useRef<number | null>(null);
   const idleRef = useRef<number>(0);
   const isAuthenticatedRef = useRef(false);
+  const ignoreEventsRef = useRef<boolean>(false); // Flag to ignore passive events after tab switch
+  const showModalRef = useRef<boolean>(false); // Track modal state in ref
 
   // Derive auth state
   const isAuthenticated = !!user && !authLoading;
@@ -37,6 +39,11 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       authLoading 
     });
   }, [isAuthenticated, user, authLoading]);
+
+  // Track modal state in ref to avoid stale closures
+  useEffect(() => {
+    showModalRef.current = showModal;
+  }, [showModal]);
 
   // Reset timer on user activity - memoized
   const resetTimer = useCallback(() => {
@@ -69,11 +76,18 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     // Only track activity for authenticated users
     if (!isAuthenticated) return;
     
-    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    // Only track genuine user interactions, not passive events
+    const events = ['mousedown', 'keydown', 'click', 'touchstart'];
     const activity = (event: Event) => {
+      // Ignore events temporarily after tab visibility changes
+      if (ignoreEventsRef.current) {
+        logger.debug(`Activity detected (${event.type}) but ignoring due to recent tab switch`);
+        return;
+      }
+
       // When modal is showing, ignore all general activity
       // Only allow modal button handlers to control the session
-      if (showModal) {
+      if (showModalRef.current) {
         logger.debug('Activity detected but modal is showing - ignoring');
         return; // Don't reset timer - let user choose via modal buttons
       }
@@ -86,7 +100,55 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     };
     events.forEach(e => window.addEventListener(e, activity));
     return () => events.forEach(e => window.removeEventListener(e, activity));
-  }, [isAuthenticated, showModal, resetTimer]);
+  }, [isAuthenticated, resetTimer]);
+
+  // Check session state - extracted for reuse
+  const checkSessionState = useCallback(() => {
+    const currentIdle = idleRef.current;
+    
+    if (currentIdle >= TIMEOUT) {
+      logger.warn(`SESSION TIMEOUT - Logging out automatically after ${currentIdle}s of inactivity`);
+      setShowModal(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      handleLogout();
+    } else if (currentIdle >= TIMEOUT - WARNING) {
+      if (!showModalRef.current) {
+        logger.warn(`SHOWING SESSION TIMEOUT MODAL - Idle for ${currentIdle}s`);
+        setShowModal(true);
+      }
+      setRemaining(TIMEOUT - currentIdle);
+    }
+  }, [handleLogout]);
+
+  // Handle page visibility changes (tab switching)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        logger.info(` Tab became VISIBLE - checking session state (idle: ${idleRef.current}s)`);
+        
+        // Ignore passive events for 500ms after tab becomes visible
+        // This prevents scroll/focus events from resetting the timer
+        ignoreEventsRef.current = true;
+        setTimeout(() => {
+          ignoreEventsRef.current = false;
+          logger.debug('Now accepting user activity events');
+        }, 500);
+        
+        // Immediately check if we should show modal or logout
+        checkSessionState();
+      } else {
+        logger.info(` Tab became HIDDEN - timer continues in background (idle: ${idleRef.current}s)`);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isAuthenticated, checkSessionState]);
 
   useEffect(() => {
     // Only run timer for authenticated users
@@ -99,38 +161,27 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       return;
     }
 
-    logger.info('Timer STARTED - user authenticated');
+    logger.info(' Timer STARTED - user authenticated');
     logger.info(`Session timeout configuration: Total timeout = ${TIMEOUT}s (${TIMEOUT / 60} min), Warning = ${WARNING}s (${WARNING / 60} min), Modal shows at ${TIMEOUT - WARNING}s`);
     
     timerRef.current = window.setInterval(() => {
       idleRef.current += 1;
       
-      // More frequent logging for debugging (every 5 seconds instead of 10)
-      if (idleRef.current % 5 === 0) {
-        logger.info(` Idle time: ${idleRef.current}s / ${TIMEOUT}s (${Math.floor(idleRef.current / 60)}min ${idleRef.current % 60}s) - Modal shows at ${TIMEOUT - WARNING}s (${Math.floor((TIMEOUT - WARNING) / 60)} min)`);
+      // Log every 10 seconds for debugging
+      if (idleRef.current % 10 === 0) {
+        const visibilityStatus = document.visibilityState === 'visible' ? '👁️  Page Visible' : '🙈 Page Hidden';
+        logger.info(`${visibilityStatus} | Idle: ${idleRef.current}s / ${TIMEOUT}s (${Math.floor(idleRef.current / 60)}m ${idleRef.current % 60}s) - Modal at ${TIMEOUT - WARNING}s`);
       }
       
-      if (idleRef.current >= TIMEOUT - WARNING && idleRef.current < TIMEOUT) {
-        if (!showModal) {
-          logger.warn(` SHOWING SESSION TIMEOUT MODAL - Idle for ${idleRef.current}s`);
-          setShowModal(true);
-        }
-        setRemaining(TIMEOUT - idleRef.current);
-      } else if (idleRef.current >= TIMEOUT) {
-        logger.warn(` SESSION TIMEOUT - Logging out automatically after ${idleRef.current}s of inactivity`);
-        setShowModal(false);
-        // Ensure automatic logout works by forcing redirect
-        clearInterval(timerRef.current!);
-        timerRef.current = null;
-        handleLogout();
-      }
+      // Check session state
+      checkSessionState();
     }, 1000);
     return () => {
       if (timerRef.current !== null) {
         clearInterval(timerRef.current);
       }
     };
-  }, [isAuthenticated, handleLogout]);
+  }, [isAuthenticated, checkSessionState]);
 
   // Countdown in modal
   useEffect(() => {
