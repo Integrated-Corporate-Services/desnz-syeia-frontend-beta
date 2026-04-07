@@ -1,3 +1,13 @@
+import React, { useState, useEffect } from 'react';
+import { S37_BASE_URL } from '../../../constants/s37';
+import { Link } from 'react-router-dom';
+import SensitiveAreaCheckMap, { RoutePoint as BaseRoutePoint } from '../../../components/SensitiveAreaCheckMap';
+import ErrorBoundary from '../../../components/ErrorBoundary';
+import RoutePointCard from '../component/RoutePointCard';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useRouteStore } from '../../../store/useRouteStore';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+
 // Validation function for a single point
  function getPointError(easting: string, northing: string) {
   if (!easting && !northing) return 'Enter a grid reference';
@@ -26,15 +36,6 @@ function checkDuplicatePoints(points: RoutePoint[]): string | undefined {
   }
   return undefined;
 }
-import React, { useState, useEffect } from 'react';
-import { S37_BASE_URL } from '../../../constants/s37';
-import { Link } from 'react-router-dom';
-import SensitiveAreaCheckMap, { RoutePoint as BaseRoutePoint } from '../../../components/SensitiveAreaCheckMap';
-import ErrorBoundary from '../../../components/ErrorBoundary';
-import RoutePointCard from '../component/RoutePointCard';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { useRouteStore } from '../../../store/useRouteStore';
-import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 // Extend RoutePoint to include point_id and route_id
 interface RoutePoint extends BaseRoutePoint {
@@ -125,10 +126,10 @@ const RouteMapPage: React.FC = () => {
       }
     }
     
-    // Check for duplicate coordinates
-    if (!summaryError) {
-      summaryError = checkDuplicatePoints(points);
-    }
+    // Check for duplicate coordinates - DISABLED to allow duplicate points within a route
+    // if (!summaryError) {
+    //   summaryError = checkDuplicatePoints(points);
+    // }
     
     if (summaryError) {
       setValidationError(summaryError);
