@@ -14,7 +14,7 @@ interface SessionTimeoutContextType {
 
 const SessionTimeoutContext = createContext<SessionTimeoutContextType | undefined>(undefined);
 
-const TIMEOUT = 3 * 60; // 30 min in seconds
+const TIMEOUT = 5 * 60; // 5 min in seconds
 const WARNING = 2 * 60; // 2 min warning in seconds
 
 export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) => {
@@ -47,7 +47,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     
     // Log resets to help debug if timer is being reset too frequently
     if (previousIdleTime > 30) { // Only log if we were idle for more than 30 seconds
-      logger.info(`⏮️ Timer RESET - was idle for ${previousIdleTime}s (${Math.floor(previousIdleTime / 60)}min ${previousIdleTime % 60}s)`);
+      logger.info(`Timer RESET - was idle for ${previousIdleTime}s (${Math.floor(previousIdleTime / 60)}min ${previousIdleTime % 60}s)`);
     }
   }, []);
 
@@ -80,7 +80,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       
       // Normal activity tracking when modal is not showing
       if (idleRef.current > 0) { // Only log if we've been tracking
-        logger.debug(`🖱️ Activity detected (${event.type}) - timer will reset. Was idle for ${idleRef.current}s`);
+        logger.debug(` Activity detected (${event.type}) - timer will reset. Was idle for ${idleRef.current}s`);
       }
       resetTimer();
     };
@@ -107,17 +107,17 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       
       // More frequent logging for debugging (every 5 seconds instead of 10)
       if (idleRef.current % 5 === 0) {
-        logger.info(`⏱️ Idle time: ${idleRef.current}s / ${TIMEOUT}s (${Math.floor(idleRef.current / 60)}min ${idleRef.current % 60}s) - Modal shows at ${TIMEOUT - WARNING}s (${Math.floor((TIMEOUT - WARNING) / 60)} min)`);
+        logger.info(` Idle time: ${idleRef.current}s / ${TIMEOUT}s (${Math.floor(idleRef.current / 60)}min ${idleRef.current % 60}s) - Modal shows at ${TIMEOUT - WARNING}s (${Math.floor((TIMEOUT - WARNING) / 60)} min)`);
       }
       
       if (idleRef.current >= TIMEOUT - WARNING && idleRef.current < TIMEOUT) {
         if (!showModal) {
-          logger.warn(`🚨 SHOWING SESSION TIMEOUT MODAL - Idle for ${idleRef.current}s`);
+          logger.warn(` SHOWING SESSION TIMEOUT MODAL - Idle for ${idleRef.current}s`);
           setShowModal(true);
         }
         setRemaining(TIMEOUT - idleRef.current);
       } else if (idleRef.current >= TIMEOUT) {
-        logger.warn(`🚨 SESSION TIMEOUT - Logging out automatically after ${idleRef.current}s of inactivity`);
+        logger.warn(` SESSION TIMEOUT - Logging out automatically after ${idleRef.current}s of inactivity`);
         setShowModal(false);
         // Ensure automatic logout works by forcing redirect
         clearInterval(timerRef.current!);
