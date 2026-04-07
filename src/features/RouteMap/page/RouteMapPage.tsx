@@ -20,23 +20,6 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
   return undefined;
 }
 
-// Check for duplicate coordinates
-function checkDuplicatePoints(points: RoutePoint[]): string | undefined {
-  const coordinates = new Set<string>();
-  for (let i = 0; i < points.length; i++) {
-    const pt = points[i];
-    // Skip validation for empty points
-    if (!pt.easting || !pt.northing) continue;
-    
-    const coordKey = `${pt.easting},${pt.northing}`;
-    if (coordinates.has(coordKey)) {
-      return `Point ${i + 1} has duplicate coordinates. Each point must have unique coordinates to create a valid route.`;
-    }
-    coordinates.add(coordKey);
-  }
-  return undefined;
-}
-
 // Extend RoutePoint to include point_id and route_id
 interface RoutePoint extends BaseRoutePoint {
   point_id?: string;
@@ -125,11 +108,6 @@ const RouteMapPage: React.FC = () => {
         break;
       }
     }
-    
-    // Check for duplicate coordinates - DISABLED to allow duplicate points within a route
-    // if (!summaryError) {
-    //   summaryError = checkDuplicatePoints(points);
-    // }
     
     if (summaryError) {
       setValidationError(summaryError);
