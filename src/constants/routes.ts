@@ -12,8 +12,8 @@ type RouteConfig = {
 };
 
 import ConsultationResponse from '../features/Consultation/pages/ConsultationResponse';
-import ConsultationResponse2 from '../features/Consultation/pages/ConsultationResponse2';
-import ConsultationResponse3 from '../features/Consultation/pages/ConsultationResponse3';
+import ConsultationResponseDocuments from '../features/Consultation/pages/ConsultationResponseDocuments';
+import ConsultationResponseReview from '../features/Consultation/pages/ConsultationResponseReview';
 import ConsultationNotRequiredPage from '../features/Consultation/pages/ConsultationNotRequiredPage';
 import ConsultationRequestPage from '../features/Consultation/pages/ConsultationRequestPage';
 import ConsultationRequestsRequired from '../features/Consultation/pages/ConsultationRequestsRequired';
@@ -721,13 +721,13 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response2`,
-        component: ConsultationResponse2,
+        component: ConsultationResponseDocuments,
         auth: true,
         layout: true,
     },
     {
         path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response3`,
-        component: ConsultationResponse3,
+        component: ConsultationResponseReview,
         auth: true,
         layout: true,
     },

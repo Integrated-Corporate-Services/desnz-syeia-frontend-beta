@@ -31,7 +31,7 @@ const SessionTimeoutModal: React.FC = () => {
 
   // Always show the same warning message on all pages
   const answerWarning = useMemo(() => {
-    return "Any answers you have not submitted may be lost.";
+    return "Any information you entered that was not saved may be lost.";
   }, []);
 
   // Memoize time display format
@@ -67,7 +67,7 @@ const SessionTimeoutModal: React.FC = () => {
   useEffect(() => {
     if (showModal && !hasAnnounced) {
       setHasAnnounced(true);
-      const announcement = `You're about to be signed out. For your security, we will sign you out in ${timeDisplay}.`;
+      const announcement = `You're about to be signed out. For your security, we'll sign you out in ${timeDisplay}.`;
       const ariaLive = document.createElement('div');
       ariaLive.setAttribute('aria-live', 'assertive');
       ariaLive.setAttribute('aria-atomic', 'true');
@@ -149,7 +149,7 @@ const SessionTimeoutModal: React.FC = () => {
         <h1 className="govuk-heading-m" id="timeout-title">You're about to be signed out</h1>
         <div id="timeout-description">
           <p className="govuk-body">
-            For your security, we will sign you out in{' '}
+            For your security, we'll sign you out in{' '}
             <strong>{timeDisplay}</strong>.
           </p>
           <p className="govuk-body">
