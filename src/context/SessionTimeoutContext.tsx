@@ -14,7 +14,7 @@ interface SessionTimeoutContextType {
 
 const SessionTimeoutContext = createContext<SessionTimeoutContextType | undefined>(undefined);
 
-const TIMEOUT = 5 * 60; // 5 min in seconds
+const TIMEOUT = 30 * 60; // 30 min in seconds
 const WARNING = 2 * 60; // 2 min warning in seconds
 
 export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) => {
