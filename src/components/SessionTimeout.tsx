@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { createLogger } from '../utils/logger';
 import '../styles/SessionTimeout.css'
 import { logout } from '../services/authService';
+import { SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
 
 const logger = createLogger('SessionTimeoutModal');
 
@@ -37,7 +38,9 @@ const SessionTimeoutModal: React.FC = () => {
   // Memoize time display format
   const timeDisplay = useMemo(() => {
     const showCountdown = remaining < 60;
-    return showCountdown ? formatSeconds(remaining) : "2 minutes";
+    const warningMinutes = Math.floor(SESSION_WARNING / 60);
+    const warningText = warningMinutes === 1 ? "1 minute" : `${warningMinutes} minutes`;
+    return showCountdown ? formatSeconds(remaining) : warningText;
   }, [remaining]);
 
   // Track if we've already announced to screen readers
@@ -177,7 +180,7 @@ const SessionTimeoutModal: React.FC = () => {
               className="govuk-link" 
               onClick={async (event) => {
                                 event.preventDefault();
-                                await logout('/frontend/signed-out');
+                                await logout(SIGNED_OUT_PAGE);
                               }}
               aria-describedby="signout-description"
             >
