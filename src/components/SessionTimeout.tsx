@@ -177,7 +177,7 @@ const SessionTimeoutModal: React.FC = () => {
               className="govuk-link" 
               onClick={async (event) => {
                                 event.preventDefault();
-                                await logout();
+                                await logout('/frontend/signed-out');
                               }}
               aria-describedby="signout-description"
             >
