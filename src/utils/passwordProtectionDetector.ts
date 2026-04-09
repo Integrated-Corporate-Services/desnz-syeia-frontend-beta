@@ -17,16 +17,21 @@ const logger = createLogger('passwordProtectionDetector');
  */
 const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
-    const pdfHeader = String.fromCharCode(...uint8Array.slice(0, 1024));
-    const hex = uint8ArrayToHex(uint8Array.slice(0, 1024));
+    // Check first 2048 bytes for encryption markers (PDF structure is at the beginning)
+    const pdfHeader = String.fromCharCode(...uint8Array.slice(0, 2048));
+    const hex = uint8ArrayToHex(uint8Array.slice(0, 512));
     
-    const isProtected = pdfHeader.includes(PASSWORD_PROTECTION_SIGNATURES.PDF.ENCRYPT_MARKER) || 
-                       hex.includes(PASSWORD_PROTECTION_SIGNATURES.PDF.HEX_MARKER);
+    // PDF files have encryption markers in their structure (not in content)
+    // Look for /Encrypt dictionary which indicates file-level encryption
+    const hasEncryptMarker = pdfHeader.includes(PASSWORD_PROTECTION_SIGNATURES.PDF.ENCRYPT_MARKER);
+    const hasHexMarker = hex.includes(PASSWORD_PROTECTION_SIGNATURES.PDF.HEX_MARKER);
+    
+    const isProtected = hasEncryptMarker || hasHexMarker;
     
     logValidationEvent('PDF password check', filename, { 
       isProtected,
-      hasEncryptMarker: pdfHeader.includes(PASSWORD_PROTECTION_SIGNATURES.PDF.ENCRYPT_MARKER),
-      hasHexMarker: hex.includes(PASSWORD_PROTECTION_SIGNATURES.PDF.HEX_MARKER)
+      hasEncryptMarker,
+      hasHexMarker
     });
     
     return isProtected;
@@ -44,45 +49,32 @@ const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boole
  */
 const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
-    const hex = uint8ArrayToHex(uint8Array.slice(0, 1024));
+    const hex = uint8ArrayToHex(uint8Array.slice(0, 16)); // Only check first 16 bytes for header
     const { OFFICE_XML, OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
     
     // Debug: Log the hex content for inspection
     logger.info('Checking Office XML password protection', {
       filename,
-      hexPreview: hex.substring(0, 100)
+      hexPreview: hex
     });
     
-    // Check if it's a ZIP file (normal .docx/.xlsx are ZIP archives)
+    // Check file header only - the FIRST BYTES determine file structure
+    // Normal .docx/.xlsx files: Start with ZIP header (504b0304)
+    // Encrypted .docx/.xlsx files: Start with OLE header (d0cf11e0a1b11ae1)
     const isZipFile = hex.startsWith(OFFICE_XML.ZIP_HEADER);
-    
-    // If not a ZIP file but has OLE header, it's likely an encrypted Office file
-    // (Encrypted Office XML files are stored in OLE format, not ZIP)
     const hasOleHeader = hex.startsWith(OFFICE_LEGACY.OLE_HEADER);
     
-    // Check for specific encryption signatures
-    const hasEncryptionSignatures = 
-      hex.includes(OFFICE_XML.ENCRYPTED_KEY) ||
-      hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE) ||
-      hex.includes(OFFICE_XML.MS_CONTAINER) ||
-      hex.includes(OFFICE_XML.ENCRYPTION_INFO) ||
-      hex.includes(OFFICE_XML.AES_MARKER) ||
-      hex.includes(OFFICE_LEGACY.ENCRYPTION_INFO);
-    
-    // Key indicator: Office XML files (.docx, .xlsx) that have OLE header instead of ZIP are encrypted
-    const isProtected = (!isZipFile && hasOleHeader) || hasEncryptionSignatures;
+    // ONLY use file header to determine encryption status
+    // This prevents false positives from document content containing keywords like
+    // "Protected", "Official", "Encrypted", etc.
+    const isProtected = !isZipFile && hasOleHeader;
     
     logValidationEvent('Office XML password check', filename, {
       isProtected,
       isZipFile,
       hasOleHeader,
-      hasEncryptedKey: hex.includes(OFFICE_XML.ENCRYPTED_KEY),
-      hasEncryptedPackage: hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE),
-      hasMsContainer: hex.includes(OFFICE_XML.MS_CONTAINER),
-      hasEncryptionInfo: hex.includes(OFFICE_XML.ENCRYPTION_INFO),
-      hasAesMarker: hex.includes(OFFICE_XML.AES_MARKER),
-      hexLength: hex.length,
-      uint8ArrayLength: uint8Array.length
+      headerHex: hex,
+      reason: isProtected ? 'OLE header detected (file-level encryption)' : 'ZIP header detected (no file-level encryption)'
     });
     
     return isProtected;
@@ -100,22 +92,31 @@ const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string):
  */
 const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
-    const hex = uint8ArrayToHex(uint8Array.slice(0, 1024));
+    const headerHex = uint8ArrayToHex(uint8Array.slice(0, 16)); // Check first 16 bytes for header
+    const contentHex = uint8ArrayToHex(uint8Array.slice(0, 512)); // Check first 512 bytes for encryption markers
     const { OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
     
-    const hasOleHeader = hex.startsWith(OFFICE_LEGACY.OLE_HEADER);
-    const hasEncryption = hex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT) || 
-                         hex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE) ||
-                         hex.includes(OFFICE_LEGACY.ENCRYPTION_INFO);
+    // Legacy Office files (.doc, .xls) must have OLE header
+    const hasOleHeader = headerHex.startsWith(OFFICE_LEGACY.OLE_HEADER);
     
-    const isProtected = hasOleHeader && hasEncryption;
+    if (!hasOleHeader) {
+      logger.info('Not an OLE file - no Legacy Office encryption', { filename });
+      return false;
+    }
+    
+    // For OLE files, check for encryption markers in early content
+    const hasEncryption = contentHex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT) || 
+                         contentHex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE) ||
+                         contentHex.includes(OFFICE_LEGACY.ENCRYPTION_INFO);
+    
+    const isProtected = hasEncryption;
     
     logValidationEvent('Office Legacy password check', filename, {
       isProtected,
       hasOleHeader,
-      hasEncryptedObject: hex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT),
-      hasMsOfficeWrite: hex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE),
-      hasEncryptionInfo: hex.includes(OFFICE_LEGACY.ENCRYPTION_INFO)
+      hasEncryptedObject: contentHex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT),
+      hasMsOfficeWrite: contentHex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE),
+      hasEncryptionInfo: contentHex.includes(OFFICE_LEGACY.ENCRYPTION_INFO)
     });
     
     return isProtected;
@@ -137,7 +138,9 @@ export const isPasswordProtected = async (file: File): Promise<boolean> => {
       type: file.type 
     });
     
-    const uint8Array = await readFileHeader(file, 1024);
+    // Read more bytes for PDFs to ensure we capture encryption info
+    const bytesToRead = file.type === 'application/pdf' ? 2048 : 1024;
+    const uint8Array = await readFileHeader(file, bytesToRead);
     const filename = file.name.toLowerCase();
     
     // Check PDF files

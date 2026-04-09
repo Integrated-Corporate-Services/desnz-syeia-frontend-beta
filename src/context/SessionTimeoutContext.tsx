@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback, useMemo } from 'react';
-import { logout, signOut } from '../services/authService';
+import { logout } from '../services/authService';
 import { useAuthUserContext } from './AuthUserContext';
 import { createLogger } from '../utils/logger';
+import { SESSION_TIMEOUT, SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
 
 const logger = createLogger('SessionTimeoutContext');
 
@@ -14,15 +15,13 @@ interface SessionTimeoutContextType {
 
 const SessionTimeoutContext = createContext<SessionTimeoutContextType | undefined>(undefined);
 
-const TIMEOUT = 30 * 60; // 30 min in seconds
-const WARNING = 2 * 60; // 2 min warning in seconds
-
 export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) => {
   const { user, loading: authLoading } = useAuthUserContext();
   const [showModal, setShowModal] = useState(false);
-  const [remaining, setRemaining] = useState(WARNING);
+  const [remaining, setRemaining] = useState(SESSION_WARNING);
   const timerRef = useRef<number | null>(null);
-  const idleRef = useRef<number>(0);
+  const lastActivityRef = useRef<number>(Date.now()); // Store timestamp instead of counter
+  const showModalRef = useRef(false); // Track modal state to avoid effect dependency
   const isAuthenticatedRef = useRef(false);
 
   // Derive auth state
@@ -40,10 +39,12 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
 
   // Reset timer on user activity - memoized
   const resetTimer = useCallback(() => {
-    const previousIdleTime = idleRef.current;
-    idleRef.current = 0;
+    const now = Date.now();
+    const previousIdleTime = Math.floor((now - lastActivityRef.current) / 1000);
+    lastActivityRef.current = now;
+    showModalRef.current = false;
     setShowModal(false);
-    setRemaining(WARNING);
+    setRemaining(SESSION_WARNING);
     
     // Log resets to help debug if timer is being reset too frequently
     if (previousIdleTime > 30) { // Only log if we were idle for more than 30 seconds
@@ -56,12 +57,12 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     try {
       logger.info('Starting session timeout logout process...');
       // Use logout to destroy session and redirect to signed-out page
-      await logout('/frontend/signed-out');
+      await logout(SIGNED_OUT_PAGE);
      
     } catch (err) {
       logger.error('Logout error:', err);
       // Force redirect even if signOut fails
-      window.location.href = '/frontend/signed-out';
+      window.location.href = SIGNED_OUT_PAGE;
     }
   }, []);
 
@@ -79,8 +80,9 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       }
       
       // Normal activity tracking when modal is not showing
-      if (idleRef.current > 0) { // Only log if we've been tracking
-        logger.debug(` Activity detected (${event.type}) - timer will reset. Was idle for ${idleRef.current}s`);
+      const idleTime = Math.floor((Date.now() - lastActivityRef.current) / 1000);
+      if (idleTime > 0) { // Only log if we've been idle
+        logger.debug(`Activity detected (${event.type}) - timer will reset. Was idle for ${idleTime}s`);
       }
       resetTimer();
     };
@@ -100,24 +102,32 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     }
 
     logger.info('Timer STARTED - user authenticated');
-    logger.info(`Session timeout configuration: Total timeout = ${TIMEOUT}s (${TIMEOUT / 60} min), Warning = ${WARNING}s (${WARNING / 60} min), Modal shows at ${TIMEOUT - WARNING}s`);
+    logger.info(`Session timeout configuration: Total timeout = ${SESSION_TIMEOUT}s (${SESSION_TIMEOUT / 60} min), Warning = ${SESSION_WARNING}s (${SESSION_WARNING / 60} min), Modal shows at ${SESSION_TIMEOUT - SESSION_WARNING}s`);
+    
+    // Reset last activity timestamp when starting timer
+    lastActivityRef.current = Date.now();
     
     timerRef.current = window.setInterval(() => {
-      idleRef.current += 1;
+      // Calculate idle time based on timestamp difference
+      const now = Date.now();
+      const idleTimeMs = now - lastActivityRef.current;
+      const idleTimeSec = Math.floor(idleTimeMs / 1000);
       
-      // More frequent logging for debugging (every 5 seconds instead of 10)
-      if (idleRef.current % 5 === 0) {
-        logger.info(` Idle time: ${idleRef.current}s / ${TIMEOUT}s (${Math.floor(idleRef.current / 60)}min ${idleRef.current % 60}s) - Modal shows at ${TIMEOUT - WARNING}s (${Math.floor((TIMEOUT - WARNING) / 60)} min)`);
+      // More frequent logging for debugging (every 5 seconds)
+      if (idleTimeSec % 5 === 0) {
+        logger.info(`Idle time: ${idleTimeSec}s / ${SESSION_TIMEOUT}s (${Math.floor(idleTimeSec / 60)}min ${idleTimeSec % 60}s) - Modal shows at ${SESSION_TIMEOUT - SESSION_WARNING}s (${Math.floor((SESSION_TIMEOUT - SESSION_WARNING) / 60)} min)`);
       }
       
-      if (idleRef.current >= TIMEOUT - WARNING && idleRef.current < TIMEOUT) {
-        if (!showModal) {
-          logger.warn(` SHOWING SESSION TIMEOUT MODAL - Idle for ${idleRef.current}s`);
+      if (idleTimeSec >= SESSION_TIMEOUT - SESSION_WARNING && idleTimeSec < SESSION_TIMEOUT) {
+        if (!showModalRef.current) {
+          logger.warn(`SHOWING SESSION TIMEOUT MODAL - Idle for ${idleTimeSec}s`);
+          showModalRef.current = true;
           setShowModal(true);
         }
-        setRemaining(TIMEOUT - idleRef.current);
-      } else if (idleRef.current >= TIMEOUT) {
-        logger.warn(` SESSION TIMEOUT - Logging out automatically after ${idleRef.current}s of inactivity`);
+        setRemaining(SESSION_TIMEOUT - idleTimeSec);
+      } else if (idleTimeSec >= SESSION_TIMEOUT) {
+        logger.warn(`SESSION TIMEOUT - Logging out automatically after ${idleTimeSec}s of inactivity`);
+        showModalRef.current = false;
         setShowModal(false);
         // Ensure automatic logout works by forcing redirect
         clearInterval(timerRef.current!);
