@@ -144,40 +144,40 @@ const WorksOverview: React.FC = () => {
   const validate = (data: typeof initialState): FormErrors => {
     const newErrors: FormErrors = {};
     if (!data.addingOrReplacingPoles) {
-      newErrors.addingOrReplacingPoles = 'Select if you are adding or replacing poles.';
+      newErrors.addingOrReplacingPoles = 'Select \'Yes\' or \'No\'';
     } else if (data.addingOrReplacingPoles === 'yes') {
-      if (!data.poleMaterial.trim()) newErrors.poleMaterial = 'Enter pole material.';
+      if (!data.poleMaterial.trim()) newErrors.poleMaterial = 'Enter a description of materials used';
       if (!data.chemicalTreatments.trim()) newErrors.chemicalTreatments = 'Enter chemical treatments.';
-      if (!data.polesAdded.trim()) newErrors.polesAdded = 'Enter number of poles added.';
-      if (!data.polesReplaced.trim()) newErrors.polesReplaced = 'Enter number of poles replaced.';
+      if (!data.polesAdded.trim()) newErrors.polesAdded = 'Enter the number of poles to be added';
+      if (!data.polesReplaced.trim()) newErrors.polesReplaced = 'Enter the number of poles to be replaced';
     }
     if (!data.addingOrReplacingLines) {
-      newErrors.addingOrReplacingLines = 'Select if you are adding or replacing overhead lines.';
+      newErrors.addingOrReplacingLines = 'Select \'Yes\' or \'No\'';
     } else if (data.addingOrReplacingLines === 'yes') {
-      if (!data.overheadLineDescription.trim()) newErrors.overheadLineDescription = 'Enter overhead line description.';
-      if (!data.estimatedDuration.trim()) newErrors.estimatedDuration = 'Enter estimated duration.';
-      if (!data.vehiclesRequired.trim()) newErrors.vehiclesRequired = 'Enter vehicles required.';
-      if (!data.roadClosuresRequired) newErrors.roadClosuresRequired = 'Select if road closures are required.';
+      if (!data.overheadLineDescription.trim()) newErrors.overheadLineDescription = 'Enter a description of the overhead lines';
+      if (!data.estimatedDuration.trim()) newErrors.estimatedDuration = 'Enter an estimate of the duration';
+      if (!data.vehiclesRequired.trim()) newErrors.vehiclesRequired = 'Enter a list of vehicles required on site';
+      if (!data.roadClosuresRequired) newErrors.roadClosuresRequired = 'Select \'Yes\' or \'No\'';
     }
     if (!data.excavationRequired) {
-      newErrors.excavationRequired = 'Select if excavation is required.';
+      newErrors.excavationRequired = 'Select \'Yes\' or \'No\'';
     } else if (data.excavationRequired === 'yes') {
-      if (!data.excavationDetails.trim()) newErrors.excavationDetails = 'Enter excavation details.';
+      if (!data.excavationDetails.trim()) newErrors.excavationDetails = 'Enter details about the excavation work';
     }
     if (!data.vegetationClearanceRequired) {
-      newErrors.vegetationClearanceRequired = 'Select if vegetation clearance is required.';
+      newErrors.vegetationClearanceRequired = 'Select \'Yes\' or \'No\'';
     } else if (data.vegetationClearanceRequired === 'yes') {
-      if (!data.vegetationClearanceDetails.trim()) newErrors.vegetationClearanceDetails = 'Enter vegetation clearance details.';
+      if (!data.vegetationClearanceDetails.trim()) newErrors.vegetationClearanceDetails = 'Enter details about the vegetation clearance';
     }
     if (!data.usingExistingAccessRoutes) {
-      newErrors.usingExistingAccessRoutes = 'Select if using existing access routes.';
+      newErrors.usingExistingAccessRoutes = 'Select \'Yes\' or \'No\'';
     } else if (data.usingExistingAccessRoutes === 'yes') {
-      if (!data.accessRoutesDetails.trim()) newErrors.accessRoutesDetails = 'Enter access routes details.';
+      if (!data.accessRoutesDetails.trim()) newErrors.accessRoutesDetails = 'Enter details about access routes and storage sites';
     }
     if (!data.removingExistingEquipment) {
-      newErrors.removingExistingEquipment = 'Select if removing existing equipment.';
+      newErrors.removingExistingEquipment = 'Select \'Yes\' or \'No\'';
     } else if (data.removingExistingEquipment === 'yes') {
-      if (!data.removalDescription.trim()) newErrors.removalDescription = 'Enter removal description.';
+      if (!data.removalDescription.trim()) newErrors.removalDescription = 'Enter a description of the equipment to be removed';
     }
     return newErrors;
   };
