@@ -1069,16 +1069,7 @@ const ApplicationSummary: React.FC = () => {
                 </h2>
               </div>
               <div className="govuk-summary-card__content">
-                <div
-                  style={{
-                    width: "100%",
-                    height: 500,
-                    border: "1px solid #b1b4b6",
-                    borderRadius: 4,
-                    overflow: "hidden",
-                    background: "#fff",
-                  }}
-                >
+                <div className="map-container">
                   <SensitiveAreaCheckMap
                     routes={transformedRoutes}
                     mode="overview"
