@@ -1,3 +1,13 @@
+import React, { useState, useEffect } from 'react';
+import { S37_BASE_URL } from '../../../constants/s37';
+import { Link } from 'react-router-dom';
+import SensitiveAreaCheckMap, { RoutePoint as BaseRoutePoint } from '../../../components/SensitiveAreaCheckMap';
+import ErrorBoundary from '../../../components/ErrorBoundary';
+import RoutePointCard from '../component/RoutePointCard';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useRouteStore } from '../../../store/useRouteStore';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+
 // Validation function for a single point
  function getPointError(easting: string, northing: string) {
   if (!easting && !northing) return 'Enter a grid reference';
@@ -9,14 +19,23 @@
   }
   return undefined;
 }
-import React, { useState, useEffect } from 'react';
-import { S37_BASE_URL } from '../../../constants/s37';
-import { Link } from 'react-router-dom';
-import SensitiveAreaCheckMap, { RoutePoint as BaseRoutePoint } from '../../../components/SensitiveAreaCheckMap';
-import RoutePointCard from '../component/RoutePointCard';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { useRouteStore } from '../../../store/useRouteStore';
-import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+
+// Check for duplicate coordinates
+// function checkDuplicatePoints(points: RoutePoint[]): string | undefined {
+//   const coordinates = new Set<string>();
+//   for (let i = 0; i < points.length; i++) {
+//     const pt = points[i];
+//     // Skip validation for empty points
+//     if (!pt.easting || !pt.northing) continue;
+    
+//     const coordKey = `${pt.easting},${pt.northing}`;
+//     if (coordinates.has(coordKey)) {
+//       return `Point ${i + 1} has duplicate coordinates. Each point must have unique coordinates to create a valid route.`;
+//     }
+//     coordinates.add(coordKey);
+//   }
+//   return undefined;
+// }
 
 // Extend RoutePoint to include point_id and route_id
 interface RoutePoint extends BaseRoutePoint {
@@ -124,6 +143,8 @@ const RouteMapPage: React.FC = () => {
     setValidationError(null);
     // Use validation function to determine first error
     let summaryError: string | undefined = undefined;
+    
+    // Check each point for validation errors
     for (const pt of points) {
       const err = getPointError(pt.easting, pt.northing);
       if (err) {
@@ -131,6 +152,12 @@ const RouteMapPage: React.FC = () => {
         break;
       }
     }
+    
+    // Check for duplicate coordinates - DISABLED to allow duplicate points within a route
+    // if (!summaryError) {
+    //   summaryError = checkDuplicatePoints(points);
+    // }
+    
     if (summaryError) {
       setValidationError(summaryError);
       setSubmitting(false);
@@ -338,14 +365,16 @@ const RouteMapPage: React.FC = () => {
                   {/* Removed IE warning message */}
                   <div data-module="eip-hide-if-ie">
                     <div className="eip-map__container">
-                      <SensitiveAreaCheckMap
-                        points={points}
-                        selectedIdx={selectedIdx}
-                        setPoints={setPoints}
-                        setSelectedIdx={setSelectedIdx}
-                        routeName={location.state?.routeName || 'Route'}
-                        mode="edit"
-                      />
+                      <ErrorBoundary>
+                        <SensitiveAreaCheckMap
+                          points={points}
+                          selectedIdx={selectedIdx}
+                          setPoints={setPoints}
+                          setSelectedIdx={setSelectedIdx}
+                          routeName={location.state?.routeName || 'Route'}
+                          mode="edit"
+                        />
+                      </ErrorBoundary>
                     </div>
                   </div>
                 </div>

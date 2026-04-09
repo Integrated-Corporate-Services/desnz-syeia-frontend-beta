@@ -5,6 +5,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { startSensitiveAreaCheck } from '../../../services/sensitiveAreaService';
 import { getRoutesWithPoints } from '../../../services/routeMapService';
 import SensitiveAreaCheckMap, { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
+import ErrorBoundary from '../../../components/ErrorBoundary';
 import { S37_BASE_URL } from '../../../constants/s37';
 
 const SensitiveAreaPage: React.FC = () => {
@@ -212,13 +213,15 @@ const SensitiveAreaPage: React.FC = () => {
               <div className="govuk-grid-column-one-half">
                 <div data-module="eip-hide-if-ie">
                   <div className="eip-map__container">
-                    <SensitiveAreaCheckMap
-                      routes={routes.length > 0 ? routes.map(route => ({
-                        points: route.gridPoints,
-                        routeName: route.routeName
-                      })) : []}
-                      mode="overview"
-                    />
+                    <ErrorBoundary>
+                      <SensitiveAreaCheckMap
+                        routes={routes.length > 0 ? routes.map(route => ({
+                          points: route.gridPoints,
+                          routeName: route.routeName
+                        })) : []}
+                        mode="overview"
+                      />
+                    </ErrorBoundary>
                   </div>
                 </div>
               </div>
