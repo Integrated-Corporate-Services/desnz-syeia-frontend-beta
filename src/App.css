@@ -85,3 +85,12 @@
     background: #E2D5F0 !important;
     color: #3D2375 !important;
   }
+
+  /* Map container styling - GDS compliant */
+  .map-container {
+    width: 100%;
+    height: 500px;
+    border: 1px solid #b1b4b6; /* GDS border color */
+    overflow: hidden;
+    background: #ffffff;
+  }
