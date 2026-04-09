@@ -1404,105 +1404,6 @@ const CheckYourAnswers: React.FC = () => {
               </div>
             </div>
 
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION_ACTIONS}</h2>
-
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_IMPOSED}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {postConsultationOutcome?.lpa_conditions_imposed === true
-                        ? "Yes"
-                        : postConsultationOutcome?.lpa_conditions_imposed === false
-                          ? "No"
-                          : "-"}
-                    </dd>
-                  </div>
-                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_ACCEPTED}
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_accepted === true
-                          ? "Yes"
-                          : postConsultationOutcome?.lpa_conditions_accepted === false
-                            ? "No"
-                            : "-"}
-                      </dd>
-                    </div>
-                  )}
-
-                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_REASON}
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
-                      </dd>
-                    </div>
-                  )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
-                    postConsultationOutcome?.consultees_recommendations_made !== null && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_RECOMMENDATIONS}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_made === true
-                            ? "Yes"
-                            : postConsultationOutcome?.consultees_recommendations_made === false
-                              ? "No"
-                              : "-"}
-                        </dd>
-                      </div>
-                    )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_made === true && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_ACCEPTED}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_accepted === true
-                            ? "Yes"
-                            : postConsultationOutcome?.consultees_recommendations_accepted === false
-                              ? "No"
-                              : "-"}
-                        </dd>
-                      </div>
-                    )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_REASON}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
-                        </dd>
-                      </div>
-                    )}
-                </dl>
-              </div>
-            </div>
-
             <h2 className="govuk-heading-m">Supporting information</h2>
             {/* Supporting information summary card - fixed to use state variables and map correct questions/answers */}
             <div className="govuk-summary-card">
@@ -2101,6 +2002,106 @@ const CheckYourAnswers: React.FC = () => {
                 );
               })
             }
+
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION_ACTIONS}</h2>
+
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_IMPOSED}
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {postConsultationOutcome?.lpa_conditions_imposed === true
+                        ? "Yes"
+                        : postConsultationOutcome?.lpa_conditions_imposed === false
+                          ? "No"
+                          : "-"}
+                    </dd>
+                  </div>
+                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_ACCEPTED}
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_accepted === true
+                          ? "Yes"
+                          : postConsultationOutcome?.lpa_conditions_accepted === false
+                            ? "No"
+                            : "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_REASON}
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
+                    postConsultationOutcome?.consultees_recommendations_made !== null && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_RECOMMENDATIONS}
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_made === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_made === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made === true && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_ACCEPTED}
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_accepted === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_accepted === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_REASON}
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
+                        </dd>
+                      </div>
+                    )}
+                </dl>
+              </div>
+            </div>
+
             {/* Submit application form */}
             {permissions?.canEdit && (
               <div
