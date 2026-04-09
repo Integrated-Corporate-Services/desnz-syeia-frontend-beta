@@ -212,7 +212,7 @@ const ApplicationSummary: React.FC = () => {
         setApplicationMetadata({
           desnzRef: data.desnzRef || data.applicationId,
           formType: formatCaseType(data.formType),
-          status: formatStatus(data.sections?.networkOperator?.details?.status)
+          status: formatStatus(data.status)
         });
 
         // payment details
@@ -1856,10 +1856,10 @@ const ApplicationSummary: React.FC = () => {
                 );
               })
             }
-
+            <h2 className="govuk-heading-m">Post consultation</h2>
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION_ACTIONS}</h2>
+                <h2 className="govuk-summary-card__title">Post consultation</h2>
 
               </div>
               <div className="govuk-summary-card__content">
