@@ -85,7 +85,7 @@ const EIAFeesForm: React.FC = () => {
       newErrors.push({
         field: "isEiaDevelopment",
         message:
-          "Select yes or no to the Environmental Impact Assessment question",
+          "Select 'Yes' or 'No'",
       });
     } else if (form.isEiaDevelopment === "true") {
       if (!form.screeningOnly) {
@@ -96,7 +96,7 @@ const EIAFeesForm: React.FC = () => {
       } else if (form.screeningOnly === "false") {
         newErrors.push({
           field: "isEiaDevelopment",
-          message: "Select no to the Environmental Impact Assessment question",
+          message: "Select 'Yes' or 'No'",
         });
       }
     }
