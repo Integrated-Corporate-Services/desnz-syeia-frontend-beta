@@ -7,6 +7,7 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveConsultationRequest, getConsultationRequest } from '../../../services/consultationRequestService';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
 
 interface FormErrors {
@@ -128,46 +129,44 @@ const PublicNoticesEvidence: React.FC = () => {
     const newErrors: FormErrors = {};
 
     // Validate first date
-    if (!firstDateDay || !firstDateMonth || !firstDateYear) {
-      newErrors.firstDate = 'Enter the first date published';
+    if (!firstDateDay && !firstDateMonth && !firstDateYear) {
+      newErrors.firstDate = CONSULTATION_VALIDATION_MESSAGES.firstDatePublished.empty;
+    } else if (!firstDateDay || !firstDateMonth || !firstDateYear) {
+      // Check for incomplete date (some fields filled, some not)
+      newErrors.firstDate = CONSULTATION_VALIDATION_MESSAGES.firstDatePublished.incomplete;
     } else {
       const day = parseInt(firstDateDay);
       const month = parseInt(firstDateMonth);
       const year = parseInt(firstDateYear);
       
-      if (day < 1 || day > 31 || isNaN(day)) {
-        newErrors.firstDate = 'Enter a valid day';
-      }
-      if (month < 1 || month > 12 || isNaN(month)) {
-        newErrors.firstDate = 'Enter a valid month';
-      }
-      if (year < 1900 || year > 2100 || isNaN(year)) {
-        newErrors.firstDate = 'Enter a valid year';
+      // Validate that it's a real date
+      if (isNaN(day) || isNaN(month) || isNaN(year) ||
+          day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+        newErrors.firstDate = CONSULTATION_VALIDATION_MESSAGES.firstDatePublished.incomplete;
       }
     }
 
     // Validate second date
-    if (!secondDateDay || !secondDateMonth || !secondDateYear) {
-      newErrors.secondDate = 'Enter the second date published';
+    if (!secondDateDay && !secondDateMonth && !secondDateYear) {
+      newErrors.secondDate = CONSULTATION_VALIDATION_MESSAGES.secondDatePublished.empty;
+    } else if (!secondDateDay || !secondDateMonth || !secondDateYear) {
+      // Check for incomplete date (some fields filled, some not)
+      newErrors.secondDate = CONSULTATION_VALIDATION_MESSAGES.secondDatePublished.incomplete;
     } else {
       const day = parseInt(secondDateDay);
       const month = parseInt(secondDateMonth);
       const year = parseInt(secondDateYear);
       
-      if (day < 1 || day > 31 || isNaN(day)) {
-        newErrors.secondDate = 'Enter a valid day';
-      }
-      if (month < 1 || month > 12 || isNaN(month)) {
-        newErrors.secondDate = 'Enter a valid month';
-      }
-      if (year < 1900 || year > 2100 || isNaN(year)) {
-        newErrors.secondDate = 'Enter a valid year';
+      // Validate that it's a real date
+      if (isNaN(day) || isNaN(month) || isNaN(year) ||
+          day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+        newErrors.secondDate = CONSULTATION_VALIDATION_MESSAGES.secondDatePublished.incomplete;
       }
     }
 
     // File validation
     if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
-      newErrors.fileUpload = 'You must upload at least one evidence document';
+      newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.publicNoticeUpload.empty;
     }
 
     setErrors(newErrors);
@@ -326,7 +325,7 @@ const PublicNoticesEvidence: React.FC = () => {
       <main className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {(Object.keys(errors).length > 0 || fileValidationErrors.length > 0) && (
+            {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                 <div role="alert">
                   <h2 className="govuk-error-summary__title">There is a problem</h2>

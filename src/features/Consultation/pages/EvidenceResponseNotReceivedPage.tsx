@@ -10,6 +10,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { saveConsultationResponse } from '../../../services/consultationResponseService';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('EvidenceResponseNotReceivedPage');
@@ -95,11 +96,11 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         const newErrors: Record<string, string> = {};
 
         if (uploadedFileObjs.length === 0) {
-            newErrors.files = 'You must upload at least one document showing follow-up emails';
+            newErrors.files = CONSULTATION_VALIDATION_MESSAGES.evidenceNotReceivedUpload.empty;
         }
 
         if (!formData.declarationAccepted) {
-            newErrors.declaration = 'You must confirm you have provided all relevant information';
+            newErrors.declaration = CONSULTATION_VALIDATION_MESSAGES.evidenceNotReceivedDeclaration.empty;
         }
 
         setErrors(newErrors);
@@ -250,7 +251,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 </nav>
 
                 {/* Error Summary */}
-                {submitted && (Object.keys(errors).length > 0 || fileValidationErrors.length > 0) && (
+                {submitted && (Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
                     <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} id="error-summary">
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem

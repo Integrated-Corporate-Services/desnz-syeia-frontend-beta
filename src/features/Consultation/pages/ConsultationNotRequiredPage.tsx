@@ -5,6 +5,8 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/consultationService';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
+import { isValidTextFormat, isWithinCharacterLimit } from '../../../utils/validation';
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
@@ -85,32 +87,34 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		}
 	}, [consultationId, applicationId]);
 
-	// Save and Continue handler
-
-		// Save and Continue handler (set status to CLOSED)
-		const navigate = useNavigate();
-		const handleSaveAndContinue = async () => {
-			if (!consultationId || !notRequiredStatus?.details) return;
-			
-			// Validation
-			const newErrors: {reason?: string; files?: string} = {};
-			
-			if (!reason.trim()) {
-				newErrors.reason = 'You must provide a reason why this consultation is not required';
-			}
-			
-			if (uploadedFileObjs.length === 0 && applicationDocuments.length === 0) {
-				newErrors.files = 'You must upload at least one supporting document';
-			}
-			
-			if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
-				setErrors(newErrors);
-				window.scrollTo(0, 0);
-				return;
-			}
-			
-			// Clear any previous errors
-			setErrors({});
+	// Save and Continue handler (set status to CLOSED)
+	const navigate = useNavigate();
+	const handleSaveAndContinue = async () => {
+		if (!consultationId || !notRequiredStatus?.details) return;
+		
+		// Validation
+		const newErrors: {reason?: string; files?: string} = {};
+		
+		if (!reason.trim()) {
+			newErrors.reason = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredReason.empty;
+		} else if (!isWithinCharacterLimit(reason, 4000)) {
+			newErrors.reason = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredReason.characterLimit;
+		} else if (!isValidTextFormat(reason)) {
+			newErrors.reason = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredReason.invalidFormat;
+		}
+		
+		if (uploadedFileObjs.length === 0 && applicationDocuments.length === 0) {
+			newErrors.files = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredUpload.empty;
+		}
+		
+		if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
+			setErrors(newErrors);
+			window.scrollTo(0, 0);
+			return;
+		}
+		
+		// Clear any previous errors
+		setErrors({});
 			
 			const updatedDetails = {
 				...notRequiredStatus.details,
@@ -176,7 +180,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 					</nav>
 					<main className="govuk-main-wrapper govuk-!-margin-bottom-6" id="main-content">
 					{/* Error Summary */}
-					{(Object.keys(errors).length > 0 || fileValidationErrors.length > 0) && (
+					{(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
 						<div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
 							<h2 className="govuk-error-summary__title" id="error-summary-title">
 								There is a problem

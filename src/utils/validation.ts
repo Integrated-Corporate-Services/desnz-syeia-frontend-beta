@@ -159,3 +159,25 @@ export const validateDateComponents = (
 
   return { isValid: true };
 };
+
+/**
+ * Validate text format (letters, numbers, spaces, apostrophes, hyphens only)
+ * @param text - Text to validate
+ * @returns true if text contains only allowed characters
+ */
+export const isValidTextFormat = (text: string): boolean => {
+  if (!text) return true; // Empty text is valid (use required validation separately)
+  // Allow letters (uppercase and lowercase), numbers, spaces, apostrophes, and hyphens
+  const textFormatRegex = /^[a-zA-Z0-9\s'\-]+$/;
+  return textFormatRegex.test(text);
+};
+
+/**
+ * Validate character limit (default 4000)
+ * @param text - Text to validate
+ * @param limit - Character limit (default 4000)
+ * @returns true if within limit
+ */
+export const isWithinCharacterLimit = (text: string, limit: number = 4000): boolean => {
+  return text.length <= limit;
+};
