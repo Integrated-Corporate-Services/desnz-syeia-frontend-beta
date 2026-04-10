@@ -5,11 +5,11 @@ const logger = createLogger('s3DownloadUtil');
 export async function downloadS3File(keyOrUrl: string) {
   const { getPresignedGetUrl } = await import('../services/s3ApiService');
   try {
-    const result = await getPresignedGetUrl(keyOrUrl);
-    if (result.url) {
+    const url = await getPresignedGetUrl(keyOrUrl);
+    if (url) {
       // Open the presigned URL in a new tab
       const link = document.createElement('a');
-      link.href = result.url;
+      link.href = url;
       link.target = '_blank';  // This opens in a new tab
       link.rel = 'noopener noreferrer';  // Security best practice
       
@@ -32,11 +32,11 @@ export async function downloadS3File(keyOrUrl: string) {
 export async function downloadS3FileOnSameTab(keyOrUrl: string) {
   const { getPresignedGetUrlForDownload } = await import('../services/s3ApiService');
   try {
-    const result = await getPresignedGetUrlForDownload(keyOrUrl);
-    if (result.url) {
+    const url = await getPresignedGetUrlForDownload(keyOrUrl);
+    if (url) {
       // Simple approach: just navigate to the URL
       // The browser will either download or display based on Content-Type
-      window.location.href = result.url;
+      window.location.href = url;
     } else {
       logger.error('Failed to get download URL for same tab', { keyOrUrl });
       throw new Error('Failed to get download URL for same tab');
