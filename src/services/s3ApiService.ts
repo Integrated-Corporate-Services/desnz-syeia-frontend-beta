@@ -10,7 +10,7 @@ const REFRESH_BEFORE_EXPIRY = 120; // Refresh 2 minutes before expiry
 interface UrlCacheEntry {
   url: string;
   expiresAt: number;
-  refreshTimer?: NodeJS.Timeout;
+  refreshTimer?: number;
 }
 
 // In-memory cache for presigned URLs with auto-refresh
