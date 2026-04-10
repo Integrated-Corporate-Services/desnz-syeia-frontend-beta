@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getFormMetadata, downloadConsultationForm } from '../../../services/consultationFormMetadataService';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
 
 const log = createLogger('DownloadLpaConsultationFormPage');
@@ -138,7 +139,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
     const newErrors: Record<string, string> = {};
 
     if (!isDeclarationChecked) {
-      newErrors.declaration = 'You must confirm you have downloaded the consultation form';
+      newErrors.declaration = CONSULTATION_VALIDATION_MESSAGES.downloadLpaFormDeclaration.empty;
     }
 
     setErrors(newErrors);
@@ -206,7 +207,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
         </nav>
 
         {/* Error Summary */}
-        {submitted && Object.keys(errors).length > 0 && (
+        {submitted && Object.values(errors).some(Boolean) && (
           <div
             className="govuk-error-summary"
             role="alert"

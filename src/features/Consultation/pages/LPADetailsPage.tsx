@@ -4,6 +4,8 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpaDetailsService'; 
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
+import { isValidTextFormat, isWithinCharacterLimit } from '../../../utils/validation';
 import { createLogger } from '../../../utils/logger';
 
 const log = createLogger('LPADetailsPage');
@@ -70,17 +72,21 @@ const LPADetailsPage: React.FC = () => {
         const newErrors: Record<string, string> = {};
 
         if (!formData.lpaContactName.trim()) {
-            newErrors.lpaContactName = 'LPA contact name is required';
+            newErrors.lpaContactName = CONSULTATION_VALIDATION_MESSAGES.lpaContactName.empty;
+        } else if (!isWithinCharacterLimit(formData.lpaContactName, 4000)) {
+            newErrors.lpaContactName = CONSULTATION_VALIDATION_MESSAGES.lpaContactName.characterLimit;
+        } else if (!isValidTextFormat(formData.lpaContactName)) {
+            newErrors.lpaContactName = CONSULTATION_VALIDATION_MESSAGES.lpaContactName.invalidFormat;
         }
 
         if (!formData.lpaContactEmail.trim()) {
-            newErrors.lpaContactEmail = 'LPA contact email is required';
+            newErrors.lpaContactEmail = CONSULTATION_VALIDATION_MESSAGES.lpaContactEmail.empty;
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.lpaContactEmail)) {
-            newErrors.lpaContactEmail = 'Enter a valid email address';
+            newErrors.lpaContactEmail = CONSULTATION_VALIDATION_MESSAGES.lpaContactEmail.invalid;
         }
 
         if (formData.lpaContactPhone && !/^[\d\s\-+()]+$/.test(formData.lpaContactPhone)) {
-            newErrors.lpaContactPhone = 'Enter a valid phone number';
+            newErrors.lpaContactPhone = CONSULTATION_VALIDATION_MESSAGES.lpaContactPhone.invalid;
         }
 
         setErrors(newErrors);
@@ -168,7 +174,7 @@ const LPADetailsPage: React.FC = () => {
                 </nav>
 
                 {/* Error Summary */}
-                {submitted && Object.keys(errors).length > 0 && (
+                {submitted && Object.values(errors).some(Boolean) && (
                     <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem

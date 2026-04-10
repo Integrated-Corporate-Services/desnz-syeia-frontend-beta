@@ -5,6 +5,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { saveConsultationRequest, getConsultationRequest } from '../../../services/consultationRequestService';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { validateDateComponents } from '../../../utils/validation';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
 
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -124,7 +125,7 @@ const ConsultationRequestPage: React.FC = () => {
     
     // File validation
     if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
-      newErrors.fileUpload = 'You must upload at least one evidence document';
+      newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.consultationRequestUpload.empty;
     }
     
     setErrors(newErrors);
@@ -235,7 +236,7 @@ const ConsultationRequestPage: React.FC = () => {
           </nav>
           
           <main id="main-content">
-            {(Object.keys(errors).length > 0 || fileValidationErrors.length > 0) && (
+            {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                 <div role="alert">
                   <h2 className="govuk-error-summary__title">There is a problem</h2>

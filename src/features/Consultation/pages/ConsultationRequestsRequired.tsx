@@ -6,6 +6,7 @@ import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { useDerivedLpas } from '../../../hooks/useDerivedLpas';
 import { updateAllConsultations, createLpaConsultations } from '../../../services/consultationService';
 import { progressApiService } from '../../../services/progressApiService';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
 
 const ConsultationRequestsRequired: React.FC = () => {
@@ -53,7 +54,7 @@ const ConsultationRequestsRequired: React.FC = () => {
         const newErrors: { [key: string]: string } = {};
 
         if (!addOtherConsultations) {
-            newErrors.addOtherConsultations = 'Select yes if you want to add other consultations';
+            newErrors.addOtherConsultations = CONSULTATION_VALIDATION_MESSAGES.addOtherConsultations.empty;
         }
 
         setErrors(newErrors);
@@ -132,7 +133,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                     </nav>
 
                     <main id="main-content">
-                        {Object.keys(errors).length > 0 && (
+                        {Object.values(errors).some(Boolean) && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>

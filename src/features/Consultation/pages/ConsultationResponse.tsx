@@ -5,6 +5,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
 import type { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 
 const ConsultationResponse: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -67,22 +68,22 @@ const ConsultationResponse: React.FC = () => {
         // For PUBLIC consultations, only validate objection field
         if (consultationType === 'PUBLIC') {
             if (!hasObjection) {
-                newErrors.hasObjection = 'Select yes if there are any objections to the application';
+                newErrors.hasObjection = CONSULTATION_VALIDATION_MESSAGES.hasObjection.empty;
             }
         } else {
             // For non-PUBLIC consultations, validate all fields
             if (!contactName.trim()) {
-                newErrors.contactName = 'Enter the consultee contact name';
+                newErrors.contactName = CONSULTATION_VALIDATION_MESSAGES.consulteeContactName.empty;
             }
 
             if (!email.trim()) {
-                newErrors.email = 'Enter the consultee contact email address';
+                newErrors.email = CONSULTATION_VALIDATION_MESSAGES.consulteeEmail.empty;
             } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                newErrors.email = 'Enter an email address in the correct format, like name@example.com';
+                newErrors.email = CONSULTATION_VALIDATION_MESSAGES.consulteeEmail.invalidFormat;
             }
 
             if (!hasObjection) {
-                newErrors.hasObjection = 'Select yes if the consultee has any objections to the application';
+                newErrors.hasObjection = CONSULTATION_VALIDATION_MESSAGES.hasObjection.empty;
             }
         }
 
@@ -94,7 +95,7 @@ const ConsultationResponse: React.FC = () => {
         const newErrors: { [key: string]: string } = {};
 
         if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            newErrors.email = 'Enter an email address in the correct format, like name@example.com';
+            newErrors.email = CONSULTATION_VALIDATION_MESSAGES.consulteeEmail.invalidFormat;
         }
 
         setErrors(newErrors);
@@ -199,7 +200,7 @@ const ConsultationResponse: React.FC = () => {
                             <p className="govuk-body">Loading...</p>
                         ) : (
                             <>
-                        {Object.keys(errors).length > 0 && (
+                        {Object.values(errors).some(Boolean) && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>

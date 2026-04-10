@@ -9,6 +9,7 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import FileUpload from '../../../components/FileUpload';
 import { validateDateComponents } from '../../../utils/validation';
 import { fetchConsultationDetails } from '../../../services/consultationService';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 
 const ConsultationResponse2: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -136,8 +137,8 @@ const ConsultationResponse2: React.FC = () => {
 
         if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
             const errorMessage = consultationType === 'PUBLIC' 
-                ? 'Upload at least one document that shows public responses'
-                : 'Upload at least one document that shows the consultee\'s response';
+                ? CONSULTATION_VALIDATION_MESSAGES.responseDocumentsUpload.emptyPublic
+                : CONSULTATION_VALIDATION_MESSAGES.responseDocumentsUpload.emptyNonPublic;
             newErrors.uploadedFiles = errorMessage;
         }
 

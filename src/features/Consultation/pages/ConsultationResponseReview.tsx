@@ -5,6 +5,8 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
+import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
+import { isValidTextFormat } from '../../../utils/validation';
 
 const ConsultationResponse3: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -59,10 +61,17 @@ const ConsultationResponse3: React.FC = () => {
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
 
+        // Validate comments character limit (4,000 characters)
+        if (comments && comments.length > 4000) {
+            newErrors.comments = CONSULTATION_VALIDATION_MESSAGES.additionalComments.tooLong;
+        } else if (comments && !isValidTextFormat(comments)) {
+            newErrors.comments = CONSULTATION_VALIDATION_MESSAGES.additionalComments.invalidFormat;
+        }
+
         if (!declarationAccepted) {
             const errorMessage = consultationType === 'PUBLIC'
-                ? 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this public consultation'
-                : 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this consultation';
+                ? CONSULTATION_VALIDATION_MESSAGES.responseReviewDeclaration.emptyPublic
+                : CONSULTATION_VALIDATION_MESSAGES.responseReviewDeclaration.emptyNonPublic;
             newErrors.declaration = errorMessage;
         }
 
@@ -149,12 +158,15 @@ const ConsultationResponse3: React.FC = () => {
                             <p className="govuk-body">Loading...</p>
                         ) : (
                             <>
-                        {Object.keys(errors).length > 0 && (
+                        {Object.values(errors).some(Boolean) && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>
                                     <div className="govuk-error-summary__body">
                                         <ul className="govuk-list govuk-error-summary__list">
+                                            {errors.comments && (
+                                                <li><a href="#comments">{errors.comments}</a></li>
+                                            )}
                                             {errors.declaration && (
                                                 <li><a href="#declaration">{errors.declaration}</a></li>
                                             )}
@@ -169,7 +181,7 @@ const ConsultationResponse3: React.FC = () => {
                         <h1 className="govuk-heading-l">{consultationType === 'PUBLIC' ? 'Add additional comments about public responses (optional)' : 'Provide consultation response'}</h1>
 
                         <form noValidate>
-                            <div className="govuk-form-group">
+                            <div className={`govuk-form-group ${errors.comments ? 'govuk-form-group--error' : ''}`}>
                                 {consultationType !== 'PUBLIC' && (
                                 <h2 className="govuk-label-wrapper">
                                     <label className="govuk-label govuk-label--m" htmlFor="comments">
@@ -180,14 +192,26 @@ const ConsultationResponse3: React.FC = () => {
                                 <div id="comments-hint" className="govuk-hint">
                                     You can add any additional information or comments here.
                                 </div>
+                                {errors.comments && (
+                                    <p id="comments-error" className="govuk-error-message">
+                                        <span className="govuk-visually-hidden">Error:</span> {errors.comments}
+                                    </p>
+                                )}
                                 <textarea
-                                    className="govuk-textarea"
+                                    className={`govuk-textarea ${errors.comments ? 'govuk-textarea--error' : ''}`}
                                     id="comments"
                                     name="comments"
                                     rows={8}
-                                    aria-describedby="comments-hint"
+                                    aria-describedby={errors.comments ? "comments-hint comments-error" : "comments-hint"}
                                     value={comments}
-                                    onChange={e => setComments(e.target.value)}
+                                    onChange={e => {
+                                        setComments(e.target.value);
+                                        // Clear error when user starts typing
+                                        if (errors.comments && e.target.value.length <= 4000) {
+                                            const { comments: _comments, ...restErrors } = errors;
+                                            setErrors(restErrors);
+                                        }
+                                    }}
                                 />
                             </div>
 
