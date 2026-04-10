@@ -33,11 +33,11 @@ import {
   VALIDATION_MESSAGES,
   BUTTON_LABELS,
   EMPTY_VALUE,
-  POST_CONSULTATION_QUESTIONS,  
-  WORKS_OVERVIEW_QUESTIONS,     
-  SUPPORTING_INFO_QUESTIONS,     
-  EIA_QUESTIONS,                 
-  COMMON_TEXT 
+  POST_CONSULTATION_QUESTIONS,
+  WORKS_OVERVIEW_QUESTIONS,
+  SUPPORTING_INFO_QUESTIONS,
+  EIA_QUESTIONS,
+  COMMON_TEXT
 } from '../constants/applicationSummaryLabels';
 
 import { REQUIRED_SECTIONS } from '../constants/applicationSummaryConstants';
@@ -226,7 +226,7 @@ const ApplicationSummary: React.FC = () => {
         }
         // List of required sections
         const requiredSections = REQUIRED_SECTIONS;
-        
+
         // Helper to get nested value by path
         const getByPath = (obj: any, pathArr: readonly string[]): any =>
           pathArr.reduce((acc: any, key: string) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
@@ -767,7 +767,7 @@ const ApplicationSummary: React.FC = () => {
             {/* Assets summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Assets</h2>
+                <h2 className="govuk-summary-card__title">Assets information</h2>
 
               </div>
               <div className="govuk-summary-card__content">
@@ -826,110 +826,7 @@ const ApplicationSummary: React.FC = () => {
                 </dl>
               </div>
             </div>
-            <h2 className="govuk-heading-m">Routes</h2>
-            {/* Route map summary card*/}
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Route map
 
-                </h2>
-              </div>
-              <div className="govuk-summary-card__content">
-                <div
-                  style={{
-                    width: "100%",
-                    height: 500,
-                    border: "1px solid #b1b4b6",
-                    borderRadius: 4,
-                    overflow: "hidden",
-                    background: "#fff",
-                  }}
-                >
-                  <SensitiveAreaCheckMap
-                    routes={transformedRoutes}
-                    mode="overview"
-                  />
-                </div>
-              </div>
-            </div>
-            {/* Route summary cards */}
-            {routes.length > 0 ? (
-              <>
-                {routes.map((route, idx) => (
-                  <div
-                    className="govuk-summary-card"
-                    key={route.route_id || idx}
-                  >
-                    <div className="govuk-summary-card__title-wrapper">
-                      <h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(
-                        65 + idx,
-                      )}`}</h2>
-                    </div>
-                    <div className="govuk-summary-card__content">
-                      <table className="govuk-table govuk-!-margin-bottom-6">
-                        <thead className="govuk-table__head">
-                          <tr className="govuk-table__row">
-                            <th className="govuk-table__header">Easting</th>
-                            <th className="govuk-table__header">Northing</th>
-                          </tr>
-                        </thead>
-                        <tbody className="govuk-table__body">
-                          {Array.isArray(route.gridPoints) &&
-                            route.gridPoints.length > 0 ? (
-                            route.gridPoints.map((point, pidx) => (
-                              <tr
-                                className="govuk-table__row"
-                                key={point.point_id || pidx}
-                              >
-                                <td className="govuk-table__cell">
-                                  {point.easting}
-                                </td>
-                                <td className="govuk-table__cell">
-                                  {point.northing}
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr className="govuk-table__row">
-                              <td className="govuk-table__cell">-</td>
-                              <td className="govuk-table__cell">-</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                      {route.disconnected_route_justification && (
-                        <div className="govuk-inset-text">
-                          <strong>Disconnected route justification:</strong>{" "}
-                          {route.disconnected_route_justification}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </>
-            ) : (
-              <div className="govuk-summary-card">
-                <div className="govuk-summary-card__title-wrapper">
-                  <h2 className="govuk-summary-card__title">Route</h2>
-                </div>
-                <div className="govuk-summary-card__content">
-                  <table className="govuk-table govuk-!-margin-bottom-6">
-                    <thead className="govuk-table__head">
-                      <tr className="govuk-table__row">
-                        <th className="govuk-table__header">Easting</th>
-                        <th className="govuk-table__header">Northing</th>
-                      </tr>
-                    </thead>
-                    <tbody className="govuk-table__body">
-                      <tr className="govuk-table__row">
-                        <td className="govuk-table__cell">-</td>
-                        <td className="govuk-table__cell">-</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
             {/* Works overview summary card - dynamic mapping and conditional questions */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -1163,30 +1060,101 @@ const ApplicationSummary: React.FC = () => {
               </div>
             </div>
 
-            {/* Parishes summary card */}
+            <h2 className="govuk-heading-m">Routes</h2>
+            {/* Route map summary card*/}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Parishes</h2>
+                <h2 className="govuk-summary-card__title">Route map
 
+                </h2>
               </div>
               <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
-                  {parishes.length > 0 ? (
-                    parishes.map((parish, idx) => (
-                      <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
-                        <dt className="govuk-summary-list__key">Parish</dt>
-                        <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Parishes</dt>
-                      <dd className="govuk-summary-list__value">-</dd>
-                    </div>
-                  )}
-                </dl>
+                <div className="map-container">
+                  <SensitiveAreaCheckMap
+                    routes={transformedRoutes}
+                    mode="overview"
+                  />
+                </div>
               </div>
             </div>
+            {/* Route summary cards */}
+            {routes.length > 0 ? (
+              <>
+                {routes.map((route, idx) => (
+                  <div
+                    className="govuk-summary-card"
+                    key={route.route_id || idx}
+                  >
+                    <div className="govuk-summary-card__title-wrapper">
+                      <h2 className="govuk-summary-card__title">{`Route ${String.fromCharCode(
+                        65 + idx,
+                      )}`}</h2>
+                    </div>
+                    <div className="govuk-summary-card__content">
+                      <table className="govuk-table govuk-!-margin-bottom-6">
+                        <thead className="govuk-table__head">
+                          <tr className="govuk-table__row">
+                            <th className="govuk-table__header">Easting</th>
+                            <th className="govuk-table__header">Northing</th>
+                          </tr>
+                        </thead>
+                        <tbody className="govuk-table__body">
+                          {Array.isArray(route.gridPoints) &&
+                            route.gridPoints.length > 0 ? (
+                            route.gridPoints.map((point, pidx) => (
+                              <tr
+                                className="govuk-table__row"
+                                key={point.point_id || pidx}
+                              >
+                                <td className="govuk-table__cell">
+                                  {point.easting}
+                                </td>
+                                <td className="govuk-table__cell">
+                                  {point.northing}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr className="govuk-table__row">
+                              <td className="govuk-table__cell">-</td>
+                              <td className="govuk-table__cell">-</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                      {route.disconnected_route_justification && (
+                        <div className="govuk-inset-text">
+                          <strong>Disconnected route justification:</strong>{" "}
+                          {route.disconnected_route_justification}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className="govuk-summary-card">
+                <div className="govuk-summary-card__title-wrapper">
+                  <h2 className="govuk-summary-card__title">Route</h2>
+                </div>
+                <div className="govuk-summary-card__content">
+                  <table className="govuk-table govuk-!-margin-bottom-6">
+                    <thead className="govuk-table__head">
+                      <tr className="govuk-table__row">
+                        <th className="govuk-table__header">Easting</th>
+                        <th className="govuk-table__header">Northing</th>
+                      </tr>
+                    </thead>
+                    <tbody className="govuk-table__body">
+                      <tr className="govuk-table__row">
+                        <td className="govuk-table__cell">-</td>
+                        <td className="govuk-table__cell">-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {/* Sensitive area check summary card */}
             <div className="govuk-summary-card">
@@ -1323,104 +1291,33 @@ const ApplicationSummary: React.FC = () => {
                 </dl>
               </div>
             </div>
+
+            {/* Parishes summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION_ACTIONS}</h2>
+                <h2 className="govuk-summary-card__title">Parishes</h2>
 
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_IMPOSED}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {postConsultationOutcome?.lpa_conditions_imposed === true
-                        ? "Yes"
-                        : postConsultationOutcome?.lpa_conditions_imposed === false
-                          ? "No"
-                          : "-"}
-                    </dd>
-                  </div>
-                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
+                  {parishes.length > 0 ? (
+                    parishes.map((parish, idx) => (
+                      <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
+                        <dt className="govuk-summary-list__key">Parish</dt>
+                        <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
+                      </div>
+                    ))
+                  ) : (
                     <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_ACCEPTED}
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_accepted === true
-                          ? "Yes"
-                          : postConsultationOutcome?.lpa_conditions_accepted === false
-                            ? "No"
-                            : "-"}
-                      </dd>
+                      <dt className="govuk-summary-list__key">Parishes</dt>
+                      <dd className="govuk-summary-list__value">-</dd>
                     </div>
                   )}
-
-                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_REASON}
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
-                      </dd>
-                    </div>
-                  )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
-                    postConsultationOutcome?.consultees_recommendations_made !== null && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_RECOMMENDATIONS}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_made === true
-                            ? "Yes"
-                            : postConsultationOutcome?.consultees_recommendations_made === false
-                              ? "No"
-                              : "-"}
-                        </dd>
-                      </div>
-                    )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_made === true && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_ACCEPTED}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_accepted === true
-                            ? "Yes"
-                            : postConsultationOutcome?.consultees_recommendations_accepted === false
-                              ? "No"
-                              : "-"}
-                        </dd>
-                      </div>
-                    )}
-
-                  {/* ADD: lpa_conditions_accepted !== true */}
-                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
-                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
-                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_REASON}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
-                        </dd>
-                      </div>
-                    )}
                 </dl>
               </div>
             </div>
+
+
             <h2 className="govuk-heading-m">Supporting information</h2>
             {/* Supporting information summary card - fixed to use state variables and map correct questions/answers */}
             <div className="govuk-summary-card">
@@ -1958,7 +1855,107 @@ const ApplicationSummary: React.FC = () => {
                   </div>
                 );
               })
-            }            
+            }
+
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION_ACTIONS}</h2>
+
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_IMPOSED}
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {postConsultationOutcome?.lpa_conditions_imposed === true
+                        ? "Yes"
+                        : postConsultationOutcome?.lpa_conditions_imposed === false
+                          ? "No"
+                          : "-"}
+                    </dd>
+                  </div>
+                  {postConsultationOutcome?.lpa_conditions_imposed === true && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_ACCEPTED}
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_accepted === true
+                          ? "Yes"
+                          : postConsultationOutcome?.lpa_conditions_accepted === false
+                            ? "No"
+                            : "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  {postConsultationOutcome?.lpa_conditions_accepted === false && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        {POST_CONSULTATION_QUESTIONS.LPA_CONDITIONS_REASON}
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {postConsultationOutcome?.lpa_conditions_not_accepted_reason || "-"}
+                      </dd>
+                    </div>
+                  )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made !== undefined &&
+                    postConsultationOutcome?.consultees_recommendations_made !== null && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_RECOMMENDATIONS}
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_made === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_made === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_made === true && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_ACCEPTED}
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_accepted === true
+                            ? "Yes"
+                            : postConsultationOutcome?.consultees_recommendations_accepted === false
+                              ? "No"
+                              : "-"}
+                        </dd>
+                      </div>
+                    )}
+
+                  {/* ADD: lpa_conditions_accepted !== true */}
+                  {postConsultationOutcome?.lpa_conditions_imposed !== false &&
+                    postConsultationOutcome?.lpa_conditions_accepted !== true &&
+                    postConsultationOutcome?.consultees_recommendations_accepted === false && (
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          {POST_CONSULTATION_QUESTIONS.CONSULTEES_REASON}
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {postConsultationOutcome?.consultees_recommendations_not_accepted_reason || "-"}
+                        </dd>
+                      </div>
+                    )}
+                </dl>
+              </div>
+            </div>
+
             {/* Submit application form */}
             {permissions?.canEdit && (
               <div
