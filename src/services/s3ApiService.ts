@@ -110,7 +110,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   const refreshTimer = setTimeout(() => {
     // Skip refresh if page is hidden (user switched tabs)
     if (!isPageVisible) {
-      console.log(`[S3 Auto-Refresh] ⏸️ Skipping refresh for "${filename}" - page is hidden`);
+      console.log(`[S3 Auto-Refresh] Skipping refresh for "${filename}" - page is hidden`);
       return;
     }
     
@@ -124,7 +124,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
         if (!res.ok) {
           // Handle 401 gracefully - don't trigger redirect, just invalidate cache
           if (res.status === 401) {
-            console.warn(`[S3 Auto-Refresh] ⚠️ Session expired for "${filename}" - cache cleared`);
+            console.warn(`[S3 Auto-Refresh] Session expired for "${filename}" - cache cleared`);
             urlCache.delete(filename);
             return;
           }
@@ -135,14 +135,14 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
       .then((data) => {
         if (!data) return; // 401 case, already handled
         const newExpiresAt = Date.now() + (S3_URL_EXPIRY_SECONDS * 1000);
-        console.log(`[S3 Auto-Refresh] ✅ Successfully refreshed URL for "${filename}"`);
+        console.log(`[S3 Auto-Refresh] Successfully refreshed URL for "${filename}"`);
         urlCache.set(filename, {
           url: data.url,
           expiresAt: newExpiresAt,
         });
       })
       .catch((err) => {
-        console.error(`[S3 Auto-Refresh] ❌ Failed to refresh URL for "${filename}":`, err);
+        console.error(`[S3 Auto-Refresh] Failed to refresh URL for "${filename}":`, err);
         urlCache.delete(filename);
       });
   }, refreshInterval);
@@ -222,7 +222,7 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
   const refreshTimer = setTimeout(() => {
     // Skip refresh if page is hidden (user switched tabs)
     if (!isPageVisible) {
-      console.log(`[S3 Auto-Refresh] ⏸️ Skipping refresh for download URL "${filename}" - page is hidden`);
+      console.log(`[S3 Auto-Refresh] Skipping refresh for download URL "${filename}" - page is hidden`);
       return;
     }
     
@@ -236,7 +236,7 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
         if (!res.ok) {
           // Handle 401 gracefully - don't trigger redirect, just invalidate cache
           if (res.status === 401) {
-            console.warn(`[S3 Auto-Refresh] ⚠️ Session expired for download URL "${filename}" - cache cleared`);
+            console.warn(`[S3 Auto-Refresh] Session expired for download URL "${filename}" - cache cleared`);
             urlCache.delete(cacheKey);
             return;
           }
@@ -247,14 +247,14 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
       .then((data) => {
         if (!data) return; // 401 case, already handled
         const newExpiresAt = Date.now() + (S3_URL_EXPIRY_SECONDS * 1000);
-        console.log(`[S3 Auto-Refresh] ✅ Successfully refreshed download URL for "${filename}"`);
+        console.log(`[S3 Auto-Refresh] Successfully refreshed download URL for "${filename}"`);
         urlCache.set(cacheKey, {
           url: data.url,
           expiresAt: newExpiresAt,
         });
       })
       .catch((err) => {
-        console.error(`[S3 Auto-Refresh] ❌ Failed to refresh download URL for "${filename}":`, err);
+        console.error(`[S3 Auto-Refresh] Failed to refresh download URL for "${filename}":`, err);
         urlCache.delete(cacheKey);
       });
   }, refreshInterval);
