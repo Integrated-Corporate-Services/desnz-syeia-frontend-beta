@@ -27,7 +27,7 @@ import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
 
 import {
-  // PAGE_LABELS,
+  PAGE_LABELS,
   SECTION_HEADINGS,
   FIELD_LABELS,
   VALIDATION_MESSAGES,
@@ -186,11 +186,11 @@ const ApplicationSummary: React.FC = () => {
   const getAssetPresenceText = (optionId?: number) => {
     switch (optionId) {
       case 1:
-        return "There are poles within the sensitive areas";
+        return FIELD_LABELS.POLES_WITHIN_SENSITIVE_AREAS;
       case 2:
-        return "All poles are outside of the sensitive areas with only the overhead lines passing above them";
+        return FIELD_LABELS.POLES_OUTSIDE_SENSITIVE_AREAS;
       case 3:
-        return "No poles are within a sensitive area and no overhead lines pass above them";
+        return FIELD_LABELS.NO_POLES_SENSITIVE_AREAS;
       default:
         return "-";
     }
@@ -212,7 +212,7 @@ const ApplicationSummary: React.FC = () => {
         setApplicationMetadata({
           desnzRef: data.desnzRef || data.applicationId,
           formType: formatCaseType(data.formType),
-          status: formatStatus(data.sections?.networkOperator?.details?.status)
+          status: formatStatus(data.status)
         });
 
         // payment details
@@ -447,7 +447,7 @@ const ApplicationSummary: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
             <h1 className="govuk-heading-xl">
-              Application summary
+              {PAGE_LABELS.TITLE}
             </h1>
 
             {/* ===== Summary Section ===== */}
@@ -660,11 +660,11 @@ const ApplicationSummary: React.FC = () => {
             </div>
 
             {/* Project details summary card */}
-            <h2 className="govuk-heading-m">Project details</h2>
+            <h2 className="govuk-heading-m">{SECTION_HEADINGS.PROJECT_DETAILS}</h2>
             {/* Project overview summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Project overview</h2>
+                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.PROJECT_OVERVIEW}</h2>
 
               </div>
               <div className="govuk-summary-card__content">
@@ -727,7 +727,7 @@ const ApplicationSummary: React.FC = () => {
                   </div>
                   <div className="govuk-summary-list__row govuk-summary-list__row--no-actions ">
                     <dt className="govuk-summary-list__key">
-                      Plan information documents
+                      {FIELD_LABELS.PLAN_INFO_DOCS}
                     </dt>
                     <dd className="govuk-summary-list__value">
                       <ul className="govuk-list">
@@ -767,7 +767,7 @@ const ApplicationSummary: React.FC = () => {
             {/* Assets summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Assets information</h2>
+                <h2 className="govuk-summary-card__title">{FIELD_LABELS.ASSET_INFORMATION}</h2>
 
               </div>
               <div className="govuk-summary-card__content">
@@ -780,7 +780,7 @@ const ApplicationSummary: React.FC = () => {
                     <React.Fragment key={asset.asset_id || idx}>
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
-                          Standard specification reference number
+                          {FIELD_LABELS.STANDARD_SPEC_REF}
                         </dt>
                         <dd className="govuk-summary-list__value">
                           {asset.standard_specification_reference_number || "-"}
@@ -788,7 +788,7 @@ const ApplicationSummary: React.FC = () => {
                       </div>
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
-                          Type of Line
+                          {FIELD_LABELS.TYPE_OF_LINE}
                         </dt>
                         <dd className="govuk-summary-list__value">
                           {asset.type_of_line
@@ -800,7 +800,7 @@ const ApplicationSummary: React.FC = () => {
                       {asset.type_of_line?.toLowerCase() === "transmission" && (
                         <div className="govuk-summary-list__row">
                           <dt className="govuk-summary-list__key">
-                            TORI/NOI code for this project
+                            {FIELD_LABELS.TORI_NOI_CODE}
                           </dt>
                           <dd className="govuk-summary-list__value">
                             {asset.tori_noi_code || "-"}
@@ -809,14 +809,14 @@ const ApplicationSummary: React.FC = () => {
                       )}
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
-                          Line voltage
+                          {FIELD_LABELS.LINE_VOLTAGE}
                         </dt>
                         <dd className="govuk-summary-list__value">
                           {asset.line_voltage || "-"}
                         </dd>
                       </div>
                       <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">Line length</dt>
+                        <dt className="govuk-summary-list__key">{FIELD_LABELS.LINE_LENGTH}</dt>
                         <dd className="govuk-summary-list__value">
                           {asset.line_length || "-"}
                         </dd>
@@ -830,7 +830,7 @@ const ApplicationSummary: React.FC = () => {
             {/* Works overview summary card - dynamic mapping and conditional questions */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Works overview</h2>
+                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.WORKS_OVERVIEW}</h2>
 
               </div>
               <div className="govuk-summary-card__content">
@@ -955,7 +955,7 @@ const ApplicationSummary: React.FC = () => {
                   {/* Excavation works */}
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">
-                      Are excavation works required?
+                      {WORKS_OVERVIEW_QUESTIONS.EXCAVATION_REQUIRED}
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof worksOverview?.excavationRequired === "boolean"
@@ -1060,13 +1060,11 @@ const ApplicationSummary: React.FC = () => {
               </div>
             </div>
 
-            <h2 className="govuk-heading-m">Routes</h2>
+            <h2 className="govuk-heading-m">{SECTION_HEADINGS.ROUTES}</h2>
             {/* Route map summary card*/}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Route map
-
-                </h2>
+                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.ROUTE_MAP}</h2>
               </div>
               <div className="govuk-summary-card__content">
                 <div className="map-container">
@@ -1094,8 +1092,8 @@ const ApplicationSummary: React.FC = () => {
                       <table className="govuk-table govuk-!-margin-bottom-6">
                         <thead className="govuk-table__head">
                           <tr className="govuk-table__row">
-                            <th className="govuk-table__header">Easting</th>
-                            <th className="govuk-table__header">Northing</th>
+                            <th className="govuk-table__header">{FIELD_LABELS.EASTING}</th>
+                            <th className="govuk-table__header">{FIELD_LABELS.NORTHING}</th>
                           </tr>
                         </thead>
                         <tbody className="govuk-table__body">
@@ -1124,7 +1122,7 @@ const ApplicationSummary: React.FC = () => {
                       </table>
                       {route.disconnected_route_justification && (
                         <div className="govuk-inset-text">
-                          <strong>Disconnected route justification:</strong>{" "}
+                          <strong>{FIELD_LABELS.DISCONNECTED_JUSTIFICATION}:</strong>{" "}
                           {route.disconnected_route_justification}
                         </div>
                       )}
@@ -1135,14 +1133,14 @@ const ApplicationSummary: React.FC = () => {
             ) : (
               <div className="govuk-summary-card">
                 <div className="govuk-summary-card__title-wrapper">
-                  <h2 className="govuk-summary-card__title">Route</h2>
+                  <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.ROUTE}</h2>
                 </div>
                 <div className="govuk-summary-card__content">
                   <table className="govuk-table govuk-!-margin-bottom-6">
                     <thead className="govuk-table__head">
                       <tr className="govuk-table__row">
-                        <th className="govuk-table__header">Easting</th>
-                        <th className="govuk-table__header">Northing</th>
+                        <th className="govuk-table__header">{FIELD_LABELS.EASTING}</th>
+                        <th className="govuk-table__header">{FIELD_LABELS.NORTHING}</th>
                       </tr>
                     </thead>
                     <tbody className="govuk-table__body">
@@ -1160,14 +1158,14 @@ const ApplicationSummary: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
-                  Sensitive area check
+                  {SECTION_HEADINGS.SENSITIVE_AREA_CHECK}
                 </h2>
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">
-                      Tolerance required
+                      {FIELD_LABELS.TOLERANCE_REQUIRED}
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {typeof sensitiveAreaChecks?.tolerance_required ===
@@ -1207,7 +1205,7 @@ const ApplicationSummary: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
-                  Sensitive area review
+                  {SECTION_HEADINGS.SENSITIVE_AREA_REVIEW}
                 </h2>
 
               </div>
@@ -1295,7 +1293,7 @@ const ApplicationSummary: React.FC = () => {
             {/* Parishes summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Parishes</h2>
+                <h2 className="govuk-summary-card__title">{FIELD_LABELS.PARISHES}</h2>
 
               </div>
               <div className="govuk-summary-card__content">
@@ -1303,13 +1301,13 @@ const ApplicationSummary: React.FC = () => {
                   {parishes.length > 0 ? (
                     parishes.map((parish, idx) => (
                       <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
-                        <dt className="govuk-summary-list__key">Parish</dt>
+                        <dt className="govuk-summary-list__key">{FIELD_LABELS.PARISH}</dt>
                         <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
                       </div>
                     ))
                   ) : (
                     <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Parishes</dt>
+                      <dt className="govuk-summary-list__key">{FIELD_LABELS.PARISHES}</dt>
                       <dd className="govuk-summary-list__value">-</dd>
                     </div>
                   )}
@@ -1318,7 +1316,7 @@ const ApplicationSummary: React.FC = () => {
             </div>
 
 
-            <h2 className="govuk-heading-m">Supporting information</h2>
+            <h2 className="govuk-heading-m">{SECTION_HEADINGS.SUPPORTING_INFORMATION}</h2>
             {/* Supporting information summary card - fixed to use state variables and map correct questions/answers */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -1395,7 +1393,7 @@ const ApplicationSummary: React.FC = () => {
                   </div>
                   <div className="govuk-summary-list__row govuk-summary-list__row--no-actions ">
                     <dt className="govuk-summary-list__key">
-                      {SUPPORTING_INFO_QUESTIONS.SUPPORTING_INFO_DOCS}
+                      {FIELD_LABELS.SUPPORTING_DOCS}
                     </dt>
                     <dd className="govuk-summary-list__value">
                       <ul className="govuk-list">
@@ -1473,14 +1471,14 @@ const ApplicationSummary: React.FC = () => {
                 </dl>
               </div>
             </div>
-            <h2 className="govuk-heading-m">Consultation</h2>
+            <h2 className="govuk-heading-m">{SECTION_HEADINGS.CONSULTATION}</h2>
             {consultations
               .filter(c => c.status === "Not required")
               .map((consultation, idx) => (
                 <div className="govuk-summary-card" key={consultation.id || idx}>
                   <div className="govuk-summary-card__title-wrapper">
                     <h2 className="govuk-summary-card__title">
-                      {consultation.consulteeOrganisationName || "Consultation"}
+                      {consultation.consulteeOrganisationName || SECTION_HEADINGS.CONSULTATION}
                     </h2>
                   </div>
                   <div className="govuk-summary-card__content">
@@ -1856,10 +1854,10 @@ const ApplicationSummary: React.FC = () => {
                 );
               })
             }
-
+            <h2 className="govuk-heading-m">{SECTION_HEADINGS.POST_CONSULTATION}</h2>
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION_ACTIONS}</h2>
+                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION}</h2>
 
               </div>
               <div className="govuk-summary-card__content">
