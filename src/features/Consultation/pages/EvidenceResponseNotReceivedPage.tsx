@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { getConsultationResponse } from '../../../services/consultationResponseService';
@@ -30,6 +30,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
     const [uploadedFileObjs, setUploadedFileObjs] = useState<UploadedFile[]>([]);
     const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+    const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
     const [formData, setFormData] = useState<EvidenceData>({
         declarationAccepted: false,
@@ -43,7 +44,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     const [comments, setComments] = useState<string>('');
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>(consultationNameParam);
-    const fileUploadRef = useRef<{ focus: () => void } | null>(null);
+    const fileUploadRef = useRef<FileUploadHandle>(null);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -82,10 +83,16 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         }
     }, [applicationId, consultationId, user?.user_id]);
 
-    // Debug effect to track uploadedFileObjs changes
+    // Clear file upload error when pending files are added
     useEffect(() => {
-        // Track uploaded file objects for state management
-    }, [uploadedFileObjs]);
+        if (pendingFiles.length > 0 || uploadedFileObjs.length > 0) {
+            setErrors(prev => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { files: _files, ...rest } = prev;
+                return rest;
+            });
+        }
+    }, [pendingFiles.length, uploadedFileObjs.length]);
 
     useEffect(() => {
         setErrors({});
@@ -166,17 +173,47 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     const handleCloseConsultation = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitted(true);
-        if (!validateForm()) {
-            const errorSummary = document.getElementById('error-summary');
-            if (errorSummary) {
-                errorSummary.focus();
-                errorSummary.scrollIntoView({ block: 'start' });
-            }
-            return;
-        }
-
         setLoading(true);
+
         try {
+            // STEP 1: Upload pending files to S3 FIRST (before validation)
+            let newlyUploadedFiles: UploadedFile[] = [];
+            let newlyUploadedDocuments: ApplicationDocument[] = [];
+            
+            if (fileUploadRef.current && pendingFiles.length > 0) {
+                logger.debug('[EvidenceResponseNotReceivedPage] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
+                const result = await fileUploadRef.current.triggerUpload();
+                newlyUploadedFiles = result.uploadedFiles;
+                newlyUploadedDocuments = result.applicationDocuments;
+                logger.info('[EvidenceResponseNotReceivedPage] Pending files uploaded successfully');
+            }
+
+            // STEP 2: Now validate after files are uploaded
+            const totalUploadedFiles = uploadedFileObjs.length + newlyUploadedFiles.length;
+            const newErrors: Record<string, string> = {};
+
+            if (totalUploadedFiles === 0) {
+                newErrors.files = CONSULTATION_VALIDATION_MESSAGES.evidenceNotReceivedUpload.empty;
+            }
+
+            if (!formData.declarationAccepted) {
+                newErrors.declaration = CONSULTATION_VALIDATION_MESSAGES.evidenceNotReceivedDeclaration.empty;
+            }
+
+            // Check for validation errors
+            if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
+                setErrors(newErrors);
+                setSubmitError('');
+                const errorSummary = document.getElementById('error-summary');
+                if (errorSummary) {
+                    errorSummary.focus();
+                    errorSummary.scrollIntoView({ block: 'start' });
+                }
+                setLoading(false);
+                return;
+            }
+
+            // STEP 3: Build and save payload
             // Fetch existing data to preserve all fields
             const existingData = await getConsultationResponse(consultationId!, applicationId);
 
@@ -188,8 +225,8 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 last_updated_by: user?.user_id,
                 has_all_documents_uploaded: formData.declarationAccepted,
                 // Store evidence of response not received files
-                uploaded_files: uploadedFileObjs,
-                application_documents: applicationDocuments.length > 0 ? applicationDocuments : existingData.application_documents,
+                uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
+                application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
                 // CRITICAL: Explicitly set these to undefined to clear any previous response data
                 response_full_name: undefined,
                 response_email_address: undefined,
@@ -199,8 +236,9 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 isSave: false,
             };
 
-            // Save the consultation response
+            logger.debug('[EvidenceResponseNotReceivedPage] Saving consultation response');
             await saveConsultationResponse(payload, applicationId);
+            logger.info('[EvidenceResponseNotReceivedPage] Consultation response saved successfully');
 
             // Success handling
             setErrors({});
@@ -208,6 +246,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
             logger.error('Error closing consultation:', err);
+            alert(`Failed to close consultation: ${err instanceof Error ? err.message : 'Unknown error'}`);
         } finally {
             setLoading(false);
         }
@@ -309,55 +348,20 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                 )}
 
                                 <FileUpload
+                                    ref={fileUploadRef}
                                     title=""
                                     prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}/${consultationId}`}
                                     applicationId={applicationId}
-                                    category={FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}  // CHANGED THIS LINE
+                                    category={FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}
                                     addedBy={user?.user_id || ''}
                                     uploadedFiles={uploadedFileObjs}
-                                    onValidationErrors={handleFileValidationErrors}
-                                    onUploaded={(files, docs) => {
-                                        // Handle file upload completion
-                                        
-                                        setUploadedFileObjs((prev) => {
-                                            const updated = [...prev, ...files];
-                                            return updated;
-                                        });
-                                        
-                                        setApplicationDocuments((prev) => {
-                                            const updated = [...prev, ...docs];
-                                            return updated;
-                                        });
-                                        
-                                        // Clear file error - remove the key from errors object
-                                        if (errors.files) {
-                                            setErrors((prev) => {
-                                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                const { files: _files, ...rest } = prev;
-                                                return rest;
-                                            });
-                                        }
-                                        setSubmitted(false);
-                                        
-                                        // File upload completion
-                                    }}
                                     onRemoveFile={(idx) => {
-                                        setUploadedFileObjs((objs) => {
-                                            const newObjs = objs.filter((_, i) => i !== idx);
-                                            // Clear file error and reset submitted if no files left
-                                            if (newObjs.length === 0 && errors.files) {
-                                                setErrors((prev) => {
-                                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                    const { files: _files, ...rest } = prev;
-                                                    return rest;
-                                                });
-                                            }
-                                            setSubmitted(false);
-                                            return newObjs;
-                                        });
-                                        setApplicationDocuments((docs) => docs.filter((_, i) => i !== idx));
+                                        setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
+                                        setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
                                     }}
+                                    onValidationErrors={handleFileValidationErrors}
                                     consultationId={consultationId}
+                                    onPendingFilesChange={(files) => setPendingFiles(files)}
                                 />
                             </div>
 

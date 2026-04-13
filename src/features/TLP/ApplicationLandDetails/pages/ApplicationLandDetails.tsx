@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import FileUpload from '../../../../components/FileUpload';
-// Use the advanced FileUpload component from ProjectOverview
+import React, { useState, useRef } from "react";
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import { UploadedFile } from '../../../../types/fileUpload';
 import { FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { Link, useParams } from "react-router-dom";
 import { TLP_BASE_URL } from "../../../../constants/tlp";
@@ -10,6 +10,8 @@ const ApplicationLandDetails: React.FC = () => {
 	// Example values for required props
 	const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 	const [, setApplicationDocuments] = useState<any[]>([]);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+	const fileUploadRef = useRef<FileUploadHandle>(null);
 	// Form state
 	const [applicationType, setApplicationType] = useState("");
 	const [networkOperatorReference, setNetworkOperatorReference] = useState("");
@@ -45,11 +47,14 @@ const ApplicationLandDetails: React.FC = () => {
 	};
 
 	// Validation
-	const validate = () => {
+	const validate = (hasNewlyUploadedFiles: boolean = false) => {
 		const newErrors: {[key:string]:string} = {};
 		if (!networkOperatorReference) newErrors.networkOperatorReference = "Enter your internal reference number or code";
 		if (!applicationType || applicationType === "select") newErrors.applicationType = "Select an application type";
-		if (!fileUpload1) newErrors.fileUpload1 = "Upload a document to support your application";
+		// Check if files exist or were just uploaded
+		if (!hasNewlyUploadedFiles && uploadedFiles.length === 0) {
+			newErrors.fileUpload1 = "Upload a document to support your application";
+		}
 		if (!landLocation || landLocation === "updated") newErrors.landLocation = "Select a land location";
 		if (!landRegistry) newErrors.landRegistry = "Select if the land registered with the Land Registry";
 		if (landRegistry === "yes" && !landRegistryRef) newErrors.landRegistryRef = "Enter the reference number";
@@ -57,9 +62,6 @@ const ApplicationLandDetails: React.FC = () => {
 		if (!publicRoad) newErrors.publicRoad = "Select if the equipment can be seen from a public road";
 		if (!fileSiteUpload) newErrors.fileSiteUpload = "Upload site photographs to support your application";
 		// File type validation (jpg/jpeg only)
-		if (fileUpload1 && !["jpg","jpeg"].includes(fileUpload1.name.split('.').pop()?.toLowerCase() || "")) {
-			newErrors.fileUpload1 = "Upload a JPG or JPEG site photograph";
-		}
 		if (fileSiteUpload && !["jpg","jpeg"].includes(fileSiteUpload.name.split('.').pop()?.toLowerCase() || "")) {
 			newErrors.fileSiteUpload = "Upload a JPG or JPEG site photograph";
 		}
@@ -67,9 +69,18 @@ const ApplicationLandDetails: React.FC = () => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (validate()) {
+		
+		// Upload pending files to S3 first and capture the result
+		let newlyUploadedFiles: UploadedFile[] = [];
+		
+		if (fileUploadRef.current && pendingFiles.length > 0) {
+			const result = await fileUploadRef.current.triggerUpload();
+			newlyUploadedFiles = result.uploadedFiles;
+		}
+		
+		if (validate(newlyUploadedFiles.length > 0)) {
 			// Submit logic here
 			// ...
 		}
@@ -132,6 +143,7 @@ const ApplicationLandDetails: React.FC = () => {
 									Upload any documents to support your application
 								</label>
 								<FileUpload
+									ref={fileUploadRef}
 									title=""
 									prefix={`${applicationId}/${FILE_CATEGORIES.APPLICATION_LAND_DETAILS}`}
 									uploadedFiles={uploadedFiles}
@@ -139,6 +151,7 @@ const ApplicationLandDetails: React.FC = () => {
 										setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));
 										setApplicationDocuments(prev => ([...(prev || []), ...newDocuments]));
 									}}
+									onPendingFilesChange={(files) => setPendingFiles(files)}
 								/>
 								<div className="govuk-hint govuk-!-margin-top-1">
 									For example:

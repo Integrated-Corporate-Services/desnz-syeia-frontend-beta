@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -33,7 +33,8 @@ const PublicNoticesEvidence: React.FC = () => {
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
-  const fileUploadRef = useRef<HTMLDivElement>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const fileUploadRef = useRef<FileUploadHandle>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -164,8 +165,8 @@ const PublicNoticesEvidence: React.FC = () => {
       }
     }
 
-    // File validation
-    if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
+    // File validation - check both uploaded files AND pending files
+    if ((!uploadedFileObjs || uploadedFileObjs.length === 0) && pendingFiles.length === 0) {
       newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.publicNoticeUpload.empty;
     }
 
@@ -186,22 +187,35 @@ const PublicNoticesEvidence: React.FC = () => {
       return;
     }
 
-    const firstDate = `${firstDateYear}-${firstDateMonth.padStart(2, '0')}-${firstDateDay.padStart(2, '0')}`;
-    const secondDate = `${secondDateYear}-${secondDateMonth.padStart(2, '0')}-${secondDateDay.padStart(2, '0')}`;
-
-    const payload = {
-      applicationId: applicationId || '',
-      consultationId: consultationId || '',
-      sentDate: firstDate,
-      secondDate: secondDate,
-      uploadedFiles: uploadedFileObjs,
-      applicationDocuments: applicationDocuments,
-      createdBy: user?.user_id || '',
-      lastUpdatedBy: user?.user_id || '',
-      status: ConsultationStatus.REQUEST_SENT,
-    };
-
     try {
+      // Track newly uploaded files
+      let newlyUploadedFiles: UploadedFile[] = [];
+      let newlyUploadedDocuments: ApplicationDocument[] = [];
+      
+      // Upload pending files to S3 before saving
+      if (fileUploadRef.current && pendingFiles.length > 0) {
+        log.debug('[PublicNoticesEvidence] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
+        const result = await fileUploadRef.current.triggerUpload();
+        newlyUploadedFiles = result.uploadedFiles;
+        newlyUploadedDocuments = result.applicationDocuments;
+        log.info('[PublicNoticesEvidence] Pending files uploaded successfully');
+      }
+
+      const firstDate = `${firstDateYear}-${firstDateMonth.padStart(2, '0')}-${firstDateDay.padStart(2, '0')}`;
+      const secondDate = `${secondDateYear}-${secondDateMonth.padStart(2, '0')}-${secondDateDay.padStart(2, '0')}`;
+
+      const payload = {
+        applicationId: applicationId || '',
+        consultationId: consultationId || '',
+        sentDate: firstDate,
+        secondDate: secondDate,
+        uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
+        applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments],
+        createdBy: user?.user_id || '',
+        lastUpdatedBy: user?.user_id || '',
+        status: ConsultationStatus.REQUEST_SENT,
+      };
+
       log.debug('[PublicNoticesEvidence] Saving public notices evidence', { status: ConsultationStatus.REQUEST_SENT });
       await saveConsultationRequest(payload);
       log.info('[PublicNoticesEvidence] Public notices evidence saved successfully');
@@ -584,6 +598,7 @@ const PublicNoticesEvidence: React.FC = () => {
                   </p>
                 )}
                 <FileUpload
+                  ref={fileUploadRef}
                   title=""
                   prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_REQUEST}/${consultationId}`}
                   applicationId={applicationId}
@@ -599,6 +614,7 @@ const PublicNoticesEvidence: React.FC = () => {
                   }}
                   onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
+                  onPendingFilesChange={(files) => setPendingFiles(files)}
                 />
               </div>
 

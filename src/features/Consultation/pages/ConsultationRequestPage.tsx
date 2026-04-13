@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { saveConsultationRequest, getConsultationRequest } from '../../../services/consultationRequestService';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
@@ -24,6 +24,8 @@ const ConsultationRequestPage: React.FC = () => {
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const fileUploadRef = useRef<FileUploadHandle>(null);
   const { user } = useAuthUser();
   const navigate = useNavigate();
 
@@ -32,19 +34,6 @@ const ConsultationRequestPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
   
-  // Handler for FileUpload onUploaded
-  const handleUploadedFiles = (uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[]) => {
-    setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
-    setApplicationDocuments(prev => [...prev, ...applicationDocuments]);
-    // Clear validation errors when files are uploaded - remove the key from errors object
-    setErrors(prev => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { fileUpload: _fileUpload, ...rest } = prev;
-      return rest;
-    });
-    setFileValidationErrors([]);
-  };
-
   // Handle file validation errors from FileUpload component
   const handleFileValidationErrors = (errors: string[]) => {
     setFileValidationErrors(errors);
@@ -113,6 +102,17 @@ const ConsultationRequestPage: React.FC = () => {
     fetchData();
   }, [applicationId, consultationId]);
 
+  // Clear file upload error when pending files are added
+  React.useEffect(() => {
+    if (pendingFiles.length > 0 || uploadedFileObjs.length > 0) {
+      setErrors(prev => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { fileUpload: _fileUpload, ...rest } = prev;
+        return rest;
+      });
+    }
+  }, [pendingFiles.length, uploadedFileObjs.length]);
+
   // Validation function
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -123,8 +123,10 @@ const ConsultationRequestPage: React.FC = () => {
       newErrors.responseDate = dateValidation.error!;
     }
     
-    // File validation
-    if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
+    // File validation - check both uploaded files AND pending files
+    const hasFiles = (uploadedFileObjs && uploadedFileObjs.length > 0) || pendingFiles.length > 0;
+    
+    if (!hasFiles) {
       newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.consultationRequestUpload.empty;
     }
     
@@ -149,37 +151,72 @@ const ConsultationRequestPage: React.FC = () => {
   // Save and Continue handler (with validation)
   const handleSaveAndContinue = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      // Scroll to error summary
-      const errorSummary = document.getElementById('error-summary');
-      if (errorSummary) {
-        errorSummary.focus();
-        errorSummary.scrollIntoView({block: 'start' });
-      }
-      return;
-    }
-    let sentDate = '';
-    if (responseDate.year && responseDate.month && responseDate.day) {
-      sentDate = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
-    }
-    const payload = {
-      applicationId: applicationId || '',
-      consultationId: consultationId || '',
-      sentDate: sentDate,
-      uploadedFiles: uploadedFileObjs,
-      applicationDocuments: applicationDocuments,
-      createdBy: user?.user_id || '',
-      lastUpdatedBy: user?.user_id || '',
-      status: ConsultationStatus.REQUEST_SENT,
-    };
+
     try {
+      // STEP 1: Upload pending files to S3 FIRST (before validation)
+      let newlyUploadedFiles: UploadedFile[] = [];
+      let newlyUploadedDocuments: ApplicationDocument[] = [];
+      
+      if (fileUploadRef.current && pendingFiles.length > 0) {
+        log.debug('[ConsultationRequestPage] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
+        const result = await fileUploadRef.current.triggerUpload();
+        newlyUploadedFiles = result.uploadedFiles;
+        newlyUploadedDocuments = result.applicationDocuments;
+        log.info('[ConsultationRequestPage] Pending files uploaded successfully');
+      }
+
+      // STEP 2: Now validate after files are uploaded
+      const totalUploadedFiles = uploadedFileObjs.length + newlyUploadedFiles.length;
+      
+      // Date validation
+      const dateValidation = validateDateComponents(responseDate, 'consultation request', { required: true });
+      const newErrors: { [key: string]: string } = {};
+      
+      if (!dateValidation.isValid) {
+        newErrors.responseDate = dateValidation.error!;
+      }
+      
+      // File validation - check if we have files after upload
+      if (totalUploadedFiles === 0) {
+        newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.consultationRequestUpload.empty;
+      }
+      
+      // Check for file validation errors
+      if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
+        setErrors(newErrors);
+        const errorSummary = document.getElementById('error-summary');
+        if (errorSummary) {
+          errorSummary.focus();
+          errorSummary.scrollIntoView({block: 'start' });
+        }
+        return;
+      }
+
+      // STEP 3: Build and save payload
+      let sentDate = '';
+      if (responseDate.year && responseDate.month && responseDate.day) {
+        sentDate = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
+      }
+      
+      const payload = {
+        applicationId: applicationId || '',
+        consultationId: consultationId || '',
+        sentDate: sentDate,
+        uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
+        applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments],
+        createdBy: user?.user_id || '',
+        lastUpdatedBy: user?.user_id || '',
+        status: ConsultationStatus.REQUEST_SENT,
+      };
+      
       log.debug('[ConsultationRequestPage] Saving consultation request', { status: ConsultationStatus.REQUEST_SENT });
       await saveConsultationRequest(payload);
       log.info('[ConsultationRequestPage] Consultation request saved successfully');
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } catch (error) {
+      console.error('Save failed:', error);
       log.error('[ConsultationRequestPage] Error saving consultation request:', error);
+      alert(`Failed to save consultation request: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -366,6 +403,7 @@ const ConsultationRequestPage: React.FC = () => {
                   </p>
                 )}
                 <FileUpload
+                  ref={fileUploadRef}
                   title=""
                   prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_REQUEST}/${consultationId}`}
                   applicationId={applicationId}
@@ -376,11 +414,9 @@ const ConsultationRequestPage: React.FC = () => {
                     setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
                     setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
                   }}
-                  onUploaded={(files, docs) => {
-                    handleUploadedFiles(files, docs);
-                  }}
                   onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
+                  onPendingFilesChange={(files) => setPendingFiles(files)}
                 />
               </div>
               

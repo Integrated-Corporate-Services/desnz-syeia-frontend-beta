@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import FileUpload from '../../../../components/FileUpload';
+import React, { useState, useRef } from "react";
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import { UploadedFile } from '../../../../types/fileUpload';
 import { TLP_BASE_URL } from "../../../../constants/tlp";
 import { Link, useParams } from "react-router-dom";
 
@@ -9,6 +10,8 @@ const Negotiations: React.FC = () => {
   const [moreDetail, setMoreDetail] = useState("");
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<{[key:string]:string}>({});
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const fileUploadRef = useRef<FileUploadHandle>(null);
     const params = useParams();
 	  const getApplicationId = () => {
 		if (params.applicationId) return params.applicationId;
@@ -22,22 +25,34 @@ const Negotiations: React.FC = () => {
 	  };
 	  const applicationId = getApplicationId();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Upload pending files to S3 first and capture the result
+    let newlyUploadedFiles: UploadedFile[] = [];
+    
+    if (fileUploadRef.current && pendingFiles.length > 0) {
+      const result = await fileUploadRef.current.triggerUpload();
+      newlyUploadedFiles = result.uploadedFiles;
+    }
+    
     const newErrors: {[key:string]:string} = {};
     // Validate negotiation radio
     if (!negotiationProgress) {
       newErrors.negotiationProgress = "Select if there has been any negotiation";
     }
-    // Validate file upload
-    if (evidenceFiles.length === 0) {
+    // Check if files exist or were just uploaded
+    if (evidenceFiles.length === 0 && newlyUploadedFiles.length === 0) {
       newErrors.evidenceFiles = "Upload a document to support your application";
-    } else {
-      const allowedExtensions = ["jpg", "jpeg"];
-      const fileName = evidenceFiles[0].name;
-      const fileExt = fileName.split('.').pop()?.toLowerCase();
-      if (!allowedExtensions.includes(fileExt || "")) {
-        newErrors.evidenceFiles = "Upload a JPG or JPEG site photograph";
+    } else if (evidenceFiles.length > 0 || newlyUploadedFiles.length > 0) {
+      const fileToCheck = evidenceFiles.length > 0 ? evidenceFiles[0] : (newlyUploadedFiles.length > 0 ? { name: newlyUploadedFiles[0].filename } as File : null);
+      if (fileToCheck) {
+        const allowedExtensions = ["jpg", "jpeg"];
+        const fileName = fileToCheck.name;
+        const fileExt = fileName.split('.').pop()?.toLowerCase();
+        if (!allowedExtensions.includes(fileExt || "")) {
+          newErrors.evidenceFiles = "Upload a JPG or JPEG site photograph";
+        }
       }
     }
     setErrors(newErrors);
@@ -158,10 +173,12 @@ const Negotiations: React.FC = () => {
                 <p id="fileUpload1-error" className="govuk-error-message">{errors.evidenceFiles}</p>
               )}
               <FileUpload
+                ref={fileUploadRef}
                 title="Upload evidence"
                 prefix={`negotiations/evidence`}
                 onFilesChange={setEvidenceFiles}
                 category="NEGOTIATION_EVIDENCE"
+                onPendingFilesChange={(files) => setPendingFiles(files)}
               />
             </div>
             {/* Call to action buttons */}

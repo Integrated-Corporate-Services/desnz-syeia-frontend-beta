@@ -70,16 +70,53 @@ const validateFileBasics = (file: File): FileValidationError | null => {
 
 /**
  * Validates total upload size constraints
+ * Enforces 500MB limit PER PAGE (each page like Project Overview, Supporting Info has its own limit)
+ * 
+ * @param filesToCheck - New files being uploaded right now
+ * @param existingFiles - Pending files (selected but not yet uploaded to S3 in current session)
+ * @param existingTotalSize - Size of files already uploaded to S3 for THIS specific page only
  */
 const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[] = [], existingTotalSize: number = 0): FileValidationError[] => {
   const errors: FileValidationError[] = [];
-  const currentTotalSize = existingTotalSize || calculateTotalSize(existingFiles);
+  
+  // Calculate size of pending files (not yet uploaded)
+  const pendingFilesSize = calculateTotalSize(existingFiles);
+  
+  // TOTAL SIZE FOR THIS PAGE = files already on S3 (this page) + pending files + new files
+  const currentTotalSize = existingTotalSize + pendingFilesSize;
   let runningTotal = currentTotalSize;
+  
+  logger.info('Total size validation started - Per Page Limit', {
+    filesToCheckCount: filesToCheck.length,
+    uploadedToS3OnThisPage: formatFileSize(existingTotalSize),
+    pendingFilesCount: existingFiles.length,
+    pendingFilesSize: formatFileSize(pendingFilesSize),
+    currentTotalOnThisPage: formatFileSize(currentTotalSize),
+    maxTotalPerPage: formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE),
+    remainingSpace: formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE - currentTotalSize)
+  });
   
   for (const file of filesToCheck) {
     const wouldExceed = (runningTotal + file.size) > FILE_SIZE_LIMITS.MAX_TOTAL_SIZE;
     
+    logger.info('Checking file against total size limit', {
+      filename: file.name,
+      fileSize: formatFileSize(file.size),
+      currentRunningTotal: formatFileSize(runningTotal),
+      wouldBeTotal: formatFileSize(runningTotal + file.size),
+      maxAllowed: formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE),
+      wouldExceed
+    });
+    
     if (wouldExceed) {
+      logger.error('FILE REJECTED: Would exceed 500MB per-page limit', {
+        filename: file.name,
+        fileSize: formatFileSize(file.size),
+        currentTotalOnPage: formatFileSize(runningTotal),
+        wouldBeTotal: formatFileSize(runningTotal + file.size),
+        maxLimitPerPage: formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE)
+      });
+      
       errors.push({
         filename: file.name,
         errorType: 'TOTAL_SIZE_EXCEEDED' as const,
@@ -87,6 +124,10 @@ const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[
       });
     } else {
       runningTotal += file.size;
+      logger.info('File accepted', {
+        filename: file.name,
+        newRunningTotal: formatFileSize(runningTotal)
+      });
     }
   }
   
@@ -209,9 +250,22 @@ export const validateFiles = async (
     !passwordErrors.some(error => error.filename === file.name)
   );
   
-  // Calculate final totals
-  const totalSize = calculateTotalSize([...existingFiles, ...finalValidFiles]);
+  // Calculate final totals for THIS PAGE only
+  // = uploaded files on S3 + pending files + newly validated files
+  const uploadedSize = existingTotalSize;
+  const pendingSize = calculateTotalSize(existingFiles);
+  const newValidSize = calculateTotalSize(finalValidFiles);
+  const totalSize = uploadedSize + pendingSize + newValidSize;
   const remainingSpace = FILE_SIZE_LIMITS.MAX_TOTAL_SIZE - totalSize;
+  
+  logger.info('Final size calculation', {
+    uploadedToS3: formatFileSize(uploadedSize),
+    pendingFiles: formatFileSize(pendingSize),
+    newValidFiles: formatFileSize(newValidSize),
+    totalSize: formatFileSize(totalSize),
+    remainingSpace: formatFileSize(remainingSpace),
+    maxLimit: formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE)
+  });
   
   const result = {
     validFiles: finalValidFiles,

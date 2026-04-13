@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { Link } from 'react-router-dom';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -27,6 +27,8 @@ const SensitiveAreaReviewPage: React.FC = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const fileUploadRef = useRef<FileUploadHandle>(null);
   const navigate = useNavigate();
 
   // Sensitive area review store
@@ -81,12 +83,30 @@ const SensitiveAreaReviewPage: React.FC = () => {
   const handleSaveReview = async (saveType: 'continue' | 'later' = 'continue') => {
     setFormErrors([]);
     setApiError(null);
+    
+    // Trigger file upload first if there are pending files (deferred upload pattern)
+    let newlyUploadedFiles: UploadedFile[] = [];
+    let newlyUploadedDocuments: ApplicationDocument[] = [];
+    
+    if (fileUploadRef.current && pendingFiles.length > 0) {
+      try {
+        const result = await fileUploadRef.current.triggerUpload();
+        newlyUploadedFiles = result.uploadedFiles;
+        newlyUploadedDocuments = result.applicationDocuments;
+      } catch (err: any) {
+        setApiError('Failed to upload files. Please try again.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+    
     const errors: string[] = [];
     
     // Validation only for "continue" action
     if (saveType === 'continue') {
       // Validation: require at least one document
-      if (!uploadedFiles || uploadedFiles.length === 0) {
+      const totalFiles = (uploadedFiles?.length || 0) + newlyUploadedFiles.length + pendingFiles.length;
+      if (totalFiles === 0) {
         errors.push('Upload at least one environmental and archaeological document');
       }
       if (poleOption === null) {
@@ -122,8 +142,8 @@ const SensitiveAreaReviewPage: React.FC = () => {
       reviewed_at: review?.reviewed_at || '',
       created_at: review?.created_at || '',
       updated_at: review?.updated_at || '',
-      uploaded_files: uploadedFiles,
-      application_documents: applicationDocuments,
+      uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
+      application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
     };
     try {
       await saveReview(payload);
@@ -339,22 +359,14 @@ const SensitiveAreaReviewPage: React.FC = () => {
               </span>
             )}
             <FileUpload
+              ref={fileUploadRef}
               title="Environmental and archaeological documents"
               prefix={`${effectiveApplicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
               applicationId={effectiveApplicationId}
               category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
               addedBy={review?.reviewed_by || 'current-user'}
               uploadedFiles={uploadedFiles}
-              onUploaded={(newUploadedFiles, newProjectDocuments) => {
-                setUploadedFiles(prev => {
-                  const updated = [...prev, ...newUploadedFiles];
-                  return updated;
-                });
-                setApplicationDocuments(prev => {
-                  const updated = [...prev, ...newProjectDocuments];
-                  return updated;
-                });
-              }}
+              onPendingFilesChange={(files) => setPendingFiles(files)}
             />
           </div>
 

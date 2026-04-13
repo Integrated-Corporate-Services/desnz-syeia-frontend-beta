@@ -11,10 +11,11 @@ import TextInput from "../component/TextInput";
 import TextArea from "../component/TextArea";
 import NumberInput from "../component/NumberInput";
 import RadioGroup from "../component/RadioGroup";
-import FileUpload from "../../../components/FileUpload";
+import FileUpload, { FileUploadHandle } from "../../../components/FileUpload";
 
 
 import { ProjectOverviewModel } from '../../../types/projectOverview';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 // import SearchableDropdown from "../../../components/SearchableDropdown";
 import { useRef } from "react";
@@ -52,6 +53,8 @@ const ProjectOverview = () => {
 		const [searchResults, setSearchResults] = useState<any[]>([]);
 	const [showDropdown, setShowDropdown] = useState(false);
 	const searchInputRef = useRef<HTMLInputElement>(null);
+	const fileUploadRef = useRef<FileUploadHandle>(null);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 	// Search handler for project names
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
@@ -295,9 +298,31 @@ const ProjectOverview = () => {
 						</div>
 					</div>
 				)}
-				<form method="post" onSubmit={e => {
+				<form method="post" onSubmit={async e => {
 					e.preventDefault();
 						setIsSubmitting(true);
+					
+					// Track if we uploaded files in this submission
+					let filesWereUploaded = false;
+					let newlyUploadedFiles: UploadedFile[] = [];
+					let newlyUploadedDocuments: ApplicationDocument[] = [];
+					
+					// First, upload any pending files to S3
+					if (fileUploadRef.current && pendingFiles.length > 0) {
+						try {
+							const result = await fileUploadRef.current.triggerUpload();
+							filesWereUploaded = true; // Mark that files were uploaded
+							newlyUploadedFiles = result.uploadedFiles;
+							newlyUploadedDocuments = result.applicationDocuments;
+						} catch (error) {
+							console.error('Failed to upload files:', error);
+							setErrors(['Failed to upload files. Please try again.']);
+							setIsSubmitting(false);
+							window.scrollTo({ top: 0 });
+							return;
+						}
+					}
+					
 					const newErrors: string[] = [];
 					const newFieldErrors: Record<string, string> = {};
 					
@@ -451,8 +476,8 @@ const ProjectOverview = () => {
 								}
 							}
 						}
-					// File upload validation
-					if (!formState.uploadedFiles || formState.uploadedFiles.length === 0) {
+					// File upload validation - skip if files were just uploaded (state update is async)
+					if (!filesWereUploaded && (!formState.uploadedFiles || formState.uploadedFiles.length === 0) && pendingFiles.length === 0) {
 						newErrors.push('<a href="#planInformationDocuments">Upload plan information documents</a>');
 						newFieldErrors.uploadedFiles = "Upload plan information documents";
 					}
@@ -497,7 +522,8 @@ const ProjectOverview = () => {
 						earliestWorkStartDateYear: shouldClearDates ? '' : (formState.earliestWorkStartDateYear || ''),
 						latestWorkStartDateMonth: shouldClearDates ? '' : (formState.latestWorkStartDateMonth ? monthNameToNum(formState.latestWorkStartDateMonth) : ''),
 						latestWorkStartDateYear: shouldClearDates ? '' : (formState.latestWorkStartDateYear || ''),
-						uploadedFiles: (formState.uploadedFiles || []).map(f => ({
+						// Include both existing uploaded files and newly uploaded files from this submission
+						uploadedFiles: [...(formState.uploadedFiles || []), ...newlyUploadedFiles].map(f => ({
 							id: f.id,
 							storageProvider: f.storageProvider,
 							s3Key: f.s3Key,
@@ -517,19 +543,18 @@ const ProjectOverview = () => {
 						relatedApplications: Array.isArray(formState.relatedApplications)
 							? formState.relatedApplications.map(({ applicationRelationId, ...rest }) => rest)
 							: [],
-						applicationDocuments: Array.isArray(formState.applicationDocuments)
-							? formState.applicationDocuments.map(d => ({
-								documentId: d.documentId || '',
-								applicationId: d.applicationId || '',
-								fileId: d.fileId || '',
-								category: d.category || '',
-								title: d.title || '',
-								virtualFolder: d.virtualFolder || '',
-								addedBy: d.addedBy || '',
-								addedAt: d.addedAt || '',
-								description: d.description || ''
-							}))
-							: [],
+						// Include both existing application documents and newly uploaded documents from this submission
+						applicationDocuments: [...(formState.applicationDocuments || []), ...newlyUploadedDocuments].map(d => ({
+							documentId: d.documentId || '',
+							applicationId: d.applicationId || '',
+							fileId: d.fileId || '',
+							category: d.category || '',
+							title: d.title || '',
+							virtualFolder: d.virtualFolder || '',
+							addedBy: d.addedBy || '',
+							addedAt: d.addedAt || '',
+							description: d.description || ''
+						})),
 					};
 					saveProjectOverview(payload)
 						.then((response: any) => {
@@ -766,6 +791,7 @@ const ProjectOverview = () => {
 						</legend>
 						{/* Field error removed - validation errors only shown in error summary above */}
 						<FileUpload
+							ref={fileUploadRef}
 							title='Upload a file'
 							showTitle={false}
 							prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
@@ -774,7 +800,9 @@ const ProjectOverview = () => {
 							addedBy={userId}
 							uploadedFiles={formState.uploadedFiles}
 							showDocumentsHeading={true}
-							onDeleteFile={handleDeleteFile}					onValidationErrors={(errors) => {
+							onDeleteFile={handleDeleteFile}
+							onPendingFilesChange={setPendingFiles}
+							onValidationErrors={(errors) => {
 						// Handle validation errors
 						setFileValidationErrors(errors);
 						// Set field error for red border styling, but message only shows in error summary

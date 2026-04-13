@@ -1,6 +1,7 @@
 
-import React, { useState } from "react";
-import FileUpload from '../../../../components/FileUpload';
+import React, { useState, useRef } from "react";
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import { UploadedFile } from '../../../../types/fileUpload';
 import { Link, useParams } from "react-router-dom";
 import { TLP_BASE_URL } from "../../../../constants/tlp";
 
@@ -8,6 +9,8 @@ const ApplicationStatement: React.FC = () => {
 	const [details, setDetails] = useState("");
 	const [files, setFiles] = useState<File[]>([]);
 	const [errors, setErrors] = useState<{[key:string]:string}>({});
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+	const fileUploadRef = useRef<FileUploadHandle>(null);
     const params = useParams();
 	  const getApplicationId = () => {
 		if (params.applicationId) return params.applicationId;
@@ -20,20 +23,33 @@ const ApplicationStatement: React.FC = () => {
 		return '';
 	  };
 	  const applicationId = getApplicationId();
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		
+		// Upload pending files to S3 first and capture the result
+		let newlyUploadedFiles: UploadedFile[] = [];
+		
+		if (fileUploadRef.current && pendingFiles.length > 0) {
+			const result = await fileUploadRef.current.triggerUpload();
+			newlyUploadedFiles = result.uploadedFiles;
+		}
+		
 		const newErrors: {[key:string]:string} = {};
 		if (!details.trim()) {
 			newErrors.details = "Enter details about your application";
 		}
-		if (files.length === 0) {
+		// Check if files exist or were just uploaded
+		if (files.length === 0 && newlyUploadedFiles.length === 0) {
 			newErrors.files = "Upload a document to support your application";
-		} else {
-			const allowedExtensions = ["jpg", "jpeg"];
-			const fileName = files[0].name;
-			const fileExt = fileName.split('.').pop()?.toLowerCase();
-			if (!allowedExtensions.includes(fileExt || "")) {
-				newErrors.files = "Upload a JPG or JPEG site photograph";
+		} else if (files.length > 0 || newlyUploadedFiles.length > 0) {
+			const fileToCheck = files.length > 0 ? files[0] : (newlyUploadedFiles.length > 0 ? { name: newlyUploadedFiles[0].filename } as File : null);
+			if (fileToCheck) {
+				const allowedExtensions = ["jpg", "jpeg"];
+				const fileName = fileToCheck.name;
+				const fileExt = fileName.split('.').pop()?.toLowerCase();
+				if (!allowedExtensions.includes(fileExt || "")) {
+					newErrors.files = "Upload a JPG or JPEG site photograph";
+				}
 			}
 		}
 		setErrors(newErrors);
@@ -115,10 +131,12 @@ const ApplicationStatement: React.FC = () => {
 								<p id="fileUpload1-error" className="govuk-error-message">{errors.files}</p>
 							)}
 							<FileUpload
+								ref={fileUploadRef}
 								title="Upload evidence"
 								prefix={`application-statement/evidence`}
 								onFilesChange={setFiles}
 								category="APPLICATION_STATEMENT_EVIDENCE"
+								onPendingFilesChange={(files) => setPendingFiles(files)}
 							/>
 						</div>
 						{/* Call to action buttons */}

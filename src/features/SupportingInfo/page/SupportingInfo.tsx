@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSupportingInfoStore } from "../../../store/useSupportingInfoStore";
 import TextArea from '../../ProjectOverview/component/TextArea';
 import { Button } from "govuk-react";
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import "../../../styles/_file_upload.scss";
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -49,13 +49,14 @@ const SupportingInfo: React.FC = () => {
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   // refs for scrolling
   const wayleavesRef = useRef<HTMLInputElement>(null);
   const wayleavesReasonRef = useRef<HTMLTextAreaElement>(null);
   const regulationsRef = useRef<HTMLInputElement>(null);
   const supportingDocsRef = useRef<HTMLInputElement>(null);
-  const fileUploadRef = useRef<HTMLInputElement>(null);
+  const fileUploadRef = useRef<FileUploadHandle>(null);
   useEffect(() => {
     // Clear form state when applicationId changes
     setWayleaves("");
@@ -115,7 +116,7 @@ const SupportingInfo: React.FC = () => {
     }
   }, [supportingInfo]);
 
-  const validate = () => {
+  const validate = (newlyUploadedFiles: UploadedFile[] = []) => {
     const errs: { key: string; message: string }[] = [];
     if (!wayleaves) errs.push({ key: "wayleaves", message: "Select yes if all wayleaves have been obtained" });
     if (wayleaves === "no" && !wayleavesReason.trim()) {
@@ -124,7 +125,8 @@ const SupportingInfo: React.FC = () => {
     if (!regulations) errs.push({ key: "regulations", message: "Confirm that the works will comply with regulations" });
     if (!supportingDocs) errs.push({ key: "supportingDocs", message: "Select yes if this application has supporting documents" });
       // Validation: If 'Yes' is selected for supportingDocs, at least one file must be uploaded
-      if (supportingDocs === "yes" && uploadedFiles.length === 0) {
+      const totalFiles = uploadedFiles.length + newlyUploadedFiles.length + pendingFiles.length;
+      if (supportingDocs === "yes" && totalFiles === 0) {
         errs.push({ key: "supportingDocsFiles", message: "Upload at least one supporting document" });
       }
     return errs;
@@ -132,7 +134,25 @@ const SupportingInfo: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-  const errs = validate();
+  
+  // Trigger file upload first (deferred upload pattern)
+  let newlyUploadedFiles: UploadedFile[] = [];
+  let newlyUploadedDocuments: ApplicationDocument[] = [];
+  
+  if (fileUploadRef.current && supportingDocs === "yes") {
+    try {
+      const result = await fileUploadRef.current.triggerUpload();
+      newlyUploadedFiles = result.uploadedFiles;
+      newlyUploadedDocuments = result.applicationDocuments;
+    } catch (err: any) {
+      logger.error('File upload failed:', err);
+      setErrors([{ key: 'fileUpload', message: 'Failed to upload files. Please try again.' }]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+  }
+  
+  const errs = validate(newlyUploadedFiles);
   setErrors(errs);
 
   if (errs.length === 0) {
@@ -143,8 +163,8 @@ const SupportingInfo: React.FC = () => {
       esqcr_2002_compliance_confirmed: regulations,
       has_additional_supporting_documents: supportingDocs === "yes",
       applicant_supporting_comments: comments,
-      uploaded_files: uploadedFiles,
-      application_documents: applicationDocuments,
+      uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
+      application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
     };
     
     try {
@@ -189,20 +209,14 @@ const SupportingInfo: React.FC = () => {
           const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
           if (uploadContainer) {
             (uploadContainer as HTMLElement).focus();
-            // Successfully focused file upload container
           } else {
             // Fallback: try to focus the file input directly
-            const fileInput = fileUploadSection.querySelector('#file-upload-input');
-            if (fileInput && fileUploadRef.current) {
-              fileUploadRef.current = fileInput as HTMLInputElement;
-              fileUploadRef.current.focus();
-            } else {
-              // Could not find file upload elements to focus
+            const fileInput = fileUploadSection.querySelector('#file-upload-input') as HTMLElement;
+            if (fileInput) {
+              fileInput.focus();
             }
           }
         }, 300);
-      } else {
-        // Could not find file upload section
       }
     }
   };
@@ -462,6 +476,7 @@ const SupportingInfo: React.FC = () => {
             </>
           )}
           <FileUpload
+            ref={fileUploadRef}
             title="Upload a file"
             prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}/`}
             applicationId={applicationId}
@@ -479,13 +494,7 @@ const SupportingInfo: React.FC = () => {
                 setErrors(prev => prev.filter(err => err.key !== 'supportingDocsFiles'));
               }
             }}
-            onUploaded={(newUploadedFiles, newProjectDocuments) => {
-              setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
-              setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
-              // Clear file upload related errors when files are successfully uploaded
-              setErrors(prev => prev.filter(err => err.key !== 'supportingDocsFiles'));
-              setFileValidationErrors([]);
-            }}
+            onPendingFilesChange={(files) => setPendingFiles(files)}
           />
         </div>
     )}
