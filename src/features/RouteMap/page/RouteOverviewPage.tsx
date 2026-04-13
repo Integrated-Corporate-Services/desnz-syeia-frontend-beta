@@ -6,6 +6,7 @@ import RouteDeletedBanner from '../component/RouteDeletedBanner';
 import { useRouteStore } from '../../../store/useRouteStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useProgressStore } from '../../../store/useProgressStore';
+import { getNextRouteName } from '../../../utils/routeNamingUtils';
 export const RouteOverviewPage: React.FC = () => {
   const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
   const [details, setDetails] = React.useState('');
@@ -48,25 +49,6 @@ export const RouteOverviewPage: React.FC = () => {
   React.useEffect(() => {
     if (applicationId && fetchRoutes) fetchRoutes(applicationId);
   }, [applicationId, fetchRoutes]);
-
-
-  // Helper to get next route name (A, B, C, ...)
-  const getNextRouteName = () => {
-    if (!routes.length) return 'Route A';
-    // Find highest letter used
-    const usedLetters = routes
-      .map(r => r.routeName)
-      .filter((name): name is string => typeof name === 'string')
-      .map(name => name.replace('Route ', ''));
-    let maxCharCode = 64; // 'A' - 1
-    usedLetters.forEach(l => {
-      if (l.length === 1) {
-        const code = l.charCodeAt(0);
-        if (code > maxCharCode) maxCharCode = code;
-      }
-    });
-    return `Route ${String.fromCharCode(maxCharCode + 1)}`;
-  };
 
   const handleEdit = (route_id: string | number) => {
     const route = routes.find(r => r.route_id === route_id);
@@ -224,7 +206,7 @@ export const RouteOverviewPage: React.FC = () => {
                 }
                 setFormError(null);
                 if (spurChoice === 'spur' || spurChoice === 'notconnected') {
-                  navigate(`${S37_BASE_URL}/${applicationId}/route-map`, { state: { applicationId, routeName: getNextRouteName(), isNewRoute: true, details: spurChoice === 'notconnected' ? details : undefined } });
+                  navigate(`${S37_BASE_URL}/${applicationId}/route-map`, { state: { applicationId, routeName: getNextRouteName(routes.map(r => r.routeName)), isNewRoute: true, details: spurChoice === 'notconnected' ? details : undefined } });
                 } else  {
                   // Call progress update for 'no spur' before navigating
                   try {

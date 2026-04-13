@@ -6,7 +6,7 @@ import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
-import { isValidTextFormat, isWithinCharacterLimit } from '../../../utils/validation';
+import { isWithinCharacterLimit } from '../../../utils/validation';
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
@@ -99,8 +99,6 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			newErrors.reason = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredReason.empty;
 		} else if (!isWithinCharacterLimit(reason, 4000)) {
 			newErrors.reason = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredReason.characterLimit;
-		} else if (!isValidTextFormat(reason)) {
-			newErrors.reason = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredReason.invalidFormat;
 		}
 		
 		if (uploadedFileObjs.length === 0 && applicationDocuments.length === 0) {

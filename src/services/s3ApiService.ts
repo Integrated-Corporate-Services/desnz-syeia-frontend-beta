@@ -10,7 +10,7 @@ const REFRESH_BEFORE_EXPIRY = 120; // Refresh 2 minutes before expiry
 interface UrlCacheEntry {
   url: string;
   expiresAt: number;
-  refreshTimer?: number;
+  refreshTimer?: ReturnType<typeof setTimeout>;
 }
 
 // In-memory cache for presigned URLs with auto-refresh
@@ -59,6 +59,7 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
   const res = await fetch('/backend/api/upload/presigned-url', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ files })
   });
   if (!res.ok) throw new Error('Failed to get presigned URLs');
@@ -96,6 +97,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   const res = await fetch('/backend/api/file/presigned-url', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ filename })
   });
   if (!res.ok) throw new Error('Failed to get presigned GET URL');
@@ -118,6 +120,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
     fetch('/backend/api/file/presigned-url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ filename })
     })
       .then(async (res) => {
@@ -155,7 +158,9 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
 
 // List files for a given prefix
 export async function listFilesByPrefix(prefix: string) {
-  const res = await fetch(`/backend/api/files?prefix=${encodeURIComponent(prefix)}`);
+  const res = await fetch(`/backend/api/files?prefix=${encodeURIComponent(prefix)}`, {
+    credentials: 'include'
+  });
   if (!res.ok) throw new Error('Failed to list files');
   return await res.json();
 }
@@ -165,6 +170,7 @@ export async function deleteFileFromS3(key: string) {
   const res = await fetch('/backend/api/file/delete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ key })
   });
   if (!res.ok) throw new Error('Failed to delete file');
@@ -176,6 +182,7 @@ export async function deleteFileCompletely(fileId: string, key: string) {
   const res = await fetch('/backend/api/file/delete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ key, fileId })
   });
   if (!res.ok) {
@@ -208,6 +215,7 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
   const res = await fetch('/backend/api/file/presigned-url/download', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ filename })
   });
   if (!res.ok) throw new Error('Failed to get presigned download URL');
@@ -230,6 +238,7 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
     fetch('/backend/api/file/presigned-url/download', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ filename })
     })
       .then(async (res) => {

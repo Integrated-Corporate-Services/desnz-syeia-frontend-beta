@@ -83,12 +83,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
       onValidationErrors([]);
     }
     
+    // Calculate uploaded files size for validation
+    const uploadedFilesSize = uploadedFiles?.reduce((sum, f) => sum + f.fileSizeBytes, 0) || 0;
+    
     logger.info('Starting file validation', {
       newFilesCount: newFiles.length,
+      uploadedFilesCount: uploadedFiles?.length || 0,
       files: newFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
     });
     
-    const result = await validateFiles(newFiles, files);
+    // Pass uploaded files size to validation
+    const result = await validateFiles(newFiles, files, uploadedFilesSize);
     
     logger.info('File validation completed', {
       validFilesCount: result.validFiles.length,

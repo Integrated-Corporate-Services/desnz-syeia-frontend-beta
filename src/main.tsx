@@ -22,8 +22,10 @@ declare global {
   }
 }
 
+// IMPORTANT: StrictMode disabled to prevent double-mounting
+// which can interfere with session timeout tracking and cause false activity resets.
+// StrictMode causes components to mount->unmount->remount in dev, which can trigger
+// focus events and other side effects that reset the idle timer.
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+  <App />
 );

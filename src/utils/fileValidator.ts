@@ -71,18 +71,19 @@ const validateFileBasics = (file: File): FileValidationError | null => {
 /**
  * Validates total upload size constraints
  */
-const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[]): FileValidationError[] => {
+const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[] = [], existingTotalSize: number = 0): FileValidationError[] => {
   const errors: FileValidationError[] = [];
-  const currentTotalSize = calculateTotalSize(existingFiles);
+  const currentTotalSize = existingTotalSize || calculateTotalSize(existingFiles);
   let runningTotal = currentTotalSize;
   
   for (const file of filesToCheck) {
-    if (runningTotal + file.size > FILE_SIZE_LIMITS.MAX_TOTAL_SIZE) {
-      const remainingSpace = FILE_SIZE_LIMITS.MAX_TOTAL_SIZE - runningTotal;
+    const wouldExceed = (runningTotal + file.size) > FILE_SIZE_LIMITS.MAX_TOTAL_SIZE;
+    
+    if (wouldExceed) {
       errors.push({
         filename: file.name,
-        errorType: 'TOTAL_SIZE_EXCEEDED',
-        message: `${VALIDATION_ERROR_MESSAGES.TOTAL_SIZE_EXCEEDED}. Remaining space: ${formatFileSize(remainingSpace)}`
+        errorType: 'TOTAL_SIZE_EXCEEDED' as const,
+        message: `${VALIDATION_ERROR_MESSAGES.TOTAL_SIZE_EXCEEDED}`
       });
     } else {
       runningTotal += file.size;
@@ -158,7 +159,8 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
  */
 export const validateFiles = async (
   newFiles: File[], 
-  existingFiles: File[] = []
+  existingFiles: File[] = [],
+  existingTotalSize: number = 0
 ): Promise<FileValidationResult> => {
   logValidationEvent('validation started', 'batch', {
     newFilesCount: newFiles.length,
@@ -181,7 +183,7 @@ export const validateFiles = async (
   }
   
   // Step 2: Total size validation
-  const sizeErrors = validateTotalSizeConstraints(validFiles, existingFiles);
+  const sizeErrors = validateTotalSizeConstraints(validFiles, existingFiles, existingTotalSize);
   allErrors.push(...sizeErrors);
   
   // Remove files that exceed total size limit
@@ -234,9 +236,10 @@ export const validateFiles = async (
  */
 export const validateSingleFile = async (
   file: File,
-  existingFiles: File[] = []
+  existingFiles: File[] = [],
+  existingTotalSize: number = 0
 ): Promise<FileValidationResult> => {
-  return validateFiles([file], existingFiles);
+  return validateFiles([file], existingFiles, existingTotalSize);
 };
 
 /**
@@ -244,7 +247,8 @@ export const validateSingleFile = async (
  */
 export const quickValidateFiles = (
   newFiles: File[],
-  existingFiles: File[] = []
+  existingFiles: File[] = [],
+  existingTotalSize: number = 0
 ): Omit<FileValidationResult, 'validFiles'> & { potentiallyValidFiles: File[] } => {
   const errors: FileValidationError[] = [];
   let potentiallyValidFiles: File[] = [];
@@ -260,7 +264,7 @@ export const quickValidateFiles = (
   }
   
   // Step 2: Total size validation
-  const sizeErrors = validateTotalSizeConstraints(potentiallyValidFiles, existingFiles);
+  const sizeErrors = validateTotalSizeConstraints(potentiallyValidFiles, existingFiles, existingTotalSize);
   errors.push(...sizeErrors);
   
   potentiallyValidFiles = potentiallyValidFiles.filter(file => 
