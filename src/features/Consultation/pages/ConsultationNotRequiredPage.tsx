@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
@@ -18,22 +18,14 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		window.scrollTo(0, 0);
 	}, []);
 	const [reason, setReason] = useState('');
-	const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 	const [uploadedFileObjs, setUploadedFileObjs] = useState<any[]>([]);
 	const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
 	const [notRequiredStatus, setNotRequiredStatus] = useState<any>(null);
 	const [errors, setErrors] = useState<{reason?: string; files?: string}>({});
 	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
-	// Ref for file upload focus management
-	const fileUploadRef = useRef<HTMLDivElement>(null);
-	// Handler for FileUpload onUploaded
-	const handleUploadedFiles = (uploadedFiles: any[], applicationDocumentsArr: any[]) => {
-		setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
-		setApplicationDocuments(prev => [...prev, ...applicationDocumentsArr]);
-		// Clear files error when files are uploaded
-		setErrors(prev => ({ ...prev, files: undefined }));
-		setFileValidationErrors([]);
-	};
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+	// Ref for file upload
+	const fileUploadRef = useRef<FileUploadHandle>(null);
 
 	// Handle file validation errors from FileUpload component
 	const handleFileValidationErrors = (errors: string[]) => {
@@ -92,6 +84,23 @@ const ConsultationNotRequiredPage: React.FC = () => {
 	const handleSaveAndContinue = async () => {
 		if (!consultationId || !notRequiredStatus?.details) return;
 		
+		// Trigger file upload first if there are pending files (deferred upload pattern)
+		let newlyUploadedFiles: any[] = [];
+		let newlyUploadedDocuments: any[] = [];
+		
+		if (fileUploadRef.current && pendingFiles.length > 0) {
+			try {
+				const result = await fileUploadRef.current.triggerUpload();
+				newlyUploadedFiles = result.uploadedFiles;
+				newlyUploadedDocuments = result.applicationDocuments;
+			} catch (err: any) {
+				const errorMsg = 'Failed to upload files. Please try again.';
+				setFileValidationErrors([errorMsg]);
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+				return;
+			}
+		}
+		
 		// Validation
 		const newErrors: {reason?: string; files?: string} = {};
 		
@@ -101,7 +110,8 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			newErrors.reason = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredReason.characterLimit;
 		}
 		
-		if (uploadedFileObjs.length === 0 && applicationDocuments.length === 0) {
+		const totalFiles = uploadedFileObjs.length + applicationDocuments.length + newlyUploadedFiles.length + pendingFiles.length;
+		if (totalFiles === 0) {
 			newErrors.files = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredUpload.empty;
 		}
 		
@@ -118,8 +128,8 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				...notRequiredStatus.details,
 				status: ConsultationStatus.NOT_REQUIRED,
 				notRequiredReason: reason,
-				uploadedFiles: uploadedFileObjs,
-				applicationDocuments: applicationDocuments
+				uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
+				applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments]
 			};
 			try {
 				await saveNotRequiredStatus(consultationId, updatedDetails);
@@ -256,7 +266,6 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								/>
 							</div>
 							<div className={`govuk-form-group ${errors.files || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} id="file-upload"
-								ref={fileUploadRef}
 								style={(errors.files || fileValidationErrors.length > 0) ? {
 									borderLeft: '4px solid #d4351c',
 									paddingLeft: 12
@@ -267,14 +276,14 @@ const ConsultationNotRequiredPage: React.FC = () => {
 									</p>
 								)}
 								<FileUpload
+									ref={fileUploadRef}
 									title="Upload any supporting documents"
 									prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}/${consultationId}`}
 									applicationId={applicationId}
 									category={FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}
 									uploadedFiles={uploadedFileObjs}
-									onFilesChange={setUploadedFiles}
 									onRemoveFile={idx => {
-										setUploadedFiles(files => files.filter((_, i) => i !== idx));
+
 										setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
 										setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
 										// Clear files error when removing files (validation will re-trigger on save)
@@ -285,8 +294,8 @@ const ConsultationNotRequiredPage: React.FC = () => {
 											});
 										}
 									}}
-									onUploaded={handleUploadedFiles}
 									onValidationErrors={handleFileValidationErrors}
+									onPendingFilesChange={(files) => setPendingFiles(files)}
 									consultationId={consultationId}
 								/>
 							</div>

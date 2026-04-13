@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
@@ -20,9 +20,10 @@ const ReviewDocumentsPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
-  // Ref for file upload focus management
-  const fileUploadRef = useRef<HTMLDivElement>(null);
+  // Ref for file upload
+  const fileUploadRef = useRef<FileUploadHandle>(null);
 
   // Use the store hook (consistent with SensitiveAreaReviewPage)
   const {
@@ -54,10 +55,11 @@ const ReviewDocumentsPage: React.FC = () => {
   }, [review]);
 
   // Validation function
-  const validateForm = (): string[] => {
+  const validateForm = (newlyUploadedFiles: UploadedFile[] = []): string[] => {
     const errors: string[] = [];
 
-    if (!uploadedFiles || uploadedFiles.length === 0) {
+    const totalFiles = (uploadedFiles?.length || 0) + newlyUploadedFiles.length + pendingFiles.length;
+    if (totalFiles === 0) {
       errors.push('Upload at least one environmental and archaeological document');
     }
 
@@ -100,9 +102,25 @@ const ReviewDocumentsPage: React.FC = () => {
     setFormErrors([]);
     setApiError(null);
 
+    // Trigger file upload first if there are pending files (deferred upload pattern)
+    let newlyUploadedFiles: UploadedFile[] = [];
+    let newlyUploadedDocuments: ApplicationDocument[] = [];
+    
+    if (fileUploadRef.current && pendingFiles.length > 0) {
+      try {
+        const result = await fileUploadRef.current.triggerUpload();
+        newlyUploadedFiles = result.uploadedFiles;
+        newlyUploadedDocuments = result.applicationDocuments;
+      } catch (err: any) {
+        setApiError('Failed to upload files. Please try again.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
     // Validate only on 'continue'
     if (saveType === 'continue') {
-      const errors = validateForm();
+      const errors = validateForm(newlyUploadedFiles);
       if (errors.length > 0 || fileValidationErrors.length > 0) {
         setFormErrors(errors);
         // Scroll to error summary
@@ -125,8 +143,8 @@ const ReviewDocumentsPage: React.FC = () => {
         reviewed_at: review?.reviewed_at || '',
         created_at: review?.created_at || '',
         updated_at: review?.updated_at || '',
-        uploaded_files: uploadedFiles,
-        application_documents: applicationDocuments,
+        uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
+        application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
       };
 
       // Save the review
@@ -267,7 +285,6 @@ const ReviewDocumentsPage: React.FC = () => {
             {/* File Upload Section */}
             <div className="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
               <div
-                ref={fileUploadRef}
                 id="file-upload-section"
                 className={`govuk-form-group${
                   (formErrors.some((err) => err.includes('document')) || fileValidationErrors.length > 0)
@@ -296,6 +313,7 @@ const ReviewDocumentsPage: React.FC = () => {
                 )}
 
                 <FileUpload
+                  ref={fileUploadRef}
                   title="Upload a file"
                   prefix={`${applicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
                   uploadedFiles={uploadedFiles}
@@ -303,9 +321,9 @@ const ReviewDocumentsPage: React.FC = () => {
                   category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
                   addedBy={review?.reviewed_by || 'current-user'}
                   showDocumentsHeading={true}
-                  onUploaded={handleFilesUploaded}
                   onDeleteFile={handleDeleteFile}
                   onValidationErrors={handleFileValidationErrors}
+                  onPendingFilesChange={(files) => setPendingFiles(files)}
                 />
               </div>
             </div>

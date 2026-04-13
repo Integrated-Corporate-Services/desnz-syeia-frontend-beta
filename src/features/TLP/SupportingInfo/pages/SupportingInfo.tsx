@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { TLP_BASE_URL } from "../../../../constants/tlp";
-import FileUpload from "../../../../components/FileUpload";
+import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
+import { UploadedFile } from "../../../../types/fileUpload";
 
 const SupportingInfo: React.FC = () => {
   const [signedWayleave, setSignedWayleave] = useState("");
@@ -11,20 +12,21 @@ const SupportingInfo: React.FC = () => {
     month: "",
     year: "",
   });
-  const [signedWayleaveFiles, setSignedWayleaveFiles] = useState<File[]>([]);
   const [inheritedWayleave, setInheritedWayleave] = useState("");
   const [counterNoticeDate, setCounterNoticeDate] = useState({
     day: "",
     month: "",
     year: "",
   });
-  const [inheritedWayleaveFiles, setInheritedWayleaveFiles] = useState<File[]>(
-    []
-  );
   const [anyPayments, setAnyPayments] = useState("");
-  const [anyPaymentsFiles, setAnyPaymentsFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [pendingFiles1, setPendingFiles1] = useState<File[]>([]);
+  const [pendingFiles2, setPendingFiles2] = useState<File[]>([]);
+  const [pendingFiles3, setPendingFiles3] = useState<File[]>([]);
+  const fileUploadRef1 = useRef<FileUploadHandle>(null);
+  const fileUploadRef2 = useRef<FileUploadHandle>(null);
+  const fileUploadRef3 = useRef<FileUploadHandle>(null);
   const navigate = useNavigate();
 
   const params = useParams();
@@ -43,9 +45,29 @@ const SupportingInfo: React.FC = () => {
 
   // FileUpload handles files via its onFilesChange prop
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitted(true);
+    
+    // Track uploaded files (documents already saved to S3 via triggerUpload)
+    let newlyUploadedFiles1: UploadedFile[] = [];
+    let newlyUploadedFiles2: UploadedFile[] = [];
+    let newlyUploadedFiles3: UploadedFile[] = [];
+    
+    // Upload all pending files to S3 first
+    if (fileUploadRef1.current && pendingFiles1.length > 0) {
+      const result = await fileUploadRef1.current.triggerUpload();
+      newlyUploadedFiles1 = result.uploadedFiles;
+    }
+    if (fileUploadRef2.current && pendingFiles2.length > 0) {
+      const result = await fileUploadRef2.current.triggerUpload();
+      newlyUploadedFiles2 = result.uploadedFiles;
+    }
+    if (fileUploadRef3.current && pendingFiles3.length > 0) {
+      const result = await fileUploadRef3.current.triggerUpload();
+      newlyUploadedFiles3 = result.uploadedFiles;
+    }
+    
     const newErrors: { [key: string]: string } = {};
     // Validate signedWayleave
     if (!signedWayleave) {
@@ -58,7 +80,8 @@ const SupportingInfo: React.FC = () => {
       ) {
         newErrors.signedWayleaveDate = "Enter the full 21 day notice date";
       }
-      if (signedWayleaveFiles.length === 0) {
+      // File validation: Only check newly uploaded files (deferred uploads don't populate state arrays)
+      if (newlyUploadedFiles1.length === 0) {
         newErrors.signedWayleaveFile =
           "Upload a document to support your application";
       }
@@ -76,7 +99,8 @@ const SupportingInfo: React.FC = () => {
         newErrors.counterNoticeDate =
           "Enter the full counter notice issue date";
       }
-      if (inheritedWayleaveFiles.length === 0) {
+      // File validation: Only check newly uploaded files (deferred uploads don't populate state arrays)
+      if (newlyUploadedFiles2.length === 0) {
         newErrors.inheritedWayleaveFile =
           "Upload a document to support your application";
       }
@@ -85,8 +109,11 @@ const SupportingInfo: React.FC = () => {
     if (!anyPayments) {
       newErrors.anyPayments =
         "Select if your application includes a title plan";
-    } else if (anyPayments === "Yes" && anyPaymentsFiles.length === 0) {
-      newErrors.anyPaymentsFile = "Upload the title plan document";
+    } else if (anyPayments === "Yes") {
+      // File validation: Only check newly uploaded files (deferred uploads don't populate state arrays)
+      if (newlyUploadedFiles3.length === 0) {
+        newErrors.anyPaymentsFile = "Upload the title plan document";
+      }
     }
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
@@ -193,15 +220,16 @@ return (
                   <div className="govuk-form-group">
                     {/* File validation errors removed - shown in error summary above */}
                     <FileUpload 
+                      ref={fileUploadRef1}
                       title="Upload a document" 
                       prefix={`applications/${applicationId}/signed-wayleave`} 
-                      onFilesChange={setSignedWayleaveFiles} 
                       applicationId={applicationId} 
                       category="SIGNED_WAYLEAVE"
                       onValidationErrors={(errors) => {
                         // Handle validation errors
                         setFileValidationErrors(errors);
                       }}
+                      onPendingFilesChange={(files) => setPendingFiles1(files)}
                     />
                   </div>
                 </div>
@@ -264,15 +292,16 @@ return (
                   <div className="govuk-form-group">
                     {/* File validation errors removed - shown in error summary above */}
                     <FileUpload 
+                      ref={fileUploadRef2}
                       title="Upload a document" 
                       prefix={`applications/${applicationId}/inherited-wayleave`}
-                      onFilesChange={setInheritedWayleaveFiles} 
                       applicationId={applicationId} 
                       category="INHERITED_WAYLEAVE"
                       onValidationErrors={(errors) => {
                         // Handle validation errors
                         setFileValidationErrors(errors);
                       }}
+                      onPendingFilesChange={(files) => setPendingFiles2(files)}
                     />
                   </div>
                 </div>
@@ -304,15 +333,16 @@ return (
                   <div className="govuk-form-group">
                     {/* File validation errors removed - shown in error summary above */}
                     <FileUpload 
+                      ref={fileUploadRef3}
                       title="Upload the title plan document" 
                       prefix={`applications/${applicationId}/title-plan`} 
-                      onFilesChange={setAnyPaymentsFiles} 
                       applicationId={applicationId} 
                       category="TITLE_PLAN"
                       onValidationErrors={(errors) => {
                         // Handle validation errors
                         setFileValidationErrors(errors);
                       }}
+                      onPendingFilesChange={(files) => setPendingFiles3(files)}
                     />
                   </div>
                 </div>

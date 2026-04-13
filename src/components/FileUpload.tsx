@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { downloadS3FileOnSameTab } from "../utils/s3DownloadUtil";
 import "../styles/Fileupload.css";
 import {
@@ -7,7 +7,7 @@ import {
   deleteFileCompletely,
 } from "../services/s3ApiService"; 
 import { createLogger } from "../utils/logger";
-import { validateFiles, formatFileSize, FILE_SIZE_LIMITS } from "../utils/fileUploadValidation";
+import { validateFiles,  } from "../utils/fileUploadValidation";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
 import { useAuthUserContext } from "../context/AuthUserContext";
@@ -35,9 +35,16 @@ export interface FileUploadProps {
     uploadedFiles: UploadedFile[],
     applicationDocuments: ApplicationDocument[]
   ) => void;
+  uploadImmediately?: boolean; // New prop to control upload timing
+  onPendingFilesChange?: (files: File[]) => void; // New prop to notify parent of pending files
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({
+export interface FileUploadHandle {
+  triggerUpload: () => Promise<{ uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[] }>;
+  getPendingFiles: () => File[];
+}
+
+const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   title = "Upload a file",
   prefix = "",
   uploadedFiles,
@@ -53,7 +60,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
   showTitle = true,
   onValidationErrors,
   onUploaded,
-}) => {
+  uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
+  onPendingFilesChange,
+}, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
   const userId =
@@ -62,6 +71,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     DEMO_USER_ID;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [statuses, setStatuses] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -72,7 +82,33 @@ const FileUpload: React.FC<FileUploadProps> = ({
   // Local files for upload logic
   const files = internalFiles;
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Expose methods to parent component via ref
+  useImperativeHandle(ref, () => ({
+    triggerUpload: async () => {
+      if (pendingFiles.length > 0) {
+        logger.info('Manually triggering upload for pending files', {
+          pendingFilesCount: pendingFiles.length
+        });
+        const result = await uploadFiles(pendingFiles);
+        setPendingFiles([]); // Clear pending files after upload
+        if (onPendingFilesChange) {
+          onPendingFilesChange([]);
+        }
+        return result;
+      }
+      return { uploadedFiles: [], applicationDocuments: [] };
+    },
+    getPendingFiles: () => pendingFiles,
+  }));
+
+  // Notify parent when pending files change
+  useEffect(() => {
+    if (onPendingFilesChange) {
+      onPendingFilesChange(pendingFiles);
+    }
+  }, [pendingFiles, onPendingFilesChange]);
+
+const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     
     const newFiles = Array.from(e.target.files);
@@ -83,17 +119,29 @@ const FileUpload: React.FC<FileUploadProps> = ({
       onValidationErrors([]);
     }
     
-    // Calculate uploaded files size for validation
+    // VALIDATION: 500MB limit PER PAGE (e.g., Project Overview, Supporting Info each have their own 500MB limit)
+    // The uploadedFiles prop should ONLY contain files from THIS specific page/category
+    // Total size = Files already uploaded on THIS page + Pending files + New files
+    
+    // Calculate total size of files already uploaded to S3 for THIS page
     const uploadedFilesSize = uploadedFiles?.reduce((sum, f) => sum + f.fileSizeBytes, 0) || 0;
     
-    logger.info('Starting file validation', {
+    // Calculate total size of pending files (selected but not uploaded yet)
+    const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
+    
+    logger.info('Starting file validation - Per Page Limit', {
+      page: prefix, // Shows which page/category
       newFilesCount: newFiles.length,
-      uploadedFilesCount: uploadedFiles?.length || 0,
+      uploadedFilesOnThisPage: uploadedFiles?.length || 0,
+      uploadedFilesSize,
+      pendingFilesCount: pendingFiles.length,
+      pendingFilesSize,
+      totalExistingSize: uploadedFilesSize + pendingFilesSize,
       files: newFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
     });
     
-    // Pass uploaded files size to validation
-    const result = await validateFiles(newFiles, files, uploadedFilesSize);
+    // Validate: uploadedFiles (this page only) + pendingFiles + newFiles <= 500MB
+    const result = await validateFiles(newFiles, pendingFiles, uploadedFilesSize);
     
     logger.info('File validation completed', {
       validFilesCount: result.validFiles.length,
@@ -125,20 +173,30 @@ const FileUpload: React.FC<FileUploadProps> = ({
       setStatuses(Array(allFiles.length).fill(""));
       setDownloadStatuses(Array(allFiles.length).fill(""));
       
-      // Upload the newly validated files
-      setTimeout(() => {
-        const newFileIndices = allFiles
-          .map((file, idx) => ({ file, idx }))
-          .filter(({ file }) =>
-            result.validFiles.some(
-              (nf) => nf.name === file.name && nf.size === file.size
+      if (uploadImmediately) {
+        // Upload immediately (original behavior)
+        setTimeout(() => {
+          const newFileIndices = allFiles
+            .map((file, idx) => ({ file, idx }))
+            .filter(({ file }) =>
+              result.validFiles.some(
+                (nf) => nf.name === file.name && nf.size === file.size
+              )
             )
-          )
-          .map(({ idx }) => idx);
-        if (newFileIndices.length > 0) {
-          uploadFiles(newFileIndices.map((i) => allFiles[i]));
-        }
-      }, 0);
+            .map(({ idx }) => idx);
+          if (newFileIndices.length > 0) {
+            uploadFiles(newFileIndices.map((i) => allFiles[i]));
+          }
+        }, 0);
+      } else {
+        // Store files for later upload
+        const newPendingFiles = [...pendingFiles, ...result.validFiles];
+        setPendingFiles(newPendingFiles);
+        logger.info('Files validated and queued for upload on form submission', {
+          newFilesCount: result.validFiles.length,
+          totalPendingCount: newPendingFiles.length
+        });
+      }
     }
     
     e.target.value = "";
@@ -155,7 +213,24 @@ const FileUpload: React.FC<FileUploadProps> = ({
       onValidationErrors([]);
     }
     
-    const result = await validateFiles(droppedFiles, files);
+    // VALIDATION: 500MB limit PER PAGE (e.g., Project Overview, Supporting Info each have their own 500MB limit)
+    // The uploadedFiles prop should ONLY contain files from THIS specific page/category
+    // Total size = Files already uploaded on THIS page + Pending files + New files
+    
+    const uploadedFilesSize = uploadedFiles?.reduce((sum, f) => sum + f.fileSizeBytes, 0) || 0;
+    const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
+    
+    logger.info('Starting file validation (drop) - Per Page Limit', {
+      page: prefix,
+      droppedFilesCount: droppedFiles.length,
+      uploadedFilesOnThisPage: uploadedFiles?.length || 0,
+      uploadedFilesSize,
+      pendingFilesSize,
+      totalExistingSize: uploadedFilesSize + pendingFilesSize
+    });
+    
+    // Validate: uploadedFiles (this page only) + pendingFiles + droppedFiles <= 500MB
+    const result = await validateFiles(droppedFiles, pendingFiles, uploadedFilesSize);
     
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
@@ -181,20 +256,30 @@ const FileUpload: React.FC<FileUploadProps> = ({
       setStatuses(Array(allFiles.length).fill(""));
       setDownloadStatuses(Array(allFiles.length).fill(""));
       
-      // Upload the newly validated files
-      setTimeout(() => {
-        const newFileIndices = allFiles
-          .map((file, idx) => ({ file, idx }))
-          .filter(({ file }) =>
-            result.validFiles.some(
-              (df) => df.name === file.name && df.size === file.size
+      if (uploadImmediately) {
+        // Upload immediately (original behavior)
+        setTimeout(() => {
+          const newFileIndices = allFiles
+            .map((file, idx) => ({ file, idx }))
+            .filter(({ file }) =>
+              result.validFiles.some(
+                (df) => df.name === file.name && df.size === file.size
+              )
             )
-          )
-          .map(({ idx }) => idx);
-        if (newFileIndices.length > 0) {
-          uploadFiles(newFileIndices.map((i) => allFiles[i]));
-        }
-      }, 0);
+            .map(({ idx }) => idx);
+          if (newFileIndices.length > 0) {
+            uploadFiles(newFileIndices.map((i) => allFiles[i]));
+          }
+        }, 0);
+      } else {
+        // Store files for later upload
+        const newPendingFiles = [...pendingFiles, ...result.validFiles];
+        setPendingFiles(newPendingFiles);
+        logger.info('Files dropped, validated and queued for upload on form submission', {
+          newFilesCount: result.validFiles.length,
+          totalPendingCount: newPendingFiles.length
+        });
+      }
     }
   };
 
@@ -204,6 +289,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleRemoveFile = (idx: number) => {
+    const fileToRemove = files[idx];
+    
     if (onRemoveFile) {
       onRemoveFile(idx);
     } else {
@@ -211,6 +298,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
     setStatuses((prev) => prev.filter((_, i) => i !== idx));
     setDownloadStatuses((prev) => prev.filter((_, i) => i !== idx));
+    
+    // Also remove from pending files if it exists there
+    if (fileToRemove && !uploadImmediately) {
+      setPendingFiles((prev) => 
+        prev.filter(f => !(f.name === fileToRemove.name && f.size === fileToRemove.size))
+      );
+    }
     
     // Clear validation errors when files are removed as space constraints may be resolved
     setValidationErrors([]);
@@ -222,10 +316,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   // Core upload logic, called instantly after file select/drop
-  const uploadFiles = async (uploadFiles: File[]) => {
+  const uploadFiles = async (uploadFiles: File[]): Promise<{ uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[] }> => {
     if (uploadFiles.length === 0) {
       setStatuses(["No files selected"]);
-      return;
+      return { uploadedFiles: [], applicationDocuments: [] };
     }
     setStatuses(Array(uploadFiles.length).fill("Requesting presigned URLs..."));
     try {
@@ -238,7 +332,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         setStatuses(
           Array(uploadFiles.length).fill("Failed to get presigned URLs")
         );
-        return;
+        return { uploadedFiles: [], applicationDocuments: [] };
       }
       const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
@@ -325,12 +419,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
+      return { uploadedFiles, applicationDocuments };
     } catch (err) {
       setStatuses(
         Array(uploadFiles.length).fill(
           "Error: " + (err instanceof Error ? err.message : String(err))
         )
       );
+      return { uploadedFiles: [], applicationDocuments: [] };
     }
   };
 
@@ -427,6 +523,51 @@ const FileUpload: React.FC<FileUploadProps> = ({
         </div>
       )}
 
+      {/* Pending Files Section - Show files waiting to be uploaded */}
+      {pendingFiles.length > 0 && (
+        <div className="govuk-!-margin-bottom-6">
+          <table className="govuk-table">
+            <tbody className="govuk-table__body">
+              {pendingFiles.map((file: File, idx: number) => (
+                <tr key={`pending-${idx}`} className="govuk-table__row">
+                  <td className="govuk-table__cell">
+                    <a
+                      href="#"
+                      className="govuk-link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Create a blob URL and open in new tab for viewing
+                        const blobUrl = URL.createObjectURL(file);
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
+                        link.target = '_blank';
+                        link.click();
+                        // Clean up the blob URL after a delay
+                        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                      }}
+                    >
+                      {file.name}
+                    </a>
+                  </td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                    <a
+                      href="#"
+                      className="govuk-link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPendingFiles((prev) => prev.filter((_, i) => i !== idx));
+                      }}
+                    >
+                      Remove
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* File validation errors display */}
       {validationErrors.length > 0 && (
         <div className="govuk-error-message govuk-!-margin-bottom-3">
@@ -473,6 +614,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
       </div>
     </div>
   );
-};
+});
+
+FileUpload.displayName = 'FileUpload';
 
 export default FileUpload;

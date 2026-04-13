@@ -429,7 +429,8 @@ export const isPasswordProtected = async (file: File): Promise<boolean> => {
   try {
     logValidationEvent('password protection check started', file.name, { 
       size: file.size,
-      type: file.type 
+      type: file.type,
+      extension: file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
     });
     
     // Dynamically determine optimal bytes to read based on file characteristics
@@ -442,23 +443,55 @@ export const isPasswordProtected = async (file: File): Promise<boolean> => {
     
     const uint8Array = await readFileHeader(file, bytesToRead);
     
+    // Log first few bytes for debugging
+    const headerHex = uint8ArrayToHex(uint8Array.slice(0, 16));
+    logger.info('File header read', {
+      filename: file.name,
+      bytesRead: uint8Array.length,
+      headerHex,
+      fileSize: file.size
+    });
+    
     // Use format-based detection that works with any file type
     const isProtected = await detectPasswordProtectionByFormat(uint8Array, file);
     
     logValidationEvent('password protection check completed', file.name, {
       isProtected,
-      bytesRead: uint8Array.length
+      bytesRead: uint8Array.length,
+      result: isProtected ? 'PASSWORD_PROTECTED' : 'NOT_PROTECTED'
+    });
+    
+    logger.info('Password protection detection result', {
+      filename: file.name,
+      isProtected,
+      fileSize: file.size,
+      mimeType: file.type
     });
     
     return isProtected;
     
   } catch (error) {
-    logger.error('Password protection check failed', { 
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    logger.error('Password protection check failed - CRITICAL ERROR', { 
       filename: file.name,
-      error: error instanceof Error ? error.message : String(error)
+      fileSize: file.size,
+      fileType: file.type,
+      error: errorMessage,
+      stack: errorStack
     });
     
-    // Return false on error to allow upload (password check failure shouldn't block valid files)
+    // Log to console for visibility
+    console.error('Password protection check failed for:', file.name, errorMessage);
+    
+    // IMPORTANT: If we can't check for password protection, we should be cautious
+    // Returning false means we treat it as not protected, which could be wrong
+    // However, blocking all files with detection errors would be too strict
+    logger.warn('Allowing file upload despite password check failure - file may be password protected', {
+      filename: file.name
+    });
+    
     return false;
   }
 };
