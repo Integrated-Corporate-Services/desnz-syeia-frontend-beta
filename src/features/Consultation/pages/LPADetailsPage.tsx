@@ -5,7 +5,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpaDetailsService'; 
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
-import { isValidTextFormat, isWithinCharacterLimit } from '../../../utils/validation';
+import { isWithinCharacterLimit } from '../../../utils/validation';
 import { createLogger } from '../../../utils/logger';
 
 const log = createLogger('LPADetailsPage');
@@ -75,8 +75,6 @@ const LPADetailsPage: React.FC = () => {
             newErrors.lpaContactName = CONSULTATION_VALIDATION_MESSAGES.lpaContactName.empty;
         } else if (!isWithinCharacterLimit(formData.lpaContactName, 4000)) {
             newErrors.lpaContactName = CONSULTATION_VALIDATION_MESSAGES.lpaContactName.characterLimit;
-        } else if (!isValidTextFormat(formData.lpaContactName)) {
-            newErrors.lpaContactName = CONSULTATION_VALIDATION_MESSAGES.lpaContactName.invalidFormat;
         }
 
         if (!formData.lpaContactEmail.trim()) {

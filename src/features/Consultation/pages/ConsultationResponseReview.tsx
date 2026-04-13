@@ -6,7 +6,6 @@ import { getConsultationResponse, saveConsultationResponse } from '../../../serv
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
-import { isValidTextFormat } from '../../../utils/validation';
 
 const ConsultationResponse3: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -64,8 +63,6 @@ const ConsultationResponse3: React.FC = () => {
         // Validate comments character limit (4,000 characters)
         if (comments && comments.length > 4000) {
             newErrors.comments = CONSULTATION_VALIDATION_MESSAGES.additionalComments.tooLong;
-        } else if (comments && !isValidTextFormat(comments)) {
-            newErrors.comments = CONSULTATION_VALIDATION_MESSAGES.additionalComments.invalidFormat;
         }
 
         if (!declarationAccepted) {

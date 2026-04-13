@@ -1,6 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { getPresignedUrls, uploadFileToS3, getPresignedGetUrl } from '../services/s3ApiService';
 import { FileUploadResponse } from '../types/FileUploadResponse';
+import { validateFiles, formatFileSize, FILE_SIZE_LIMITS } from '../utils/fileUploadValidation';
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('FileUploadBox');
 
 export interface FileUploadBoxProps {
   title?: string;
@@ -15,6 +19,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
   const [removeIdx, setRemoveIdx] = useState<number | null>(null);
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // New: State for existing files in S3 for this prefix
@@ -40,18 +45,48 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
     });
   }, [prefix]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
+    
     const newFiles = Array.from(e.target.files);
+    setValidationErrors([]); // Clear previous errors
+    
+    // Calculate S3 files size for validation
+    const s3FilesSize = existingFiles.reduce((sum, f) => sum + f.size, 0);
+    
+    // Validate files before processing
+    logger.info('Validating files before upload', {
+      newFilesCount: newFiles.length,
+      stagedFilesCount: files.length,
+      s3FilesCount: existingFiles.length
+    });
+    
+    const validationResult = await validateFiles(newFiles, files, s3FilesSize);
+    
+    if (validationResult.errors.length > 0) {
+      const errorMessages = validationResult.errors.map(err => err.message);
+      setValidationErrors(errorMessages);
+      logger.warn('File validation failed', {
+        errorsCount: validationResult.errors.length,
+        errors: validationResult.errors
+      });
+      e.target.value = ''; // Clear the input
+      return; // Stop processing if there are validation errors
+    }
+    
+    logger.info('Files validated successfully', {
+      validFilesCount: validationResult.validFiles.length
+    });
+    
     // Remove duplicates by name and size
-    const allFiles = [...files, ...newFiles];
+    const allFiles = [...files, ...validationResult.validFiles];
     const uniqueFiles = allFiles.filter((file, idx, arr) =>
       arr.findIndex(f => f.name === file.name && f.size === file.size) === idx
     );
     // Find indices of new files in the uniqueFiles array
     const newFileIndices = uniqueFiles
       .map((file, idx) => ({ file, idx }))
-      .filter(({ file }) => newFiles.some(nf => nf.name === file.name && nf.size === file.size))
+      .filter(({ file }) => validationResult.validFiles.some(nf => nf.name === file.name && nf.size === file.size))
       .map(({ idx }) => idx);
   setFiles(uniqueFiles);
   setStatuses(Array(uniqueFiles.length).fill(''));
@@ -69,18 +104,47 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
     }, 0);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    
     const droppedFiles = Array.from(e.dataTransfer.files);
+    setValidationErrors([]); // Clear previous errors
+    
+    // Calculate sizes for debugging - INCLUDING already uploaded files in S3
+    const s3FilesSize = existingFiles.reduce((sum, f) => sum + f.size, 0);
+    
+    // Validate files before processing
+    logger.info('Validating dropped files before upload', {
+      droppedFilesCount: droppedFiles.length,
+      stagedFilesCount: files.length,
+      s3FilesCount: existingFiles.length
+    });
+    
+    const validationResult = await validateFiles(droppedFiles, files, s3FilesSize);
+    
+    if (validationResult.errors.length > 0) {
+      const errorMessages = validationResult.errors.map(err => err.message);
+      setValidationErrors(errorMessages);
+      logger.warn('File validation failed', {
+        errorsCount: validationResult.errors.length,
+        errors: validationResult.errors
+      });
+      return; // Stop processing if there are validation errors
+    }
+    
+    logger.info('Dropped files validated successfully', {
+      validFilesCount: validationResult.validFiles.length
+    });
+    
     // Remove duplicates by name and size
-    const allFiles = [...files, ...droppedFiles];
+    const allFiles = [...files, ...validationResult.validFiles];
     const uniqueFiles = allFiles.filter((file, idx, arr) =>
       arr.findIndex(f => f.name === file.name && f.size === file.size) === idx
     );
     // Find indices of new files in the uniqueFiles array
     const newFileIndices = uniqueFiles
       .map((file, idx) => ({ file, idx }))
-      .filter(({ file }) => droppedFiles.some(df => df.name === file.name && df.size === file.size))
+      .filter(({ file }) => validationResult.validFiles.some(df => df.name === file.name && df.size === file.size))
       .map(({ idx }) => idx);
   setFiles(uniqueFiles);
   setStatuses(Array(uniqueFiles.length).fill(''));
@@ -226,6 +290,25 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
     <div style={{ maxWidth: 700 }}>
       {title && <h2 style={{ marginBottom: 24 }}>{title}</h2>}
       {error && <div style={{ color: '#d4351c', marginBottom: 16 }}>{error}</div>}
+      
+      {/* Validation Errors */}
+      {validationErrors.length > 0 && (
+        <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" data-module="govuk-error-summary">
+          <h2 className="govuk-error-summary__title" id="error-summary-title">
+            There is a problem
+          </h2>
+          <div className="govuk-error-summary__body">
+            <ul className="govuk-list govuk-error-summary__list">
+              {validationErrors.map((error, index) => (
+                <li key={index}>
+                  {error}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+      
       {/* Existing files for this path/prefix */}
       <div style={{ marginBottom: 32 }}>
         {existingFilesLoading && <div>Loading files...</div>}

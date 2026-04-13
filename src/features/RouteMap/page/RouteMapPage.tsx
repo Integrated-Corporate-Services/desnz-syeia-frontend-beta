@@ -7,6 +7,7 @@ import RoutePointCard from '../component/RoutePointCard';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { getNextRouteName } from '../../../utils/routeNamingUtils';
 
 // Validation function for a single point
  function getPointError(easting: string, northing: string) {
@@ -54,33 +55,9 @@ const RouteMapPage: React.FC = () => {
   // Store
   const { routes, loading, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRouteStore();
   
-  // Helper function to calculate next route name
-  const getNextRouteName = () => {
-    if (!routes || routes.length === 0) return 'Route A';
-    
-    // Extract all route letters from existing routes
-    const existingLetters = routes
-      .map(r => {
-        const match = r.routeName?.match(/Route ([A-Z])/i);
-        return match ? match[1].toUpperCase() : null;
-      })
-      .filter(Boolean) as string[];
-    
-    // Find the next available letter
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    for (const letter of alphabet) {
-      if (!existingLetters.includes(letter)) {
-        return `Route ${letter}`;
-      }
-    }
-    
-    // Fallback if all letters are used
-    return `Route ${alphabet[routes.length % 26]}`;
-  };
-  
   // If coming from add new route, use blank state and provided routeName
   const isNewRoute = location.state?.isNewRoute;
-  const initialRouteName = location.state?.routeName || (isNewRoute ? getNextRouteName() : 'Route A');
+  const initialRouteName = location.state?.routeName || (isNewRoute ? getNextRouteName([]) : 'Route A');
   const details = location.state?.details || '';
   const [points, setPoints] = useState<RoutePoint[]>([{ easting: '', northing: '' }]);
   const [routeId, setRouteId] = useState<string | undefined>(undefined);
@@ -105,7 +82,7 @@ const RouteMapPage: React.FC = () => {
     if (isNewRoute) {
       setRouteId(undefined);
       // Calculate the next route name only if no routeName was explicitly passed in location.state
-      const nextRouteName = location.state?.routeName || getNextRouteName();
+      const nextRouteName = location.state?.routeName || getNextRouteName(routes.map(r => r.routeName));
       setRouteName(nextRouteName);
       setPoints([{ easting: '', northing: '', point_id: '' }]);
       return;

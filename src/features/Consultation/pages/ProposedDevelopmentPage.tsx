@@ -7,7 +7,7 @@ import { getConsultationPack } from '../../../services/consultationPackService';
 import { getProposedDevelopment, saveProposedDevelopment } from '../../../services/consultationProposedDevelopmentService';
 import { markConsultationAsRequestSent } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
-import { isValidTextFormat, isWithinCharacterLimit } from '../../../utils/validation';
+import { isWithinCharacterLimit } from '../../../utils/validation';
 import { createLogger } from '../../../utils/logger';
 
 const log = createLogger('ProposedDevelopmentPage');
@@ -99,24 +99,18 @@ const ProposedDevelopmentPage: React.FC = () => {
       newErrors.projectDescription = CONSULTATION_VALIDATION_MESSAGES.projectDescription.empty;
     } else if (!isWithinCharacterLimit(formData.projectDescription, 4000)) {
       newErrors.projectDescription = CONSULTATION_VALIDATION_MESSAGES.projectDescription.characterLimit;
-    } else if (!isValidTextFormat(formData.projectDescription)) {
-      newErrors.projectDescription = CONSULTATION_VALIDATION_MESSAGES.projectDescription.invalidFormat;
     }
 
     if (!formData.representationsObjections.trim()) {
       newErrors.representationsObjections = CONSULTATION_VALIDATION_MESSAGES.representationsObjections.empty;
     } else if (!isWithinCharacterLimit(formData.representationsObjections, 4000)) {
       newErrors.representationsObjections = CONSULTATION_VALIDATION_MESSAGES.representationsObjections.characterLimit;
-    } else if (!isValidTextFormat(formData.representationsObjections)) {
-      newErrors.representationsObjections = CONSULTATION_VALIDATION_MESSAGES.representationsObjections.invalidFormat;
     }
 
     if (!formData.complianceDetails.trim()) {
       newErrors.complianceDetails = CONSULTATION_VALIDATION_MESSAGES.complianceDetails.empty;
     } else if (!isWithinCharacterLimit(formData.complianceDetails, 4000)) {
       newErrors.complianceDetails = CONSULTATION_VALIDATION_MESSAGES.complianceDetails.characterLimit;
-    } else if (!isValidTextFormat(formData.complianceDetails)) {
-      newErrors.complianceDetails = CONSULTATION_VALIDATION_MESSAGES.complianceDetails.invalidFormat;
     }
 
     setErrors(newErrors);

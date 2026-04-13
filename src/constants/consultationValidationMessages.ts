@@ -35,7 +35,6 @@ export const CONSULTATION_VALIDATION_MESSAGES = {
   consultationNotRequiredReason: {
     empty: 'You must provide a reason why this consultation is not required',
     characterLimit: 'You cannot enter more than 4,000 characters',
-    invalidFormat: 'You can only enter letters, numbers, spaces, apostrophes and hyphens',
   },
   consultationNotRequiredUpload: {
     empty: 'You must upload at least one supporting document',
@@ -55,7 +54,6 @@ export const CONSULTATION_VALIDATION_MESSAGES = {
   otherConsulteeOrganisation: {
     empty: 'Enter the name of another consultee',
     characterLimit: 'You cannot enter more than 4,000 characters',
-    invalidFormat: 'You can only enter letters, numbers, spaces, apostrophes and hyphens',
   },
 
   // Consultation Response
@@ -82,7 +80,6 @@ export const CONSULTATION_VALIDATION_MESSAGES = {
   // Consultation Response Review
   additionalComments: {
     tooLong: 'You cannot enter more than 4,000 characters',
-    invalidFormat: 'You can only enter letters, numbers, spaces, apostrophes and hyphens',
   },
   responseReviewDeclaration: {
     emptyPublic: 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this public consultation',
@@ -101,7 +98,6 @@ export const CONSULTATION_VALIDATION_MESSAGES = {
   lpaContactName: {
     empty: 'LPA contact name is required',
     characterLimit: 'You cannot enter more than 4,000 characters',
-    invalidFormat: 'You can only enter letters, numbers, spaces, apostrophes and hyphens',
   },
   lpaContactEmail: {
     empty: 'LPA contact email is required',
@@ -115,17 +111,14 @@ export const CONSULTATION_VALIDATION_MESSAGES = {
   projectDescription: {
     empty: 'Project description is required',
     characterLimit: 'You cannot enter more than 4,000 characters',
-    invalidFormat: 'You can only enter letters, numbers, spaces, apostrophes and hyphens',
   },
   representationsObjections: {
     empty: 'Representations or objections are required',
     characterLimit: 'You cannot enter more than 4,000 characters',
-    invalidFormat: 'You can only enter letters, numbers, spaces, apostrophes and hyphens',
   },
   complianceDetails: {
     empty: 'Compliance details are required',
     characterLimit: 'You cannot enter more than 4,000 characters',
-    invalidFormat: 'You can only enter letters, numbers, spaces, apostrophes and hyphens',
   },
 
   // Download LPA Form
