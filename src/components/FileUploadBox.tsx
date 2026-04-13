@@ -293,34 +293,19 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
       
       {/* Validation Errors */}
       {validationErrors.length > 0 && (
-        <div style={{ 
-          border: '4px solid #d4351c', 
-          padding: '16px', 
-          marginBottom: '24px',
-          backgroundColor: '#fff'
-        }}>
-          <h3 style={{ 
-            margin: '0 0 16px 0', 
-            fontSize: '1.1875rem',
-            fontWeight: 700,
-            color: '#d4351c'
-          }}>
+        <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" data-module="govuk-error-summary">
+          <h2 className="govuk-error-summary__title" id="error-summary-title">
             There is a problem
-          </h3>
-          <ul style={{ 
-            margin: 0, 
-            paddingLeft: '20px',
-            listStyleType: 'disc'
-          }}>
-            {validationErrors.map((error, index) => (
-              <li key={index} style={{ 
-                marginBottom: '8px',
-                color: '#0b0c0c'
-              }}>
-                {error}
-              </li>
-            ))}
-          </ul>
+          </h2>
+          <div className="govuk-error-summary__body">
+            <ul className="govuk-list govuk-error-summary__list">
+              {validationErrors.map((error, index) => (
+                <li key={index}>
+                  {error}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
       
