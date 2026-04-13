@@ -7,9 +7,9 @@ import TextInput from '../component/TextInput';
 import NumberInput from '../component/NumberInput';
 import RadioGroup from '../component/RadioGroup';
 import TextArea from '../component/TextArea';
-import FileUploadBox from '../../../components/FileUploadBox';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
+import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
 
 const initialState = {
   addingOrReplacingPoles: '',
@@ -144,40 +144,40 @@ const WorksOverview: React.FC = () => {
   const validate = (data: typeof initialState): FormErrors => {
     const newErrors: FormErrors = {};
     if (!data.addingOrReplacingPoles) {
-      newErrors.addingOrReplacingPoles = 'Select \'Yes\' or \'No\'';
+      newErrors.addingOrReplacingPoles = WORKS_OVERVIEW_VALIDATION_MESSAGES.ADDING_OR_REPLACING_POLES_REQUIRED;
     } else if (data.addingOrReplacingPoles === 'yes') {
-      if (!data.poleMaterial.trim()) newErrors.poleMaterial = 'Enter a description of materials used';
-      if (!data.chemicalTreatments.trim()) newErrors.chemicalTreatments = 'Enter chemical treatments.';
-      if (!data.polesAdded.trim()) newErrors.polesAdded = 'Enter the number of poles to be added';
-      if (!data.polesReplaced.trim()) newErrors.polesReplaced = 'Enter the number of poles to be replaced';
+      if (!data.poleMaterial.trim()) newErrors.poleMaterial = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLE_MATERIAL_REQUIRED;
+      if (!data.chemicalTreatments.trim()) newErrors.chemicalTreatments = WORKS_OVERVIEW_VALIDATION_MESSAGES.CHEMICAL_TREATMENTS_REQUIRED;
+      if (!data.polesAdded.trim()) newErrors.polesAdded = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_ADDED_REQUIRED;
+      if (!data.polesReplaced.trim()) newErrors.polesReplaced = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_REPLACED_REQUIRED;
     }
     if (!data.addingOrReplacingLines) {
-      newErrors.addingOrReplacingLines = 'Select \'Yes\' or \'No\'';
+      newErrors.addingOrReplacingLines = WORKS_OVERVIEW_VALIDATION_MESSAGES.ADDING_OR_REPLACING_LINES_REQUIRED;
     } else if (data.addingOrReplacingLines === 'yes') {
-      if (!data.overheadLineDescription.trim()) newErrors.overheadLineDescription = 'Enter a description of the overhead lines';
-      if (!data.estimatedDuration.trim()) newErrors.estimatedDuration = 'Enter an estimate of the duration';
-      if (!data.vehiclesRequired.trim()) newErrors.vehiclesRequired = 'Enter a list of vehicles required on site';
-      if (!data.roadClosuresRequired) newErrors.roadClosuresRequired = 'Select \'Yes\' or \'No\'';
+      if (!data.overheadLineDescription.trim()) newErrors.overheadLineDescription = WORKS_OVERVIEW_VALIDATION_MESSAGES.OVERHEAD_LINE_DESCRIPTION_REQUIRED;
+      if (!data.estimatedDuration.trim()) newErrors.estimatedDuration = WORKS_OVERVIEW_VALIDATION_MESSAGES.ESTIMATED_DURATION_REQUIRED;
+      if (!data.vehiclesRequired.trim()) newErrors.vehiclesRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEHICLES_REQUIRED_REQUIRED;
+      if (!data.roadClosuresRequired) newErrors.roadClosuresRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.ROAD_CLOSURES_REQUIRED;
     }
     if (!data.excavationRequired) {
-      newErrors.excavationRequired = 'Select \'Yes\' or \'No\'';
+      newErrors.excavationRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.EXCAVATION_REQUIRED;
     } else if (data.excavationRequired === 'yes') {
-      if (!data.excavationDetails.trim()) newErrors.excavationDetails = 'Enter details about the excavation work';
+      if (!data.excavationDetails.trim()) newErrors.excavationDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.EXCAVATION_DETAILS_REQUIRED;
     }
     if (!data.vegetationClearanceRequired) {
-      newErrors.vegetationClearanceRequired = 'Select \'Yes\' or \'No\'';
+      newErrors.vegetationClearanceRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEGETATION_CLEARANCE_REQUIRED;
     } else if (data.vegetationClearanceRequired === 'yes') {
-      if (!data.vegetationClearanceDetails.trim()) newErrors.vegetationClearanceDetails = 'Enter details about the vegetation clearance';
+      if (!data.vegetationClearanceDetails.trim()) newErrors.vegetationClearanceDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEGETATION_CLEARANCE_DETAILS_REQUIRED;
     }
     if (!data.usingExistingAccessRoutes) {
-      newErrors.usingExistingAccessRoutes = 'Select \'Yes\' or \'No\'';
+      newErrors.usingExistingAccessRoutes = WORKS_OVERVIEW_VALIDATION_MESSAGES.USING_EXISTING_ACCESS_ROUTES_REQUIRED;
     } else if (data.usingExistingAccessRoutes === 'yes') {
-      if (!data.accessRoutesDetails.trim()) newErrors.accessRoutesDetails = 'Enter details about access routes and storage sites';
+      if (!data.accessRoutesDetails.trim()) newErrors.accessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.ACCESS_ROUTES_DETAILS_REQUIRED;
     }
     if (!data.removingExistingEquipment) {
-      newErrors.removingExistingEquipment = 'Select \'Yes\' or \'No\'';
+      newErrors.removingExistingEquipment = WORKS_OVERVIEW_VALIDATION_MESSAGES.REMOVING_EXISTING_EQUIPMENT_REQUIRED;
     } else if (data.removingExistingEquipment === 'yes') {
-      if (!data.removalDescription.trim()) newErrors.removalDescription = 'Enter a description of the equipment to be removed';
+      if (!data.removalDescription.trim()) newErrors.removalDescription = WORKS_OVERVIEW_VALIDATION_MESSAGES.REMOVAL_DESCRIPTION_REQUIRED;
     }
     return newErrors;
   };
