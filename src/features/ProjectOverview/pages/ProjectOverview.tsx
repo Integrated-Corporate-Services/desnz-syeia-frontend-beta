@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStore } from '../../../store/useProjectStore';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from "../../../constants/content";
+import { PROJECT_OVERVIEW_ERRORS, createErrorLink, createMaxYearError } from "../../../constants/projectOverviewError";
 import { Link } from "react-router-dom";
 
 
@@ -50,7 +51,7 @@ const ProjectOverview = () => {
 	const navigate = useNavigate();
 	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
 	const [dropdownValue, setDropdownValue] = useState("");
-		const [searchResults, setSearchResults] = useState<any[]>([]);
+	const [searchResults, setSearchResults] = useState<any[]>([]);
 	const [showDropdown, setShowDropdown] = useState(false);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 	const fileUploadRef = useRef<FileUploadHandle>(null);
@@ -117,10 +118,10 @@ const ProjectOverview = () => {
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	 const { user } = useAuthUser();
-	  const userId = user?.user_id;
+	const { user } = useAuthUser();
+	const userId = user?.user_id;
 	// Helper to get applicationId from store, params, or query string
-	
+
 	const applicationId = useGetApplicationId();
 
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
@@ -236,14 +237,14 @@ const ProjectOverview = () => {
 					: [],
 				applicationDocuments: Array.isArray(projectData.applicationDocuments)
 					? projectData.applicationDocuments.map(d => ({
-						documentId: d.documentId  || '',
+						documentId: d.documentId || '',
 						applicationId: d.applicationId || '',
-						fileId: d.fileId  || '',
+						fileId: d.fileId || '',
 						category: d.category || '',
 						title: d.title || '',
-						virtualFolder: d.virtualFolder  || '',
-						addedBy: d.addedBy  || '',
-						addedAt: d.addedAt  || '',
+						virtualFolder: d.virtualFolder || '',
+						addedBy: d.addedBy || '',
+						addedAt: d.addedAt || '',
 						description: d.description || ''
 					}))
 					: []
@@ -281,32 +282,32 @@ const ProjectOverview = () => {
 									</li>
 								))}
 								{errors.map((err, idx) => {
-													// Parse error string for anchor tag, e.g. '<a href="#fieldId">Message</a>'
-													const anchorMatch = err.match(/<a[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/i);
-													if (anchorMatch) {
-														const [, href, text] = anchorMatch;
-														return (
-															<li key={idx}>
-																<a href={href}>{text}</a>
-															</li>
-														);
-													}
-													// Fallback: render as plain text
-													return <li key={idx}>{err}</li>;
-												})}
+									// Parse error string for anchor tag, e.g. '<a href="#fieldId">Message</a>'
+									const anchorMatch = err.match(/<a[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/i);
+									if (anchorMatch) {
+										const [, href, text] = anchorMatch;
+										return (
+											<li key={idx}>
+												<a href={href}>{text}</a>
+											</li>
+										);
+									}
+									// Fallback: render as plain text
+									return <li key={idx}>{err}</li>;
+								})}
 							</ul>
 						</div>
 					</div>
 				)}
 				<form method="post" onSubmit={async e => {
 					e.preventDefault();
-						setIsSubmitting(true);
-					
+					setIsSubmitting(true);
+
 					// Track if we uploaded files in this submission
 					let filesWereUploaded = false;
 					let newlyUploadedFiles: UploadedFile[] = [];
 					let newlyUploadedDocuments: ApplicationDocument[] = [];
-					
+
 					// First, upload any pending files to S3
 					if (fileUploadRef.current && pendingFiles.length > 0) {
 						try {
@@ -322,10 +323,10 @@ const ProjectOverview = () => {
 							return;
 						}
 					}
-					
+
 					const newErrors: string[] = [];
 					const newFieldErrors: Record<string, string> = {};
-					
+
 					// Add file validation errors
 					if (fileValidationErrors.length > 0) {
 						fileValidationErrors.forEach(error => {
@@ -333,171 +334,190 @@ const ProjectOverview = () => {
 						});
 						newFieldErrors.uploadedFiles = fileValidationErrors[0]; // Show first error in field
 					}
-					
-					// Example: Add email validation for actual email fields if present
-						// if (formState.emailField && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(formState.emailField)) {
-						//     newErrors.push('<a href="#emailField-inputValue">Enter a valid email address</a>');
-						//     newFieldErrors.emailField = "Enter a valid email address";
-						// }
+
+					// Validate Project Name
 					if (!formState.projectName?.trim()) {
-						newErrors.push('<a href="#projectName-inputValue">Enter the project name</a>');
-						newFieldErrors.projectName = "Enter the project name";
+						newErrors.push(createErrorLink('projectName-inputValue', PROJECT_OVERVIEW_ERRORS.PROJECT_NAME_REQUIRED));
+						newFieldErrors.projectName = PROJECT_OVERVIEW_ERRORS.PROJECT_NAME_REQUIRED;
 					}
+
+					// Validate Project Description
 					if (!formState.projectDescription?.trim()) {
-						newErrors.push('<a href="#projectDescription-inputValue">Enter the project description</a>');
-						newFieldErrors.projectDescription = "Enter the project description";
+						newErrors.push(createErrorLink('projectDescription-inputValue', PROJECT_OVERVIEW_ERRORS.PROJECT_DESCRIPTION_REQUIRED));
+						newFieldErrors.projectDescription = PROJECT_OVERVIEW_ERRORS.PROJECT_DESCRIPTION_REQUIRED;
 					}
+
+					// Validate Tallest Pole Height
 					if (!formState.tallestPoleHeight?.trim()) {
-						newErrors.push('<a href="#tallestPoleHeight-inputValue">Enter the height of the tallest pole</a>');
-						newFieldErrors.tallestPoleHeight = "Enter the height of the tallest pole";
+						newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_REQUIRED));
+						newFieldErrors.tallestPoleHeight = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_REQUIRED;
 					} else {
 						const val = formState.tallestPoleHeight.trim();
-					const numVal = Number(val);
-					
-					if (isNaN(numVal)) {
-						newErrors.push('<a href="#tallestPoleHeight-inputValue">Height must be a valid number</a>');
-						newFieldErrors.tallestPoleHeight = "Height must be a valid number";
-					} else if (numVal < 0) {
-						newErrors.push('<a href="#tallestPoleHeight-inputValue">Height cannot be negative</a>');
-						newFieldErrors.tallestPoleHeight = "Height cannot be negative";
-					} else {
-						// Check for more than two decimal places
-						const decimalPart = val.includes('.') ? val.split('.')[1] : '';
-						if (decimalPart.length > 2) {
-							newErrors.push('<a href="#tallestPoleHeight-inputValue">Enter at most 2 decimal places for the pole height</a>');
-							newFieldErrors.tallestPoleHeight = "Enter at most 2 decimal places for the pole height";
-						}
+						const numVal = Number(val);
+
+						if (isNaN(numVal)) {
+							newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_INVALID_NUMBER));
+							newFieldErrors.tallestPoleHeight = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_INVALID_NUMBER;
+						} else if (numVal < 0) {
+							newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE));
+							newFieldErrors.tallestPoleHeight = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE;
+						} else {
+							// Check for more than two decimal places
+							const decimalPart = val.includes('.') ? val.split('.')[1] : '';
+							if (decimalPart.length > 2) {
+								newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_DECIMAL_PLACES));
+								newFieldErrors.tallestPoleHeight = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_DECIMAL_PLACES;
+							}
 						}
 					}
+
+					// Validate Plan Reference
 					if (!formState.planReference?.trim()) {
-						newErrors.push('<a href="#planReference-inputValue">Enter the plan reference</a>');
-						newFieldErrors.planReference = "Enter the plan reference";
+						newErrors.push(createErrorLink('planReference-inputValue', PROJECT_OVERVIEW_ERRORS.PLAN_REFERENCE_REQUIRED));
+						newFieldErrors.planReference = PROJECT_OVERVIEW_ERRORS.PLAN_REFERENCE_REQUIRED;
 					}
+
+					// Validate Work Start Dates Known
 					if (!formState.areWorkStartDatesKnown) {
-						newErrors.push('<a href="#areWorkStartDatesKnown">Select yes if you know when work is intended to start on this development</a>');
-						newFieldErrors.areWorkStartDatesKnown = "Select yes if you know when work is intended to start on this development";
+						newErrors.push(createErrorLink('areWorkStartDatesKnown', PROJECT_OVERVIEW_ERRORS.WORK_START_DATES_REQUIRED));
+						newFieldErrors.areWorkStartDatesKnown = PROJECT_OVERVIEW_ERRORS.WORK_START_DATES_REQUIRED;
 					}
 					// --- Refactored date validation logic ---
-						// Helper: Validate month/year pair
-						function validateMonthYear(month: string, year: string, fieldPrefix: string, options?: { mustBeFuture?: boolean }) {
-							let errors: string[] = [];
-							let fieldError = "";
-							let yearInvalid = false;
-							if (!month || !year?.trim()) {
-								errors.push(`<a href="#${fieldPrefix}-month">Enter the ${fieldPrefix.replace(/([A-Z])/g, ' $1').toLowerCase()} date</a>`);
-								fieldError = `Enter the ${fieldPrefix.replace(/([A-Z])/g, ' $1').toLowerCase()} date`;
-								if (!year?.trim()) yearInvalid = true;
-							} else if (!/^\d{4}$/.test(year.trim())) {
-								yearInvalid = true;
-							} else {
-								const monthNum = months.findIndex(m => m.toLowerCase() === month.toLowerCase()) + 1;
-								if (monthNum > 0 && options?.mustBeFuture) {
-									const today = new Date();
-									today.setHours(0,0,0,0);
-									const currentYear = today.getFullYear();
-									const currentMonth = today.getMonth() + 1;
-									if (
-										Number(year) < currentYear ||
-										(Number(year) === currentYear && monthNum < currentMonth)
-									) {
-										errors.push(`<a href="#${fieldPrefix}-month">${fieldPrefix.replace(/([A-Z])/g, ' $1').replace('Work ', '')} date must be this month or later</a>`);
-										fieldError = `${fieldPrefix.replace(/([A-Z])/g, ' $1').replace('Work ', '')} date must be this month or later`;
-									}
-								}
-							}
-							if (yearInvalid) {
-								errors.push(`<a href="#${fieldPrefix}-year">${fieldPrefix.replace(/([A-Z])/g, ' $1').replace('Work ', '')} date must be a real year</a>`);
-							}
-							return { errors, fieldError, yearInvalid };
-						}
-
-						// Helper: Compare two month/year pairs
-						function compareMonthYear(earliestMonth: string, earliestYear: string, latestMonth: string, latestYear: string) {
-							const earliestMonthNum = months.findIndex(m => m.toLowerCase() === earliestMonth.toLowerCase()) + 1;
-							const latestMonthNum = months.findIndex(m => m.toLowerCase() === latestMonth.toLowerCase()) + 1;
-							if (earliestMonthNum > 0 && latestMonthNum > 0 && /^\d{4}$/.test(earliestYear) && /^\d{4}$/.test(latestYear)) {
-								const earliestDate = new Date(Number(earliestYear), earliestMonthNum - 1, 1);
-								const latestDate = new Date(Number(latestYear), latestMonthNum - 1, 1);
+					// Helper: Validate month/year pair
+					function validateMonthYear(month: string, year: string, fieldPrefix: string, options?: { mustBeFuture?: boolean }) {
+						const errors: string[] = [];
+						let fieldError = "";
+						let yearInvalid = false;
+						
+						// Determine which error messages to use based on fieldPrefix
+						const isEarliest = fieldPrefix === "earliestWorkStartDate";
+						const requiredMsg = isEarliest ? PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_REQUIRED : PROJECT_OVERVIEW_ERRORS.LATEST_DATE_REQUIRED;
+						const invalidYearMsg = isEarliest ? PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_INVALID_YEAR : PROJECT_OVERVIEW_ERRORS.LATEST_DATE_INVALID_YEAR;
+						const monthAnchor = `${fieldPrefix}-month`;
+						const yearAnchor = `${fieldPrefix}-year`;
+						
+						if (!month || !year?.trim()) {
+							errors.push(createErrorLink(monthAnchor, requiredMsg));
+							fieldError = requiredMsg;
+							if (!year?.trim()) yearInvalid = true;
+						} else if (!/^\d{4}$/.test(year.trim())) {
+							yearInvalid = true;
+						} else {
+							const monthNum = months.findIndex(m => m.toLowerCase() === month.toLowerCase()) + 1;
+							if (monthNum > 0 && options?.mustBeFuture) {
+								const today = new Date();
+								today.setHours(0, 0, 0, 0);
+								const currentYear = today.getFullYear();
+								const currentMonth = today.getMonth() + 1;
 								if (
-									latestDate.getFullYear() < earliestDate.getFullYear() ||
-									(latestDate.getFullYear() === earliestDate.getFullYear() && latestDate.getMonth() < earliestDate.getMonth())
+									Number(year) < currentYear ||
+									(Number(year) === currentYear && monthNum < currentMonth)
 								) {
-									return {
-										error: '<a href="#latestWorkStartDate-month">Latest expected start date must be same as or after earliest start date</a>',
-										fieldError: "Latest expected start date must be same as or after earliest start date"
-									};
+									errors.push(createErrorLink(monthAnchor, PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_MUST_BE_FUTURE));
+									fieldError = PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_MUST_BE_FUTURE;
 								}
 							}
-							return null;
 						}
+						if (yearInvalid) {
+							errors.push(createErrorLink(yearAnchor, invalidYearMsg));
+						}
+						return { errors, fieldError, yearInvalid };
+					}
 
-						if (formState.areWorkStartDatesKnown === "true") {
-							// Earliest expected start date
-							const earliest = validateMonthYear(
+					// Helper: Compare two month/year pairs
+					function compareMonthYear(earliestMonth: string, earliestYear: string, latestMonth: string, latestYear: string) {
+						const earliestMonthNum = months.findIndex(m => m.toLowerCase() === earliestMonth.toLowerCase()) + 1;
+						const latestMonthNum = months.findIndex(m => m.toLowerCase() === latestMonth.toLowerCase()) + 1;
+						if (earliestMonthNum > 0 && latestMonthNum > 0 && /^\d{4}$/.test(earliestYear) && /^\d{4}$/.test(latestYear)) {
+							const earliestDate = new Date(Number(earliestYear), earliestMonthNum - 1, 1);
+							const latestDate = new Date(Number(latestYear), latestMonthNum - 1, 1);
+							if (
+								latestDate.getFullYear() < earliestDate.getFullYear() ||
+								(latestDate.getFullYear() === earliestDate.getFullYear() && latestDate.getMonth() < earliestDate.getMonth())
+							) {
+								return {
+									error: createErrorLink('latestWorkStartDate-month', PROJECT_OVERVIEW_ERRORS.LATEST_DATE_COMPARE_ERROR),
+									fieldError: PROJECT_OVERVIEW_ERRORS.LATEST_DATE_COMPARE_ERROR
+								};
+							}
+						}
+						return null;
+					}
+
+					if (formState.areWorkStartDatesKnown === "true") {
+						// Earliest expected start date
+						const earliest = validateMonthYear(
+							formState.earliestWorkStartDateMonth,
+							formState.earliestWorkStartDateYear,
+							"earliestWorkStartDate",
+							{ mustBeFuture: true }
+						);
+						if (earliest.errors.length > 0) {
+							newErrors.push(...earliest.errors);
+							newFieldErrors.earliestWorkStartDate = earliest.fieldError;
+						}
+						// Latest expected start date
+						const latest = validateMonthYear(
+							formState.latestWorkStartDateMonth,
+							formState.latestWorkStartDateYear,
+							"latestWorkStartDate"
+						);
+						if (latest.errors.length > 0) {
+							newErrors.push(...latest.errors);
+							newFieldErrors.latestWorkStartDate = latest.fieldError;
+						}
+						// Compare earliest and latest
+						if (!earliest.yearInvalid && !latest.yearInvalid) {
+							const compareResult = compareMonthYear(
 								formState.earliestWorkStartDateMonth,
 								formState.earliestWorkStartDateYear,
-								"earliestWorkStartDate",
-								{ mustBeFuture: true }
-							);
-							if (earliest.errors.length > 0) {
-								newErrors.push(...earliest.errors);
-								newFieldErrors.earliestWorkStartDate = earliest.fieldError;
-							}
-							// Latest expected start date
-							const latest = validateMonthYear(
 								formState.latestWorkStartDateMonth,
-								formState.latestWorkStartDateYear,
-								"latestWorkStartDate"
+								formState.latestWorkStartDateYear
 							);
-							if (latest.errors.length > 0) {
-								newErrors.push(...latest.errors);
-								newFieldErrors.latestWorkStartDate = latest.fieldError;
-							}
-							// Compare earliest and latest
-							if (!earliest.yearInvalid && !latest.yearInvalid) {
-								const compareResult = compareMonthYear(
-									formState.earliestWorkStartDateMonth,
-									formState.earliestWorkStartDateYear,
-									formState.latestWorkStartDateMonth,
-									formState.latestWorkStartDateYear
-								);
-								if (compareResult) {
-									newErrors.push(compareResult.error);
-									newFieldErrors.latestWorkStartDate = compareResult.fieldError;
-								}
-							}
-							// Additional business logic: restrict latest year to reasonable future (e.g., max current year + 50)
-							if (!latest.yearInvalid && /^\d{4}$/.test(formState.latestWorkStartDateYear)) {
-								const maxYear = new Date().getFullYear() + 50;
-								const enteredLatestYear = parseInt(formState.latestWorkStartDateYear, 10);
-								if (enteredLatestYear > maxYear) {
-									newErrors.push('<a href="#latestWorkStartDate-year">Latest expected start date year must not be more than ' + maxYear + '</a>');
-									newFieldErrors.latestWorkStartDate = 'Latest expected start date year must not be more than ' + maxYear;
-								}
+							if (compareResult) {
+								newErrors.push(compareResult.error);
+								newFieldErrors.latestWorkStartDate = compareResult.fieldError;
 							}
 						}
-					// File upload validation - skip if files were just uploaded (state update is async)
+						// Additional business logic: restrict latest year to reasonable future (e.g., max current year + 50)
+						if (!latest.yearInvalid && /^\d{4}$/.test(formState.latestWorkStartDateYear)) {
+							const maxYear = new Date().getFullYear() + 50;
+							const enteredLatestYear = parseInt(formState.latestWorkStartDateYear, 10);
+							if (enteredLatestYear > maxYear) {
+								const maxYearError = createMaxYearError(maxYear);
+								newErrors.push(createErrorLink('latestWorkStartDate-year', maxYearError));
+								newFieldErrors.latestWorkStartDate = maxYearError;
+							}
+						}
+					}
+					// Validate File Upload - skip if files were just uploaded (state update is async)
 					if (!filesWereUploaded && (!formState.uploadedFiles || formState.uploadedFiles.length === 0) && pendingFiles.length === 0) {
-						newErrors.push('<a href="#planInformationDocuments">Upload plan information documents</a>');
-						newFieldErrors.uploadedFiles = "Upload plan information documents";
+						newErrors.push(createErrorLink('planInformationDocuments', PROJECT_OVERVIEW_ERRORS.FILE_UPLOAD_REQUIRED));
+						newFieldErrors.uploadedFiles = PROJECT_OVERVIEW_ERRORS.FILE_UPLOAD_REQUIRED;
 					}
+
+					// Validate Related Applications
 					if (!formState.hasRelatedApplications) {
-						newErrors.push('<a href="#hasRelatedApplications">Select yes if there are related applications</a>');
-						newFieldErrors.hasRelatedApplications = "Select yes if there are related applications";
+						newErrors.push(createErrorLink('hasRelatedApplications', PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_REQUIRED));
+						newFieldErrors.hasRelatedApplications = PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_REQUIRED;
 					}
-					// Validation: If user selects 'Yes' for related applications but none are added
+
+					// Validate Related Applications - If 'Yes' selected but none added
 					if (formState.hasRelatedApplications === "true" && (!formState.relatedApplications || formState.relatedApplications.length === 0)) {
-						newErrors.push('<a href="#relatedApplications-search">Add one or more related applications</a>');
-						newFieldErrors.hasRelatedApplications = "Add one or more related applications";
+						newErrors.push(createErrorLink('relatedApplications-search', PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_ADD));
+						newFieldErrors.hasRelatedApplications = PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_ADD;
 					}
+
+					// Validate Related CPO
 					if (!formState.hasRelatedCpo) {
-						newErrors.push('<a href="#hasRelatedCpo">Select yes if there is a related CPO</a>');
-						newFieldErrors.hasRelatedCpo = "Select yes if there is a related CPO";
+						newErrors.push(createErrorLink('hasRelatedCpo', PROJECT_OVERVIEW_ERRORS.RELATED_CPO_REQUIRED));
+						newFieldErrors.hasRelatedCpo = PROJECT_OVERVIEW_ERRORS.RELATED_CPO_REQUIRED;
 					}
-					// Related CPO details validation
+
+					// Validate Related CPO Details
 					if (formState.hasRelatedCpo === "true" && !getRelatedCpoDetailsString(formState.relatedCpoDetails).trim()) {
-						newErrors.push('<a href="#relatedCpoDetails-inputValue">Enter the details of the related CPO</a>');
-						newFieldErrors.relatedCpoDetails = "Enter the details of the related CPO";
+						newErrors.push(createErrorLink('relatedCpoDetails-inputValue', PROJECT_OVERVIEW_ERRORS.RELATED_CPO_DETAILS_REQUIRED));
+						newFieldErrors.relatedCpoDetails = PROJECT_OVERVIEW_ERRORS.RELATED_CPO_DETAILS_REQUIRED;
 					}
 					// Removed EIP details validation logic as requested
 					setErrors(newErrors);
@@ -564,7 +584,7 @@ const ProjectOverview = () => {
 								response?.application_overview?.application_id ||
 								applicationIdForSave ||
 								'';
-							  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
+							navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
 						})
 						.catch((err: any) => {
 							setErrors([err.message || 'Failed to save project overview']);
@@ -574,7 +594,7 @@ const ProjectOverview = () => {
 
 					{/* Project Name Section */}
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project name</h2>
-				<div className="govuk-form-group govuk-!-width-two-thirds">
+					<div className="govuk-form-group govuk-!-width-two-thirds">
 						<TextInput
 							label=""
 							id="projectName-inputValue"
@@ -588,7 +608,7 @@ const ProjectOverview = () => {
 
 					{/* Project Description Section */}
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project description</h2>
-				<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
+					<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 						<TextArea
 							label=""
 							id="projectDescription-inputValue"
@@ -623,7 +643,7 @@ const ProjectOverview = () => {
 
 					{/* Tallest Pole Height Section */}
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">What is the height of the tallest proposed pole?</h2>
-				<div className="govuk-!-margin-bottom-6 govuk-!-width-one-third">
+					<div className="govuk-!-margin-bottom-6 govuk-!-width-one-third">
 						<NumberInput
 							label=""
 							suffix={projectOverview.tallestPoleHeightSuffix}
@@ -638,7 +658,7 @@ const ProjectOverview = () => {
 
 					{/* Plan Reference Section */}
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Plan reference</h2>
-				<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.planReference ? " govuk-form-group--error" : ""}`}>
+					<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.planReference ? " govuk-form-group--error" : ""}`}>
 						<label className="govuk-label govuk-visually-hidden" htmlFor="planReference-inputValue">
 							Plan reference
 						</label>
@@ -660,7 +680,7 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Work Start Dates Known */}
-				<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-three-quarters${fieldErrors?.areWorkStartDatesKnown ? " govuk-form-group--error" : ""}`}>
+					<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-three-quarters${fieldErrors?.areWorkStartDatesKnown ? " govuk-form-group--error" : ""}`}>
 						<fieldset className="govuk-fieldset" aria-describedby={fieldErrors?.areWorkStartDatesKnown ? "areWorkStartDatesKnown-error" : undefined}>
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 								<h2 className="govuk-fieldset__heading">
@@ -784,57 +804,57 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Plan Information Documents */}
-					<div id="planInformationDocuments" className={`govuk-form-group${fieldErrors?.uploadedFiles ? " govuk-form-group--error" : ""} govuk-!-margin-bottom-0`}> 
+					<div id="planInformationDocuments" className={`govuk-form-group${fieldErrors?.uploadedFiles ? " govuk-form-group--error" : ""} govuk-!-margin-bottom-0`}>
 						<fieldset className="govuk-fieldset">
-						<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-							{projectOverview.planInformationDocuments}
-						</legend>
-						{/* Field error removed - validation errors only shown in error summary above */}
-						<FileUpload
-							ref={fileUploadRef}
-							title='Upload a file'
-							showTitle={false}
-							prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
-							applicationId={applicationId}
-							category={FILE_CATEGORIES.PLAN_INFO}
-							addedBy={userId}
-							uploadedFiles={formState.uploadedFiles}
-							showDocumentsHeading={true}
-							onDeleteFile={handleDeleteFile}
-							onPendingFilesChange={setPendingFiles}
-							onValidationErrors={(errors) => {
-						// Handle validation errors
-						setFileValidationErrors(errors);
-						// Set field error for red border styling, but message only shows in error summary
-						if (errors.length > 0) {
-							setFieldErrors(prev => ({ ...prev, uploadedFiles: 'validation-error' }));
-						} else {
-							setFieldErrors(prev => { const newErrors = {...prev}; delete newErrors.uploadedFiles; return newErrors; });
-						}
-					}}						onUploaded={(newUploadedFiles, newProjectDocuments) => {
-							setFormState(prev => ({
-								...prev,
-								uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
-								applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
-							}));
-						}}
-					/>
-				</fieldset>
-			</div>
+							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+								{projectOverview.planInformationDocuments}
+							</legend>
+							{/* Field error removed - validation errors only shown in error summary above */}
+							<FileUpload
+								ref={fileUploadRef}
+								title='Upload a file'
+								showTitle={false}
+								prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
+								applicationId={applicationId}
+								category={FILE_CATEGORIES.PLAN_INFO}
+								addedBy={userId}
+								uploadedFiles={formState.uploadedFiles}
+								showDocumentsHeading={true}
+								onDeleteFile={handleDeleteFile}
+								onPendingFilesChange={setPendingFiles}
+								onValidationErrors={(errors) => {
+									// Handle validation errors
+									setFileValidationErrors(errors);
+									// Set field error for red border styling, but message only shows in error summary
+									if (errors.length > 0) {
+										setFieldErrors(prev => ({ ...prev, uploadedFiles: 'validation-error' }));
+									} else {
+										setFieldErrors(prev => { const newErrors = { ...prev }; delete newErrors.uploadedFiles; return newErrors; });
+									}
+								}} onUploaded={(newUploadedFiles, newProjectDocuments) => {
+									setFormState(prev => ({
+										...prev,
+										uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
+										applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
+									}));
+								}}
+							/>
+						</fieldset>
+					</div>
 
-			{/* Details: What information should be included in the plan */}
-		<details className="govuk-details govuk-!-margin-bottom-6">
-				<summary className="govuk-details__summary">
-					<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
-				</summary>
-				<div className="govuk-details__text">
-					<p className="govuk-body">
-						{projectOverview.planDetailsText}
-					</p>
-				</div>
-			</details>
+					{/* Details: What information should be included in the plan */}
+					<details className="govuk-details govuk-!-margin-bottom-6">
+						<summary className="govuk-details__summary">
+							<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
+						</summary>
+						<div className="govuk-details__text">
+							<p className="govuk-body">
+								{projectOverview.planDetailsText}
+							</p>
+						</div>
+					</details>
 
-			{/* Related Applications */}
+					{/* Related Applications */}
 					<div className={`govuk-form-group${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`}>
 						<fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()} id="relatedApplications-section">
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
@@ -856,7 +876,7 @@ const ProjectOverview = () => {
 								{formState.hasRelatedApplications === "true" && (
 									<div className="govuk-radios__conditional" id="hasRelatedApplications-hidden">
 										{/* Related applications table */}
-									<table className="govuk-table govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
+										<table className="govuk-table govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
 											<thead className="govuk-table__head">
 												<tr className="govuk-table__row">
 													<th scope="col" className="govuk-table__header govuk-!-width-one-half">Related applications</th>
