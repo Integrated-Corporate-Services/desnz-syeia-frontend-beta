@@ -159,6 +159,11 @@ const validateForDuplicates = (filesToCheck: File[], existingFiles: File[]): Fil
 const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileValidationError[]> => {
   const errors: FileValidationError[] = [];
   
+  console.log('Starting password protection validation', {
+    filesCount: filesToCheck.length,
+    files: filesToCheck.map(f => ({ name: f.name, size: f.size, type: f.type }))
+  });
+  
   logger.info('Starting password protection validation', {
     filesCount: filesToCheck.length,
     files: filesToCheck.map(f => ({ name: f.name, size: f.size, type: f.type }))
@@ -166,8 +171,10 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
   
   for (const file of filesToCheck) {
     try {
+      console.log(`Checking file for password protection: ${file.name}`);
       logger.info('Checking file for password protection', { filename: file.name });
       const isProtected = await isPasswordProtected(file);
+      console.log(`Password protection check result for ${file.name}: ${isProtected}`);
       logger.info('Password protection check result', { filename: file.name, isProtected });
       
       if (isProtected) {
@@ -176,9 +183,11 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
           errorType: 'PASSWORD_PROTECTED',
           message: VALIDATION_ERROR_MESSAGES.PASSWORD_PROTECTED
         });
+        console.warn(`File rejected - password protected: ${file.name}`);
         logger.warn('File rejected - password protected', { filename: file.name });
       }
     } catch (error) {
+      console.warn(`Password protection check failed for ${file.name} - allowing upload`, error);
       logger.warn('Password protection check failed - allowing upload', {
         filename: file.name,
         error: error instanceof Error ? error.message : String(error)
@@ -186,6 +195,11 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
       // Don't block upload if password check fails
     }
   }
+  
+  console.log('Password protection validation completed', {
+    errorsFound: errors.length,
+    errors: errors.map(e => ({ filename: e.filename, errorType: e.errorType }))
+  });
   
   logger.info('Password protection validation completed', {
     errorsFound: errors.length,

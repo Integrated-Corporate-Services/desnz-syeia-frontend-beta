@@ -17,36 +17,36 @@ const logger = createLogger('passwordProtectionDetector');
  */
 const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
-    // Check first 2048 bytes for encryption markers (PDF structure is at the beginning)
-    const pdfHeader = String.fromCharCode(...uint8Array.slice(0, 2048));
-    const hex = uint8ArrayToHex(uint8Array.slice(0, 2048)); // Check more bytes for thoroughness
+    // Check first 4096 bytes for encryption markers
+    const bytesToCheck = Math.min(4096, uint8Array.length);
+    const pdfHeader = String.fromCharCode(...uint8Array.slice(0, bytesToCheck));
     
-    const { PDF } = PASSWORD_PROTECTION_SIGNATURES;
+    // GENERIC APPROACH: A PDF is encrypted if it has an /Encrypt dictionary reference
+    // This is THE definitive marker - all encrypted PDFs must have this in the trailer or catalog
+    // Pattern: /Encrypt followed by whitespace and an object reference (number 0 R)
+    const hasEncryptDict = /\/Encrypt\s+\d+\s+\d+\s+R/.test(pdfHeader);
     
-    // PDF files have encryption markers in their structure (not in content)
-    // Look for /Encrypt dictionary which indicates file-level encryption
-    const hasEncryptMarker = pdfHeader.includes(PDF.ENCRYPT_MARKER);
-    const hasHexMarker = hex.includes(PDF.HEX_MARKER);
-    const hasCryptFilter = pdfHeader.includes(PDF.CRYPT_FILTER);
-    const hasFilterStandard = pdfHeader.includes(PDF.FILTER_STANDARD);
-    const hasUserPassword = pdfHeader.includes(PDF.U_ENTRY);
-    const hasOwnerPassword = pdfHeader.includes(PDF.O_ENTRY);
-    const hasStandardSecurity = hex.includes(PDF.STANDARD_SECURITY);
+    // Fallback: Also check for /Encrypt followed by inline dictionary (less common)
+    const hasInlineEncrypt = /\/Encrypt\s*<</.test(pdfHeader);
     
-    // A PDF is password protected if it has /Encrypt dictionary OR encryption-related entries
-    const isProtected = hasEncryptMarker || hasHexMarker || hasCryptFilter || 
-                       (hasFilterStandard && (hasUserPassword || hasOwnerPassword)) ||
-                       hasStandardSecurity;
+    // Additional generic check: /Filter /Standard is the standard encryption method
+    const hasStandardFilter = /\/Filter\s*\/Standard/.test(pdfHeader);
+    
+    // Generic encryption object detection: Look for encryption version markers
+    // /V (version) and /R (revision) are required in encryption dictionaries
+    const hasEncryptionVersion = /\/V\s+\d+/.test(pdfHeader) && /\/R\s+\d+/.test(pdfHeader);
+    
+    // A PDF is password protected if it has any of these markers
+    const isProtected = hasEncryptDict || hasInlineEncrypt || 
+                       (hasStandardFilter && hasEncryptionVersion);
+  
     
     logValidationEvent('PDF password check', filename, { 
       isProtected,
-      hasEncryptMarker,
-      hasHexMarker,
-      hasCryptFilter,
-      hasFilterStandard,
-      hasUserPassword,
-      hasOwnerPassword,
-      hasStandardSecurity
+      hasEncryptDict,
+      hasInlineEncrypt,
+      hasStandardFilter,
+      hasEncryptionVersion
     });
     
     return isProtected;
@@ -291,8 +291,9 @@ const determineOptimalBytesToRead = (file: File): number => {
   const mimeType = file.type.toLowerCase();
   
   // PDF files: Need more bytes for encryption dictionaries
+  // Some PDFs have encryption info later in the header structure
   if (mimeType === 'application/pdf' || filename.endsWith('.pdf')) {
-    return 2048;
+    return 4096; // Increased from 2048 to 4096 for better PDF encryption detection
   }
   
   // OLE-based files (legacy Office): Need more bytes for structure analysis

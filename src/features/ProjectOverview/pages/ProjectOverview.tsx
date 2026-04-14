@@ -799,6 +799,7 @@ const ProjectOverview = () => {
 							category={FILE_CATEGORIES.PLAN_INFO}
 							addedBy={userId}
 							uploadedFiles={formState.uploadedFiles}
+							applicationDocuments={formState.applicationDocuments}
 							showDocumentsHeading={true}
 							onDeleteFile={handleDeleteFile}
 							onPendingFilesChange={setPendingFiles}

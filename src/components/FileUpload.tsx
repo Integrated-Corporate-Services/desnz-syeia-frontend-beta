@@ -20,6 +20,7 @@ export interface FileUploadProps {
   title?: string;
   prefix?: string;
   uploadedFiles?: UploadedFile[];
+  applicationDocuments?: ApplicationDocument[]; // Added: to filter files by category
   onFilesChange?: (files: File[]) => void;
   onRemoveFile?: (idx: number) => void;
   onDeleteFile?: (fileId: string) => void;
@@ -48,6 +49,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   title = "Upload a file",
   prefix = "",
   uploadedFiles,
+  applicationDocuments,
   onFilesChange,
   onRemoveFile,
   onDeleteFile,
@@ -120,20 +122,32 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     }
     
     // VALIDATION: 500MB limit PER PAGE (e.g., Project Overview, Supporting Info each have their own 500MB limit)
-    // The uploadedFiles prop should ONLY contain files from THIS specific page/category
+    // Filter uploadedFiles to ONLY include files from THIS specific page/category
     // Total size = Files already uploaded on THIS page + Pending files + New files
     
-    // Calculate total size of files already uploaded to S3 for THIS page
-    const uploadedFilesSize = uploadedFiles?.reduce((sum, f) => sum + f.fileSizeBytes, 0) || 0;
+    // Filter files by matching with applicationDocuments for current category
+    const fileIdsForThisCategory = applicationDocuments
+      ?.filter(doc => doc.category === category)
+      .map(doc => doc.fileId) || [];
+    
+    const uploadedFilesForThisCategory = uploadedFiles?.filter(
+      file => fileIdsForThisCategory.includes(file.id)
+    ) || [];
+    
+    // Calculate total size of files already uploaded to S3 for THIS page ONLY
+    // IMPORTANT: Convert fileSizeBytes to number to avoid string concatenation
+    const uploadedFilesSize = uploadedFilesForThisCategory.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0);
     
     // Calculate total size of pending files (selected but not uploaded yet)
     const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
     
     logger.info('Starting file validation - Per Page Limit', {
-      page: prefix, // Shows which page/category
+      page: prefix,
+      category,
       newFilesCount: newFiles.length,
-      uploadedFilesOnThisPage: uploadedFiles?.length || 0,
-      uploadedFilesSize,
+      totalUploadedFiles: uploadedFiles?.length || 0,
+      uploadedFilesOnThisCategory: uploadedFilesForThisCategory.length,
+      uploadedFilesSizeThisCategory: uploadedFilesSize,
       pendingFilesCount: pendingFiles.length,
       pendingFilesSize,
       totalExistingSize: uploadedFilesSize + pendingFilesSize,
