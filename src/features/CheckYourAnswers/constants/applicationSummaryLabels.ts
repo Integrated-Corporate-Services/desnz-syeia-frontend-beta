@@ -1,5 +1,4 @@
 // src/features/CheckYourAnswers/constants/applicationSummaryLabels.ts
-
 /**
  * Application Summary UI Labels
  * All user-facing text and labels
@@ -25,12 +24,14 @@ export const SECTION_HEADINGS = {
   ASSETS: 'Assets',
   ASSETS_INFORMATION: 'Assets Information',
   ROUTES: 'Routes',
+  ROUTE: 'Route',
   ROUTE_MAP: 'Route map',
   WORKS_OVERVIEW: 'Works overview',
   PARISHES: 'Parishes',
   SENSITIVE_AREA_CHECK: 'Sensitive area check',
   SENSITIVE_AREA_REVIEW: 'Sensitive area review',
   POST_CONSULTATION_ACTIONS: 'Post consultation actions',
+  POST_CONSULTATION: 'Post consultation',
   SUPPORTING_INFORMATION: 'Supporting information',
   EIA_FEES: 'EIA fees',
   CONSULTATION: 'Consultation',
@@ -92,6 +93,13 @@ export const FIELD_LABELS = {
   // Parish fields
   PARISH: 'Parish',
   PARISHES: 'Parishes',
+  
+  ASSET_INFORMATION: 'Assets information',
+
+  //Asset presentation fields
+  POLES_WITHIN_SENSITIVE_AREAS: 'There are poles within the sensitive areas',
+  POLES_OUTSIDE_SENSITIVE_AREAS: 'All poles are outside of the sensitive areas with only the overhead lines passing above them',
+  NO_POLES_SENSITIVE_AREAS: 'No poles are within a sensitive area and no overhead lines pass above them',
   
   // Consultation fields
   CONSULTEE_STATUS: 'Status',
