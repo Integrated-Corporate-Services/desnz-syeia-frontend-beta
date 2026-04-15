@@ -2002,11 +2002,26 @@ const CheckYourAnswers: React.FC = () => {
                 );
               })
             }
-
+            <h2 className="govuk-heading-m">{SECTION_HEADINGS.POST_CONSULTATION}</h2>
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION_ACTIONS}</h2>
-
+                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.POST_CONSULTATION}</h2>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/post-consultation-actions/lpa-agreement`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          post consultation outcome
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
