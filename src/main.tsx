@@ -1,11 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import "govuk-frontend/dist/govuk/govuk-frontend.min.css";
 import "./index.css";
 import "./styles/govuk.scss";
 import "./App.css";
 import App from "./App";
 import React from "react";
-import "govuk-frontend/dist/govuk/govuk-frontend.min.css";
 import axios from "axios";
 
 // Configure axios to send cookies with requests (required for session auth)

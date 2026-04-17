@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
-import { downloadS3File, downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
+import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('ConsultationSummaryCard');
@@ -156,10 +156,10 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     }
 
     /**
-     * Render status tag
+     * Render status tag with proper styling
      */
     function renderStatusTag(statusText: string, color: 'blue' | 'green' | 'grey' = 'blue') {
-        return <span className={`govuk-tag govuk-tag--${color} govuk-!-display-inline-block`}>{statusText}</span>;
+        return <span className={`govuk-tag govuk-tag--${color}`}>{statusText}</span>;
     }
 
     // ============================================================================
