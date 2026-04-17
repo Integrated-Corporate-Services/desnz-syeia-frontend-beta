@@ -85,10 +85,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
     
     logger.info('Starting file validation', {
       newFilesCount: newFiles.length,
+      existingPendingCount: files.length,
+      existingUploadedCount: uploadedFiles?.length || 0,
       files: newFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
     });
     
-    const result = await validateFiles(newFiles, files);
+    const allExistingFiles = [...files, ...(uploadedFiles || [])];
+    const result = await validateFiles(newFiles, allExistingFiles);
     
     logger.info('File validation completed', {
       validFilesCount: result.validFiles.length,
@@ -150,7 +153,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
       onValidationErrors([]);
     }
     
-    const result = await validateFiles(droppedFiles, files);
+    // FIX: Include uploadedFiles in validation to check total size correctly
+    const allExistingFiles = [...files, ...(uploadedFiles || [])];
+    const result = await validateFiles(droppedFiles, allExistingFiles);
     
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);

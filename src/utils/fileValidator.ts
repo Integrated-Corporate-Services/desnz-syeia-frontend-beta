@@ -14,7 +14,8 @@ import {
   calculateTotalSize,
   isDuplicateFile,
   isValidFileType,
-  logValidationEvent
+  logValidationEvent,
+  FileOrMetadata
 } from './fileValidationUtils';
 import { isPasswordProtected } from './passwordProtectionDetector';
 import { createLogger } from './logger';
@@ -61,8 +62,10 @@ const validateFileBasics = (file: File): FileValidationError | null => {
 
 /**
  * Validates total upload size constraints
+ * @param filesToCheck - New files to validate
+ * @param existingFiles - Existing files (File objects or UploadedFile metadata)
  */
-const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[]): FileValidationError[] => {
+const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: FileOrMetadata[]): FileValidationError[] => {
   const errors: FileValidationError[] = [];
   const currentTotalSize = calculateTotalSize(existingFiles);
   let runningTotal = currentTotalSize;
@@ -85,8 +88,10 @@ const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[
 
 /**
  * Checks for duplicate files based on name and size
+ * @param filesToCheck - New files to validate
+ * @param existingFiles - Existing files (File objects or UploadedFile metadata)
  */
-const validateForDuplicates = (filesToCheck: File[], existingFiles: File[]): FileValidationError[] => {
+const validateForDuplicates = (filesToCheck: File[], existingFiles: FileOrMetadata[]): FileValidationError[] => {
   const errors: FileValidationError[] = [];
   
   for (const file of filesToCheck) {
@@ -146,10 +151,12 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
 
 /**
  * Comprehensive file validation with step-by-step filtering
+ * @param newFiles - New files to validate
+ * @param existingFiles - Existing files (File objects or UploadedFile metadata)
  */
 export const validateFiles = async (
   newFiles: File[], 
-  existingFiles: File[] = []
+  existingFiles: FileOrMetadata[] = []
 ): Promise<FileValidationResult> => {
   logValidationEvent('validation started', 'batch', {
     newFilesCount: newFiles.length,
@@ -222,20 +229,24 @@ export const validateFiles = async (
 
 /**
  * Validates a single file (useful for real-time validation)
+ * @param file - File to validate
+ * @param existingFiles - Existing files (File objects or UploadedFile metadata)
  */
 export const validateSingleFile = async (
   file: File,
-  existingFiles: File[] = []
+  existingFiles: FileOrMetadata[] = []
 ): Promise<FileValidationResult> => {
   return validateFiles([file], existingFiles);
 };
 
 /**
  * Quick validation without password protection check (for immediate UI feedback)
+ * @param newFiles - New files to validate
+ * @param existingFiles - Existing files (File objects or UploadedFile metadata)
  */
 export const quickValidateFiles = (
   newFiles: File[],
-  existingFiles: File[] = []
+  existingFiles: FileOrMetadata[] = []
 ): Omit<FileValidationResult, 'validFiles'> & { potentiallyValidFiles: File[] } => {
   const errors: FileValidationError[] = [];
   let potentiallyValidFiles: File[] = [];
