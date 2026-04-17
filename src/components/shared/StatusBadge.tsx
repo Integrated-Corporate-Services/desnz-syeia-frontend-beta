@@ -62,10 +62,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
         aria-label={ariaLabelText}
         role="status"
         style={{
-          display: "inline-flex",
-          whiteSpace: "nowrap",
+          display: "inline-block",
           maxWidth: "100%",
-          overflow: "visible",
         }}
       >
         {displayText}

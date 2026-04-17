@@ -5,6 +5,7 @@ import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { applicationApiService } from "../../../services/applicationApiService";
+import { StatusBadge } from "../../../components/shared/StatusBadge";
 import {
   NetworkOperatorDetails,
   AssetInformation,
@@ -67,7 +68,7 @@ const ApplicationSummary: React.FC = () => {
   } = useDeclarationSubmit(applicationId);
 
   // Get formatting utility functions
-  const { formatCaseType, formatStatus, getStatusTagClass } = useApplicationFormatters();
+  const { formatCaseType, formatStatus } = useApplicationFormatters();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -472,12 +473,10 @@ const ApplicationSummary: React.FC = () => {
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
                     <dd className="govuk-summary-list__value">
-                      <strong
-                        className={`govuk-tag ${getStatusTagClass(applicationMetadata?.status)}`}
-                        style={{ fontSize: '16px' }}
-                      >
-                        {formatStatus(applicationMetadata?.status)}
-                      </strong>
+                      <StatusBadge 
+                        status={applicationMetadata?.status || ''} 
+                        className="govuk-!-font-size-16"
+                      />
                     </dd>
                   </div>
                 </dl>

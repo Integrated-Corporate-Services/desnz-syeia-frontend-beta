@@ -2,6 +2,7 @@ import { APPLICATION_STATUS } from "../../../constants/status";
 
 // Custom display labels for statuses (user-friendly format)
 export const STATUS_DISPLAY_LABELS: Record<string, string> = {
+  // Application statuses
   submitted: "Application submitted",
   "under review": "Under review",
   "in progress": "In progress",
@@ -22,10 +23,21 @@ export const STATUS_DISPLAY_LABELS: Record<string, string> = {
   negotiated: "Negotiated",
   "payment pending": "Payment pending",
   "hearing pending": "Hearing pending",
+  // Consultation-specific statuses
+  "not started yet": "Not started yet",
+  "request incomplete": "Request incomplete",
+  "request sent": "Request sent",
+  sent: "Sent",
+  closed: "Closed",
+  "not required": "Not required",
+  "upload response": "Upload response",
+  "public notices published": "Public notices published",
 };
 
 // Workbasket status tag class mapping - colors based on wireframe
+// Uses GOV.UK Design System color modifiers (blue, yellow, turquoise, red, grey, green)
 export const STATUS_TAG_CLASSES: Record<string, string> = {
+  // Application statuses
   "on hold": "govuk-tag govuk-tag--red",
   declined: "govuk-tag govuk-tag--red",
   negotiated: "govuk-tag govuk-tag--blue",
@@ -45,6 +57,15 @@ export const STATUS_TAG_CLASSES: Record<string, string> = {
   "representation stage": "govuk-tag govuk-tag--blue",
   "in abeyance": "govuk-tag govuk-tag--yellow",
   invalid: "govuk-tag govuk-tag--red",
+  // Consultation-specific statuses
+  "not started yet": "govuk-tag govuk-tag--grey",
+  "request incomplete": "govuk-tag govuk-tag--yellow",
+  "request sent": "govuk-tag govuk-tag--blue",
+  sent: "govuk-tag govuk-tag--blue",
+  closed: "govuk-tag govuk-tag--green",
+  "not required": "govuk-tag govuk-tag--green",
+  "upload response": "govuk-tag govuk-tag--blue",
+  "public notices published": "govuk-tag govuk-tag--blue",
 };
 
 // Statuses that allow editing in workbasket
