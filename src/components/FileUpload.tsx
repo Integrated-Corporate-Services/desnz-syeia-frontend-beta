@@ -163,13 +163,24 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       errors: result.errors
     });
     
-    if (result.errors.length > 0) {
+
+    if (result.errors.length > 0 && result.validFiles.length > 0) {
+     
       const errorMessages = result.errors.map(error => error.message);
       setValidationErrors(errorMessages);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
       }
+    } else if (result.errors.length > 0 && result.validFiles.length === 0) {
+      
+      const errorMessages = result.errors.map(error => error.message);
+      setValidationErrors(errorMessages);
+      
+      setTimeout(() => {
+        setValidationErrors([]);
+      }, 5000);
     } else {
+
       setValidationErrors([]);
       if (onValidationErrors) {
         onValidationErrors([]);
@@ -246,13 +257,27 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     // Validate: uploadedFiles (this page only) + pendingFiles + droppedFiles <= 500MB
     const result = await validateFiles(droppedFiles, pendingFiles, uploadedFilesSize);
     
-    if (result.errors.length > 0) {
+    // Only set/propagate errors if there are valid files being added
+    // If ALL files are rejected (no valid files), show errors temporarily but don't propagate to parent
+    if (result.errors.length > 0 && result.validFiles.length > 0) {
+      // Some files valid, some invalid - show errors
       const errorMessages = result.errors.map(error => error.message);
       setValidationErrors(errorMessages);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
       }
+    } else if (result.errors.length > 0 && result.validFiles.length === 0) {
+      // All files rejected - show error temporarily but don't propagate to parent
+      const errorMessages = result.errors.map(error => error.message);
+      setValidationErrors(errorMessages);
+      // Don't call onValidationErrors - parent shouldn't block form submission
+      
+      // Clear the temporary error after 5 seconds since no files were added
+      setTimeout(() => {
+        setValidationErrors([]);
+      }, 5000);
     } else {
+      // No errors - clear everything
       setValidationErrors([]);
       if (onValidationErrors) {
         onValidationErrors([]);

@@ -34,9 +34,7 @@ export interface FileValidationResult {
   remainingSpace: number;
 }
 
-/**
- * Validates file type and individual size constraints
- */
+
 const validateFileBasics = (file: File): FileValidationError | null => {
   // Check if file is empty
   if (file.size === 0) {
@@ -68,14 +66,7 @@ const validateFileBasics = (file: File): FileValidationError | null => {
   return null;
 };
 
-/**
- * Validates total upload size constraints
- * Enforces 500MB limit PER PAGE (each page like Project Overview, Supporting Info has its own limit)
- * 
- * @param filesToCheck - New files being uploaded right now
- * @param existingFiles - Pending files (selected but not yet uploaded to S3 in current session)
- * @param existingTotalSize - Size of files already uploaded to S3 for THIS specific page only
- */
+
 const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[] = [], existingTotalSize: number = 0): FileValidationError[] => {
   const errors: FileValidationError[] = [];
   
@@ -159,11 +150,6 @@ const validateForDuplicates = (filesToCheck: File[], existingFiles: File[]): Fil
 const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileValidationError[]> => {
   const errors: FileValidationError[] = [];
   
-  console.log('Starting password protection validation', {
-    filesCount: filesToCheck.length,
-    files: filesToCheck.map(f => ({ name: f.name, size: f.size, type: f.type }))
-  });
-  
   logger.info('Starting password protection validation', {
     filesCount: filesToCheck.length,
     files: filesToCheck.map(f => ({ name: f.name, size: f.size, type: f.type }))
@@ -171,10 +157,8 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
   
   for (const file of filesToCheck) {
     try {
-      console.log(`Checking file for password protection: ${file.name}`);
       logger.info('Checking file for password protection', { filename: file.name });
       const isProtected = await isPasswordProtected(file);
-      console.log(`Password protection check result for ${file.name}: ${isProtected}`);
       logger.info('Password protection check result', { filename: file.name, isProtected });
       
       if (isProtected) {
@@ -183,11 +167,9 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
           errorType: 'PASSWORD_PROTECTED',
           message: VALIDATION_ERROR_MESSAGES.PASSWORD_PROTECTED
         });
-        console.warn(`File rejected - password protected: ${file.name}`);
         logger.warn('File rejected - password protected', { filename: file.name });
       }
     } catch (error) {
-      console.warn(`Password protection check failed for ${file.name} - allowing upload`, error);
       logger.warn('Password protection check failed - allowing upload', {
         filename: file.name,
         error: error instanceof Error ? error.message : String(error)
@@ -196,7 +178,7 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
     }
   }
   
-  console.log('Password protection validation completed', {
+  logger.info('Password protection validation completed', {
     errorsFound: errors.length,
     errors: errors.map(e => ({ filename: e.filename, errorType: e.errorType }))
   });
@@ -264,8 +246,6 @@ export const validateFiles = async (
     !passwordErrors.some(error => error.filename === file.name)
   );
   
-  // Calculate final totals for THIS PAGE only
-  // = uploaded files on S3 + pending files + newly validated files
   const uploadedSize = existingTotalSize;
   const pendingSize = calculateTotalSize(existingFiles);
   const newValidSize = calculateTotalSize(finalValidFiles);
