@@ -4,9 +4,13 @@
  */
 
 import { FILE_SIZE_UNITS } from './fileValidationConstants';
+import { UploadedFile } from '../types/fileUpload';
 import { createLogger } from './logger';
 
 const logger = createLogger('fileValidationUtils');
+
+
+export type FileOrMetadata = File | UploadedFile;
 
 /**
  * Formats file size in human-readable format
@@ -33,25 +37,52 @@ export const getFileExtension = (filename: string): string => {
   return extension ? `.${extension}` : '';
 };
 
+
+const toSafeNumber = (value: string | number | undefined | null): number => {
+  if (value === undefined || value === null) return 0;
+  const num = typeof value === 'string' ? parseInt(value, 10) : value;
+  return isNaN(num) ? 0 : num;
+};
+
 /**
  * Calculates total size of multiple files
- * @param files - Array of files
- * @returns Total size in bytes
+ * @param files - Array of files (File objects or UploadedFile metadata)
+ * @returns Total size in bytes (guaranteed number type)
  */
-export const calculateTotalSize = (files: File[]): number => {
-  return files.reduce((total, file) => total + file.size, 0);
+export const calculateTotalSize = (files: FileOrMetadata[]): number => {
+  return files.reduce((total, file) => {
+    let size: number;
+    
+    if ((file as File).size !== undefined) {
+      // File object - size is always a number
+      size = (file as File).size;
+    } else {
+      size = toSafeNumber((file as UploadedFile).fileSizeBytes);
+    }
+    
+    return total + size;
+  }, 0);
 };
 
 /**
  * Checks if files have duplicate names and sizes
  * @param newFile - New file to check
- * @param existingFiles - Array of existing files
+ * @param existingFiles - Array of existing files (File objects or UploadedFile metadata)
  * @returns True if duplicate found
  */
-export const isDuplicateFile = (newFile: File, existingFiles: File[]): boolean => {
-  return existingFiles.some(existingFile => 
-    existingFile.name === newFile.name && existingFile.size === newFile.size
-  );
+export const isDuplicateFile = (newFile: File, existingFiles: FileOrMetadata[]): boolean => {
+  return existingFiles.some(existingFile => {
+    const existingName = (existingFile as File).name !== undefined
+      ? (existingFile as File).name
+      : (existingFile as UploadedFile).filename;
+    
+    // Type-safe size comparison: ensure numeric comparison
+    const existingSize = (existingFile as File).size !== undefined
+      ? (existingFile as File).size
+      : toSafeNumber((existingFile as UploadedFile).fileSizeBytes);
+    
+    return existingName === newFile.name && existingSize === newFile.size;
+  });
 };
 
 /**

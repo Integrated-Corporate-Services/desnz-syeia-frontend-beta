@@ -315,7 +315,6 @@ const ProjectOverview = () => {
 							newlyUploadedFiles = result.uploadedFiles;
 							newlyUploadedDocuments = result.applicationDocuments;
 						} catch (error) {
-							console.error('Failed to upload files:', error);
 							setErrors(['Failed to upload files. Please try again.']);
 							setIsSubmitting(false);
 							window.scrollTo({ top: 0 });
@@ -556,6 +555,7 @@ const ProjectOverview = () => {
 							description: d.description || ''
 						})),
 					};
+					
 					saveProjectOverview(payload)
 						.then((response: any) => {
 							// Try to get application id from backend response, fallback to payload/params/query string
@@ -799,6 +799,7 @@ const ProjectOverview = () => {
 							category={FILE_CATEGORIES.PLAN_INFO}
 							addedBy={userId}
 							uploadedFiles={formState.uploadedFiles}
+							applicationDocuments={formState.applicationDocuments}
 							showDocumentsHeading={true}
 							onDeleteFile={handleDeleteFile}
 							onPendingFilesChange={setPendingFiles}

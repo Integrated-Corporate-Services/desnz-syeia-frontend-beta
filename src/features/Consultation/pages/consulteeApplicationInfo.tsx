@@ -458,6 +458,7 @@ useEffect(() => {
                 category={FILE_CATEGORIES.CONSULTATION_ADDITIONAL_DOCUMENTS}
                 addedBy={user?.user_id}
                 uploadedFiles={consultationPack?.uploadedFiles || []}
+                applicationDocuments={consultationPack?.applicationDocuments || []}
                 onValidationErrors={handleFileValidationErrors}
                 onUploaded={(newUploadedFiles, newApplicationDocuments) => {
                   setConsultationPack((prev: any) => ({

@@ -355,6 +355,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                     category={FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}
                                     addedBy={user?.user_id || ''}
                                     uploadedFiles={uploadedFileObjs}
+                                    applicationDocuments={applicationDocuments}
                                     onRemoveFile={(idx) => {
                                         setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
                                         setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));

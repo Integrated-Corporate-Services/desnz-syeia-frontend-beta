@@ -336,6 +336,7 @@ const Negotiations: React.FC = () => {
             category={NWL_FILE_CATEGORIES.NWL_NEGOTIATIONS}
             addedBy={userId}
             uploadedFiles={uploadedFiles}
+            applicationDocuments={applicationDocuments}
             onUploaded={(newUploadedFiles: any[], newProjectDocuments: any[]) => {
               setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
               setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
