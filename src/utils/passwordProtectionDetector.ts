@@ -21,10 +21,7 @@ const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boole
     const bytesToCheck = Math.min(4096, uint8Array.length);
     const pdfHeader = String.fromCharCode(...uint8Array.slice(0, bytesToCheck));
     
-    // GENERIC APPROACH: A PDF is encrypted if it has an /Encrypt dictionary reference
-    // This is THE definitive marker - all encrypted PDFs must have this in the trailer or catalog
-    // Pattern: /Encrypt followed by whitespace and an object reference (number 0 R)
-    const hasEncryptDict = /\/Encrypt\s+\d+\s+\d+\s+R/.test(pdfHeader);
+   const hasEncryptDict = /\/Encrypt\s+\d+\s+\d+\s+R/.test(pdfHeader);
     
     // Fallback: Also check for /Encrypt followed by inline dictionary (less common)
     const hasInlineEncrypt = /\/Encrypt\s*<</.test(pdfHeader);
@@ -81,15 +78,31 @@ const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string):
     const isZipFile = hex.startsWith(OFFICE_XML.ZIP_HEADER);
     const hasOleHeader = hex.startsWith(OFFICE_LEGACY.OLE_HEADER);
     
-    // ONLY use file header to determine encryption status
-    // This prevents false positives from document content containing keywords like
-    // "Protected", "Official", "Encrypted", etc.
+    // CRITICAL FIX: Check file extension to avoid false positives
+    // Legacy Office files (.xls, .doc, .ppt, .msg) ALWAYS have OLE headers (encrypted or not)
+    // This function should ONLY detect encrypted MODERN Office files (.docx, .xlsx, .pptx)
+    const lowerFilename = filename.toLowerCase();
+    const isLegacyOfficeFile = lowerFilename.endsWith('.xls') || 
+                               lowerFilename.endsWith('.doc') || 
+                               lowerFilename.endsWith('.ppt') ||
+                               lowerFilename.endsWith('.msg');
+    
+    // If it's a legacy Office file, DO NOT check it here - let isOfficeLegacyPasswordProtected handle it
+    if (isLegacyOfficeFile) {
+      logger.info('Skipping Office XML check - legacy Office file format', { filename });
+      return false;
+    }
+    
+    // For modern Office files (.docx, .xlsx, .pptx):
+    // - Normal files: ZIP header (504b0304)
+    // - Encrypted files: OLE header (d0cf11e0a1b11ae1)
     const isProtected = !isZipFile && hasOleHeader;
     
     logValidationEvent('Office XML password check', filename, {
       isProtected,
       isZipFile,
       hasOleHeader,
+      isLegacyOfficeFile,
       headerHex: hex,
       reason: isProtected ? 'OLE header detected (file-level encryption)' : 'ZIP header detected (no file-level encryption)'
     });
@@ -112,7 +125,7 @@ const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string):
 const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
     const headerHex = uint8ArrayToHex(uint8Array.slice(0, 32)); // Check first 32 bytes for header
-    const contentHex = uint8ArrayToHex(uint8Array.slice(0, 1024)); // Check first 1024 bytes for encryption markers
+    const contentHex = uint8ArrayToHex(uint8Array.slice(0, Math.min(4096, uint8Array.length))); 
     const { OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
     
     // Legacy Office files (.doc, .xls) must have OLE header
@@ -125,74 +138,56 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
     
     // For OLE files, check for encryption markers throughout the file structure
     const hasEncryptedObject = contentHex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT);
-    const hasMsOfficeWrite = contentHex.includes(OFFICE_LEGACY.MS_OFFICE_WRITE);
     const hasEncryptionInfo = contentHex.includes(OFFICE_LEGACY.ENCRYPTION_INFO);
+    
+    // CRITICAL FIX: Remove generic pattern checks that cause false positives
+    // Only check for DEFINITIVE encryption stream names:
+    // - "EncryptedObject" stream (ONLY in encrypted files)
+    // - "EncryptionInfo" stream (ONLY in encrypted files)
+    // 
+    // REMOVED CHECKS (too generic, cause false positives):
+    // - ENCRYPTION_HEADER: '01000000020000000300000004000000' (just sequential bytes 1,2,3,4 - can be any counter/index)
+    // - RC4_CRYPTO_API: Can appear in file metadata or comments
+    // - MS_OFFICE_WRITE: Unclear signature, not definitive
+    
+    // PRODUCTION FIX: Only flag as encrypted if we find EXPLICIT encryption stream names
+    // Encrypted files ALWAYS have EncryptedObject or EncryptionInfo streams
+    const hasExplicitEncryption = hasEncryptedObject || hasEncryptionInfo;
+    
+    // Additional verification: Check for Office document streams (for logging only, not decision)
     const hasWordDocument = contentHex.includes(OFFICE_LEGACY.WORD_DOCUMENT);
     const hasWorkbook = contentHex.includes(OFFICE_LEGACY.WORKBOOK);
     const hasPowerPointDocument = contentHex.includes(OFFICE_LEGACY.POWERPOINT_DOCUMENT);
     const hasCurrentUser = contentHex.includes(OFFICE_LEGACY.CURRENT_USER);
     const hasDocumentSummary = contentHex.includes(OFFICE_LEGACY.DOCUMENT_SUMMARY);
     const hasSummaryInfo = contentHex.includes(OFFICE_LEGACY.SUMMARY_INFO);
-    // Check for MSG (Outlook) specific markers
     const hasMsgProperties = contentHex.includes(OFFICE_LEGACY.MSG_PROPERTIES);
     const hasMsgNameId = contentHex.includes(OFFICE_LEGACY.MSG_NAMEID);
     const hasMsgRecipients = contentHex.includes(OFFICE_LEGACY.MSG_RECIPIENTS);
     const hasMsgAttachments = contentHex.includes(OFFICE_LEGACY.MSG_ATTACHMENTS);
-    const hasEncryptionHeader = contentHex.includes(OFFICE_LEGACY.ENCRYPTION_HEADER);
-    const hasRC4Crypto = contentHex.includes(OFFICE_LEGACY.RC4_CRYPTO_API);
     
-    // Check for encryption version marker at common offset (0x200-0x300 range in hex)
-    // This appears in encrypted legacy Office files
-    const encryptionVersionPresent = contentHex.includes(OFFICE_LEGACY.ENCRYPTION_VERSION);
-    
-    // Legacy Office files are encrypted if they have:
-    // 1. Specific encryption markers OR
-    // 2. OLE structure with encryption indicators OR
-    // 3. Missing expected stream names (encrypted files hide stream names)
-    const hasExplicitEncryption = hasEncryptedObject || hasMsOfficeWrite || hasEncryptionInfo || 
-                                  hasEncryptionHeader || hasRC4Crypto;
-    
-    // Check if this OLE file has typical Office document streams
-    // Unencrypted Office files have recognizable streams:
-    // - DOC: WordDocument
-    // - XLS: Workbook
-    // - PPT: PowerPoint Document
-    // - MSG: __substg_version, __nameid, __recipients, __attachments
-    // - All: Current User, SummaryInformation, DocumentSummaryInformation
     const hasOfficeStreams = hasWordDocument || hasWorkbook || hasPowerPointDocument || 
                             hasCurrentUser || hasDocumentSummary || hasSummaryInfo ||
                             hasMsgProperties || hasMsgNameId || hasMsgRecipients || hasMsgAttachments;
-    const missingOfficeStreams = !hasOfficeStreams;
     
-    // A file is considered encrypted if:
-    // - It has explicit encryption markers, OR
-    // - It's an OLE file missing expected Office streams AND has encryption version markers
-    // This works regardless of file extension
-    const isProtected = hasExplicitEncryption || (missingOfficeStreams && encryptionVersionPresent);
+    // DEFENSIVE PROGRAMMING: Only flag as encrypted if explicit encryption markers found
+    // This prevents false positives from files with streams located beyond first 4096 bytes
+    const isProtected = hasExplicitEncryption;
     
     logValidationEvent('Office Legacy password check', filename, {
       isProtected,
       hasOleHeader,
       hasExplicitEncryption,
       hasEncryptedObject,
-      hasMsOfficeWrite,
       hasEncryptionInfo,
       hasWordDocument,
       hasWorkbook,
       hasPowerPointDocument,
-      hasCurrentUser,
-      hasDocumentSummary,
-      hasSummaryInfo,
-      hasMsgProperties,
-      hasMsgNameId,
-      hasMsgRecipients,
-      hasMsgAttachments,
       hasOfficeStreams,
-      missingOfficeStreams,
-      hasEncryptionHeader,
-      hasRC4Crypto,
-      encryptionVersionPresent,
-      decision: isProtected ? 'File is encrypted' : 'File is not encrypted'
+      bytesChecked: Math.min(4096, uint8Array.length),
+      decision: isProtected ? 
+        'ENCRYPTED - Encryption stream detected (EncryptedObject or EncryptionInfo)' : 
+        'NOT ENCRYPTED - No encryption streams found'
     });
     
     return isProtected;
@@ -482,9 +477,6 @@ export const isPasswordProtected = async (file: File): Promise<boolean> => {
       error: errorMessage,
       stack: errorStack
     });
-    
-    // Log to console for visibility
-    console.error('Password protection check failed for:', file.name, errorMessage);
     
     // IMPORTANT: If we can't check for password protection, we should be cautious
     // Returning false means we treat it as not protected, which could be wrong

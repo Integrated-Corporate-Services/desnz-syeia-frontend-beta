@@ -89,12 +89,18 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         logger.info('Manually triggering upload for pending files', {
           pendingFilesCount: pendingFiles.length
         });
-        const result = await uploadFiles(pendingFiles);
-        setPendingFiles([]); // Clear pending files after upload
-        if (onPendingFilesChange) {
-          onPendingFilesChange([]);
+        
+        try {
+          const result = await uploadFiles(pendingFiles);
+          setPendingFiles([]); // Clear pending files after upload
+          if (onPendingFilesChange) {
+            onPendingFilesChange([]);
+          }
+          return result;
+        } catch (error) {
+
+          throw error;
         }
-        return result;
       }
       return { uploadedFiles: [], applicationDocuments: [] };
     },
@@ -336,17 +342,21 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   // Core upload logic, called instantly after file select/drop
   const uploadFiles = async (uploadFiles: File[]): Promise<{ uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[] }> => {
+    
     if (uploadFiles.length === 0) {
       setStatuses(["No files selected"]);
       return { uploadedFiles: [], applicationDocuments: [] };
     }
     setStatuses(Array(uploadFiles.length).fill("Requesting presigned URLs..."));
+    
     try {
       const fileMetas = uploadFiles.map((f) => ({
         filename: prefix ? `${prefix}/${f.name}` : f.name,
         contentType: f.type || "application/octet-stream",
       }));
+      
       const data = await getPresignedUrls(fileMetas);
+      
       if (!data.urls || data.urls.length !== uploadFiles.length) {
         setStatuses(
           Array(uploadFiles.length).fill("Failed to get presigned URLs")
@@ -356,6 +366,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
+      
       for (let i = 0; i < uploadFiles.length; i++) {
         const urlObj = data.urls[i];
         if (!urlObj.url) {
@@ -367,6 +378,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setStatuses([...newStatuses]);
         try {
           const uploadRes = await uploadFileToS3(urlObj.url, uploadFiles[i]);
+          
           if (uploadRes.ok) {
             const now = new Date().toISOString();
             const s3Key = prefix
@@ -379,7 +391,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               bucketName: urlObj.bucketName || "", // If available from backend
               virtualFolder: s3Key.split("/").slice(0, -1).join("/"),
               filename: uploadFiles[i].name,
-              fileContentType: uploadFiles[i].type,
+              fileContentType: uploadFiles[i].type || "application/octet-stream", // Fallback for unknown MIME types
               fileSizeBytes: uploadFiles[i].size,
               uploadedAtTimestamp: now,
             };
@@ -429,10 +441,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           setStatuses([...newStatuses]);
         }
       }
+      
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
-      return { uploadedFiles, applicationDocuments };
+      return { uploadedFiles, applicationDocuments};
     } catch (err) {
       setStatuses(
         Array(uploadFiles.length).fill(
