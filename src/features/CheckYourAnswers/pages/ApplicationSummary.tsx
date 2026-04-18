@@ -43,7 +43,7 @@ import {
 import { REQUIRED_SECTIONS } from '../constants/applicationSummaryConstants';
 
 const ApplicationSummary: React.FC = () => {
-  const logger = createLogger("ApplicationSummary");
+  const logger = useMemo(() => createLogger("ApplicationSummary"), []);
   const navigate = useNavigate();
   const params = useParams();
   const getApplicationId = () => {
@@ -398,7 +398,7 @@ const ApplicationSummary: React.FC = () => {
         setPlanDocuments([]);
         setPermissions(null);
       });
-  }, [applicationId, formatCaseType, formatStatus, logger]);
+  }, [applicationId, logger]);
 
   return (
     <div className="govuk-width-container">
