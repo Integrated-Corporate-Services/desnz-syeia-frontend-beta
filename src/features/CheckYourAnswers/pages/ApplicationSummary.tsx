@@ -549,8 +549,7 @@ const ApplicationSummary: React.FC = () => {
                   className="govuk-button govuk-button--secondary"
                   data-module="govuk-button"
                   onClick={() => {
-                    // Navigate to withdraw application page
-                    // navigate(`${S37_BASE_URL}/${applicationId}/withdraw`);
+                    navigate(`${S37_BASE_URL}/${applicationId}/withdraw`);
                   }}
                 >
                   {BUTTON_LABELS.WITHDRAW_APPLICATION}

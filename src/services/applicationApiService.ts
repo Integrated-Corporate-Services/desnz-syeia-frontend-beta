@@ -264,4 +264,42 @@ getApplicationReview: async (applicationId: string, correlationId?: string) => {
   return response.json();
 },
 
+/**
+ * Withdraw an application with voluntary agreement status and optional reason
+ */
+withdrawApplication: async (
+  applicationId: string,
+  userId: string,
+  voluntaryAgreementReached: boolean,
+  withdrawalReason?: string,
+  correlationId?: string
+) => {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    "X-Correlation-ID": correlationId || generateCorrelationId(),
+  };
+
+  const response = await fetch(
+    `/backend/api/applications/${applicationId}/withdraw`,
+    {
+      method: "POST",
+      headers,
+      credentials: "include",
+      body: JSON.stringify({
+        withdrawn_by: userId,
+        withdrawn_at: new Date().toISOString(),
+        voluntary_agreement_reached: voluntaryAgreementReached,
+        withdrawal_reason: withdrawalReason || "",
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to withdraw application");
+  }
+
+  return response.json();
+},
+
 };
