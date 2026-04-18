@@ -51,8 +51,19 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
     const newFiles = Array.from(e.target.files);
     setValidationErrors([]); // Clear previous errors
     
-    // Calculate S3 files size for validation
-    const s3FilesSize = existingFiles.reduce((sum, f) => sum + f.size, 0);
+    // Combine staged files and S3 files for validation
+    // Map existingFiles to UploadedFile format for validation
+    const s3FilesAsUploaded = existingFiles.map(f => ({
+      id: f.key,
+      filename: f.key,
+      fileSizeBytes: f.size,
+      storageProvider: 's3',
+      s3Key: f.key,
+      bucketName: '',
+      virtualFolder: '',
+      fileContentType: '',
+      uploadedAtTimestamp: f.lastModified
+    }));
     
     // Validate files before processing
     logger.info('Validating files before upload', {
@@ -61,7 +72,8 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
       s3FilesCount: existingFiles.length
     });
     
-    const validationResult = await validateFiles(newFiles, files, s3FilesSize);
+    const allExistingFiles = [...files, ...s3FilesAsUploaded];
+    const validationResult = await validateFiles(newFiles, allExistingFiles);
     
     if (validationResult.errors.length > 0) {
       const errorMessages = validationResult.errors.map(err => err.message);
@@ -110,8 +122,19 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
     const droppedFiles = Array.from(e.dataTransfer.files);
     setValidationErrors([]); // Clear previous errors
     
-    // Calculate sizes for debugging - INCLUDING already uploaded files in S3
-    const s3FilesSize = existingFiles.reduce((sum, f) => sum + f.size, 0);
+    // Combine staged files and S3 files for validation
+    // Map existingFiles to UploadedFile format for validation
+    const s3FilesAsUploaded = existingFiles.map(f => ({
+      id: f.key,
+      filename: f.key,
+      fileSizeBytes: f.size,
+      storageProvider: 's3',
+      s3Key: f.key,
+      bucketName: '',
+      virtualFolder: '',
+      fileContentType: '',
+      uploadedAtTimestamp: f.lastModified
+    }));
     
     // Validate files before processing
     logger.info('Validating dropped files before upload', {
@@ -120,7 +143,8 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
       s3FilesCount: existingFiles.length
     });
     
-    const validationResult = await validateFiles(droppedFiles, files, s3FilesSize);
+    const allExistingFiles = [...files, ...s3FilesAsUploaded];
+    const validationResult = await validateFiles(droppedFiles, allExistingFiles);
     
     if (validationResult.errors.length > 0) {
       const errorMessages = validationResult.errors.map(err => err.message);

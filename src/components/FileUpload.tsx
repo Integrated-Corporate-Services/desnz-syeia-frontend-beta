@@ -155,7 +155,9 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     });
     
     // Validate: uploadedFiles (this page only) + pendingFiles + newFiles <= 500MB
-    const result = await validateFiles(newFiles, pendingFiles, uploadedFilesSize);
+    // Combine both pending files and uploaded files for complete validation
+    const allExistingFiles = [...pendingFiles, ...(uploadedFilesForThisCategory || [])];
+    const result = await validateFiles(newFiles, allExistingFiles);
     
     logger.info('File validation completed', {
       validFilesCount: result.validFiles.length,
@@ -255,7 +257,9 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     });
     
     // Validate: uploadedFiles (this page only) + pendingFiles + droppedFiles <= 500MB
-    const result = await validateFiles(droppedFiles, pendingFiles, uploadedFilesSize);
+    // Combine both pending files and uploaded files for complete validation
+    const allExistingFiles = [...pendingFiles, ...(uploadedFiles || [])];
+    const result = await validateFiles(droppedFiles, allExistingFiles);
     
     // Only set/propagate errors if there are valid files being added
     // If ALL files are rejected (no valid files), show errors temporarily but don't propagate to parent

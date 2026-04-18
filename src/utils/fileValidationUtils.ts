@@ -4,9 +4,15 @@
  */
 
 import { FILE_SIZE_UNITS } from './fileValidationConstants';
+import { UploadedFile } from '../types/fileUpload';
 import { createLogger } from './logger';
 
 const logger = createLogger('fileValidationUtils');
+
+/**
+ * Union type for files - either File objects or UploadedFile metadata
+ */
+export type FileOrMetadata = File | UploadedFile;
 
 /**
  * Formats file size in human-readable format
@@ -35,23 +41,34 @@ export const getFileExtension = (filename: string): string => {
 
 /**
  * Calculates total size of multiple files
- * @param files - Array of files
+ * @param files - Array of files (File objects or UploadedFile metadata)
  * @returns Total size in bytes
  */
-export const calculateTotalSize = (files: File[]): number => {
-  return files.reduce((total, file) => total + file.size, 0);
+export const calculateTotalSize = (files: FileOrMetadata[]): number => {
+  return files.reduce((total, file) => {
+    const size = (file as File).size !== undefined 
+      ? (file as File).size 
+      : (file as UploadedFile).fileSizeBytes;
+    return total + size;
+  }, 0);
 };
 
 /**
  * Checks if files have duplicate names and sizes
  * @param newFile - New file to check
- * @param existingFiles - Array of existing files
+ * @param existingFiles - Array of existing files (File objects or UploadedFile metadata)
  * @returns True if duplicate found
  */
-export const isDuplicateFile = (newFile: File, existingFiles: File[]): boolean => {
-  return existingFiles.some(existingFile => 
-    existingFile.name === newFile.name && existingFile.size === newFile.size
-  );
+export const isDuplicateFile = (newFile: File, existingFiles: FileOrMetadata[]): boolean => {
+  return existingFiles.some(existingFile => {
+    const existingName = (existingFile as File).name !== undefined
+      ? (existingFile as File).name
+      : (existingFile as UploadedFile).filename;
+    const existingSize = (existingFile as File).size !== undefined
+      ? (existingFile as File).size
+      : (existingFile as UploadedFile).fileSizeBytes;
+    return existingName === newFile.name && existingSize === newFile.size;
+  });
 };
 
 /**
