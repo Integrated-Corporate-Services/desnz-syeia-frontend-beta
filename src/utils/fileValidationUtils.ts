@@ -9,9 +9,7 @@ import { createLogger } from './logger';
 
 const logger = createLogger('fileValidationUtils');
 
-/**
- * Union type for files - either File objects or UploadedFile metadata
- */
+
 export type FileOrMetadata = File | UploadedFile;
 
 /**
@@ -39,16 +37,29 @@ export const getFileExtension = (filename: string): string => {
   return extension ? `.${extension}` : '';
 };
 
+
+const toSafeNumber = (value: string | number | undefined | null): number => {
+  if (value === undefined || value === null) return 0;
+  const num = typeof value === 'string' ? parseInt(value, 10) : value;
+  return isNaN(num) ? 0 : num;
+};
+
 /**
  * Calculates total size of multiple files
  * @param files - Array of files (File objects or UploadedFile metadata)
- * @returns Total size in bytes
+ * @returns Total size in bytes (guaranteed number type)
  */
 export const calculateTotalSize = (files: FileOrMetadata[]): number => {
   return files.reduce((total, file) => {
-    const size = (file as File).size !== undefined 
-      ? (file as File).size 
-      : (file as UploadedFile).fileSizeBytes;
+    let size: number;
+    
+    if ((file as File).size !== undefined) {
+      // File object - size is always a number
+      size = (file as File).size;
+    } else {
+      size = toSafeNumber((file as UploadedFile).fileSizeBytes);
+    }
+    
     return total + size;
   }, 0);
 };
@@ -64,9 +75,12 @@ export const isDuplicateFile = (newFile: File, existingFiles: FileOrMetadata[]):
     const existingName = (existingFile as File).name !== undefined
       ? (existingFile as File).name
       : (existingFile as UploadedFile).filename;
+    
+    // Type-safe size comparison: ensure numeric comparison
     const existingSize = (existingFile as File).size !== undefined
       ? (existingFile as File).size
-      : (existingFile as UploadedFile).fileSizeBytes;
+      : toSafeNumber((existingFile as UploadedFile).fileSizeBytes);
+    
     return existingName === newFile.name && existingSize === newFile.size;
   });
 };

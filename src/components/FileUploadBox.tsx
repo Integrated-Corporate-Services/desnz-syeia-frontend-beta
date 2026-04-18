@@ -51,8 +51,6 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
     const newFiles = Array.from(e.target.files);
     setValidationErrors([]); // Clear previous errors
     
-    // Combine staged files and S3 files for validation
-    // Map existingFiles to UploadedFile format for validation
     const s3FilesAsUploaded = existingFiles.map(f => ({
       id: f.key,
       filename: f.key,
@@ -65,7 +63,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
       uploadedAtTimestamp: f.lastModified
     }));
     
-    // Validate files before processing
+
     logger.info('Validating files before upload', {
       newFilesCount: newFiles.length,
       stagedFilesCount: files.length,
@@ -122,8 +120,6 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
     const droppedFiles = Array.from(e.dataTransfer.files);
     setValidationErrors([]); // Clear previous errors
     
-    // Combine staged files and S3 files for validation
-    // Map existingFiles to UploadedFile format for validation
     const s3FilesAsUploaded = existingFiles.map(f => ({
       id: f.key,
       filename: f.key,

@@ -79,9 +79,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  // S3 file listing is disabled; display files from uploadedFiles prop/state instead
-
-  // Local files for upload logic
+ 
   const files = internalFiles;
 
   // Expose methods to parent component via ref
@@ -116,16 +114,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files);
     setValidationErrors([]); // Clear previous errors
     
-    // Immediately clear parent errors when validation starts
     if (onValidationErrors) {
       onValidationErrors([]);
     }
     
-    // VALIDATION: 500MB limit PER PAGE (e.g., Project Overview, Supporting Info each have their own 500MB limit)
-    // Filter uploadedFiles to ONLY include files from THIS specific page/category
-    // Total size = Files already uploaded on THIS page + Pending files + New files
-    
-    // Filter files by matching with applicationDocuments for current category
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
       .map(doc => doc.fileId) || [];
@@ -134,11 +126,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       file => fileIdsForThisCategory.includes(file.id)
     ) || [];
     
-    // Calculate total size of files already uploaded to S3 for THIS page ONLY
-    // IMPORTANT: Convert fileSizeBytes to number to avoid string concatenation
     const uploadedFilesSize = uploadedFilesForThisCategory.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0);
     
-    // Calculate total size of pending files (selected but not uploaded yet)
     const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
     
     logger.info('Starting file validation - Per Page Limit', {
@@ -154,8 +143,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       files: newFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
     });
     
-    // Validate: uploadedFiles (this page only) + pendingFiles + newFiles <= 500MB
-    // Combine both pending files and uploaded files for complete validation
     const allExistingFiles = [...pendingFiles, ...(uploadedFilesForThisCategory || [])];
     const result = await validateFiles(newFiles, allExistingFiles);
     
@@ -240,11 +227,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       onValidationErrors([]);
     }
     
-    // VALIDATION: 500MB limit PER PAGE (e.g., Project Overview, Supporting Info each have their own 500MB limit)
-    // The uploadedFiles prop should ONLY contain files from THIS specific page/category
-    // Total size = Files already uploaded on THIS page + Pending files + New files
-    
-    const uploadedFilesSize = uploadedFiles?.reduce((sum, f) => sum + f.fileSizeBytes, 0) || 0;
+  
+    const uploadedFilesSize = uploadedFiles?.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0) || 0;
     const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
     
     logger.info('Starting file validation (drop) - Per Page Limit', {
@@ -256,32 +240,24 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       totalExistingSize: uploadedFilesSize + pendingFilesSize
     });
     
-    // Validate: uploadedFiles (this page only) + pendingFiles + droppedFiles <= 500MB
-    // Combine both pending files and uploaded files for complete validation
-    const allExistingFiles = [...pendingFiles, ...(uploadedFiles || [])];
+ 
+     const allExistingFiles = [...pendingFiles, ...(uploadedFiles || [])];
     const result = await validateFiles(droppedFiles, allExistingFiles);
     
-    // Only set/propagate errors if there are valid files being added
-    // If ALL files are rejected (no valid files), show errors temporarily but don't propagate to parent
     if (result.errors.length > 0 && result.validFiles.length > 0) {
-      // Some files valid, some invalid - show errors
       const errorMessages = result.errors.map(error => error.message);
       setValidationErrors(errorMessages);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
       }
     } else if (result.errors.length > 0 && result.validFiles.length === 0) {
-      // All files rejected - show error temporarily but don't propagate to parent
-      const errorMessages = result.errors.map(error => error.message);
+       const errorMessages = result.errors.map(error => error.message);
       setValidationErrors(errorMessages);
-      // Don't call onValidationErrors - parent shouldn't block form submission
-      
-      // Clear the temporary error after 5 seconds since no files were added
       setTimeout(() => {
         setValidationErrors([]);
       }, 5000);
     } else {
-      // No errors - clear everything
+
       setValidationErrors([]);
       if (onValidationErrors) {
         onValidationErrors([]);
@@ -392,7 +368,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         try {
           const uploadRes = await uploadFileToS3(urlObj.url, uploadFiles[i]);
           if (uploadRes.ok) {
-            // Build UploadedFile and ApplicationDocument objects
             const now = new Date().toISOString();
             const s3Key = prefix
               ? `${prefix}/${uploadFiles[i].name}`
@@ -423,9 +398,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             };
             applicationDocuments.push(applicationDocument);
             
-            // File uploaded successfully
-            
-            // Remove file and its status from local state after successful upload
             setInternalFiles((prevFiles: File[]) => {
               const idxToRemove = prevFiles.findIndex(
                 (file: File) =>
@@ -457,8 +429,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           setStatuses([...newStatuses]);
         }
       }
-      // Call onUploaded callback with built objects
-      // Calling onUploaded callback with files
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
@@ -476,18 +446,13 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   // Handle file deletion from S3
   const handleDeleteFile = async (fileId: string, s3Key: string) => {
     try {
-      // Delete from both S3 and database using comprehensive deletion
       const result = await deleteFileCompletely(fileId, s3Key);
-      
-      // File deleted successfully
-      
-      // Call the onDeleteFile callback to update parent state
       if (onDeleteFile) {
         onDeleteFile(fileId);
       }
       
     } catch (error: any) {
-      // Enhanced error logging for deletion failures
+      
       logger.error('File Deletion Error Details:', {
         fileId,
         s3Key,
@@ -500,7 +465,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         url: window.location.href
       });
       
-      // Log error and show user-friendly error with more context
+      
       const errorMsg = error?.response?.data?.error || error?.message || 'Unknown error occurred';
       logger.error('Failed to delete file completely', {
         fileId,
