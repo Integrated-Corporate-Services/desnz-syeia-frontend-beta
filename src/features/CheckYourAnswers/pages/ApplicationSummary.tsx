@@ -475,7 +475,6 @@ const ApplicationSummary: React.FC = () => {
                     <dd className="govuk-summary-list__value">
                       <StatusBadge 
                         status={applicationMetadata?.status || ''} 
-                        className="govuk-!-font-size-16"
                       />
                     </dd>
                   </div>
@@ -1484,7 +1483,9 @@ const ApplicationSummary: React.FC = () => {
                     <dl className="govuk-summary-list">
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
-                        <dd className="govuk-summary-list__value">{COMMON_TEXT.CLOSED}</dd>
+                        <dd className="govuk-summary-list__value">
+                          <StatusBadge status={COMMON_TEXT.CLOSED} isConsultation={true} />
+                        </dd>
                       </div>
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">{FIELD_LABELS.DATE_CLOSED}</dt>
@@ -1557,7 +1558,10 @@ const ApplicationSummary: React.FC = () => {
                         <div className="govuk-summary-list__row">
                           <dt className="govuk-summary-list__key">{FIELD_LABELS.CONSULTEE_STATUS}</dt>
                           <dd className="govuk-summary-list__value">
-                            {consultation.status || "-"}
+                            <StatusBadge 
+                              status={consultation.status || ''} 
+                              isConsultation={true}
+                            />
                           </dd>
                         </div>
 

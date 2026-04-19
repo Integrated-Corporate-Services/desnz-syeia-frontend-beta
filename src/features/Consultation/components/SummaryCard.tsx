@@ -193,7 +193,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status={statusDisplay} />)}
+                            {renderTableRow('Status', <StatusBadge status={statusDisplay} isConsultation />)}
                             {renderTableRow('Date of consultation request', '-')}
                             {renderTableRow('Evidence of request', '-')}
                         </tbody>
@@ -215,7 +215,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status="Closed" />)}
+                            {renderTableRow('Status', <StatusBadge status="Closed" isConsultation />)}
                             {renderTableRow('Date closed', dateClosed ? formatDate(dateClosed) : '-')}
                             {renderTableRow('Why this consultation is not required', notRequiredMessage || '-')}
                             {notRequiredDocs && notRequiredDocs.length > 0 && renderTableRow(
@@ -248,7 +248,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status="Public notices published" />)}
+                            {renderTableRow('Status', <StatusBadge status="Public notices published" isConsultation />)}
                             {renderTableRow('First date published', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
                             {renderTableRow('Second date published', secondDatePublished ? formatDate(secondDatePublished) : '-')}
                             {renderTableRow(
@@ -283,7 +283,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status={statusDisplay} />)}
+                            {renderTableRow('Status', <StatusBadge status={statusDisplay} isConsultation />)}
                             {lpaConsultationForm && lpaConsultationForm.length > 0 && renderTableRow(
                                 'Consultation request document',
                                 <>{lpaConsultationForm.map((doc, idx) => renderDocumentLink(doc, idx))}</>
@@ -333,7 +333,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status={statusDisplay} />)}
+                            {renderTableRow('Status', <StatusBadge status={statusDisplay} isConsultation />)}
                           
                             {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
                             {renderTableRow(
@@ -379,7 +379,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status="Closed" />)}
+                            {renderTableRow('Status', <StatusBadge status="Closed" isConsultation />)}
                             {renderTableRow('First date published', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
                             {renderTableRow('Second date published', secondDatePublished ? formatDate(secondDatePublished) : '-')}
                             {renderTableRow(
@@ -418,7 +418,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status="Closed" />)}
+                            {renderTableRow('Status', <StatusBadge status="Closed" isConsultation />)}
                             {lpaConsultationForm && lpaConsultationForm.length > 0 && renderTableRow(
                                 'Consultation request document',
                                 <>{lpaConsultationForm.map((doc, idx) => renderDocumentLink(doc, idx))}</>
@@ -499,7 +499,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
                             {/* Always show Status */}
-                            {renderTableRow('Status', <StatusBadge status="Closed" />)}
+                            {renderTableRow('Status', <StatusBadge status="Closed" isConsultation />)}
 
                             {/* Always show Date of consultation request */}
                             {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
@@ -562,7 +562,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status="Withdrawn" />)}
+                            {renderTableRow('Status', <StatusBadge status="Withdrawn" isConsultation />)}
                             {dateRequestCreated && renderTableRow('Withdrawal date', formatDate(dateRequestCreated))}
                         </tbody>
                     </table>
@@ -597,7 +597,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
-                            {renderTableRow('Status', <StatusBadge status={statusDisplay} />)}
+                            {renderTableRow('Status', <StatusBadge status={statusDisplay} isConsultation />)}
                             {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
                             {renderTableRow(
                                 'Evidence of request',

@@ -1,57 +1,57 @@
-/**
- * StatusBadge Component
- *
- * A reusable component for displaying application status with semantic GOV.UK Design System styling.
- * Implements Single Responsibility Principle - only responsible for status display.
- *
- * @module components/shared/StatusBadge
- * @see {@link https://design-system.service.gov.uk/components/tag/}
- */
+
 
 import React from "react";
-import { getStatusDisplay } from "../../features/Workbasket/constants/statusDisplay";
+import { 
+  getApplicationStatusConfig, 
+  getApplicationStatusTagClass, 
+  getApplicationStatusLabel 
+} from "../../constants/status";
+import { 
+  getConsultationStatusConfig, 
+  getConsultationStatusTagClass, 
+  getConsultationStatusLabel 
+} from "../../constants/consultationStatus";
 
 /**
  * Props interface following Interface Segregation Principle
  */
 interface StatusBadgeProps {
-  /** The application status to display */
+ 
   status: string;
-  /** Optional additional CSS classes */
   className?: string;
-  /** Optional ARIA label for screen readers */
+  
   ariaLabel?: string;
+ 
+  isConsultation?: boolean;
 }
 
-/**
- * StatusBadge - Displays application status with semantic GOV.UK tag styling
- *
- * Features:
- * - WCAG 2.1 AA compliant color contrast ratios
- * - Semantic HTML using <strong> for emphasis
- * - Screen reader friendly with proper ARIA attributes
- * - Handles unknown statuses gracefully with fallback styling
- * - Type-safe with TypeScript
- * - Custom display labels (e.g., "Submitted" → "Application submitted")
- *
- * @example
- * ```tsx
- * <StatusBadge status="Submitted" />
- * // Renders: <strong class="govuk-tag govuk-tag--turquoise">Application submitted</strong>
- *
- * <StatusBadge status="In Abeyance" ariaLabel="Application status: In abeyance" />
- * // Renders with custom aria-label
- * ```
- */
-export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
-  ({ status, className = "", ariaLabel }) => {
-    // Get custom label and CSS class based on status
-    const { label: displayText, className: tagClass } =
-      getStatusDisplay(status);
 
-    // Combine classes (Open/Closed Principle - extensible via className prop)
-    const combinedClassName =
-      `${tagClass} ${className} govuk-!-font-size-19`.trim();
+export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
+  ({ status, className = "", ariaLabel, isConsultation = false }) => {
+    // Try consultation status first if isConsultation flag is set, otherwise try application status
+    let config = isConsultation 
+      ? getConsultationStatusConfig(status) 
+      : getApplicationStatusConfig(status);
+    
+    // If not found, try the other type
+    if (!config) {
+      config = isConsultation 
+        ? getApplicationStatusConfig(status)
+        : getConsultationStatusConfig(status);
+    }
+    
+    // Get display properties
+    const displayText = config 
+      ? config.label 
+      : (isConsultation ? getConsultationStatusLabel(status) : getApplicationStatusLabel(status));
+    
+    const tagClass = config
+      ? `govuk-tag govuk-tag--${config.color}`
+      : (isConsultation ? getConsultationStatusTagClass(status) : getApplicationStatusTagClass(status));
+
+    const combinedClassName = className 
+      ? `${tagClass} govuk-!-font-size-18 ${className}`.trim()
+      : `${tagClass} govuk-!-font-size-18`.trim();
 
     // Construct ARIA label for screen readers
     const ariaLabelText = ariaLabel || `Status: ${displayText}`;
@@ -61,10 +61,6 @@ export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
         className={combinedClassName}
         aria-label={ariaLabelText}
         role="status"
-        style={{
-          display: "inline-block",
-          maxWidth: "100%",
-        }}
       >
         {displayText}
       </strong>
@@ -74,7 +70,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = React.memo(
   (prevProps, nextProps) =>
     prevProps.status === nextProps.status &&
     prevProps.className === nextProps.className &&
-    prevProps.ariaLabel === nextProps.ariaLabel,
+    prevProps.ariaLabel === nextProps.ariaLabel &&
+    prevProps.isConsultation === nextProps.isConsultation
 );
 
 // Display name for React DevTools
