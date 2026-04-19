@@ -265,12 +265,11 @@ getApplicationReview: async (applicationId: string, correlationId?: string) => {
 },
 
 /**
- * Withdraw an application with voluntary agreement status and optional reason
+ * Submit a withdrawal request for an application
  */
 withdrawApplication: async (
   applicationId: string,
-  userId: string,
-  voluntaryAgreementReached: boolean,
+  voluntaryAgreement: boolean,
   withdrawalReason?: string,
   correlationId?: string
 ) => {
@@ -286,17 +285,42 @@ withdrawApplication: async (
       headers,
       credentials: "include",
       body: JSON.stringify({
-        withdrawn_by: userId,
-        withdrawn_at: new Date().toISOString(),
-        voluntary_agreement_reached: voluntaryAgreementReached,
-        withdrawal_reason: withdrawalReason || "",
+        voluntary_agreement: voluntaryAgreement,
+        withdrawal_reason: withdrawalReason || null,
       }),
-    },
+    }
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || "Failed to withdraw application");
+    const errorData = await response.json().catch(() => ({ error: "Failed to submit withdrawal request" }));
+    throw new Error(errorData.error || errorData.message || "Failed to submit withdrawal request");
+  }
+
+  return response.json();
+},
+
+/**
+ * Get withdrawal request details for an application
+ */
+getWithdrawalRequest: async (applicationId: string, correlationId?: string) => {
+  const headers: HeadersInit = {
+    "X-Correlation-ID": correlationId || generateCorrelationId(),
+  };
+
+  const response = await fetch(
+    `/backend/api/applications/${applicationId}/withdrawal-request`,
+    {
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null; // No withdrawal request found
+    }
+    const errorData = await response.json().catch(() => ({ error: "Failed to fetch withdrawal request" }));
+    throw new Error(errorData.error || errorData.message || "Failed to fetch withdrawal request");
   }
 
   return response.json();

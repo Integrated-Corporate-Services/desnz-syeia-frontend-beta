@@ -156,6 +156,15 @@ const ApplicationSummary: React.FC = () => {
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [invoiceNumber, setInvoiceNumber] = useState<string | null>(null);
+  
+  // Withdrawal request state
+  const [withdrawalRequest, setWithdrawalRequest] = useState<{
+    withdrawal_request_id: string;
+    request_status: string;
+    voluntary_agreement: boolean;
+    withdrawal_reason?: string;
+    requested_at: string;
+  } | null>(null);
 
   // Memoize transformed routes to avoid recalculating on every render
   const transformedRoutes = useMemo(() => {
@@ -400,6 +409,107 @@ const ApplicationSummary: React.FC = () => {
       });
   }, [applicationId, logger]);
 
+  // Separate effect to fetch withdrawal request
+  useEffect(() => {
+    const fetchWithdrawalRequest = async () => {
+      console.log('🚀 ========================================');
+      console.log('🚀 WITHDRAWAL REQUEST FETCH STARTING');
+      console.log('🚀 ========================================');
+      console.log('📍 Application ID:', applicationId);
+      console.log('📍 Timestamp:', new Date().toISOString());
+      
+      if (!applicationId) {
+        console.log('⛔ ABORTED: No applicationId');
+        logger.debug('No applicationId, skipping withdrawal request fetch');
+        return;
+      }
+
+      try {
+        console.log('📡 Calling API...');
+        logger.debug('Fetching withdrawal request for application', { applicationId });
+        
+        const withdrawalData = await applicationApiService.getWithdrawalRequest(applicationId);
+        
+        console.log('📦 RAW API Response:', withdrawalData);
+        console.log('📦 Response Type:', typeof withdrawalData);
+        console.log('📦 Is Null:', withdrawalData === null);
+        console.log('📦 Is Object:', typeof withdrawalData === 'object');
+        console.log('📦 Has success:', withdrawalData?.success);
+        console.log('📦 Has data:', withdrawalData?.data);
+        
+        logger.debug('Withdrawal request response:', { withdrawalData });
+        console.log('📥 Withdrawal API Response:', withdrawalData);
+
+        if (withdrawalData === null) {
+          console.log('ℹ️ Response is NULL (404 - No withdrawal request found)');
+          logger.debug('No withdrawal request found (404 response)');
+          console.log('ℹ️ No withdrawal request (404)');
+          setWithdrawalRequest(null);
+          console.log('✅ State set to NULL');
+          return;
+        }
+
+        if (withdrawalData?.success && withdrawalData?.data) {
+          console.log('✅ SUCCESS! Withdrawal request found!');
+          console.log('✅ Request Status:', withdrawalData.data.request_status);
+          console.log('✅ Request ID:', withdrawalData.data.withdrawal_request_id);
+          console.log('✅ Full Data:', withdrawalData.data);
+          
+          logger.info('Withdrawal request found and set:', { 
+            requestStatus: withdrawalData.data.request_status,
+            requestId: withdrawalData.data.withdrawal_request_id 
+          });
+          console.log('✅ Withdrawal request found:', withdrawalData.data);
+          
+          setWithdrawalRequest(withdrawalData.data);
+          console.log('✅ State updated with withdrawal request data');
+        } else {
+          console.warn('⚠️ UNEXPECTED RESPONSE STRUCTURE!');
+          console.warn('⚠️ Expected: { success: true, data: {...} }');
+          console.warn('⚠️ Received:', withdrawalData);
+          
+          logger.warn('Unexpected withdrawal data structure:', { withdrawalData });
+          console.warn('⚠️ Unexpected data structure:', withdrawalData);
+          setWithdrawalRequest(null);
+          console.log('⚠️ State set to NULL due to unexpected structure');
+        }
+      } catch (err) {
+        console.error('❌ ========================================');
+        console.error('❌ ERROR FETCHING WITHDRAWAL REQUEST');
+        console.error('❌ ========================================');
+        console.error('❌ Error Type:', err.constructor.name);
+        console.error('❌ Error Message:', err.message);
+        console.error('❌ Full Error:', err);
+        
+        logger.error('Error fetching withdrawal request:', err);
+        console.error('❌ Error fetching withdrawal:', err);
+        setWithdrawalRequest(null);
+        console.log('❌ State set to NULL due to error');
+      }
+      
+      console.log('🏁 WITHDRAWAL REQUEST FETCH COMPLETE');
+      console.log('========================================\n');
+    };
+
+    // Fetch whenever we have an applicationId
+    if (applicationId) {
+      console.log('🎬 Triggering withdrawal request fetch for application:', applicationId);
+      fetchWithdrawalRequest();
+    } else {
+      console.log('⏸️ Skipping withdrawal request fetch - no applicationId');
+    }
+  }, [applicationId, logger]);
+
+  // Debug effect to monitor withdrawal request state changes
+  useEffect(() => {
+    logger.debug('Withdrawal request state changed:', { 
+      hasWithdrawalRequest: !!withdrawalRequest,
+      requestStatus: withdrawalRequest?.request_status,
+      withdrawalRequestId: withdrawalRequest?.withdrawal_request_id
+    });
+    console.log('🔔 Withdrawal Request State:', withdrawalRequest);
+  }, [withdrawalRequest, logger]);
+
   return (
     <div className="govuk-width-container">
       {!permissions?.canEdit && (
@@ -408,6 +518,133 @@ const ApplicationSummary: React.FC = () => {
         </Link>
       )}
       <main className="govuk-main-wrapper" id="main-content">
+        {/* Debug Panel - Comprehensive Diagnostics */}
+        <div style={{ 
+          background: '#fff4e5', 
+          border: '3px solid #ff9800', 
+          padding: '15px', 
+          marginBottom: '20px', 
+          fontSize: '13px', 
+          fontFamily: 'monospace'
+        }}>
+          <strong style={{ fontSize: '16px', color: '#e65100' }}>🔍 WITHDRAWAL REQUEST DEBUG INFO</strong><br /><br />
+          <strong>Application ID:</strong> {applicationId || 'NOT SET'}<br />
+          <strong>Has Withdrawal Request:</strong> <span style={{ 
+            color: withdrawalRequest ? 'green' : 'red', 
+            fontWeight: 'bold' 
+          }}>{withdrawalRequest ? 'YES ✅' : 'NO ❌'}</span><br />
+          
+          {withdrawalRequest ? (
+            <>
+              <strong>Request Status:</strong> <span style={{ 
+                background: '#ff9800', 
+                color: 'white', 
+                padding: '2px 8px', 
+                borderRadius: '3px' 
+              }}>{withdrawalRequest.request_status}</span><br />
+              <strong>Request ID:</strong> {withdrawalRequest.withdrawal_request_id}<br />
+              <strong>Voluntary Agreement:</strong> {withdrawalRequest.voluntary_agreement ? 'Yes' : 'No'}<br />
+              <strong>Withdrawal Reason:</strong> {withdrawalRequest.withdrawal_reason || 'None provided'}<br />
+              <strong>Requested At:</strong> {new Date(withdrawalRequest.requested_at).toLocaleString()}<br />
+            </>
+          ) : (
+            <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>
+              ⚠️ No withdrawal request data loaded
+            </span>
+          )}
+          
+          <div style={{ marginTop: '15px', paddingTop: '10px', borderTop: '2px solid #ff9800' }}>
+            <button 
+              onClick={async () => {
+                console.clear();
+                console.log('====================================');
+                console.log('🔍 MANUAL WITHDRAWAL REQUEST TEST');
+                console.log('====================================');
+                console.log('Application ID:', applicationId);
+                console.log('Fetching from:', `/backend/api/applications/${applicationId}/withdrawal-request`);
+                
+                try {
+                  const result = await applicationApiService.getWithdrawalRequest(applicationId);
+                  console.log('✅ API Response:', result);
+                  console.log('Response Type:', typeof result);
+                  console.log('Has success property:', 'success' in (result || {}));
+                  console.log('Has data property:', 'data' in (result || {}));
+                  
+                  if (result?.data) {
+                    console.log('📦 Data Object:', result.data);
+                    console.log('Request Status:', result.data.request_status);
+                    console.log('Request ID:', result.data.withdrawal_request_id);
+                  }
+                  
+                  alert(`✅ SUCCESS!\n\nCheck console for details.\nFound: ${result ? 'YES' : 'NO'}\nStatus: ${result?.data?.request_status || 'N/A'}`);
+                } catch (err) {
+                  console.error('❌ ERROR:', err);
+                  console.error('Error Type:', err.constructor.name);
+                  console.error('Error Message:', err.message);
+                  alert(`❌ ERROR!\n\n${err.message}\n\nCheck console for details.`);
+                }
+              }}
+              style={{ 
+                padding: '10px 20px', 
+                background: '#2196F3', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '4px', 
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '14px'
+              }}
+            >
+              🧪 RUN API TEST
+            </button>
+            <button 
+              onClick={() => {
+                const details = {
+                  applicationId,
+                  hasWithdrawalRequest: !!withdrawalRequest,
+                  withdrawalRequest,
+                  timestamp: new Date().toISOString()
+                };
+                console.log('📊 Current State:', details);
+                alert(JSON.stringify(details, null, 2));
+              }}
+              style={{ 
+                padding: '10px 20px', 
+                background: '#4CAF50', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '4px', 
+                cursor: 'pointer',
+                marginLeft: '10px',
+                fontWeight: 'bold',
+                fontSize: '14px'
+              }}
+            >
+              📊 VIEW STATE
+            </button>
+          </div>
+          
+          <div style={{ marginTop: '10px', fontSize: '11px', color: '#666' }}>
+            <strong>Expected behavior:</strong> If withdrawal request exists in DB, it should show here ☝️
+          </div>
+        </div>
+        
+        {/* Withdrawal request notification banner */}
+        {withdrawalRequest && withdrawalRequest.request_status === 'Requested' && (
+          <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+            <div className="govuk-notification-banner__header" style={{ backgroundColor: '#1d70b8' }}>
+              <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title" style={{ color: 'white' }}>
+                Important
+              </h2>
+            </div>
+            <div className="govuk-notification-banner__content">
+              <p className="govuk-notification-banner__heading">
+                You sent a request to withdraw this application. This is being reviewed by your case officer.
+              </p>
+            </div>
+          </div>
+        )}
+        
         {validationError && (
           <div
             className="govuk-error-summary"
@@ -480,6 +717,20 @@ const ApplicationSummary: React.FC = () => {
                       </strong>
                     </dd>
                   </div>
+                  {/* Show withdrawal status if withdrawal request exists */}
+                  {withdrawalRequest && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">{BUTTON_LABELS.WITHDRAW_APPLICATION}</dt>
+                      <dd className="govuk-summary-list__value">
+                        <strong
+                          className={`govuk-tag ${withdrawalRequest.request_status === 'Requested' ? 'govuk-tag--orange' : withdrawalRequest.request_status === 'Approved' ? 'govuk-tag--green' : 'govuk-tag--red'}`}
+                          style={{ fontSize: '16px' }}
+                        >
+                          {withdrawalRequest.request_status}
+                        </strong>
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>
@@ -541,8 +792,8 @@ const ApplicationSummary: React.FC = () => {
               </div>
             )}
 
-            {/* Withdraw application button - only show if user has withdraw permission */}
-            {permissions?.canWithdraw && !permissions?.canEdit && (
+            {/* Withdraw application button - only show if user has withdraw permission and no pending withdrawal request */}
+            {permissions?.canWithdraw && !permissions?.canEdit && !withdrawalRequest && (
               <div className="govuk-button-group">
                 <button
                   type="button"

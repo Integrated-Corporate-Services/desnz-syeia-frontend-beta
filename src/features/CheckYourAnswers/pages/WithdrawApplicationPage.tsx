@@ -4,6 +4,7 @@ import { S37_BASE_URL } from "../../../constants/s37";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import TextArea from "../../ProjectOverview/component/TextArea";
 import { CONTENT } from "../../../constants/content";
+import { applicationApiService } from "../../../services/applicationApiService";
 
 interface WithdrawalLocationState {
   desnzRef?: string;
@@ -20,11 +21,13 @@ const WithdrawApplicationPage: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [voluntaryAgreement, setVoluntaryAgreement] = useState<string | null>(null);
   const [withdrawalReason, setWithdrawalReason] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [applicationData, setApplicationData] = useState<{ desnzRef: string; formType: string } | null>(null);
   
   // Get application data from location state or use defaults
   const locationState = location.state as WithdrawalLocationState | null;
-  const desnzRef = locationState?.desnzRef || "S3700245";
-  const formType = locationState?.formType || "S37";
+  const desnzRef = applicationData?.desnzRef || locationState?.desnzRef || "S3700245";
+  const formType = applicationData?.formType || locationState?.formType || "S37";
   
   const maxCharacters = CONTENT.MAX_DESCRIPTION_LENGTH;
   const remainingChars = Math.max(0, maxCharacters - withdrawalReason.length);
@@ -43,12 +46,36 @@ const WithdrawApplicationPage: React.FC = () => {
 
   const applicationId = getApplicationId();
 
+  // Fetch application data on mount
+  useEffect(() => {
+    const fetchApplicationData = async () => {
+      if (!applicationId) return;
+      
+      try {
+        const data = await applicationApiService.getApplicationById(applicationId);
+        setApplicationData({
+          desnzRef: data.desnz_ref || "S3700245",
+          formType: data.type || "S37",
+        });
+      } catch (err) {
+        console.error("Failed to fetch application data:", err);
+        // Use fallback values if fetch fails
+        setApplicationData({
+          desnzRef: locationState?.desnzRef || "S3700245",
+          formType: locationState?.formType || "S37",
+        });
+      }
+    };
+
+    fetchApplicationData();
+  }, [applicationId, locationState?.desnzRef, locationState?.formType]);
+
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleWithdraw = (e: React.FormEvent) => {
+  const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
@@ -69,19 +96,35 @@ const WithdrawApplicationPage: React.FC = () => {
       return;
     }
 
-    // Clear errors
+    // Clear errors and set submitting state
     setError(null);
     setValidationErrors({});
+    setIsSubmitting(true);
 
-    // Navigate directly to withdrawal confirmation page with application data
-    navigate(`${S37_BASE_URL}/${applicationId}/withdrawal-confirmation`, {
-      state: {
-        desnzRef,
-        formType,
-        voluntaryAgreement: voluntaryAgreement === "yes",
-        withdrawalReason
-      }
-    });
+    try {
+      // Call the API to submit the withdrawal request
+      await applicationApiService.withdrawApplication(
+        applicationId,
+        voluntaryAgreement === "yes",
+        withdrawalReason || undefined
+      );
+
+      // Navigate to confirmation page on success
+      navigate(`${S37_BASE_URL}/${applicationId}/withdrawal-confirmation`, {
+        state: {
+          desnzRef,
+          formType,
+          voluntaryAgreement: voluntaryAgreement === "yes",
+          withdrawalReason
+        }
+      });
+    } catch (err: unknown) {
+      console.error("Failed to submit withdrawal request:", err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to submit withdrawal request. Please try again.";
+      setError(errorMessage);
+      setIsSubmitting(false);
+      window.scrollTo(0, 0);
+    }
   };
 
   return (
@@ -224,8 +267,9 @@ const WithdrawApplicationPage: React.FC = () => {
                 type="submit"
                 className="govuk-button govuk-button--warning"
                 data-module="govuk-button"
+                disabled={isSubmitting}
               >
-                Submit withdrawal request
+                {isSubmitting ? "Submitting..." : "Submit withdrawal request"}
               </button>
             </form>
           </div>

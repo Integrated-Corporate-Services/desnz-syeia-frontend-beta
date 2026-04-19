@@ -15,7 +15,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
   
   // Get application data from location state or use defaults
   const locationState = location.state as ConfirmationLocationState | null;
-  const desnzRef = locationState?.desnzRef || "S3700245";
+  const desnzRef = locationState?.desnzRef;
   
   const getApplicationId = () => {
     if (params.applicationId) return params.applicationId;
