@@ -4,7 +4,6 @@ import {
   StatusConfig, 
   StatusConfigMap,
   createStatusHelpers,
-  normalizeStatus,
 } from '../utils/statusUtils';
 
 // Re-export shared types for convenience

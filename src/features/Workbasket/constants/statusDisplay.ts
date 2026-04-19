@@ -6,7 +6,6 @@ import {
   APPLICATION_STATUS,
   APPLICATION_STATUS_CONFIG,
   getApplicationStatusConfig,
-  getApplicationStatusTagClass,
   getApplicationStatusLabel,
   normalizeStatus as normalizeStatusFromConfig
 } from "../../../constants/status";
@@ -14,7 +13,6 @@ import {
   ConsultationStatus,
   CONSULTATION_STATUS_CONFIG,
   getConsultationStatusConfig,
-  getConsultationStatusTagClass,
   getConsultationStatusLabel
 } from "../../../constants/consultationStatus";
 
