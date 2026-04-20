@@ -77,6 +77,8 @@ export const FIELD_LABELS = {
   LINE_VOLTAGE: 'Line voltage',
   LINE_LENGTH: 'Line length',
   
+  WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
+
   // Route fields
   EASTING: 'Easting',
   NORTHING: 'Northing',
