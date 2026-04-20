@@ -1,8 +1,3 @@
-/**
- * File Upload Validator
- * Main validation logic for file uploads with comprehensive error handling
- */
-
 import { 
   ALLOWED_FILE_TYPES, 
   ALLOWED_FILE_EXTENSIONS, 
@@ -37,7 +32,6 @@ export interface FileValidationResult {
 
 
 const validateFileBasics = (file: File): FileValidationError | null => {
-  // Check if file is empty
   if (file.size === 0) {
     return {
       filename: file.name,
@@ -46,7 +40,6 @@ const validateFileBasics = (file: File): FileValidationError | null => {
     };
   }
   
-  // Check file type
   if (!isValidFileType(file, ALLOWED_FILE_TYPES, ALLOWED_FILE_EXTENSIONS)) {
     return {
       filename: file.name,
@@ -55,7 +48,6 @@ const validateFileBasics = (file: File): FileValidationError | null => {
     };
   }
   
-  // Check individual file size
   if (file.size > FILE_SIZE_LIMITS.MAX_INDIVIDUAL_FILE_SIZE) {
     return {
       filename: file.name,
@@ -70,11 +62,7 @@ const validateFileBasics = (file: File): FileValidationError | null => {
 
 const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: FileOrMetadata[] = []): FileValidationError[] => {
   const errors: FileValidationError[] = [];
-  
-  // Calculate size of all existing files (pending + uploaded)
   const existingFilesSize = calculateTotalSize(existingFiles);
-  
-  // TOTAL SIZE FOR THIS PAGE = all existing files + new files
   const currentTotalSize = existingFilesSize;
   let runningTotal = currentTotalSize;
   
@@ -125,9 +113,6 @@ const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: FileO
   return errors;
 };
 
-/**
- * Checks for duplicate files based on name and size
- */
 const validateForDuplicates = (filesToCheck: File[], existingFiles: FileOrMetadata[] = []): FileValidationError[] => {
   const errors: FileValidationError[] = [];
   
@@ -144,9 +129,6 @@ const validateForDuplicates = (filesToCheck: File[], existingFiles: FileOrMetada
   return errors;
 };
 
-/**
- * Checks files for password protection
- */
 const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileValidationError[]> => {
   const errors: FileValidationError[] = [];
   
@@ -174,14 +156,8 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
         filename: file.name,
         error: error instanceof Error ? error.message : String(error)
       });
-      // Don't block upload if password check fails
     }
   }
-  
-  logger.info('Password protection validation completed', {
-    errorsFound: errors.length,
-    errors: errors.map(e => ({ filename: e.filename, errorType: e.errorType }))
-  });
   
   logger.info('Password protection validation completed', {
     errorsFound: errors.length,
@@ -191,9 +167,6 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
   return errors;
 };
 
-/**
- * Comprehensive file validation with step-by-step filtering
- */
 export const validateFiles = async (
   newFiles: File[], 
   existingFiles: FileOrMetadata[] = []
@@ -208,7 +181,6 @@ export const validateFiles = async (
   const allErrors: FileValidationError[] = [];
   let validFiles: File[] = [];
   
-  // Step 1: Basic validation (file type and individual size)
   for (const file of newFiles) {
     const basicError = validateFileBasics(file);
     if (basicError) {
@@ -218,29 +190,23 @@ export const validateFiles = async (
     }
   }
   
-  // Step 2: Total size validation
   const sizeErrors = validateTotalSizeConstraints(validFiles, existingFiles);
   allErrors.push(...sizeErrors);
   
-  // Remove files that exceed total size limit
   validFiles = validFiles.filter(file => 
     !sizeErrors.some(error => error.filename === file.name)
   );
   
-  // Step 3: Duplicate validation
   const duplicateErrors = validateForDuplicates(validFiles, existingFiles);
   allErrors.push(...duplicateErrors);
   
-  // Remove duplicate files
   validFiles = validFiles.filter(file => 
     !duplicateErrors.some(error => error.filename === file.name)
   );
   
-  // Step 4: Password protection validation
   const passwordErrors = await validatePasswordProtection(validFiles);
   allErrors.push(...passwordErrors);
   
-  // Remove password protected files
   const finalValidFiles = validFiles.filter(file => 
     !passwordErrors.some(error => error.filename === file.name)
   );
