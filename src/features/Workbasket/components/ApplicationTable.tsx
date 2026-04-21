@@ -94,7 +94,11 @@ export const ApplicationTable: React.FC<Props> = ({
     app: Application,
   ) => {
     e.preventDefault();
-    if (app.permissions?.canEdit) {
+    
+    // Draft applications should always navigate to task-list to continue editing
+    const isDraft = app.status?.toLowerCase() === 'draft';
+    
+    if (isDraft || app.permissions?.canEdit) {
       navigateToApplication(app.type, app.application_id, "task-list");
     } else if (app.permissions?.canView) {
       navigateToApplication(app.type, app.application_id, "application-summary");
@@ -162,17 +166,23 @@ export const ApplicationTable: React.FC<Props> = ({
               aria-label={`DESNZ reference: ${app.desnz_ref || "Not available"}`}
             >
               <a
-                href={getNavigationPath(app.type, app.application_id, app.permissions?.canEdit ? 'task-list' : 'application-summary')}
+                href={getNavigationPath(
+                  app.type, 
+                  app.application_id, 
+                  (app.status?.toLowerCase() === 'draft' || app.permissions?.canEdit) ? 'task-list' : 'application-summary'
+                )}
                 className="govuk-link"
                 aria-label={`View details for application ${app.desnz_ref || "with no reference"}, ${getCaseTypeLabel(app.type)}, ${activeTab !== "draft" ? app.status + " status, " : ""}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
                 onClick={(e) => handleApplicationClick(e, app)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
+                    const isDraft = app.status?.toLowerCase() === 'draft';
+                    const destination = (isDraft || app.permissions?.canEdit) ? "task-list" : "application-summary";
                     navigateToApplication(
                       app.type,
                       app.application_id,
-                      "task-list",
+                      destination,
                     );
                   }
                 }}
