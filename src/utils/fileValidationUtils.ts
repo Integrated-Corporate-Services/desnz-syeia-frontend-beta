@@ -269,7 +269,6 @@ export const findWordEncryptionFlag = (
   }
   
   const knownWordVersions = [0x00C1, 0x00D9, 0x0101, 0x010C, 0x0112];
-  const OLE_SECTOR_SIZE_HEX = 512 * 2;
 
   const fibMagic = 'eca5';
   let fibIndex = contentHex.indexOf(fibMagic);
