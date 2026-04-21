@@ -171,9 +171,9 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const errorMessages = result.errors.map(error => error.message);
       setValidationErrors(errorMessages);
       
-      setTimeout(() => {
-        setValidationErrors([]);
-      }, 5000);
+      // setTimeout(() => {
+      //   setValidationErrors([]);
+      // }, 5000);
     } else {
 
       setValidationErrors([]);
@@ -259,9 +259,9 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     } else if (result.errors.length > 0 && result.validFiles.length === 0) {
        const errorMessages = result.errors.map(error => error.message);
       setValidationErrors(errorMessages);
-      setTimeout(() => {
-        setValidationErrors([]);
-      }, 5000);
+      // setTimeout(() => {
+      //   setValidationErrors([]);
+      // }, 5000);
     } else {
 
       setValidationErrors([]);

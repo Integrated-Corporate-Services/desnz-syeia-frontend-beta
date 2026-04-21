@@ -252,78 +252,101 @@ export const findWordEncryptionFlag = (
   
   const encryptionInfoPattern = PASSWORD_PROTECTION_SIGNATURES.OFFICE_LEGACY.ENCRYPTION_INFO;
   const hasEncryptionInfo = contentHex.includes(encryptionInfoPattern);
-  
-  logger.info('Checking for EncryptionInfo stream', {
-    filename,
-    hasEncryptionInfo,
-    pattern: encryptionInfoPattern
+  logger.info('EncryptionInfo stream name', {
+    filename, found: hasEncryptionInfo,
   });
-  
   if (hasEncryptionInfo) {
-    logger.info('Word encryption detected via EncryptionInfo stream', { filename });
+    logger.info('ENCRYPTED via EncryptionInfo stream (RC4/AES)', { filename });
     return true;
   }
   
-  const wordDocStreamUtf16 = PASSWORD_PROTECTION_SIGNATURES.OFFICE_LEGACY.WORD_DOCUMENT;
-  const wordDocStreamAscii = PASSWORD_PROTECTION_SIGNATURES.OFFICE_LEGACY.WORD_DOCUMENT_ASCII;
-  
-  let streamIndex = contentHex.indexOf(wordDocStreamUtf16);
-  let isUtf16 = true;
-  
-  if (streamIndex === -1) {
-    streamIndex = contentHex.indexOf(wordDocStreamAscii);
-    isUtf16 = false;
+  const rc4Pattern = PASSWORD_PROTECTION_SIGNATURES.OFFICE_LEGACY.RC4_CRYPTO_API;
+  const hasRc4 = contentHex.includes(rc4Pattern);
+  logger.info('Check 2 — RC4 CryptoAPI marker', { filename, found: hasRc4 });
+  if (hasRc4) {
+    logger.info('ENCRYPTED via RC4 CryptoAPI marker', { filename });
+    return true;
   }
   
-  if (streamIndex === -1) {
-    logger.info('WordDocument stream NOT found in scanned bytes', { 
-      filename,
-      triedUtf16: true,
-      triedAscii: true,
-      note: 'Cannot verify FIB flags - relying on EncryptionInfo check only'
-    });
-    return false;
-  }
-  
-  logger.info('WordDocument stream found', { 
-    filename, 
-    streamIndex: streamIndex / 2,
-    encoding: isUtf16 ? 'UTF-16LE' : 'ASCII'
-  });
-  
-  const fibIdentifier = 'eca5';
-  let fibIndex = contentHex.indexOf(fibIdentifier);
-  
+  const knownWordVersions = [0x00C1, 0x00D9, 0x0101, 0x010C, 0x0112];
+  const OLE_SECTOR_SIZE_HEX = 512 * 2;
+
+  const fibMagic = 'eca5';
+  let fibIndex = contentHex.indexOf(fibMagic);
+  let fibChecksCount = 0;
+  let fibRejectedBadVersion = 0;
+  let fibRejectedBadSector = 0;
+
   while (fibIndex !== -1 && fibIndex < contentHex.length - 24) {
-    const flagsOffset = fibIndex + 20;
-    if (flagsOffset + 4 <= contentHex.length) {
-      const flagsHex = contentHex.substring(flagsOffset, flagsOffset + 4);
+    fibChecksCount++;
+
+    // validate nFib Word version
+    const nFibHex = contentHex.substring(fibIndex + 4, fibIndex + 8);
+    const nFib = parseInt(nFibHex.substring(2, 4) + nFibHex.substring(0, 2), 16);
+    const isKnownVersion = knownWordVersions.includes(nFib);
+
+    if (!isKnownVersion) {
+      fibRejectedBadVersion++;
+      fibIndex = contentHex.indexOf(fibMagic, fibIndex + 2);
+      continue;
+    }
+
+    
+    const byteOffset = fibIndex / 2;
+    const isAtSectorBoundary = byteOffset >= 512 && (byteOffset % 512 === 0);
+
+    if (!isAtSectorBoundary) {
+      fibRejectedBadSector++;
+      fibIndex = contentHex.indexOf(fibMagic, fibIndex + 2);
+      continue;
+    }
+
+    // read the flags word
+    const flagsHexOffset = fibIndex + 20;
+    if (flagsHexOffset + 4 <= contentHex.length) {
+      const flagsHex = contentHex.substring(flagsHexOffset, flagsHexOffset + 4);
       const flags = parseInt(flagsHex.substring(2, 4) + flagsHex.substring(0, 2), 16);
-      
-      const fEncrypted = (flags & 0x0100) !== 0;
+
+      const fEncrypted  = (flags & 0x0100) !== 0;
       const fObfuscated = (flags & 0x8000) !== 0;
-      
+
+      logger.info('FIB candidate (both guards passed)', {
+        filename,
+        byteOffset,
+        nFib:        '0x' + nFib.toString(16).padStart(4, '0'),
+        flagsParsed: '0x' + flags.toString(16).padStart(4, '0'),
+        fEncrypted,
+        fObfuscated,
+      });
+
       if (fEncrypted || fObfuscated) {
-        logger.info('Found Word FIB encryption/obfuscation flag', {
-          filename,
-          fibOffset: fibIndex / 2,
-          flags: '0x' + flags.toString(16).padStart(4, '0'),
-          fEncrypted,
-          fObfuscated,
-          encrypted: true
+        logger.info('ENCRYPTED via FIB flags', {
+          filename, fEncrypted, fObfuscated,
+          nFib: '0x' + nFib.toString(16),
         });
         return true;
       }
+
+      logger.info('Valid FIB found, no encryption flags set', {
+        filename,
+        byteOffset,
+        nFib: '0x' + nFib.toString(16).padStart(4, '0'),
+        flags: '0x' + flags.toString(16).padStart(4, '0'),
+        conclusion: 'File is not XOR/RC4 encrypted',
+      });
+      return false;
     }
-    
-    fibIndex = contentHex.indexOf(fibIdentifier, fibIndex + 2);
+
+    fibIndex = contentHex.indexOf(fibMagic, fibIndex + 2);
   }
-  
-  logger.info('Word encryption detection result', {
+
+  logger.info('FIB scan complete', {
     filename,
-    isEncrypted: false,
-    note: 'FIB found but no encryption/obfuscation flags set'
+    fibCandidatesChecked: fibChecksCount,
+    fibRejectedBadVersion,
+    fibRejectedBadSector,
+    conclusion: 'No valid encrypted FIB found',
   });
-  
+
   return false;
 };

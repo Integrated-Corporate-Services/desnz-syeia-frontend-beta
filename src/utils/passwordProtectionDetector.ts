@@ -2,7 +2,6 @@ import { PASSWORD_PROTECTION_SIGNATURES } from './fileValidationConstants';
 import { 
   readFileHeader, 
   uint8ArrayToHex, 
-  logValidationEvent,
   isLegacyOfficeFile,
   isExcelFile,
   isWordFile,
@@ -13,6 +12,13 @@ import {
 import { createLogger } from './logger';
 
 const logger = createLogger('passwordProtectionDetector');
+
+const hexDump = (uint8Array: Uint8Array, maxBytes = 64): string => {
+  const slice = uint8Array.slice(0, maxBytes);
+  const hex   = Array.from(slice).map(b => b.toString(16).padStart(2, '0')).join(' ');
+  const ascii = Array.from(slice).map(b => (b >= 32 && b < 127) ? String.fromCharCode(b) : '.').join('');
+  return `HEX: ${hex}\nASC: ${ascii}`;
+};
 
 const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
   try {
@@ -27,12 +33,14 @@ const isPdfPasswordProtected = (uint8Array: Uint8Array, filename: string): boole
     const isProtected = hasEncryptDict || hasInlineEncrypt || 
                        (hasStandardFilter && hasEncryptionVersion);
   
-    logValidationEvent('PDF password check', filename, { 
-      isProtected,
+    logger.info('PDF PASSWORD CHECK ', {
+      filename,
+      bytesScanned: bytesToCheck,
       hasEncryptDict,
       hasInlineEncrypt,
       hasStandardFilter,
-      hasEncryptionVersion
+      hasEncryptionVersion,
+      RESULT: isProtected ? 'PROTECTED' : 'NOT PROTECTED',
     });
     
     return isProtected;
@@ -47,30 +55,30 @@ const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string):
     const hex = uint8ArrayToHex(uint8Array.slice(0, 16));
     const { OFFICE_XML, OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
     
-    logger.info('Checking Office XML password protection', {
-      filename,
-      hexPreview: hex
-    });
-    
     const isZipFile = hex.startsWith(OFFICE_XML.ZIP_HEADER);
     const hasOleHeader = hex.startsWith(OFFICE_LEGACY.OLE_HEADER);
-    
-    if (isLegacyOfficeFile(filename)) {
+    const isLegacy    = isLegacyOfficeFile(filename);
+
+    logger.info('OFFICE XML CHECK', {
+      filename,
+      headerHex: hex,
+      isZipFile,
+      hasOleHeader,
+      isLegacyFile: isLegacy,
+      ZIP_HEADER_EXPECTED: OFFICE_XML.ZIP_HEADER,
+      OLE_HEADER_EXPECTED: OFFICE_LEGACY.OLE_HEADER,
+    });
+
+    if (isLegacy) {
       logger.info('Skipping Office XML check - legacy Office file format', { filename });
       return false;
     }
     
     const isProtected = !isZipFile && hasOleHeader;
-    
-    logValidationEvent('Office XML password check', filename, {
-      isProtected,
-      isZipFile,
-      hasOleHeader,
-      isLegacyOfficeFile: isLegacyOfficeFile(filename),
-      headerHex: hex,
-      reason: isProtected ? 'OLE header detected (file-level encryption)' : 'ZIP header detected (no file-level encryption)'
+    logger.info('OFFICE XML CHECK → RESULT', {
+      filename,
+      RESULT: isProtected ? 'PROTECTED (OLE wrapping modern file)' : 'NOT PROTECTED',
     });
-    
     return isProtected;
   } catch (error) {
     logger.warn('Error checking Office XML password protection', { filename, error });
@@ -85,14 +93,41 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
     const { OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
     
     const hasOleHeader = headerHex.startsWith(OFFICE_LEGACY.OLE_HEADER);
-    
+    logger.info('LEGACY OFFICE CHECK START', {
+      filename,
+      totalBytesRead: uint8Array.length,
+      headerHex,
+      hasOleHeader,
+      OLE_HEADER_EXPECTED: OFFICE_LEGACY.OLE_HEADER,
+      hexDump: hexDump(uint8Array, 64),
+    });
     if (!hasOleHeader) {
       logger.info('Not an OLE file - no Legacy Office encryption', { filename });
       return false;
     }
     
     const hasEncryptedObject = contentHex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT);
+    logger.info('EncryptedObject stream', {
+      filename,
+      pattern: OFFICE_LEGACY.ENCRYPTED_OBJECT,
+      patternAscii: 'EncryptedObject',
+      found: hasEncryptedObject,
+      searchedBytes: contentHex.length / 2,
+    });
     const hasEncryptionInfo = contentHex.includes(OFFICE_LEGACY.ENCRYPTION_INFO);
+    logger.info('EncryptionInfo stream', {
+      filename,
+      pattern: OFFICE_LEGACY.ENCRYPTION_INFO,
+      patternAscii: 'EncryptionInfo',
+      found: hasEncryptionInfo,
+    });
+    const hasRc4CryptoApi = contentHex.includes(OFFICE_LEGACY.RC4_CRYPTO_API);
+    logger.info('Check 3 — RC4 CryptoAPI marker', {
+      filename,
+      pattern: OFFICE_LEGACY.RC4_CRYPTO_API,
+      patternAscii: 'RC4Crypt',
+      found: hasRc4CryptoApi,
+    });
      
     let hasFilePassRecord = false;
     
@@ -100,7 +135,15 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
       logger.info('Checking for Excel FilePass record', { filename });
       const filePassResult = findFilePassRecord(contentHex, filename);
       hasFilePassRecord = filePassResult.found;
-      logger.info('Excel FilePass check result', { filename, hasFilePassRecord });
+      logger.info('Excel FilePass check result',{
+        filename,
+        found: hasFilePassRecord,
+        offset: filePassResult.offset,
+        length: filePassResult.length,
+        context: filePassResult.context,
+      });
+    } else {
+      logger.info('Excel FilePass skipped (not an Excel file)', { filename });
     }
      
     let hasWordEncryption = false;
@@ -109,49 +152,43 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
       logger.info('Checking for Word FIB encryption', { filename });
       hasWordEncryption = findWordEncryptionFlag(contentHex, filename);
       logger.info('Word FIB encryption check result', { filename, hasWordEncryption });
+    }else {
+      logger.info('Word FIB encryption skipped (not a Word file)', { filename });
     }
     
     const hasExplicitEncryption = hasEncryptedObject || hasEncryptionInfo || hasFilePassRecord || hasWordEncryption;
-    const hasWordDocument = contentHex.includes(OFFICE_LEGACY.WORD_DOCUMENT) || 
-                           contentHex.includes(OFFICE_LEGACY.WORD_DOCUMENT_ASCII);
-    const hasWorkbook = contentHex.includes(OFFICE_LEGACY.WORKBOOK) || 
-                       contentHex.includes(OFFICE_LEGACY.WORKBOOK_ASCII);
-    const hasPowerPointDocument = contentHex.includes(OFFICE_LEGACY.POWERPOINT_DOCUMENT);
-    const hasCurrentUser = contentHex.includes(OFFICE_LEGACY.CURRENT_USER);
-    const hasDocumentSummary = contentHex.includes(OFFICE_LEGACY.DOCUMENT_SUMMARY);
-    const hasSummaryInfo = contentHex.includes(OFFICE_LEGACY.SUMMARY_INFO);
-    const hasMsgProperties = contentHex.includes(OFFICE_LEGACY.MSG_PROPERTIES);
-    const hasMsgNameId = contentHex.includes(OFFICE_LEGACY.MSG_NAMEID);
-    const hasMsgRecipients = contentHex.includes(OFFICE_LEGACY.MSG_RECIPIENTS);
-    const hasMsgAttachments = contentHex.includes(OFFICE_LEGACY.MSG_ATTACHMENTS);
-    
-    const hasOfficeStreams = hasWordDocument || hasWorkbook || hasPowerPointDocument || 
-                            hasCurrentUser || hasDocumentSummary || hasSummaryInfo ||
-                            hasMsgProperties || hasMsgNameId || hasMsgRecipients || hasMsgAttachments;
-    
     const isProtected = hasExplicitEncryption;
-    
-    logValidationEvent('Office Legacy password check', filename, {
-      isProtected,
-      hasOleHeader,
-      hasExplicitEncryption,
-      hasEncryptedObject,
-      hasEncryptionInfo,
-      hasFilePassRecord,
-      hasWordEncryption,
-      hasWordDocument,
-      hasWorkbook,
-      hasPowerPointDocument,
-      hasOfficeStreams,
-      bytesChecked: Math.min(4096, uint8Array.length),
-      decision: isProtected ? 
-        'ENCRYPTED - Encryption marker detected (EncryptedObject/EncryptionInfo/FilePass/WordFIB)' : 
-        'NOT ENCRYPTED - No encryption markers found'
+
+    logger.info('LEGACY OFFICE CHECK SUMMARY', {
+      filename,
+      bytesRead: uint8Array.length,
+      checks: {
+        '1_EncryptedObject': hasEncryptedObject,
+        '2_EncryptionInfo':  hasEncryptionInfo,
+        '3_RC4CryptoApi':    hasRc4CryptoApi,
+        '4_BiffFilePass':    hasFilePassRecord,
+        '5_WordFibFlags':    hasWordEncryption,
+      },
+      RESULT: isProtected
+        ? 'PROTECTED — at least one marker found'
+        : 'NOT PROTECTED — no markers found',
     });
-    
+
+  
+    if (!isProtected) {
+      const searchWindow = contentHex.substring(0, 512);
+      logger.info('First 256 bytes hex (check manually for encryption bytes)', {
+        filename,
+        first256bytesHex: searchWindow,
+        first256bytesAscii: Array.from(uint8Array.slice(0, 256))
+          .map(b => (b >= 32 && b < 127) ? String.fromCharCode(b) : '.')
+          .join(''),
+      });
+    }
+
     return isProtected;
   } catch (error) {
-    logger.warn('Error checking Office Legacy password protection', { filename, error });
+    logger.warn('Legacy Office check error', { filename, error });
     return false;
   }
 };
@@ -160,171 +197,139 @@ const hasGenericEncryptionMarkers = (uint8Array: Uint8Array, filename: string): 
   try {
     const hex = uint8ArrayToHex(uint8Array);
     const textContent = String.fromCharCode(...uint8Array);
-    
-    const { GENERIC } = PASSWORD_PROTECTION_SIGNATURES;
-    const hasEncryptionKeyword = GENERIC.ENCRYPTION_TEXT_KEYWORDS.some(keyword => 
-      textContent.includes(keyword)
-    );
-    
-    const hasEncryptionHexPattern = GENERIC.ENCRYPTION_HEX_PATTERNS.some(pattern => 
-      hex.includes(pattern)
-    );
-    
-    const { OFFICE_XML, OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
-    const hasOfficeXmlMarkers = hex.includes(OFFICE_XML.ENCRYPTED_KEY) || 
-                                hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE) ||
-                                hex.includes(OFFICE_XML.ENCRYPTION_INFO);
-    
-    const hasOfficeLegacyMarkers = hex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT) ||
-                                   hex.includes(OFFICE_LEGACY.ENCRYPTION_INFO) ||
-                                   hex.includes(OFFICE_LEGACY.RC4_CRYPTO_API);
-    
-    const isProtected = hasEncryptionKeyword || hasEncryptionHexPattern || 
-                       hasOfficeXmlMarkers || hasOfficeLegacyMarkers;
-    
-    if (isProtected) {
-      logValidationEvent('Generic encryption markers detected', filename, {
-        hasEncryptionKeyword,
-        hasEncryptionHexPattern,
-        hasOfficeXmlMarkers,
-        hasOfficeLegacyMarkers
-      });
-    }
-    
+    const { GENERIC, OFFICE_XML, OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
+
+    const matchedKeywords = GENERIC.ENCRYPTION_TEXT_KEYWORDS.filter(kw => textContent.includes(kw));
+    const matchedHexPats  = GENERIC.ENCRYPTION_HEX_PATTERNS.filter(p => hex.includes(p));
+
+    const hasOfficeXmlMarkers = hex.includes(OFFICE_XML.ENCRYPTED_KEY) || hex.includes(OFFICE_XML.ENCRYPTED_PACKAGE) || hex.includes(OFFICE_XML.ENCRYPTION_INFO);
+
+    const hasOfficeLegacyMarkers = hex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT) || hex.includes(OFFICE_LEGACY.ENCRYPTION_INFO)  || hex.includes(OFFICE_LEGACY.RC4_CRYPTO_API);
+
+    const isProtected = matchedKeywords.length > 0 || matchedHexPats.length > 0  || hasOfficeXmlMarkers || hasOfficeLegacyMarkers;
+
+    logger.info('Generic encryption check', {
+      filename,
+      matchedTextKeywords: matchedKeywords,
+      matchedHexPatterns:  matchedHexPats,
+      hasOfficeXmlMarkers,
+      hasOfficeLegacyMarkers,
+      RESULT: isProtected ? 'PROTECTED' : 'NOT PROTECTED',
+    });
+
     return isProtected;
   } catch (error) {
-    logger.warn('Error checking generic encryption markers', { filename, error });
+    logger.warn('Generic check error', { filename, error });
     return false;
   }
-};
-
-const determineOptimalBytesToRead = (file: File): number => {
-  return getOptimalReadSize(file.name);
 };
 
 const detectPasswordProtectionByFormat = async (
-  uint8Array: Uint8Array, 
+  uint8Array: Uint8Array,
   file: File
 ): Promise<boolean> => {
   const headerHex = uint8ArrayToHex(uint8Array.slice(0, 16));
-  
-  logValidationEvent('Detecting file format by header', file.name, {
-    headerHex: headerHex.substring(0, 32),
-    mimeType: file.type
+
+  logger.info('Format detection', {
+    filename:    file.name,
+    fileSize:    file.size,
+    mimeType:    file.type,
+    bytesRead:   uint8Array.length,
+    headerHex,
+    hexDump:     hexDump(uint8Array, 32),
   });
-  
+
   const { FILE_HEADERS } = PASSWORD_PROTECTION_SIGNATURES;
-  const isImageFormat = headerHex.startsWith(FILE_HEADERS.JPEG) ||
-                       headerHex.startsWith(FILE_HEADERS.PNG) ||
-                       headerHex.startsWith(FILE_HEADERS.GIF) ||
-                       headerHex.startsWith(FILE_HEADERS.BMP) ||
-                       headerHex.startsWith(FILE_HEADERS.TIFF) ||
-                       headerHex.startsWith(FILE_HEADERS.TIFF_BE) ||
-                       file.type.startsWith('image/');
-  
+
+  const isImageFormat = headerHex.startsWith(FILE_HEADERS.JPEG) || headerHex.startsWith(FILE_HEADERS.PNG)  || headerHex.startsWith(FILE_HEADERS.GIF)  || headerHex.startsWith(FILE_HEADERS.BMP)  || headerHex.startsWith(FILE_HEADERS.TIFF) || headerHex.startsWith(FILE_HEADERS.TIFF_BE) || file.type.startsWith('image/');
+
   if (isImageFormat) {
-    logger.info('Detected image format - images cannot be password-protected', { filename: file.name });
+    logger.info('IMAGE format detected, skipping password check', { filename: file.name });
     return false;
   }
-  
+
   if (headerHex.startsWith('255044462d') || file.type === 'application/pdf') {
-    logger.info('Detected PDF format', { filename: file.name });
+    logger.info('PDF format detected', { filename: file.name });
     return isPdfPasswordProtected(uint8Array, file.name);
   }
-  
+
   if (headerHex.startsWith('d0cf11e0a1b11ae1')) {
-    logger.info('Detected OLE format - checking for encryption', { filename: file.name });
-    
+    logger.info('OLE format detected (DOC/XLS/PPT/MSG or encrypted DOCX/XLSX/PPTX)', {
+      filename: file.name,
+      isLegacyExtension: isLegacyOfficeFile(file.name),
+    });
+
     const officeXmlEncrypted = isOfficeXmlPasswordProtected(uint8Array, file.name);
     if (officeXmlEncrypted) {
-      logger.info('Detected encrypted Office XML file (DOCX/XLSX/PPTX with password)', { filename: file.name });
+      logger.info('ENCRYPTED modern Office file (DOCX/XLSX/PPTX wrapped in OLE)', { filename: file.name });
       return true;
     }
-    
-    const legacyOfficeEncrypted = isOfficeLegacyPasswordProtected(uint8Array, file.name);
-    if (legacyOfficeEncrypted) {
-      logger.info('Detected encrypted legacy Office/MSG file (DOC/XLS/PPT/MSG with password)', { filename: file.name });
+
+    const legacyEncrypted = isOfficeLegacyPasswordProtected(uint8Array, file.name);
+    if (legacyEncrypted) {
+      logger.info('ENCRYPTED legacy Office file', { filename: file.name });
       return true;
     }
-    
-    logger.info('OLE file without Office-specific encryption markers, checking generic patterns', { filename: file.name });
+
+    logger.info('OLE file passed specific checks, trying generic fallback', { filename: file.name });
     return hasGenericEncryptionMarkers(uint8Array, file.name);
   }
-  
+
   if (headerHex.startsWith('504b0304')) {
-    logger.info('Detected ZIP format - checking for encryption', { filename: file.name });
-    
+    logger.info('ZIP format detected (DOCX/XLSX/PPTX unencrypted, or ZIP)', { filename: file.name });
+
     const officeXmlEncrypted = isOfficeXmlPasswordProtected(uint8Array, file.name);
-    if (officeXmlEncrypted) {
-      logger.info('Detected encryption in ZIP-based Office file', { filename: file.name });
-      return true;
-    }
-    
+    if (officeXmlEncrypted) return true;
+
     return hasGenericEncryptionMarkers(uint8Array, file.name);
   }
-  
-  logger.info('Unknown file format - using generic encryption detection', { filename: file.name });
+
+  logger.warn('Unknown format, using generic detection', {
+    filename:  file.name,
+    headerHex,
+  });
   return hasGenericEncryptionMarkers(uint8Array, file.name);
 };
 
 export const isPasswordProtected = async (file: File): Promise<boolean> => {
   try {
-    logValidationEvent('password protection check started', file.name, { 
-      size: file.size,
-      type: file.type,
-      extension: file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
+    logger.info('Password check start', {
+      filename:  file.name,
+      fileSize:  file.size,
+      mimeType:  file.type,
+      extension: file.name.substring(file.name.lastIndexOf('.')).toLowerCase(),
     });
-    
-    const bytesToRead = determineOptimalBytesToRead(file);
-    
-    logValidationEvent('reading file header', file.name, {
+
+    const bytesToRead = determineOptimalBytesToRead(file);  
+    logger.info('Reading file', {
+      filename:    file.name,
       bytesToRead,
-      reason: 'Based on file type and characteristics'
+      fileSizeTotal: file.size,
+      pctOfFile: ((bytesToRead / file.size) * 100).toFixed(1) + '%',
     });
-    
+
     const uint8Array = await readFileHeader(file, bytesToRead);
-    
-    const headerHex = uint8ArrayToHex(uint8Array.slice(0, 16));
-    logger.info('File header read', {
-      filename: file.name,
-      bytesRead: uint8Array.length,
-      headerHex,
-      fileSize: file.size
+
+    logger.info('File read complete', {
+      filename:   file.name,
+      bytesRead:  uint8Array.length,
+      headerHex:  uint8ArrayToHex(uint8Array.slice(0, 16)),
     });
-    
+
     const isProtected = await detectPasswordProtectionByFormat(uint8Array, file);
-    
-    logValidationEvent('password protection check completed', file.name, {
-      isProtected,
-      bytesRead: uint8Array.length,
-      result: isProtected ? 'PASSWORD_PROTECTED' : 'NOT_PROTECTED'
+
+    logger.info('Password check complete', {
+      filename:  file.name,
+      FINAL_RESULT: isProtected ? 'PASSWORD PROTECTED - will be REJECTED' : 'NOT PROTECTED - will be ACCEPTED',
     });
-    
-    logger.info('Password protection detection result', {
-      filename: file.name,
-      isProtected,
-      fileSize: file.size,
-      mimeType: file.type
-    });
-    
+
     return isProtected;
-    
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    
-    logger.error('Password protection check failed - CRITICAL ERROR', { 
+    const msg = error instanceof Error ? error.message : String(error);
+    logger.error('Password check error: defaulting to ALLOW', {
       filename: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      error: errorMessage,
-      stack: errorStack
+      error:    msg,
     });
-    
-    logger.warn('Allowing file upload despite password check failure - file may be password protected', {
-      filename: file.name
-    });
-    
     return false;
   }
 };
@@ -338,15 +343,30 @@ export const checkMultipleFilesPasswordProtection = async (
       return { filename: file.name, isProtected };
     })
   );
-  
+
   return results.map((result, index) => {
-    if (result.status === 'fulfilled') {
-      return result.value;
-    } else {
-      const filename = files[index].name;
-      const error = result.reason instanceof Error ? result.reason.message : String(result.reason);
-      logger.error('Batch password protection check failed', { filename, error });
-      return { filename, isProtected: false, error };
-    }
+    if (result.status === 'fulfilled') return result.value;
+    const filename = files[index].name;
+    const error = result.reason instanceof Error ? result.reason.message : String(result.reason);
+    logger.error('Batch check failed', { filename, error });
+    return { filename, isProtected: false, error };
   });
+};
+
+const determineOptimalBytesToRead = (file: File): number => {
+  const configuredMax = getOptimalReadSize(file.name);
+  const bytesToRead = Math.min(configuredMax, file.size);
+
+  logger.info('Bytes to read decision', {
+    filename:      file.name,
+    fileSize:      file.size,
+    configuredMax,
+    bytesToRead,
+    pctOfFile:     ((bytesToRead / file.size) * 100).toFixed(1) + '%',
+    note: bytesToRead < file.size
+      ? 'Partial read — encryption markers must be in first ' + bytesToRead + ' bytes'
+      : 'Full file read — no markers will be missed',
+  });
+
+  return bytesToRead;
 };
