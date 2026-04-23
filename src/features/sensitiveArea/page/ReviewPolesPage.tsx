@@ -113,7 +113,7 @@ const ReviewPolesPage: React.FC = () => {
     <div className="govuk-width-container">
       {/* Back link */}
       <Link 
-        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review/add-areas`}
+        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-add-areas`}
         className="govuk-back-link"
       >
         Back
