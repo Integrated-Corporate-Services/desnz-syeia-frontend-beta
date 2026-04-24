@@ -144,6 +144,10 @@ const SupportingInfo: React.FC = () => {
       const result = await fileUploadRef.current.triggerUpload();
       newlyUploadedFiles = result.uploadedFiles;
       newlyUploadedDocuments = result.applicationDocuments;
+      
+      // Update state immediately so files remain visible even if validation fails
+      setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
+      setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
     } catch (err: any) {
       logger.error('File upload failed:', err);
       setErrors([{ key: 'fileUpload', message: 'Failed to upload files. Please try again.' }]);
@@ -163,8 +167,8 @@ const SupportingInfo: React.FC = () => {
       esqcr_2002_compliance_confirmed: regulations,
       has_additional_supporting_documents: supportingDocs === "yes",
       applicant_supporting_comments: comments,
-      uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
-      application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
+      uploaded_files: uploadedFiles, // Already merged in state above
+      application_documents: applicationDocuments, // Already merged in state above
     };
     
     try {

@@ -93,6 +93,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				const result = await fileUploadRef.current.triggerUpload();
 				newlyUploadedFiles = result.uploadedFiles;
 				newlyUploadedDocuments = result.applicationDocuments;
+				
+				// Update state immediately so files remain visible even if validation fails
+				setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
+				setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
 			} catch (err: any) {
 				const errorMsg = 'Failed to upload files. Please try again.';
 				setFileValidationErrors([errorMsg]);
@@ -128,8 +132,8 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				...notRequiredStatus.details,
 				status: ConsultationStatus.NOT_REQUIRED,
 				notRequiredReason: reason,
-				uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
-				applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments]
+				uploadedFiles: uploadedFileObjs, // Already merged in state above
+				applicationDocuments: applicationDocuments // Already merged in state above
 			};
 			try {
 				await saveNotRequiredStatus(consultationId, updatedDetails);
