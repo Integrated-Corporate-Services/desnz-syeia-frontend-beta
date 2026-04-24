@@ -134,7 +134,14 @@ const ConsultationResponse: React.FC = () => {
             }
 
             await saveConsultationResponse(payload, applicationId);
-            navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response2`);
+            
+            // For PUBLIC consultations with NO objections, skip document upload and go directly to comments page
+            if (consultationType === 'PUBLIC' && hasObjection === 'no') {
+                navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response3`);
+            } else {
+                // For all other cases (PUBLIC with objections OR non-PUBLIC), go to document upload page
+                navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response2`);
+            }
         } catch (err) {
             console.error('Error saving consultation response:', err);
         }
