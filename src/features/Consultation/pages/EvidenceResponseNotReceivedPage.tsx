@@ -186,6 +186,10 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 newlyUploadedFiles = result.uploadedFiles;
                 newlyUploadedDocuments = result.applicationDocuments;
                 logger.info('[EvidenceResponseNotReceivedPage] Pending files uploaded successfully');
+                
+                // Update state immediately so files remain visible even if validation fails
+                setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
+                setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
             }
 
             // STEP 2: Now validate after files are uploaded
@@ -224,9 +228,9 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 response_comments: comments,
                 last_updated_by: user?.user_id,
                 has_all_documents_uploaded: formData.declarationAccepted,
-                // Store evidence of response not received files
-                uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
-                application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
+                // Store evidence of response not received files (already merged in state above)
+                uploaded_files: uploadedFileObjs,
+                application_documents: applicationDocuments,
                 // CRITICAL: Explicitly set these to undefined to clear any previous response data
                 response_full_name: undefined,
                 response_email_address: undefined,
