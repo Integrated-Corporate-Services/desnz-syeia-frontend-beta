@@ -1637,7 +1637,8 @@ const ApplicationSummary: React.FC = () => {
                               </dd>
                             </div>
 
-                            {/* Public response documents */}
+                            {/* Public response documents - only show if objection was raised */}
+                            {consultation.objectionRaised && (
                             <div className="govuk-summary-list__row">
                               <dt className="govuk-summary-list__key">{FIELD_LABELS.PUBLIC_RESPONSE_DOCS}</dt>
                               <dd className="govuk-summary-list__value">
@@ -1667,6 +1668,7 @@ const ApplicationSummary: React.FC = () => {
                                 ) : "-"}
                               </dd>
                             </div>
+                            )}
 
                             {/* Comments */}
                             <div className="govuk-summary-list__row">
