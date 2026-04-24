@@ -78,7 +78,7 @@ export const FIELD_LABELS = {
   LINE_LENGTH: 'Line length',
   
   WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
-
+  WITHDRAWAL_NOTIFICATION_BANNER: 'You sent a request to withdraw this application. This is being reviewed by your case officer.',
   // Route fields
   EASTING: 'Easting',
   NORTHING: 'Northing',
@@ -182,7 +182,27 @@ export const VALIDATION_MESSAGES = {
 export const BUTTON_LABELS = {
   WITHDRAW_APPLICATION: 'Withdraw application',
   SAVE_AND_CONTINUE: 'Save and continue',
-  PAY_AND_SUBMIT: 'Pay and submit application'
+  PAY_AND_SUBMIT: 'Pay and submit application',
+  SUBMIT_WITHDRAWAL: 'Submit withdrawal request',
+  SUBMITTING: 'Submitting...'
+} as const;
+
+// Withdrawal page labels
+export const WITHDRAWAL_LABELS = {
+  PAGE_TITLE: 'Withdraw your application',
+  CONFIRMATION_TITLE: 'Withdrawal request submitted',
+  WHAT_HAPPENS_NEXT: 'What happens next',
+  INSET_TEXT: "Your request will be sent to your case officer and your application's status will not change until they have made a decision.",
+  VOLUNTARY_AGREEMENT_QUESTION: 'Have you reached a voluntary agreement with the landowner or occupier?',
+  REASON_LABEL: 'Reason for withdrawal (optional)',
+  REASON_HINT: 'You can provide a reason for your withdrawal request to help your case officer make their decision.',
+  WARNING_TEXT: 'You cannot undo this request after you submit it.',
+  CONFIRMATION_MESSAGE_1: 'Your withdrawal request has been sent to your case officer and you do not need to do anything else.',
+  CONFIRMATION_MESSAGE_2: "Your application's status will not change until a decision has been made.",
+  CONFIRMATION_MESSAGE_3: 'You will receive an email to confirm whether your request has been approved or not.',
+  MISTAKE_MESSAGE: 'If you submitted this withdrawal request by mistake, contact',
+  RETURN_TO_SUMMARY: 'Return to your application summary',
+  GO_TO_DASHBOARD: 'Go to your applications dashboard'
 } as const;
 
 export const EMPTY_VALUE = '-';

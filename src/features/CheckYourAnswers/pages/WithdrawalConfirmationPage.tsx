@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { WITHDRAWAL_LABELS } from "../constants/applicationSummaryLabels";
 
 interface ConfirmationLocationState {
   desnzRef?: string;
@@ -43,40 +44,40 @@ const WithdrawalConfirmationPage: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">
-                Withdrawal request submitted
+                {WITHDRAWAL_LABELS.CONFIRMATION_TITLE}
               </h1>
               <div className="govuk-panel__body">
                 Application {desnzRef}
               </div>
             </div>
 
-            <h2 className="govuk-heading-m">What happens next</h2>
+            <h2 className="govuk-heading-m">{WITHDRAWAL_LABELS.WHAT_HAPPENS_NEXT}</h2>
 
             <p className="govuk-body">
-              Your withdrawal request has been sent to your case officer and you do not need to do anything else.
+              {WITHDRAWAL_LABELS.CONFIRMATION_MESSAGE_1}
             </p>
 
             <p className="govuk-body">
-              Your application's status will not change until a decision has been made.
+              {WITHDRAWAL_LABELS.CONFIRMATION_MESSAGE_2}
             </p>
 
             <p className="govuk-body">
-              You will receive an email to confirm whether your request has been approved or not.
+              {WITHDRAWAL_LABELS.CONFIRMATION_MESSAGE_3}
             </p>
 
             <div className="govuk-inset-text">
-              If you submitted this withdrawal request by mistake, contact <a href="mailto:S37consents@energysecurity.gov.uk" className="govuk-link">S37consents@energysecurity.gov.uk</a> as soon as possible.
+              {WITHDRAWAL_LABELS.MISTAKE_MESSAGE} <a href="mailto:S37consents@energysecurity.gov.uk" className="govuk-link">S37consents@energysecurity.gov.uk</a> as soon as possible.
             </div>
 
             <p className="govuk-body">
               <Link to={`${S37_BASE_URL}/${applicationId}/application-summary`} className="govuk-link">
-                Return to your application summary
+                {WITHDRAWAL_LABELS.RETURN_TO_SUMMARY}
               </Link>
             </p>
 
             <p className="govuk-body">
               <Link to="/workbasket" className="govuk-link">
-                Go to your applications dashboard
+                {WITHDRAWAL_LABELS.GO_TO_DASHBOARD}
               </Link>
             </p>
           </div>

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
-import TextArea from "../../ProjectOverview/component/TextArea";
 import { CONTENT } from "../../../constants/content";
 import { applicationApiService } from "../../../services/applicationApiService";
+import { WITHDRAWAL_LABELS, BUTTON_LABELS } from "../constants/applicationSummaryLabels";
 
 interface WithdrawalLocationState {
   desnzRef?: string;
@@ -179,11 +179,11 @@ const WithdrawApplicationPage: React.FC = () => {
               {desnzRef}: {formatCaseType(formType)}
             </span>
             <h1 className="govuk-heading-xl">
-              Withdraw your application
+              {WITHDRAWAL_LABELS.PAGE_TITLE}
             </h1>
 
             <div className="govuk-inset-text">
-              Your request will be sent to your case officer and your application's status will not change until they have made a decision.
+              {WITHDRAWAL_LABELS.INSET_TEXT}
             </div>
 
             <form onSubmit={handleWithdraw}>
@@ -191,7 +191,7 @@ const WithdrawApplicationPage: React.FC = () => {
                 <fieldset className="govuk-fieldset" id="voluntary-agreement">
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                     <h2 className="govuk-fieldset__heading">
-                      Have you reached a voluntary agreement with the landowner or occupier?
+                      {WITHDRAWAL_LABELS.VOLUNTARY_AGREEMENT_QUESTION}
                     </h2>
                   </legend>
                   {validationErrors.voluntaryAgreement && (
@@ -235,15 +235,19 @@ const WithdrawApplicationPage: React.FC = () => {
               </div>
 
               <div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds" style={{ marginTop: "30px" }} data-module="govuk-character-count" data-maxlength={maxCharacters}>
-                <TextArea
-                  label="Reason for withdrawal (optional)"
+                <label className="govuk-label govuk-label--m" htmlFor="withdrawal-reason">
+                  {WITHDRAWAL_LABELS.REASON_LABEL}
+                </label>
+                {WITHDRAWAL_LABELS.REASON_HINT && (
+                  <div className="govuk-hint">{WITHDRAWAL_LABELS.REASON_HINT}</div>
+                )}
+                <textarea
+                  className="govuk-textarea govuk-js-character-count"
                   id="withdrawal-reason"
                   name="withdrawal-reason"
-                  value={withdrawalReason}
+                  rows={5}
                   maxLength={maxCharacters}
-                  hint="You can provide a reason for your withdrawal request to help your case officer make their decision."
-                  infoId="withdrawal-reason-info"
-                  remainingChars={remainingChars}
+                  value={withdrawalReason}
                   onChange={(e) => {
                     const val = e.target.value;
                     if (val.length <= maxCharacters) {
@@ -252,14 +256,28 @@ const WithdrawApplicationPage: React.FC = () => {
                       setWithdrawalReason(val.slice(0, maxCharacters));
                     }
                   }}
+                  aria-describedby="withdrawal-reason-info"
                 />
+                <div id="withdrawal-reason-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">
+                  You can enter up to {maxCharacters} characters
+                </div>
+                {typeof remainingChars === 'number' && (
+                  <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">
+                    You have {remainingChars} characters remaining
+                  </div>
+                )}
+                {typeof remainingChars === 'number' && (
+                  <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">
+                    You have {remainingChars} characters remaining
+                  </div>
+                )}
               </div>
 
               <div className="govuk-warning-text" style={{ marginTop: "30px", marginBottom: "30px" }}>
                 <span className="govuk-warning-text__icon" aria-hidden="true">!</span>
                 <strong className="govuk-warning-text__text">
                   <span className="govuk-visually-hidden">Warning</span>
-                  You cannot undo this request after you submit it.
+                  {WITHDRAWAL_LABELS.WARNING_TEXT}
                 </strong>
               </div>
 
@@ -269,7 +287,7 @@ const WithdrawApplicationPage: React.FC = () => {
                 data-module="govuk-button"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Submitting..." : "Submit withdrawal request"}
+                {isSubmitting ? BUTTON_LABELS.SUBMITTING : BUTTON_LABELS.SUBMIT_WITHDRAWAL}
               </button>
             </form>
           </div>

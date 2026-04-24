@@ -459,7 +459,6 @@ const ApplicationSummary: React.FC = () => {
       requestStatus: withdrawalRequest?.request_status,
       withdrawalRequestId: withdrawalRequest?.withdrawal_request_id
     });
-    console.log('🔔 Withdrawal Request State:', withdrawalRequest);
   }, [withdrawalRequest, logger]);
 
   return (
@@ -500,7 +499,7 @@ const ApplicationSummary: React.FC = () => {
                 </div>
                 <div className="govuk-notification-banner__content">
                   <p className="govuk-notification-banner__heading">
-                    You sent a request to withdraw this application. This is being reviewed by your case officer.
+                    {FIELD_LABELS.WITHDRAWAL_NOTIFICATION_BANNER}
                   </p>
                 </div>
               </div>
@@ -624,10 +623,7 @@ const ApplicationSummary: React.FC = () => {
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">{FIELD_LABELS.TOTAL_AMOUNT}</dt>
                       <dd className="govuk-summary-list__value">
-                        {paymentDetails.total_amount ||
-                          (paymentDetails.amount
-                            ? `£${(paymentDetails.amount / 100).toFixed(2)}`
-                            : '£462.50')}
+                        {paymentDetails.total_amount || '-'}
                       </dd>
                     </div>
                   </dl>
