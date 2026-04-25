@@ -316,7 +316,6 @@ const ProjectOverview = () => {
 							newlyUploadedFiles = result.uploadedFiles;
 							newlyUploadedDocuments = result.applicationDocuments;
 						} catch (error) {
-							console.error('Failed to upload files:', error);
 							setErrors(['Failed to upload files. Please try again.']);
 							setIsSubmitting(false);
 							window.scrollTo({ top: 0 });
@@ -576,6 +575,7 @@ const ProjectOverview = () => {
 							description: d.description || ''
 						})),
 					};
+					
 					saveProjectOverview(payload)
 						.then((response: any) => {
 							// Try to get application id from backend response, fallback to payload/params/query string
@@ -855,6 +855,56 @@ const ProjectOverview = () => {
 					</details>
 
 					{/* Related Applications */}
+						<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+							{projectOverview.planInformationDocuments}
+						</legend>
+						{/* Field error removed - validation errors only shown in error summary above */}
+						<FileUpload
+							ref={fileUploadRef}
+							title='Upload a file'
+							showTitle={false}
+							prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
+							applicationId={applicationId}
+							category={FILE_CATEGORIES.PLAN_INFO}
+							addedBy={userId}
+							uploadedFiles={formState.uploadedFiles}
+							applicationDocuments={formState.applicationDocuments}
+							showDocumentsHeading={true}
+							onDeleteFile={handleDeleteFile}
+							onPendingFilesChange={setPendingFiles}
+							onValidationErrors={(errors) => {
+						// Handle validation errors
+						setFileValidationErrors(errors);
+						// Set field error for red border styling, but message only shows in error summary
+						if (errors.length > 0) {
+							setFieldErrors(prev => ({ ...prev, uploadedFiles: 'validation-error' }));
+						} else {
+							setFieldErrors(prev => { const newErrors = {...prev}; delete newErrors.uploadedFiles; return newErrors; });
+						}
+					}}						onUploaded={(newUploadedFiles, newProjectDocuments) => {
+							setFormState(prev => ({
+								...prev,
+								uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
+								applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
+							}));
+						}}
+					/>
+				</fieldset>
+			</div>
+
+			{/* Details: What information should be included in the plan */}
+		<details className="govuk-details govuk-!-margin-bottom-6">
+				<summary className="govuk-details__summary">
+					<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
+				</summary>
+				<div className="govuk-details__text">
+					<p className="govuk-body">
+						{projectOverview.planDetailsText}
+					</p>
+				</div>
+			</details>
+
+			{/* Related Applications */}
 					<div className={`govuk-form-group${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`}>
 						<fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()} id="relatedApplications-section">
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">

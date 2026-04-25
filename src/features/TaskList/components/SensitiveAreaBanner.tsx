@@ -41,9 +41,9 @@ const SensitiveAreaBanner: React.FC<SensitiveAreaBannerProps> = ({ status }) => 
             {failed > 0 && <span className="govuk-error-message">✗ {failed} failed</span>}
           </p>
         )} */}
-        <p className="govuk-body govuk-!-margin-bottom-0">
+        {/*<p className="govuk-body govuk-!-margin-bottom-0">
           You can refresh this page to track the progress
-        </p>
+        </p>*/}
       </div>
     </div>
   );

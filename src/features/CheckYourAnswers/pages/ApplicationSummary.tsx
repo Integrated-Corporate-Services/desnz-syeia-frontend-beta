@@ -5,6 +5,7 @@ import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { applicationApiService } from "../../../services/applicationApiService";
+import { StatusBadge } from "../../../components/shared/StatusBadge";
 import {
   NetworkOperatorDetails,
   AssetInformation,
@@ -43,7 +44,7 @@ import {
 import { REQUIRED_SECTIONS } from '../constants/applicationSummaryConstants';
 
 const ApplicationSummary: React.FC = () => {
-  const logger = createLogger("ApplicationSummary");
+  const logger = useMemo(() => createLogger("ApplicationSummary"), []);
   const navigate = useNavigate();
   const params = useParams();
   const getApplicationId = () => {
@@ -67,7 +68,7 @@ const ApplicationSummary: React.FC = () => {
   } = useDeclarationSubmit(applicationId);
 
   // Get formatting utility functions
-  const { formatCaseType, formatStatus, getStatusTagClass } = useApplicationFormatters();
+  const { formatCaseType, formatStatus } = useApplicationFormatters();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -398,7 +399,7 @@ const ApplicationSummary: React.FC = () => {
         setPlanDocuments([]);
         setPermissions(null);
       });
-  }, [applicationId, formatCaseType, formatStatus, logger]);
+  }, [applicationId, logger]);
 
   return (
     <div className="govuk-width-container">
@@ -472,12 +473,9 @@ const ApplicationSummary: React.FC = () => {
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
                     <dd className="govuk-summary-list__value">
-                      <strong
-                        className={`govuk-tag ${getStatusTagClass(applicationMetadata?.status)}`}
-                        style={{ fontSize: '16px' }}
-                      >
-                        {formatStatus(applicationMetadata?.status)}
-                      </strong>
+                      <StatusBadge 
+                        status={applicationMetadata?.status || ''} 
+                      />
                     </dd>
                   </div>
                 </dl>
@@ -1485,7 +1483,9 @@ const ApplicationSummary: React.FC = () => {
                     <dl className="govuk-summary-list">
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
-                        <dd className="govuk-summary-list__value">{COMMON_TEXT.CLOSED}</dd>
+                        <dd className="govuk-summary-list__value">
+                          <StatusBadge status={COMMON_TEXT.CLOSED} isConsultation={true} />
+                        </dd>
                       </div>
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">{FIELD_LABELS.DATE_CLOSED}</dt>
@@ -1558,7 +1558,10 @@ const ApplicationSummary: React.FC = () => {
                         <div className="govuk-summary-list__row">
                           <dt className="govuk-summary-list__key">{FIELD_LABELS.CONSULTEE_STATUS}</dt>
                           <dd className="govuk-summary-list__value">
-                            {consultation.status || "-"}
+                            <StatusBadge 
+                              status={consultation.status || ''} 
+                              isConsultation={true}
+                            />
                           </dd>
                         </div>
 
