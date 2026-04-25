@@ -41,3 +41,25 @@ export async function logout(redirectTo?: string): Promise<void> {
   // The backend will redirect appropriately after destroying sessions
   window.location.assign(logoutUrl);
 }
+
+export async function keepSessionAlive(): Promise<boolean> {
+  try {
+    const response = await fetch("/backend/auth/keep-alive", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      logger.warn("Session keep-alive failed", { status: response.status });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    logger.error("Session keep-alive request failed", { error });
+    return false;
+  }
+}
