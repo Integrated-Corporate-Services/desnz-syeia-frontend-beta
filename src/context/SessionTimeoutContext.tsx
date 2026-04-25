@@ -3,6 +3,7 @@ import { logout } from '../services/authService';
 import { useAuthUserContext } from './AuthUserContext';
 import { createLogger } from '../utils/logger';
 import { SESSION_TIMEOUT, SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
+import { useSessionKeepAlive } from '../hooks/useSessionKeepAlive';
 
 const logger = createLogger('SessionTimeoutContext');
 
@@ -28,6 +29,15 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
 
   logger.info(`Session timeout initialized: Idle timeout = ${SESSION_TIMEOUT}s (${SESSION_TIMEOUT / 60} min), Warning period = ${SESSION_WARNING}s (${SESSION_WARNING / 60} min)`);
   logger.info(`Modal will show at ${SESSION_TIMEOUT - SESSION_WARNING}s (${(SESSION_TIMEOUT - SESSION_WARNING) / 60} min of idle time)`);
+
+  // Keep session alive with periodic pings (only when user is active)
+  useSessionKeepAlive({
+    isAuthenticated,
+    lastActivityRef,
+    isLoggingOutRef,
+    pingIntervalSeconds: 45, // ALB timeout workaround
+    activityThresholdSeconds: 300 // Only ping if active within 5 minutes
+  });
 
   // Reset timer on user activity
   const resetTimer = useCallback(() => {
@@ -95,6 +105,42 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       events.forEach(e => window.removeEventListener(e, handleActivity));
     };
   }, [isAuthenticated, showModal, resetTimer]);
+
+  // Check for expired session when user returns to tab
+  // WHY: Browser throttles timers on hidden tabs, so logout may not trigger at exactly 30min
+  // FIX: When tab becomes visible, immediately check if session expired and logout if needed
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const now = Date.now();
+        const idleSeconds = Math.floor((now - lastActivityRef.current) / 1000);
+        const idleMinutes = Math.floor(idleSeconds / 60);
+        const modalShowTime = SESSION_TIMEOUT - SESSION_WARNING;
+
+        logger.info(`Tab visible - checking session: idle ${idleMinutes}m ${idleSeconds % 60}s`);
+
+        // If session expired while on another tab, logout immediately
+        if (idleSeconds >= SESSION_TIMEOUT) {
+          logger.warn(`Session expired while on another tab (idle ${idleMinutes}m) - logging out`);
+          handleLogout();
+        }
+        // If in warning period, show modal immediately
+        else if (idleSeconds >= modalShowTime && !showModal) {
+          logger.warn(`Warning period reached while on another tab - showing modal`);
+          setShowModal(true);
+          setRemaining(SESSION_TIMEOUT - idleSeconds);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isAuthenticated, showModal, handleLogout]);
 
   // Main timer loop - runs every second
   useEffect(() => {
