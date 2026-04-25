@@ -21,11 +21,13 @@ export const PROJECT_OVERVIEW_ERRORS = {
   // Earliest Work Start Date Validation
   EARLIEST_DATE_REQUIRED: "Select the month of the earliest expected start date",
   EARLIEST_DATE_INVALID_YEAR: "Enter the year of the earliest expected start date",
+  EARLIEST_DATE_MUST_BE_FUTURE: "Earliest expected start date must be in the future",
   
   // Latest Work Start Date Validation
   LATEST_DATE_REQUIRED: "Select the month of the latest expected start date",
   LATEST_DATE_INVALID_YEAR: "Enter the year of the latest expected start date",
-  
+  LATEST_DATE_COMPARE_ERROR: "Latest expected start date must not be before the earliest expected start date",
+
   // File Upload
   FILE_UPLOAD_REQUIRED: "Upload a plan information documents",
   

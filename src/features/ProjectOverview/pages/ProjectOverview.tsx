@@ -97,6 +97,9 @@ const ProjectOverview = () => {
 		setSearchResults([]);
 		setShowDropdown(false);
 		if (searchInputRef.current) searchInputRef.current.blur();
+		// Clear related applications error when a project is added
+		clearFieldError('relatedApplications-search');
+		clearFieldError('hasRelatedApplications');
 	};
 
 	// Remove project from relatedApplications
@@ -120,6 +123,20 @@ const ProjectOverview = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { user } = useAuthUser();
 	const userId = user?.user_id;
+
+	// Helper function to clear field-specific errors
+	const clearFieldError = (fieldName: string) => {
+		// Clear from fieldErrors
+		if (fieldErrors[fieldName]) {
+			setFieldErrors(prev => {
+				const newErrors = { ...prev };
+				delete newErrors[fieldName];
+				return newErrors;
+			});
+		}
+		// Clear from errors array (error summary links)
+		setErrors(prev => prev.filter(error => !error.includes(`#${fieldName}`)));
+	};
 	// Helper to get applicationId from store, params, or query string
 
 	const applicationId = useGetApplicationId();
@@ -159,6 +176,15 @@ const ProjectOverview = () => {
 		const idx = months.findIndex(m => m.toUpperCase() === name.toUpperCase());
 		return idx >= 0 ? ("0" + (idx + 1)).slice(-2) : name;
 	};
+
+	// Clear file upload errors when files are selected
+	useEffect(() => {
+		if (pendingFiles.length > 0 || (formState.uploadedFiles && formState.uploadedFiles.length > 0)) {
+			clearFieldError('planInformationDocuments');
+			setFileValidationErrors([]);
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [pendingFiles.length, formState.uploadedFiles.length]);
 
 	useEffect(() => {
 		if (projectData && applicationId && projectData.applicationId === applicationId) {
@@ -602,7 +628,10 @@ const ProjectOverview = () => {
 							value={formState.projectName}
 							error={fieldErrors?.projectName}
 							maxLength={4000}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, projectName: e.target.value }))}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+								setFormState(prev => ({ ...prev, projectName: e.target.value }));
+								clearFieldError('projectName-inputValue');
+							}}
 						/>
 					</div>
 
@@ -625,6 +654,7 @@ const ProjectOverview = () => {
 								} else {
 									setFormState(prev => ({ ...prev, projectDescription: val.slice(0, MAX_DESCRIPTION_LENGTH) }));
 								}
+								clearFieldError('projectDescription-inputValue');
 							}}
 						/>
 					</div>
@@ -652,7 +682,10 @@ const ProjectOverview = () => {
 							value={formState.tallestPoleHeight}
 							error={fieldErrors?.tallestPoleHeight}
 							maxLength={4000}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, tallestPoleHeight: e.target.value }))}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+								setFormState(prev => ({ ...prev, tallestPoleHeight: e.target.value }));
+								clearFieldError('tallestPoleHeight-inputValue');
+							}}
 						/>
 					</div>
 
@@ -674,7 +707,10 @@ const ProjectOverview = () => {
 							type="text"
 							maxLength={4000}
 							value={formState.planReference}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, planReference: e.target.value }))}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+								setFormState(prev => ({ ...prev, planReference: e.target.value }));
+								clearFieldError('planReference-inputValue');
+							}}
 							aria-describedby={fieldErrors?.planReference ? "planReference-inputValue-error" : undefined}
 						/>
 					</div>
@@ -694,7 +730,10 @@ const ProjectOverview = () => {
 							)}
 							<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} onChange={() => setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }))} aria-controls="areWorkStartDatesKnown-hidden" aria-expanded={formState.areWorkStartDatesKnown === "true" ? "true" : "false"} />
+									<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} onChange={() => {
+										setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }));
+										clearFieldError('areWorkStartDatesKnown');
+									}} aria-controls="areWorkStartDatesKnown-hidden" aria-expanded={formState.areWorkStartDatesKnown === "true" ? "true" : "false"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown">Yes</label>
 								</div>
 								{formState.areWorkStartDatesKnown === "true" && (
@@ -720,7 +759,10 @@ const ProjectOverview = () => {
 																name="earliestWorkStartDate.month"
 																aria-describedby={fieldErrors?.earliestWorkStartDate ? "earliestWorkStartDate-error" : undefined}
 																value={formState.earliestWorkStartDateMonth || ""}
-																onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }))}
+																onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+																	setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }));
+																	clearFieldError('earliestWorkStartDate-month');
+																}}
 															>
 																<option value="" disabled>Select one...</option>
 																{months.map((m) => (
@@ -739,7 +781,10 @@ const ProjectOverview = () => {
 																type="text"
 																aria-describedby={fieldErrors?.earliestWorkStartDate ? "earliestWorkStartDate-error" : undefined}
 																value={formState.earliestWorkStartDateYear || ""}
-																onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, earliestWorkStartDateYear: e.target.value }))}
+																onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+																	setFormState(prev => ({ ...prev, earliestWorkStartDateYear: e.target.value }));
+																	clearFieldError('earliestWorkStartDate-year');
+																}}
 															/>
 														</div>
 													</div>
@@ -767,7 +812,10 @@ const ProjectOverview = () => {
 																name="latestWorkStartDate.month"
 																aria-describedby={fieldErrors?.latestWorkStartDate ? "latestWorkStartDate-error" : undefined}
 																value={formState.latestWorkStartDateMonth || ""}
-																onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }))}
+																onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+																	setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }));
+																	clearFieldError('latestWorkStartDate-month');
+																}}
 															>
 																<option value="" disabled>Select one...</option>
 																{months.map((m) => (
@@ -786,7 +834,10 @@ const ProjectOverview = () => {
 																type="text"
 																aria-describedby={fieldErrors?.latestWorkStartDate ? "latestWorkStartDate-error" : undefined}
 																value={formState.latestWorkStartDateYear || ""}
-																onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState(prev => ({ ...prev, latestWorkStartDateYear: e.target.value }))}
+																onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+																	setFormState(prev => ({ ...prev, latestWorkStartDateYear: e.target.value }));
+																	clearFieldError('latestWorkStartDate-year');
+																}}
 															/>
 														</div>
 													</div>
@@ -796,7 +847,10 @@ const ProjectOverview = () => {
 									</div>
 								)}
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="areWorkStartDatesKnown-no" name="areWorkStartDatesKnown" type="radio" value="false" checked={formState.areWorkStartDatesKnown === "false"} onChange={() => setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "false" }))} />
+									<input className="govuk-radios__input" id="areWorkStartDatesKnown-no" name="areWorkStartDatesKnown" type="radio" value="false" checked={formState.areWorkStartDatesKnown === "false"} onChange={() => {
+										setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "false" }));
+										clearFieldError('areWorkStartDatesKnown');
+									}} />
 									<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown-no">No</label>
 								</div>
 							</div>
@@ -870,7 +924,10 @@ const ProjectOverview = () => {
 							)}
 							<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="hasRelatedApplications" name="hasRelatedApplications" type="radio" value="true" checked={formState.hasRelatedApplications === "true"} onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }))} aria-controls="hasRelatedApplications-hidden" aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"} />
+									<input className="govuk-radios__input" id="hasRelatedApplications" name="hasRelatedApplications" type="radio" value="true" checked={formState.hasRelatedApplications === "true"} onChange={() => {
+										setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
+										clearFieldError('hasRelatedApplications');
+									}} aria-controls="hasRelatedApplications-hidden" aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 								</div>
 								{formState.hasRelatedApplications === "true" && (
@@ -968,7 +1025,10 @@ const ProjectOverview = () => {
 									</div>
 								)}
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="hasRelatedApplications-no" name="hasRelatedApplications" type="radio" value="false" checked={formState.hasRelatedApplications === "false"} onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplications: [] }))} />
+									<input className="govuk-radios__input" id="hasRelatedApplications-no" name="hasRelatedApplications" type="radio" value="false" checked={formState.hasRelatedApplications === "false"} onChange={() => {
+										setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplications: [] }));
+										clearFieldError('hasRelatedApplications');
+									}} />
 									<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications-no">No</label>
 								</div>
 							</div>
@@ -1000,7 +1060,10 @@ const ProjectOverview = () => {
 										rows={5}
 										maxLength={MAX_DESCRIPTION_LENGTH}
 										value={relatedCpoDetailsStr}
-										onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }))}
+										onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+											setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }));
+											clearFieldError('relatedCpoDetails-inputValue');
+										}}
 										aria-describedby={fieldErrors?.relatedCpoDetails ? "relatedCpoDetails-inputValue-error relatedCpoDetails-inputValue-info" : "relatedCpoDetails-inputValue-info"}
 									></textarea>
 									<div id="relatedCpoDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
@@ -1014,7 +1077,10 @@ const ProjectOverview = () => {
 						}]}
 						value={formState.hasRelatedCpo}
 						error={fieldErrors?.hasRelatedCpo}
-						onChange={(val: string) => setFormState(prev => ({ ...prev, hasRelatedCpo: val }))}
+						onChange={(val: string) => {
+							setFormState(prev => ({ ...prev, hasRelatedCpo: val }));
+							clearFieldError('hasRelatedCpo');
+						}}
 						ariaControls={["hasRelatedCpo-hidden", "hasRelatedCpo-no-hidden"]}
 					/>
 
