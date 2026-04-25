@@ -483,6 +483,7 @@ const SupportingInfo: React.FC = () => {
             category={FILE_CATEGORIES.SUPPORT_INFO}
             addedBy={userId}
             uploadedFiles={uploadedFiles}
+            applicationDocuments={applicationDocuments}
             showDocumentsHeading={true}
             onDeleteFile={handleDeleteFile}
             onValidationErrors={(errors) => {

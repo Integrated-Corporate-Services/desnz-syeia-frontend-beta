@@ -267,7 +267,7 @@ const ReviewDocumentsPage: React.FC = () => {
 
             {/* Page Heading */}
             <h2 className="govuk-heading-l">
-              Upload environmental and archaeological documents (optional)
+              Upload environmental and archaeological documents
             </h2>
 
             {/* Instructions */}
@@ -317,6 +317,7 @@ const ReviewDocumentsPage: React.FC = () => {
                   title="Upload a file"
                   prefix={`${applicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
                   uploadedFiles={uploadedFiles}
+                  applicationDocuments={applicationDocuments}
                   applicationId={applicationId || ''}
                   category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
                   addedBy={review?.reviewed_by || 'current-user'}

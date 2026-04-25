@@ -1,8 +1,3 @@
-/**
- * File Upload Validator
- * Main validation logic for file uploads with comprehensive error handling
- */
-
 import { 
   ALLOWED_FILE_TYPES, 
   ALLOWED_FILE_EXTENSIONS, 
@@ -14,7 +9,8 @@ import {
   calculateTotalSize,
   isDuplicateFile,
   isValidFileType,
-  logValidationEvent
+  logValidationEvent,
+  FileOrMetadata
 } from './fileValidationUtils';
 import { isPasswordProtected } from './passwordProtectionDetector';
 import { createLogger } from './logger';
@@ -34,11 +30,8 @@ export interface FileValidationResult {
   remainingSpace: number;
 }
 
-/**
- * Validates file type and individual size constraints
- */
+
 const validateFileBasics = (file: File): FileValidationError | null => {
-  // Check if file is empty
   if (file.size === 0) {
     return {
       filename: file.name,
@@ -47,7 +40,6 @@ const validateFileBasics = (file: File): FileValidationError | null => {
     };
   }
   
-  // Check file type
   if (!isValidFileType(file, ALLOWED_FILE_TYPES, ALLOWED_FILE_EXTENSIONS)) {
     return {
       filename: file.name,
@@ -56,7 +48,6 @@ const validateFileBasics = (file: File): FileValidationError | null => {
     };
   }
   
-  // Check individual file size
   if (file.size > FILE_SIZE_LIMITS.MAX_INDIVIDUAL_FILE_SIZE) {
     return {
       filename: file.name,
@@ -68,29 +59,17 @@ const validateFileBasics = (file: File): FileValidationError | null => {
   return null;
 };
 
-/**
- * Validates total upload size constraints
- * Enforces 500MB limit PER PAGE (each page like Project Overview, Supporting Info has its own limit)
- * 
- * @param filesToCheck - New files being uploaded right now
- * @param existingFiles - Pending files (selected but not yet uploaded to S3 in current session)
- * @param existingTotalSize - Size of files already uploaded to S3 for THIS specific page only
- */
-const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[] = [], existingTotalSize: number = 0): FileValidationError[] => {
+
+const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: FileOrMetadata[] = []): FileValidationError[] => {
   const errors: FileValidationError[] = [];
-  
-  // Calculate size of pending files (not yet uploaded)
-  const pendingFilesSize = calculateTotalSize(existingFiles);
-  
-  // TOTAL SIZE FOR THIS PAGE = files already on S3 (this page) + pending files + new files
-  const currentTotalSize = existingTotalSize + pendingFilesSize;
+  const existingFilesSize = calculateTotalSize(existingFiles);
+  const currentTotalSize = existingFilesSize;
   let runningTotal = currentTotalSize;
   
   logger.info('Total size validation started - Per Page Limit', {
     filesToCheckCount: filesToCheck.length,
-    uploadedToS3OnThisPage: formatFileSize(existingTotalSize),
-    pendingFilesCount: existingFiles.length,
-    pendingFilesSize: formatFileSize(pendingFilesSize),
+    existingFilesCount: existingFiles.length,
+    existingFilesSize: formatFileSize(existingFilesSize),
     currentTotalOnThisPage: formatFileSize(currentTotalSize),
     maxTotalPerPage: formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE),
     remainingSpace: formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE - currentTotalSize)
@@ -134,10 +113,7 @@ const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: File[
   return errors;
 };
 
-/**
- * Checks for duplicate files based on name and size
- */
-const validateForDuplicates = (filesToCheck: File[], existingFiles: File[]): FileValidationError[] => {
+const validateForDuplicates = (filesToCheck: File[], existingFiles: FileOrMetadata[] = []): FileValidationError[] => {
   const errors: FileValidationError[] = [];
   
   for (const file of filesToCheck) {
@@ -153,9 +129,6 @@ const validateForDuplicates = (filesToCheck: File[], existingFiles: File[]): Fil
   return errors;
 };
 
-/**
- * Checks files for password protection
- */
 const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileValidationError[]> => {
   const errors: FileValidationError[] = [];
   
@@ -183,7 +156,6 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
         filename: file.name,
         error: error instanceof Error ? error.message : String(error)
       });
-      // Don't block upload if password check fails
     }
   }
   
@@ -195,13 +167,9 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
   return errors;
 };
 
-/**
- * Comprehensive file validation with step-by-step filtering
- */
 export const validateFiles = async (
   newFiles: File[], 
-  existingFiles: File[] = [],
-  existingTotalSize: number = 0
+  existingFiles: FileOrMetadata[] = []
 ): Promise<FileValidationResult> => {
   logValidationEvent('validation started', 'batch', {
     newFilesCount: newFiles.length,
@@ -213,7 +181,6 @@ export const validateFiles = async (
   const allErrors: FileValidationError[] = [];
   let validFiles: File[] = [];
   
-  // Step 1: Basic validation (file type and individual size)
   for (const file of newFiles) {
     const basicError = validateFileBasics(file);
     if (basicError) {
@@ -223,44 +190,34 @@ export const validateFiles = async (
     }
   }
   
-  // Step 2: Total size validation
-  const sizeErrors = validateTotalSizeConstraints(validFiles, existingFiles, existingTotalSize);
+  const sizeErrors = validateTotalSizeConstraints(validFiles, existingFiles);
   allErrors.push(...sizeErrors);
   
-  // Remove files that exceed total size limit
   validFiles = validFiles.filter(file => 
     !sizeErrors.some(error => error.filename === file.name)
   );
   
-  // Step 3: Duplicate validation
   const duplicateErrors = validateForDuplicates(validFiles, existingFiles);
   allErrors.push(...duplicateErrors);
   
-  // Remove duplicate files
   validFiles = validFiles.filter(file => 
     !duplicateErrors.some(error => error.filename === file.name)
   );
   
-  // Step 4: Password protection validation
   const passwordErrors = await validatePasswordProtection(validFiles);
   allErrors.push(...passwordErrors);
   
-  // Remove password protected files
   const finalValidFiles = validFiles.filter(file => 
     !passwordErrors.some(error => error.filename === file.name)
   );
   
-  // Calculate final totals for THIS PAGE only
-  // = uploaded files on S3 + pending files + newly validated files
-  const uploadedSize = existingTotalSize;
-  const pendingSize = calculateTotalSize(existingFiles);
+  const existingSize = calculateTotalSize(existingFiles);
   const newValidSize = calculateTotalSize(finalValidFiles);
-  const totalSize = uploadedSize + pendingSize + newValidSize;
+  const totalSize = existingSize + newValidSize;
   const remainingSpace = FILE_SIZE_LIMITS.MAX_TOTAL_SIZE - totalSize;
   
   logger.info('Final size calculation', {
-    uploadedToS3: formatFileSize(uploadedSize),
-    pendingFiles: formatFileSize(pendingSize),
+    existingFiles: formatFileSize(existingSize),
     newValidFiles: formatFileSize(newValidSize),
     totalSize: formatFileSize(totalSize),
     remainingSpace: formatFileSize(remainingSpace),
@@ -290,19 +247,17 @@ export const validateFiles = async (
  */
 export const validateSingleFile = async (
   file: File,
-  existingFiles: File[] = [],
-  existingTotalSize: number = 0
+  existingFiles: FileOrMetadata[] = []
 ): Promise<FileValidationResult> => {
-  return validateFiles([file], existingFiles, existingTotalSize);
+  return validateFiles([file], existingFiles);
 };
 
 /**
  * Quick validation without password protection check (for immediate UI feedback)
  */
 export const quickValidateFiles = (
-  newFiles: File[],
-  existingFiles: File[] = [],
-  existingTotalSize: number = 0
+  newFiles: File[], 
+  existingFiles: FileOrMetadata[] = []
 ): Omit<FileValidationResult, 'validFiles'> & { potentiallyValidFiles: File[] } => {
   const errors: FileValidationError[] = [];
   let potentiallyValidFiles: File[] = [];
@@ -318,7 +273,7 @@ export const quickValidateFiles = (
   }
   
   // Step 2: Total size validation
-  const sizeErrors = validateTotalSizeConstraints(potentiallyValidFiles, existingFiles, existingTotalSize);
+  const sizeErrors = validateTotalSizeConstraints(potentiallyValidFiles, existingFiles);
   errors.push(...sizeErrors);
   
   potentiallyValidFiles = potentiallyValidFiles.filter(file => 

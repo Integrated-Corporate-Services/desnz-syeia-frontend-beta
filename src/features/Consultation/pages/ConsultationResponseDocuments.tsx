@@ -450,6 +450,7 @@ const ConsultationResponse2: React.FC = () => {
                                         category={FILE_CATEGORIES.CONSULTATION_RESPONSE}
                                         addedBy={userId}
                                         uploadedFiles={uploadedFileObjs}
+                                        applicationDocuments={applicationDocuments}
                                         onRemoveFile={idx => {
                                             setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
                                             setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));

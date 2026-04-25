@@ -206,13 +206,10 @@
   min-width: 120px;
 }
 
-/* Compact status tags: smaller text and padding while preserving wrap */
+/* Status tags: use GDS defaults, only override layout behavior */
 .workbasket-results-column .govuk-tag,
 .workbasket-table-wrapper .govuk-tag {
   display: inline-block;
-  font-size: 13px; /* smaller text */
-  line-height: 1.2; /* tighter line-height */
-  padding: 4px 8px; /* reduced horizontal padding */
   white-space: normal; /* allow wrapping inside the tag */
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -225,8 +222,7 @@
 @media (max-width: 640px) {
   .workbasket-results-column .govuk-tag,
   .workbasket-table-wrapper .govuk-tag {
-    font-size: 14px; /* slightly larger on small screens for readability */
-    padding: 5px 10px;
+    /* GDS handles responsive sizing */
   }
 }
 
