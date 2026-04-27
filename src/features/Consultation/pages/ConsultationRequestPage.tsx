@@ -163,6 +163,10 @@ const ConsultationRequestPage: React.FC = () => {
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
         log.info('[ConsultationRequestPage] Pending files uploaded successfully');
+        
+        // Update state immediately so files remain visible even if validation fails
+        setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
+        setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
       }
 
       // STEP 2: Now validate after files are uploaded
@@ -202,8 +206,8 @@ const ConsultationRequestPage: React.FC = () => {
         applicationId: applicationId || '',
         consultationId: consultationId || '',
         sentDate: sentDate,
-        uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
-        applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments],
+        uploadedFiles: uploadedFileObjs, // Already merged in state above
+        applicationDocuments: applicationDocuments, // Already merged in state above
         createdBy: user?.user_id || '',
         lastUpdatedBy: user?.user_id || '',
         status: ConsultationStatus.REQUEST_SENT,

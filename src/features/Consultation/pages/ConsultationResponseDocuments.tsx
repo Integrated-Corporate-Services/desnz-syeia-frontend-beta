@@ -172,6 +172,10 @@ const ConsultationResponse2: React.FC = () => {
                 const result = await fileUploadRef.current.triggerUpload();
                 newlyUploadedFiles = result.uploadedFiles;
                 newlyUploadedDocuments = result.applicationDocuments;
+                
+                // Update state immediately so files remain visible even if validation fails
+                setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
+                setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
             }
 
             // STEP 2: Now validate after files are uploaded
@@ -219,8 +223,8 @@ const ConsultationResponse2: React.FC = () => {
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
                 received_at: receivedAt,
-                uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
-                application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
+                uploaded_files: uploadedFileObjs, // Already merged in state above
+                application_documents: applicationDocuments, // Already merged in state above
                 last_updated_by: userId,
                 isSave: true
             };
