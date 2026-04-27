@@ -307,20 +307,9 @@ const ProjectOverview = () => {
 										<a href="#file-upload">{error}</a>
 									</li>
 								))}
-								{errors.map((err, idx) => {
-									// Parse error string for anchor tag, e.g. '<a href="#fieldId">Message</a>'
-									const anchorMatch = err.match(/<a[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/i);
-									if (anchorMatch) {
-										const [, href, text] = anchorMatch;
-										return (
-											<li key={idx}>
-												<a href={href}>{text}</a>
-											</li>
-										);
-									}
-									// Fallback: render as plain text
-									return <li key={idx}>{err}</li>;
-								})}
+								{errors.map((err, idx) => (
+									<li key={idx}>{err}</li>
+								))}
 							</ul>
 						</div>
 					</div>
