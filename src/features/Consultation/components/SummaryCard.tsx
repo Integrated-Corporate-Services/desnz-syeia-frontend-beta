@@ -389,7 +389,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                     : '-'
                             )}
                             {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
-                            {renderTableRow(
+                            {objectionRaised && renderTableRow(
                                 'Public response documents',
                                 responseDocuments && responseDocuments.length > 0
                                     ? <>{responseDocuments.map((doc, idx) => renderDocumentLink(doc, idx))}</>
