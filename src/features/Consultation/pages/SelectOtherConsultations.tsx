@@ -7,6 +7,9 @@ import { updateAllConsultations, createLpaConsultations, getOtherConsulteeOrgani
 import { progressApiService } from '../../../services/progressApiService';
 import log from '../../../logger';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { isWithinCharacterLimit } from '../../../utils/validation';
+
+const OTHER_NAME_MAX_LENGTH = 4000;
 
 interface OtherConsulteeEntry {
     id: string;
@@ -33,6 +36,7 @@ const SelectOtherConsultations: React.FC = () => {
     const [otherConsultees, setOtherConsultees] = useState<ConsulteeOrganisation[]>([]);
     const [loading, setLoading] = useState(true);
     const [isOtherSelected, setIsOtherSelected] = useState(false);
+    const [otherNameError, setOtherNameError] = useState<string>('');
 
     // Scroll to top on mount
     useEffect(() => {
@@ -98,16 +102,35 @@ const SelectOtherConsultations: React.FC = () => {
     };
 
     const handleAddOther = () => {
-        if (otherSearchTerm.trim()) {
-            const newEntry: OtherConsulteeEntry = {
-                id: `other-${Date.now()}`,
-                name: otherSearchTerm.trim(),
-            };
-            log.debug('[SelectOtherConsultations] Adding manual OTHER consultee', { name: newEntry.name });
-            setOtherEntries([...otherEntries, newEntry]);
-            setOtherSearchTerm('');
+        if (!otherSearchTerm.trim()) {
+            setOtherNameError('Enter a consultee\'s name');
+            return;
+        }
+        if (!isWithinCharacterLimit(otherSearchTerm, OTHER_NAME_MAX_LENGTH)) {
+            setOtherNameError(`Consultee name must be ${OTHER_NAME_MAX_LENGTH} characters or fewer`);
+            return;
+        }
+        const newEntry: OtherConsulteeEntry = {
+            id: `other-${Date.now()}`,
+            name: otherSearchTerm.trim(),
+        };
+        log.debug('[SelectOtherConsultations] Adding manual OTHER consultee', { name: newEntry.name });
+        setOtherEntries([...otherEntries, newEntry]);
+        setOtherSearchTerm('');
+        setOtherNameError('');
+    };
+
+    const handleOtherNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setOtherSearchTerm(value);
+        if (value.length > OTHER_NAME_MAX_LENGTH) {
+            setOtherNameError(`Consultee name must be ${OTHER_NAME_MAX_LENGTH} characters or fewer`);
+        } else {
+            setOtherNameError('');
         }
     };
+
+    const isOverLimit = otherSearchTerm.length > OTHER_NAME_MAX_LENGTH;
 
     const handleRemoveOther = (id: string) => {
         log.debug('[SelectOtherConsultations] Removing manual OTHER consultee', { id });
@@ -267,18 +290,24 @@ const SelectOtherConsultations: React.FC = () => {
                                                 ))}
                                             </div>
                                         )}
-                                        <div className="govuk-form-group">
+                                        <div className={`govuk-form-group${otherNameError ? ' govuk-form-group--error' : ''}`}>
                                             <label className="govuk-label" htmlFor="other-search">
                                                 Enter a consultee's name
                                             </label>
+                                            {otherNameError && (
+                                                <p id="other-search-error" className="govuk-error-message">
+                                                    <span className="govuk-visually-hidden">Error:</span> {otherNameError}
+                                                </p>
+                                            )}
                                             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                                                 <input
-                                                    className="govuk-input"
+                                                    className={`govuk-input${otherNameError ? ' govuk-input--error' : ''}`}
                                                     id="other-search"
                                                     name="other-search"
                                                     type="text"
                                                     value={otherSearchTerm}
-                                                    onChange={(e) => setOtherSearchTerm(e.target.value)}
+                                                    aria-describedby={otherNameError ? 'other-search-error' : undefined}
+                                                    onChange={handleOtherNameChange}
                                                     onKeyPress={(e) => {
                                                         if (e.key === 'Enter') {
                                                             e.preventDefault();
@@ -286,11 +315,12 @@ const SelectOtherConsultations: React.FC = () => {
                                                         }
                                                     }}
                                                 />
-                                                <button 
-                                                    type="button" 
-                                                    className="govuk-button" 
-                                                    data-module="govuk-button" 
+                                                <button
+                                                    type="button"
+                                                    className="govuk-button"
+                                                    data-module="govuk-button"
                                                     onClick={handleAddOther}
+                                                    disabled={isOverLimit}
                                                     style={{ margin: 0 }}
                                                 >
                                                     Add

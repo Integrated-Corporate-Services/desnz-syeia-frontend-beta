@@ -15,6 +15,8 @@ interface LpaSelectorProps {
   showCheckbox?: boolean;
 }
 
+const LPA_SEARCH_MAX_LENGTH = 4000;
+
 const LpaSelector: React.FC<LpaSelectorProps> = ({
   onLpaSelect,
   selectedLpa,
@@ -30,6 +32,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
   const [filteredLpas, setFilteredLpas] = useState(lpas);
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasLpaConsultee, setHasLpaConsultee] = useState(!showCheckbox); // Auto-show if no checkbox
+  const [lpaSearchError, setLpaSearchError] = useState("");
 
   // Initialize selected LPAs from codes or selectedLpa prop
   useEffect(() => {
@@ -172,7 +175,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
           />
 
           {/* Search selector */}
-          <div className="govuk-form-group govuk-!-margin-top-4">
+          <div className={`govuk-form-group govuk-!-margin-top-4${lpaSearchError ? ' govuk-form-group--error' : ''}`}>
             <label
               className="govuk-label"
               htmlFor="lpaConsulteeSelect"
@@ -181,20 +184,34 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
               Start typing an LPA's name
             </label>
 
+            {lpaSearchError && (
+              <p id="lpaConsulteeSelect-error" className="govuk-error-message">
+                <span className="govuk-visually-hidden">Error:</span> {lpaSearchError}
+              </p>
+            )}
+
             <div style={{ position: 'relative' }}>
                 <input
                   type="text"
                   id="lpaConsulteeSelect"
                   name="lpaConsulteeSelect"
-                  className="govuk-input"
+                  className={`govuk-input${lpaSearchError ? ' govuk-input--error' : ''}`}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchTerm(value);
+                    if (value.length > LPA_SEARCH_MAX_LENGTH) {
+                      setLpaSearchError(`LPA name must be ${LPA_SEARCH_MAX_LENGTH} characters or fewer`);
+                    } else {
+                      setLpaSearchError('');
+                    }
+                  }}
                   placeholder=""
                   autoComplete="off"
+                  aria-describedby={lpaSearchError ? 'lpaConsulteeSelect-error' : undefined}
                 />
 
-                {/* Dropdown results */}
-                {showDropdown && filteredLpas.length > 0 && (
+                {showDropdown && filteredLpas.length > 0 && !lpaSearchError && (
                   <ul 
                     className="govuk-list" 
                     style={{
