@@ -12,8 +12,10 @@ export const POST_CONSULTATION_CONSTANTS = {
     ERROR_CONSULTEES_RECOMMENDATIONS_SELECTION_REQUIRED: "Select 'Yes' or 'No'",
     ERROR_CONSULTEES_RECOMMENDATIONS_DETAILS_REQUIRED: 'Enter details of the recommendations or conditions requested by the consultees',
     ERROR_ACCEPT_CONSULTEES_RECOMMENDATIONS_REQUIRED: "Select 'Yes' or 'No'",
-    ERROR_CONSULTEES_RECOMMENDATIONS_REASON_REQUIRED: 'Explain why you do not accept the consultees’ recommendations',    ERROR_EXPLANATION_MAX_LENGTH: 'You cannot enter more than 4,000 characters',
-    EXPLANATION_MAX_LENGTH: 4000,} as const;
+    ERROR_CONSULTEES_RECOMMENDATIONS_REASON_REQUIRED: 'Explain why you do not accept the consultees’ recommendations',
+    ERROR_EXPLANATION_MAX_LENGTH: 'You cannot enter more than 4,000 characters',
+    EXPLANATION_MAX_LENGTH: 4000,
+} as const;
 
 export const POST_CONSULTATION_QUESTIONS = {
     LPA_AGREEMENT: {
