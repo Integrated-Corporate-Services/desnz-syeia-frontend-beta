@@ -29,6 +29,24 @@ const ConsultationDetailsPage: React.FC = () => {
   const regularConsultations = consultations.filter(c => c.consultationType !== 'OTHER');
   const otherConsultations = consultations.filter(c => c.consultationType === 'OTHER');
 
+  // Separate active and historical consultations
+  const isHistoricalStatus = (status: string) => {
+    const normalizedStatus = status.toLowerCase();
+    return normalizedStatus === ConsultationStatus.CLOSED.toLowerCase() || 
+           normalizedStatus === ConsultationStatus.WITHDRAWN.toLowerCase();
+  };
+
+  // Filter active and historical for regular consultations
+  const activeRegularConsultations = regularConsultations.filter(c => !isHistoricalStatus(c.status));
+  const historicalRegularConsultations = regularConsultations.filter(c => isHistoricalStatus(c.status));
+
+  // Filter active and historical for other consultations
+  const activeOtherConsultations = otherConsultations.filter(c => !isHistoricalStatus(c.status));
+  const historicalOtherConsultations = otherConsultations.filter(c => isHistoricalStatus(c.status));
+
+  // Combine all historical consultations
+  const allHistoricalConsultations = [...historicalRegularConsultations, ...historicalOtherConsultations];
+
   const handleRemoveConsultation = (consultationId: string, consultationName: string) => {
     // Navigate to the Remove Consultation page
     navigate(
@@ -133,8 +151,8 @@ const ConsultationDetailsPage: React.FC = () => {
             <p>For Natural England, you can mark the consultation as 'Not required' and you will be asked to explain why it is not required.</p>
           </div>
 
-          {/* Regular consultations */}
-{regularConsultations.map((consultation) => {
+          {/* Active Regular consultations */}
+{activeRegularConsultations.map((consultation) => {
   const isPublic = consultation.consultationType === 'PUBLIC';
   
   return (
@@ -186,11 +204,15 @@ const ConsultationDetailsPage: React.FC = () => {
     />
   );
 })}
-          {/* Other consultations section */}
-          <h2 className="govuk-heading-m govuk-!-margin-top-6">Other consultations</h2>
-          <p className="govuk-body">You can add and remove any consultations in this optional section.</p>
+          {/* Active Other consultations section */}
+          {activeOtherConsultations.length > 0 && (
+            <>
+              <h2 className="govuk-heading-m govuk-!-margin-top-6">Other consultations</h2>
+              <p className="govuk-body">You can add and remove any consultations in this optional section.</p>
+            </>
+          )}
           
-          {otherConsultations.map((consultation) => {
+          {activeOtherConsultations.map((consultation) => {
   const isPublic = consultation.consultationType === 'PUBLIC';
   
   return (
@@ -243,6 +265,71 @@ const ConsultationDetailsPage: React.FC = () => {
     />
   );
 })}
+
+          {/* View Previous Consultations - Expandable Section */}
+          {allHistoricalConsultations.length > 0 && (
+            <details className="govuk-details govuk-!-margin-top-6 govuk-!-margin-bottom-6" data-module="govuk-details">
+              <summary className="govuk-details__summary">
+                <span className="govuk-details__summary-text">
+                  View previous consultations ({allHistoricalConsultations.length})
+                </span>
+              </summary>
+              <div className="govuk-details__text">
+                <p className="govuk-body">
+                  These consultations have been closed or withdrawn and are shown here for reference.
+                </p>
+                
+                {allHistoricalConsultations.map((consultation) => {
+                  const isPublic = consultation.consultationType === 'PUBLIC';
+                  
+                  return (
+                    <ConsultationSummaryCard
+                      key={consultation.id}
+                      orgName={consultation.consulteeOrganisationName}
+                      consultationName={
+                        consultation.otherConsultee ||
+                        consultation.consulteeOrganisationName ||
+                        consultation.consultationType
+                      }
+                      status={consultation.status}
+                      consultationId={consultation.id}
+                      applicationId={applicationId}
+                      consultationType={consultation.consultationType}
+                      dateRequestCreated={
+                        isPublic 
+                          ? (consultation.firstDatePublished ?? undefined)
+                          : (consultation.dateRequestCreated ?? undefined)
+                      }
+                      secondDatePublished={
+                        isPublic 
+                          ? (consultation.secondDatePublished ?? undefined)
+                          : (consultation.secondDate ?? undefined)
+                      }
+                      dateClosed={consultation.dateClosed ?? undefined}
+                      objectionRaised={consultation.objectionRaised}
+                      closeComments={consultation.closeComments}
+                      responseDocuments={
+                        isPublic
+                          ? consultation.publicResponseDocuments
+                          : consultation.responseDocuments
+                      }
+                      respondingConsulteeName={consultation.respondingConsulteeName}
+                      respondingConsulteeEmail={consultation.respondingConsulteeEmail}
+                      notRequiredMessage={consultation.notRequiredReason}
+                      notRequiredDocs={consultation.notRequiredDocs}
+                      consultationRequestDocs={
+                        isPublic
+                          ? consultation.evidenceOfPublicationDocs
+                          : consultation.consultationRequestDocs
+                      }
+                      lpaConsultationForm={consultation.lpaConsultationForm}
+                      evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
+                    />
+                  );
+                })}
+              </div>
+            </details>
+          )}
 
           <div className="govuk-!-margin-bottom-6 ">
             <Link
