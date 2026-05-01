@@ -103,6 +103,8 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     }
 
     const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
+    const withdrawUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-withdrawn`;
+    
     // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
     function formatDate(dateStr?: string) {
         if (!dateStr) return '';
@@ -243,6 +245,11 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 Record public responses
                             </Link>
                         </li>
+                        <li className="govuk-summary-card__action">
+                            <Link to={withdrawUrl} className="govuk-link">
+                                Withdraw
+                            </Link>
+                        </li>
                     </ul>
                 </div>
                 <div className="govuk-summary-card__content">
@@ -276,6 +283,11 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         <li className="govuk-summary-card__action">
                             <Link to={responseUrlWithParams} className="govuk-link">
                                 Provide response
+                            </Link>
+                        </li>
+                        <li className="govuk-summary-card__action">
+                            <Link to={withdrawUrl} className="govuk-link">
+                                Withdraw
                             </Link>
                         </li>
                     </ul>
@@ -326,6 +338,11 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         <li className="govuk-summary-card__action">
                             <Link to={responseUrlWithParams} className="govuk-link">
                                 Provide response
+                            </Link>
+                        </li>
+                        <li className="govuk-summary-card__action">
+                            <Link to={withdrawUrl} className="govuk-link">
+                                Withdraw
                             </Link>
                         </li>
                     </ul>
@@ -592,6 +609,13 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 {statusDisplay === ConsultationStatus.DRAFT ? 'Continue consultation' : 'Start consultation'}
                             </Link>
                         </li>
+                        {statusDisplay === ConsultationStatus.DRAFT && (
+                            <li className="govuk-summary-card__action">
+                                <Link to={withdrawUrl} className="govuk-link">
+                                    Withdraw
+                                </Link>
+                            </li>
+                        )}
                     </ul>
                 </div>
                 <div className="govuk-summary-card__content">
