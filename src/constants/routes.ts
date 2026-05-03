@@ -113,8 +113,15 @@ import RemoveConsultation from '../features/Consultation/pages/RemoveConsultatio
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
 import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
+import CookiesPage from '../pages/CookiesPage';
 
 export const ROUTE_CONFIG = [
+    {
+        path: '/cookies',
+        component: CookiesPage,
+        auth: false,
+        layout: true,
+    },
     {
         path: '/signed-out',
         component: SignedOutPage,
