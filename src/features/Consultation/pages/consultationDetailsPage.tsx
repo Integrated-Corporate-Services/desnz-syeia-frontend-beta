@@ -30,10 +30,10 @@ const ConsultationDetailsPage: React.FC = () => {
   const otherConsultations = consultations.filter(c => c.consultationType === 'OTHER');
 
   // Separate active and historical consultations
+  // Only withdrawn consultations are considered historical
   const isHistoricalStatus = (status: string) => {
     const normalizedStatus = status.toLowerCase();
-    return normalizedStatus === ConsultationStatus.CLOSED.toLowerCase() || 
-           normalizedStatus === ConsultationStatus.WITHDRAWN.toLowerCase();
+    return normalizedStatus === ConsultationStatus.WITHDRAWN.toLowerCase();
   };
 
   // Filter active and historical for regular consultations
@@ -266,6 +266,15 @@ const ConsultationDetailsPage: React.FC = () => {
   );
 })}
 
+          <div className="govuk-!-margin-bottom-6 ">
+            <Link
+              to={`${S37_BASE_URL}/${applicationId}/consultation/select-other-consultations`}
+              className="govuk-button govuk-button--secondary "
+            >
+              Add more consultations
+            </Link>
+          </div>
+
           {/* View Previous Consultations - Expandable Section */}
           {allHistoricalConsultations.length > 0 && (
             <details className="govuk-details govuk-!-margin-top-6 govuk-!-margin-bottom-6" data-module="govuk-details">
@@ -276,7 +285,7 @@ const ConsultationDetailsPage: React.FC = () => {
               </summary>
               <div className="govuk-details__text">
                 <p className="govuk-body">
-                  These consultations have been closed or withdrawn and are shown here for reference.
+                  These consultations have been withdrawn and are shown here for reference.
                 </p>
                 
                 {allHistoricalConsultations.map((consultation) => {
@@ -330,15 +339,6 @@ const ConsultationDetailsPage: React.FC = () => {
               </div>
             </details>
           )}
-
-          <div className="govuk-!-margin-bottom-6 ">
-            <Link
-              to={`${S37_BASE_URL}/${applicationId}/consultation/select-other-consultations`}
-              className="govuk-button govuk-button--secondary "
-            >
-              Add more consultations
-            </Link>
-          </div>
           
           {error && (
             <p className="govuk-error-message" id="save-error">

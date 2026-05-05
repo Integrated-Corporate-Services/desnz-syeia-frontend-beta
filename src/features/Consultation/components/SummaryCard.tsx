@@ -575,7 +575,9 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     function renderWithdrawn() {
         return (
             <>
-                <div className="govuk-summary-card__title-wrapper"></div>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{displayName}</h2>
+                </div>
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
