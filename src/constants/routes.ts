@@ -2,6 +2,15 @@ import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
+import { CookiesSettingsPage } from '../modules/cookie-consent';
+
+type RouteConfig = {
+    path: string;
+    component: React.ComponentType;
+    auth?: boolean;
+    layout?: boolean | 'minimal';
+};
+
 import ConsultationResponse from '../features/Consultation/pages/ConsultationResponse';
 import ConsultationResponseDocuments from '../features/Consultation/pages/ConsultationResponseDocuments';
 import ConsultationResponseReview from '../features/Consultation/pages/ConsultationResponseReview';
@@ -113,12 +122,11 @@ import RemoveConsultation from '../features/Consultation/pages/RemoveConsultatio
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
 import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
-import CookiesPage from '../pages/CookiesPage';
 
 export const ROUTE_CONFIG = [
     {
         path: '/cookies',
-        component: CookiesPage,
+        component: CookiesSettingsPage,
         auth: false,
         layout: true,
     },
