@@ -157,6 +157,15 @@ const ApplicationSummary: React.FC = () => {
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [invoiceNumber, setInvoiceNumber] = useState<string | null>(null);
+  
+  // Withdrawal request state
+  const [withdrawalRequest, setWithdrawalRequest] = useState<{
+    withdrawal_request_id: string;
+    request_status: string;
+    voluntary_agreement: boolean;
+    withdrawal_reason?: string;
+    requested_at: string;
+  } | null>(null);
 
   // Memoize transformed routes to avoid recalculating on every render
   const transformedRoutes = useMemo(() => {
@@ -401,6 +410,58 @@ const ApplicationSummary: React.FC = () => {
       });
   }, [applicationId, logger]);
 
+  // Separate effect to fetch withdrawal request
+  useEffect(() => {
+    const fetchWithdrawalRequest = async () => {
+      
+      if (!applicationId) {
+        logger.debug('No applicationId, skipping withdrawal request fetch');
+        return;
+      }
+
+      try {
+        logger.debug('Fetching withdrawal request for application', { applicationId });
+        
+        const withdrawalData = await applicationApiService.getWithdrawalRequest(applicationId);
+        
+        if (withdrawalData === null) {
+          setWithdrawalRequest(null);
+          return;
+        }
+
+        if (withdrawalData?.success && withdrawalData?.data) {
+          
+          logger.info('Withdrawal request found and set:', { 
+            requestStatus: withdrawalData.data.request_status,
+            requestId: withdrawalData.data.withdrawal_request_id 
+          });          
+          setWithdrawalRequest(withdrawalData.data);
+        } else {          
+          logger.warn('Unexpected withdrawal data structure:', { withdrawalData });
+          setWithdrawalRequest(null);
+        }
+      } catch (err) {
+        logger.error('Error fetching withdrawal request:', err);
+        setWithdrawalRequest(null);
+      }
+    };
+
+    // Fetch whenever we have an applicationId
+    if (applicationId) {
+      logger.debug('Triggering withdrawal request fetch for application', { applicationId });
+      fetchWithdrawalRequest();
+    } 
+  }, [applicationId, logger]);
+
+  // Debug effect to monitor withdrawal request state changes
+  useEffect(() => {
+    logger.debug('Withdrawal request state changed:', { 
+      hasWithdrawalRequest: !!withdrawalRequest,
+      requestStatus: withdrawalRequest?.request_status,
+      withdrawalRequestId: withdrawalRequest?.withdrawal_request_id
+    });
+  }, [withdrawalRequest, logger]);
+
   return (
     <div className="govuk-width-container">
       {!permissions?.canEdit && (
@@ -408,26 +469,7 @@ const ApplicationSummary: React.FC = () => {
           Back
         </Link>
       )}
-      <main className="govuk-main-wrapper" id="main-content">
-        {validationError && (
-          <div
-            className="govuk-error-summary"
-            aria-labelledby="error-summary-title"
-            role="alert"
-            data-module="govuk-error-summary"
-          >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              {VALIDATION_MESSAGES.ERROR_SUMMARY_TITLE}
-            </h2>
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                <li>
-                  <a href="#organisation">{validationError}</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        )}
+      <main className="govuk-main-wrapper" id="main-content">        
         {permissions?.canEdit && (
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
@@ -447,6 +489,43 @@ const ApplicationSummary: React.FC = () => {
         )}
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
+            
+            {/* Withdrawal request notification banner */}
+            {withdrawalRequest && withdrawalRequest.request_status === 'Requested' && (
+              <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+                <div className="govuk-notification-banner__header" style={{ backgroundColor: '#1d70b8' }}>
+                  <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title" style={{ color: 'white' }}>
+                    Important
+                  </h2>
+                </div>
+                <div className="govuk-notification-banner__content">
+                  <p className="govuk-notification-banner__heading">
+                    {FIELD_LABELS.WITHDRAWAL_NOTIFICATION_BANNER}
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {validationError && (
+              <div
+                className="govuk-error-summary"
+                aria-labelledby="error-summary-title"
+                role="alert"
+                data-module="govuk-error-summary"
+              >
+                <h2 className="govuk-error-summary__title" id="error-summary-title">
+                  {VALIDATION_MESSAGES.ERROR_SUMMARY_TITLE}
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <ul className="govuk-list govuk-error-summary__list">
+                    <li>
+                      <a href="#organisation">{validationError}</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
             <h1 className="govuk-heading-xl">
               {PAGE_LABELS.TITLE}
             </h1>
@@ -478,6 +557,20 @@ const ApplicationSummary: React.FC = () => {
                       />
                     </dd>
                   </div>
+                  {/* Show withdrawal status if withdrawal request exists */}
+                  {withdrawalRequest && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">{FIELD_LABELS.WITHDRAWAL_REQUEST_STATUS}</dt>
+                      <dd className="govuk-summary-list__value">
+                        <strong
+                          className={`govuk-tag ${withdrawalRequest.request_status === 'Requested' ? 'govuk-tag--orange' : withdrawalRequest.request_status === 'Approved' ? 'govuk-tag--green' : 'govuk-tag--red'}`}
+                          style={{ fontSize: '16px' }}
+                        >
+                          {withdrawalRequest.request_status}
+                        </strong>
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>
@@ -528,10 +621,7 @@ const ApplicationSummary: React.FC = () => {
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">{FIELD_LABELS.TOTAL_AMOUNT}</dt>
                       <dd className="govuk-summary-list__value">
-                        {paymentDetails.total_amount ||
-                          (paymentDetails.amount
-                            ? `£${(paymentDetails.amount / 100).toFixed(2)}`
-                            : '£462.50')}
+                        {paymentDetails.total_amount || '-'}
                       </dd>
                     </div>
                   </dl>
@@ -539,16 +629,15 @@ const ApplicationSummary: React.FC = () => {
               </div>
             )}
 
-            {/* Withdraw application button - only show if user has withdraw permission */}
-            {permissions?.canWithdraw && !permissions?.canEdit && (
+            {/* Withdraw application button - only show if user has withdraw permission and no pending withdrawal request */}
+            {permissions?.canWithdraw && !permissions?.canEdit && !withdrawalRequest && (
               <div className="govuk-button-group">
                 <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   data-module="govuk-button"
                   onClick={() => {
-                    // Navigate to withdraw application page
-                    // navigate(`${S37_BASE_URL}/${applicationId}/withdraw`);
+                    navigate(`${S37_BASE_URL}/${applicationId}/withdraw`);
                   }}
                 >
                   {BUTTON_LABELS.WITHDRAW_APPLICATION}

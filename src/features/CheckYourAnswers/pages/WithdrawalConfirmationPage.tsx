@@ -1,0 +1,90 @@
+import React, { useEffect } from "react";
+import { Link, useParams, useLocation } from "react-router-dom";
+import { S37_BASE_URL } from "../../../constants/s37";
+import { WITHDRAWAL_LABELS } from "../constants/applicationSummaryLabels";
+
+interface ConfirmationLocationState {
+  desnzRef?: string;
+  formType?: string;
+  voluntaryAgreement?: boolean;
+  withdrawalReason?: string;
+}
+
+const WithdrawalConfirmationPage: React.FC = () => {
+  const params = useParams();
+  const location = useLocation();
+  
+  // Get application data from location state or use defaults
+  const locationState = location.state as ConfirmationLocationState | null;
+  const desnzRef = locationState?.desnzRef;
+  
+  const getApplicationId = () => {
+    if (params.applicationId) return params.applicationId;
+    if (params.id) return params.id;
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const idFromQuery =
+        searchParams.get("id") || searchParams.get("applicationId");
+      if (idFromQuery) return idFromQuery;
+    }
+    return "";
+  };
+
+  const applicationId = getApplicationId();
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="govuk-width-container">
+      <main className="govuk-main-wrapper" id="main-content" role="main">
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <div className="govuk-panel govuk-panel--confirmation">
+              <h1 className="govuk-panel__title">
+                {WITHDRAWAL_LABELS.CONFIRMATION_TITLE}
+              </h1>
+              <div className="govuk-panel__body">
+                Application {desnzRef}
+              </div>
+            </div>
+
+            <h2 className="govuk-heading-m">{WITHDRAWAL_LABELS.WHAT_HAPPENS_NEXT}</h2>
+
+            <p className="govuk-body">
+              {WITHDRAWAL_LABELS.CONFIRMATION_MESSAGE_1}
+            </p>
+
+            <p className="govuk-body">
+              {WITHDRAWAL_LABELS.CONFIRMATION_MESSAGE_2}
+            </p>
+
+            <p className="govuk-body">
+              {WITHDRAWAL_LABELS.CONFIRMATION_MESSAGE_3}
+            </p>
+
+            <div className="govuk-inset-text">
+              {WITHDRAWAL_LABELS.MISTAKE_MESSAGE} <a href="mailto:S37consents@energysecurity.gov.uk" className="govuk-link">S37consents@energysecurity.gov.uk</a> as soon as possible.
+            </div>
+
+            <p className="govuk-body">
+              <Link to={`${S37_BASE_URL}/${applicationId}/application-summary`} className="govuk-link">
+                {WITHDRAWAL_LABELS.RETURN_TO_SUMMARY}
+              </Link>
+            </p>
+
+            <p className="govuk-body">
+              <Link to="/workbasket" className="govuk-link">
+                {WITHDRAWAL_LABELS.GO_TO_DASHBOARD}
+              </Link>
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default WithdrawalConfirmationPage;

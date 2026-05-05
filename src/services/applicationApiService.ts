@@ -264,4 +264,66 @@ getApplicationReview: async (applicationId: string, correlationId?: string) => {
   return response.json();
 },
 
+/**
+ * Submit a withdrawal request for an application
+ */
+withdrawApplication: async (
+  applicationId: string,
+  voluntaryAgreement: boolean,
+  withdrawalReason?: string,
+  correlationId?: string
+) => {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    "X-Correlation-ID": correlationId || generateCorrelationId(),
+  };
+
+  const response = await fetch(
+    `/backend/api/applications/${applicationId}/withdraw`,
+    {
+      method: "POST",
+      headers,
+      credentials: "include",
+      body: JSON.stringify({
+        voluntary_agreement: voluntaryAgreement,
+        withdrawal_reason: withdrawalReason || null,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: "Failed to submit withdrawal request" }));
+    throw new Error(errorData.error || errorData.message || "Failed to submit withdrawal request");
+  }
+
+  return response.json();
+},
+
+/**
+ * Get withdrawal request details for an application
+ */
+getWithdrawalRequest: async (applicationId: string, correlationId?: string) => {
+  const headers: HeadersInit = {
+    "X-Correlation-ID": correlationId || generateCorrelationId(),
+  };
+
+  const response = await fetch(
+    `/backend/api/applications/${applicationId}/withdrawal-request`,
+    {
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null; // No withdrawal request found
+    }
+    const errorData = await response.json().catch(() => ({ error: "Failed to fetch withdrawal request" }));
+    throw new Error(errorData.error || errorData.message || "Failed to fetch withdrawal request");
+  }
+
+  return response.json();
+},
+
 };

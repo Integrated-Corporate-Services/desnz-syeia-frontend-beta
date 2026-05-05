@@ -95,6 +95,8 @@ import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordin
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
 import ApplicationSummary from '../features/CheckYourAnswers/pages/ApplicationSummary';
+import WithdrawApplicationPage from '../features/CheckYourAnswers/pages/WithdrawApplicationPage';
+import WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
@@ -813,6 +815,18 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/application-summary`,
         component: ApplicationSummary,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/withdraw`,
+        component: WithdrawApplicationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/withdrawal-confirmation`,
+        component: WithdrawalConfirmationPage,
         auth: true,
         layout: true,
     },
