@@ -234,7 +234,7 @@ const WithdrawApplicationPage: React.FC = () => {
                 </fieldset>
               </div>
 
-              <div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds" style={{ marginTop: "30px" }} data-module="govuk-character-count" data-maxlength={maxCharacters}>
+              <div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds withdrawal-reason-spacing" data-module="govuk-character-count" data-maxlength={maxCharacters}>
                 <label className="govuk-label govuk-label--m" htmlFor="withdrawal-reason">
                   {WITHDRAWAL_LABELS.REASON_LABEL}
                 </label>
@@ -273,7 +273,7 @@ const WithdrawApplicationPage: React.FC = () => {
                 )}
               </div>
 
-              <div className="govuk-warning-text" style={{ marginTop: "30px", marginBottom: "30px" }}>
+              <div className="govuk-warning-text withdrawal-warning-spacing">
                 <span className="govuk-warning-text__icon" aria-hidden="true">!</span>
                 <strong className="govuk-warning-text__text">
                   <span className="govuk-visually-hidden">Warning</span>
