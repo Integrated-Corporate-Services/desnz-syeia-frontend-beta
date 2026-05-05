@@ -35,7 +35,8 @@ export function CookieBanner() {
                 <p className="govuk-body">We use some essential cookies to make this service work.</p>
                 <p className="govuk-body">
                   We'd like to set additional cookies so we can remember your settings,
-                  understand how you use the service and make improvements.
+                  understand how you use the service and make improvements. See our{' '}
+                  <Link to="/privacy" className="govuk-link">privacy notice</Link> for more information.
                 </p>
               </div>
             </div>

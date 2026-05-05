@@ -108,6 +108,8 @@ export function CookiesSettingsPage() {
             </p>
             <p className="govuk-body">
               We use cookies to make this service work and collect information about how you use our service.
+              Read our <Link to="/privacy" className="govuk-link">privacy notice</Link> to find out more about
+              how we collect, use and store your personal information.
             </p>
 
             <h2 className="govuk-heading-m">Essential cookies</h2>

@@ -3,6 +3,13 @@ import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
 import { CookiesSettingsPage } from '../modules/cookie-consent';
+import {
+  PrivacyNoticePage,
+  TermsAndConditionsPage,
+  AccessibilityStatementPage,
+  HelpPage,
+  ContactPage
+} from '../modules/privacy-policy';
 
 type RouteConfig = {
     path: string;
@@ -127,6 +134,36 @@ export const ROUTE_CONFIG = [
     {
         path: '/cookies',
         component: CookiesSettingsPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/privacy',
+        component: PrivacyNoticePage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/terms',
+        component: TermsAndConditionsPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/accessibility',
+        component: AccessibilityStatementPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/help',
+        component: HelpPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/contact',
+        component: ContactPage,
         auth: false,
         layout: true,
     },
