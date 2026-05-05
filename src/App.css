@@ -94,13 +94,3 @@
     overflow: hidden;
     background: #ffffff;
   }
-
-  /* Withdrawal page specific spacing */
-  .withdrawal-reason-spacing {
-    margin-top: 30px;
-  }
-
-  .withdrawal-warning-spacing {
-    margin-top: 30px;
-    margin-bottom: 30px;
-  }
