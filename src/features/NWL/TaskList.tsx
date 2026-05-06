@@ -59,12 +59,12 @@ const TaskList: React.FC = () => {
 							</li>
 						</ul>
 
-						<h2 className="govuk-heading-m">2. Project details</h2>
+						<h2 className="govuk-heading-m">2. Application details</h2>
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/landowner-occupant-details`}>
-										<strong>Landowner or occupant details</strong>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/type-of-use`}>
+										<strong>Type of use</strong>
 									</a>
 								</div>
 								<div className="govuk-task-list__status">
@@ -73,18 +73,8 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/application-and-land-details`}>
-										<strong>Application and Land details</strong>
-									</a>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
-							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/assets`}>
-										<strong>Assets</strong>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/grounds-for-application`}>
+										<strong>Grounds for application</strong>
 									</a>
 								</div>
 								<div className="govuk-task-list__status">
@@ -93,12 +83,12 @@ const TaskList: React.FC = () => {
 							</li>
 						</ul>
 
-						<h2 className="govuk-heading-m">3. Supporting information</h2>
+						<h2 className="govuk-heading-m">3. Objector details</h2>
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/supporting-information`}>
-										<strong>Supporting information</strong>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/objector-details-introduction`}>
+										<strong>Introduction</strong>
 									</a>
 								</div>
 								<div className="govuk-task-list__status">
@@ -107,22 +97,8 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/negotiations`}>
-										<strong>Negotiations</strong>
-									</a>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
-							</li>
-						</ul>
-
-						<h2 className="govuk-heading-m">4. Application statement</h2>
-						<ul className="govuk-task-list">
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/application-statement`}>
-										<strong>Application statement</strong>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/objector-details`}>
+										<strong>Objector details</strong>
 									</a>
 								</div>
 								<div className="govuk-task-list__status">
@@ -131,12 +107,42 @@ const TaskList: React.FC = () => {
 							</li>
 						</ul>
 
-						<h2 className="govuk-heading-m">5. Payment</h2>
+						<h2 className="govuk-heading-m">4. Land details</h2>
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href="#">
-										<strong>Payment</strong>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/site-address`}>
+										<strong>Site address</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/land-registry`}>
+										<strong>Land registry</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/os-grid-reference`}>
+										<strong>OS Grid reference</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/identifying-information`}>
+										<strong>Identifying information</strong>
 									</a>
 								</div>
 								<div className="govuk-task-list__status">
@@ -145,16 +151,108 @@ const TaskList: React.FC = () => {
 							</li>
 						</ul>
 
-						<h2 className="govuk-heading-m">6. Review and Submit</h2>
+						<h2 className="govuk-heading-m">5. Assets</h2>
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href="application-submit.html">
-										<strong>Submit application</strong>
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/information-about-lines`}>
+										<strong>Information about the lines</strong>
 									</a>
 								</div>
 								<div className="govuk-task-list__status">
 									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/application-plan`}>
+										<strong>Application plan</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/plan-verification`}>
+										<strong>Plan verification</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+						</ul>
+
+						<h2 className="govuk-heading-m">6. Negotiations</h2>
+						<ul className="govuk-task-list">
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/existing-negotiations`}>
+										<strong>Existing negotiations</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/evidence-of-negotiations`}>
+										<strong>Evidence of negotiations</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+						</ul>
+
+						<h2 className="govuk-heading-m">7. Additional information</h2>
+						<ul className="govuk-task-list">
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/related-applications`}>
+										<strong>Related applications</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/other-important-information`}>
+										<strong>Other important information</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+								</div>
+							</li>
+						</ul>
+
+						<h2 className="govuk-heading-m">8. Pay and submit</h2>
+						<ul className="govuk-task-list">
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/check-your-answers`}>
+										<strong>Check your answers</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--grey">Cannot start yet</strong>
+								</div>
+							</li>
+							<li className="govuk-task-list__item govuk-task-list__item--with-link">
+								<div className="govuk-task-list__name-and-hint">
+									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/pay-and-submit`}>
+										<strong>Pay and submit</strong>
+									</a>
+								</div>
+								<div className="govuk-task-list__status">
+									<strong className="govuk-tag govuk-tag--grey">Cannot start yet</strong>
 								</div>
 							</li>
 						</ul>
