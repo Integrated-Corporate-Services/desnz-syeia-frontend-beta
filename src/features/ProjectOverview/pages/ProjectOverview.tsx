@@ -787,12 +787,21 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Plan Information Documents */}
-					<div id="planInformationDocuments" className={`govuk-form-group${fieldErrors?.uploadedFiles ? " govuk-form-group--error" : ""} govuk-!-margin-bottom-0`}> 
+					<div id="planInformationDocuments" className={`govuk-form-group${(fieldErrors?.uploadedFiles || fileValidationErrors.length > 0) ? " govuk-form-group--error" : ""} govuk-!-margin-bottom-0`}> 
 						<fieldset className="govuk-fieldset">
 						<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 							{projectOverview.planInformationDocuments}
 						</legend>
-						{/* Field error removed - validation errors only shown in error summary above */}
+						{fieldErrors?.uploadedFiles && fieldErrors.uploadedFiles !== 'validation-error' && (
+							<p id="uploadedFiles-error" className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
+							</p>
+						)}
+						{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+							<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {error}
+							</p>
+						))}
 						<FileUpload
 							ref={fileUploadRef}
 							title='Upload a file'

@@ -7,6 +7,7 @@ import { useConsultationDetails } from "../../../hooks/useConsultationDetails";
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { ConsultationStatus } from "../../../constants/consultationStatus";
 import { progressApiService } from "../../../services/progressApiService";
+import { getNextPageUrl, TASK_NAMES } from "../../../utils/taskListUtils";
 
 const ConsultationDetailsPage: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -62,7 +63,8 @@ const ConsultationDetailsPage: React.FC = () => {
     const allConsultationsClosed = consultations.every(
       (consultation) =>
         consultation.status.toLowerCase() === ConsultationStatus.CLOSED.toLowerCase() ||
-        consultation.status.toLowerCase() === ConsultationStatus.NOT_REQUIRED.toLowerCase()
+        consultation.status.toLowerCase() === ConsultationStatus.NOT_REQUIRED.toLowerCase() ||
+        consultation.status.toLowerCase() === ConsultationStatus.WITHDRAWN.toLowerCase() 
     );
 
     if (!allConsultationsClosed) {
@@ -85,8 +87,9 @@ const ConsultationDetailsPage: React.FC = () => {
         'Completed'
       );
 
-      // Navigate to task list
-      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+      // Navigate to next page
+      const nextPageUrl = getNextPageUrl(TASK_NAMES.CONSULTATIONS, applicationId);
+      navigate(nextPageUrl);
     } catch (err) {
       console.error('Error updating progress:', err);
       setError('Failed to save progress. Please try again.');

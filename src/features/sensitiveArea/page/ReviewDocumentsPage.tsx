@@ -293,10 +293,6 @@ const ReviewDocumentsPage: React.FC = () => {
                     ? ' govuk-form-group--error'
                     : ''
                 }`}
-                style={(formErrors.some((err) => err.includes('document')) || fileValidationErrors.length > 0) ? {
-                  borderLeft: '4px solid #d4351c',
-                  paddingLeft: 12
-                } : {}}
               >
                 {/* Inline error messages */}
                 {formErrors.some((err) => err.includes('document')) && (
@@ -305,7 +301,11 @@ const ReviewDocumentsPage: React.FC = () => {
                     Upload at least one environmental and archaeological document
                   </span>
                 )}
-                {/* File validation errors removed - shown in error summary above */}
+                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                  <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                ))}
 
                 {/* Page-level heading shown when documents table is present (after upload) */}
                 {applicationDocuments && applicationDocuments.length > 0 && (

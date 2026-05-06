@@ -469,19 +469,18 @@ const SupportingInfo: React.FC = () => {
         <div
           className={`govuk-radios__conditional govuk-form-group${hasError("supportingDocsFiles") || fileValidationErrors.length > 0 ? " govuk-form-group--error" : ""}`}
           id="hasSupportingDocuments-hidden"
-          style={(hasError("supportingDocsFiles") || fileValidationErrors.length > 0) ? { borderLeft: '4px solid #d4351c', paddingLeft: 12 } : {}}
         >
         
-          {(hasError("supportingDocsFiles") || fileValidationErrors.length > 0) && (
-            <>
-              {hasError("supportingDocsFiles") && (
-                <span className="govuk-error-message" id="supportingDocsFiles-error">
-                  <span className="govuk-visually-hidden">Error:</span> Upload at least one supporting document
-                </span>
-              )}
-              {/* File validation errors removed - shown in error summary above */}
-            </>
+          {hasError("supportingDocsFiles") && (
+            <span className="govuk-error-message" id="supportingDocsFiles-error">
+              <span className="govuk-visually-hidden">Error:</span> Upload at least one supporting document
+            </span>
           )}
+          {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+            <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+              <span className="govuk-visually-hidden">Error:</span> {error}
+            </p>
+          ))}
           <FileUpload
             ref={fileUploadRef}
             title="Upload a file"

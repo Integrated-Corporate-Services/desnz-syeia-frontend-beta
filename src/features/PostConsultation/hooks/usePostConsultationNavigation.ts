@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { SaveType } from '../types';
 import { useProgressStore } from '../../../store/useProgressStore';
-import { areAllRequiredSectionsCompleted } from '../../../utils/taskListUtils';
+import { areAllRequiredSectionsCompleted, getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 export const usePostConsultationNavigation = () => {
     const navigate = useNavigate();
@@ -31,7 +31,8 @@ export const usePostConsultationNavigation = () => {
     };
 
     const navigateToCheckYourAnswers = () => {
-        navigate(getCheckYourAnswersUrl());
+        const nextPageUrl = getNextPageUrl(TASK_NAMES.POST_CONSULTATION_ACTIONS, applicationId || '');
+        navigate(nextPageUrl);
     };
 
     const navigateAfterCompletion = () => {
