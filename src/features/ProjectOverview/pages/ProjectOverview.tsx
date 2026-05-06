@@ -5,6 +5,7 @@ import { useProjectStore } from '../../../store/useProjectStore';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from "../../../constants/content";
 import { Link } from "react-router-dom";
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 
 import TextInput from "../component/TextInput";
@@ -564,7 +565,9 @@ const ProjectOverview = () => {
 								response?.application_overview?.application_id ||
 								applicationIdForSave ||
 								'';
-							  navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
+							// Navigate to the next page in the task list sequence
+							const nextPageUrl = getNextPageUrl(TASK_NAMES.PROJECT_OVERVIEW, redirectId);
+							navigate(nextPageUrl);
 						})
 						.catch((err: any) => {
 							setErrors([err.message || 'Failed to save project overview']);

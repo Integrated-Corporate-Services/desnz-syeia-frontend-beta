@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { applicationApiService } from "../../../services/applicationApiService";
 import { Application, ApplicationParty } from "../../../types/application";
-import { S37_BASE_URL } from "../../../constants/s37";
 import { ERROR_MESSAGES } from "../constants/contactDetailsConstants";
+import { getNextPageUrl, TASK_NAMES } from "../../../utils/taskListUtils";
 
 interface UseContactDetailsSubmitProps {
   application: Application | null;
@@ -44,7 +44,9 @@ export function useContactDetailsSubmit({
         );
       }
 
-      navigate(`${S37_BASE_URL}/${appId}/task-list`);
+      // Navigate to the next page in the task list sequence
+      const nextPageUrl = getNextPageUrl(TASK_NAMES.CHECK_APPLICANT_CONTACT_DETAILS, appId);
+      navigate(nextPageUrl);
     } catch (error) {
       const err = error as Error;
       setError(err.message || ERROR_MESSAGES.SAVE_FAILED);

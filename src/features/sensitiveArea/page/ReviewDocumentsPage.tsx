@@ -8,6 +8,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { createLogger } from '../../../utils/logger';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 const logger = createLogger('ReviewDocumentsPage');
 
@@ -150,8 +151,9 @@ const ReviewDocumentsPage: React.FC = () => {
       // Save the review
       await saveSensitiveReview(payload);
 
-      // Always navigate to task list (this is the final page)
-      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+      // Navigate to next page
+      const nextPageUrl = getNextPageUrl(TASK_NAMES.SENSITIVE_AREA_REVIEW, applicationId || '');
+      navigate(nextPageUrl);
     } catch (err: unknown) {
       logger.error('Save error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to save review';

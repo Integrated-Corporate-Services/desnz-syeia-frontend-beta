@@ -7,6 +7,7 @@ import { useRouteStore } from '../../../store/useRouteStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useProgressStore } from '../../../store/useProgressStore';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 export const RouteOverviewPage: React.FC = () => {
   const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
   const [details, setDetails] = React.useState('');
@@ -218,7 +219,8 @@ export const RouteOverviewPage: React.FC = () => {
                   } catch (err) {
 				            // TODO: error handling
                   }
-                  navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`);
+                  const nextPageUrl = getNextPageUrl(TASK_NAMES.ROUTE, applicationId || '');
+                  navigate(nextPageUrl);
                 }
               }}
               noValidate

@@ -132,8 +132,8 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				...notRequiredStatus.details,
 				status: ConsultationStatus.NOT_REQUIRED,
 				notRequiredReason: reason,
-				uploadedFiles: uploadedFileObjs, // Already merged in state above
-				applicationDocuments: applicationDocuments // Already merged in state above
+				uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
+				applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments]
 			};
 			try {
 				await saveNotRequiredStatus(consultationId, updatedDetails);

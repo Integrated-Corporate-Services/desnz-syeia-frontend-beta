@@ -10,6 +10,7 @@ import "../../../styles/_file_upload.scss";
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 const logger = createLogger('SupportingInfo');
 
@@ -167,8 +168,8 @@ const SupportingInfo: React.FC = () => {
       esqcr_2002_compliance_confirmed: regulations,
       has_additional_supporting_documents: supportingDocs === "yes",
       applicant_supporting_comments: comments,
-      uploaded_files: uploadedFiles, // Already merged in state above
-      application_documents: applicationDocuments, // Already merged in state above
+      uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
+      application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
     };
     
     try {
@@ -179,7 +180,9 @@ const SupportingInfo: React.FC = () => {
         response?.application_overview?.application_id ||
         applicationId ||
         '';
-      navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
+      // Navigate to the next page in the task list sequence
+      const nextPageUrl = getNextPageUrl(TASK_NAMES.SUPPORTING_QUESTIONS, redirectId);
+      navigate(nextPageUrl);
     } catch (err: any) {
       logger.error('Save failed:', err);
       setErrors([{ 
