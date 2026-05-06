@@ -52,15 +52,7 @@ import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
-import NWLObjectorDetailsIntroduction from '../features/NWL/ObjectorDetails/pages/ObjectorDetailsIntroduction';
-import NWLObjectorDetails from '../features/NWL/ObjectorDetails/pages/ObjectorDetails';
-import NWLObjectorAddress from '../features/NWL/ObjectorDetails/pages/ObjectorAddress';
-import NWLIsObjectorLandowner from '../features/NWL/ObjectorDetails/pages/IsObjectorLandowner';
-import NWLLandownerDetails from '../features/NWL/ObjectorDetails/pages/LandownerDetails';
-import NWLLandownerAddress from '../features/NWL/ObjectorDetails/pages/LandownerAddress';
-import NWLIsThereRepresentative from '../features/NWL/ObjectorDetails/pages/IsThereRepresentative';
-import NWLRepresentativeDetails from '../features/NWL/ObjectorDetails/pages/RepresentativeDetails';
-import NWLRepresentativeAddress from '../features/NWL/ObjectorDetails/pages/RepresentativeAddress';
+import { nwlObjectorDetailsRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
 import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -494,60 +486,7 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/objector-details-introduction`,
-        component: NWLObjectorDetailsIntroduction,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/objector-details`,
-        component: NWLObjectorDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/objector-address`,
-        component: NWLObjectorAddress,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/is-objector-landowner`,
-        component: NWLIsObjectorLandowner,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/landowner-details`,
-        component: NWLLandownerDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/landowner-address`,
-        component: NWLLandownerAddress,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/is-there-representative`,
-        component: NWLIsThereRepresentative,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/representative-details`,
-        component: NWLRepresentativeDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/representative-address`,
-        component: NWLRepresentativeAddress,
-        auth: true,
-        layout: true,
-    },
+    ...nwlObjectorDetailsRoutes,
     {
         path: `${TLP_BASE_URL}/who-is-applying`,
         component: TLPWhoIsApplying,

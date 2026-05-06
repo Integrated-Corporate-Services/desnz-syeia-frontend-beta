@@ -9,45 +9,45 @@ on:
 
 jobs:
   dependency-review:
-    name: "Frontend - Dependency Security Scan (Optional)"
+    name: "Dependency Security Scan"
     runs-on: ubuntu-latest
     continue-on-error: true
     permissions:
       contents: read
       pull-requests: write
     steps:
-      - name: "Security Step 1: Checkout Repository Code"
+      - name: " Checkout Repository Code"
         uses: actions/checkout@v4
 
-      - name: "Security Step 2: Run Dependency Security Scan"
+      - name: "Run Dependency Security Scan"
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
           comment-summary-in-pr: always
 
   build:
-    name: "Frontend - TypeScript Compilation & Build ⚠️ REQUIRED"
+    name: "Build Verification"
     runs-on: ubuntu-latest
 
     steps:
-      - name: "Build Step 1: Checkout Repository Code"
+      - name: "Checkout Repository Code"
         uses: actions/checkout@v4
 
-      - name: "Build Step 2: Setup Node.js v20 with npm cache"
+      - name: "Setup Node.js with npm cache"
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: "Build Step 3: Install Dependencies (npm ci)"
+      - name: "Install Dependencies"
         run: npm ci
 
-      - name: "Build Step 4: Compile TypeScript & Bundle (tsc + vite)"
+      - name: "Build Application"
         run: npm run build
         env:
           CI: true
 
-      - name: "Build Step 5: Verify dist directory created"
+      - name: "Verify dist"
         run: |
           if [ ! -d "dist" ]; then
             echo "Build failed: dist directory not found"
@@ -56,30 +56,31 @@ jobs:
           echo "Build successful: dist directory created"
 
   test:
-    name: "Frontend - Unit Tests (Optional)"
+    name: "Unit Tests"
     runs-on: ubuntu-latest
     continue-on-error: true
     needs: build
 
     steps:
-      - name: "Test Step 1: Checkout Repository Code"
+      - name: "Checkout Repository Code"
         uses: actions/checkout@v4
 
-      - name: "Test Step 2: Setup Node.js v20"
+      - name: "Setup Node.js with npm cache"
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: "Test Step 3: Install Dependencies"
+      - name: "Install Dependencies"
         run: npm ci
 
-      - name: "Test Step 4: Build Application"
+      - name: "Build Application"
         run: npm run build
         env:
           CI: true
 
-      - name: "Test Step 5: Run Unit Tests (npm run test:unit)"
+      - name: "Run Unit Tests"
+        run: npm run test:unit || echo "Tests failed but continuing..."
         run: npm run test:unit || echo "Tests failed but continuing..."
         env:
           CI: true
