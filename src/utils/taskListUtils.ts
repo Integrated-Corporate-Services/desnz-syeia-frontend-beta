@@ -574,15 +574,15 @@ export function getNextPageUrl(currentPageName: string, applicationId: string): 
         [TASK_NAMES.SENSITIVE_AREA_CHECKS]: taskList,
         
         [TASK_NAMES.SENSITIVE_AREA_REVIEW]: `${S37_BASE_URL}/${applicationId}/parishes`,
-        [TASK_NAMES.PARISHES]: `${S37_BASE_URL}/${applicationId}/supporting-info`,
+        [TASK_NAMES.PARISHES]: taskList,
         
         // Supporting information section
         [TASK_NAMES.SUPPORTING_QUESTIONS]: `${S37_BASE_URL}/${applicationId}/eia-fees`,
-        [TASK_NAMES.EIA_FEES]: `${S37_BASE_URL}/${applicationId}/consultation/requests-required`,
+        [TASK_NAMES.EIA_FEES]: taskList,
         
         // Consultations section
         [TASK_NAMES.CONSULTATIONS]: `${S37_BASE_URL}/${applicationId}/post-consultation-actions/lpa-agreement`,
-        [TASK_NAMES.POST_CONSULTATION_ACTIONS]: `${S37_BASE_URL}/${applicationId}/check-your-answers`,
+        [TASK_NAMES.POST_CONSULTATION_ACTIONS]: taskList,
     };
     
     // Return the next page URL or default to task list
