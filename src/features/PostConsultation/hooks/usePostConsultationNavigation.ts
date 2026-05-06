@@ -27,7 +27,7 @@ export const usePostConsultationNavigation = () => {
     };
 
     const navigateToTaskList = () => {
-        navigate(getCheckYourAnswersUrl());
+        navigate(getTaskListUrl());
     };
 
     const navigateToCheckYourAnswers = () => {
@@ -36,14 +36,9 @@ export const usePostConsultationNavigation = () => {
     };
 
     const navigateAfterCompletion = () => {
-      const { progress: currentProgress } = useProgressStore.getState(); // Gets fresh value directly
-      const allCompleted = areAllRequiredSectionsCompleted(currentProgress);
-        
-        if (allCompleted) {
-            navigate(getCheckYourAnswersUrl());
-        } else {
+    
             navigate(getTaskListUrl());
-        }
+      
     };
 
     const handleNavigationAfterLpaReason = (saveType: SaveType, success: boolean) => {
