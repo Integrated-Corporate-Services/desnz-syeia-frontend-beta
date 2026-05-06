@@ -59,7 +59,8 @@ const ConsultationDetailsPage: React.FC = () => {
     // Clear any existing errors
     setError('');
 
-    // Check if all consultations are closed or not required
+    // Check if all consultations are closed, not required, or withdrawn
+    // Withdrawn consultations are considered historical and should not block progression
     const allConsultationsClosed = consultations.every(
       (consultation) =>
         consultation.status.toLowerCase() === ConsultationStatus.CLOSED.toLowerCase() ||
