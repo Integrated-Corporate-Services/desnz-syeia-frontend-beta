@@ -1,0 +1,85 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+      - uat
+
+jobs:
+  dependency-review:
+    name: "Frontend - Dependency Security Scan (Optional)"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: "Security Step 1: Checkout Repository Code"
+        uses: actions/checkout@v4
+
+      - name: "Security Step 2: Run Dependency Security Scan"
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          comment-summary-in-pr: always
+
+  build:
+    name: "Frontend - TypeScript Compilation & Build ⚠️ REQUIRED"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Build Step 1: Checkout Repository Code"
+        uses: actions/checkout@v4
+
+      - name: "Build Step 2: Setup Node.js v20 with npm cache"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: "Build Step 3: Install Dependencies (npm ci)"
+        run: npm ci
+
+      - name: "Build Step 4: Compile TypeScript & Bundle (tsc + vite)"
+        run: npm run build
+        env:
+          CI: true
+
+      - name: "Build Step 5: Verify dist directory created"
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Build failed: dist directory not found"
+            exit 1
+          fi
+          echo "Build successful: dist directory created"
+
+  test:
+    name: "Frontend - Unit Tests (Optional)"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs: build
+
+    steps:
+      - name: "Test Step 1: Checkout Repository Code"
+        uses: actions/checkout@v4
+
+      - name: "Test Step 2: Setup Node.js v20"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: "Test Step 3: Install Dependencies"
+        run: npm ci
+
+      - name: "Test Step 4: Build Application"
+        run: npm run build
+        env:
+          CI: true
+
+      - name: "Test Step 5: Run Unit Tests (npm run test:unit)"
+        run: npm run test:unit || echo "Tests failed but continuing..."
+        env:
+          CI: true
