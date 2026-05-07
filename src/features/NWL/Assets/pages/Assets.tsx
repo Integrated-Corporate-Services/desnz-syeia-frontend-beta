@@ -13,8 +13,7 @@ import { useApplicationId, useAssetForm } from '../hooks';
 import { 
   LABELS, 
   HINTS, 
-  LINE_TYPE_OPTIONS, 
-  FORM_ERRORS 
+  LINE_TYPE_OPTIONS
 } from '../constants';
 
 const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
