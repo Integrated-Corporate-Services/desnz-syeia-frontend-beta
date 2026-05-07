@@ -39,23 +39,9 @@ const Asset: React.FC = () => {
     setShowErrorSummary,
   } = useAssetForm();
 
-  const handleSubmit = async (saveType: 'continue' | 'later') => {
-    if (!validateForm()) return;
-
-    try {
-      const assetPayload = buildAssetPayload(applicationId);
-      await createAsset(assetPayload);
-
-      // Navigate based on save type
-      if (saveType === 'continue') {
-        navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`);
-      } else {
-        navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
-      }
-    } catch {
-      setErrors({ voltage: FORM_ERRORS.SAVE_FAILED });
-      setShowErrorSummary(true);
-    }
+  const handleSubmit = async () => {
+    // Navigate directly to assets review page without saving
+    navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`);
   };
 
   return (
@@ -110,7 +96,7 @@ const Asset: React.FC = () => {
 
             {/* Form Buttons */}
             <FormActions
-              onContinue={() => handleSubmit('continue')}
+              onContinue={handleSubmit}
             />
           </form>
         </div>

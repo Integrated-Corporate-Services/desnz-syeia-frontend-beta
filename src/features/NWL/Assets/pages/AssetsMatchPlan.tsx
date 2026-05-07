@@ -52,8 +52,8 @@ const AssetsMatchPlan: React.FC = () => {
     return true;
   };
 
-  const handleSubmit = (saveType: 'continue' | 'later') => {
-    if (saveType === 'continue' && !validateForm()) {
+  const handleSubmit = () => {
+    if (!validateForm()) {
       return;
     }
 
@@ -63,13 +63,8 @@ const AssetsMatchPlan: React.FC = () => {
 
     // TODO: Save data to backend
 
-    // Navigate based on save type
-    if (saveType === 'continue') {
-      // Navigate to next page in the flow
-      navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
-    } else {
-      navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
-    }
+    // Navigate to task list
+    navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
   };
 
   const hasErrors = Object.keys(errors).length > 0;
@@ -95,22 +90,7 @@ const AssetsMatchPlan: React.FC = () => {
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          {/* Beta banner */}
-          <div className="govuk-notification-banner govuk-notification-banner--info" role="region">
-            <div className="govuk-notification-banner__header">
-              <span className="govuk-tag govuk-tag--blue">Beta</span>
-            </div>
-            <div className="govuk-notification-banner__content">
-              <p className="govuk-notification-banner__heading">
-                This is a new service -{' '}
-                <a className="govuk-notification-banner__link" href="#">
-                  your feedback
-                </a>{' '}
-                will help us to improve it.
-              </p>
-            </div>
-          </div>
-
+          
           <h1 className="govuk-heading-xl">{LABELS.ASSETS_MATCH_PLAN_TITLE}</h1>
 
           {/* Error Summary */}
@@ -210,10 +190,6 @@ const AssetsMatchPlan: React.FC = () => {
                           {LABELS.EXPLAIN_MISMATCH_LABEL}
                         </label>
 
-                        <div id="explanation-hint" className="govuk-hint">
-                          {HINTS.EXPLAIN_MISMATCH_HINT}
-                        </div>
-
                         {errors.explanation && (
                           <p id="explanation-error" className="govuk-error-message">
                             <span className="govuk-visually-hidden">Error:</span>{' '}
@@ -231,9 +207,9 @@ const AssetsMatchPlan: React.FC = () => {
                           value={explanation}
                           onChange={(e) => handleExplanationChange(e.target.value)}
                           maxLength={CHARACTER_LIMITS.MAX_DESCRIPTION}
-                          aria-describedby={`explanation-hint${
-                            errors.explanation ? ' explanation-error' : ''
-                          } explanation-info`}
+                          aria-describedby={`${
+                            errors.explanation ? 'explanation-error ' : ''
+                          }explanation-info`}
                         />
 
                         <div
@@ -252,23 +228,14 @@ const AssetsMatchPlan: React.FC = () => {
             </div>
 
             {/* Form Actions */}
-            <div className="govuk-button-group">
-              <button
-                type="button"
-                className="govuk-button"
-                data-module="govuk-button"
-                onClick={() => handleSubmit('continue')}
-              >
-                {LABELS.CONTINUE}
-              </button>
-              <button
-                type="button"
-                className="govuk-button govuk-button--secondary"
-                onClick={() => handleSubmit('later')}
-              >
-                {LABELS.SAVE_FOR_LATER}
-              </button>
-            </div>
+            <button
+              type="button"
+              className="govuk-button"
+              data-module="govuk-button"
+              onClick={handleSubmit}
+            >
+              {LABELS.CONTINUE}
+            </button>
           </form>
         </div>
       </div>

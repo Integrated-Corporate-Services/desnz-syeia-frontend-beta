@@ -13,9 +13,9 @@ const ProvideApplicationPlan: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [showErrorSummary, setShowErrorSummary] = useState(false);
 
-  const handleSubmit = (saveType: 'continue' | 'later') => {
+  const handleSubmit = () => {
     // Validate that at least one file is uploaded
-    if (uploadedFiles.length === 0 && saveType === 'continue') {
+    if (uploadedFiles.length === 0) {
       setError(FORM_ERRORS.MISSING_FILE);
       setShowErrorSummary(true);
       return;
@@ -25,12 +25,8 @@ const ProvideApplicationPlan: React.FC = () => {
     setError('');
     setShowErrorSummary(false);
 
-    // Navigate based on save type
-    if (saveType === 'continue') {
-      navigate(`${NWL_BASE_URL}/${applicationId}/assets-match-plan`);
-    } else {
-      navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
-    }
+    // Navigate to assets match plan page
+    navigate(`${NWL_BASE_URL}/${applicationId}/plan-verification`);
   };
 
   const handleUploadComplete = (files: FileUploadResponse[]) => {
@@ -60,22 +56,7 @@ const ProvideApplicationPlan: React.FC = () => {
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          {/* Beta banner */}
-          <div className="govuk-notification-banner govuk-notification-banner--info" role="region">
-            <div className="govuk-notification-banner__header">
-              <span className="govuk-tag govuk-tag--blue">Beta</span>
-            </div>
-            <div className="govuk-notification-banner__content">
-              <p className="govuk-notification-banner__heading">
-                This is a new service -{' '}
-                <a className="govuk-notification-banner__link" href="#">
-                  your feedback
-                </a>{' '}
-                will help us to improve it.
-              </p>
-            </div>
-          </div>
-
+          
           <h1 className="govuk-heading-xl">{LABELS.APPLICATION_PLAN_TITLE}</h1>
 
           {/* Error Summary */}
@@ -123,23 +104,14 @@ const ProvideApplicationPlan: React.FC = () => {
           </div>
 
           {/* Form Actions */}
-          <div className="govuk-button-group">
-            <button
-              type="button"
-              className="govuk-button"
-              data-module="govuk-button"
-              onClick={() => handleSubmit('continue')}
-            >
-              {LABELS.CONTINUE}
-            </button>
-            <button
-              type="button"
-              className="govuk-button govuk-button--secondary"
-              onClick={() => handleSubmit('later')}
-            >
-              {LABELS.SAVE_FOR_LATER}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="govuk-button"
+            data-module="govuk-button"
+            onClick={handleSubmit}
+          >
+            {LABELS.CONTINUE}
+          </button>
         </div>
       </div>
     </main>

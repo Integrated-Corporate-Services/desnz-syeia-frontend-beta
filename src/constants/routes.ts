@@ -466,13 +466,13 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-        path: `${NWL_BASE_URL}/:applicationId/provide-application-plan`,
+        path: `${NWL_BASE_URL}/:applicationId/application-plan`,
         component: ProvideApplicationPlan,
         auth: true,
         layout: true,
     },
     {
-        path: `${NWL_BASE_URL}/:applicationId/assets-match-plan`,
+        path: `${NWL_BASE_URL}/:applicationId/plan-verification`,
         component: AssetsMatchPlan,
         auth: true,
         layout: true,

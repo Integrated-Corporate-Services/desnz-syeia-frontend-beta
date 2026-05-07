@@ -38,7 +38,7 @@ const AssetsReview: React.FC = () => {
   };
 
   const handleContinue = () => {
-    navigate(`${NWL_BASE_URL}/${applicationId}/provide-application-plan`);
+    navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
   };
 
   return (

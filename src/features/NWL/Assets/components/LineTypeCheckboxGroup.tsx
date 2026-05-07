@@ -1,6 +1,6 @@
 import React from 'react';
 import type { LineTypeOption, LineTypeState, AssetFormErrors } from '../types';
-import { CHARACTER_LIMITS, MESSAGES, LABELS, HINTS } from '../constants';
+import { CHARACTER_LIMITS, LABELS, HINTS, MESSAGES } from '../constants';
 
 interface LineTypeCheckboxGroupProps {
   lineTypes: Record<string, LineTypeState>;
