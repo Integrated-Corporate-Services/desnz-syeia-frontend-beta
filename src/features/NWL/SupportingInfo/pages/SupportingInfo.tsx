@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import FileUpload from '../../../../components/FileUpload';
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { nwlSupportingInfo } from "../../../../types/nwlSupportingInfo";
-import {getSupportingInfo, saveSupportingInfo} from '../../../../services/NWLSupportingInfoService';
+import { nwlSupportingInfo } from "../types";
+import { getSupportingInfo, saveSupportingInfo } from "../services";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
 import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constants/fileCategoryConstants";	
 
