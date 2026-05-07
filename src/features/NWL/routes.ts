@@ -8,6 +8,10 @@ import NWLLandownerAddress from './ObjectorDetails/pages/LandownerAddress';
 import NWLIsThereRepresentative from './ObjectorDetails/pages/IsThereRepresentative';
 import NWLRepresentativeDetails from './ObjectorDetails/pages/RepresentativeDetails';
 import NWLRepresentativeAddress from './ObjectorDetails/pages/RepresentativeAddress';
+import NWLAssets from './Assets/pages/Assets';
+import NWLAssetsReview from './Assets/pages/AssetsReview';
+import ProvideApplicationPlan from './Assets/pages/ProvideApplicationPlan';
+import AssetsMatchPlan from './Assets/pages/AssetsMatchPlan';
 
 export const nwlObjectorDetailsRoutes = [
   {
@@ -61,6 +65,39 @@ export const nwlObjectorDetailsRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/representative-address`,
     component: NWLRepresentativeAddress,
+    auth: true,
+    layout: true,
+  },
+];
+
+export const nwlAssetsRoutes = [
+  {
+    path: `${NWL_BASE_URL}/:applicationId/assets`,
+    component: NWLAssets,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/information-about-lines`,
+    component: NWLAssets,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/assets-review`,
+    component: NWLAssetsReview,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/application-plan`,
+    component: ProvideApplicationPlan,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/plan-verification`,
+    component: AssetsMatchPlan,
     auth: true,
     layout: true,
   },
