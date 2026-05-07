@@ -46,7 +46,6 @@ export const HINTS = {
     "differentiating between voltage types and underground cables",
     "the property boundary"
   ],
-  FILE_UPLOAD_INFO: "You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.",
   // Assets Match Plan page
   EXPLAIN_MISMATCH_HINT: "You can enter up to 4,000 characters",
 } as const;

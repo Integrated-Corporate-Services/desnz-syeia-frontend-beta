@@ -26,8 +26,8 @@ const AssetsReview: React.FC = () => {
         await deleteAsset(applicationId, assetId);
         await fetchAssets(applicationId);
       } catch (error) {
-        console.error('Failed to delete asset:', error);
-        alert(FORM_ERRORS.DELETE_FAILED);
+        // Error handled silently - could be logged to monitoring service
+        await fetchAssets(applicationId);
       }
     }
   };

@@ -1,22 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
-import FileUploadBox from '../../../../components/FileUploadBox';
-import { FileUploadResponse } from '../../../../types/FileUploadResponse';
 import { useApplicationId } from '../hooks';
 import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS } from '../constants';
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
+import { useAuthUserContext } from '../../../../context/AuthUserContext';
+import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 
 const ProvideApplicationPlan: React.FC = () => {
   const navigate = useNavigate();
   const applicationId = useApplicationId();
-  const [uploadedFiles, setUploadedFiles] = useState<FileUploadResponse[]>([]);
+  const { user } = useAuthUserContext();
+  const userId = user?.user_id;
+  const fileUploadRef = useRef<FileUploadHandle>(null);
+  
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [showErrorSummary, setShowErrorSummary] = useState(false);
 
-  const handleSubmit = () => {
-    // Validate that at least one file is uploaded
-    if (uploadedFiles.length === 0) {
+  const handleDeleteFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+  };
+
+  const handleSubmit = async () => {
+    // Track if we uploaded files in this submission
+    let filesWereUploaded = false;
+
+    // First, upload any pending files to S3
+    if (fileUploadRef.current && pendingFiles.length > 0) {
+      try {
+        const result = await fileUploadRef.current.triggerUpload();
+        if (result && result.uploadedFiles.length > 0) {
+          filesWereUploaded = true;
+          // Files are already added to state via onUploaded callback
+        }
+      } catch (_error) {
+        setError(FORM_ERRORS.FILE_UPLOAD_FAILED);
+        setShowErrorSummary(true);
+        return;
+      }
+    }
+
+    // Validate that files exist (either uploaded or pending)
+    if (!filesWereUploaded && uploadedFiles.length === 0 && pendingFiles.length === 0) {
       setError(FORM_ERRORS.MISSING_FILE);
+      setShowErrorSummary(true);
+      return;
+    }
+
+    // Check for file validation errors
+    if (fileValidationErrors.length > 0) {
+      setError(fileValidationErrors[0]);
       setShowErrorSummary(true);
       return;
     }
@@ -25,14 +64,10 @@ const ProvideApplicationPlan: React.FC = () => {
     setError('');
     setShowErrorSummary(false);
 
+    // TODO: Save uploaded files to backend if needed
+
     // Navigate to assets match plan page
     navigate(`${NWL_BASE_URL}/${applicationId}/plan-verification`);
-  };
-
-  const handleUploadComplete = (files: FileUploadResponse[]) => {
-    setUploadedFiles(files);
-    setError('');
-    setShowErrorSummary(false);
   };
 
   return (
@@ -60,7 +95,7 @@ const ProvideApplicationPlan: React.FC = () => {
           <h1 className="govuk-heading-xl">{LABELS.APPLICATION_PLAN_TITLE}</h1>
 
           {/* Error Summary */}
-          {showErrorSummary && error && (
+          {showErrorSummary && (error || fileValidationErrors.length > 0) && (
             <div
               className="govuk-error-summary"
               data-module="govuk-error-summary"
@@ -71,7 +106,7 @@ const ProvideApplicationPlan: React.FC = () => {
               <div className="govuk-error-summary__body">
                 <ul className="govuk-list govuk-error-summary__list">
                   <li>
-                    <a href="#file-upload">{error}</a>
+                    <a href="#file-upload">{error || fileValidationErrors[0]}</a>
                   </li>
                 </ul>
               </div>
@@ -90,16 +125,36 @@ const ProvideApplicationPlan: React.FC = () => {
           <h2 className="govuk-heading-m">{LABELS.UPLOAD_SECTION_TITLE}</h2>
           <p className="govuk-body">{HINTS.FILE_UPLOAD_INFO}</p>
 
-          <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
-            {error && (
+          <div className={`govuk-form-group ${error || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}>
+            {(error || fileValidationErrors.length > 0) && (
               <p id="file-upload-error" className="govuk-error-message">
-                <span className="govuk-visually-hidden">Error:</span> {error}
+                <span className="govuk-visually-hidden">Error:</span> {error || fileValidationErrors[0]}
               </p>
             )}
-            <FileUploadBox
-              title=""
-              prefix="application-plan"
-              onUploadComplete={handleUploadComplete}
+            
+            <FileUpload
+              ref={fileUploadRef}
+              title="Upload a file"
+              showTitle={false}
+              prefix={`${applicationId}/application-plan`}
+              applicationId={applicationId}
+              category={FILE_CATEGORIES.PLAN_INFO}
+              addedBy={userId}
+              uploadedFiles={uploadedFiles}
+              applicationDocuments={applicationDocuments}
+              showDocumentsHeading={false}
+              onDeleteFile={handleDeleteFile}
+              onPendingFilesChange={setPendingFiles}
+              onValidationErrors={(errors) => {
+                setFileValidationErrors(errors);
+                if (errors.length > 0) {
+                  setShowErrorSummary(true);
+                }
+              }}
+              onUploaded={(newUploadedFiles, newProjectDocuments) => {
+                setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+                setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
+              }}
             />
           </div>
 

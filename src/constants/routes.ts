@@ -46,16 +46,12 @@ import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying'
 import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorDetails';
 import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import { NWLTaskList } from '../features/NWL/TaskList';
-import NWLAssets from '../features/NWL/Assets/pages/Assets';
-import NWLAssetsReview from '../features/NWL/Assets/pages/AssetsReview';
-import ProvideApplicationPlan from '../features/NWL/Assets/pages/ProvideApplicationPlan';
-import AssetsMatchPlan from '../features/NWL/Assets/pages/AssetsMatchPlan';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
 import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
-import { nwlObjectorDetailsRoutes } from '../features/NWL/routes';
+import { nwlObjectorDetailsRoutes, nwlAssetsRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
 import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -447,36 +443,7 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/assets`,
-        component: NWLAssets,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/information-about-lines`,
-        component: NWLAssets,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/assets-review`,
-        component: NWLAssetsReview,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/application-plan`,
-        component: ProvideApplicationPlan,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/plan-verification`,
-        component: AssetsMatchPlan,
-        auth: true,
-        layout: true,
-    },
+    ...nwlAssetsRoutes,
     {
         path: `${NWL_BASE_URL}/:applicationId/task-list`,
         component: NWLTaskList,
