@@ -1,7 +1,8 @@
 // nwl Supporting Info type for UI
 
-import { UploadedFile } from "./fileUpload";
-import { ApplicationDocument } from "./fileUpload";
+import { UploadedFile } from "../../../../types/fileUpload";
+import { ApplicationDocument } from "../../../../types/fileUpload";
+
 export interface nwlSupportingInfo {
   id?: string;
   applicationId: string;

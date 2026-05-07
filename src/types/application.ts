@@ -1,3 +1,5 @@
+import type { ObjectorDetails } from '../features/NWL/ObjectorDetails/types';
+
 export type ApplicationPermissions = {
   canView: boolean;
   canEdit: boolean;
@@ -18,8 +20,9 @@ export type Application = {
   created_by: string;
   created_at: string;
   submitted_at: string;
-  application_party?: ApplicationParty | undefined; // Optional field for merged backend response
+  application_party?: ApplicationParty | undefined;
   permissions?: ApplicationPermissions;
+  objector_details?: ObjectorDetails;
 };
 
 export type ApplicationParty = {
@@ -50,7 +53,6 @@ export type ApplicationParty = {
   additional_contact?: string | null;
 };
 
-// Simplified application deletion - just success/error handling
 export interface ApplicationDeletionResult {
   success: boolean;
   applicationId: string;

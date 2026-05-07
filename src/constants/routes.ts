@@ -45,13 +45,14 @@ import SendApplicationToConsultee from '../features/Consultation/pages/sendAppli
 import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
 import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorDetails';
 import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
-import NWLTaskList from '../features/NWL/TaskList';
+import { NWLTaskList } from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
 import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
+import { nwlObjectorDetailsRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
 import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -485,6 +486,7 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
+    ...nwlObjectorDetailsRoutes,
     {
         path: `${TLP_BASE_URL}/who-is-applying`,
         component: TLPWhoIsApplying,

@@ -1,4 +1,4 @@
-import { nwlSupportingInfo } from '../types/nwlSupportingInfo';
+import { nwlSupportingInfo } from '../types';
 
 const API_BASE = '/backend/api/nwl';
 
