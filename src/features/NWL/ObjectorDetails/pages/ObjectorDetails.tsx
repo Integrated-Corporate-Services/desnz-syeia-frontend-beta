@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LABELS } from '../constants/objectorDetailsConstants';
 import { useObjectorDetailsData, useFormValidation, useObjectorNavigation } from '../hooks';
 import { ObjectorDetailsBreadcrumbs, ErrorSummary, PersonDetailsForm, FormActions } from '../components';
+import { saveObjectorPersonalInfo } from '../services';
 
 const ObjectorDetails: React.FC = () => {
   const { appId, objectorDetails } = useObjectorDetailsData();
@@ -13,6 +14,7 @@ const ObjectorDetails: React.FC = () => {
   const [organisation, setOrganisation] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (objectorDetails) {
@@ -32,7 +34,34 @@ const ObjectorDetails: React.FC = () => {
       return;
     }
 
-    navigateToObjectorAddress();
+    if (!appId) {
+      console.error('No application ID available');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const result = await saveObjectorPersonalInfo(appId, {
+        objector_title: title,
+        objector_full_name: fullName,
+        objector_organisation: organisation,
+        objector_email: email,
+        objector_phone: phone,
+      });
+
+      if (result) {
+        console.log('Objector details saved successfully:', result);
+      } else {
+        console.warn('Backend not available yet - data not persisted');
+      }
+
+      navigateToObjectorAddress();
+    } catch (error) {
+      console.error('Error saving objector details:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -61,7 +90,10 @@ const ObjectorDetails: React.FC = () => {
                 onPhoneChange={setPhone}
               />
 
-              <FormActions onSaveForLater={navigateToTaskList} />
+              <FormActions 
+                onSaveForLater={navigateToTaskList}
+                isSaving={isSaving}
+              />
             </form>
           </div>
         </div>
