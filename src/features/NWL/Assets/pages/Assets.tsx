@@ -32,10 +32,6 @@ const Asset: React.FC = () => {
     handleVoltageChange,
     handleCheckboxChange,
     handleDescriptionChange,
-    validateForm,
-    buildAssetPayload,
-    setErrors,
-    setShowErrorSummary,
   } = useAssetForm();
 
   const handleSubmit = async () => {
