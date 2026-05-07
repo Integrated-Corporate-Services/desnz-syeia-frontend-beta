@@ -4,8 +4,7 @@ export const BREADCRUMBS = {
 };
 
 export const ERROR_MESSAGES = {
-  CONFIRMATION_REQUIRED:
-    "Select yes if all contact details are available and correct",
+  CONFIRMATION_REQUIRED: "Select 'Yes' or 'No'",
   NO_CONTACT_FOUND:
     "No applicant contact details found. Please ensure your account is set up correctly.",
 };
