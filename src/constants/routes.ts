@@ -451,6 +451,12 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
+        path: `${NWL_BASE_URL}/:applicationId/information-about-lines`,
+        component: NWLAssets,
+        auth: true,
+        layout: true,
+    },
+    {
         path: `${NWL_BASE_URL}/:applicationId/task-list`,
         component: NWLTaskList,
         auth: true,
