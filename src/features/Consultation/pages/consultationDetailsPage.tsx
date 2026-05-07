@@ -7,6 +7,7 @@ import { useConsultationDetails } from "../../../hooks/useConsultationDetails";
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { ConsultationStatus } from "../../../constants/consultationStatus";
 import { progressApiService } from "../../../services/progressApiService";
+import { getNextPageUrl, TASK_NAMES } from "../../../utils/taskListUtils";
 
 const ConsultationDetailsPage: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -58,17 +59,17 @@ const ConsultationDetailsPage: React.FC = () => {
     // Clear any existing errors
     setError('');
 
-    // Check if all consultations are closed, not required, or withdrawn
-    // Withdrawn consultations are considered historical and should not block progression
-    const allConsultationsClosed = consultations.every(
+    // Check if all MANDATORY consultations (excluding OTHER consultees) are closed, not required, or withdrawn
+    // OTHER consultations are optional and should not block progression
+    const allMandatoryConsultationsClosed = regularConsultations.every(
       (consultation) =>
         consultation.status.toLowerCase() === ConsultationStatus.CLOSED.toLowerCase() ||
         consultation.status.toLowerCase() === ConsultationStatus.NOT_REQUIRED.toLowerCase() ||
-        consultation.status.toLowerCase() === ConsultationStatus.WITHDRAWN.toLowerCase()
+        consultation.status.toLowerCase() === ConsultationStatus.WITHDRAWN.toLowerCase() 
     );
 
-    if (!allConsultationsClosed) {
-      setError('All consultations must be closed or marked as not required before you can continue');
+    if (!allMandatoryConsultationsClosed) {
+      setError('All mandatory consultations (LPA, Non-LPA, and Public Notices) must be closed or marked as not required before you can continue');
       // Scroll to error summary
       const errorSummary = document.getElementById('error-summary');
       if (errorSummary) {
@@ -87,8 +88,9 @@ const ConsultationDetailsPage: React.FC = () => {
         'Completed'
       );
 
-      // Navigate to task list
-      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+      // Navigate to next page
+      const nextPageUrl = getNextPageUrl(TASK_NAMES.CONSULTATIONS, applicationId);
+      navigate(nextPageUrl);
     } catch (err) {
       console.error('Error updating progress:', err);
       setError('Failed to save progress. Please try again.');
@@ -140,10 +142,10 @@ const ConsultationDetailsPage: React.FC = () => {
 
           <h1 className="govuk-heading-xl">Manage consultations</h1>
           <p className="govuk-body">
-            You must send a consultation request to every organisation shown on this page.
+            You must send a consultation request to the mandatory organisations (LPA, Non-LPA, and Public Notices) shown on this page.
           </p>
           <div className="govuk-body">
-            <p>For each organisation you must:</p>
+            <p>For each mandatory organisation you must:</p>
             <ul className="govuk-list govuk-list--bullet">
               <li>send a request (or show that you have sent a request)</li>
               <li>
@@ -151,6 +153,7 @@ const ConsultationDetailsPage: React.FC = () => {
               </li>
             </ul>
             <p>For Natural England, you can mark the consultation as 'Not required' and you will be asked to explain why it is not required.</p>
+            <p className="govuk-body govuk-!-font-weight-bold">Other consultations you add are optional and will not block progression to the next section.</p>
           </div>
 
           {/* Active Regular consultations */}

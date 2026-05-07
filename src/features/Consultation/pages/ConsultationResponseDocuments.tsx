@@ -172,7 +172,7 @@ const ConsultationResponse2: React.FC = () => {
                 const result = await fileUploadRef.current.triggerUpload();
                 newlyUploadedFiles = result.uploadedFiles;
                 newlyUploadedDocuments = result.applicationDocuments;
-                
+                                
                 // Update state immediately so files remain visible even if validation fails
                 setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
                 setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
@@ -223,8 +223,8 @@ const ConsultationResponse2: React.FC = () => {
             const payload: Partial<ConsultationResponse> = {
                 ...existingData,
                 received_at: receivedAt,
-                uploaded_files: uploadedFileObjs, // Already merged in state above
-                application_documents: applicationDocuments, // Already merged in state above
+                uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
+                application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
                 last_updated_by: userId,
                 isSave: true
             };
@@ -430,17 +430,18 @@ const ConsultationResponse2: React.FC = () => {
                             </div>
                             )}
 
-                            <div className={`govuk-form-group ${errors.uploadedFiles || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}
-                                style={(errors.uploadedFiles || fileValidationErrors.length > 0) ? {
-                                    borderLeft: '4px solid #d4351c',
-                                    paddingLeft: 12
-                                } : {}}>
+                            <div className={`govuk-form-group ${errors.uploadedFiles || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}>
                                 <h2 className="govuk-heading-m">Documents uploaded</h2>
                                 {errors.uploadedFiles && (
                                     <p id="uploadedFiles-error" className="govuk-error-message">
                                         <span className="govuk-visually-hidden">Error:</span> {errors.uploadedFiles}
                                     </p>
                                 )}
+                                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                                    <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                                        <span className="govuk-visually-hidden">Error:</span> {error}
+                                    </p>
+                                ))}
                                 <div id="file-upload">
                                     <p className="govuk-body">{consultationType === 'PUBLIC' ? 'Upload documents that show public responses' : "Upload documents that show the consultee's response"}</p>
                                     {/* <p className="govuk-hint">

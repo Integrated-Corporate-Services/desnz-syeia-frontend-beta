@@ -17,6 +17,7 @@ import { managePublicConsultationByVoltage } from '../../../services/consultatio
 import log from '../../../logger';
 import '../component/AssetInformationForm.css'
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 interface AssetFormState {
   assetId: string;
@@ -240,7 +241,9 @@ const AssetInformationForm: React.FC = () => {
           log.info('[AssetInformationForm] Asset updated successfully');
           await handlePublicConsultation();
           fetchAssets(effectiveApplicationId);
-          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+          // Navigate to the next page in the task list sequence
+          const nextPageUrl = getNextPageUrl(TASK_NAMES.ASSETS, effectiveApplicationId);
+          navigate(nextPageUrl);
         })
         .catch((error) => {
           log.error('[AssetInformationForm] Failed to update asset:', error);
@@ -254,7 +257,9 @@ const AssetInformationForm: React.FC = () => {
           log.info('[AssetInformationForm] Asset created successfully');
           await handlePublicConsultation();
           fetchAssets(effectiveApplicationId);
-          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+          // Navigate to the next page in the task list sequence
+          const nextPageUrl = getNextPageUrl(TASK_NAMES.ASSETS, effectiveApplicationId);
+          navigate(nextPageUrl);
         })
         .catch((error) => {
           log.error('[AssetInformationForm] Failed to create asset:', error);

@@ -6,6 +6,7 @@ import RadioGroup from "../component/RadioGroup";
 // import { useApplicationStore } from "../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useEiaFeesStore } from "../../../store/useEiaFeesStore";
+import { getNextPageUrl, TASK_NAMES } from "../../../utils/taskListUtils";
 
 const EIAFeesForm: React.FC = () => {
   const navigate = useNavigate();
@@ -157,9 +158,10 @@ const EIAFeesForm: React.FC = () => {
           eiaFeeId: undefined,
           applicationId: undefined,
         });
-        // Redirect to tasklist page after success
+        // Navigate to the next page in the task list sequence
         const redirectId = payload.applicationId;
-        navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
+        const nextPageUrl = getNextPageUrl(TASK_NAMES.EIA_FEES, redirectId);
+        navigate(nextPageUrl);
       } catch {
         setApiError("Failed to submit EIA Fees. Please try again.");
       } finally {

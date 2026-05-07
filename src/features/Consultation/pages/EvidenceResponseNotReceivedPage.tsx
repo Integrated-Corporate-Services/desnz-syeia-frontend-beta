@@ -228,9 +228,8 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 response_comments: comments,
                 last_updated_by: user?.user_id,
                 has_all_documents_uploaded: formData.declarationAccepted,
-                // Store evidence of response not received files (already merged in state above)
-                uploaded_files: uploadedFileObjs,
-                application_documents: applicationDocuments,
+                   uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
+                application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
                 // CRITICAL: Explicitly set these to undefined to clear any previous response data
                 response_full_name: undefined,
                 response_email_address: undefined,
@@ -350,6 +349,11 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                         <span className="govuk-visually-hidden">Error:</span> {errors.files}
                                     </p>
                                 )}
+                                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                                    <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                                        <span className="govuk-visually-hidden">Error:</span> {error}
+                                    </p>
+                                ))}
 
                                 <FileUpload
                                     ref={fileUploadRef}

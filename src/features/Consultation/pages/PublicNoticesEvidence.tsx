@@ -597,6 +597,11 @@ const PublicNoticesEvidence: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {errors.fileUpload}
                   </p>
                 )}
+                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                  <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                ))}
                 <FileUpload
                   ref={fileUploadRef}
                   title=""

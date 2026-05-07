@@ -507,8 +507,11 @@ const SupportingInfo: React.FC = () => {
 															<div className="govuk-radios__conditional" id="conditional-acceptedPayments">
 																{errors.some(e => e.includes('acceptedPayments-upload-1-error')) && (
 																	<p id="acceptedPayments-upload-1-error" className="govuk-error-message">Upload a document that shows payments have been accepted by the grantor</p>
-																)}
-																<FileUpload
+																)}															{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+																<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+																	<span className="govuk-visually-hidden">Error:</span> {error}
+																</p>
+															))}																<FileUpload
 																	title="Upload a document that shows payments have been accepted by the grantor"
 																	prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ACCEPTED_PAYMENTS}/`}
 																	applicationId={applicationId}
@@ -658,8 +661,11 @@ const SupportingInfo: React.FC = () => {
 										<div className="govuk-form-group">
 										{errors.some(e => e.includes('writtenTermination-upload-1-error')) && (
 											<p id="writtenTermination-upload-1-error" className="govuk-error-message">Upload Written Termination Notice document</p>
-										)}
-										<FileUpload
+										)}									{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+										<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+											<span className="govuk-visually-hidden">Error:</span> {error}
+										</p>
+									))}										<FileUpload
 												title="Upload Written Termination Notice document"
 												prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE}/`}
 												applicationId={applicationId}
@@ -751,8 +757,11 @@ const SupportingInfo: React.FC = () => {
 										   </div>
 										   {errors.some(e => e.includes('writtenRemoval-upload-1-error')) && (
 											  <p id="writtenRemoval-upload-1-error" className="govuk-error-message">Upload Written Removal Notice document</p>
-										   )}
-										   <FileUpload
+										   )}									   {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+											<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+												<span className="govuk-visually-hidden">Error:</span> {error}
+											</p>
+									   ))}										   <FileUpload
 											   title="Upload Written Removal Notice document"
 											   prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_REMOVAL_NOTICE}/`}
 											   applicationId={applicationId}
@@ -807,7 +816,11 @@ const SupportingInfo: React.FC = () => {
 		{errors.some(e => e.includes('titlePlan-upload-1-error')) && (
 			<p id="titlePlan-upload-1-error" className="govuk-error-message">Upload the title plan document</p>
 		)}
-		{/* File validation errors removed - shown in error summary above */}
+		{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+			<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+				<span className="govuk-visually-hidden">Error:</span> {error}
+			</p>
+		))}
 		<FileUpload
 			title="Upload the title plan document"
 			prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_TITLE_PLAN}/`}

@@ -132,8 +132,8 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				...notRequiredStatus.details,
 				status: ConsultationStatus.NOT_REQUIRED,
 				notRequiredReason: reason,
-				uploadedFiles: uploadedFileObjs, // Already merged in state above
-				applicationDocuments: applicationDocuments // Already merged in state above
+				uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
+				applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments]
 			};
 			try {
 				await saveNotRequiredStatus(consultationId, updatedDetails);
@@ -269,16 +269,17 @@ const ConsultationNotRequiredPage: React.FC = () => {
 									aria-describedby={errors.reason ? "reason-error" : undefined}
 								/>
 							</div>
-							<div className={`govuk-form-group ${errors.files || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} id="file-upload"
-								style={(errors.files || fileValidationErrors.length > 0) ? {
-									borderLeft: '4px solid #d4351c',
-									paddingLeft: 12
-								} : {}}>
-								{errors.files && (
-									<p id="files-error" className="govuk-error-message">
-										<span className="govuk-visually-hidden">Error:</span> {errors.files}
-									</p>
-								)}
+						<div className={`govuk-form-group ${errors.files || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} id="file-upload">
+							{errors.files && (
+								<p id="files-error" className="govuk-error-message">
+									<span className="govuk-visually-hidden">Error:</span> {errors.files}
+								</p>
+							)}
+							{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+								<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+									<span className="govuk-visually-hidden">Error:</span> {error}
+								</p>
+							))}
 								<FileUpload
 									ref={fileUploadRef}
 									title="Upload any supporting documents"

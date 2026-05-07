@@ -10,6 +10,7 @@ import "../../../styles/_file_upload.scss";
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 const logger = createLogger('SupportingInfo');
 
@@ -167,8 +168,8 @@ const SupportingInfo: React.FC = () => {
       esqcr_2002_compliance_confirmed: regulations,
       has_additional_supporting_documents: supportingDocs === "yes",
       applicant_supporting_comments: comments,
-      uploaded_files: uploadedFiles, // Already merged in state above
-      application_documents: applicationDocuments, // Already merged in state above
+      uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
+      application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
     };
     
     try {
@@ -179,7 +180,9 @@ const SupportingInfo: React.FC = () => {
         response?.application_overview?.application_id ||
         applicationId ||
         '';
-      navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
+      // Navigate to the next page in the task list sequence
+      const nextPageUrl = getNextPageUrl(TASK_NAMES.SUPPORTING_QUESTIONS, redirectId);
+      navigate(nextPageUrl);
     } catch (err: any) {
       logger.error('Save failed:', err);
       setErrors([{ 
@@ -466,19 +469,18 @@ const SupportingInfo: React.FC = () => {
         <div
           className={`govuk-radios__conditional govuk-form-group${hasError("supportingDocsFiles") || fileValidationErrors.length > 0 ? " govuk-form-group--error" : ""}`}
           id="hasSupportingDocuments-hidden"
-          style={(hasError("supportingDocsFiles") || fileValidationErrors.length > 0) ? { borderLeft: '4px solid #d4351c', paddingLeft: 12 } : {}}
         >
         
-          {(hasError("supportingDocsFiles") || fileValidationErrors.length > 0) && (
-            <>
-              {hasError("supportingDocsFiles") && (
-                <span className="govuk-error-message" id="supportingDocsFiles-error">
-                  <span className="govuk-visually-hidden">Error:</span> Upload at least one supporting document
-                </span>
-              )}
-              {/* File validation errors removed - shown in error summary above */}
-            </>
+          {hasError("supportingDocsFiles") && (
+            <span className="govuk-error-message" id="supportingDocsFiles-error">
+              <span className="govuk-visually-hidden">Error:</span> Upload at least one supporting document
+            </span>
           )}
+          {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+            <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+              <span className="govuk-visually-hidden">Error:</span> {error}
+            </p>
+          ))}
           <FileUpload
             ref={fileUploadRef}
             title="Upload a file"
