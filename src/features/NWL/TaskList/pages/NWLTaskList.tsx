@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../store/useApplicationStore";
-import { useGetApplicationId } from "../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from '../../constants/nwl';
+import { useApplicationStore } from "../../../../store/useApplicationStore";
+import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
+import { NWL_BASE_URL } from '../../../../constants/nwl';
+import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes';
 
-const TaskList: React.FC = () => {
+const NWLTaskList: React.FC = () => {
 	const location = useLocation();
 	const params = new URLSearchParams(location.search);
 	const appId = useGetApplicationId();
@@ -39,17 +40,17 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/applicant-details`}>
-										<strong>Applicant details</strong>
-									</a>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
-							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/network-operator-contact-details`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.APPLICANT_DETAILS, appId)}>
+									<strong>Applicant details</strong>
+								</a>
+							</div>
+							<div className="govuk-task-list__status">
+								<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
+							</div>
+						</li>
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.NETWORK_OPERATOR_CONTACT_DETAILS, appId)}>
 										<strong>Check applicant contact details</strong>
 									</a>
 								</div>
@@ -63,7 +64,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/type-of-use`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.TYPE_OF_USE, appId)}>
 										<strong>Type of use</strong>
 									</a>
 								</div>
@@ -73,7 +74,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/grounds-for-application`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.GROUNDS_FOR_APPLICATION, appId)}>
 										<strong>Grounds for application</strong>
 									</a>
 								</div>
@@ -87,7 +88,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/objector-details-introduction`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS_INTRODUCTION, appId)}>
 										<strong>Introduction</strong>
 									</a>
 								</div>
@@ -97,7 +98,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/objector-details`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS, appId)}>
 										<strong>Objector details</strong>
 									</a>
 								</div>
@@ -111,7 +112,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/site-address`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.SITE_ADDRESS, appId)}>
 										<strong>Site address</strong>
 									</a>
 								</div>
@@ -121,7 +122,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/land-registry`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.LAND_REGISTRY, appId)}>
 										<strong>Land registry</strong>
 									</a>
 								</div>
@@ -131,7 +132,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/os-grid-reference`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.OS_GRID_REFERENCE, appId)}>
 										<strong>OS Grid reference</strong>
 									</a>
 								</div>
@@ -141,7 +142,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/identifying-information`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.IDENTIFYING_INFORMATION, appId)}>
 										<strong>Identifying information</strong>
 									</a>
 								</div>
@@ -155,7 +156,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/information-about-lines`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.INFORMATION_ABOUT_LINES, appId)}>
 										<strong>Information about the lines</strong>
 									</a>
 								</div>
@@ -165,7 +166,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/application-plan`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.APPLICATION_PLAN, appId)}>
 										<strong>Application plan</strong>
 									</a>
 								</div>
@@ -175,7 +176,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/plan-verification`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.PLAN_VERIFICATION, appId)}>
 										<strong>Plan verification</strong>
 									</a>
 								</div>
@@ -189,7 +190,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/existing-negotiations`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.EXISTING_NEGOTIATIONS, appId)}>
 										<strong>Existing negotiations</strong>
 									</a>
 								</div>
@@ -199,7 +200,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/evidence-of-negotiations`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.EVIDENCE_OF_NEGOTIATIONS, appId)}>
 										<strong>Evidence of negotiations</strong>
 									</a>
 								</div>
@@ -213,7 +214,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/related-applications`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS, appId)}>
 										<strong>Related applications</strong>
 									</a>
 								</div>
@@ -223,7 +224,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/other-important-information`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.OTHER_IMPORTANT_INFORMATION, appId)}>
 										<strong>Other important information</strong>
 									</a>
 								</div>
@@ -237,7 +238,7 @@ const TaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/check-your-answers`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS, appId)}>
 										<strong>Check your answers</strong>
 									</a>
 								</div>
@@ -247,7 +248,7 @@ const TaskList: React.FC = () => {
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									<a className="govuk-link govuk-task-list__link" href={`/frontend/nwl/${appId}/pay-and-submit`}>
+								<a className="govuk-link govuk-task-list__link" href={buildNwlRoute(NWL_TASK_LIST_ROUTES.PAY_AND_SUBMIT, appId)}>
 										<strong>Pay and submit</strong>
 									</a>
 								</div>
@@ -273,4 +274,4 @@ const TaskList: React.FC = () => {
 	);
 };
 
-export default TaskList;
+export default NWLTaskList;

@@ -45,7 +45,7 @@ import SendApplicationToConsultee from '../features/Consultation/pages/sendAppli
 import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
 import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorDetails';
 import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
-import NWLTaskList from '../features/NWL/TaskList';
+import { NWLTaskList } from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
 import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';

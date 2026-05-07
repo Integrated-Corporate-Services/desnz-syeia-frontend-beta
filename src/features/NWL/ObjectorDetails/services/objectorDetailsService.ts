@@ -13,7 +13,6 @@ export const getObjectorDetails = async (applicationId: string): Promise<Objecto
     }
     return await response.json();
   } catch (error) {
-    console.error('Error fetching objector details:', error);
     return null;
   }
 };
@@ -37,7 +36,6 @@ export const saveObjectorDetails = async (
     
     return await response.json();
   } catch (error) {
-    console.error('Error saving objector details:', error);
     return null;
   }
 };
@@ -61,7 +59,6 @@ export const updateObjectorDetails = async (
     
     return await response.json();
   } catch (error) {
-    console.error('Error updating objector details:', error);
     return null;
   }
 };
@@ -78,7 +75,6 @@ export const deleteObjectorDetails = async (applicationId: string): Promise<bool
     
     return true;
   } catch (error) {
-    console.error('Error deleting objector details:', error);
     return false;
   }
 };

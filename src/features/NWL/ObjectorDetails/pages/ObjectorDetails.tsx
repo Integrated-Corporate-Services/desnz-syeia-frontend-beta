@@ -35,14 +35,13 @@ const ObjectorDetails: React.FC = () => {
     }
 
     if (!appId) {
-      console.error('No application ID available');
       return;
     }
 
     setIsSaving(true);
 
     try {
-      const result = await saveObjectorPersonalInfo(appId, {
+      await saveObjectorPersonalInfo(appId, {
         objector_title: title,
         objector_full_name: fullName,
         objector_organisation: organisation,
@@ -50,15 +49,8 @@ const ObjectorDetails: React.FC = () => {
         objector_phone: phone,
       });
 
-      if (result) {
-        console.log('Objector details saved successfully:', result);
-      } else {
-        console.warn('Backend not available yet - data not persisted');
-      }
-
       navigateToObjectorAddress();
     } catch (error) {
-      console.error('Error saving objector details:', error);
     } finally {
       setIsSaving(false);
     }
