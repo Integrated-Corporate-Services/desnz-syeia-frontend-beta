@@ -21,6 +21,11 @@ export const useLandNavigation = (applicationId: string) => {
     navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.LAND_REGISTRY, applicationId));
   }, [navigate, applicationId]);
 
+  const goToLandRegistryInfo = useCallback(() => {
+    const route = `/nwl/${applicationId}/land-registry-information`;
+    navigate(route);
+  }, [navigate, applicationId]);
+
   const goToOSGridReference = useCallback(() => {
     navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.OS_GRID_REFERENCE, applicationId));
   }, [navigate, applicationId]);
@@ -34,6 +39,7 @@ export const useLandNavigation = (applicationId: string) => {
     goToSiteAddress,
     goToCountrySelection,
     goToLandRegistry,
+    goToLandRegistryInfo,
     goToOSGridReference,
     goToIdentifyingInformation,
   };

@@ -8,7 +8,14 @@ import NWLLandownerAddress from './ObjectorDetails/pages/LandownerAddress';
 import NWLIsThereRepresentative from './ObjectorDetails/pages/IsThereRepresentative';
 import NWLRepresentativeDetails from './ObjectorDetails/pages/RepresentativeDetails';
 import NWLRepresentativeAddress from './ObjectorDetails/pages/RepresentativeAddress';
-import { SiteAddress, CountrySelection } from './LandDetails';
+import { 
+  SiteAddress, 
+  CountrySelection,
+  LandRegistry,
+  LandRegistryInformation,
+  OSGridReference,
+  IdentifyingInformation
+} from './LandDetails';
 
 export const nwlObjectorDetailsRoutes = [
   {
@@ -77,6 +84,30 @@ export const nwlLandDetailsRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/land-country`,
     component: CountrySelection,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/land-registry`,
+    component: LandRegistry,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/land-registry-information`,
+    component: LandRegistryInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/os-grid-reference`,
+    component: OSGridReference,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/identifying-information`,
+    component: IdentifyingInformation,
     auth: true,
     layout: true,
   },

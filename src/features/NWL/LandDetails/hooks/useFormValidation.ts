@@ -55,40 +55,23 @@ export const useFormValidation = () => {
   }, []);
 
   const validateLandRegistry = useCallback((
-    hasLandRegistry: boolean,
-    titleNumber?: string
+    hasSelection: boolean
   ): boolean => {
     const newErrors: ValidationErrors = {};
 
-    if (hasLandRegistry && !titleNumber?.trim()) {
-      newErrors.titleNumber = LAND_DETAILS_VALIDATION.TITLE_NUMBER_REQUIRED;
+    if (hasSelection === undefined || hasSelection === null) {
+      newErrors.hasLandRegistry = LAND_DETAILS_VALIDATION.HAS_LAND_REGISTRY_REQUIRED;
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, []);
 
-  const validateOSGridReference = useCallback((
-    gridLetter: string,
-    easting: string,
-    northing: string
-  ): boolean => {
+  const validateTitleNumber = useCallback((titleNumber: string): boolean => {
     const newErrors: ValidationErrors = {};
 
-    if (!gridLetter.trim()) {
-      newErrors.gridLetter = LAND_DETAILS_VALIDATION.GRID_LETTER_REQUIRED;
-    }
-
-    if (!easting.trim()) {
-      newErrors.easting = LAND_DETAILS_VALIDATION.EASTING_REQUIRED;
-    } else if (!/^\d{5,6}$/.test(easting.trim())) {
-      newErrors.easting = LAND_DETAILS_VALIDATION.EASTING_INVALID;
-    }
-
-    if (!northing.trim()) {
-      newErrors.northing = LAND_DETAILS_VALIDATION.NORTHING_REQUIRED;
-    } else if (!/^\d{5,6}$/.test(northing.trim())) {
-      newErrors.northing = LAND_DETAILS_VALIDATION.NORTHING_INVALID;
+    if (!titleNumber.trim()) {
+      newErrors.titleNumber = LAND_DETAILS_VALIDATION.TITLE_NUMBER_REQUIRED;
     }
 
     setErrors(newErrors);
@@ -113,7 +96,7 @@ export const useFormValidation = () => {
     validateSiteAddress,
     validateCountry,
     validateLandRegistry,
-    validateOSGridReference,
+    validateTitleNumber,
     validateIdentifyingInfo,
   };
 };
