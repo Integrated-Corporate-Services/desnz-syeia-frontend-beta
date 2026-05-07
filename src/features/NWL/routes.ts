@@ -8,6 +8,7 @@ import NWLLandownerAddress from './ObjectorDetails/pages/LandownerAddress';
 import NWLIsThereRepresentative from './ObjectorDetails/pages/IsThereRepresentative';
 import NWLRepresentativeDetails from './ObjectorDetails/pages/RepresentativeDetails';
 import NWLRepresentativeAddress from './ObjectorDetails/pages/RepresentativeAddress';
+import { SiteAddress, CountrySelection } from './LandDetails';
 
 export const nwlObjectorDetailsRoutes = [
   {
@@ -61,6 +62,21 @@ export const nwlObjectorDetailsRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/representative-address`,
     component: NWLRepresentativeAddress,
+    auth: true,
+    layout: true,
+  },
+];
+
+export const nwlLandDetailsRoutes = [
+  {
+    path: `${NWL_BASE_URL}/:applicationId/site-address`,
+    component: SiteAddress,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/land-country`,
+    component: CountrySelection,
     auth: true,
     layout: true,
   },

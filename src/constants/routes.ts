@@ -52,7 +52,7 @@ import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
-import { nwlObjectorDetailsRoutes } from '../features/NWL/routes';
+import { nwlObjectorDetailsRoutes, nwlLandDetailsRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
 import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -487,6 +487,7 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     ...nwlObjectorDetailsRoutes,
+    ...nwlLandDetailsRoutes,
     {
         path: `${TLP_BASE_URL}/who-is-applying`,
         component: TLPWhoIsApplying,
