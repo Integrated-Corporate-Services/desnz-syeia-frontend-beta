@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { useApplicationId } from '../hooks';
-import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '../constants';
+import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '../constants';
 
 const AssetsMatchPlan: React.FC = () => {
   const navigate = useNavigate();
