@@ -47,6 +47,9 @@ import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/Netwo
 import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import { NWLTaskList } from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
+import NWLAssetsReview from '../features/NWL/Assets/pages/AssetsReview';
+import ProvideApplicationPlan from '../features/NWL/Assets/pages/ProvideApplicationPlan';
+import AssetsMatchPlan from '../features/NWL/Assets/pages/AssetsMatchPlan';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
 import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
@@ -453,6 +456,24 @@ export const ROUTE_CONFIG = [
     {
         path: `${NWL_BASE_URL}/:applicationId/information-about-lines`,
         component: NWLAssets,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/assets-review`,
+        component: NWLAssetsReview,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/provide-application-plan`,
+        component: ProvideApplicationPlan,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/assets-match-plan`,
+        component: AssetsMatchPlan,
         auth: true,
         layout: true,
     },
