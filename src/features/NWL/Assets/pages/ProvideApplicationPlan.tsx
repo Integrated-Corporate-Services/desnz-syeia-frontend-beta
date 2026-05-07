@@ -123,7 +123,6 @@ const ProvideApplicationPlan: React.FC = () => {
 
           {/* File Upload Section */}
           <h2 className="govuk-heading-m">{LABELS.UPLOAD_SECTION_TITLE}</h2>
-          <p className="govuk-body">{HINTS.FILE_UPLOAD_INFO}</p>
 
           <div className={`govuk-form-group ${error || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}>
             {(error || fileValidationErrors.length > 0) && (

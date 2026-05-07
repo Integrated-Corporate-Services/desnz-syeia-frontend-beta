@@ -4,7 +4,7 @@ import { useAssetStore } from '../../../../store/useAssetStore';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { AssetsBreadcrumbs, AssetSummaryCard, FormActions } from '../components';
 import { useApplicationId } from '../hooks';
-import { LABELS, HINTS, MESSAGES, FORM_ERRORS } from '../constants';
+import { LABELS, HINTS, MESSAGES } from '../constants';
 
 const AssetsReview: React.FC = () => {
   const navigate = useNavigate();
