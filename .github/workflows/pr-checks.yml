@@ -81,6 +81,5 @@ jobs:
 
       - name: "Run Unit Tests"
         run: npm run test:unit || echo "Tests failed but continuing..."
-        run: npm run test:unit || echo "Tests failed but continuing..."
         env:
           CI: true
