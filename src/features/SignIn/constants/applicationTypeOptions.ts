@@ -10,11 +10,11 @@ export const APPLICATION_TYPE_OPTIONS: ApplicationTypeOption[] = [
     label: 'Overhead electric lines (Section 37)',
     id: 'applicationType',
   },
-  // {
-  //   value: 'wayleaves',
-  //   label: 'Necessary wayleaves',
-  //   id: 'applicationType-2',
-  // },
+  {
+    value: 'wayleaves',
+    label: 'Necessary wayleaves',
+    id: 'applicationType-2',
+  },
   // {
   //   value: 'treefelling',
   //   label: 'Tree felling or lopping',

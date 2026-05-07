@@ -10,7 +10,9 @@ interface UseNetworkOperatorFormReturn {
   selectedOrganisation: ApplicationParty | null;
   setSelectedOrganisation: (org: ApplicationParty | null) => void;
   errors: string[];
+  setErrors: (errors: string[]) => void;
   showErrorSummary: boolean;
+  setShowErrorSummary: (show: boolean) => void;
   validateForm: () => boolean;
   handleOperatorChange: (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -33,11 +35,14 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
   const validateForm = useCallback((): boolean => {
     const newErrors: string[] = [];
 
-    if (!networkOperatorRef.trim()) {
-      newErrors.push(FORM_ERRORS.MISSING_REFERENCE);
-    }
+    // Applicant contact name is mandatory
     if (!selectedOrgName.trim()) {
       newErrors.push(FORM_ERRORS.MISSING_OPERATOR);
+    }
+
+    // Reference is optional, only validate if provided
+    if (networkOperatorRef.trim() && !/^[A-Za-z0-9 -]+$/.test(networkOperatorRef.trim())) {
+      newErrors.push(FORM_ERRORS.INVALID_REFERENCE);
     }
 
     setErrors(newErrors);
@@ -52,8 +57,17 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
       setSelectedOrgName(selectedName);
       const org = options.find((opt) => opt.person_name === selectedName);
       setSelectedOrganisation(org || null);
+      
+      // Clear errors when a valid selection is made
+      if (selectedName.trim()) {
+        setErrors(prev => prev.filter(error => error !== FORM_ERRORS.MISSING_OPERATOR));
+        const filteredErrors = errors.filter(error => error !== FORM_ERRORS.MISSING_OPERATOR);
+        if (filteredErrors.length === 0) {
+          setShowErrorSummary(false);
+        }
+      }
     },
-    []
+    [errors, setErrors, setShowErrorSummary]
   );
 
   const resetForm = useCallback(() => {
@@ -72,7 +86,9 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
     selectedOrganisation,
     setSelectedOrganisation,
     errors,
+    setErrors,
     showErrorSummary,
+    setShowErrorSummary,
     validateForm,
     handleOperatorChange,
     resetForm,

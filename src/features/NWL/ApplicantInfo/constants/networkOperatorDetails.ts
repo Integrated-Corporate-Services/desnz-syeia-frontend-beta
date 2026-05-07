@@ -11,8 +11,10 @@ export const BREADCRUMBS = {
 
 export const FORM_ERRORS = {
   MISSING_REFERENCE: "Enter an Applicant's reference",
-  MISSING_OPERATOR: "Select the network operator",
-  INVALID_EMAIL: "Enter a valid email address",
+  INVALID_REFERENCE: "Applicant's reference can only include letters, numbers, spaces and hyphens",
+  REFERENCE_TOO_LONG: "You cannot enter more than 24 characters",
+  MISSING_OPERATOR: "Select an applicant contact name",
+  INVALID_EMAIL: "Enter an email address in the correct format, like name@example.com",
   DUPLICATE_EMAIL: "This email address has already been added",
   MISSING_ORGANISATION_ID:
     "No organisation selected. Please go back and select an organisation.",
