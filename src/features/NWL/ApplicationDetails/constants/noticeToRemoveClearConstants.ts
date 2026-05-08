@@ -2,10 +2,9 @@
  * Constants for Notice to Remove Clear page
  */
 
-export const BREADCRUMBS = {
-  TASK_LIST: "Task list",
-  APPLICATION_DETAILS: "Application details",
-} as const;
+import { SHARED_BREADCRUMBS } from './sharedConstants';
+
+export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
   PAGE_TITLE: "Does the Notice to Remove clearly refer to the removal of the electric line?",

@@ -2,10 +2,9 @@
  * Constants for Cannot Continue Application page
  */
 
-export const BREADCRUMBS = {
-  TASK_LIST: "Task list",
-  APPLICATION_DETAILS: "Application details",
-} as const;
+import { SHARED_BREADCRUMBS } from './sharedConstants';
+
+export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
   PAGE_TITLE: "You cannot continue this application yet",

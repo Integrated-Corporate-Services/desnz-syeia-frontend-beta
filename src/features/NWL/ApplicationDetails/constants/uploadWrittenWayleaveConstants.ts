@@ -2,16 +2,15 @@
  * Constants for Upload Written Wayleave page
  */
 
-export const BREADCRUMBS = {
-  TASK_LIST: "Task list",
-  APPLICATION_DETAILS: "Application details",
-} as const;
+import { SHARED_BREADCRUMBS, SHARED_UPLOAD_LABELS } from './sharedConstants';
+
+export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
   PAGE_TITLE: "Upload evidence of the written wayleave",
-  DOCUMENTS_UPLOADED_LABEL: "Documents uploaded",
   UPLOAD_LABEL: "Upload the relevant documents",
   UPLOAD_HINT: "You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls and .xlsx files of up to 25MB each. Files cannot be password protected.",
+  ...SHARED_UPLOAD_LABELS,
 } as const;
 
 export const FORM_ERRORS = {

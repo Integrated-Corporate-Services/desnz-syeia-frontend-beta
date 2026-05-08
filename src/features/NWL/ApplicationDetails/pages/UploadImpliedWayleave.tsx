@@ -75,7 +75,7 @@ const UploadImpliedWayleave: React.FC = () => {
               {applicationDocuments.length > 0 && (
                 <div className="govuk-form-group">
                   <p className="govuk-body govuk-!-font-weight-bold">
-                    {LABELS.DOCUMENTS_UPLOADED_LABEL}
+                    {LABELS.DOCUMENTS_UPLOADED}
                   </p>
                 </div>
               )}
