@@ -1,5 +1,4 @@
 import type { ObjectorDetails } from '../features/NWL/ObjectorDetails/types';
-import type { NWLApplicationDetails } from '../features/NWL/ApplicationDetails/types';
 
 export type ApplicationPermissions = {
   canView: boolean;
@@ -24,7 +23,7 @@ export type Application = {
   application_party?: ApplicationParty | undefined;
   permissions?: ApplicationPermissions;
   objector_details?: ObjectorDetails;
-} & Partial<NWLApplicationDetails> 
+} 
 
 export type ApplicationParty = {
   party_type: string;
