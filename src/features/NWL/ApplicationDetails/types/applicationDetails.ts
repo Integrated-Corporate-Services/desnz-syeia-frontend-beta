@@ -1,9 +1,14 @@
+import type { AdditionalInformationData } from '../../AdditionalInformation/types/additionalInformation';
+
 /**
  * Types for NWL Application Details
  * Contains all data captured in the ApplicationDetails flow
  */
 
 export type NWLApplicationDetails = {
+  // Additional information data
+  additional_information_data?: AdditionalInformationData;
+  
   // Type of use (new lines vs existing lines)
   type_of_use?: string;
   
