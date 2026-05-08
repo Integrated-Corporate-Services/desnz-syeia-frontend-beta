@@ -1,16 +1,6 @@
-// export const BASE_URL = im
 import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
-import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
-
-type RouteConfig = {
-    path: string;
-    component: React.ComponentType;
-    auth?: boolean;
-    layout?: boolean | 'minimal';
-};
-
 import ConsultationResponse from '../features/Consultation/pages/ConsultationResponse';
 import ConsultationResponseDocuments from '../features/Consultation/pages/ConsultationResponseDocuments';
 import ConsultationResponseReview from '../features/Consultation/pages/ConsultationResponseReview';
@@ -42,16 +32,7 @@ import ConsultationPage from '../features/Consultation/pages/consultationDetails
 import consulteeApplicationDetails from '../features/Consultation/pages/consulteeApplicationInfo';
 import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
 import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
-import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
-import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorDetails';
-import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
-import { NWLTaskList } from '../features/NWL/TaskList';
-import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
-import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
-import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
-import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
-import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
-import { nwlObjectorDetailsRoutes, nwlAssetsRoutes } from '../features/NWL/routes';
+import { nwlRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
 import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -64,7 +45,6 @@ import TLPNegotiations from '../features/TLP/Negotiations/pages/Negotiations';
 import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/ApplicationStatement';
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
-import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
@@ -112,11 +92,6 @@ import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
 import RouteMapOnlyPage from '../features/RouteMap/page/RouteMapOnlyPage';
-// import ConsultationResponseReceived from '../features/Consultation/pages/ConsultationResponseReceived';
-// import LPAConsultationForm from '../features/Consultation/pages/LPAConsultationForm';
-// import LPADetailsForm from '../features/Consultation/pages/LPADetailsForm';
-// import ProposedDevelopmentForm from '../features/Consultation/pages/ProposedDevelopmentForm';
-// import ConsultationEvidenceNotReceived from '../features/Consultation/pages/ConsultationEvidenceNotReceived';
 import ConsultationInitialQuestion from '../features/Consultation/pages/ConsultationInitialQuestion';
 import ConsultationResponseInitialQuestion from '../features/Consultation/pages/ConsultationResponseInitialQuestion';
 import ConsultationRequestNotSent from '../features/Consultation/pages/ConsultationRequestNotSent';
@@ -204,40 +179,6 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/evidence-not-received`,
-    //   component: ConsultationEvidenceNotReceived,
-    //   auth: true,
-    //   layout: true
-    // },
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response-received`,
-    //   component: ConsultationResponseReceived,
-    //   auth: true,
-    //   layout: true
-    // },
-
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/lpa-consultation-form`,
-    //   component: LPAConsultationForm,
-    //   auth: true,
-    //   layout: true
-    // },
-
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/lpa-details`,
-    //   component: LPADetailsForm,
-    //   auth: true,
-    //   layout: true
-    // },
-
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/proposed-development`,
-    //   component: ProposedDevelopmentForm,
-    //   auth: true,
-    //   layout: true
-    // },
-
     {
         path: '/payment/callback',
         component: PaymentCallbackPage,
@@ -425,62 +366,7 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: false,
     },
-    {
-        path: `${NWL_BASE_URL}/who-is-applying`,
-        component: NWLWhoIsApplying,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/applicant-details`,
-        component: NWLNetworkOperatorDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/network-operator-contact-details`,
-        component: NWLNetworkOperatorContactDetails,
-        auth: true,
-        layout: true,
-    },
-    ...nwlAssetsRoutes,
-    {
-        path: `${NWL_BASE_URL}/:applicationId/task-list`,
-        component: NWLTaskList,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/landowner-occupant-details`,
-        component: NWLLandownerOccupantDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/application-and-land-details`,
-        component: NWLApplicationLandDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/supporting-information`,
-        component: NWLSupportingInfo,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/negotiations`,
-        component: NWLNegotiations,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/application-statement`,
-        component: NWLApplicationStatement,
-        auth: true,
-        layout: true,
-    },
-    ...nwlObjectorDetailsRoutes,
+    ...nwlRoutes,
     {
         path: `${TLP_BASE_URL}/who-is-applying`,
         component: TLPWhoIsApplying,
@@ -773,18 +659,6 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${S37_BASE_URL}/:applicationId/delete-success`,
-        component: ApplicationDeleteSuccessPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/delete-confirmation`,
-        component: ApplicationDeleteConfirmationPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/delete-success`,
         component: ApplicationDeleteSuccessPage,
         auth: true,
         layout: true,
