@@ -3,6 +3,7 @@ export const NWL_TASK_LIST_ROUTES = {
   NETWORK_OPERATOR_CONTACT_DETAILS: '/nwl/:applicationId/network-operator-contact-details',
   
   TYPE_OF_USE: '/nwl/:applicationId/type-of-use',
+  WAYLEAVE_OFFER: '/nwl/:applicationId/wayleave-offer',
   GROUNDS_FOR_APPLICATION: '/nwl/:applicationId/grounds-for-application',
   
   OBJECTOR_DETAILS_INTRODUCTION: '/nwl/:applicationId/objector-details-introduction',

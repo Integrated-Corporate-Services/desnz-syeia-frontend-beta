@@ -1,0 +1,19 @@
+/**
+ * Constants for Notice to Remove Unclear page
+ */
+
+export const BREADCRUMBS = {
+  TASK_LIST: "Task list",
+  APPLICATION_DETAILS: "Application details",
+} as const;
+
+export const LABELS = {
+  PAGE_TITLE: "Explain why you consider the Notice to Remove to be unclear",
+  HELPER_TEXT: "Without a clear request to remove the electric line or apparatus you should not apply for a necessary wayleave. You may contact the owner or occupier before your application to check if they are happy for you to proceed and inform them that they can submit a new notice at any time.",
+  CHAR_LIMIT: 4000,
+} as const;
+
+export const FORM_ERRORS = {
+  MISSING_EXPLANATION: "Enter an explanation of why you consider the Notice to Remove to be unclear",
+  EXCEEDS_LIMIT: "Explanation must be 4000 characters or fewer",
+} as const;

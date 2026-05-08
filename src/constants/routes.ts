@@ -52,6 +52,24 @@ import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
+import { 
+    TypeOfUse as NWLTypeOfUse, 
+    WayleaveOffer as NWLWayleaveOffer,
+    GroundsForApplication as NWLGroundsForApplication,
+    WayleaveType as NWLWayleaveType,
+    WayleaveExpiryDate as NWLWayleaveExpiryDate,
+    NoticeToRemove as NWLNoticeToRemove,
+    NoticeToRemoveClear as NWLNoticeToRemoveClear,
+    NoticeToRemoveUnclear as NWLNoticeToRemoveUnclear,
+    ApplicationWithinThreeMonths as NWLApplicationWithinThreeMonths,
+    ApplicationOutsideTimeframe as NWLApplicationOutsideTimeframe,
+    StandardTerm as NWLStandardTerm,
+    UploadWrittenWayleave as NWLUploadWrittenWayleave,
+    UploadImpliedWayleave as NWLUploadImpliedWayleave,
+    NoticeToTerminate as NWLNoticeToTerminate,
+    TerminationPeriodExpired as NWLTerminationPeriodExpired,
+    CannotContinueApplication as NWLCannotContinueApplication,
+} from '../features/NWL/ApplicationDetails';
 import { nwlObjectorDetailsRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
@@ -453,6 +471,102 @@ export const ROUTE_CONFIG = [
     {
         path: `${NWL_BASE_URL}/:applicationId/task-list`,
         component: NWLTaskList,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/type-of-use`,
+        component: NWLTypeOfUse,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/wayleave-offer`,
+        component: NWLWayleaveOffer,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/grounds-for-application`,
+        component: NWLGroundsForApplication,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/wayleave-type`,
+        component: NWLWayleaveType,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/wayleave-expiry-date`,
+        component: NWLWayleaveExpiryDate,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/notice-to-remove`,
+        component: NWLNoticeToRemove,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/notice-to-remove-clear`,
+        component: NWLNoticeToRemoveClear,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/notice-to-remove-unclear`,
+        component: NWLNoticeToRemoveUnclear,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/application-within-three-months`,
+        component: NWLApplicationWithinThreeMonths,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/application-outside-timeframe`,
+        component: NWLApplicationOutsideTimeframe,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/standard-term`,
+        component: NWLStandardTerm,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/upload-written-wayleave`,
+        component: NWLUploadWrittenWayleave,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/upload-implied-wayleave`,
+        component: NWLUploadImpliedWayleave,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/notice-to-terminate`,
+        component: NWLNoticeToTerminate,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/termination-period-expired`,
+        component: NWLTerminationPeriodExpired,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/cannot-continue-application`,
+        component: NWLCannotContinueApplication,
         auth: true,
         layout: true,
     },
