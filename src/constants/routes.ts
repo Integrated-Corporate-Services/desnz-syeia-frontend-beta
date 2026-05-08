@@ -69,7 +69,6 @@ import {
     TerminationPeriodExpired as NWLTerminationPeriodExpired,
     CannotContinueApplication as NWLCannotContinueApplication,
 } from '../features/NWL/ApplicationDetails';
-import { nwlObjectorDetailsRoutes } from '../features/NWL/routes';
 import { nwlObjectorDetailsRoutes, nwlAssetsRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
