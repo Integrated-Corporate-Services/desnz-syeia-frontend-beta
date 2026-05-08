@@ -17,7 +17,11 @@ import NWLNetworkOperatorDetails from './ApplicantInfo/pages/NetworkOperatorDeta
 import NWLNetworkOperatorContactDetails from './ApplicantInfo/pages/NetworkOperatorContactDetails';
 import { NWLTaskList } from './TaskList';
 import NWLSupportingInfo from './SupportingInfo/pages/SupportingInfo';
-import NWLNegotiations from './Negotiations/pages/Negotiations';
+import { 
+  TellUsAboutExistingNegotiations as NWLTellUsAboutExistingNegotiations,
+  EvidenceOfNegotiations as NWLEvidenceOfNegotiations,
+  WhyNoNegotiations as NWLWhyNoNegotiations,
+} from './Negotiations/pages';
 import NWLLandownerOccupantDetails from './LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from './ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from './ApplicationStatement/pages/ApplicationStatement';
@@ -293,8 +297,20 @@ export const nwlSupportingInfoRoutes = [
 
 export const nwlNegotiationsRoutes = [
   {
-    path: `${NWL_BASE_URL}/:applicationId/negotiations`,
-    component: NWLNegotiations,
+    path: `${NWL_BASE_URL}/:applicationId/existing-negotiations`,
+    component: NWLTellUsAboutExistingNegotiations,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/evidence-of-negotiations`,
+    component: NWLEvidenceOfNegotiations,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/why-no-negotiations`,
+    component: NWLWhyNoNegotiations,
     auth: true,
     layout: true,
   },

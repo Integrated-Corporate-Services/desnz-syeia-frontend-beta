@@ -1,9 +1,13 @@
+import type { NegotiationsData } from '../../Negotiations/types/negotiations';
+
 /**
  * Types for NWL Application Details
  * Contains all data captured in the ApplicationDetails flow
  */
 
 export type NWLApplicationDetails = {
+  // Negotiations data
+  negotiations_data?: NegotiationsData;
   // Type of use (new lines vs existing lines)
   type_of_use?: string;
   
