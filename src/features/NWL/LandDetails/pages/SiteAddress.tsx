@@ -17,7 +17,7 @@ const SiteAddress: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { errors, validateSiteAddress, clearError } = useFormValidation();
-  const { goToCountrySelection, goToTaskList } = useLandNavigation(applicationId);
+  const { goToCountrySelection } = useLandNavigation(applicationId);
 
   const [formData, setFormData] = useState({
     addressLine1: landDetails.site_address_line1 || '',

@@ -22,7 +22,6 @@ const IdentifyingInformation: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const maxCharacters = 4000;
-  const remainingCharacters = maxCharacters - identifyingInfo.length;
 
   const handleIdentifyingInfoChange = (value: string) => {
     if (value.length <= maxCharacters) {

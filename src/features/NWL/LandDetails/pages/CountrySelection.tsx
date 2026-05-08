@@ -16,7 +16,7 @@ const CountrySelection: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { errors, validateCountry } = useFormValidation();
-  const { goToLandRegistry, goToTaskList } = useLandNavigation(applicationId);
+  const { goToLandRegistry } = useLandNavigation(applicationId);
 
   const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>(
     landDetails.site_country || ''
