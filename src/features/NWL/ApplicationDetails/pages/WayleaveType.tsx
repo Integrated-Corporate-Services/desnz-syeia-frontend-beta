@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
@@ -15,6 +15,7 @@ import {
  */
 const WayleaveType: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const appId = useGetApplicationId();
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
@@ -23,6 +24,11 @@ const WayleaveType: React.FC = () => {
 
   const [wayleaveType, setWayleaveType] = useState<string>("");
   const [error, setError] = useState<string>("");
+
+  // Get grounds_for_application from location state or application
+  const groundsForApplication = 
+    (location.state as any)?.grounds_for_application || 
+    application?.grounds_for_application;
 
   useEffect(() => {
     if (appId) {
@@ -48,10 +54,9 @@ const WayleaveType: React.FC = () => {
 
     // TODO: Save to backend when API is ready
     // Navigate based on grounds for application and wayleave type selection
-    const groundsForApplication = application?.grounds_for_application;
     
     if (groundsForApplication === "wayleave_expired") {
-      // For expired wayleave flow: go to wayleave expiry date
+      // For expired wayleave flow: always go to wayleave expiry date regardless of type
       navigate(`${NWL_BASE_URL}/${appId}/wayleave-expiry-date`);
     } else if (groundsForApplication === "wayleave_terminated") {
       // For terminated wayleave flow: go to upload pages based on type

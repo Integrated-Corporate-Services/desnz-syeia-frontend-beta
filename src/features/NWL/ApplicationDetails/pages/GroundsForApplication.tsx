@@ -41,11 +41,15 @@ const GroundsForApplication: React.FC = () => {
     e.preventDefault();
 
     // TODO: Save to backend when API is ready
-    // Navigate based on selection
+    // Navigate based on selection, passing the grounds as state
     if (groundsForApplication === "wayleave_expired") {
-      navigate(`${NWL_BASE_URL}/${appId}/wayleave-type`);
+      navigate(`${NWL_BASE_URL}/${appId}/wayleave-type`, { 
+        state: { grounds_for_application: "wayleave_expired" } 
+      });
     } else if (groundsForApplication === "wayleave_terminated") {
-      navigate(`${NWL_BASE_URL}/${appId}/wayleave-type`);
+      navigate(`${NWL_BASE_URL}/${appId}/wayleave-type`, { 
+        state: { grounds_for_application: "wayleave_terminated" } 
+      });
     } else if (groundsForApplication === "no_wayleave_exists") {
       navigate(`${NWL_BASE_URL}/${appId}/notice-to-remove`);
     }
