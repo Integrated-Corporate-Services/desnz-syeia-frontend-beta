@@ -15,7 +15,7 @@ import {
  */
 const ApplicationOutsideTimeframe: React.FC = () => {
   const appId = useGetApplicationId();
-  const { navigateToStandardTerm, navigateToTaskList } = useApplicationNavigation(appId || "");
+  const { navigateToStandardTerm } = useApplicationNavigation(appId || "");
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
@@ -44,9 +44,9 @@ const ApplicationOutsideTimeframe: React.FC = () => {
     navigateToStandardTerm();
   };
 
-  const handleSaveForLater = () => {
-    navigateToTaskList();
-  };
+  // const handleSaveForLater = () => {
+  //   navigateToTaskList();
+  // };
 
   return (
     <div className="govuk-width-container">
@@ -132,13 +132,13 @@ const ApplicationOutsideTimeframe: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </div>

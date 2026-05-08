@@ -3,6 +3,10 @@
  * Following the pattern from objectorDetailsService.ts
  */
 
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('ApplicationDetailsService');
+
 export interface ApplicationDetailsData {
   type_of_use?: string;
   wayleave_offer_date?: string;
@@ -36,7 +40,7 @@ export const saveApplicationDetails = async (
   //   body: JSON.stringify(data),
   // });
   // if (!response.ok) throw new Error('Failed to save application details');
-  console.log('Saving application details:', { applicationId, data });
+  logger.info('Saving application details', { applicationId, data });
 };
 
 /**
@@ -50,7 +54,7 @@ export const fetchApplicationDetails = async (
   // const response = await fetch(`/api/applications/${applicationId}/details`);
   // if (!response.ok) throw new Error('Failed to fetch application details');
   // return response.json();
-  console.log('Fetching application details:', applicationId);
+  logger.info('Fetching application details', { applicationId });
   return {};
 };
 

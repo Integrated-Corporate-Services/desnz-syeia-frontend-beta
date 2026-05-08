@@ -62,9 +62,9 @@ const NoticeToTerminate: React.FC = () => {
     navigateToTerminationPeriodExpired();
   };
 
-  const handleSaveForLater = () => {
-    navigateToTaskList();
-  };
+  // const handleSaveForLater = () => {
+  //   navigateToTaskList();
+  // };
 
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
@@ -248,13 +248,13 @@ const NoticeToTerminate: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </div>

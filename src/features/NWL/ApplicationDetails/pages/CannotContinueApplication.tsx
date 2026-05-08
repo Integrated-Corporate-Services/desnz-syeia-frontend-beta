@@ -13,9 +13,9 @@ const CannotContinueApplication: React.FC = () => {
   const appId = useGetApplicationId();
   const { navigateToTaskList } = useApplicationNavigation(appId || "");
 
-  const handleSaveForLater = () => {
-    navigateToTaskList();
-  };
+  // const handleSaveForLater = () => {
+  //   navigateToTaskList();
+  // };
 
   const handleReturnToTaskList = () => {
     navigateToTaskList();
@@ -58,13 +58,13 @@ const CannotContinueApplication: React.FC = () => {
             </p>
 
             <div className="govuk-button-group">
-              <button
+              {/* <button
                 type="button"
                 className="govuk-button govuk-button--secondary"
                 onClick={handleSaveForLater}
               >
                 {LABELS.SAVE_FOR_LATER_BUTTON}
-              </button>
+              </button> */}
               <button
                 type="button"
                 className="govuk-button govuk-button--secondary"

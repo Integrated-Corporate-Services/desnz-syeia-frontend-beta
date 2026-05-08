@@ -54,9 +54,9 @@ const NoticeToRemoveClear: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = () => {
-    navigateToTaskList();
-  };
+  // const handleSaveForLater = () => {
+  //   navigateToTaskList();
+  // };
 
   return (
     <div className="govuk-width-container">
@@ -170,13 +170,13 @@ const NoticeToRemoveClear: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </div>

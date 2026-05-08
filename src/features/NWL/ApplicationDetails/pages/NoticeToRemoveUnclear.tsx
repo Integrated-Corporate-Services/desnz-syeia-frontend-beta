@@ -15,7 +15,7 @@ import {
  */
 const NoticeToRemoveUnclear: React.FC = () => {
   const appId = useGetApplicationId();
-  const { navigateToApplicationWithinThreeMonths, navigateToTaskList } = useApplicationNavigation(appId || "");
+  const { navigateToApplicationWithinThreeMonths } = useApplicationNavigation(appId || "");
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
@@ -44,9 +44,9 @@ const NoticeToRemoveUnclear: React.FC = () => {
     navigateToApplicationWithinThreeMonths();
   };
 
-  const handleSaveForLater = () => {
-    navigateToTaskList();
-  };
+  // const handleSaveForLater = () => {
+  //   navigateToTaskList();
+  // };
 
   return (
     <div className="govuk-width-container">
@@ -134,13 +134,13 @@ const NoticeToRemoveUnclear: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </div>
