@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useApplicationNavigation } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
@@ -15,12 +16,16 @@ import {
  * Asks what the wayleave application is for
  */
 const TypeOfUse: React.FC = () => {
-  const navigate = useNavigate();
   const appId = useGetApplicationId();
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
   );
+  const {
+    navigateToWayleaveOffer,
+    navigateToGroundsForApplication,
+    navigateToTaskList,
+  } = useApplicationNavigation(appId || "");
 
   const [typeOfUse, setTypeOfUse] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -45,14 +50,14 @@ const TypeOfUse: React.FC = () => {
     // TODO: Save to backend when API is ready
     // Navigate based on selection
     if (typeOfUse === "new_lines") {
-      navigate(`${NWL_BASE_URL}/${appId}/wayleave-offer`);
+      navigateToWayleaveOffer();
     } else if (typeOfUse === "existing_lines") {
-      navigate(`${NWL_BASE_URL}/${appId}/grounds-for-application`);
+      navigateToGroundsForApplication();
     }
   };
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   return (

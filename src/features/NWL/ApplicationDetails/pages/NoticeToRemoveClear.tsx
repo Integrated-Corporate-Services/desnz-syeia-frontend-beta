@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useApplicationNavigation } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
@@ -14,8 +15,12 @@ import {
  * Does the Notice to Remove clearly refer to the removal of the electric line?
  */
 const NoticeToRemoveClear: React.FC = () => {
-  const navigate = useNavigate();
   const appId = useGetApplicationId();
+  const { 
+    navigateToApplicationWithinThreeMonths, 
+    navigateToNoticeToRemoveUnclear, 
+    navigateToTaskList 
+  } = useApplicationNavigation(appId || "");
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
@@ -43,14 +48,14 @@ const NoticeToRemoveClear: React.FC = () => {
     // TODO: Save to backend when API is ready
     // Navigate based on selection
     if (isNoticeClear === "yes") {
-      navigate(`${NWL_BASE_URL}/${appId}/application-within-three-months`);
+      navigateToApplicationWithinThreeMonths();
     } else if (isNoticeClear === "no") {
-      navigate(`${NWL_BASE_URL}/${appId}/notice-to-remove-unclear`);
+      navigateToNoticeToRemoveUnclear();
     }
   };
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   return (

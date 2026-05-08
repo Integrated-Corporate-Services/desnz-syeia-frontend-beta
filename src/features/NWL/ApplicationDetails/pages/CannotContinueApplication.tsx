@@ -1,7 +1,6 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useApplicationNavigation } from "../hooks";
 import {
   LABELS,
 } from "../constants/cannotContinueApplicationConstants";
@@ -11,15 +10,15 @@ import {
  * Dead end page when termination period has not expired
  */
 const CannotContinueApplication: React.FC = () => {
-  const navigate = useNavigate();
   const appId = useGetApplicationId();
+  const { navigateToTaskList } = useApplicationNavigation(appId || "");
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   const handleReturnToTaskList = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   return (

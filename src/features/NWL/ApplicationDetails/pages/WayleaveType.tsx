@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useApplicationNavigation } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
@@ -14,9 +15,14 @@ import {
  * What type of wayleave existed?
  */
 const WayleaveType: React.FC = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const appId = useGetApplicationId();
+  const { 
+    navigateToWayleaveExpiryDate, 
+    navigateToUploadWrittenWayleave, 
+    navigateToUploadImpliedWayleave, 
+    navigateToTaskList 
+  } = useApplicationNavigation(appId || "");
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
@@ -57,26 +63,26 @@ const WayleaveType: React.FC = () => {
     
     if (groundsForApplication === "wayleave_expired") {
       // For expired wayleave flow: always go to wayleave expiry date regardless of type
-      navigate(`${NWL_BASE_URL}/${appId}/wayleave-expiry-date`);
+      navigateToWayleaveExpiryDate();
     } else if (groundsForApplication === "wayleave_terminated") {
       // For terminated wayleave flow: go to upload pages based on type
       if (wayleaveType === "wayleave") {
-        navigate(`${NWL_BASE_URL}/${appId}/upload-written-wayleave`);
+        navigateToUploadWrittenWayleave();
       } else if (wayleaveType === "interim_necessary_wayleave") {
-        navigate(`${NWL_BASE_URL}/${appId}/upload-implied-wayleave`);
+        navigateToUploadImpliedWayleave();
       }
     } else {
       // Fallback: navigate based on wayleave type if grounds not recognized
       if (wayleaveType === "wayleave") {
-        navigate(`${NWL_BASE_URL}/${appId}/upload-written-wayleave`);
+        navigateToUploadWrittenWayleave();
       } else if (wayleaveType === "interim_necessary_wayleave") {
-        navigate(`${NWL_BASE_URL}/${appId}/upload-implied-wayleave`);
+        navigateToUploadImpliedWayleave();
       }
     }
   };
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   return (

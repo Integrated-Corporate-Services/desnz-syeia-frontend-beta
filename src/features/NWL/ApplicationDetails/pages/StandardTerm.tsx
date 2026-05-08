@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useApplicationNavigation } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
@@ -14,8 +15,8 @@ import {
  * Are you applying for the standard term of 15 years?
  */
 const StandardTerm: React.FC = () => {
-  const navigate = useNavigate();
   const appId = useGetApplicationId();
+  const { navigateToTaskList } = useApplicationNavigation(appId || "");
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
@@ -45,11 +46,11 @@ const StandardTerm: React.FC = () => {
     e.preventDefault();
 
     // TODO: Save to backend when API is ready
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   return (

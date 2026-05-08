@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useApplicationNavigation } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
@@ -13,8 +14,8 @@ import {
  * Explain why you consider the Notice to Remove to be unclear
  */
 const NoticeToRemoveUnclear: React.FC = () => {
-  const navigate = useNavigate();
   const appId = useGetApplicationId();
+  const { navigateToApplicationWithinThreeMonths, navigateToTaskList } = useApplicationNavigation(appId || "");
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
@@ -40,11 +41,11 @@ const NoticeToRemoveUnclear: React.FC = () => {
     e.preventDefault();
 
     // TODO: Save to backend when API is ready
-    navigate(`${NWL_BASE_URL}/${appId}/application-within-three-months`);
+    navigateToApplicationWithinThreeMonths();
   };
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   return (
@@ -100,9 +101,7 @@ const NoticeToRemoveUnclear: React.FC = () => {
                   error ? "govuk-form-group--error" : ""
                 }`}
               >
-                <div className="govuk-hint" id="explanation-hint">
-                  You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
-                </div>
+              
                 {error && (
                   <p id="explanation-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {error}
@@ -124,7 +123,9 @@ const NoticeToRemoveUnclear: React.FC = () => {
                   maxLength={LABELS.CHAR_LIMIT}
                 />
               </div>
-
+  <div className="govuk-hint" id="explanation-hint">
+                  You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
+                </div>
               <div className="govuk-button-group">
                 <button
                   type="submit"

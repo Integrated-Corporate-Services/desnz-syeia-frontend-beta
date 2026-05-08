@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
@@ -7,6 +7,7 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import FileUpload from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
+import { useApplicationNavigation } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
@@ -17,7 +18,6 @@ import {
  * For new lines - collects wayleave offer date and document upload
  */
 const WayleaveOffer: React.FC = () => {
-  const navigate = useNavigate();
   const appId = useGetApplicationId();
   const { user } = useAuthUser();
   const userId = user?.user_id;
@@ -25,6 +25,7 @@ const WayleaveOffer: React.FC = () => {
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
   );
+  const { navigateToTaskList } = useApplicationNavigation(appId || "");
 
   const [day, setDay] = useState<string>("");
   const [month, setMonth] = useState<string>("");
@@ -61,11 +62,11 @@ const WayleaveOffer: React.FC = () => {
 
     // TODO: Save to backend when API is ready
     // For now, just navigate to next page
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;

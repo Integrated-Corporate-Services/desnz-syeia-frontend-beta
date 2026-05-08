@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useApplicationNavigation } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import FileUpload from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
@@ -17,8 +18,8 @@ import {
  * Upload evidence of the written wayleave
  */
 const UploadWrittenWayleave: React.FC = () => {
-  const navigate = useNavigate();
   const appId = useGetApplicationId();
+  const { navigateToNoticeToTerminate, navigateToTaskList } = useApplicationNavigation(appId || "");
   const { user } = useAuthUser();
   const userId = user?.user_id;
   const fetchAndSetApplication = useApplicationStore(
@@ -38,11 +39,11 @@ const UploadWrittenWayleave: React.FC = () => {
     e.preventDefault();
 
     // TODO: Save to backend when API is ready
-    navigate(`${NWL_BASE_URL}/${appId}/notice-to-terminate`);
+    navigateToNoticeToTerminate();
   };
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   return (
@@ -78,14 +79,8 @@ const UploadWrittenWayleave: React.FC = () => {
               )}
 
               <div className="govuk-form-group">
-                <label className="govuk-label" htmlFor="file-upload">
-                  {LABELS.UPLOAD_LABEL}
-                </label>
-                <div className="govuk-hint">
-                  {LABELS.UPLOAD_HINT}
-                </div>
                 <FileUpload
-                  title=""
+                  title={LABELS.UPLOAD_LABEL}
                   prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_WRITTEN_WAYLEAVE}/`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_WRITTEN_WAYLEAVE}

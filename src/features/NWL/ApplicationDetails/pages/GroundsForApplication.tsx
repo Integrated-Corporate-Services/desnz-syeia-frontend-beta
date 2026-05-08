@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useApplicationNavigation } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
@@ -14,12 +15,16 @@ import {
  * Choose the relevant option for the application (Paragraph 8(1) selection)
  */
 const GroundsForApplication: React.FC = () => {
-  const navigate = useNavigate();
   const appId = useGetApplicationId();
   const application = useApplicationStore((state) => state.application);
   const fetchAndSetApplication = useApplicationStore(
     (state) => state.fetchAndSetApplication
   );
+  const {
+    navigateToWayleaveType,
+    navigateToNoticeToRemove,
+    navigateToTaskList,
+  } = useApplicationNavigation(appId || "");
 
   const [groundsForApplication, setGroundsForApplication] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -43,20 +48,16 @@ const GroundsForApplication: React.FC = () => {
     // TODO: Save to backend when API is ready
     // Navigate based on selection, passing the grounds as state
     if (groundsForApplication === "wayleave_expired") {
-      navigate(`${NWL_BASE_URL}/${appId}/wayleave-type`, { 
-        state: { grounds_for_application: "wayleave_expired" } 
-      });
+      navigateToWayleaveType("wayleave_expired");
     } else if (groundsForApplication === "wayleave_terminated") {
-      navigate(`${NWL_BASE_URL}/${appId}/wayleave-type`, { 
-        state: { grounds_for_application: "wayleave_terminated" } 
-      });
+      navigateToWayleaveType("wayleave_terminated");
     } else if (groundsForApplication === "no_wayleave_exists") {
-      navigate(`${NWL_BASE_URL}/${appId}/notice-to-remove`);
+      navigateToNoticeToRemove();
     }
   };
 
   const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    navigateToTaskList();
   };
 
   return (
