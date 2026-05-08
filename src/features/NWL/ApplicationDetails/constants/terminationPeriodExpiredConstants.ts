@@ -2,7 +2,7 @@
  * Constants for Termination Period Expired page
  */
 
-import { SHARED_BREADCRUMBS } from './sharedConstants';
+import { SHARED_BREADCRUMBS, SHARED_YES_NO_OPTIONS } from './sharedConstants';
 
 export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
@@ -15,13 +15,4 @@ export const FORM_ERRORS = {
   MISSING_SELECTION: "Select yes if the termination period has expired",
 } as const;
 
-export const OPTIONS = [
-  {
-    value: "yes",
-    label: "Yes",
-  },
-  {
-    value: "no",
-    label: "No",
-  },
-] as const;
+export const OPTIONS = SHARED_YES_NO_OPTIONS;

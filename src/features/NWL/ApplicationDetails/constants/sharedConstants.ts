@@ -41,3 +41,31 @@ export const SHARED_DATE_ERRORS = {
 export const SHARED_UPLOAD_LABELS = {
   DOCUMENTS_UPLOADED: "Documents uploaded",
 } as const;
+
+/**
+ * Common textarea character limits
+ */
+export const SHARED_TEXTAREA_LIMITS = {
+  CHAR_LIMIT: 4000,
+} as const;
+
+/**
+ * Common textarea error messages
+ */
+export const SHARED_TEXTAREA_ERRORS = {
+  EXCEEDS_LIMIT: "Explanation must be 4000 characters or fewer",
+} as const;
+
+/**
+ * Common yes/no radio options
+ */
+export const SHARED_YES_NO_OPTIONS = [
+  {
+    value: "yes",
+    label: "Yes",
+  },
+  {
+    value: "no",
+    label: "No",
+  },
+] as const;
