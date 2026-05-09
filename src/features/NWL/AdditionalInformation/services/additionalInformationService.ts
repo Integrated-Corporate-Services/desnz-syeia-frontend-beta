@@ -10,13 +10,8 @@ export const updateAdditionalInformationData = async (
   applicationId: string,
   data: Partial<AdditionalInformationData>
 ): Promise<void> => {
-  try {
-    await axios.patch(
-      `${API_BASE_URL}/applications/${applicationId}/additional-information`,
-      data
-    );
-  } catch (error) {
-    console.error('Error updating additional information:', error);
-    throw error;
-  }
+  await axios.patch(
+    `${API_BASE_URL}/applications/${applicationId}/additional-information`,
+    data
+  );
 };

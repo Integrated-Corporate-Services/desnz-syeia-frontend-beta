@@ -73,8 +73,8 @@ const ImportantInformationDetails: React.FC = () => {
       });
 
       navigateToTaskList();
-    } catch (error) {
-      console.error('Error saving important information details:', error);
+    } catch {
+      // Error handling can be added here if needed
     } finally {
       setIsSaving(false);
     }
