@@ -3,6 +3,8 @@ import {
   LABELS,
   FORM_LABELS,
   CONTENT,
+  CHARACTER_LIMITS,
+  MESSAGES,
 } from '../constants/negotiationsConstants';
 import {
   useNegotiationsData,
@@ -13,6 +15,7 @@ import {
   NegotiationsBreadcrumbs,
   ErrorSummary,
   FormActions,
+  TextAreaWithCounter,
 } from '../components';
 import { updateNegotiationsData } from '../services';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
@@ -78,9 +81,6 @@ const EvidenceOfNegotiations: React.FC = () => {
     }
   };
 
-  const maxCharacters = 4000;
-  const remainingChars = maxCharacters - comments.length;
-
   return (
     <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
@@ -94,49 +94,18 @@ const EvidenceOfNegotiations: React.FC = () => {
 
             <form onSubmit={handleSubmit} noValidate>
               {/* Additional Comments */}
-              <div
-                className={`govuk-form-group ${
-                  errors.comments ? 'govuk-form-group--error' : ''
-                }`}
-              >
-                <label className="govuk-label" htmlFor="comments">
-                  {FORM_LABELS.ADDITIONAL_COMMENTS}
-                </label>
-                <div id="comments-hint" className="govuk-hint">
-                  {CONTENT.EVIDENCE_INTRO}
-                </div>
-                {errors.comments && (
-                  <p id="comments-error" className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span>{' '}
-                    {errors.comments}
-                  </p>
-                )}
-                <textarea
-                  className={`govuk-textarea ${
-                    errors.comments ? 'govuk-textarea--error' : ''
-                  }`}
-                  id="comments"
-                  name="comments"
-                  rows={8}
-                  value={comments}
-                  onChange={(e) => setComments(e.target.value)}
-                  aria-describedby={
-                    errors.comments
-                      ? 'comments-error comments-hint comments-info'
-                      : 'comments-hint comments-info'
-                  }
-                  maxLength={4000}
-                />
-                <div id="comments-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">
-                  You can enter up to 4,000 characters
-                </div>
-                <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">
-                  You have {remainingChars} characters remaining
-                </div>
-                <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">
-                  You have {remainingChars} characters remaining
-                </div>
-              </div>
+              <TextAreaWithCounter
+                id="comments"
+                name="comments"
+                label={FORM_LABELS.ADDITIONAL_COMMENTS}
+                hint={CONTENT.EVIDENCE_INTRO}
+                value={comments}
+                error={errors.comments}
+                rows={8}
+                maxLength={CHARACTER_LIMITS.MAX_COMMENTS}
+                onChange={setComments}
+                characterRemainingMessage={MESSAGES.CHARACTER_REMAINING}
+              />
 
               {/* File Upload Section */}
               <div className="govuk-form-group">

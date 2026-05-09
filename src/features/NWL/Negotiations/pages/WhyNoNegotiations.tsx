@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   LABELS,
+  CHARACTER_LIMITS,
+  MESSAGES,
 } from '../constants/negotiationsConstants';
 import {
   useNegotiationsData,
@@ -11,6 +13,7 @@ import {
   NegotiationsBreadcrumbs,
   ErrorSummary,
   FormActions,
+  TextAreaWithCounter,
 } from '../components';
 import { updateNegotiationsData } from '../services';
 
@@ -59,9 +62,6 @@ const WhyNoNegotiations: React.FC = () => {
     }
   };
 
-  const maxCharacters = 4000;
-  const remainingChars = maxCharacters - reason.length;
-
   return (
     <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
@@ -72,46 +72,23 @@ const WhyNoNegotiations: React.FC = () => {
             <ErrorSummary errors={errors} />
 
             <form onSubmit={handleSubmit} noValidate>
-              <div
-                className={`govuk-form-group ${
-                  errors.reason ? 'govuk-form-group--error' : ''
-                }`}
-              >
-                <h1 className="govuk-label-wrapper">
-                  <label className="govuk-label govuk-label--l" htmlFor="reason">
-                    {LABELS.NO_NEGOTIATIONS_TITLE}
-                  </label>
-                </h1>
-                {errors.reason && (
-                  <p id="reason-error" className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span>{' '}
-                    {errors.reason}
-                  </p>
-                )}
-                <textarea
-                  className={`govuk-textarea ${
-                    errors.reason ? 'govuk-textarea--error' : ''
-                  }`}
-                  id="reason"
-                  name="reason"
-                  rows={8}
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  aria-describedby={
-                    errors.reason ? 'reason-error reason-info' : 'reason-info'
-                  }
-                  maxLength={4000}
-                />
-                <div id="reason-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">
-                  You can enter up to 4,000 characters
-                </div>
-                <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">
-                  You have {remainingChars} characters remaining
-                </div>
-                <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">
-                  You have {remainingChars} characters remaining
-                </div>
-              </div>
+              <h1 className="govuk-label-wrapper">
+                <label className="govuk-label govuk-label--l" htmlFor="reason">
+                  {LABELS.NO_NEGOTIATIONS_TITLE}
+                </label>
+              </h1>
+              
+              <TextAreaWithCounter
+                id="reason"
+                name="reason"
+                value={reason}
+                error={errors.reason}
+                rows={8}
+                maxLength={CHARACTER_LIMITS.MAX_REASON}
+                onChange={setReason}
+                characterRemainingMessage={MESSAGES.CHARACTER_REMAINING}
+                showLabel={false}
+              />
 
               <FormActions isSaving={isSaving} />
             </form>

@@ -56,3 +56,17 @@ export const CONTENT = {
   EVIDENCE_INTRO: "Tell us about any negotiations with the objector to reach a voluntary solution. If possible, provide a timeline of events or copies of relevant correspondence. If no negotiations have taken place, you must explain why.",
   CHARACTER_LIMIT: "You can enter up to 4,000 characters",
 } as const;
+
+export const CHARACTER_LIMITS = {
+  MAX_COMMENTS: 4000,
+  MAX_REASON: 4000,
+} as const;
+
+export const MESSAGES = {
+  CHARACTER_REMAINING: (remaining: number) => {
+    if (remaining === 0) return 'You have 0 characters remaining';
+    if (remaining < 0) return `You have ${Math.abs(remaining)} characters too many`;
+    if (remaining === 1) return 'You have 1 character remaining';
+    return `You have ${remaining.toLocaleString()} characters remaining`;
+  },
+} as const;
