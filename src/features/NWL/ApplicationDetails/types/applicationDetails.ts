@@ -1,4 +1,5 @@
 import type { AdditionalInformationData } from '../../AdditionalInformation/types/additionalInformation';
+import type { NegotiationsData } from '../../Negotiations/types/negotiations';
 
 /**
  * Types for NWL Application Details
@@ -9,6 +10,8 @@ export type NWLApplicationDetails = {
   // Additional information data
   additional_information_data?: AdditionalInformationData;
   
+  // Negotiations data
+  negotiations_data?: NegotiationsData;
   // Type of use (new lines vs existing lines)
   type_of_use?: string;
   

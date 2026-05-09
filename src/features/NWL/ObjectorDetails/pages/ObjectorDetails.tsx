@@ -83,7 +83,6 @@ const ObjectorDetails: React.FC = () => {
               />
 
               <FormActions 
-                onSaveForLater={navigateToTaskList}
                 isSaving={isSaving}
               />
             </form>

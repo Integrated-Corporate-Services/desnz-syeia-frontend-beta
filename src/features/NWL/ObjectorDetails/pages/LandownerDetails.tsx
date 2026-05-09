@@ -64,10 +64,6 @@ const LandownerDetails: React.FC = () => {
     navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
   };
 
-  const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
-  };
-
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -125,10 +121,7 @@ const LandownerDetails: React.FC = () => {
                 <label className="govuk-label" htmlFor="phone">{FORM_LABELS.PHONE}</label>
                 <input className="govuk-input govuk-input--width-20" id="phone" name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
-              <div className="govuk-button-group">
-                <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
-                <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button" onClick={handleSaveForLater}>{LABELS.SAVE_FOR_LATER}</button>
-              </div>
+              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
             </form>
           </div>
         </div>

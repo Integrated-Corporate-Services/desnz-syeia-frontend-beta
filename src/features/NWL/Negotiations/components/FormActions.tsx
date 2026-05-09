@@ -1,5 +1,5 @@
 import React from 'react';
-import { LABELS } from '../constants/objectorDetailsConstants';
+import { LABELS } from '../constants/negotiationsConstants';
 
 interface FormActionsProps {
   submitLabel?: string;

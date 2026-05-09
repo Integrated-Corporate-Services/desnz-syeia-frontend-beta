@@ -53,10 +53,6 @@ const LandownerAddress: React.FC = () => {
     navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
   };
 
-  const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
-  };
-
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -105,10 +101,7 @@ const LandownerAddress: React.FC = () => {
                 {errors.postcode && <p id="postcode-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.postcode}</p>}
                 <input className={`govuk-input ${errors.postcode ? "govuk-input--error" : ""}`} id="postcode" name="postcode" type="text" value={postcode} onChange={(e) => setPostcode(e.target.value)} aria-describedby={errors.postcode ? "postcode-error" : undefined} />
               </div>
-              <div className="govuk-button-group">
-                <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
-                <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button" onClick={handleSaveForLater}>{LABELS.SAVE_FOR_LATER}</button>
-              </div>
+              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
             </form>
           </div>
         </div>

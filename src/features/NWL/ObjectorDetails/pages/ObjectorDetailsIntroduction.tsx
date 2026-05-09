@@ -20,10 +20,6 @@ const ObjectorDetailsIntroduction: React.FC = () => {
     navigate(`${NWL_BASE_URL}/${appId}/objector-details`);
   };
 
-  const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
-  };
-
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -55,25 +51,14 @@ const ObjectorDetailsIntroduction: React.FC = () => {
               ))}
             </ul>
 
-            <div className="govuk-button-group">
-              <button
-                type="button"
-                className="govuk-button"
-                data-module="govuk-button"
-                onClick={handleContinue}
-              >
-                {LABELS.CONTINUE}
-              </button>
-
-              <button
-                type="button"
-                className="govuk-button govuk-button--secondary"
-                data-module="govuk-button"
-                onClick={handleSaveForLater}
-              >
-                {LABELS.SAVE_FOR_LATER}
-              </button>
-            </div>
+            <button
+              type="button"
+              className="govuk-button"
+              data-module="govuk-button"
+              onClick={handleContinue}
+            >
+              {LABELS.CONTINUE}
+            </button>
           </div>
         </div>
       </main>
