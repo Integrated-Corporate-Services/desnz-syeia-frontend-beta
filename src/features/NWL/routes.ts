@@ -28,7 +28,6 @@ import NWLNetworkOperatorDetails from './ApplicantInfo/pages/NetworkOperatorDeta
 import NWLNetworkOperatorContactDetails from './ApplicantInfo/pages/NetworkOperatorContactDetails';
 import { NWLTaskList } from './TaskList';
 import NWLSupportingInfo from './SupportingInfo/pages/SupportingInfo';
-import NWLNegotiations from './Negotiations/pages/Negotiations';
 import { 
   RelatedApplications as NWLRelatedApplications,
   OtherImportantInformation as NWLOtherImportantInformation,
