@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   LABELS,
-  HINTS,
 } from '../constants/negotiationsConstants';
 import {
   useNegotiationsData,
@@ -60,9 +59,8 @@ const WhyNoNegotiations: React.FC = () => {
     }
   };
 
-  const characterCount = reason.length;
-  const characterLimit = 4000;
-  const charactersRemaining = characterLimit - characterCount;
+  const maxCharacters = 4000;
+  const remainingChars = maxCharacters - reason.length;
 
   return (
     <div className="govuk-width-container">
@@ -102,18 +100,17 @@ const WhyNoNegotiations: React.FC = () => {
                   aria-describedby={
                     errors.reason ? 'reason-error reason-info' : 'reason-info'
                   }
-                  maxLength={characterLimit}
+                  maxLength={4000}
                 />
-                <div
-                  id="reason-info"
-                  className="govuk-hint govuk-character-count__message"
-                  aria-live="polite"
-                >
-                  {charactersRemaining >= 0
-                    ? `You have ${charactersRemaining} characters remaining`
-                    : `You have ${Math.abs(charactersRemaining)} characters too many`}
+                <div id="reason-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">
+                  You can enter up to 4,000 characters
                 </div>
-                <div className="govuk-hint">{HINTS.NO_NEGOTIATIONS}</div>
+                <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">
+                  You have {remainingChars} characters remaining
+                </div>
+                <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">
+                  You have {remainingChars} characters remaining
+                </div>
               </div>
 
               <FormActions isSaving={isSaving} />

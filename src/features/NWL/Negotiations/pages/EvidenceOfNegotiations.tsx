@@ -78,9 +78,8 @@ const EvidenceOfNegotiations: React.FC = () => {
     }
   };
 
-  const characterCount = comments.length;
-  const characterLimit = 4000;
-  const charactersRemaining = characterLimit - characterCount;
+  const maxCharacters = 4000;
+  const remainingChars = maxCharacters - comments.length;
 
   return (
     <div className="govuk-width-container">
@@ -126,24 +125,25 @@ const EvidenceOfNegotiations: React.FC = () => {
                       ? 'comments-error comments-hint comments-info'
                       : 'comments-hint comments-info'
                   }
-                  maxLength={characterLimit}
+                  maxLength={4000}
                 />
-                <div
-                  id="comments-info"
-                  className="govuk-hint govuk-character-count__message"
-                  aria-live="polite"
-                >
-                  {charactersRemaining >= 0
-                    ? `You have ${charactersRemaining} characters remaining`
-                    : `You have ${Math.abs(charactersRemaining)} characters too many`}
+                <div id="comments-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">
+                  You can enter up to 4,000 characters
                 </div>
-                <div className="govuk-hint">{CONTENT.CHARACTER_LIMIT}</div>
+                <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">
+                  You have {remainingChars} characters remaining
+                </div>
+                <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">
+                  You have {remainingChars} characters remaining
+                </div>
               </div>
 
               {/* File Upload Section */}
               <div className="govuk-form-group">
                 <h2 className="govuk-heading-m">{FORM_LABELS.DOCUMENTS_UPLOADED}</h2>
-                
+                <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
+                    {FORM_LABELS.UPLOAD_EVIDENCE}
+                </h3>
                 <FileUpload
                   ref={fileUploadRef}
                   title=""
@@ -160,17 +160,6 @@ const EvidenceOfNegotiations: React.FC = () => {
                   onPendingFilesChange={(files) => setPendingFiles(files)}
                   showDocumentsHeading={false}
                 />
-
-                <div className="govuk-hint govuk-!-margin-top-4">
-                  <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
-                    {FORM_LABELS.UPLOAD_EVIDENCE}
-                  </h3>
-                  <p className="govuk-body-s">
-                    You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx,
-                    .xls, and .xlsx files of up to 25MB each. Files cannot be
-                    password protected.
-                  </p>
-                </div>
               </div>
 
               <FormActions isSaving={isSaving} />

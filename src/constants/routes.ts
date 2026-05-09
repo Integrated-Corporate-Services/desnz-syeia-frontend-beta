@@ -39,7 +39,6 @@ import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/page
 import { NWLTaskList } from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
-import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
@@ -426,12 +425,7 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/negotiations`,
-        component: NWLNegotiations,
-        auth: true,
-        layout: true,
-    },
+    
     {
         path: `${NWL_BASE_URL}/:applicationId/application-statement`,
         component: NWLApplicationStatement,
