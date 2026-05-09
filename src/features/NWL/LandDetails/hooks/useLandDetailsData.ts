@@ -9,7 +9,6 @@ export const useLandDetailsData = (applicationId: string) => {
     site_county: '',
     site_postcode: '',
     site_country: '',
-    has_land_registry: false,
     land_registry_title_number: '',
     os_grid_reference_letter: '',
     os_grid_reference_easting: '',
@@ -17,6 +16,8 @@ export const useLandDetailsData = (applicationId: string) => {
     what3words_address: '',
     identifying_information: '',
     additional_land_description: '',
+    uploadedFiles: [],
+    applicationDocuments: [],
   });
 
   const [isLoading, setIsLoading] = useState(false);

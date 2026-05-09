@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -9,19 +9,46 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { useAuthUser } from '../../../../hooks/useAuthUser';
+import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
 const UploadSiteInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { goToEquipmentVisibility } = useLandNavigation(applicationId);
+  const { user } = useAuthUser();
+  const userId = user?.user_id;
+  const fileUploadRef = useRef<FileUploadHandle>(null);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+
+  const handleDeleteFile = (fileId: string) => {
+    updateLandDetails({
+      uploadedFiles: landDetails.uploadedFiles?.filter(file => file.id !== fileId),
+      applicationDocuments: landDetails.applicationDocuments?.filter(doc => doc.fileId !== fileId)
+    });
+  };
 
   const handleSaveAndContinue = async () => {
     setIsSaving(true);
 
     try {
-      updateLandDetails({});
+      // Trigger file upload if there are pending files
+      if (fileUploadRef.current && pendingFiles.length > 0) {
+        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = 
+          await fileUploadRef.current.triggerUpload();
+        
+        if (newUploadedFiles.length > 0) {
+          updateLandDetails({
+            uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
+            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
+          });
+        }
+      }
 
       goToEquipmentVisibility();
     } catch (error) {
@@ -48,38 +75,35 @@ const UploadSiteInformation: React.FC = () => {
             </p>
 
             <form>
-              <div className="govuk-form-group">
-                <h2 className="govuk-heading-m">{labels.DOCUMENTS_UPLOADED}</h2>
-                <div className="govuk-summary-card">
-                  <div className="govuk-summary-card__content">
-                    <dl className="govuk-summary-list">
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          <a href="#" className="govuk-link">photo.jpg</a>
-                        </dt>
-                        <dd className="govuk-summary-list__actions">
-                          <a href="#" className="govuk-link">Delete</a>
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-
-              <div className="govuk-form-group">
-                <h2 className="govuk-heading-m">{labels.UPLOAD_SECTION_TITLE}</h2>
-                <div className="govuk-hint">
-                  {labels.UPLOAD_HINT}
-                </div>
-                <div className="govuk-file-upload" style={{ border: '2px dashed #b1b4b6', padding: '20px', textAlign: 'center', backgroundColor: '#f3f2f1' }}>
-                  <p className="govuk-body" style={{ color: '#505a5f' }}>No file chosen</p>
-                  <div className="govuk-button-group">
-                    <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button">
-                      Choose file
-                    </button>
-                    <span className="govuk-body">or drop file</span>
-                  </div>
-                </div>
+              <div className={`govuk-form-group${fileValidationErrors.length > 0 ? ' govuk-form-group--error' : ''}`}>
+                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                  <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                ))}
+                
+                <FileUpload
+                  ref={fileUploadRef}
+                  title={labels.UPLOAD_SECTION_TITLE}
+                  showTitle={false}
+                  prefix={`${applicationId}/${FILE_CATEGORIES.APPLICATION_LAND_DETAILS}`}
+                  applicationId={applicationId}
+                  category={FILE_CATEGORIES.APPLICATION_LAND_DETAILS}
+                  subCategory="SITE_INFORMATION"
+                  addedBy={userId}
+                  uploadedFiles={landDetails.uploadedFiles || []}
+                  applicationDocuments={landDetails.applicationDocuments || []}
+                  showDocumentsHeading={true}
+                  onDeleteFile={handleDeleteFile}
+                  onPendingFilesChange={setPendingFiles}
+                  onValidationErrors={setFileValidationErrors}
+                  onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {
+                    updateLandDetails({
+                      uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
+                      applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
+                    });
+                  }}
+                />
               </div>
 
               <FormActions

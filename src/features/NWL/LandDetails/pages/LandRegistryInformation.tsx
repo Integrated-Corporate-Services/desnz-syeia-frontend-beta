@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -11,19 +11,35 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { useAuthUser } from '../../../../hooks/useAuthUser';
+import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
 const LandRegistryInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { errors, validateTitleNumber, clearError } = useFormValidation();
   const { goToOSGridReference } = useLandNavigation(applicationId);
+  const { user } = useAuthUser();
+  const userId = user?.user_id;
+  const fileUploadRef = useRef<FileUploadHandle>(null);
 
   const [titleNumber, setTitleNumber] = useState(landDetails.land_registry_title_number || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 
   const handleTitleNumberChange = (value: string) => {
     setTitleNumber(value);
     clearError('titleNumber');
+  };
+
+  const handleDeleteFile = (fileId: string) => {
+    updateLandDetails({
+      uploadedFiles: landDetails.uploadedFiles?.filter(file => file.id !== fileId),
+      applicationDocuments: landDetails.applicationDocuments?.filter(doc => doc.fileId !== fileId)
+    });
   };
 
   const handleSaveAndContinue = async () => {
@@ -37,9 +53,27 @@ const LandRegistryInformation: React.FC = () => {
     setIsSaving(true);
 
     try {
-      updateLandDetails({
-        land_registry_title_number: titleNumber,
-      });
+      // Trigger file upload if there are pending files
+      if (fileUploadRef.current && pendingFiles.length > 0) {
+        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = 
+          await fileUploadRef.current.triggerUpload();
+        
+        if (newUploadedFiles.length > 0) {
+          updateLandDetails({
+            land_registry_title_number: titleNumber,
+            uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
+            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
+          });
+        } else {
+          updateLandDetails({
+            land_registry_title_number: titleNumber,
+          });
+        }
+      } else {
+        updateLandDetails({
+          land_registry_title_number: titleNumber,
+        });
+      }
 
       goToOSGridReference();
     } catch (error) {
@@ -91,21 +125,35 @@ const LandRegistryInformation: React.FC = () => {
                 />
               </div>
 
-              <div className="govuk-form-group">
-                <h2 className="govuk-heading-m">{labels.DOCUMENTS_UPLOADED}</h2>
+              <div className={`govuk-form-group${fileValidationErrors.length > 0 ? ' govuk-form-group--error' : ''}`}>
+                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                  <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                ))}
                 
-                <h3 className="govuk-heading-s">{labels.UPLOAD_SECTION_TITLE}</h3>
-                <div className="govuk-hint">
-                  {labels.UPLOAD_HINT}
-                </div>
-
-                <div className="govuk-file-upload">
-                  <div className="govuk-file-upload__file-name">No file chosen</div>
-                  <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button">
-                    Choose file
-                  </button>
-                  <span className="govuk-file-upload__or-text">or drop file</span>
-                </div>
+                <FileUpload
+                  ref={fileUploadRef}
+                  title={labels.UPLOAD_SECTION_TITLE}
+                  showTitle={false}
+                  prefix={`${applicationId}/${FILE_CATEGORIES.APPLICATION_LAND_DETAILS}`}
+                  applicationId={applicationId}
+                  category={FILE_CATEGORIES.APPLICATION_LAND_DETAILS}
+                  subCategory="LAND_REGISTRY"
+                  addedBy={userId}
+                  uploadedFiles={landDetails.uploadedFiles || []}
+                  applicationDocuments={landDetails.applicationDocuments || []}
+                  showDocumentsHeading={true}
+                  onDeleteFile={handleDeleteFile}
+                  onPendingFilesChange={setPendingFiles}
+                  onValidationErrors={setFileValidationErrors}
+                  onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {
+                    updateLandDetails({
+                      uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
+                      applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
+                    });
+                  }}
+                />
               </div>
 
               <FormActions

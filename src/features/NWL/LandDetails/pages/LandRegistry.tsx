@@ -22,10 +22,8 @@ const LandRegistry: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (landDetails.has_land_registry === true) {
-      setHasLandRegistry('yes');
-    } else if (landDetails.has_land_registry === false) {
-      setHasLandRegistry('no');
+    if (landDetails.has_land_registry !== undefined) {
+      setHasLandRegistry(landDetails.has_land_registry ? 'yes' : 'no');
     }
   }, [landDetails.has_land_registry]);
 

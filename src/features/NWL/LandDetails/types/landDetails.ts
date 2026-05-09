@@ -1,3 +1,5 @@
+import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
+
 export type LandDetails = {
   site_address_line1?: string;
   site_address_line2?: string;
@@ -18,6 +20,9 @@ export type LandDetails = {
   identifying_information?: string;
   additional_land_description?: string;
   equipment_visible_from_public_road?: boolean;
+  
+  uploadedFiles?: UploadedFile[];
+  applicationDocuments?: ApplicationDocument[];
 };
 
 export type SiteAddressFormData = {
