@@ -18,7 +18,6 @@ export const LABELS = {
   REPRESENTATIVE_DETAILS_TITLE: "Enter the representative's details",
   REPRESENTATIVE_ADDRESS_TITLE: "Enter the representative's address",
   CONTINUE: "Save and continue",
-  SAVE_FOR_LATER: "Save for later",
 } as const;
 
 export const INTRODUCTION_CONTENT = {

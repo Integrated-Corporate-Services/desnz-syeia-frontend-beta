@@ -1,5 +1,6 @@
 import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
+import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
 import ConsultationResponse from '../features/Consultation/pages/ConsultationResponse';
 import ConsultationResponseDocuments from '../features/Consultation/pages/ConsultationResponseDocuments';
@@ -32,6 +33,17 @@ import ConsultationPage from '../features/Consultation/pages/consultationDetails
 import consulteeApplicationDetails from '../features/Consultation/pages/consulteeApplicationInfo';
 import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
 import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
+import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
+import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorDetails';
+import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
+import { NWLTaskList } from '../features/NWL/TaskList';
+import NWLAssets from '../features/NWL/Assets/pages/Assets';
+import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
+import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
+import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
+import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
+import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
+import { nwlObjectorDetailsRoutes, nwlLandDetailsRoutes } from '../features/NWL/routes';
 import { nwlRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
@@ -366,6 +378,68 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: false,
     },
+    {
+        path: `${NWL_BASE_URL}/who-is-applying`,
+        component: NWLWhoIsApplying,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/applicant-details`,
+        component: NWLNetworkOperatorDetails,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/network-operator-contact-details`,
+        component: NWLNetworkOperatorContactDetails,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/assets`,
+        component: NWLAssets,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/task-list`,
+        component: NWLTaskList,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/landowner-occupant-details`,
+        component: NWLLandownerOccupantDetails,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/application-and-land-details`,
+        component: NWLApplicationLandDetails,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/supporting-information`,
+        component: NWLSupportingInfo,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/negotiations`,
+        component: NWLNegotiations,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/application-statement`,
+        component: NWLApplicationStatement,
+        auth: true,
+        layout: true,
+    },
+    ...nwlObjectorDetailsRoutes,
+    ...nwlLandDetailsRoutes,
     ...nwlRoutes,
     {
         path: `${TLP_BASE_URL}/who-is-applying`,

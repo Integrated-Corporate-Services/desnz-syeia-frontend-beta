@@ -8,6 +8,17 @@ import NWLLandownerAddress from './ObjectorDetails/pages/LandownerAddress';
 import NWLIsThereRepresentative from './ObjectorDetails/pages/IsThereRepresentative';
 import NWLRepresentativeDetails from './ObjectorDetails/pages/RepresentativeDetails';
 import NWLRepresentativeAddress from './ObjectorDetails/pages/RepresentativeAddress';
+import { 
+  SiteAddress, 
+  CountrySelection,
+  LandRegistry,
+  LandRegistryInformation,
+  UnregisteredLandDetails,
+  OSGridReference,
+  IdentifyingInformation,
+  UploadSiteInformation,
+  EquipmentVisibility
+} from './LandDetails';
 import NWLAssets from './Assets/pages/Assets';
 import NWLAssetsReview from './Assets/pages/AssetsReview';
 import ProvideApplicationPlan from './Assets/pages/ProvideApplicationPlan';
@@ -94,6 +105,63 @@ export const nwlObjectorDetailsRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/representative-address`,
     component: NWLRepresentativeAddress,
+    auth: true,
+    layout: true,
+  },
+];
+
+export const nwlLandDetailsRoutes = [
+  {
+    path: `${NWL_BASE_URL}/:applicationId/site-address`,
+    component: SiteAddress,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/land-country`,
+    component: CountrySelection,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/land-registry`,
+    component: LandRegistry,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/land-registry-information`,
+    component: LandRegistryInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/unregistered-land-details`,
+    component: UnregisteredLandDetails,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/os-grid-reference`,
+    component: OSGridReference,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/identifying-information`,
+    component: IdentifyingInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/upload-site-information`,
+    component: UploadSiteInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/equipment-visibility`,
+    component: EquipmentVisibility,
     auth: true,
     layout: true,
   },
@@ -328,6 +396,7 @@ export const nwlRoutes = [
   ...nwlWhoIsApplyingRoutes,
   ...nwlApplicantInfoRoutes,
   ...nwlAssetsRoutes,
+  ...nwlLandDetailsRoutes,
   ...nwlTaskListRoutes,
   ...nwlApplicationDetailsRoutes,
   ...nwlLandownerOccupantRoutes,

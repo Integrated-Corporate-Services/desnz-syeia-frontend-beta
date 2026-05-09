@@ -49,10 +49,6 @@ const IsThereRepresentative: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
-  };
-
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -95,10 +91,7 @@ const IsThereRepresentative: React.FC = () => {
                   </div>
                 </fieldset>
               </div>
-              <div className="govuk-button-group">
-                <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
-                <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button" onClick={handleSaveForLater}>{LABELS.SAVE_FOR_LATER}</button>
-              </div>
+              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
             </form>
           </div>
         </div>
