@@ -114,34 +114,24 @@ export const nwlLandDetailsRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/site-address`,
     component: SiteAddress,
-export const nwlAssetsRoutes = [
-  {
-    path: `${NWL_BASE_URL}/:applicationId/assets`,
-    component: NWLAssets,
     auth: true,
     layout: true,
   },
   {
     path: `${NWL_BASE_URL}/:applicationId/land-country`,
     component: CountrySelection,
-    path: `${NWL_BASE_URL}/:applicationId/information-about-lines`,
-    component: NWLAssets,
     auth: true,
     layout: true,
   },
   {
     path: `${NWL_BASE_URL}/:applicationId/land-registry`,
     component: LandRegistry,
-    path: `${NWL_BASE_URL}/:applicationId/assets-review`,
-    component: NWLAssetsReview,
     auth: true,
     layout: true,
   },
   {
     path: `${NWL_BASE_URL}/:applicationId/land-registry-information`,
     component: LandRegistryInformation,
-    path: `${NWL_BASE_URL}/:applicationId/application-plan`,
-    component: ProvideApplicationPlan,
     auth: true,
     layout: true,
   },
@@ -160,6 +150,49 @@ export const nwlAssetsRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/identifying-information`,
     component: IdentifyingInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/upload-site-information`,
+    component: UploadSiteInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/equipment-visibility`,
+    component: EquipmentVisibility,
+    auth: true,
+    layout: true,
+  },
+];
+
+export const nwlAssetsRoutes = [
+  {
+    path: `${NWL_BASE_URL}/:applicationId/assets`,
+    component: NWLAssets,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/information-about-lines`,
+    component: NWLAssets,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/assets-review`,
+    component: NWLAssetsReview,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/application-plan`,
+    component: ProvideApplicationPlan,
+    auth: true,
+    layout: true,
+  },
+  {
     path: `${NWL_BASE_URL}/:applicationId/plan-verification`,
     component: AssetsMatchPlan,
     auth: true,
@@ -184,14 +217,6 @@ export const nwlApplicantInfoRoutes = [
     layout: true,
   },
   {
-    path: `${NWL_BASE_URL}/:applicationId/upload-site-information`,
-    component: UploadSiteInformation,
-    auth: true,
-    layout: true,
-  },
-  {
-    path: `${NWL_BASE_URL}/:applicationId/equipment-visibility`,
-    component: EquipmentVisibility,
     path: `${NWL_BASE_URL}/:applicationId/network-operator-contact-details`,
     component: NWLNetworkOperatorContactDetails,
     auth: true,
@@ -371,6 +396,7 @@ export const nwlRoutes = [
   ...nwlWhoIsApplyingRoutes,
   ...nwlApplicantInfoRoutes,
   ...nwlAssetsRoutes,
+  ...nwlLandDetailsRoutes,
   ...nwlTaskListRoutes,
   ...nwlApplicationDetailsRoutes,
   ...nwlLandownerOccupantRoutes,
