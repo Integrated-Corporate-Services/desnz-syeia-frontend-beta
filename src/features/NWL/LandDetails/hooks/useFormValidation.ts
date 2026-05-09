@@ -89,6 +89,28 @@ export const useFormValidation = () => {
     return Object.keys(newErrors).length === 0;
   }, []);
 
+  const validateUnregisteredLand = useCallback((explanation: string): boolean => {
+    const newErrors: ValidationErrors = {};
+
+    if (!explanation.trim()) {
+      newErrors.unregisteredLand = LAND_DETAILS_VALIDATION.UNREGISTERED_LAND_REQUIRED;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, []);
+
+  const validateEquipmentVisibility = useCallback((hasSelection: boolean): boolean => {
+    const newErrors: ValidationErrors = {};
+
+    if (hasSelection === undefined || hasSelection === null) {
+      newErrors.equipmentVisibility = LAND_DETAILS_VALIDATION.EQUIPMENT_VISIBILITY_REQUIRED;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, []);
+
   return {
     errors,
     clearErrors,
@@ -97,6 +119,8 @@ export const useFormValidation = () => {
     validateCountry,
     validateLandRegistry,
     validateTitleNumber,
+    validateUnregisteredLand,
     validateIdentifyingInfo,
+    validateEquipmentVisibility,
   };
 };

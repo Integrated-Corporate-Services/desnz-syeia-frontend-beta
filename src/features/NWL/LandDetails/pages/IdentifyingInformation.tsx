@@ -16,7 +16,7 @@ const IdentifyingInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { errors, validateIdentifyingInfo, clearError } = useFormValidation();
-  const { goToTaskList } = useLandNavigation(applicationId);
+  const { goToUploadSiteInformation } = useLandNavigation(applicationId);
 
   const [identifyingInfo, setIdentifyingInfo] = useState(landDetails.identifying_information || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -45,7 +45,7 @@ const IdentifyingInformation: React.FC = () => {
         identifying_information: identifyingInfo,
       });
 
-      goToTaskList();
+      goToUploadSiteInformation();
     } catch (error) {
       setIsSaving(false);
     }

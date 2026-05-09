@@ -26,6 +26,10 @@ export const useLandNavigation = (applicationId: string) => {
     navigate(route);
   }, [navigate, applicationId]);
 
+  const goToUnregisteredLandDetails = useCallback(() => {
+    navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.UNREGISTERED_LAND, applicationId));
+  }, [navigate, applicationId]);
+
   const goToOSGridReference = useCallback(() => {
     navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.OS_GRID_REFERENCE, applicationId));
   }, [navigate, applicationId]);
@@ -34,13 +38,24 @@ export const useLandNavigation = (applicationId: string) => {
     navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.IDENTIFYING_INFORMATION, applicationId));
   }, [navigate, applicationId]);
 
+  const goToUploadSiteInformation = useCallback(() => {
+    navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.UPLOAD_SITE_INFORMATION, applicationId));
+  }, [navigate, applicationId]);
+
+  const goToEquipmentVisibility = useCallback(() => {
+    navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.EQUIPMENT_VISIBILITY, applicationId));
+  }, [navigate, applicationId]);
+
   return {
     goToTaskList,
     goToSiteAddress,
     goToCountrySelection,
     goToLandRegistry,
     goToLandRegistryInfo,
+    goToUnregisteredLandDetails,
     goToOSGridReference,
     goToIdentifyingInformation,
+    goToUploadSiteInformation,
+    goToEquipmentVisibility,
   };
 };

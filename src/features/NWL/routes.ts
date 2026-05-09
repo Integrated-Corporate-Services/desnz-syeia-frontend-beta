@@ -13,8 +13,11 @@ import {
   CountrySelection,
   LandRegistry,
   LandRegistryInformation,
+  UnregisteredLandDetails,
   OSGridReference,
-  IdentifyingInformation
+  IdentifyingInformation,
+  UploadSiteInformation,
+  EquipmentVisibility
 } from './LandDetails';
 
 export const nwlObjectorDetailsRoutes = [
@@ -100,6 +103,12 @@ export const nwlLandDetailsRoutes = [
     layout: true,
   },
   {
+    path: `${NWL_BASE_URL}/:applicationId/unregistered-land-details`,
+    component: UnregisteredLandDetails,
+    auth: true,
+    layout: true,
+  },
+  {
     path: `${NWL_BASE_URL}/:applicationId/os-grid-reference`,
     component: OSGridReference,
     auth: true,
@@ -108,6 +117,18 @@ export const nwlLandDetailsRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/identifying-information`,
     component: IdentifyingInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/upload-site-information`,
+    component: UploadSiteInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/equipment-visibility`,
+    component: EquipmentVisibility,
     auth: true,
     layout: true,
   },

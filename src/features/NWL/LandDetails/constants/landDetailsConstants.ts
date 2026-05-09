@@ -24,6 +24,14 @@ export const LAND_DETAILS_LABELS = {
     UPLOAD_SECTION_TITLE: 'Upload the Land Registry document',
     UPLOAD_HINT: 'You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.',
   },
+  UNREGISTERED_LAND: {
+    PAGE_TITLE: 'Unregistered land details',
+    DESCRIPTION: 'Explain why the land is not registered and describe the status of the land',
+    CHARACTER_LIMIT: 'You can enter up to 4,000 characters',
+    DOCUMENTS_UPLOADED: 'Documents uploaded',
+    UPLOAD_SECTION_TITLE: 'Upload any relevant documents',
+    UPLOAD_HINT: 'You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.',
+  },
   OS_GRID_REFERENCE: {
     PAGE_TITLE: 'Enter the OS Grid Reference',
     DESCRIPTION: 'Enter a grid reference, which you can find on Ordnance Survey maps or at',
@@ -36,6 +44,18 @@ export const LAND_DETAILS_LABELS = {
     PAGE_TITLE: 'Identify the land',
     DESCRIPTION: 'Describe any features on or near the land that can help identify it such as roads, paths and geographical features',
     CHARACTER_LIMIT: 'You can enter up to 4,000 characters',
+  },
+  UPLOAD_SITE_INFORMATION: {
+    PAGE_TITLE: 'Upload site information',
+    DESCRIPTION: 'Please upload any site plans, images and photos taken during this visit. You should conduct a site visit before submitting this application to confirm the assets are correctly listed and described.',
+    DOCUMENTS_UPLOADED: 'Documents uploaded',
+    UPLOAD_SECTION_TITLE: 'Upload the site information (optional)',
+    UPLOAD_HINT: 'You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.',
+  },
+  EQUIPMENT_VISIBILITY: {
+    PAGE_TITLE: 'Can the equipment be seen from a public road?',
+    YES: 'Yes',
+    NO: 'No',
   },
   BUTTONS: {
     SAVE_CONTINUE: 'Save and continue',
@@ -51,15 +71,20 @@ export const LAND_DETAILS_VALIDATION = {
   COUNTRY_REQUIRED: 'Select which country the land is in',
   HAS_LAND_REGISTRY_REQUIRED: 'Select whether the land is registered with the Land Registry',
   TITLE_NUMBER_REQUIRED: 'Enter the reference number',
+  UNREGISTERED_LAND_REQUIRED: 'Enter details about why the land is not registered',
   IDENTIFYING_INFO_REQUIRED: 'Enter identifying information about the land',
+  EQUIPMENT_VISIBILITY_REQUIRED: 'Select whether the equipment can be seen from a public road',
 };
 
 export const LAND_DETAILS_ROUTES = {
   SITE_ADDRESS: '/nwl/:applicationId/site-address',
   COUNTRY_SELECTION: '/nwl/:applicationId/land-country',
   LAND_REGISTRY: '/nwl/:applicationId/land-registry',
+  UNREGISTERED_LAND: '/nwl/:applicationId/unregistered-land-details',
   OS_GRID_REFERENCE: '/nwl/:applicationId/os-grid-reference',
   IDENTIFYING_INFORMATION: '/nwl/:applicationId/identifying-information',
+  UPLOAD_SITE_INFORMATION: '/nwl/:applicationId/upload-site-information',
+  EQUIPMENT_VISIBILITY: '/nwl/:applicationId/equipment-visibility',
   TASK_LIST: '/nwl/:applicationId/task-list',
 };
 

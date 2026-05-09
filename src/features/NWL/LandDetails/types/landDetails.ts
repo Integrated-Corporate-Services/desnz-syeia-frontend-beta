@@ -8,6 +8,7 @@ export type LandDetails = {
   
   land_registry_title_number?: string;
   has_land_registry?: boolean;
+  unregistered_land_explanation?: string;
   
   os_grid_reference_letter?: string;
   os_grid_reference_easting?: string;
@@ -16,6 +17,7 @@ export type LandDetails = {
   
   identifying_information?: string;
   additional_land_description?: string;
+  equipment_visible_from_public_road?: boolean;
 };
 
 export type SiteAddressFormData = {
@@ -35,6 +37,10 @@ export type LandRegistryData = {
   titleNumber?: string;
 };
 
+export type UnregisteredLandData = {
+  explanation: string;
+};
+
 export type OSGridReferenceData = {
   gridLetter: string;
   easting: string;
@@ -45,4 +51,8 @@ export type OSGridReferenceData = {
 export type IdentifyingInformationData = {
   identifyingInfo: string;
   additionalDescription?: string;
+};
+
+export type EquipmentVisibilityData = {
+  isVisibleFromPublicRoad: boolean;
 };
