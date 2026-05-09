@@ -425,7 +425,7 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    
+   
     {
         path: `${NWL_BASE_URL}/:applicationId/application-statement`,
         component: NWLApplicationStatement,

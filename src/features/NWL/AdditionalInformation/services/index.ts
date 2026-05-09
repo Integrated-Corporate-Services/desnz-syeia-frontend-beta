@@ -1,0 +1,1 @@
+export { updateAdditionalInformationData } from './additionalInformationService';

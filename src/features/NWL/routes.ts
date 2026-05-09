@@ -29,6 +29,11 @@ import NWLNetworkOperatorContactDetails from './ApplicantInfo/pages/NetworkOpera
 import { NWLTaskList } from './TaskList';
 import NWLSupportingInfo from './SupportingInfo/pages/SupportingInfo';
 import { 
+  RelatedApplications as NWLRelatedApplications,
+  OtherImportantInformation as NWLOtherImportantInformation,
+  ImportantInformationDetails as NWLImportantInformationDetails,
+} from './AdditionalInformation';
+import { 
   TellUsAboutExistingNegotiations as NWLTellUsAboutExistingNegotiations,
   EvidenceOfNegotiations as NWLEvidenceOfNegotiations,
   WhyNoNegotiations as NWLWhyNoNegotiations,
@@ -384,6 +389,27 @@ export const nwlNegotiationsRoutes = [
   },
 ];
 
+export const nwlAdditionalInformationRoutes = [
+  {
+    path: `${NWL_BASE_URL}/:applicationId/related-applications`,
+    component: NWLRelatedApplications,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/other-important-information`,
+    component: NWLOtherImportantInformation,
+    auth: true,
+    layout: true,
+  },
+  {
+    path: `${NWL_BASE_URL}/:applicationId/other-important-information/details`,
+    component: NWLImportantInformationDetails,
+    auth: true,
+    layout: true,
+  },
+];
+
 export const nwlApplicationStatementRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/application-statement`,
@@ -419,6 +445,7 @@ export const nwlRoutes = [
   ...nwlApplicationLandRoutes,
   ...nwlSupportingInfoRoutes,
   ...nwlNegotiationsRoutes,
+  ...nwlAdditionalInformationRoutes,
   ...nwlApplicationStatementRoutes,
   ...nwlObjectorDetailsRoutes,
   ...nwlDeleteRoutes,
