@@ -581,7 +581,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       )}
       <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
-        .xlsx files of up to 25MB each.
+        .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
 
       <div
