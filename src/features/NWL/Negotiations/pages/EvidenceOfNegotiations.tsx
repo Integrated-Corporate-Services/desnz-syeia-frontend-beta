@@ -3,6 +3,8 @@ import {
   LABELS,
   FORM_LABELS,
   CONTENT,
+  CHARACTER_LIMITS,
+  MESSAGES,
 } from '../constants/negotiationsConstants';
 import {
   useNegotiationsData,
@@ -13,6 +15,7 @@ import {
   NegotiationsBreadcrumbs,
   ErrorSummary,
   FormActions,
+  TextAreaWithCounter,
 } from '../components';
 import { updateNegotiationsData } from '../services';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
@@ -78,10 +81,6 @@ const EvidenceOfNegotiations: React.FC = () => {
     }
   };
 
-  const characterCount = comments.length;
-  const characterLimit = 4000;
-  const charactersRemaining = characterLimit - characterCount;
-
   return (
     <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
@@ -95,55 +94,25 @@ const EvidenceOfNegotiations: React.FC = () => {
 
             <form onSubmit={handleSubmit} noValidate>
               {/* Additional Comments */}
-              <div
-                className={`govuk-form-group ${
-                  errors.comments ? 'govuk-form-group--error' : ''
-                }`}
-              >
-                <label className="govuk-label" htmlFor="comments">
-                  {FORM_LABELS.ADDITIONAL_COMMENTS}
-                </label>
-                <div id="comments-hint" className="govuk-hint">
-                  {CONTENT.EVIDENCE_INTRO}
-                </div>
-                {errors.comments && (
-                  <p id="comments-error" className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span>{' '}
-                    {errors.comments}
-                  </p>
-                )}
-                <textarea
-                  className={`govuk-textarea ${
-                    errors.comments ? 'govuk-textarea--error' : ''
-                  }`}
-                  id="comments"
-                  name="comments"
-                  rows={8}
-                  value={comments}
-                  onChange={(e) => setComments(e.target.value)}
-                  aria-describedby={
-                    errors.comments
-                      ? 'comments-error comments-hint comments-info'
-                      : 'comments-hint comments-info'
-                  }
-                  maxLength={characterLimit}
-                />
-                <div
-                  id="comments-info"
-                  className="govuk-hint govuk-character-count__message"
-                  aria-live="polite"
-                >
-                  {charactersRemaining >= 0
-                    ? `You have ${charactersRemaining} characters remaining`
-                    : `You have ${Math.abs(charactersRemaining)} characters too many`}
-                </div>
-                <div className="govuk-hint">{CONTENT.CHARACTER_LIMIT}</div>
-              </div>
+              <TextAreaWithCounter
+                id="comments"
+                name="comments"
+                label={FORM_LABELS.ADDITIONAL_COMMENTS}
+                hint={CONTENT.EVIDENCE_INTRO}
+                value={comments}
+                error={errors.comments}
+                rows={8}
+                maxLength={CHARACTER_LIMITS.MAX_COMMENTS}
+                onChange={setComments}
+                characterRemainingMessage={MESSAGES.CHARACTER_REMAINING}
+              />
 
               {/* File Upload Section */}
               <div className="govuk-form-group">
                 <h2 className="govuk-heading-m">{FORM_LABELS.DOCUMENTS_UPLOADED}</h2>
-                
+                <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
+                    {FORM_LABELS.UPLOAD_EVIDENCE}
+                </h3>
                 <FileUpload
                   ref={fileUploadRef}
                   title=""
@@ -160,17 +129,6 @@ const EvidenceOfNegotiations: React.FC = () => {
                   onPendingFilesChange={(files) => setPendingFiles(files)}
                   showDocumentsHeading={false}
                 />
-
-                <div className="govuk-hint govuk-!-margin-top-4">
-                  <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
-                    {FORM_LABELS.UPLOAD_EVIDENCE}
-                  </h3>
-                  <p className="govuk-body-s">
-                    You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx,
-                    .xls, and .xlsx files of up to 25MB each. Files cannot be
-                    password protected.
-                  </p>
-                </div>
               </div>
 
               <FormActions isSaving={isSaving} />
