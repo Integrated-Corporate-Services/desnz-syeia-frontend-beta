@@ -2,7 +2,6 @@ import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
-import { CookiesSettingsPage } from '../modules/cookie-consent';
 import {
   PrivacyNoticePage,
   TermsAndConditionsPage,

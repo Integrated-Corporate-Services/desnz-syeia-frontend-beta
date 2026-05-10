@@ -1,11 +1,10 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useCookieConsent } from './CookieConsentProvider';
 import { consentApi, ApiError } from './consent-api';
 import type { CatalogEntry } from './types';
 
 export function CookiesSettingsPage() {
-  const navigate = useNavigate();
   const { analytics, monitoring, updatePreferences, withdraw } = useCookieConsent();
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const [loadingCatalog, setLoadingCatalog] = useState(true);

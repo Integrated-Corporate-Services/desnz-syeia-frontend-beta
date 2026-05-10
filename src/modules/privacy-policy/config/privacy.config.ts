@@ -1,5 +1,8 @@
 import type { PrivacyNoticeConfig } from '../types';
 
+// Get service name from environment variable with fallback
+const SERVICE_NAME = (import.meta.env.VITE_SERVICE_NAME as string) || 'SYEIA';
+
 export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
   serviceName: 'SYEIA (Submit Your Energy Infrastructure Application)',
   organisation: 'Department for Energy Security and Net Zero',
@@ -44,7 +47,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
       id: 'introduction',
       title: 'Introduction',
       content: [
-        `The ${process.env.VITE_SERVICE_NAME || 'SYEIA'} service is provided by the Department for Energy Security and Net Zero (DESNZ).`,
+        `The ${SERVICE_NAME} service is provided by the Department for Energy Security and Net Zero (DESNZ).`,
         'DESNZ is the data controller for pages starting with this domain. This means DESNZ determines how and why your personal data is processed.',
         'This privacy notice explains what personal data we collect, how we use it, how long we keep it, and your rights under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.'
       ]

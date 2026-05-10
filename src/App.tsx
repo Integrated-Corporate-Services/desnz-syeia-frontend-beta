@@ -12,7 +12,7 @@ import { AutoScrollToTop } from "./components/shared/AutoScrollToTop";
 import LandingPage from "./features/SignIn/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { createLogger } from "./utils/logger";
-import { CookieBanner, CookiesSettingsPage } from "./modules/cookie-consent";
+import { CookieBanner } from "./modules/cookie-consent";
 import { usePageTracking } from "./lib/analytics/usePageTracking";
 
 const logger = createLogger("App");
