@@ -9,6 +9,7 @@ import {
   HelpPage,
   ContactPage
 } from '../modules/privacy-policy';
+import { CookiesSettingsPage } from '../modules/cookie-consent';
 
 type RouteConfig = {
     path: string;
