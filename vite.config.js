@@ -17,6 +17,10 @@ export default defineConfig(({ mode }) => {
           target: env.API_URL,
           changeOrigin: true,
         },
+        "/backend/cookies": {
+          target: env.API_URL,
+          changeOrigin: true,
+        },
       },
       allowedHosts: [
         "dev.syeia.energysecurity.gov.uk",

@@ -6,8 +6,6 @@ import type {
   WithdrawResponse,
 } from '../types';
 
-const BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
-
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string) {
     super(message);
@@ -17,7 +15,7 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {
   const token = getCsrfToken();
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(path, {
     credentials: 'include',
     ...init,
     headers: {
@@ -40,9 +38,9 @@ const post = <T>(path: string, body: unknown) =>
   request<T>(path, { method: 'POST', body: JSON.stringify(body) });
 
 export const consentApi = {
-  getPreferences: () => get<ConsentPreferencesResponse>('/cookies/preferences'),
+  getPreferences: () => get<ConsentPreferencesResponse>('/backend/cookies/preferences'),
   setPreferences: (body: UpdateConsentBody) =>
-    post<ConsentPreferencesResponse>('/cookies/preferences', body),
-  withdraw: () => post<WithdrawResponse>('/cookies/withdraw', {}),
-  getCatalog: () => get<{ cookies: CatalogEntry[] }>('/cookies/catalog'),
+    post<ConsentPreferencesResponse>('/backend/cookies/preferences', body),
+  withdraw: () => post<WithdrawResponse>('/backend/cookies/withdraw', {}),
+  getCatalog: () => get<{ cookies: CatalogEntry[] }>('/backend/cookies/catalog'),
 };
