@@ -848,9 +848,28 @@ const ApplicationSummary: React.FC = () => {
                       </ul>
                     </dd>
                   </div>
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      {FIELD_LABELS.RELATED_APPLICATIONS}
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {projectDetails?.has_related_applications === "true" ? "Yes" : projectDetails?.has_related_applications === "false" ? "No" : "-"}
+                    </dd>
+                  </div>
+                  {projectDetails?.has_related_applications === "true" && projectDetails?.related_applications_details && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        {FIELD_LABELS.RELATED_APPLICATIONS_DETAILS}
+                      </dt>
+                      <dd className="govuk-summary-list__value" style={{ whiteSpace: 'pre-wrap' }}>
+                        {projectDetails.related_applications_details}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>
+
             {/* Assets summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">

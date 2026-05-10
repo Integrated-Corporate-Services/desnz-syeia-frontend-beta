@@ -69,6 +69,8 @@ export const FIELD_LABELS = {
   MAX_STRUCTURE_HEIGHT: 'Max structure height (m)',
   LAST_UPDATED: 'Last updated',
   PLAN_INFO_DOCS: 'Plan information documents',
+  RELATED_APPLICATIONS: 'Related applications',
+  RELATED_APPLICATIONS_DETAILS: 'Related application details',
   
   // Asset fields
   STANDARD_SPEC_REF: 'Standard specification reference number',
