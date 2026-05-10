@@ -53,7 +53,7 @@ export function CookieBanner() {
               onClick={handle(acceptAll, 'accepted')}>
               {submitting ? 'Saving…' : 'Accept analytics cookies'}
             </button>
-            <button type="button" className="govuk-button govuk-button--secondary" disabled={submitting}
+            <button type="button" className="govuk-button" disabled={submitting}
               onClick={handle(rejectAll, 'rejected')}>
               {submitting ? 'Saving…' : 'Reject analytics cookies'}
             </button>
