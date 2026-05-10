@@ -40,6 +40,8 @@ export interface ProjectDetails {
 	latest_work_start_date_year?: string;
 	max_structure_height_m?: string;
 	updated_at?: string;
+	has_related_applications?: string;
+	related_applications_details?: string;
 	assetInformation?: AssetInformation[];
 	consultations?: Consultation[];
 }

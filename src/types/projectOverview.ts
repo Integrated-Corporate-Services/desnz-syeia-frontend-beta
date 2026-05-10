@@ -2,19 +2,6 @@
 
 import { UploadedFile } from "./fileUpload";
 import { ApplicationDocument } from "./fileUpload";
-export interface RelatedApplication {
-  relatedApplicationId: string;
-  projectId?: string;
-  applicationRelationId?: string;
-  project_name?: string;
-  desnz_ref?: string;
-  value?: string;
-  relationType?: string;
-  details?: string;
-  createdAt?: string;
-}
-
-
 
 export interface ProjectOverviewModel {
   applicationFormId?: string;
@@ -31,7 +18,7 @@ export interface ProjectOverviewModel {
   latestWorkStartDateMonth: string;
   latestWorkStartDateYear: string;
   hasRelatedApplications: string;
-  relatedApplications: RelatedApplication[];
+  relatedApplicationsDetails: string;
   hasRelatedCpo: string;
   relatedCpoDetails: string | { field: string };
   eipDetails: string;
