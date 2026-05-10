@@ -10,7 +10,7 @@ let rumClient: AwsRum | null = null;
 
 const getVersion = (): string => {
   try {
-    return '1.0.0'; // Fallback version
+    return '1.0.0';
   } catch {
     return '1.0.0';
   }

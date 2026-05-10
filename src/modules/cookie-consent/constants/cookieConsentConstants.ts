@@ -1,7 +1,3 @@
-/**
- * Constants for Cookie Consent pages
- */
-
 export const PAGE_HEADINGS = {
   SETTINGS: "Cookies on Submit your Energy Infrastructure Application",
   ESSENTIAL: "Essential cookies",
@@ -63,7 +59,6 @@ export const CONFIRMATION_MESSAGES = {
   WITHDRAW_CONFIRM: "This will reject all non-essential cookies. Continue?",
 } as const;
 
-// Cookie Banner specific constants
 export const BANNER = {
   HEADING: "Cookies on Submit Your Energy Infrastructure Application",
   ARIA_LABEL: "Cookies on Submit Your Energy Infrastructure Application",

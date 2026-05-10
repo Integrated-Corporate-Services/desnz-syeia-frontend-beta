@@ -16,7 +16,6 @@ export interface WithdrawResponse extends ConsentPreferencesResponse {
   cookiesToClear: string[];
 }
 
-/** Called by CookieConsentProvider after every consent change. App wires the side effects. */
 export interface ConsentChangeCallback {
   (prefs: ConsentPreferencesResponse, source: 'banner' | 'settings_page' | 'withdrawal'): void;
 }

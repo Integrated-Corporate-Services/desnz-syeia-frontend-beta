@@ -1,6 +1,3 @@
-// Cookie Consent Module - GDPR-compliant cookie management
-// Provides banner, settings page, and consent tracking
-
 export {
   CookieBanner,
   CookieConsentProvider,

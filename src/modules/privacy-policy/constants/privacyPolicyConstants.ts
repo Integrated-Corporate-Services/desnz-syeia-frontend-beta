@@ -1,8 +1,3 @@
-/**
- * Constants for Privacy Policy pages
- */
-
-// Accessibility Statement Page
 export const ACCESSIBILITY = {
   PAGE_TITLE: "Accessibility statement",
   SERVICE_NAME: "SYEIA (Submit Your Energy Infrastructure Application)",
@@ -75,7 +70,6 @@ export const ACCESSIBILITY = {
   },
 } as const;
 
-// Contact Page
 export const CONTACT = {
   PAGE_TITLE: "Contact us",
   INTRO: "Get in touch with the Submit Your Energy Infrastructure Application (SYEIA) team.",
@@ -142,7 +136,6 @@ export const CONTACT = {
   },
 } as const;
 
-// Help Page
 export const HELP = {
   PAGE_TITLE: "Help",
   INTRO: "Get help using the Submit Your Energy Infrastructure Application (SYEIA) service.",
@@ -193,7 +186,6 @@ export const HELP = {
   },
 } as const;
 
-// Terms and Conditions Page
 export const TERMS = {
   PAGE_TITLE: "Terms and conditions",
   INTRO: "By using this service, you agree to our terms and conditions.",
@@ -277,7 +269,6 @@ export const TERMS = {
   },
 } as const;
 
-// Common links used across pages
 export const RELATED_LINKS = {
   PRIVACY: { to: "/privacy", label: "Privacy notice" },
   COOKIES: { to: "/cookies", label: "Cookie policy and settings" },

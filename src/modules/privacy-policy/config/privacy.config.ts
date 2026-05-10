@@ -1,6 +1,5 @@
 import type { PrivacyNoticeConfig } from '../types';
 
-// Get service name from environment variable with fallback
 const SERVICE_NAME = (import.meta.env.VITE_SERVICE_NAME as string) || 'SYEIA';
 
 export const PRIVACY_CONFIG: PrivacyNoticeConfig = {

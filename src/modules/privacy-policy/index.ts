@@ -1,6 +1,3 @@
-// Privacy Policy Module - Legal and compliance pages
-// Provides privacy notice, terms, accessibility, help, and contact pages
-
 export {
   PrivacyNoticePage,
   TermsAndConditionsPage,
