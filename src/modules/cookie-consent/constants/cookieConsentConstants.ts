@@ -56,7 +56,7 @@ export const TABLE_HEADERS = {
 } as const;
 
 export const CONFIRMATION_MESSAGES = {
-  WITHDRAW_CONFIRM: "This will reject all non-essential cookies. Continue?",
+  WITHDRAW_CONFIRM: "This will reject all non-essential cookies and you will need to set your preferences again if you change your mind.",
 } as const;
 
 export const BANNER = {

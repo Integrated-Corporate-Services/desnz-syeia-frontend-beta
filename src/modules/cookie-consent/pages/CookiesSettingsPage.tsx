@@ -23,6 +23,7 @@ export function CookiesSettingsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
 
   useEffect(() => {
     consentApi.getCatalog()
@@ -42,6 +43,7 @@ export function CookiesSettingsPage() {
     setSubmitting(true);
     setError(null);
     setSaved(false);
+    setShowWithdrawConfirm(false);
 
     try {
       await updatePreferences({ analytics: analyticsChoice, monitoring: monitoringChoice });
@@ -56,7 +58,17 @@ export function CookiesSettingsPage() {
 
   const handleWithdraw = async () => {
     if (submitting) return;
-    if (!window.confirm(CONFIRMATION_MESSAGES.WITHDRAW_CONFIRM)) return;
+    
+    // First click: Show confirmation UI
+    if (!showWithdrawConfirm) {
+      setShowWithdrawConfirm(true);
+      setSaved(false);
+      setError(null);
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    // Second click: Actually withdraw
     setSubmitting(true);
     setError(null);
     setSaved(false);
@@ -64,12 +76,18 @@ export function CookiesSettingsPage() {
     try {
       await withdraw();
       setSaved(true);
+      setShowWithdrawConfirm(false);
       window.scrollTo(0, 0);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : ERROR_MESSAGES.WITHDRAW_FAILED);
+      setError(err instanceof ApiError ? err.message : ERROR_MESSAGES.SAVE_FAILED);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleCancelWithdraw = () => {
+    setShowWithdrawConfirm(false);
+    setError(null);
   };
 
   const byCategoryOrdered = (cat: string) => {
@@ -221,13 +239,46 @@ export function CookiesSettingsPage() {
                 </fieldset>
               </div>
 
+              {showWithdrawConfirm && (
+                <div className="govuk-warning-text govuk-!-margin-top-6">
+                  <span className="govuk-warning-text__icon" aria-hidden="true">!</span>
+                  <strong className="govuk-warning-text__text">
+                    <span className="govuk-visually-hidden">Warning</span>
+                    {CONFIRMATION_MESSAGES.WITHDRAW_CONFIRM}
+                  </strong>
+                </div>
+              )}
+
               <div className="govuk-button-group">
-                <button type="submit" className="govuk-button" disabled={submitting}>
-                  {submitting ? BUTTON_TEXT.SAVING : BUTTON_TEXT.SAVE}
-                </button>
-                <button type="button" className="govuk-button govuk-button--warning" disabled={submitting} onClick={handleWithdraw}>
-                  {BUTTON_TEXT.WITHDRAW}
-                </button>
+                {!showWithdrawConfirm ? (
+                  <>
+                    <button type="submit" className="govuk-button" disabled={submitting}>
+                      {submitting ? BUTTON_TEXT.SAVING : BUTTON_TEXT.SAVE}
+                    </button>
+                    <button type="button" className="govuk-button govuk-button--warning" disabled={submitting} onClick={handleWithdraw}>
+                      {BUTTON_TEXT.WITHDRAW}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      type="button" 
+                      className="govuk-button govuk-button--warning" 
+                      disabled={submitting}
+                      onClick={handleWithdraw}
+                    >
+                      {submitting ? 'Withdrawing…' : 'Confirm withdrawal'}
+                    </button>
+                    <button 
+                      type="button" 
+                      className="govuk-button govuk-button--secondary" 
+                      disabled={submitting}
+                      onClick={handleCancelWithdraw}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
               </div>
             </form>
 
