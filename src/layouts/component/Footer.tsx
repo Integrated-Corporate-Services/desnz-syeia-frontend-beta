@@ -32,21 +32,36 @@ const Footer = () => {
           <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
             <h2 className="govuk-visually-hidden">Support links</h2>
 
-            {/* Footer inline links */}
+            {/* Footer inline links - GDS Standard support links */}
             <ul className="govuk-footer__inline-list">
               <li className="govuk-footer__inline-list-item">
-                <Link className="govuk-footer__link" to="/accessibility">
-                  Accessibility
-                </Link>
-              </li>
-              <li className="govuk-footer__inline-list-item">
-                <Link className="govuk-footer__link" to="/privacy">
-                  Privacy
+                <Link className="govuk-footer__link" to="/help">
+                  Help
                 </Link>
               </li>
               <li className="govuk-footer__inline-list-item">
                 <Link className="govuk-footer__link" to="/cookies">
                   Cookies
+                </Link>
+              </li>
+              <li className="govuk-footer__inline-list-item">
+                <Link className="govuk-footer__link" to="/contact">
+                  Contact
+                </Link>
+              </li>
+              <li className="govuk-footer__inline-list-item">
+                <Link className="govuk-footer__link" to="/accessibility">
+                  Accessibility statement
+                </Link>
+              </li>
+              <li className="govuk-footer__inline-list-item">
+                <Link className="govuk-footer__link" to="/terms">
+                  Terms and conditions
+                </Link>
+              </li>
+              <li className="govuk-footer__inline-list-item">
+                <Link className="govuk-footer__link" to="/privacy">
+                  Privacy policy
                 </Link>
               </li>
             </ul>

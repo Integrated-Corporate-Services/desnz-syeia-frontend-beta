@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCookieConsent } from './CookieConsentProvider';
+import { BANNER, BUTTON_TEXT } from '../constants';
 
 export function CookieBanner() {
   const { showBanner, acceptAll, rejectAll } = useCookieConsent();
@@ -18,25 +19,24 @@ export function CookieBanner() {
       await action();
       setConfirmed(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : BANNER.ERROR_FALLBACK);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="govuk-cookie-banner" data-nosnippet role="region" aria-label="Cookies on this service">
+    <div className="govuk-cookie-banner" data-nosnippet role="region" aria-label={BANNER.ARIA_LABEL}>
       {confirmed === null && (
         <div className="govuk-cookie-banner__message govuk-width-container">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
-              <h2 className="govuk-cookie-banner__heading govuk-heading-m">Cookies on this service</h2>
+              <h2 className="govuk-cookie-banner__heading govuk-heading-m">{BANNER.HEADING}</h2>
               <div className="govuk-cookie-banner__content">
-                <p className="govuk-body">We use some essential cookies to make this service work.</p>
+                <p className="govuk-body">{BANNER.ESSENTIAL_MESSAGE}</p>
                 <p className="govuk-body">
-                  We'd like to set additional cookies so we can remember your settings,
-                  understand how you use the service and make improvements. See our{' '}
-                  <Link to="/privacy" className="govuk-link">privacy notice</Link> for more information.
+                  {BANNER.ADDITIONAL_MESSAGE}{' '}
+                  <Link to="/privacy" className="govuk-link">{BANNER.PRIVACY_LINK_TEXT}</Link> {BANNER.PRIVACY_LINK_SUFFIX}
                 </p>
               </div>
             </div>
@@ -51,13 +51,13 @@ export function CookieBanner() {
           <div className="govuk-button-group">
             <button type="button" className="govuk-button" disabled={submitting}
               onClick={handle(acceptAll, 'accepted')}>
-              {submitting ? 'Saving…' : 'Accept analytics cookies'}
+              {submitting ? BUTTON_TEXT.SAVING : BANNER.ACCEPT_BUTTON}
             </button>
             <button type="button" className="govuk-button" disabled={submitting}
               onClick={handle(rejectAll, 'rejected')}>
-              {submitting ? 'Saving…' : 'Reject analytics cookies'}
+              {submitting ? BUTTON_TEXT.SAVING : BANNER.REJECT_BUTTON}
             </button>
-            <Link className="govuk-link" to="/cookies">View cookies</Link>
+            <Link className="govuk-link" to="/cookies">{BANNER.VIEW_COOKIES_LINK}</Link>
           </div>
         </div>
       )}
@@ -65,14 +65,14 @@ export function CookieBanner() {
         <div className="govuk-cookie-banner__message govuk-width-container" role="alert">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
-              <h2 className="govuk-cookie-banner__heading govuk-heading-m">You've accepted analytics cookies</h2>
+              <h2 className="govuk-cookie-banner__heading govuk-heading-m">{BANNER.ACCEPTED_HEADING}</h2>
               <div className="govuk-cookie-banner__content">
-                <p className="govuk-body">You can <Link className="govuk-link" to="/cookies">change your cookie settings</Link> at any time.</p>
+                <p className="govuk-body">{BANNER.CHANGE_SETTINGS_PREFIX} <Link className="govuk-link" to="/cookies">{BANNER.CHANGE_SETTINGS_LINK}</Link> {BANNER.CHANGE_SETTINGS_SUFFIX}</p>
               </div>
             </div>
           </div>
           <div className="govuk-button-group">
-            <button type="button" className="govuk-button" onClick={() => setConfirmed(null)}>Hide cookie message</button>
+            <button type="button" className="govuk-button" onClick={() => setConfirmed(null)}>{BANNER.HIDE_BUTTON}</button>
           </div>
         </div>
       )}
@@ -80,14 +80,14 @@ export function CookieBanner() {
         <div className="govuk-cookie-banner__message govuk-width-container" role="alert">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
-              <h2 className="govuk-cookie-banner__heading govuk-heading-m">You've rejected analytics cookies</h2>
+              <h2 className="govuk-cookie-banner__heading govuk-heading-m">{BANNER.REJECTED_HEADING}</h2>
               <div className="govuk-cookie-banner__content">
-                <p className="govuk-body">You can <Link className="govuk-link" to="/cookies">change your cookie settings</Link> at any time.</p>
+                <p className="govuk-body">{BANNER.CHANGE_SETTINGS_PREFIX} <Link className="govuk-link" to="/cookies">{BANNER.CHANGE_SETTINGS_LINK}</Link> {BANNER.CHANGE_SETTINGS_SUFFIX}</p>
               </div>
             </div>
           </div>
           <div className="govuk-button-group">
-            <button type="button" className="govuk-button" onClick={() => setConfirmed(null)}>Hide cookie message</button>
+            <button type="button" className="govuk-button" onClick={() => setConfirmed(null)}>{BANNER.HIDE_BUTTON}</button>
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { ContactInfo, PageFeedback, RelatedContent } from '../components';
+import { CONTACT, RELATED_LINKS } from '../constants';
 
 export function ContactPage() {
   return (
@@ -6,119 +7,112 @@ export function ContactPage() {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-xl">Contact us</h1>
+            <h1 className="govuk-heading-xl">{CONTACT.PAGE_TITLE}</h1>
 
             <p className="govuk-body-l">
-              Get in touch with the Submit Your Energy Infrastructure Application (SYEIA) team.
+              {CONTACT.INTRO}
             </p>
 
-            <h2 className="govuk-heading-l">Email</h2>
+            <h2 className="govuk-heading-l">{CONTACT.SECTIONS.EMAIL}</h2>
             <p className="govuk-body">
-              For general enquiries about the service:
+              {CONTACT.EMAIL_INTRO}
             </p>
             <ContactInfo 
               contact={{
-                name: 'General Enquiries',
-                email: 'syeia.support@energysecurity.gov.uk'
+                name: CONTACT.CONTACTS.GENERAL_NAME,
+                email: CONTACT.CONTACTS.GENERAL_EMAIL
               }}
             />
             <p className="govuk-body">
-              We aim to respond within 5 working days.
+              {CONTACT.RESPONSE_TIME}
             </p>
 
-            <h2 className="govuk-heading-l">Telephone</h2>
+            <h2 className="govuk-heading-l">{CONTACT.SECTIONS.TELEPHONE}</h2>
             <p className="govuk-body">
-              For urgent technical issues:
+              {CONTACT.TELEPHONE_INTRO}
             </p>
             <ContactInfo 
               contact={{
-                name: 'Support Line',
-                phone: '0300 123 4567',
-                openingHours: 'Monday to Friday, 9am to 5pm'
+                name: CONTACT.CONTACTS.SUPPORT_NAME,
+                phone: CONTACT.CONTACTS.SUPPORT_PHONE,
+                openingHours: CONTACT.CONTACTS.SUPPORT_HOURS
               }}
             />
             <p className="govuk-body-s">
-              <a href="https://www.gov.uk/call-charges" className="govuk-link" target="_blank" rel="noopener noreferrer">
-                Find out about call charges
+              <a href={CONTACT.CALL_CHARGES_LINK} className="govuk-link" target="_blank" rel="noopener noreferrer">
+                {CONTACT.CALL_CHARGES_TEXT}
               </a>
             </p>
 
-            <h2 className="govuk-heading-l">Post</h2>
+            <h2 className="govuk-heading-l">{CONTACT.SECTIONS.POST}</h2>
             <p className="govuk-body">
-              If you need to send documents or correspondence by post:
+              {CONTACT.POST_INTRO}
             </p>
             <ContactInfo 
               contact={{
-                name: 'SYEIA Team',
-                address: [
-                  'Department for Energy Security and Net Zero',
-                  '1 Victoria Street',
-                  'London',
-                  'SW1H 0ET'
-                ]
+                name: CONTACT.CONTACTS.POST_NAME,
+                address: CONTACT.CONTACTS.POST_ADDRESS
               }}
             />
 
-            <h2 className="govuk-heading-l">Access requests</h2>
+            <h2 className="govuk-heading-l">{CONTACT.SECTIONS.ACCESS_REQUESTS}</h2>
             <p className="govuk-body">
-              For questions about account access or permissions:
+              {CONTACT.ACCESS_INTRO}
             </p>
             <ContactInfo 
               contact={{
-                name: 'Access Team',
-                email: 'syeia.access@energysecurity.gov.uk'
+                name: CONTACT.CONTACTS.ACCESS_NAME,
+                email: CONTACT.CONTACTS.ACCESS_EMAIL
               }}
             />
 
-            <h2 className="govuk-heading-l">Technical support</h2>
+            <h2 className="govuk-heading-l">{CONTACT.SECTIONS.TECHNICAL_SUPPORT}</h2>
             <p className="govuk-body">
-              For technical issues or problems using the service:
+              {CONTACT.TECHNICAL_INTRO}
             </p>
             <ContactInfo 
               contact={{
-                name: 'Technical Support',
-                email: 'syeia.technical@energysecurity.gov.uk'
+                name: CONTACT.CONTACTS.TECHNICAL_NAME,
+                email: CONTACT.CONTACTS.TECHNICAL_EMAIL
               }}
             />
             <p className="govuk-body">
-              When reporting technical issues, please include:
+              {CONTACT.TECHNICAL_INCLUDE_INTRO}
             </p>
             <ul className="govuk-list govuk-list--bullet">
-              <li>a description of the problem</li>
-              <li>what you were trying to do</li>
-              <li>any error messages you saw</li>
-              <li>the web browser and device you're using</li>
-              <li>screenshots if relevant</li>
+              {CONTACT.TECHNICAL_INCLUDE_ITEMS.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
             </ul>
 
-            <h2 className="govuk-heading-l">Feedback</h2>
+            <h2 className="govuk-heading-l">{CONTACT.SECTIONS.FEEDBACK}</h2>
             <p className="govuk-body">
-              We welcome your feedback to help us improve the service:
+              {CONTACT.FEEDBACK_INTRO}
             </p>
             <ContactInfo 
               contact={{
-                name: 'Feedback',
-                email: 'syeia.feedback@energysecurity.gov.uk'
+                name: CONTACT.CONTACTS.FEEDBACK_NAME,
+                email: CONTACT.CONTACTS.FEEDBACK_EMAIL
               }}
             />
 
-            <h2 className="govuk-heading-l">Privacy enquiries</h2>
+            <h2 className="govuk-heading-l">{CONTACT.SECTIONS.PRIVACY_ENQUIRIES}</h2>
             <p className="govuk-body">
-              For questions about how we handle your personal data, see our{' '}
-              <a href="/privacy" className="govuk-link">privacy notice</a> or contact:
+              {CONTACT.PRIVACY_INTRO}{' '}
+              <a href="/privacy" className="govuk-link">{CONTACT.PRIVACY_LINK_TEXT}</a> {CONTACT.PRIVACY_OR_CONTACT}
             </p>
             <ContactInfo 
               contact={{
-                name: 'Privacy Team',
-                email: 'privacy@energysecurity.gov.uk'
+                name: CONTACT.CONTACTS.PRIVACY_NAME,
+                email: CONTACT.CONTACTS.PRIVACY_EMAIL
               }}
             />
 
             <RelatedContent
               links={[
-                { to: '/help', label: 'Help using this service' },
-                { to: '/privacy', label: 'Privacy notice' },
-                { to: '/accessibility', label: 'Accessibility statement' }
+                RELATED_LINKS.HELP,
+                RELATED_LINKS.PRIVACY,
+                RELATED_LINKS.ACCESSIBILITY
               ]}
             />
 

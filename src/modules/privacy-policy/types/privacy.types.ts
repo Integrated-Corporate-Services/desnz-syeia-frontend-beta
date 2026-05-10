@@ -17,7 +17,7 @@ export interface ContactContent {
 export interface ContactInfo {
   name: string;
   email?: string;
-  address?: string[];
+  address?: string[] | readonly string[];
   phone?: string;
   openingHours?: string;
 }

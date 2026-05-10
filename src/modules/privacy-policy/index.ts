@@ -20,3 +20,5 @@ export type {
   PrivacySection,
   ContactInfo as ContactInfoType
 } from './types';
+
+export * from './constants';

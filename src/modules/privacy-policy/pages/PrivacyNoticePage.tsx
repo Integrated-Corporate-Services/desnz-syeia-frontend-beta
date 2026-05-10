@@ -1,6 +1,7 @@
 import { PRIVACY_CONFIG } from '../config/privacy.config';
 import { renderSectionContent } from '../utils/renderContent';
 import { PageFeedback, RelatedContent } from '../components';
+import { RELATED_LINKS } from '../constants';
 
 export function PrivacyNoticePage() {
   const config = PRIVACY_CONFIG;
@@ -44,9 +45,9 @@ export function PrivacyNoticePage() {
 
             <RelatedContent
               links={[
-                { to: '/cookies', label: 'Cookie policy and settings' },
-                { to: '/accessibility', label: 'Accessibility statement' },
-                { to: '/terms', label: 'Terms and conditions' }
+                RELATED_LINKS.COOKIES,
+                RELATED_LINKS.ACCESSIBILITY,
+                RELATED_LINKS.TERMS
               ]}
             />
 
