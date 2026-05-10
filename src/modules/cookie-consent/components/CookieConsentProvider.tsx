@@ -7,20 +7,20 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { consentApi } from './consent-api';
-import { clearNonEssentialCookies } from './cookie-utils';
+import { consentApi } from '../services/consent-api';
+import { clearNonEssentialCookies } from '../utils';
 import {
   loadAnalytics,
   loadMonitoring,
   stopAnalytics,
   stopMonitoring,
-} from './telemetry';
+} from '../services/telemetry';
 import type {
   ConsentChangeCallback,
   ConsentDecision,
   ConsentPreferencesResponse,
   UpdateConsentBody,
-} from './types';
+} from '../types';
 
 interface ConsentState {
   loading: boolean;

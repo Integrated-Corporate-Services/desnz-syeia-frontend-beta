@@ -1,8 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { useCookieConsent } from './CookieConsentProvider';
-import { consentApi, ApiError } from './consent-api';
-import type { CatalogEntry } from './types';
+import { useCookieConsent } from '../components';
+import { consentApi, ApiError } from '../services/consent-api';
+import type { CatalogEntry } from '../types';
 
 export function CookiesSettingsPage() {
   const { analytics, monitoring, updatePreferences, withdraw } = useCookieConsent();

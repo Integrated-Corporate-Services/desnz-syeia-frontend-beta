@@ -13,7 +13,7 @@ import LandingPage from "./features/SignIn/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { createLogger } from "./utils/logger";
 import { CookieBanner } from "./modules/cookie-consent";
-import { usePageTracking } from "./lib/analytics/usePageTracking";
+import { usePageTracking } from "./lib/analytics";
 
 const logger = createLogger("App");
 

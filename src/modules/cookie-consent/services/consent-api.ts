@@ -1,10 +1,10 @@
-import { getCsrfToken } from './cookie-utils';
+import { getCsrfToken } from '../utils/cookie-utils';
 import type {
   CatalogEntry,
   ConsentPreferencesResponse,
   UpdateConsentBody,
   WithdrawResponse,
-} from './types';
+} from '../types';
 
 const BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
 

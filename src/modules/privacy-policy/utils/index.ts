@@ -1,0 +1,1 @@
+export { renderSectionContent } from './renderContent';

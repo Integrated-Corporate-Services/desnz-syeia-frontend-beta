@@ -1,3 +1,6 @@
+// Privacy Policy Module - Legal and compliance pages
+// Provides privacy notice, terms, accessibility, help, and contact pages
+
 export {
   PrivacyNoticePage,
   TermsAndConditionsPage,
@@ -8,6 +11,12 @@ export {
 
 export { ContactInfo, PageFeedback, RelatedContent } from './components';
 
-export type { PrivacyNoticeConfig, PrivacySection, ContactInfo as ContactInfoType } from './types';
+export { renderSectionContent } from './utils';
 
-export { PRIVACY_CONFIG } from './config/privacy.config';
+export { PRIVACY_CONFIG } from './config';
+
+export type {
+  PrivacyNoticeConfig,
+  PrivacySection,
+  ContactInfo as ContactInfoType
+} from './types';

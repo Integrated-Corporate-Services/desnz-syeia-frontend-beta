@@ -1,5 +1,5 @@
-import { readCookie } from '../../modules/cookie-consent/cookie-utils';
-import { AnalyticsEvent, type ParamsForEvent } from './events';
+import { readCookie } from '../../../modules/cookie-consent/utils';
+import { AnalyticsEvent, type ParamsForEvent } from '../types';
 
 function analyticsAccepted(): boolean {
   const raw = readCookie('consent_preference');

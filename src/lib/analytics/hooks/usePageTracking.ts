@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { track } from './track';
-import { stripPii } from './strip-pii';
-import { AnalyticsEvent } from './events';
-import { recordRumPageView } from '../../modules/cookie-consent/telemetry';
+import { track } from '../services';
+import { stripPii } from '../utils';
+import { AnalyticsEvent } from '../types';
+import { recordRumPageView } from '../../../modules/cookie-consent/services/telemetry';
 
 export function usePageTracking(): void {
   const location = useLocation();
