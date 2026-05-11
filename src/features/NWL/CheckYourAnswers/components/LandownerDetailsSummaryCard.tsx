@@ -1,0 +1,80 @@
+/**
+ * Landowner Details Summary Card
+ * Displays landowner contact information
+ */
+
+import React from 'react';
+import { SummaryCard } from './SummaryCard';
+import { SummaryRow } from '../types';
+import { createSummaryRow, formatEmail, formatPhone } from '../utils';
+import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
+
+interface Props {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any;
+    applicationId: string;
+    canEdit?: boolean;
+}
+
+export const LandownerDetailsSummaryCard: React.FC<Props> = ({ data, applicationId, canEdit = true }) => {
+    if (!data) {
+        return (
+            <SummaryCard
+                title={CONSTANTS.CARD_TITLES.LANDOWNER_DETAILS}
+                rows={[]}
+                actions={
+                    canEdit
+                        ? [
+                              {
+                                  href: CONSTANTS.ROUTES.LANDOWNER_DETAILS(applicationId),
+                                  text: CONSTANTS.ACTIONS.ADD,
+                              },
+                          ]
+                        : undefined
+                }
+            />
+        );
+    }
+
+    const rows: SummaryRow[] = [];
+
+    // Title
+    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.TITLE, data.title || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+
+    // Name
+    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+
+    // Organisation
+    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.DASH));
+
+    // Address
+    const addressParts = [data.address_line1, data.address_line2, data.town_city, data.postcode].filter((part) => part && part !== '-');
+    const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.NOT_PROVIDED;
+    rows.push({
+        key: { text: CONSTANTS.LANDOWNER_FIELDS.ADDRESS },
+        value: { text: '', html: addressHtml },
+    });
+
+    // Email
+    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.EMAIL, formatEmail(data.email)));
+
+    // Phone
+    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.PHONE, formatPhone(data.phone)));
+
+    return (
+        <SummaryCard
+            title={CONSTANTS.CARD_TITLES.LANDOWNER_DETAILS}
+            rows={rows}
+            actions={
+                canEdit
+                    ? [
+                          {
+                              href: CONSTANTS.ROUTES.LANDOWNER_DETAILS(applicationId),
+                              text: CONSTANTS.ACTIONS.CHANGE,
+                          },
+                      ]
+                    : undefined
+            }
+        />
+    );
+};
