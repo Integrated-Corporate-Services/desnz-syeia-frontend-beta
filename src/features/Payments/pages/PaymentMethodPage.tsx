@@ -91,6 +91,12 @@ const handlePayByCard = async () => {
     navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
   };
 
+  const handleBankTransfer = () => {
+    navigate(`${S37_BASE_URL}/${applicationId}/bank-transfer-payment`, {
+      state: { invoiceNumber, totalAmount, consentFee, eiaScreeningFee }
+    });
+  };
+
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
@@ -201,7 +207,7 @@ const handlePayByCard = async () => {
                     type="button"
                     className="govuk-button govuk-button--secondary"
                     data-module="govuk-button"
-                    onClick={handleBackToTaskList}
+                    onClick={handleBankTransfer}
                   >
                     Pay by bank transfer
                   </button>

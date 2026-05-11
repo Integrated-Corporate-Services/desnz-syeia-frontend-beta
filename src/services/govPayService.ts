@@ -48,6 +48,49 @@ export const createPayment = async (
   }
 };
 
+export const submitApplicationWithBankTransfer = async (
+  applicationId: string,
+  invoiceNumber: string,
+  transactionNumber: string,
+  amount: number,
+  userId?: string
+) => {
+  try {
+    log.debug('[submitApplicationWithBankTransfer] Submitting application', {
+      applicationId,
+      invoiceNumber,
+      transactionNumber
+    });
+
+    const payload = {
+      paymentMethod: 'bank_transfer',
+      invoiceNumber,
+      transactionNumber,
+      amount,
+      userId
+    };
+
+    const response = await fetch(`/backend/api/applications/${applicationId}/submit-with-bank-transfer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      log.error('[submitApplicationWithBankTransfer] Submission failed:', errorData);
+      throw new Error(errorData.error || 'Failed to submit application with bank transfer');
+    }
+
+    log.info('[submitApplicationWithBankTransfer] Application submitted successfully');
+    return await response.json();
+  } catch (error) {
+    log.error('[submitApplicationWithBankTransfer] Error submitting application:', error);
+    throw error;
+  }
+};
+
 export const getPaymentStatus = async (applicationId: string, paymentId: string) => {
   try {
     log.debug('[getPaymentStatus] Fetching payment status', { applicationId, paymentId });
