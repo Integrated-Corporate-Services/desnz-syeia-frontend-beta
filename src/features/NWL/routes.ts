@@ -38,6 +38,7 @@ import {
   EvidenceOfNegotiations as NWLEvidenceOfNegotiations,
   WhyNoNegotiations as NWLWhyNoNegotiations,
 } from './Negotiations/pages';
+import NWLCheckYourAnswers from './CheckYourAnswers/pages/CheckYourAnswers';
 import NWLLandownerOccupantDetails from './LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from './ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from './ApplicationStatement/pages/ApplicationStatement';
@@ -419,6 +420,15 @@ export const nwlApplicationStatementRoutes = [
   },
 ];
 
+export const nwlCheckYourAnswersRoutes = [
+  {
+    path: `${NWL_BASE_URL}/:applicationId/check-your-answers`,
+    component: NWLCheckYourAnswers,
+    auth: true,
+    layout: true,
+  },
+];
+
 export const nwlDeleteRoutes = [
   {
     path: `${NWL_BASE_URL}/:applicationId/delete-confirmation`,
@@ -448,6 +458,7 @@ export const nwlRoutes = [
   ...nwlAdditionalInformationRoutes,
   ...nwlApplicationStatementRoutes,
   ...nwlObjectorDetailsRoutes,
+  ...nwlCheckYourAnswersRoutes,
   ...nwlDeleteRoutes,
 ];
 
