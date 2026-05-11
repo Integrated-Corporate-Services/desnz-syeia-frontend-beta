@@ -12,12 +12,17 @@ import { AutoScrollToTop } from "./components/shared/AutoScrollToTop";
 import LandingPage from "./features/SignIn/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { createLogger } from "./utils/logger";
+import { CookieBanner } from "./modules/cookie-consent";
+import { usePageTracking } from "./lib/analytics";
 
 const logger = createLogger("App");
 
 const AppContent = () => {
   const location = useLocation();
   const { user, loading, error } = useAuthUserContext();
+
+  // Track page views for analytics
+  usePageTracking();
 
   // Auto-redirect to create session when LOGIN_DISABLED is enabled
   useEffect(() => {
@@ -79,6 +84,7 @@ const AppContent = () => {
 
   return (
     <>
+      <CookieBanner />
       <SessionTimeout />
       <AutoScrollToTop />
       {isNotFound ? (

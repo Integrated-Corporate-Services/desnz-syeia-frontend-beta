@@ -2,6 +2,22 @@ import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
+import {
+  PrivacyNoticePage,
+  TermsAndConditionsPage,
+  AccessibilityStatementPage,
+  HelpPage,
+  ContactPage
+} from '../modules/privacy-policy';
+import { CookiesSettingsPage } from '../modules/cookie-consent';
+
+type RouteConfig = {
+    path: string;
+    component: React.ComponentType;
+    auth?: boolean;
+    layout?: boolean | 'minimal';
+};
+
 import ConsultationResponse from '../features/Consultation/pages/ConsultationResponse';
 import ConsultationResponseDocuments from '../features/Consultation/pages/ConsultationResponseDocuments';
 import ConsultationResponseReview from '../features/Consultation/pages/ConsultationResponseReview';
@@ -115,6 +131,42 @@ import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
 
 export const ROUTE_CONFIG = [
+    {
+        path: '/cookies',
+        component: CookiesSettingsPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/privacy',
+        component: PrivacyNoticePage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/terms',
+        component: TermsAndConditionsPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/accessibility',
+        component: AccessibilityStatementPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/help',
+        component: HelpPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/contact',
+        component: ContactPage,
+        auth: false,
+        layout: true,
+    },
     {
         path: '/signed-out',
         component: SignedOutPage,

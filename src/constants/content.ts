@@ -40,6 +40,10 @@ export const CONTENT = {
   footer: {
     links: [
       {
+        text: "Cookies",
+        href: "/cookies",
+      },
+      {
         text: "Accessibility statement",
         href: "/public/accessibility-statement",
       },
