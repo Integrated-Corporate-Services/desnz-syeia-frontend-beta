@@ -23,7 +23,6 @@ const SensitiveAreaPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
     const errorMessage = 'Select yes if the route requires tolerance';
-    const [result, setResult] = useState<any>(null);
     const navigate = useNavigate();
     // Support multiple routes, initially empty
     const [routes, setRoutes] = useState<any[]>([]);
@@ -76,7 +75,7 @@ const SensitiveAreaPage: React.FC = () => {
             // Pass the radio button value and tolerance value to backend
             startSensitiveAreaCheck(
                 effectiveApplicationId,
-                toleranceRequired || 'no', // always pass a string
+                toleranceRequired,
                 toleranceRequired === 'yes' ? Number(toleranceValue) : 0,
                 routes
             ); // run in background, don't await
