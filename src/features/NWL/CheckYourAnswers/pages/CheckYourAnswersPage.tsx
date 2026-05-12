@@ -46,7 +46,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [additionalInformation, setAdditionalInformation] = useState<any>(null);
     const [permissions, setPermissions] = useState({ canEdit: true });
 
-    // Load data from service
+    // Load data from API
     useEffect(() => {
         if (!applicationId) return;
 
@@ -54,7 +54,7 @@ export const CheckYourAnswersPage: React.FC = () => {
             try {
                 setLoading(true);
 
-                // Fetch data from service (currently mock, will be real API later)
+                // Fetch data from backend API
                 const data = await fetchCheckYourAnswersData(applicationId);
 
                 // Set all state from response

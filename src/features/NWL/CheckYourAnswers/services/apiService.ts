@@ -1,14 +1,7 @@
 /**
  * API Service for NWL Check Your Answers
- *
- * TODO: Implement this service when backend API is ready
- *
- * To use this service instead of mock data:
- * 1. Implement the fetchCheckYourAnswersData function below
- * 2. In CheckYourAnswersPage.tsx, change the import from:
- *    import { fetchCheckYourAnswersData } from '../services/mockDataService';
- *    to:
- *    import { fetchCheckYourAnswersData } from '../services/apiService';
+ * 
+ * Fetches comprehensive application data for the Check Your Answers review page.
  */
 
 export interface NWLCheckYourAnswersResponse {
