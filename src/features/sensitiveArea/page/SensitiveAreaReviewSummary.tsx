@@ -25,19 +25,13 @@ const SensitiveAreaReviewSummary: React.FC = () => {
         if (!applicationId) return;
         setLoading(true);
 
-        console.log('=== FETCHING DATA ===');
-        console.log('ApplicationId:', applicationId);
-
         Promise.all([getSensitiveAreaReviewSummary(applicationId), getSensitiveAreaReview(applicationId)])
             .then(([summaryData, reviewData]) => {
-                console.log('Summary Data received:', summaryData);
-                console.log('Review Data received:', reviewData);
                 setReviewSummary(summaryData);
                 setReview(reviewData?.[0] || null);
-                console.log('Review set to:', reviewData?.[0] || null);
             })
             .catch((err) => {
-                console.error('Failed to fetch sensitive area review data:', err);
+                logger.error('Failed to fetch sensitive area review data', { error: err });
             })
             .finally(() => {
                 setLoading(false);
@@ -86,17 +80,8 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                             <dt className="govuk-summary-list__key">Other areas the route passes through</dt>
                                             <dd className="govuk-summary-list__value">
                                                 {(() => {
-                                                    console.log('=== SENSITIVE AREA REVIEW SUMMARY DEBUG ===');
-                                                    console.log('Full reviewSummary:', reviewSummary);
-                                                    console.log('reviewSummary?.checks?.manual:', reviewSummary?.checks?.manual);
-
                                                     const selectedLayers = reviewSummary?.checks?.manual?.selected || [];
                                                     const customAddedLayers = reviewSummary?.checks?.manual?.customAdded || [];
-
-                                                    console.log('selectedLayers:', selectedLayers);
-                                                    console.log('selectedLayers count:', selectedLayers.length);
-                                                    console.log('customAddedLayers:', customAddedLayers);
-                                                    console.log('customAddedLayers count:', customAddedLayers.length);
 
                                                     // Extract layer names from selected layers
                                                     const selectedLayerNames = selectedLayers.map((layer: any) => layer.layerName).filter(Boolean);
@@ -104,26 +89,18 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                                     // Extract layer names from custom added layers
                                                     const customLayerNames = customAddedLayers
                                                         .map((layer: any) => {
-                                                            console.log('Custom layer object:', layer);
                                                             return layer.layerName || layer.layer_name || layer.name;
                                                         })
                                                         .filter(Boolean);
 
-                                                    console.log('selectedLayerNames:', selectedLayerNames);
-                                                    console.log('customLayerNames:', customLayerNames);
-
                                                     const allLayerNames = [...selectedLayerNames, ...customLayerNames];
-                                                    console.log('allLayerNames combined:', allLayerNames);
 
                                                     if (allLayerNames.length === 0) {
-                                                        console.log('No layer names found, returning dash');
                                                         return '-';
                                                     }
 
                                                     // Get unique layer names
                                                     const uniqueLayerNames = Array.from(new Set(allLayerNames));
-                                                    console.log('uniqueLayerNames:', uniqueLayerNames);
-                                                    console.log('=== END DEBUG ===');
 
                                                     return (
                                                         <ul className="govuk-list govuk-list--bullet">
@@ -139,17 +116,9 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                             <dt className="govuk-summary-list__key">Environmental and archaeological documents</dt>
                                             <dd className="govuk-summary-list__value">
                                                 {(() => {
-                                                    console.log('=== DOCUMENTS DEBUG ===');
-                                                    console.log('review object:', review);
-                                                    console.log('review?.application_documents:', review?.application_documents);
-                                                    console.log('documents length:', review?.application_documents?.length);
-
                                                     if (!review?.application_documents || review.application_documents.length === 0) {
-                                                        console.log('No documents found');
                                                         return '-';
                                                     }
-
-                                                    console.log('Rendering documents:', review.application_documents);
 
                                                     return (
                                                         <ul className="govuk-list">
@@ -183,10 +152,6 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                             <dt className="govuk-summary-list__key">Poles and lines within sensitive area</dt>
                                             <dd className="govuk-summary-list__value">
                                                 {(() => {
-                                                    console.log('=== POLES DEBUG ===');
-                                                    console.log('review?.asset_presence_option_id:', review?.asset_presence_option_id);
-                                                    console.log('SensitiveAreaPoleOption.POLES_WITHIN:', SensitiveAreaPoleOption.POLES_WITHIN);
-
                                                     if (review?.asset_presence_option_id === SensitiveAreaPoleOption.POLES_WITHIN) {
                                                         return 'Yes, there are poles in the sensitive areas';
                                                     } else if (review?.asset_presence_option_id === 2) {

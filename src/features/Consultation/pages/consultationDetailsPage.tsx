@@ -8,6 +8,9 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { progressApiService } from '../../../services/progressApiService';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('ConsultationDetailsPage');
 
 const ConsultationDetailsPage: React.FC = () => {
     const applicationId = useGetApplicationId();
@@ -83,7 +86,7 @@ const ConsultationDetailsPage: React.FC = () => {
             const nextPageUrl = getNextPageUrl(TASK_NAMES.CONSULTATIONS, applicationId);
             navigate(nextPageUrl);
         } catch (err) {
-            console.error('Error updating progress:', err);
+            logger.error('Error updating progress', { error: err });
             setError('Failed to save progress. Please try again.');
             const errorSummary = document.getElementById('error-summary');
             if (errorSummary) {

@@ -3,7 +3,6 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import RadioGroup from '../component/RadioGroup';
-// import { useApplicationStore } from "../../../store/useApplicationStore";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
