@@ -19,26 +19,26 @@ export const TASK_NAMES = {
     // Applicant details section
     APPLICANT_DETAILS: 'Applicant details',
     CHECK_APPLICANT_CONTACT_DETAILS: 'Check applicant contact details',
-    
+
     // Project details section
     PROJECT_OVERVIEW: 'Project overview',
     ASSETS: 'Assets',
     WORKS_OVERVIEW: 'Works overview',
-    
+
     // Location section
     ROUTE: 'Route',
     SENSITIVE_AREA_CHECKS: 'Sensitive area checks',
     SENSITIVE_AREA_REVIEW: 'Sensitive area review',
     PARISHES: 'Parishes',
-    
+
     // Supporting information section
     SUPPORTING_QUESTIONS: 'Supporting questions',
     EIA_FEES: 'EIA fees',
-    
+
     // Consultations section
     CONSULTATIONS: 'Consultations',
     POST_CONSULTATION_ACTIONS: 'Post consultation actions',
-    
+
     // Pay and submit section
     CHECK_YOUR_ANSWERS: 'Check your answers',
     PAY_AND_SUBMIT: 'Pay and submit',
@@ -548,43 +548,43 @@ export function applyTaskDependencies(sections: TaskListSection[], progress?: { 
 /**
  * Get the next page URL in the task list sequence after saving the current page
  * Exception: "Sensitive area checks" always returns the task list URL
- * 
+ *
  * @param currentPageName - The name of the current task/page being saved
  * @param applicationId - The application ID for URL construction
  * @returns The URL of the next page or task list
  */
 export function getNextPageUrl(currentPageName: string, applicationId: string): string {
     const taskList = `${S37_BASE_URL}/${applicationId}/task-list`;
-    
+
     // Define the task sequence - the order in which pages should be completed
     const taskSequence: { [key: string]: string } = {
         // Applicant details section
         [TASK_NAMES.APPLICANT_DETAILS]: `${S37_BASE_URL}/${applicationId}/network-operator-contact-details`,
         [TASK_NAMES.CHECK_APPLICANT_CONTACT_DETAILS]: taskList,
-        
+
         // Project details section
         [TASK_NAMES.PROJECT_OVERVIEW]: `${S37_BASE_URL}/${applicationId}/asset-information`,
         [TASK_NAMES.ASSETS]: `${S37_BASE_URL}/${applicationId}/works-overview`,
         [TASK_NAMES.WORKS_OVERVIEW]: taskList,
-        
+
         // Location section
         [TASK_NAMES.ROUTE]: `${S37_BASE_URL}/${applicationId}/sensitive-area-check`,
-        
+
         // Sensitive area checks - ALWAYS go to task list
         [TASK_NAMES.SENSITIVE_AREA_CHECKS]: taskList,
-        
+
         [TASK_NAMES.SENSITIVE_AREA_REVIEW]: `${S37_BASE_URL}/${applicationId}/parishes`,
         [TASK_NAMES.PARISHES]: taskList,
-        
+
         // Supporting information section
         [TASK_NAMES.SUPPORTING_QUESTIONS]: `${S37_BASE_URL}/${applicationId}/eia-fees`,
         [TASK_NAMES.EIA_FEES]: taskList,
-        
+
         // Consultations section
         [TASK_NAMES.CONSULTATIONS]: `${S37_BASE_URL}/${applicationId}/post-consultation-actions/lpa-agreement`,
         [TASK_NAMES.POST_CONSULTATION_ACTIONS]: taskList,
     };
-    
+
     // Return the next page URL or default to task list
     return taskSequence[currentPageName] || taskList;
 }
