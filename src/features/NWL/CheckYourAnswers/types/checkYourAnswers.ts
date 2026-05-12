@@ -48,26 +48,3 @@ export interface SummaryRow {
         }>;
     };
 }
-
-/**
- * Summary card for a section
- */
-export interface SummaryCard {
-    title: string;
-    rows: SummaryRow[];
-    actions?: {
-        items: Array<{
-            href: string;
-            text: string;
-        }>;
-    };
-}
-
-/**
- * Props for summary card components
- */
-export interface SummaryCardProps {
-    data: any;
-    applicationId: string;
-    onEdit?: (section: string) => void;
-}

@@ -69,7 +69,7 @@ export const formatList = (items: string[]): string => {
 export const createSummaryRow = (key: string, value: string, changeLink?: string, changeLinkText: string = 'Change'): SummaryRow => {
     const row: SummaryRow = {
         key: { text: key },
-        value: value.includes('<') ? { html: value } : { text: value },
+        value: value.includes('<') ? { text: '', html: value } : { text: value },
     };
 
     if (changeLink) {

@@ -10,6 +10,7 @@
  */
 
 export interface NWLCheckYourAnswersResponse {
+    applicationId: string;
     applicantDetails: any;
     applicationDetails: any;
     noticeCompliance: any;
@@ -35,10 +36,9 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    console.log('📦 Loading MOCK data for Check Your Answers, applicationId:', applicationId);
-
     // Return comprehensive mock data matching all wireframes
     return {
+        applicationId,
         applicantDetails: {
             applicant_name: 'ABC power networks',
             applicant_contact_name: 'Alex Smith',

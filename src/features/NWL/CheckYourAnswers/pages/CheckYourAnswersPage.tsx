@@ -73,7 +73,6 @@ export const CheckYourAnswersPage: React.FC = () => {
 
                 setLoading(false);
             } catch (error) {
-                console.error('Error loading Check Your Answers data:', error);
                 setLoading(false);
                 // Could set an error state here if needed
             }
@@ -90,7 +89,6 @@ export const CheckYourAnswersPage: React.FC = () => {
         }
         setSubmitting(true);
         // TODO: Submit logic
-        console.log('Submitting application:', applicationId);
     };
 
     if (loading) {

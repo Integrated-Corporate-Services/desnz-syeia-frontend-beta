@@ -12,6 +12,7 @@
  */
 
 export interface NWLCheckYourAnswersResponse {
+    applicationId: string;
     applicantDetails: any;
     applicationDetails: any;
     noticeCompliance: any;
@@ -44,6 +45,7 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
 
     // Transform API response to match expected structure if needed
     return {
+        applicationId,
         applicantDetails: data.sections?.applicantDetails || null,
         applicationDetails: data.sections?.applicationDetails || null,
         noticeCompliance: data.sections?.noticeCompliance || null,

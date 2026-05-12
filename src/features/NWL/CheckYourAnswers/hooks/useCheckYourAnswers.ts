@@ -27,7 +27,6 @@ export const useCheckYourAnswers = (applicationId: string): UseCheckYourAnswersR
             setData(result);
         } catch (err) {
             setError(err as Error);
-            console.error('Failed to fetch Check Your Answers data:', err);
         } finally {
             setLoading(false);
         }
