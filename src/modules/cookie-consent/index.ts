@@ -24,6 +24,9 @@ export {
   isMonitoringLoaded,
 } from './services';
 
+// ⚠️ TEMPORARY EXPORT - Remove when backend API is enabled
+export { useCookieConsentStore } from './store';
+
 export { readCookie, expireCookie, clearNonEssentialCookies, getCsrfToken } from './utils';
 
 export type {

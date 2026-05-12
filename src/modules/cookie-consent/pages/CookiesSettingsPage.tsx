@@ -28,7 +28,10 @@ export function CookiesSettingsPage() {
   useEffect(() => {
     consentApi.getCatalog()
       .then((data) => setCatalog(data.cookies))
-      .catch((err) => console.error('Failed to load cookie catalog:', err))
+      .catch(() => {
+        // Fallback handles errors gracefully, no user-facing error needed
+        setCatalog([]);
+      })
       .finally(() => setLoadingCatalog(false));
   }, []);
 
