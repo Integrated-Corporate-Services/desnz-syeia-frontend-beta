@@ -78,9 +78,26 @@ export const submitApplicationWithBankTransfer = async (
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      log.error('[submitApplicationWithBankTransfer] Submission failed:', errorData);
-      throw new Error(errorData.error || 'Failed to submit application with bank transfer');
+      const contentType = response.headers.get('content-type');
+      let errorMessage = 'Failed to submit application with bank transfer';
+      
+      if (contentType?.includes('application/json')) {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+        log.error('[submitApplicationWithBankTransfer] Submission failed:', errorData);
+      } else {
+        log.error('[submitApplicationWithBankTransfer] Non-JSON response:', {
+          status: response.status,
+          statusText: response.statusText,
+        });
+        if (response.status === 401) {
+          errorMessage = 'Session expired. Please log in again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access forbidden. Please try again.';
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
 
     log.info('[submitApplicationWithBankTransfer] Application submitted successfully');
