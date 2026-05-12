@@ -116,6 +116,9 @@ import PaymentAmountPage from '../features/Payments/pages/PaymentAmountPage';
 import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
+import BankTransferPaymentPage from '../features/Payments/pages/BankTransferPaymentPage';
+import BankTransferConfirmationPage from '../features/Payments/pages/BankTransferConfirmationPage';
+import BankTransferSuccessPage from '../features/Payments/pages/BankTransferSuccessPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
 import RouteMapOnlyPage from '../features/RouteMap/page/RouteMapOnlyPage';
@@ -251,6 +254,24 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/payment-method`,
         component: PaymentMethodPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/bank-transfer-payment`,
+        component: BankTransferPaymentPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/bank-transfer-confirmation`,
+        component: BankTransferConfirmationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/bank-transfer-success`,
+        component: BankTransferSuccessPage,
         auth: true,
         layout: true,
     },

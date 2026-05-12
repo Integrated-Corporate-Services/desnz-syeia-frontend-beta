@@ -48,6 +48,66 @@ export const createPayment = async (
   }
 };
 
+export const submitApplicationWithBankTransfer = async (
+  applicationId: string,
+  invoiceNumber: string,
+  transactionNumber: string,
+  amount: number,
+  userId?: string
+) => {
+  try {
+    log.debug('[submitApplicationWithBankTransfer] Submitting application', {
+      applicationId,
+      invoiceNumber,
+      transactionNumber
+    });
+
+    const payload = {
+      paymentMethod: 'bank_transfer',
+      invoiceNumber,
+      transactionNumber,
+      amount,
+      userId
+    };
+
+    const response = await fetch(`/backend/api/applications/${applicationId}/submit-with-bank-transfer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const contentType = response.headers.get('content-type');
+      let errorMessage = 'Failed to submit application with bank transfer';
+      
+      if (contentType?.includes('application/json')) {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+        log.error('[submitApplicationWithBankTransfer] Submission failed:', errorData);
+      } else {
+        log.error('[submitApplicationWithBankTransfer] Non-JSON response:', {
+          status: response.status,
+          statusText: response.statusText,
+        });
+        if (response.status === 401) {
+          errorMessage = 'Session expired. Please log in again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access forbidden. Please try again.';
+        }
+      }
+      
+      throw new Error(errorMessage);
+    }
+
+    log.info('[submitApplicationWithBankTransfer] Application submitted successfully');
+    return await response.json();
+  } catch (error) {
+    log.error('[submitApplicationWithBankTransfer] Error submitting application:', error);
+    throw error;
+  }
+};
+
 export const getPaymentStatus = async (applicationId: string, paymentId: string) => {
   try {
     log.debug('[getPaymentStatus] Fetching payment status', { applicationId, paymentId });
