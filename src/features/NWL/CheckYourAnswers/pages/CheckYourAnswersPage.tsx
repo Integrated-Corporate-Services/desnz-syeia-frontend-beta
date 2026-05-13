@@ -6,8 +6,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
+import { NWL_BASE_URL } from '../../../../constants/nwl';
 
 // Import data service
 import { fetchCheckYourAnswersData } from '../services';
@@ -29,6 +30,7 @@ import {
 
 export const CheckYourAnswersPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
+    const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -86,7 +88,8 @@ export const CheckYourAnswersPage: React.FC = () => {
             return;
         }
         setSubmitting(true);
-        // TODO: Submit logic
+        
+        navigate(`/frontend${NWL_BASE_URL}/${applicationId}/pay-and-submit`);
     };
 
     if (loading) {

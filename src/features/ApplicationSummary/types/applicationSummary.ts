@@ -14,6 +14,12 @@ export enum ApplicationStatus {
     WITHDRAWN = 'WITHDRAWN',
 }
 
+export interface ApplicationInfo {
+    desnzReference: string;
+    caseType: string;
+    applicationStatus: string;
+}
+
 export interface SummaryRow {
     key: {
         text: string;

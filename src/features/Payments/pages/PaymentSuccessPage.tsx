@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 
@@ -8,6 +9,8 @@ const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const applicationId = useGetApplicationId();
+  
+  const baseUrl = location.pathname.includes('/nwl/') ? `/frontend${NWL_BASE_URL}` : S37_BASE_URL;
   
   const { invoiceNumber, paymentId, reference, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
 
@@ -100,7 +103,7 @@ const PaymentSuccessPage: React.FC = () => {
 
             <div className="govuk-button-group">
               <Link
-                to={`${S37_BASE_URL}/${applicationId}/task-list`}
+                to={`${baseUrl}/${applicationId}/task-list`}
                 className="govuk-button govuk-button--secondary"
               >
                 Back to applications

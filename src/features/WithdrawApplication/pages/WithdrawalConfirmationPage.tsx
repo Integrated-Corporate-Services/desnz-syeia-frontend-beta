@@ -6,13 +6,15 @@ import { WithdrawApplicationBreadcrumbs } from '../components';
 
 import { formatDate, getCaseTypeLabel, getReasonLabel } from '../utils';
 
-interface WithdrawalConfirmationPageProps {
-    applicationType: 'NWL' | 'S37' | 'TLP';
-}
-
-export const WithdrawalConfirmationPage: React.FC<WithdrawalConfirmationPageProps> = ({ applicationType }) => {
+const WithdrawalConfirmationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const location = useLocation();
+
+    const applicationType: 'NWL' | 'S37' | 'TLP' = location.pathname.includes('/nwl/') 
+        ? 'NWL' 
+        : location.pathname.includes('/tlp/')
+        ? 'TLP'
+        : 'S37';
 
     const { desnzRef, withdrawalDate, reason } = (location.state as any) || {};
     
@@ -118,3 +120,5 @@ export const WithdrawalConfirmationPage: React.FC<WithdrawalConfirmationPageProp
         </div>
     );
 };
+
+export default WithdrawalConfirmationPage;

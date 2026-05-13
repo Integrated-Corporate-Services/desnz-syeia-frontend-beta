@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
 import { WithdrawalRequest } from '../types';
+import { getApplicationTypeFromLocation } from '../utils';
 
 import { submitWithdrawal, getWithdrawalReasons } from '../services';
 
@@ -11,13 +12,12 @@ import { WithdrawApplicationBreadcrumbs, WithdrawalWarning } from '../components
 
 import { validateWithdrawalForm, getRemainingCharacters } from '../utils';
 
-interface WithdrawApplicationPageProps {
-    applicationType: 'NWL' | 'S37' | 'TLP';
-}
-
-export const WithdrawApplicationPage: React.FC<WithdrawApplicationPageProps> = ({ applicationType }) => {
+const WithdrawApplicationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const applicationType = getApplicationTypeFromLocation(location);
 
     const [selectedReason, setSelectedReason] = useState<string>('');
     const [additionalComments, setAdditionalComments] = useState<string>('');
@@ -253,3 +253,5 @@ export const WithdrawApplicationPage: React.FC<WithdrawApplicationPageProps> = (
         </div>
     );
 };
+
+export default WithdrawApplicationPage;

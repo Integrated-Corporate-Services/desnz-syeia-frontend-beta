@@ -1,30 +1,31 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
-import { ApplicationSummaryData, PaymentStatus } from '../types';
+import { ApplicationInfo, PaymentStatus } from '../types';
+import { getApplicationTypeFromLocation } from '../utils';
 
 import { fetchApplicationSummary } from '../services';
+import { useCheckYourAnswersCards } from '../hooks';
 
 import {
     ApplicationSummaryBreadcrumbs,
+    ApplicationInfoSummaryCard,
     PaymentConfirmationPanel,
     PaymentDetailsSummary,
-    SummaryCard,
+    WithdrawButton,
 } from '../components';
 
-interface ApplicationSummaryPageProps {
-    applicationType: 'NWL' | 'S37' | 'TLP';
-}
-
-export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ applicationType }) => {
+const ApplicationSummaryPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
-    const navigate = useNavigate();
+    const location = useLocation();
+
+    const applicationType = getApplicationTypeFromLocation(location);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [summaryData, setSummaryData] = useState<ApplicationSummaryData | null>(null);
+    const [summaryData, setSummaryData] = useState<any>(null);
+
+    const { cards, loading: cardsLoading, error: cardsError } = useCheckYourAnswersCards(applicationType);
 
     useEffect(() => {
         if (!applicationId) {
@@ -51,17 +52,11 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
         loadData();
     }, [applicationId, applicationType]);
 
-    const handleWithdraw = () => {
-        if (!applicationId) return;
-        const withdrawUrl = CONSTANTS.ROUTES.WITHDRAW(applicationType, applicationId);
-        navigate(withdrawUrl);
-    };
-
     const handlePrint = () => {
         window.print();
     };
 
-    if (loading) {
+    if (loading || cardsLoading) {
         return (
             <div className="govuk-width-container">
                 <ApplicationSummaryBreadcrumbs applicationType={applicationType} applicationId={applicationId!} />
@@ -72,7 +67,7 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
         );
     }
 
-    if (error || !summaryData) {
+    if (error || cardsError || !summaryData || !cards) {
         return (
             <div className="govuk-width-container">
                 <ApplicationSummaryBreadcrumbs applicationType={applicationType} applicationId={applicationId!} />
@@ -82,7 +77,7 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
                             There is a problem
                         </h2>
                         <div className="govuk-error-summary__body">
-                            <p>{error || CONSTANTS.ERROR}</p>
+                            <p>{error || cardsError?.message || CONSTANTS.ERROR}</p>
                         </div>
                     </div>
                     <Link to={CONSTANTS.ROUTES.APPLICATIONS} className="govuk-button govuk-button--secondary">
@@ -94,6 +89,12 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
     }
 
     const isPaid = summaryData.payment.status === PaymentStatus.PAID;
+
+    const applicationInfo: ApplicationInfo = {
+        desnzReference: summaryData.desnzRef || 'N/A',
+        caseType: CONSTANTS.CASE_TYPES[applicationType] || applicationType,
+        applicationStatus: summaryData.statusLabel || 'Application submitted',
+    };
 
     return (
         <div className="govuk-width-container">
@@ -107,14 +108,16 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
                 />
 
                 <div className="govuk-grid-row govuk-!-margin-top-8">
-                    <div className="govuk-grid-column-two-thirds">
+                    <div className="govuk-grid-column-full">
+                        <ApplicationInfoSummaryCard applicationInfo={applicationInfo} />
+
                         <PaymentDetailsSummary
                             desnzRef={summaryData.desnzRef}
                             applicationType={summaryData.applicationType}
                             payment={summaryData.payment}
                         />
 
-                        <h2 className="govuk-heading-m">{CONSTANTS.WHAT_HAPPENS_NEXT.HEADING}</h2>
+                        <h2 className="govuk-heading-m govuk-!-margin-top-6">{CONSTANTS.WHAT_HAPPENS_NEXT.HEADING}</h2>
                         <p className="govuk-body">
                             {isPaid
                                 ? CONSTANTS.WHAT_HAPPENS_NEXT.PAYMENT_CONFIRMED
@@ -125,31 +128,100 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
                             <p className="govuk-body">{CONSTANTS.WHAT_HAPPENS_NEXT.WITHDRAW}</p>
                         )}
 
-                        <h2 className="govuk-heading-l govuk-!-margin-top-8">
-                            {CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}
-                        </h2>
-
-                        {summaryData.sections.map((section, index) => (
-                            <SummaryCard
-                                key={index}
-                                title={section.title}
-                                rows={section.rows}
-                                actions={section.actions}
-                                classes={section.classes}
+                        {summaryData.canWithdraw && (
+                            <WithdrawButton 
+                                applicationType={applicationType}
+                                applicationId={applicationId!}
                             />
-                        ))}
+                        )}
 
-                        <div className="govuk-button-group govuk-!-margin-top-6">
-                            {summaryData.canWithdraw && (
-                                <button
-                                    type="button"
-                                    className="govuk-button govuk-button--warning"
-                                    data-module="govuk-button"
-                                    onClick={handleWithdraw}
-                                >
-                                    {CONSTANTS.ACTIONS.WITHDRAW}
-                                </button>
-                            )}
+                        <h2 className="govuk-heading-l govuk-!-margin-top-8">Application details</h2>
+
+                        {summaryData.applicantDetails && cards.ApplicantDetails && (
+                            <cards.ApplicantDetails 
+                                data={summaryData.applicantDetails} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        {summaryData.applicationDetails && cards.ApplicationDetails && (
+                            <cards.ApplicationDetails 
+                                data={summaryData.applicationDetails} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        {summaryData.noticeCompliance && cards.NoticeCompliance && (
+                            <cards.NoticeCompliance 
+                                data={summaryData.noticeCompliance} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        {summaryData.occupierDetails && cards.OccupierDetails && (
+                            <cards.OccupierDetails 
+                                data={summaryData.occupierDetails} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        {summaryData.landownerDetails && cards.LandownerDetails && (
+                            <cards.LandownerDetails 
+                                data={summaryData.landownerDetails} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        {summaryData.representativeDetails && cards.RepresentativeDetails && (
+                            <cards.RepresentativeDetails 
+                                data={summaryData.representativeDetails} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        {summaryData.landDetails && cards.SiteAddress && (
+                            <cards.SiteAddress 
+                                data={summaryData.landDetails} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        {summaryData.landDetails && cards.LandLocation && (
+                            <cards.LandLocation 
+                                data={summaryData.landDetails} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        {summaryData.assets && Array.isArray(summaryData.assets) && cards.Assets && (
+                            summaryData.assets.map((asset: any, index: number) => (
+                                <cards.Assets 
+                                    key={asset.asset_id || index}
+                                    data={asset} 
+                                    index={index}
+                                    applicationId={applicationId!} 
+                                    canEdit={false} 
+                                />
+                            ))
+                        )}
+
+                        {summaryData.additionalInformation && cards.AdditionalInformation && (
+                            <cards.AdditionalInformation 
+                                data={summaryData.additionalInformation} 
+                                applicationId={applicationId!} 
+                                canEdit={false} 
+                            />
+                        )}
+
+                        <div className="govuk-button-group govuk-!-margin-top-8">
                             <button
                                 type="button"
                                 className="govuk-button govuk-button--secondary"
@@ -171,3 +243,5 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
         </div>
     );
 };
+
+export default ApplicationSummaryPage;
