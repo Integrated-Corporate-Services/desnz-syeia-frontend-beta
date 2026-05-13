@@ -19,12 +19,15 @@ export const WITHDRAWAL_CONSTANTS = {
         REASON_HINT: 'Select the reason that best describes why you are withdrawing this application.',
         REASON_ERROR: 'Select a reason for withdrawal',
         
+        COMMENTS_LABEL: 'Additional comments (optional)',
         COMMENTS_HINT: 'Provide any additional details about why you are withdrawing this application.',
         COMMENTS_MAXLENGTH: 1000,
         COMMENTS_REMAINING: (remaining: number) => `You have ${remaining} characters remaining`,
         
+        CONFIRMATION_LABEL: 'I confirm I want to withdraw this application',
         CONFIRMATION_ERROR: 'You must confirm you want to withdraw this application',
         
+        SUBMIT_BUTTON: 'Withdraw application',
         CANCEL_BUTTON: 'Cancel',
         SUBMITTING: 'Processing...',
     },
@@ -58,6 +61,7 @@ export const WITHDRAWAL_CONSTANTS = {
 
     CONFIRMATION_PAGE: {
         PANEL_TITLE: 'Application withdrawn',
+        HEADING: 'Withdrawal confirmation',
         WHAT_HAPPENS_NEXT: 'What happens next',
         NEXT_STEPS: 'Your application has been withdrawn. You will receive an email confirmation shortly.',
         NO_FURTHER_ACTION: 'No further action is required from you.',

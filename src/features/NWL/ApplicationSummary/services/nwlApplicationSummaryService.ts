@@ -1,3 +1,5 @@
+import { PaymentStatus } from '../../../ApplicationSummary/types';
+
 export interface NWLApplicationSummaryData {
     applicationId: string;
     desnzRef?: string;
@@ -12,7 +14,7 @@ export interface NWLApplicationSummaryData {
     additionalInformation: any;
     payment: {
         amount: number;
-        status: 'PAID' | 'PENDING' | 'FAILED';
+        status: PaymentStatus;
         paymentMethod?: 'CARD' | 'BANK_TRANSFER';
         paidDate?: string;
         invoiceNumber?: string;
@@ -50,7 +52,7 @@ export const fetchNWLApplicationSummary = async (
         additionalInformation: data.sections?.additionalInformation || null,
         payment: {
             amount: data.payment?.amount || 0,
-            status: data.payment?.status || 'PENDING',
+            status: data.payment?.status || PaymentStatus.PENDING,
             paymentMethod: data.payment?.method,
             paidDate: data.payment?.paid_date,
             invoiceNumber: data.payment?.invoice_number,
@@ -58,8 +60,7 @@ export const fetchNWLApplicationSummary = async (
         },
         permissions: {
             canWithdraw: data.permissions?.canWithdraw ?? true,
-            canEdit: false, // Submitted applications cannot be edited
-        },
+            canEdit: false,
         },
     };
 };

@@ -1,6 +1,7 @@
 export const APPLICATION_SUMMARY_CONSTANTS = {
     PAGE_TITLE: 'Application Summary',
     LOADING: 'Loading application summary...',
+    ERROR: 'Failed to load application summary',
     BREADCRUMBS: {
         HOME: 'Home',
         APPLICATIONS: 'My applications',

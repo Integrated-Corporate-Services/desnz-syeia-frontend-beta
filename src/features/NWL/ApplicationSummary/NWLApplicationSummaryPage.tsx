@@ -26,6 +26,7 @@ import {
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CYA_CONSTANTS } from '../CheckYourAnswers/constants';
 
 import { fetchNWLApplicationSummary, NWLApplicationSummaryData } from './services';
+import { PaymentStatus } from '../../ApplicationSummary/types';
 
 export const NWLApplicationSummaryPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -101,7 +102,7 @@ export const NWLApplicationSummaryPage: React.FC = () => {
         );
     }
 
-    const isPaid = summaryData.payment.status === 'PAID';
+    const isPaid = summaryData.payment.status === PaymentStatus.PAID;
 
     return (
         <div className="govuk-width-container">
@@ -133,18 +134,18 @@ export const NWLApplicationSummaryPage: React.FC = () => {
                             <p className="govuk-body">{CONSTANTS.WHAT_HAPPENS_NEXT.WITHDRAW}</p>
                         )}
 
-                        {/* APPLICATION SECTIONS - Same as Check Your Answers */}
+                        <h2 className="govuk-heading-l govuk-!-margin-top-8">
                             {CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}
                         </h2>
 
-                        {/* Applicant details */}
+                        <h3 className="govuk-heading-m">{CYA_CONSTANTS.SECTION_HEADINGS.APPLICANT_DETAILS}</h3>
                         <ApplicantDetailsSummaryCard
                             data={summaryData.applicantDetails}
                             applicationId={applicationId!}
                             canEdit={false}
                         />
 
-                        {/* Application details */}
+                        <h3 className="govuk-heading-m">{CYA_CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}</h3>
                         <NWLApplicationDetailsSummaryCard
                             data={summaryData.applicationDetails}
                             applicationId={applicationId!}
@@ -157,7 +158,7 @@ export const NWLApplicationSummaryPage: React.FC = () => {
                             canEdit={false}
                         />
 
-                        {/* Owner and/or occupier details */}
+                        <h3 className="govuk-heading-m">{CYA_CONSTANTS.SECTION_HEADINGS.OWNER_OCCUPIER_DETAILS}</h3>
                         <OccupierDetailsSummaryCard
                             data={summaryData.occupierDetails}
                             applicationId={applicationId!}
@@ -176,8 +177,8 @@ export const NWLApplicationSummaryPage: React.FC = () => {
                             canEdit={false}
                         />
 
-                        {/* Land details */}
                         <h3 className="govuk-heading-m">{CYA_CONSTANTS.SECTION_HEADINGS.LAND_DETAILS}</h3>
+                        <SiteAddressSummaryCard
                             data={summaryData.landDetails}
                             applicationId={applicationId!}
                             canEdit={false}
@@ -207,7 +208,7 @@ export const NWLApplicationSummaryPage: React.FC = () => {
                             canEdit={false}
                         />
 
-                        {/* Action buttons */}
+                        <div className="govuk-button-group govuk-!-margin-top-8">
                             {summaryData.permissions.canWithdraw && (
                                 <button
                                     type="button"

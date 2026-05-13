@@ -100,7 +100,7 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
             <ApplicationSummaryBreadcrumbs applicationType={applicationType} applicationId={applicationId!} />
             
             <main className="govuk-main-wrapper" id="main-content" role="main">
-                {/* Payment confirmation panel */}
+                <PaymentConfirmationPanel
                     desnzRef={summaryData.desnzRef}
                     applicationType={summaryData.applicationType}
                     payment={summaryData.payment}
@@ -108,13 +108,13 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
 
                 <div className="govuk-grid-row govuk-!-margin-top-8">
                     <div className="govuk-grid-column-two-thirds">
-                        {/* Payment details summary */}
+                        <PaymentDetailsSummary
                             desnzRef={summaryData.desnzRef}
                             applicationType={summaryData.applicationType}
                             payment={summaryData.payment}
                         />
 
-                        {/* What happens next */}
+                        <h2 className="govuk-heading-m">{CONSTANTS.WHAT_HAPPENS_NEXT.HEADING}</h2>
                         <p className="govuk-body">
                             {isPaid
                                 ? CONSTANTS.WHAT_HAPPENS_NEXT.PAYMENT_CONFIRMED
@@ -125,12 +125,12 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
                             <p className="govuk-body">{CONSTANTS.WHAT_HAPPENS_NEXT.WITHDRAW}</p>
                         )}
 
-                        {/* Application details section */}
                         <h2 className="govuk-heading-l govuk-!-margin-top-8">
+                            {CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}
                         </h2>
 
-                        {/* Render all summary cards */}
                         {summaryData.sections.map((section, index) => (
+                            <SummaryCard
                                 key={index}
                                 title={section.title}
                                 rows={section.rows}
@@ -139,8 +139,8 @@ export const ApplicationSummaryPage: React.FC<ApplicationSummaryPageProps> = ({ 
                             />
                         ))}
 
-                        {/* Action buttons */}
                         <div className="govuk-button-group govuk-!-margin-top-6">
+                            {summaryData.canWithdraw && (
                                 <button
                                     type="button"
                                     className="govuk-button govuk-button--warning"
