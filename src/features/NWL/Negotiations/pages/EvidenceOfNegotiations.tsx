@@ -57,7 +57,7 @@ const EvidenceOfNegotiations: React.FC = () => {
       await fileUploadRef.current.triggerUpload();
     }
 
-    if (!validateComments(comments, false)) {
+    if (!validateComments(comments, true)) {
       window.scrollTo(0, 0);
       return;
     }
@@ -98,6 +98,7 @@ const EvidenceOfNegotiations: React.FC = () => {
                 id="comments"
                 name="comments"
                 label={FORM_LABELS.ADDITIONAL_COMMENTS}
+                labelClassName="govuk-label govuk-label--m"
                 hint={CONTENT.EVIDENCE_INTRO}
                 value={comments}
                 error={errors.comments}
