@@ -389,7 +389,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               virtualFolder: uploadedFile.virtualFolder,
               addedBy: userId,
               addedAt: uploadedFile.uploadedAtTimestamp,
-              consultationId: consultationId || "", // Set if applicable
+              consultationId: consultationId || undefined, // Set if applicable
             };
             applicationDocuments.push(applicationDocument);
             
