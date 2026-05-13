@@ -810,25 +810,17 @@ const ProjectOverview = () => {
 								</div>
 								{formState.hasRelatedApplications === "true" && (
 									<div className="govuk-radios__conditional" id="hasRelatedApplications-hidden">
-										<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
-											<label className="govuk-label" htmlFor="relatedApplicationsDetails-inputValue">
-												{projectOverview.relatedApplicationsDetails}
-											</label>
-											<div className="govuk-hint" id="relatedApplicationsDetails-hint">
-												{projectOverview.relatedApplicationsDetailsHint}
-											</div>
-											{fieldErrors?.relatedApplicationsDetails && (
-												<p id="relatedApplicationsDetails-inputValue-error" className="govuk-error-message">
-													<span className="govuk-visually-hidden">Error:</span> {fieldErrors.relatedApplicationsDetails}
-												</p>
-											)}
-											<textarea
-												className={`govuk-textarea govuk-js-character-count${fieldErrors?.relatedApplicationsDetails ? " govuk-textarea--error" : ""}`}
+										<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
+											<TextArea
+												label={projectOverview.relatedApplicationsDetails}
 												id="relatedApplicationsDetails-inputValue"
 												name="relatedApplicationsDetails.inputValue"
-												rows={5}
-												maxLength={MAX_DESCRIPTION_LENGTH}
 												value={formState.relatedApplicationsDetails}
+												error={fieldErrors?.relatedApplicationsDetails}
+												maxLength={MAX_DESCRIPTION_LENGTH}
+												hint={projectOverview.relatedApplicationsDetailsHint}
+												infoId="relatedApplicationsDetails-inputValue-info"
+												remainingChars={remainingRelatedAppsChars}
 												onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
 													const val = e.target.value;
 													if (val.length <= MAX_DESCRIPTION_LENGTH) {
@@ -837,11 +829,7 @@ const ProjectOverview = () => {
 														setFormState(prev => ({ ...prev, relatedApplicationsDetails: val.slice(0, MAX_DESCRIPTION_LENGTH) }));
 													}
 												}}
-												aria-describedby={fieldErrors?.relatedApplicationsDetails ? "relatedApplicationsDetails-inputValue-error relatedApplicationsDetails-hint relatedApplicationsDetails-inputValue-info" : "relatedApplicationsDetails-hint relatedApplicationsDetails-inputValue-info"}
-											></textarea>
-											<div id="relatedApplicationsDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
-											<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
-											<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {remainingRelatedAppsChars} characters remaining</div>
+											/>
 										</div>
 									</div>
 								)}
@@ -870,28 +858,25 @@ const ProjectOverview = () => {
 							value: "true",
 							label: "Yes",
 							conditionalRender: (
-								<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
-									<label className="govuk-label" htmlFor="relatedCpoDetails-inputValue">
-										{projectOverview.relatedCpoDetails}
-									</label>
-									{fieldErrors?.relatedCpoDetails && (
-										<p id="relatedCpoDetails-inputValue-error" className="govuk-error-message">
-											<span className="govuk-visually-hidden">Error:</span> {fieldErrors.relatedCpoDetails}
-										</p>
-									)}
-									<textarea
-										className={`govuk-textarea govuk-js-character-count${fieldErrors?.relatedCpoDetails ? " govuk-textarea--error" : ""}`}
+								<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds">
+									<TextArea
+										label={projectOverview.relatedCpoDetails}
 										id="relatedCpoDetails-inputValue"
 										name="relatedCpoDetails.inputValue"
-										rows={5}
-										maxLength={MAX_DESCRIPTION_LENGTH}
 										value={relatedCpoDetailsStr}
-										onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }))}
-										aria-describedby={fieldErrors?.relatedCpoDetails ? "relatedCpoDetails-inputValue-error relatedCpoDetails-inputValue-info" : "relatedCpoDetails-inputValue-info"}
-									></textarea>
-									<div id="relatedCpoDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
-									<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You have {remainingCpoChars} characters remaining</div>
-									<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {remainingCpoChars} characters remaining</div>
+										error={fieldErrors?.relatedCpoDetails}
+										maxLength={MAX_DESCRIPTION_LENGTH}
+										infoId="relatedCpoDetails-inputValue-info"
+										remainingChars={remainingCpoChars}
+										onChange={(e) => {
+											const val = e.target.value;
+											if (val.length <= MAX_DESCRIPTION_LENGTH) {
+												setFormState(prev => ({ ...prev, relatedCpoDetails: val }));
+											} else {
+												setFormState(prev => ({ ...prev, relatedCpoDetails: val.slice(0, MAX_DESCRIPTION_LENGTH) }));
+											}
+										}}
+									/>
 								</div>
 							),
 						}, {
