@@ -64,7 +64,6 @@ const WithdrawApplicationPage: React.FC = () => {
                 },
             });
         } catch (err: any) {
-            console.error('Failed to submit withdrawal:', err);
             setErrors({ confirmation: err.message || CONSTANTS.ERROR });
             setSubmitting(false);
 

@@ -37,12 +37,6 @@ const handlePayByCard = async () => {
   setError('');
 
   try {
-    console.log('Creating payment with:', {
-      amount: totalAmount,
-      applicationId,
-      userId: user?.user_id
-    });
-
     // Store totalAmount in sessionStorage BEFORE navigating to GOV.UK Pay
     sessionStorage.setItem('totalAmount', totalAmount.toString());
 
@@ -79,12 +73,10 @@ const handlePayByCard = async () => {
       logger.info('Redirecting to GOV.UK Pay:', nextUrl);
       window.location.href = nextUrl;
     } else {
-      console.error('No redirect URL in response:', result);
       setError('No redirect URL received from payment service');
       setLoading(false);
     }
   } catch (err: any) {
-    console.error('Payment error:', err);
     setError(err.message || 'Failed to initiate payment');
     setLoading(false);
   }

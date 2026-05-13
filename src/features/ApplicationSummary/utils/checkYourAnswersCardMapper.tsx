@@ -34,7 +34,6 @@ export const getCheckYourAnswersCards = async (
 ): Promise<CheckYourAnswersCardsConfig | null> => {
     const loader = checkYourAnswersRegistry[applicationType];
     if (!loader) {
-        console.warn(`No CheckYourAnswers cards registered for ${applicationType}`);
         return null;
     }
     return await loader();

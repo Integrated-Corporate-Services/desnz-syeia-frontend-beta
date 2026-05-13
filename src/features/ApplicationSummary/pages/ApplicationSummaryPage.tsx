@@ -42,7 +42,6 @@ const ApplicationSummaryPage: React.FC = () => {
                 const data = await fetchApplicationSummary(applicationId, applicationType);
                 setSummaryData(data);
             } catch (err: any) {
-                console.error('Failed to load application summary:', err);
                 setError(err.message || CONSTANTS.ERROR);
             } finally {
                 setLoading(false);

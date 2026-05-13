@@ -35,7 +35,6 @@ const PaymentCallbackPage: React.FC = () => {
         });
         if (!response.ok) {
         const errorData = await response.json();
-        console.error('Payment verification failed:', errorData);
         throw new Error(errorData.error || `Failed to verify payment: ${response.statusText}`);
       }
 
@@ -78,7 +77,6 @@ const PaymentCallbackPage: React.FC = () => {
           setErrorMessage(`Unexpected payment status: ${paymentStatus}`);
         }
       } catch (error) {
-        console.error('Payment verification error:', error);
         setStatus('failed');
         setErrorMessage(error instanceof Error ? error.message : 'Failed to verify payment');
       }

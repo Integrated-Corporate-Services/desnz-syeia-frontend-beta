@@ -7,12 +7,10 @@ export const registerAllApplicationTypes = () => {
     });
 
     registerCheckYourAnswersCards('S37', async () => {
-        console.warn('S37 CheckYourAnswers cards not yet registered');
         return {} as any;
     });
 
     registerCheckYourAnswersCards('TLP', async () => {
-        console.warn('TLP CheckYourAnswers cards not yet registered');
         return {} as any;
     });
 };

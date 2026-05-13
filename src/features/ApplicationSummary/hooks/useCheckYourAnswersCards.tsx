@@ -13,7 +13,6 @@ export const useCheckYourAnswersCards = (applicationType: 'NWL' | 'S37' | 'TLP')
                 const loadedCards = await getCheckYourAnswersCards(applicationType);
                 setCards(loadedCards);
             } catch (err) {
-                console.error(`Failed to load CheckYourAnswers cards for ${applicationType}:`, err);
                 setError(err as Error);
             } finally {
                 setLoading(false);
