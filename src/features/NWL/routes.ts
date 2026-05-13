@@ -44,6 +44,8 @@ import {
 import { ApplicationDeleteConfirmationPage } from '../../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../../pages/ApplicationDeleteSuccessPage';
 import { CheckYourAnswersPage as NWLCheckYourAnswersPage } from './CheckYourAnswers';
+import { NWLApplicationSummaryPage } from './ApplicationSummary';
+import { NWLWithdrawApplicationPage, NWLWithdrawalConfirmationPage } from './Withdrawal';
 
 export const nwlObjectorDetailsRoutes = [
     {
@@ -426,6 +428,30 @@ export const nwlCheckYourAnswersRoutes = [
     },
 ];
 
+export const nwlApplicationSummaryRoutes = [
+    {
+        path: `${NWL_BASE_URL}/:applicationId/application-summary`,
+        component: NWLApplicationSummaryPage,
+        auth: true,
+        layout: true,
+    },
+];
+
+export const nwlWithdrawalRoutes = [
+    {
+        path: `${NWL_BASE_URL}/:applicationId/withdraw`,
+        component: NWLWithdrawApplicationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
+        component: NWLWithdrawalConfirmationPage,
+        auth: true,
+        layout: true,
+    },
+];
+
 export const nwlRoutes = [
     ...nwlWhoIsApplyingRoutes,
     ...nwlApplicantInfoRoutes,
@@ -441,5 +467,7 @@ export const nwlRoutes = [
     ...nwlApplicationStatementRoutes,
     ...nwlObjectorDetailsRoutes,
     ...nwlCheckYourAnswersRoutes,
+    ...nwlApplicationSummaryRoutes,
+    ...nwlWithdrawalRoutes,
     ...nwlDeleteRoutes,
 ];
