@@ -101,6 +101,12 @@ import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
+// Old S37 ApplicationSummary - keep for S37 backward compatibility
+import S37ApplicationSummary from '../features/CheckYourAnswers/pages/ApplicationSummary';
+// Old S37 WithdrawApplication - keep for S37 backward compatibility  
+import S37WithdrawApplicationPage from '../features/CheckYourAnswers/pages/WithdrawApplicationPage';
+import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
+// New modular ApplicationSummary - for NWL and future types
 import ApplicationSummary from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
 import WithdrawApplicationPage from '../features/WithdrawApplication/pages/WithdrawApplicationPage';
 import WithdrawalConfirmationPage from '../features/WithdrawApplication/pages/WithdrawalConfirmationPage';
@@ -491,6 +497,24 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/application-summary`,
+        component: ApplicationSummary,  // New modular component for NWL
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/withdraw`,
+        component: WithdrawApplicationPage,  // New modular component for NWL
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
+        component: WithdrawalConfirmationPage,  // New modular component for NWL
+        auth: true,
+        layout: true,
+    },
     ...nwlObjectorDetailsRoutes,
     ...nwlLandDetailsRoutes,
     ...nwlRoutes,
@@ -811,19 +835,19 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${S37_BASE_URL}/:applicationId/application-summary`,
-        component: ApplicationSummary,
+        component: S37ApplicationSummary,  // Use old proven S37 implementation
         auth: true,
         layout: true,
     },
     {
         path: `${S37_BASE_URL}/:applicationId/withdraw`,
-        component: WithdrawApplicationPage,
+        component: S37WithdrawApplicationPage,  // Use old proven S37 implementation
         auth: true,
         layout: true,
     },
     {
         path: `${S37_BASE_URL}/:applicationId/withdrawal-confirmation`,
-        component: WithdrawalConfirmationPage,
+        component: S37WithdrawalConfirmationPage,  // Use old proven S37 implementation
         auth: true,
         layout: true,
     },

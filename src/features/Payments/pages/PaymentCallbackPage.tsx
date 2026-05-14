@@ -17,6 +17,8 @@ const PaymentCallbackPage: React.FC = () => {
 
   useEffect(() => {
     const verifyPayment = async () => {
+      let detectedBaseUrl = S37_BASE_URL; // Default to S37
+      
       try {
         // Get payment details from URL and session
         const paymentId = searchParams.get('paymentId') || sessionStorage.getItem('paymentId');
@@ -37,8 +39,8 @@ const PaymentCallbackPage: React.FC = () => {
         try {
           const appDetails = await applicationApiService.fetchApplicationDetails(applicationId);
           const applicationType = appDetails.type;
-          const detectedBaseUrl = applicationType === 'NWL' ? NWL_BASE_URL : S37_BASE_URL;
-          setBaseUrl(detectedBaseUrl);
+          detectedBaseUrl = applicationType === 'NWL' ? NWL_BASE_URL : S37_BASE_URL;
+          setBaseUrl(detectedBaseUrl); // Update state for error handlers
           logger.info('Application type detected:', applicationType, 'baseUrl:', detectedBaseUrl);
         } catch (err) {
           logger.warn('Failed to fetch application type, defaulting to S37:', err);
@@ -69,9 +71,9 @@ const PaymentCallbackPage: React.FC = () => {
           sessionStorage.removeItem('invoiceNumber');
           sessionStorage.removeItem('totalAmount');
           
-          // Redirect to success page after 1 second (baseUrl already set from application type)
+          // Redirect to success page after 1 second using detected baseUrl
           setTimeout(() => {
-            navigate(`${baseUrl}/${applicationId}/payment-success`, {
+            navigate(`${detectedBaseUrl}/${applicationId}/payment-success`, {
               state: {
                 applicationId,
                 invoiceNumber,
