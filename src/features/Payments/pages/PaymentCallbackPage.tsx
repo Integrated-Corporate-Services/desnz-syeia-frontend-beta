@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';import { createLogger } from '../../../utils/logger';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { createLogger } from '../../../utils/logger';
 
-const logger = createLogger('PaymentCallbackPage');import { S37_BASE_URL } from '../../../constants/s37';
+const logger = createLogger('PaymentCallbackPage');
+
+import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { applicationApiService } from '../../../services/applicationApiService';
 
 const PaymentCallbackPage: React.FC = () => {
@@ -9,6 +13,7 @@ const PaymentCallbackPage: React.FC = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'failed' | 'cancelled'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  const [baseUrl, setBaseUrl] = useState(S37_BASE_URL);
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -26,6 +31,17 @@ const PaymentCallbackPage: React.FC = () => {
           setStatus('failed');
           setErrorMessage('Missing payment or application information');
           return;
+        }
+
+        // Fetch application type to determine correct base URL
+        try {
+          const appDetails = await applicationApiService.fetchApplicationDetails(applicationId);
+          const applicationType = appDetails.type;
+          const detectedBaseUrl = applicationType === 'NWL' ? NWL_BASE_URL : S37_BASE_URL;
+          setBaseUrl(detectedBaseUrl);
+          logger.info('Application type detected:', applicationType, 'baseUrl:', detectedBaseUrl);
+        } catch (err) {
+          logger.warn('Failed to fetch application type, defaulting to S37:', err);
         }
 
         // Call backend to verify payment status
@@ -53,9 +69,9 @@ const PaymentCallbackPage: React.FC = () => {
           sessionStorage.removeItem('invoiceNumber');
           sessionStorage.removeItem('totalAmount');
           
-          // Redirect to success page after 2 seconds
+          // Redirect to success page after 1 second (baseUrl already set from application type)
           setTimeout(() => {
-            navigate(`${S37_BASE_URL}/${applicationId}/payment-success`, {
+            navigate(`${baseUrl}/${applicationId}/payment-success`, {
               state: {
                 applicationId,
                 invoiceNumber,
@@ -89,7 +105,7 @@ const PaymentCallbackPage: React.FC = () => {
   const handleTryAgain = () => {
     const applicationId = sessionStorage.getItem('applicationId');
     if (applicationId) {
-      navigate(`${S37_BASE_URL}/${applicationId}/payment-method`);
+      navigate(`${baseUrl}/${applicationId}/payment-method`);
     } else {
       navigate('/workbasket');
     }
@@ -98,7 +114,7 @@ const PaymentCallbackPage: React.FC = () => {
   const handleBackToTaskList = () => {
     const applicationId = sessionStorage.getItem('applicationId');
     if (applicationId) {
-      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+      navigate(`${baseUrl}/${applicationId}/task-list`);
     } else {
       navigate('/workbasket');
     }

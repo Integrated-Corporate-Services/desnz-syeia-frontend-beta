@@ -96,8 +96,9 @@ const PaymentSuccessPage: React.FC = () => {
               You will receive an email to confirm your application has been submitted.
             </p>
             <p className="govuk-body">
-              You Overhead Lines (Section 37) will contact you in due course with<br/>
-              any follow up actions.
+              {baseUrl === NWL_BASE_URL 
+                ? 'The wayleave team will contact you in due course with any follow up actions.'
+                : 'The Overhead Lines (Section 37) team will contact you in due course with any follow up actions.'}
             </p>
 
             <div className="govuk-button-group">
