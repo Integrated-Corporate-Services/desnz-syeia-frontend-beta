@@ -15,7 +15,7 @@ const PaymentAmountPage: React.FC = () => {
   const [error, setError] = useState('');
   const assets = useAssetStore((state) => state.assets);
   
-  const baseUrl = location.pathname.includes('/nwl/') ? `/frontend${NWL_BASE_URL}` : S37_BASE_URL;
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   // Dynamic payment breakdown - fetched from backend
   const [consentFee, setConsentFee] = useState(0);

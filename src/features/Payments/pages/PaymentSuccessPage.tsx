@@ -10,7 +10,7 @@ const PaymentSuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const applicationId = useGetApplicationId();
   
-  const baseUrl = location.pathname.includes('/nwl/') ? `/frontend${NWL_BASE_URL}` : S37_BASE_URL;
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
   
   const { invoiceNumber, paymentId, reference, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
 

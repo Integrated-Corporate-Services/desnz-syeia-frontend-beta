@@ -17,7 +17,7 @@ const InvoiceGenerationPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const baseUrl = location.pathname.includes('/nwl/') ? `/frontend${NWL_BASE_URL}` : S37_BASE_URL;
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   // Get payment amounts from location state (passed from PaymentAmountPage)
   const { 

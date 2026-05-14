@@ -19,7 +19,7 @@ const PaymentMethodPage: React.FC = () => {
   const [error, setError] = useState('');
   const [showBankTransfer, setShowBankTransfer] = useState(false);
   
-  const baseUrl = location.pathname.includes('/nwl/') ? `/frontend${NWL_BASE_URL}` : S37_BASE_URL;
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const { invoiceNumber, totalAmount, consentFee, eiaScreeningFee } = location.state || {};
 

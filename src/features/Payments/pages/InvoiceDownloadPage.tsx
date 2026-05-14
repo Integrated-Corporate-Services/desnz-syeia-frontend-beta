@@ -13,7 +13,7 @@ const InvoiceDownloadPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const baseUrl = location.pathname.includes('/nwl/') ? `/frontend${NWL_BASE_URL}` : S37_BASE_URL;
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const { invoiceNumber, s3Key, consentFee, eiaScreeningFee, totalAmount } = location.state || {};
 
