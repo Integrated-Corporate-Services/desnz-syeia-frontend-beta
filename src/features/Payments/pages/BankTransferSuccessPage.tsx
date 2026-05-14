@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { BANK_DETAILS, BANK_TRANSFER_SUCCESS_PAGE, PAYMENT_BUTTON_LABELS, formatCurrency } from '../../../constants/payment';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 
@@ -49,20 +50,20 @@ const BankTransferSuccessPage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-s" style={{ marginBottom: '10px', fontSize: '24px' }}>
-              Application status
+              {BANK_TRANSFER_SUCCESS_PAGE.PAGE_HEADING}
             </h1>
             <div className="govuk-panel govuk-panel--confirmation">
-              <h1 className="govuk-panel__title">Application submitted</h1>
+              <h1 className="govuk-panel__title">{BANK_TRANSFER_SUCCESS_PAGE.PANEL_TITLE}</h1>
               <div className="govuk-panel__body">
-                Your application number is
+                {BANK_TRANSFER_SUCCESS_PAGE.APPLICATION_NUMBER_TEXT}
                 <br />
-                <strong>{loading ? 'Loading...' : desnz_ref || 'N/A'}</strong>
+                <strong>{loading ? BANK_TRANSFER_SUCCESS_PAGE.LOADING_TEXT : desnz_ref || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT}</strong>
               </div>
             </div>
 
             {error && (
               <div className="govuk-error-summary" role="alert">
-                <h2 className="govuk-error-summary__title">Warning</h2>
+                <h2 className="govuk-error-summary__title">{BANK_TRANSFER_SUCCESS_PAGE.ERROR_HEADING}</h2>
                 <div className="govuk-error-summary__body">
                   <p>{error}</p>
                 </div>
@@ -70,7 +71,7 @@ const BankTransferSuccessPage: React.FC = () => {
             )}
 
             <p className="govuk-body">
-              This application has been submitted and can no longer be edited or deleted.
+              {BANK_TRANSFER_SUCCESS_PAGE.SUBMISSION_CONFIRMATION}
             </p>
 
             <div className="govuk-warning-text">
@@ -78,75 +79,73 @@ const BankTransferSuccessPage: React.FC = () => {
                 !
               </span>
               <strong className="govuk-warning-text__text">
-                <span className="govuk-warning-text__assistive">Warning</span>
-                Please note that
+                <span className="govuk-warning-text__assistive">{BANK_TRANSFER_SUCCESS_PAGE.ERROR_HEADING}</span>
+                {BANK_TRANSFER_SUCCESS_PAGE.WARNING_HEADING}
               </strong>
             </div>
 
             <ul className="govuk-list govuk-list--bullet">
-              <li>Your application has been submitted</li>
-              <li>Your payment has not been received yet</li>
+              <li>{BANK_TRANSFER_SUCCESS_PAGE.WARNING_ITEMS.APPLICATION_SUBMITTED}</li>
+              <li>{BANK_TRANSFER_SUCCESS_PAGE.WARNING_ITEMS.PAYMENT_NOT_RECEIVED}</li>
             </ul>
 
             <p className="govuk-body">
-              You still need to complete your payment by bank transfer.
+              {BANK_TRANSFER_SUCCESS_PAGE.PAYMENT_REQUIRED}
             </p>
 
             <p className="govuk-body">
-              We will start processing your application but we cannot deliver a decision until we
-              receive your payment.
+              {BANK_TRANSFER_SUCCESS_PAGE.PROCESSING_INFO}
             </p>
 
-            <h2 className="govuk-heading-m">What to do next</h2>
+            <h2 className="govuk-heading-m">{BANK_TRANSFER_SUCCESS_PAGE.WHAT_TO_DO_NEXT_HEADING}</h2>
 
             <p className="govuk-body">
-              If you haven't paid yet, you must make your payment into this bank account:
+              {BANK_TRANSFER_SUCCESS_PAGE.PAYMENT_INSTRUCTION}
             </p>
 
             <div className="govuk-inset-text">
               <dl className="govuk-summary-list">
                 <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Account name</dt>
+                  <dt className="govuk-summary-list__key">{BANK_TRANSFER_SUCCESS_PAGE.BANK_DETAILS_LABELS.ACCOUNT_NAME}</dt>
                   <dd className="govuk-summary-list__value">
-                    Department for Energy Security and Net Zero
+                    {BANK_DETAILS.ACCOUNT_NAME}
                   </dd>
                 </div>
                 <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Sort code</dt>
-                  <dd className="govuk-summary-list__value">60-70-80</dd>
+                  <dt className="govuk-summary-list__key">{BANK_TRANSFER_SUCCESS_PAGE.BANK_DETAILS_LABELS.SORT_CODE}</dt>
+                  <dd className="govuk-summary-list__value">{BANK_DETAILS.SORT_CODE}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Account number</dt>
-                  <dd className="govuk-summary-list__value">10033769</dd>
+                  <dt className="govuk-summary-list__key">{BANK_TRANSFER_SUCCESS_PAGE.BANK_DETAILS_LABELS.ACCOUNT_NUMBER}</dt>
+                  <dd className="govuk-summary-list__value">{BANK_DETAILS.ACCOUNT_NUMBER}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Payment reference</dt>
+                  <dt className="govuk-summary-list__key">{BANK_TRANSFER_SUCCESS_PAGE.BANK_DETAILS_LABELS.PAYMENT_REFERENCE}</dt>
                   <dd className="govuk-summary-list__value">
-                    <strong>{invoiceNumber || 'N/A'}</strong>
+                    <strong>{invoiceNumber || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT}</strong>
                   </dd>
                 </div>
                 <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Amount</dt>
+                  <dt className="govuk-summary-list__key">{BANK_TRANSFER_SUCCESS_PAGE.BANK_DETAILS_LABELS.AMOUNT}</dt>
                   <dd className="govuk-summary-list__value">
-                    <strong>£{totalAmount?.toFixed(2) || '0.00'}</strong>
+                    <strong>{totalAmount ? formatCurrency(totalAmount) : formatCurrency(0)}</strong>
                   </dd>
                 </div>
               </dl>
             </div>
 
             <p className="govuk-body">
-              <strong>You must use your invoice number as the payment reference</strong> to help us
-              match your payment to this application.
+              <strong>{BANK_TRANSFER_SUCCESS_PAGE.PAYMENT_REFERENCE_INSTRUCTION}</strong> {BANK_TRANSFER_SUCCESS_PAGE.PAYMENT_REFERENCE_HELP}
             </p>
 
-            <h2 className="govuk-heading-m">What happens next</h2>
+            <h2 className="govuk-heading-m">{BANK_TRANSFER_SUCCESS_PAGE.WHAT_HAPPENS_NEXT_HEADING}</h2>
             <p className="govuk-body">
-              You will receive an email to confirm your application has been submitted.
+              {BANK_TRANSFER_SUCCESS_PAGE.EMAIL_CONFIRMATION}
             </p>
             <p className="govuk-body">
-              Your Overhead Lines (Section 37) will contact you in due course with
+              {BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO}
               <br />
-              any follow up actions.
+              {BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_ACTIONS}
             </p>
 
             <div className="govuk-button-group govuk-!-margin-top-6">
@@ -155,7 +154,7 @@ const BankTransferSuccessPage: React.FC = () => {
                 className="govuk-button"
                 data-module="govuk-button"
               >
-                Back to applications
+                {PAYMENT_BUTTON_LABELS.BACK_TO_APPLICATIONS}
               </Link>
               <button
                 type="button"
@@ -163,7 +162,7 @@ const BankTransferSuccessPage: React.FC = () => {
                 data-module="govuk-button"
                 onClick={handleGoToSummary}
               >
-                Go to Application summary
+                {PAYMENT_BUTTON_LABELS.GO_TO_SUMMARY}
               </button>
             </div>
           </div>

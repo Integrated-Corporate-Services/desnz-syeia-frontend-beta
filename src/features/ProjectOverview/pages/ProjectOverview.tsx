@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStore } from '../../../store/useProjectStore';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from "../../../constants/content";
+import { EMPTY_PROJECT_OVERVIEW } from "../../../constants/projectOverview";
 import { Link } from "react-router-dom";
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
@@ -23,33 +24,10 @@ import { useRef } from "react";
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
-const emptyProjectOverview: ProjectOverviewModel = {
-	applicationFormId: "",
-	projectName: "",
-	projectDescription: "",
-	tallestPoleHeight: "",
-	planReference: "",
-	areWorkStartDatesKnown: "",
-	earliestWorkStartDateMonth: "",
-	earliestWorkStartDateYear: "",
-	latestWorkStartDateMonth: "",
-	latestWorkStartDateYear: "",
-	hasRelatedApplications: "",
-	relatedApplicationsDetails: "",
-	hasRelatedCpo: "",
-	relatedCpoDetails: "",
-	eipDetails: "",
-	uploadedFiles: [],
-	applicationDocuments: [],
-	projectId: "",
-	applicationId: "",
-	createdBy: "",
-};
-
 const ProjectOverview = () => {
 	const params = useParams();
 	const navigate = useNavigate();
-	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
+	const [formState, setFormState] = useState<ProjectOverviewModel>(EMPTY_PROJECT_OVERVIEW);
 	const fileUploadRef = useRef<FileUploadHandle>(null);
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 	
@@ -82,7 +60,7 @@ const ProjectOverview = () => {
 
 	// Clear form state when applicationId changes
 	useEffect(() => {
-		setFormState(emptyProjectOverview);
+		setFormState(EMPTY_PROJECT_OVERVIEW);
 	}, [applicationId]);
 
 	// Fetch project overview on mount
