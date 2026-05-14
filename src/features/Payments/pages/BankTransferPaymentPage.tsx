@@ -2,19 +2,28 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { useAuthUser } from '../../../hooks/useAuthUser';
+import { submitApplicationWithBankTransfer } from '../../../services/govPayService';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('BankTransferPaymentPage');
 
 const BankTransferPaymentPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const applicationId = useGetApplicationId();
+  const { user } = useAuthUser();
+  const [transactionNumber, setTransactionNumber] = useState('');
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { invoiceNumber, totalAmount } = location.state || {};
 
-  const handleContinue = () => {
-    if (!isChecked) {
-      setError('You must confirm you want to pay by bank transfer');
+  const handleSubmit = async () => {
+    // Validation
+    if (!transactionNumber.trim()) {
+      setError('You must provide the transaction number');
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) errorSummary.scrollIntoView();
@@ -22,10 +31,48 @@ const BankTransferPaymentPage: React.FC = () => {
       return;
     }
 
-    // Navigate to confirmation page
-    navigate(`${S37_BASE_URL}/${applicationId}/bank-transfer-confirmation`, {
-      state: { invoiceNumber, totalAmount }
-    });
+    if (!isChecked) {
+      setError('You must confirm you have made the payment');
+      setTimeout(() => {
+        const errorSummary = document.querySelector('.govuk-error-summary');
+        if (errorSummary) errorSummary.scrollIntoView();
+      }, 0);
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      logger.info('Submitting application with bank transfer', {
+        applicationId,
+        invoiceNumber,
+        transactionNumber
+      });
+
+      const result = await submitApplicationWithBankTransfer(
+        applicationId,
+        invoiceNumber,
+        transactionNumber,
+        totalAmount,
+        user?.user_id
+      );
+
+      logger.info('Application submitted successfully:', result);
+
+      // Navigate to success page
+      navigate(`${S37_BASE_URL}/${applicationId}/bank-transfer-success`, {
+        state: {
+          invoiceNumber,
+          totalAmount,
+          desnz_ref: result.desnz_ref || result.desnzReference
+        }
+      });
+    } catch (err: any) {
+      logger.error('Failed to submit application:', err);
+      setError(err.message || 'Failed to submit application');
+      setLoading(false);
+    }
   };
 
   const handleBackToTaskList = () => {
@@ -103,7 +150,34 @@ const BankTransferPaymentPage: React.FC = () => {
               <strong>You must use your invoice number as the payment reference</strong> to help us match your payment to this application.
             </p>
 
-            <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
+            <p className="govuk-body">
+              At this point, we expect you have completed the bank transfer. Please provide the transaction number provided via bank transfer that you have completed for the payment of this application.
+            </p>
+
+            <div className={`govuk-form-group ${error && !transactionNumber.trim() ? 'govuk-form-group--error' : ''}`}>
+              <label className="govuk-label govuk-label--m" htmlFor="transaction-number">
+                Transaction number
+              </label>
+              {error && !transactionNumber.trim() && (
+                <p id="transaction-number-error" className="govuk-error-message">
+                  <span className="govuk-visually-hidden">Error:</span> {error}
+                </p>
+              )}
+              <input
+                className={`govuk-input ${error && !transactionNumber.trim() ? 'govuk-input--error' : ''}`}
+                id="transaction-number"
+                name="transaction-number"
+                type="text"
+                value={transactionNumber}
+                onChange={(e) => {
+                  setTransactionNumber(e.target.value);
+                  setError('');
+                }}
+                aria-describedby={error && !transactionNumber.trim() ? 'transaction-number-error' : undefined}
+              />
+            </div>
+
+            <div className={`govuk-form-group ${error && transactionNumber.trim() && !isChecked ? 'govuk-form-group--error' : ''}`}>
               <fieldset className="govuk-fieldset">
                 <div className="govuk-checkboxes" data-module="govuk-checkboxes">
                   <div className="govuk-checkboxes__item">
@@ -119,7 +193,7 @@ const BankTransferPaymentPage: React.FC = () => {
                       }}
                     />
                     <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-bank-transfer">
-                      I confirm I want to pay by bank transfer
+                      I confirm I have made the payment with above details
                     </label>
                   </div>
                 </div>
@@ -131,15 +205,17 @@ const BankTransferPaymentPage: React.FC = () => {
                 type="button"
                 className="govuk-button"
                 data-module="govuk-button"
-                onClick={handleContinue}
+                onClick={handleSubmit}
+                disabled={loading}
               >
-                Pay by bank transfer
+                {loading ? 'Submitting...' : 'Submit application'}
               </button>
               <button
                 type="button"
                 className="govuk-button govuk-button--secondary"
                 data-module="govuk-button"
                 onClick={handleBackToTaskList}
+                disabled={loading}
               >
                 Back to task list
               </button>

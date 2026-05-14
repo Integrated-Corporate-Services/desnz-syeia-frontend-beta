@@ -117,7 +117,6 @@ import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationP
 import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
 import BankTransferPaymentPage from '../features/Payments/pages/BankTransferPaymentPage';
-import BankTransferConfirmationPage from '../features/Payments/pages/BankTransferConfirmationPage';
 import BankTransferSuccessPage from '../features/Payments/pages/BankTransferSuccessPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
@@ -260,12 +259,6 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/bank-transfer-payment`,
         component: BankTransferPaymentPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${S37_BASE_URL}/:applicationId/bank-transfer-confirmation`,
-        component: BankTransferConfirmationPage,
         auth: true,
         layout: true,
     },
