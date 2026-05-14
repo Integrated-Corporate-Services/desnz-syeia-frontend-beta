@@ -154,7 +154,7 @@ const PaymentAmountPage: React.FC = () => {
                 {/* Base consent fee */}
                 <tr className="govuk-table__row">
                   <td className="govuk-table__cell"><strong>
-                    {feeBreakdown?.baseDescription || 'Overhead Lines (Section 37): Consent Application'}
+                    {feeBreakdown?.baseDescription || (baseUrl === NWL_BASE_URL ? 'Application for a necessary wayleave' : 'Overhead Lines (Section 37): Consent Application')}
                   </strong></td>
                   <td className="govuk-table__cell govuk-table__cell--numeric">£{consentFee.toFixed(2)}</td>
                 </tr>
