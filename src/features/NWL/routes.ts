@@ -44,6 +44,14 @@ import {
 import { ApplicationDeleteConfirmationPage } from '../../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../../pages/ApplicationDeleteSuccessPage';
 import { CheckYourAnswersPage as NWLCheckYourAnswersPage } from './CheckYourAnswers';
+import PaymentAmountPage from '../Payments/pages/PaymentAmountPage';
+import InvoiceGenerationPage from '../Payments/pages/InvoiceGenerationPage';
+import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
+import PaymentMethodPage from '../Payments/pages/PaymentMethodPage';
+import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
+import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
+import WithdrawApplicationPage from '../WithdrawApplication/pages/WithdrawApplicationPage';
+import WithdrawalConfirmationPage from '../WithdrawApplication/pages/WithdrawalConfirmationPage';
 
 export const nwlObjectorDetailsRoutes = [
     {
@@ -426,6 +434,63 @@ export const nwlCheckYourAnswersRoutes = [
     },
 ];
 
+export const nwlApplicationSummaryRoutes = [
+    {
+        path: `${NWL_BASE_URL}/:applicationId/application-summary`,
+        component: ApplicationSummaryPage,
+        auth: true,
+        layout: true,
+    },
+];
+
+export const nwlWithdrawalRoutes = [
+    {
+        path: `${NWL_BASE_URL}/:applicationId/withdraw`,
+        component: WithdrawApplicationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
+        component: WithdrawalConfirmationPage,
+        auth: true,
+        layout: true,
+    },
+];
+
+export const nwlPaymentRoutes = [
+    {
+        path: `${NWL_BASE_URL}/:applicationId/pay-and-submit`,
+        component: PaymentAmountPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/generate-invoice`,
+        component: InvoiceGenerationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/invoice-download`,
+        component: InvoiceDownloadPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/payment-method`,
+        component: PaymentMethodPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/payment-success`,
+        component: PaymentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+];
+
 export const nwlRoutes = [
     ...nwlWhoIsApplyingRoutes,
     ...nwlApplicantInfoRoutes,
@@ -441,5 +506,8 @@ export const nwlRoutes = [
     ...nwlApplicationStatementRoutes,
     ...nwlObjectorDetailsRoutes,
     ...nwlCheckYourAnswersRoutes,
+    ...nwlApplicationSummaryRoutes,
+    ...nwlWithdrawalRoutes,
+    ...nwlPaymentRoutes,
     ...nwlDeleteRoutes,
 ];

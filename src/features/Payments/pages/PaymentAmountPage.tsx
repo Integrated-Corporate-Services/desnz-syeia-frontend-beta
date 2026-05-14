@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { useAssetStore } from '../../../store/useAssetStore';
 
 const PaymentAmountPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const assets = useAssetStore((state) => state.assets);
+  
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   // Dynamic payment breakdown - fetched from backend
   const [consentFee, setConsentFee] = useState(0);
@@ -74,8 +78,7 @@ const PaymentAmountPage: React.FC = () => {
   }, [applicationId]);
 
   const handleGenerateInvoice = async () => {
-    // Navigate to invoice generation page with dynamic fees
-    navigate(`${S37_BASE_URL}/${applicationId}/generate-invoice`, {
+    navigate(`${baseUrl}/${applicationId}/generate-invoice`, {
       state: {
         consentFee,
         screeningFee,
@@ -106,7 +109,7 @@ const PaymentAmountPage: React.FC = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
                 Task list
               </Link>
             </li>
@@ -151,7 +154,7 @@ const PaymentAmountPage: React.FC = () => {
                 {/* Base consent fee */}
                 <tr className="govuk-table__row">
                   <td className="govuk-table__cell"><strong>
-                    {feeBreakdown?.baseDescription || 'Overhead Lines (Section 37): Consent Application'}
+                    {feeBreakdown?.baseDescription || (baseUrl === NWL_BASE_URL ? 'Application for a necessary wayleave' : 'Overhead Lines (Section 37): Consent Application')}
                   </strong></td>
                   <td className="govuk-table__cell govuk-table__cell--numeric">£{consentFee.toFixed(2)}</td>
                 </tr>
@@ -203,7 +206,7 @@ const PaymentAmountPage: React.FC = () => {
                 Generate Invoice
               </button>
               <Link
-                to={`${S37_BASE_URL}/${applicationId}/task-list`}
+                to={`${baseUrl}/${applicationId}/task-list`}
                 className="govuk-button govuk-button--secondary"
               >
                 Back to task list
