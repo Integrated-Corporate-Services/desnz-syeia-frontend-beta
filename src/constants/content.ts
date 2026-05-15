@@ -24,12 +24,10 @@ export const CONTENT = {
     planInformationDocuments: "Plan information documents",
     planDetailsSummary: "What information should be included in the plan",
     planDetailsText: "Upload a plan which clearly shows the proposed overhead line and where it connects to the network. Please ensure that the line you are applying for is shown in a different colour to the rest of the network.",
-    relatedApplications: "Have you submitted any other applications on EIP related to this project of work?",
-    relatedApplicationsHint: "Only applications that have been provided a Distributed Network Operator reference and are for the same Distributed Network Operator can be associated with this application.",
-    relatedApplicationsTable: "Related applications",
-    relatedApplicationsActions: "Actions",
-    relatedApplicationsNone: "No items have been added yet.",
-    relatedApplicationsSearch: "Search for Section 37 and Wayleave applications by the developer or network operator reference",
+    relatedApplications: "Are there any other SYEIA applications related to this one?",
+    relatedApplicationsHint: "Related applications would include those related to a CPO or another S37 application that shares the same consultation or environmental report.",
+    relatedApplicationsDetails: "Provide details of all related applications",
+    relatedApplicationsDetailsHint: "Include application details such as DESNZ reference numbers, your internal references or site addresses. Ensure you list all related applications and explain why they are related.",
     relatedCpo: "Have you submitted a CPO which is related to this project of work?",
     relatedCpoDetails: "Provide the details of the related CPO",
     saveAndContinue: "Save and continue",
@@ -41,6 +39,10 @@ export const CONTENT = {
   },
   footer: {
     links: [
+      {
+        text: "Cookies",
+        href: "/cookies",
+      },
       {
         text: "Accessibility statement",
         href: "/public/accessibility-statement",

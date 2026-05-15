@@ -7,6 +7,7 @@ import "./App.css";
 import App from "./App";
 import React from "react";
 import axios from "axios";
+import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 
 // Configure axios to send cookies with requests (required for session auth)
 // Use empty string for relative paths (same-origin requests)
@@ -22,10 +23,12 @@ declare global {
   }
 }
 
-// IMPORTANT: StrictMode disabled to prevent double-mounting
-// which can interfere with session timeout tracking and cause false activity resets.
-// StrictMode causes components to mount->unmount->remount in dev, which can trigger
-// focus events and other side effects that reset the idle timer.
+const handleConsentChange: ConsentChangeCallback = (prefs, source) => {
+  console.log('[Consent]', source, prefs);
+};
+
 createRoot(document.getElementById("root")!).render(
-  <App />
+  <CookieConsentProvider onConsentChange={handleConsentChange}>
+    <App />
+  </CookieConsentProvider>
 );

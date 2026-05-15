@@ -10,6 +10,7 @@ import TextArea from '../component/TextArea';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 const initialState = {
   addingOrReplacingPoles: '',
@@ -231,7 +232,9 @@ const WorksOverview: React.FC = () => {
       } else {
         await createWorksOverview(payload);
       }
-  navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
+      // Navigate to the next page in the task list sequence
+      const nextPageUrl = getNextPageUrl(TASK_NAMES.WORKS_OVERVIEW, effectiveApplicationId);
+      navigate(nextPageUrl);
     } catch (err: unknown) {
       let errorMsg = ASSET_ERROR_MESSAGES.generalCommentsFailed;
       if (err && typeof err === 'object' && 'message' in err && typeof (err as { message?: unknown }).message === 'string') {

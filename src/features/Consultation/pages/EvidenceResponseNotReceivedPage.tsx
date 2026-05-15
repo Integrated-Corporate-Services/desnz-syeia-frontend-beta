@@ -186,6 +186,10 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 newlyUploadedFiles = result.uploadedFiles;
                 newlyUploadedDocuments = result.applicationDocuments;
                 logger.info('[EvidenceResponseNotReceivedPage] Pending files uploaded successfully');
+                
+                // Update state immediately so files remain visible even if validation fails
+                setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
+                setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
             }
 
             // STEP 2: Now validate after files are uploaded
@@ -224,8 +228,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 response_comments: comments,
                 last_updated_by: user?.user_id,
                 has_all_documents_uploaded: formData.declarationAccepted,
-                // Store evidence of response not received files
-                uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
+                   uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
                 application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
                 // CRITICAL: Explicitly set these to undefined to clear any previous response data
                 response_full_name: undefined,
@@ -346,6 +349,11 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                         <span className="govuk-visually-hidden">Error:</span> {errors.files}
                                     </p>
                                 )}
+                                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                                    <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                                        <span className="govuk-visually-hidden">Error:</span> {error}
+                                    </p>
+                                ))}
 
                                 <FileUpload
                                     ref={fileUploadRef}

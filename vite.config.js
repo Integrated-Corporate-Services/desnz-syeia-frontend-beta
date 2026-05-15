@@ -17,11 +17,16 @@ export default defineConfig(({ mode }) => {
           target: env.API_URL,
           changeOrigin: true,
         },
+        "/backend/cookies": {
+          target: env.API_URL,
+          changeOrigin: true,
+        },
       },
       allowedHosts: [
-        "eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com",
+        "dev.syeia.energysecurity.gov.uk",
         "EIP-staging-external-1323435366.eu-west-2.elb.amazonaws.com",
         "eip-staging-external-1323435366.eu-west-2.elb.amazonaws.com",
+        "staging.syeia.energysecurity.gov.uk",
       ],
     },
   };

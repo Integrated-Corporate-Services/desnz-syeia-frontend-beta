@@ -24,6 +24,9 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
     saveData,
   } = usePostConsultationData(applicationId);
 
+  const remainingChars = POST_CONSULTATION_CONSTANTS.EXPLANATION_MAX_LENGTH - (consulteesExplanation?.length || 0);
+  const hasExceededLimit = remainingChars < 0;
+
   const handleSubmit = async (e: React.FormEvent, saveType: SaveType) => {
     e.preventDefault();
     const success = await saveData(
@@ -64,7 +67,7 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {(error || consulteesRecommendationsReasonError) && (
+            {(error || consulteesRecommendationsReasonError || hasExceededLimit) && (
               <div
                 className="govuk-error-summary"
                 aria-labelledby="error-summary-title"
@@ -88,6 +91,11 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
                         </a>
                       </li>
                     )}
+                    {hasExceededLimit && (
+                      <li>
+                        <a href="#consultees-explanation">{POST_CONSULTATION_CONSTANTS.ERROR_EXPLANATION_MAX_LENGTH}</a>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -95,7 +103,7 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
             <form noValidate>
               <div
                 className={`govuk-form-group ${
-                  consulteesRecommendationsReasonError
+                  consulteesRecommendationsReasonError || hasExceededLimit
                     ? "govuk-form-group--error"
                     : ""
                 }`}
@@ -117,9 +125,18 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
                     {consulteesRecommendationsReasonError}
                   </p>
                 )}
+                {hasExceededLimit && (
+                  <p
+                    id="consultees-explanation-length-error"
+                    className="govuk-error-message"
+                  >
+                    <span className="govuk-visually-hidden">Error:</span>{" "}
+                    {POST_CONSULTATION_CONSTANTS.ERROR_EXPLANATION_MAX_LENGTH}
+                  </p>
+                )}
                 <textarea
                   className={`govuk-textarea ${
-                    consulteesRecommendationsReasonError
+                    consulteesRecommendationsReasonError || hasExceededLimit
                       ? "govuk-textarea--error"
                       : ""
                   }`}
@@ -128,12 +145,16 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
                   rows={5}
                   value={consulteesExplanation || ""}
                   onChange={(e) => setConsulteesExplanation(e.target.value)}
+                  maxLength={POST_CONSULTATION_CONSTANTS.EXPLANATION_MAX_LENGTH}
                   aria-describedby={
-                    consulteesRecommendationsReasonError
-                      ? "consultees-explanation-error"
-                      : undefined
+                    consulteesRecommendationsReasonError || hasExceededLimit
+                      ? "consultees-explanation-error consultees-explanation-length-error consultees-explanation-info"
+                      : "consultees-explanation-info"
                   }
                 />
+                <div id="consultees-explanation-info" className="govuk-hint govuk-character-count__message" aria-live="polite">
+                  You have {Math.max(0, remainingChars)} characters remaining
+                </div>
               </div>
               <FormButtons
                 onSaveContinue={(e) => handleSubmit(e, "continue")}

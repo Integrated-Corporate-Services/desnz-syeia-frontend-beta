@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem } from '../../../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
+import SensitiveAreaReviewSummaryPage from './SensitiveAreaReviewSummary';
 
 /**
  * ReviewSensitiveAreaResultsPage Component
@@ -18,6 +20,9 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     const queryId = queryParams.get('id');
     const effectiveApplicationId = applicationId || queryId || '';
 
+    // Check if consultations have started - if so, show read-only summary
+    const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(effectiveApplicationId);
+
     // API Data State
     const [checksSummary, setChecksSummary] = useState<SensitiveAreaReviewSummary | null>(null);
     const [loading, setLoading] = useState(true);
@@ -27,7 +32,8 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     // DATA FETCHING
     // ===========================
     useEffect(() => {
-        if (!effectiveApplicationId) return;
+        // Don't fetch data if consultations have started
+        if (!effectiveApplicationId || consultationsStarted) return;
 
         setLoading(true);
         setError(null);
@@ -85,7 +91,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
                 clearInterval(pollInterval);
             }
         };
-    }, [effectiveApplicationId]);
+    }, [effectiveApplicationId]); // Removed consultationsStarted from dependencies to prevent infinite loop
 
     // ===========================
     // HELPER FUNCTIONS
@@ -154,6 +160,22 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     // ===========================
     // RENDER: CONSISTENT WRAPPER WITH CONDITIONAL CONTENT
     // ===========================
+
+    // While checking consultation status, show loading to prevent flash
+    if (consultationsLoading) {
+        return (
+            <div className="govuk-width-container">
+                <div className="govuk-main-wrapper">
+                    <p className="govuk-body">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // If consultations started, show read-only SensitiveAreaReviewSummary page
+    if (consultationsStarted) {
+        return <SensitiveAreaReviewSummaryPage />;
+    }
 
     const layerCategories = getLayerCategories();
     const { passedAreasScreening, passedAreasNoScreening, failedAreas } = layerCategories || {

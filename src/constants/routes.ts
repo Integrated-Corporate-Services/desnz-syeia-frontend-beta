@@ -1,8 +1,15 @@
-// export const BASE_URL = im
 import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
+import {
+  PrivacyNoticePage,
+  TermsAndConditionsPage,
+  AccessibilityStatementPage,
+  HelpPage,
+  ContactPage
+} from '../modules/privacy-policy';
+import { CookiesSettingsPage } from '../modules/cookie-consent';
 
 type RouteConfig = {
     path: string;
@@ -45,13 +52,14 @@ import SendApplicationToConsultee from '../features/Consultation/pages/sendAppli
 import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
 import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorDetails';
 import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
-import NWLTaskList from '../features/NWL/TaskList';
+import { NWLTaskList } from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
 import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
-import NWLNegotiations from '../features/NWL/Negotiations/pages/Negotiations';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
+import { nwlObjectorDetailsRoutes, nwlLandDetailsRoutes } from '../features/NWL/routes';
+import { nwlRoutes } from '../features/NWL/routes';
 import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
 import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -64,7 +72,6 @@ import TLPNegotiations from '../features/TLP/Negotiations/pages/Negotiations';
 import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/ApplicationStatement';
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
-import DeleteApplicationPage from '../features/TaskList/pages/DeleteApplicationPage';
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
@@ -94,7 +101,15 @@ import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
-import ApplicationSummary from '../features/CheckYourAnswers/pages/ApplicationSummary';
+// Old S37 ApplicationSummary - keep for S37 backward compatibility
+import S37ApplicationSummary from '../features/CheckYourAnswers/pages/ApplicationSummary';
+// Old S37 WithdrawApplication - keep for S37 backward compatibility  
+import S37WithdrawApplicationPage from '../features/CheckYourAnswers/pages/WithdrawApplicationPage';
+import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
+// New modular ApplicationSummary - for NWL and future types
+import ApplicationSummary from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
+import WithdrawApplicationPage from '../features/WithdrawApplication/pages/WithdrawApplicationPage';
+import WithdrawalConfirmationPage from '../features/WithdrawApplication/pages/WithdrawalConfirmationPage';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
@@ -107,14 +122,10 @@ import PaymentAmountPage from '../features/Payments/pages/PaymentAmountPage';
 import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
+import BankTransferSuccessPage from '../features/Payments/pages/BankTransferSuccessPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
 import RouteMapOnlyPage from '../features/RouteMap/page/RouteMapOnlyPage';
-// import ConsultationResponseReceived from '../features/Consultation/pages/ConsultationResponseReceived';
-// import LPAConsultationForm from '../features/Consultation/pages/LPAConsultationForm';
-// import LPADetailsForm from '../features/Consultation/pages/LPADetailsForm';
-// import ProposedDevelopmentForm from '../features/Consultation/pages/ProposedDevelopmentForm';
-// import ConsultationEvidenceNotReceived from '../features/Consultation/pages/ConsultationEvidenceNotReceived';
 import ConsultationInitialQuestion from '../features/Consultation/pages/ConsultationInitialQuestion';
 import ConsultationResponseInitialQuestion from '../features/Consultation/pages/ConsultationResponseInitialQuestion';
 import ConsultationRequestNotSent from '../features/Consultation/pages/ConsultationRequestNotSent';
@@ -127,6 +138,42 @@ import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
 
 export const ROUTE_CONFIG = [
+    {
+        path: '/cookies',
+        component: CookiesSettingsPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/privacy',
+        component: PrivacyNoticePage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/terms',
+        component: TermsAndConditionsPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/accessibility',
+        component: AccessibilityStatementPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/help',
+        component: HelpPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/contact',
+        component: ContactPage,
+        auth: false,
+        layout: true,
+    },
     {
         path: '/signed-out',
         component: SignedOutPage,
@@ -202,40 +249,6 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/evidence-not-received`,
-    //   component: ConsultationEvidenceNotReceived,
-    //   auth: true,
-    //   layout: true
-    // },
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/response-received`,
-    //   component: ConsultationResponseReceived,
-    //   auth: true,
-    //   layout: true
-    // },
-
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/lpa-consultation-form`,
-    //   component: LPAConsultationForm,
-    //   auth: true,
-    //   layout: true
-    // },
-
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/lpa-details`,
-    //   component: LPADetailsForm,
-    //   auth: true,
-    //   layout: true
-    // },
-
-    // {
-    //   path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/proposed-development`,
-    //   component: ProposedDevelopmentForm,
-    //   auth: true,
-    //   layout: true
-    // },
-
     {
         path: '/payment/callback',
         component: PaymentCallbackPage,
@@ -245,6 +258,12 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/payment-method`,
         component: PaymentMethodPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/bank-transfer-success`,
+        component: BankTransferSuccessPage,
         auth: true,
         layout: true,
     },
@@ -471,18 +490,34 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/negotiations`,
-        component: NWLNegotiations,
-        auth: true,
-        layout: true,
-    },
+   
     {
         path: `${NWL_BASE_URL}/:applicationId/application-statement`,
         component: NWLApplicationStatement,
         auth: true,
         layout: true,
     },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/application-summary`,
+        component: ApplicationSummary,  // New modular component for NWL
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/withdraw`,
+        component: WithdrawApplicationPage,  // New modular component for NWL
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
+        component: WithdrawalConfirmationPage,  // New modular component for NWL
+        auth: true,
+        layout: true,
+    },
+    ...nwlObjectorDetailsRoutes,
+    ...nwlLandDetailsRoutes,
+    ...nwlRoutes,
     {
         path: `${TLP_BASE_URL}/who-is-applying`,
         component: TLPWhoIsApplying,
@@ -780,18 +815,6 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-        path: `${NWL_BASE_URL}/:applicationId/delete-confirmation`,
-        component: ApplicationDeleteConfirmationPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/delete-success`,
-        component: ApplicationDeleteSuccessPage,
-        auth: true,
-        layout: true,
-    },
-    {
         path: `${TLP_BASE_URL}/:applicationId/delete-confirmation`,
         component: ApplicationDeleteConfirmationPage,
         auth: true,
@@ -812,7 +835,19 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${S37_BASE_URL}/:applicationId/application-summary`,
-        component: ApplicationSummary,
+        component: S37ApplicationSummary,  // Use old proven S37 implementation
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/withdraw`,
+        component: S37WithdrawApplicationPage,  // Use old proven S37 implementation
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/withdrawal-confirmation`,
+        component: S37WithdrawalConfirmationPage,  // Use old proven S37 implementation
         auth: true,
         layout: true,
     },

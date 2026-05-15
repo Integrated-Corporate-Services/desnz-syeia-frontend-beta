@@ -41,7 +41,7 @@ const ConsultationWithdrawnPage: React.FC = () => {
               Are you sure you want to withdraw this request?
             </h1>
             <p className="govuk-body" style={{ marginBottom: "32px" }}>
-              This will permanently delete all the information you have entered for this request.
+              This will mark the consultation as withdrawn. The consultation pack will be deleted, but evidence of the request and any responses will be preserved for historical records.
             </p>
             <div className="govuk-button-group">
               <button

@@ -1,0 +1,94 @@
+/**
+ * Constants for NWL Assets feature
+ */
+
+import type { LineTypeOption } from '../types';
+
+export const BREADCRUMBS = {
+  TASK_LIST: "Task list",
+  INFORMATION_ABOUT_LINES: "Information about lines",
+  REVIEW_ASSETS: "Review assets",
+  ASSETS: "Assets",
+} as const;
+
+export const LABELS = {
+  ADD_ASSET_TITLE: "Add an asset",
+  REVIEW_ASSETS_TITLE: "You have added",
+  LINE_VOLTAGE: "Line voltage",
+  LINE_TYPE: "Line type",
+  DESCRIPTION_LABEL: "Text to support the user to understand what is expected",
+  COMMENTS: "Comments",
+  ASSET: "Asset",
+  CONTINUE: "Save and continue",
+  SAVE_FOR_LATER: "Save for later",
+  ADD_ANOTHER: "Add another asset",
+  REMOVE: "Remove",
+  CHANGE: "Change",
+  // Application Plan page
+  APPLICATION_PLAN_TITLE: "Provide an application plan",
+  UPLOAD_SECTION_TITLE: "Upload an application plan",
+  // Assets Match Plan page
+  ASSETS_MATCH_PLAN_TITLE: "Do the assets listed match those shown on the application plan?",
+  YES: "Yes",
+  NO: "No",
+  EXPLAIN_MISMATCH_LABEL: "Explain why the assets listed do not match those shown on the application plan",
+} as const;
+
+export const HINTS = {
+  ADD_ASSET_INTRO: "Tell us about each electricity asset that is, or will be, on the land covered by this application. You will be able to add more than one asset.",
+  SELECT_VOLTAGE: "Select the voltage for this asset",
+  SELECT_LINE_TYPES: "Select all that apply. You can add a Comment for each item you select.",
+  REVIEW_INTRO: "Review the assets you have added. You can change any of them before you submit the application.",
+  // Application Plan page
+  APPLICATION_PLAN_INTRO: "It is recommended that pole numbers are indicated on the plan. The plan must clearly highlight the:",
+  APPLICATION_PLAN_BULLETS: [
+    "the electric line",
+    "differentiating between voltage types and underground cables",
+    "the property boundary"
+  ],
+  // Assets Match Plan page
+  EXPLAIN_MISMATCH_HINT: "You can enter up to 4,000 characters",
+} as const;
+
+export const LINE_TYPE_OPTIONS: LineTypeOption[] = [
+  { value: "overhead-line", label: "Overhead line" },
+  { value: "overhead-line-wooden-poles", label: "Overhead line and wooden pole(s)" },
+  { value: "overhead-line-wooden-poles-stays", label: "Overhead line and wooden pole(s) and stay(s)" },
+  { value: "overhead-line-steel-towers", label: "Overhead line and steel tower(s)" },
+  { value: "wooden-poles", label: "Wooden pole(s)" },
+  { value: "stays", label: "Stay(s)" },
+  { value: "steel-towers", label: "Steel tower(s)" },
+  { value: "underground-cable", label: "Underground cable" },
+  { value: "earth-wire", label: "Earth wire and any other associated apparatus" },
+  { value: "other", label: "Other" },
+];
+
+export const FORM_ERRORS = {
+  MISSING_VOLTAGE: "Select a line voltage for this asset",
+  MISSING_LINE_TYPE: "Select at least one line type",
+  MISSING_DESCRIPTION: "Enter a description for this item",
+  SAVE_FAILED: "Failed to save asset. Please try again.",
+  DELETE_FAILED: "Failed to remove asset. Please try again.",
+  // Application Plan page
+  MISSING_FILE: "Upload an application plan",
+  FILE_UPLOAD_FAILED: "Failed to upload file. Please try again.",
+  // Assets Match Plan page
+  MISSING_ASSETS_MATCH: "Select yes if the assets listed match those shown on the application plan",
+  MISSING_EXPLANATION: "Enter an explanation for why the assets do not match",
+} as const;
+
+export const CHARACTER_LIMITS = {
+  MAX_DESCRIPTION: 4000,
+} as const;
+
+export const MESSAGES = {
+  LOADING: "Loading assets...",
+  NO_ASSETS: "No assets have been added yet.",
+  CONFIRM_DELETE: "Are you sure you want to remove this asset?",
+  CHARACTER_REMAINING: (remaining: number) => {
+    if (remaining === 0) return 'You have 0 characters remaining';
+    if (remaining < 0) return `You have ${Math.abs(remaining)} characters too many`;
+    if (remaining === 1) return 'You have 1 character remaining';
+    return `You have ${remaining.toLocaleString()} characters remaining`;
+  },
+} as const;

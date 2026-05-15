@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { getPresignedGetUrl } from '../../../services/s3ApiService';
@@ -11,6 +12,8 @@ const InvoiceDownloadPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const { invoiceNumber, s3Key, consentFee, eiaScreeningFee, totalAmount } = location.state || {};
 
@@ -42,8 +45,7 @@ const InvoiceDownloadPage: React.FC = () => {
   };
 
   const handleContinueToPayment = () => {
-    // Navigate to payment method selection page
-    navigate(`${S37_BASE_URL}/${applicationId}/payment-method`, {
+    navigate(`${baseUrl}/${applicationId}/payment-method`, {
       state: {
         invoiceNumber: invoiceNumber,
         totalAmount: totalAmount,
@@ -59,7 +61,7 @@ const InvoiceDownloadPage: React.FC = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
                 Task list
               </Link>
             </li>

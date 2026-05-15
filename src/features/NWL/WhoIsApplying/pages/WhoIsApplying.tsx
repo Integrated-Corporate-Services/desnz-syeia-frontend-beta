@@ -56,9 +56,6 @@ const WhoIsApplying: React.FC = () => {
                 }`}
                 style={{ maxWidth: 500 }}
               >
-                <label className="govuk-label" htmlFor="location">
-                  Network operator
-                </label>
                 {error && (
                   <p id="location-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span>{" "}
@@ -92,7 +89,6 @@ const WhoIsApplying: React.FC = () => {
               </div>
               <details
                 className="govuk-details"
-                open
                 style={{ maxWidth: 600, marginTop: "2rem" }}
               >
                 <summary className="govuk-details__summary">

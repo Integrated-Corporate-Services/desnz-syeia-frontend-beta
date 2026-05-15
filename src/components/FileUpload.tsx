@@ -78,7 +78,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [statuses, setStatuses] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
  
   const files = internalFiles;
 
@@ -90,17 +89,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           pendingFilesCount: pendingFiles.length
         });
         
-        try {
-          const result = await uploadFiles(pendingFiles);
-          setPendingFiles([]); // Clear pending files after upload
-          if (onPendingFilesChange) {
-            onPendingFilesChange([]);
-          }
-          return result;
-        } catch (error) {
-
-          throw error;
+        const result = await uploadFiles(pendingFiles);
+        setPendingFiles([]); // Clear pending files after upload
+        if (onPendingFilesChange) {
+          onPendingFilesChange([]);
         }
+        return result;
       }
       return { uploadedFiles: [], applicationDocuments: [] };
     },
@@ -118,7 +112,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     
     const newFiles = Array.from(e.target.files);
-    setValidationErrors([]); // Clear previous errors
     
     if (onValidationErrors) {
       onValidationErrors([]);
@@ -149,8 +142,9 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       files: newFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
     });
     
-    const allExistingFiles = [...pendingFiles, ...(uploadedFilesForThisCategory || [])];
-    const result = await validateFiles(newFiles, allExistingFiles);
+    // Filter to only include File objects for validation
+    const existingFileObjects = pendingFiles;
+    const result = await validateFiles(newFiles, existingFileObjects);
     
     logger.info('File validation completed', {
       validFilesCount: result.validFiles.length,
@@ -159,24 +153,18 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     });
     
 
-    if (result.errors.length > 0 && result.validFiles.length > 0) {
-     
+    if (result.errors.length > 0 && result.validFiles.length > 0) {     
       const errorMessages = result.errors.map(error => error.message);
-      setValidationErrors(errorMessages);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
       }
     } else if (result.errors.length > 0 && result.validFiles.length === 0) {
       
       const errorMessages = result.errors.map(error => error.message);
-      setValidationErrors(errorMessages);
-      
-      // setTimeout(() => {
-      //   setValidationErrors([]);
-      // }, 5000);
+      if (onValidationErrors) {
+        onValidationErrors(errorMessages);
+      }
     } else {
-
-      setValidationErrors([]);
       if (onValidationErrors) {
         onValidationErrors([]);
       }
@@ -226,7 +214,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     
     const droppedFiles = Array.from(e.dataTransfer.files);
-    setValidationErrors([]); // Clear previous errors
     
     // Immediately clear parent errors when validation starts
     if (onValidationErrors) {
@@ -247,24 +234,21 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     });
     
  
-     const allExistingFiles = [...pendingFiles, ...(uploadedFiles || [])];
-    const result = await validateFiles(droppedFiles, allExistingFiles);
+    // Filter to only include File objects for validation
+    const existingFileObjects = pendingFiles;
+    const result = await validateFiles(droppedFiles, existingFileObjects);
     
     if (result.errors.length > 0 && result.validFiles.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
-      setValidationErrors(errorMessages);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
       }
     } else if (result.errors.length > 0 && result.validFiles.length === 0) {
        const errorMessages = result.errors.map(error => error.message);
-      setValidationErrors(errorMessages);
-      // setTimeout(() => {
-      //   setValidationErrors([]);
-      // }, 5000);
+      if (onValidationErrors) {
+        onValidationErrors(errorMessages);
+      }
     } else {
-
-      setValidationErrors([]);
       if (onValidationErrors) {
         onValidationErrors([]);
       }
@@ -332,7 +316,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     }
     
     // Clear validation errors when files are removed as space constraints may be resolved
-    setValidationErrors([]);
     
     // Also clear parent errors when files are removed
     if (onValidationErrors) {
@@ -406,7 +389,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               virtualFolder: uploadedFile.virtualFolder,
               addedBy: userId,
               addedAt: uploadedFile.uploadedAtTimestamp,
-              consultationId: consultationId || "", // Set if applicable
+              consultationId: consultationId || undefined, // Set if applicable
             };
             applicationDocuments.push(applicationDocument);
             
@@ -459,32 +442,33 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   // Handle file deletion from S3
   const handleDeleteFile = async (fileId: string, s3Key: string) => {
     try {
-      const result = await deleteFileCompletely(fileId, s3Key);
+      await deleteFileCompletely(fileId, s3Key);
       if (onDeleteFile) {
         onDeleteFile(fileId);
       }
       
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error & { response?: { data?: { error?: string }, status?: number }, status?: number };
       
       logger.error('File Deletion Error Details:', {
         fileId,
         s3Key,
-        errorName: error?.name,
-        errorMessage: error?.message,
-        errorStatus: error?.status || error?.response?.status,
-        errorData: error?.response?.data,
+        errorName: err?.name,
+        errorMessage: err?.message,
+        errorStatus: err?.status || err?.response?.status,
+        errorData: err?.response?.data,
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
         url: window.location.href
       });
       
       
-      const errorMsg = error?.response?.data?.error || error?.message || 'Unknown error occurred';
+      const errorMsg = err?.response?.data?.error || err?.message || 'Unknown error occurred';
       logger.error('Failed to delete file completely', {
         fileId,
         s3Key,
         errorMessage: errorMsg,
-        error
+        error: err
       });
     }
   };
@@ -589,16 +573,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       )}
 
-      {/* File validation errors display */}
-      {validationErrors.length > 0 && (
-        <div className="govuk-error-message govuk-!-margin-bottom-3">
-          <span className="govuk-visually-hidden">Error:</span>
-          {validationErrors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      )}
-
       {/* File Upload Section - Upload controls appear after uploaded files */}
       {showTitle && (
         <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
@@ -607,7 +581,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       )}
       <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
-        .xlsx files of up to 25MB each.
+        .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
 
       <div

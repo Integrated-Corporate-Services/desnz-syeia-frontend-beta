@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';import { createLogger } from '../../../utils/logger';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { createLogger } from '../../../utils/logger';
 
-const logger = createLogger('PaymentCallbackPage');import { S37_BASE_URL } from '../../../constants/s37';
+const logger = createLogger('PaymentCallbackPage');
+
+import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { applicationApiService } from '../../../services/applicationApiService';
 
 const PaymentCallbackPage: React.FC = () => {
@@ -9,9 +13,12 @@ const PaymentCallbackPage: React.FC = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'failed' | 'cancelled'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  const [baseUrl, setBaseUrl] = useState(S37_BASE_URL);
 
   useEffect(() => {
     const verifyPayment = async () => {
+      let detectedBaseUrl = S37_BASE_URL; // Default to S37
+      
       try {
         // Get payment details from URL and session
         const paymentId = searchParams.get('paymentId') || sessionStorage.getItem('paymentId');
@@ -28,6 +35,17 @@ const PaymentCallbackPage: React.FC = () => {
           return;
         }
 
+        // Fetch application type to determine correct base URL
+        try {
+          const appDetails = await applicationApiService.fetchApplicationDetails(applicationId);
+          const applicationType = appDetails.type;
+          detectedBaseUrl = applicationType === 'NWL' ? NWL_BASE_URL : S37_BASE_URL;
+          setBaseUrl(detectedBaseUrl); // Update state for error handlers
+          logger.info('Application type detected:', applicationType, 'baseUrl:', detectedBaseUrl);
+        } catch (err) {
+          logger.warn('Failed to fetch application type, defaulting to S37:', err);
+        }
+
         // Call backend to verify payment status
         const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments/${paymentId}/verify`, {
           method: 'GET',
@@ -35,7 +53,6 @@ const PaymentCallbackPage: React.FC = () => {
         });
         if (!response.ok) {
         const errorData = await response.json();
-        console.error('Payment verification failed:', errorData);
         throw new Error(errorData.error || `Failed to verify payment: ${response.statusText}`);
       }
 
@@ -54,9 +71,9 @@ const PaymentCallbackPage: React.FC = () => {
           sessionStorage.removeItem('invoiceNumber');
           sessionStorage.removeItem('totalAmount');
           
-          // Redirect to success page after 2 seconds
+          // Redirect to success page after 1 second using detected baseUrl
           setTimeout(() => {
-            navigate(`${S37_BASE_URL}/${applicationId}/payment-success`, {
+            navigate(`${detectedBaseUrl}/${applicationId}/payment-success`, {
               state: {
                 applicationId,
                 invoiceNumber,
@@ -78,7 +95,6 @@ const PaymentCallbackPage: React.FC = () => {
           setErrorMessage(`Unexpected payment status: ${paymentStatus}`);
         }
       } catch (error) {
-        console.error('Payment verification error:', error);
         setStatus('failed');
         setErrorMessage(error instanceof Error ? error.message : 'Failed to verify payment');
       }
@@ -91,7 +107,7 @@ const PaymentCallbackPage: React.FC = () => {
   const handleTryAgain = () => {
     const applicationId = sessionStorage.getItem('applicationId');
     if (applicationId) {
-      navigate(`${S37_BASE_URL}/${applicationId}/payment-method`);
+      navigate(`${baseUrl}/${applicationId}/payment-method`);
     } else {
       navigate('/workbasket');
     }
@@ -100,7 +116,7 @@ const PaymentCallbackPage: React.FC = () => {
   const handleBackToTaskList = () => {
     const applicationId = sessionStorage.getItem('applicationId');
     if (applicationId) {
-      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+      navigate(`${baseUrl}/${applicationId}/task-list`);
     } else {
       navigate('/workbasket');
     }

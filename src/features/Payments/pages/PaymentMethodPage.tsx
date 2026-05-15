@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { useAuthUser } from '../../../hooks/useAuthUser';
@@ -17,6 +18,8 @@ const PaymentMethodPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showBankTransfer, setShowBankTransfer] = useState(false);
+  
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const { invoiceNumber, totalAmount, consentFee, eiaScreeningFee } = location.state || {};
 
@@ -34,12 +37,6 @@ const handlePayByCard = async () => {
   setError('');
 
   try {
-    console.log('Creating payment with:', {
-      amount: totalAmount,
-      applicationId,
-      userId: user?.user_id
-    });
-
     // Store totalAmount in sessionStorage BEFORE navigating to GOV.UK Pay
     sessionStorage.setItem('totalAmount', totalAmount.toString());
 
@@ -76,19 +73,23 @@ const handlePayByCard = async () => {
       logger.info('Redirecting to GOV.UK Pay:', nextUrl);
       window.location.href = nextUrl;
     } else {
-      console.error('No redirect URL in response:', result);
       setError('No redirect URL received from payment service');
       setLoading(false);
     }
   } catch (err: any) {
-    console.error('Payment error:', err);
     setError(err.message || 'Failed to initiate payment');
     setLoading(false);
   }
 };
 
   const handleBackToTaskList = () => {
-    navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+    navigate(`${baseUrl}/${applicationId}/task-list`);
+  };
+
+  const handleBankTransfer = () => {
+    navigate(`${baseUrl}/${applicationId}/bank-transfer-success`, {
+      state: { invoiceNumber, totalAmount, consentFee, eiaScreeningFee }
+    });
   };
 
   return (
@@ -97,7 +98,7 @@ const handlePayByCard = async () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
                 Task list
               </Link>
             </li>
@@ -201,7 +202,7 @@ const handlePayByCard = async () => {
                     type="button"
                     className="govuk-button govuk-button--secondary"
                     data-module="govuk-button"
-                    onClick={handleBackToTaskList}
+                    onClick={handleBankTransfer}
                   >
                     Pay by bank transfer
                   </button>

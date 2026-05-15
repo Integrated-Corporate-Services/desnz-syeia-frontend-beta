@@ -8,6 +8,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { createLogger } from '../../../utils/logger';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 const logger = createLogger('ReviewDocumentsPage');
 
@@ -150,8 +151,9 @@ const ReviewDocumentsPage: React.FC = () => {
       // Save the review
       await saveSensitiveReview(payload);
 
-      // Always navigate to task list (this is the final page)
-      navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+      // Navigate to next page
+      const nextPageUrl = getNextPageUrl(TASK_NAMES.SENSITIVE_AREA_REVIEW, applicationId || '');
+      navigate(nextPageUrl);
     } catch (err: unknown) {
       logger.error('Save error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to save review';
@@ -291,10 +293,6 @@ const ReviewDocumentsPage: React.FC = () => {
                     ? ' govuk-form-group--error'
                     : ''
                 }`}
-                style={(formErrors.some((err) => err.includes('document')) || fileValidationErrors.length > 0) ? {
-                  borderLeft: '4px solid #d4351c',
-                  paddingLeft: 12
-                } : {}}
               >
                 {/* Inline error messages */}
                 {formErrors.some((err) => err.includes('document')) && (
@@ -303,7 +301,11 @@ const ReviewDocumentsPage: React.FC = () => {
                     Upload at least one environmental and archaeological document
                   </span>
                 )}
-                {/* File validation errors removed - shown in error summary above */}
+                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                  <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                ))}
 
                 {/* Page-level heading shown when documents table is present (after upload) */}
                 {applicationDocuments && applicationDocuments.length > 0 && (

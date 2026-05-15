@@ -1,0 +1,1 @@
+export { CookiesSettingsPage } from './CookiesSettingsPage';

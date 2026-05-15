@@ -163,6 +163,10 @@ const ConsultationRequestPage: React.FC = () => {
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
         log.info('[ConsultationRequestPage] Pending files uploaded successfully');
+        
+        // Update state immediately so files remain visible even if validation fails
+        setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
+        setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
       }
 
       // STEP 2: Now validate after files are uploaded
@@ -391,17 +395,18 @@ const ConsultationRequestPage: React.FC = () => {
                 </fieldset>
               </div>
               
-              <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload"
-                style={(errors.fileUpload || fileValidationErrors.length > 0) ? {
-                  borderLeft: '4px solid #d4351c',
-                  paddingLeft: 12
-                } : {}}>
+              <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
                 <h2 className="govuk-heading-m">Upload evidence of the consultation request</h2>
                 {errors.fileUpload && (
                   <p id="fileUpload-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {errors.fileUpload}
                   </p>
                 )}
+                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                  <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                ))}
                 <FileUpload
                   ref={fileUploadRef}
                   title=""

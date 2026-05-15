@@ -4,8 +4,7 @@ export const BREADCRUMBS = {
 };
 
 export const ERROR_MESSAGES = {
-  CONFIRMATION_REQUIRED:
-    "Select yes if all contact details are available and correct",
+  CONFIRMATION_REQUIRED: "Select 'Yes' or 'No'",
   NO_CONTACT_FOUND:
     "No applicant contact details found. Please ensure your account is set up correctly.",
 };
@@ -25,5 +24,5 @@ export const LABELS = {
 
 export const CONDITIONAL_TEXT = {
   INCORRECT_DETAILS:
-    "If any details are missing or incorrect then the named contact person must update their account details on the Energy Information Portal (EIP). You cannot submit this application if any details are missing.",
+    "If anything is missing or incorrect then the named contact person or a supervisor must update these contact details. You cannot submit this application if any details are missing.",
 };

@@ -10,12 +10,13 @@ import { useAdditionalContacts } from "../hooks/useAdditionalContacts";
 import { useNetworkOperatorForm } from "../hooks/useNetworkOperatorForm";
 import { useApplicationSync } from "../hooks/useApplicationSync";
 import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
+import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 
 const NWL_BASE_URL = "/nwl";
 import {
   MAX_REFERENCE_LENGTH,
   BREADCRUMBS,
-  FORM_LABELS,
+  FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
 
 /**
@@ -51,7 +52,9 @@ const NetworkOperatorDetails: React.FC = () => {
     selectedOrganisation,
     setSelectedOrganisation,
     errors,
+    setErrors,
     showErrorSummary,
+    setShowErrorSummary,
     validateForm,
     handleOperatorChange: handleOperatorChangeBase,
   } = useNetworkOperatorForm();
@@ -82,11 +85,20 @@ const NetworkOperatorDetails: React.FC = () => {
     organisationName,
   });
 
+  // Role-based logic for filtering options and auto-selection
+  const { filteredOptions } = useRoleBasedLogic({
+    coordinators,
+    options,
+    setSelectedOrgName,
+    setSelectedOrganisation,
+    additionalContacts,
+    setAdditionalContacts,
+  });
+
   // Fetch application data on mount
   useEffect(() => {
     if (appId) {
       fetchAndSetApplication(appId).then(() => {
-        // If organization passed via state, update application_party
         if (stateOrgId && stateOrgName && application?.application_id) {
           setApplication({
             ...application,
@@ -111,7 +123,7 @@ const NetworkOperatorDetails: React.FC = () => {
   // Sync application data with form state
   useApplicationSync({
     application,
-    options,
+    options: filteredOptions,
     onReferenceSync: setNetworkOperatorRef,
     onCoordinatorSync: (name, org) => {
       setSelectedOrgName(name);
@@ -123,9 +135,9 @@ const NetworkOperatorDetails: React.FC = () => {
   // Handle dropdown change
   const handleOperatorChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      handleOperatorChangeBase(e, options);
+      handleOperatorChangeBase(e, filteredOptions);
     },
-    [handleOperatorChangeBase, options]
+    [handleOperatorChangeBase, filteredOptions]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,39 +147,60 @@ const NetworkOperatorDetails: React.FC = () => {
       return;
     }
 
-    let app = application;
-    const created_by = (user as AuthUser)?.user_id || "";
-    const additionalContactString =
-      additionalContacts
-        .map((email) => email.trim())
-        .filter((email) => email.length > 0)
-        .join(",") || null;
+    try {
+      let app = application;
+      const created_by = (user as AuthUser)?.user_id || "";
+      const additionalContactString =
+        additionalContacts
+          .map((email) => email.trim())
+          .filter((email) => email.length > 0)
+          .join(",") || null;
 
-    if (!app) {
-      const newAppData = {
-        type: "NWL",
-        operator_ref: networkOperatorRef,
-        status: "Draft",
-        created_by: created_by,
-      };
-      app = await useApplicationStore.getState().startApplication(newAppData);
-    } else {
-      await useApplicationStore.getState().saveNetworkOperator({
-        application_id: appId,
-        operator_ref: networkOperatorRef,
-        organisation_id: selectedOrganisation?.organisation_id,
-        person_id: selectedOrganisation?.person_id,
-        contact_id: selectedOrganisation?.contact_id,
-        role: "APPLICANT",
-        is_primary: true,
-        contact_isconfirmed: applicationParty?.contact_isconfirmed,
-        type: application?.type,
-        additional_contact: additionalContactString,
-      });
+      if (!app) {
+        const newAppData = {
+          type: "NWL",
+          operator_ref: networkOperatorRef,
+          status: "Draft",
+          created_by: created_by,
+        };
+        app = await useApplicationStore.getState().startApplication(newAppData);
+        
+        // Navigate after successful creation
+        if (app?.application_id) {
+          navigate(
+            `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`
+          );
+        }
+      } else {
+        // Prepare data for save operation
+        const saveData = {
+          application_id: appId,
+          operator_ref: networkOperatorRef,
+          organisation_id: selectedOrganisation?.organisation_id,
+          person_id: selectedOrganisation?.person_id,
+          contact_id: selectedOrganisation?.contact_id,
+          role: "APPLICANT", 
+          is_primary: true,
+          contact_isconfirmed: applicationParty?.contact_isconfirmed,
+          type: application?.type,
+          additional_contact: additionalContactString,
+        };
 
-      navigate(
-        `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`
-      );
+        const result = await useApplicationStore.getState().saveNetworkOperator(saveData);
+
+        // Only navigate if the save was successful and we have an application ID
+        if (result?.application?.application_id) {
+          navigate(
+            `${NWL_BASE_URL}/${result.application.application_id}/network-operator-contact-details`
+          );
+        } else {
+          navigate(
+            `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`
+          );
+        }
+      }
+    } catch (error) {
+      
     }
   };
 
@@ -190,12 +223,12 @@ const NetworkOperatorDetails: React.FC = () => {
           </li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-xl">Applicant details</h1>
+            <h1 className="govuk-heading-l">Applicant details</h1>
             {/* Error summary */}
-            {showErrorSummary && (
+            {(showErrorSummary || emailInputError) && (
               <div
                 className="govuk-error-summary"
                 data-module="govuk-error-summary"
@@ -209,51 +242,23 @@ const NetworkOperatorDetails: React.FC = () => {
                   <ul className="govuk-list govuk-error-summary__list">
                     {errors.map((err, idx) => (
                       <li key={idx}>
-                        <a href="#">{err}</a>
+                        <a href={`#${err.includes('contact name') ? 'location' : 'networkOperatorRef'}`}>{err}</a>
                       </li>
                     ))}
+                    {emailInputError && (
+                      <li>
+                        <a href="#emailAddress">{emailInputError}</a>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
             )}
             <form onSubmit={handleSubmit} noValidate>
-              {/* Applicant reference details */}
+              {/* Applicant contact name */}
               <div
                 className={`govuk-form-group${
-                  errors.includes("Enter an Applicant’s reference")
-                    ? " govuk-form-group--error"
-                    : ""
-                }`}
-              >
-                <label
-                  className="govuk-label govuk-label--s"
-                  htmlFor="networkOperatorRef"
-                >
-                  Applicant’s reference
-                </label>
-                {errors.includes("Enter an Applicant’s reference") && (
-                  <p className="govuk-error-message">
-                    Enter an Applicant’s reference
-                  </p>
-                )}
-                <input
-                  className={`govuk-input${
-                    errors.includes("Enter an Applicant’s reference")
-                      ? " govuk-input--error"
-                      : ""
-                  }`}
-                  id="networkOperatorRef"
-                  name="networkOperatorRef"
-                  type="text"
-                  maxLength={MAX_REFERENCE_LENGTH}
-                  value={networkOperatorRef}
-                  onChange={(e) => setNetworkOperatorRef(e.target.value)}
-                />
-              </div>
-
-              <div
-                className={`govuk-form-group${
-                  errors.includes("Select the network operator")
+                  errors.includes(FORM_ERRORS.MISSING_OPERATOR)
                     ? " govuk-form-group--error"
                     : ""
                 }`}
@@ -264,27 +269,39 @@ const NetworkOperatorDetails: React.FC = () => {
                 >
                   Applicant contact name
                 </label>
-                <div id="landRef-hint" className="govuk-hint">
-                  The consent will be issued in the name of the person selected
-                  here
+                <div id="location-hint" className="govuk-hint">
+                  This person will be the designated contact for this application and all official correspondence will be addressed to them.
                 </div>
-                {errors.includes("Select the network operator") && (
-                  <p className="govuk-error-message">
-                    Select the network operator
+                {errors.includes(FORM_ERRORS.MISSING_OPERATOR) && (
+                  <p id="location-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span>
+                    {FORM_ERRORS.MISSING_OPERATOR}
                   </p>
                 )}
                 <select
-                  className="govuk-select"
+                  className={`govuk-select${
+                    errors.includes(FORM_ERRORS.MISSING_OPERATOR)
+                      ? " govuk-select--error"
+                      : ""
+                  }`}
                   id="location"
                   name="location"
                   value={selectedOrgName}
                   onChange={handleOperatorChange}
-                  aria-describedby="location-hint"
+                  aria-describedby={`location-hint${
+                    errors.includes(FORM_ERRORS.MISSING_OPERATOR)
+                      ? " location-error"
+                      : ""
+                  }`}
+                  aria-required="true"
+                  aria-invalid={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
                 >
-                  <option value="">Select person...</option>
-                  {options.map((op: ApplicationParty) => (
+                  <option value="">Select option...</option>
+                  {filteredOptions.map((op: ApplicationParty, index: number) => (
                     <option
-                      key={op.organisation_id || op.person_name}
+                      key={`${op.organisation_id || "no-org"}-${
+                        op.person_name
+                      }-${index}`}
                       value={op.person_name}
                     >
                       {op.person_name}
@@ -306,11 +323,15 @@ const NetworkOperatorDetails: React.FC = () => {
                       }}
                     >
                       <span>{email}</span>
-
                       <a
                         className="govuk-link"
                         href="#"
-                        onClick={() => handleDeleteContact(email)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDeleteContact(email);
+                        }}
+                        role="button"
+                        aria-label={`Delete contact ${email}`}
                       >
                         Delete contact
                       </a>
@@ -320,26 +341,26 @@ const NetworkOperatorDetails: React.FC = () => {
               )}
 
               {/* Additional contacts */}
-              <h2 className="govuk-heading-m">
-                Additional contacts{" "}
-                <span className="govuk-hint">(optional)</span>
+              <h2 className="govuk-heading-s govuk-!-margin-bottom-2">
+                Additional contacts
               </h2>
-              <div id="landRef-hint" className="govuk-hint">
-                You can add more contact email addresses to this application
+              <div id="additional-contacts-hint" className="govuk-hint">
+                You can add email addresses for anyone who should receive updates for this application.
               </div>
-              <div
-                className={`govuk-form-group${
-                  emailInputError ? " govuk-form-group--error" : ""
-                }`}
-              >
+              <div className={`govuk-form-group${
+                emailInputError ? " govuk-form-group--error" : ""
+              }`}>
                 <label
-                  className="govuk-label govuk-label--s"
+                  className="govuk-label govuk-label--s govuk-!-margin-bottom-2"
                   htmlFor="emailAddress"
                 >
-                  {FORM_LABELS.EMAIL_ADDRESS}
+                  Email address (optional)
                 </label>
                 {emailInputError && (
-                  <span className="govuk-error-message">{emailInputError}</span>
+                  <p id="emailAddress-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span>
+                    {emailInputError}
+                  </p>
                 )}
                 <input
                   className={`govuk-input${
@@ -347,13 +368,17 @@ const NetworkOperatorDetails: React.FC = () => {
                   }`}
                   id="emailAddress"
                   name="emailAddress"
-                  type="text"
+                  type="email"
                   value={emailAddress}
                   onChange={(e) => {
                     setEmailAddress(e.target.value);
                     if (emailInputError) clearEmailInputError();
                   }}
-                  autoComplete="off"
+                  autoComplete="email"
+                  aria-describedby={`additional-contacts-hint${
+                    emailInputError ? " emailAddress-error" : ""
+                  }`}
+                  aria-invalid={!!emailInputError}
                 />
               </div>
               <button
@@ -362,13 +387,78 @@ const NetworkOperatorDetails: React.FC = () => {
                 onClick={handleAddContact}
                 style={{ marginBottom: "1rem" }}
               >
-                Add contact
+                Add another
               </button>
+
+              {/* Applicant reference details */}
+              <div
+                className={`govuk-form-group${
+                  errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                    ? " govuk-form-group--error"
+                    : ""
+                }`}
+              >
+                <label
+                  className="govuk-label govuk-label--s govuk-!-margin-bottom-2"
+                  htmlFor="networkOperatorRef"
+                >
+                  Applicant's reference (optional)
+                </label>
+                {(errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)) && (
+                  <p id="networkOperatorRef-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span>
+                    {errors.find(
+                      (e) =>
+                        e === FORM_ERRORS.MISSING_REFERENCE ||
+                        e === FORM_ERRORS.INVALID_REFERENCE,
+                    )}
+                  </p>
+                )}
+                <input
+                  className={`govuk-input${
+                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                      ? " govuk-input--error"
+                      : ""
+                  }`}
+                  id="networkOperatorRef"
+                  name="networkOperatorRef"
+                  type="text"
+                  maxLength={MAX_REFERENCE_LENGTH}
+                  value={networkOperatorRef}
+                  onChange={(e) => {
+                    setNetworkOperatorRef(e.target.value);
+                    // Clear errors when user starts typing
+                    if (errors.length > 0) {
+                      const filteredErrors = errors.filter(
+                        (error) => 
+                          error !== FORM_ERRORS.MISSING_REFERENCE &&
+                          error !== FORM_ERRORS.INVALID_REFERENCE
+                      );
+                      if (filteredErrors.length !== errors.length) {
+                        setErrors(filteredErrors);
+                        if (filteredErrors.length === 0) {
+                          setShowErrorSummary(false);
+                        }
+                      }
+                    }
+                  }}
+                  aria-describedby={`${
+                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
+                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                      ? "networkOperatorRef-error"
+                      : ""
+                  }`}
+                  aria-invalid={errors.includes(FORM_ERRORS.MISSING_REFERENCE) || errors.includes(FORM_ERRORS.INVALID_REFERENCE)}
+                />
+              </div>
 
               <details className="govuk-details">
                 <summary className="govuk-details__summary">
                   <span className="govuk-details__summary-text">
-                    The applicant contact is not listed
+                    What to do when an applicant is not listed
                   </span>
                 </summary>
                 <div className="govuk-details__text">
@@ -382,9 +472,9 @@ const NetworkOperatorDetails: React.FC = () => {
                     the service desk for advice at{" "}
                     <a
                       className="govuk-link"
-                      href="mailto:ukop@nstauthority.co.uk"
+                      href="mailto:xxx@desnz.com"
                     >
-                      ukop@nstauthority.co.uk
+                      xxx@desnz.com
                     </a>
                   </p>
                 </div>

@@ -6,6 +6,7 @@ import { useApplicationStore } from '../../../store/useApplicationStore';
 import { CONTENT } from "../../../constants/content";
 import { PROJECT_OVERVIEW_ERRORS, createErrorLink, createMaxYearError } from "../../../constants/projectOverviewError";
 import { Link } from "react-router-dom";
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 
 import TextInput from "../component/TextInput";
@@ -35,7 +36,7 @@ const emptyProjectOverview: ProjectOverviewModel = {
 	latestWorkStartDateMonth: "",
 	latestWorkStartDateYear: "",
 	hasRelatedApplications: "",
-	relatedApplications: [],
+	relatedApplicationsDetails: "",
 	hasRelatedCpo: "",
 	relatedCpoDetails: "",
 	eipDetails: "",
@@ -50,65 +51,9 @@ const ProjectOverview = () => {
 	const params = useParams();
 	const navigate = useNavigate();
 	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
-	const [dropdownValue, setDropdownValue] = useState("");
-	const [searchResults, setSearchResults] = useState<any[]>([]);
-	const [showDropdown, setShowDropdown] = useState(false);
-	const searchInputRef = useRef<HTMLInputElement>(null);
 	const fileUploadRef = useRef<FileUploadHandle>(null);
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
-	// Search handler for project names
-	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setDropdownValue(value);
-		if (value.trim() === "") {
-			setSearchResults([]);
-			setShowDropdown(false);
-			return;
-		}
-		// Use normalized projectList from store
-		const filtered = projectList.filter(
-			(p) =>
-				p.project_name &&
-				p.project_name.toLowerCase().includes(value.toLowerCase()) &&
-				!formState.relatedApplications.some((ra: any) => ra.value === p.project_id)
-		);
-		setSearchResults(filtered); // Pass full project objects
-		setShowDropdown(true);
-	};
-
-	// Add selected project to relatedApplications (store all fields and set hasRelatedApplications to true)
-	const handleSelectProject = (project: any) => {
-		setFormState((prev) => ({
-			...prev,
-			hasRelatedApplications: "true",
-			relatedApplications: [
-				...prev.relatedApplications,
-				{
-					relatedApplicationId: project.application_id,
-					projectId: project.project_id,
-					applicationRelationId: project.application_relation_id,
-					project_name: project.project_name,
-					operator_ref: project.operator_ref,
-					value: project.project_id, // for stable key and removal
-				},
-			],
-		}));
-		setDropdownValue("");
-		setSearchResults([]);
-		setShowDropdown(false);
-		if (searchInputRef.current) searchInputRef.current.blur();
-		// Clear related applications error when a project is added
-		clearFieldError('relatedApplications-search');
-		clearFieldError('hasRelatedApplications');
-	};
-
-	// Remove project from relatedApplications
-	const handleRemoveRelated = (value: string) => {
-		setFormState((prev) => ({
-			...prev,
-			relatedApplications: prev.relatedApplications.filter((ra: any) => ra.value !== value),
-		}));
-	};
+	
 	// Handle file deletion
 	const handleDeleteFile = (fileId: string) => {
 		setFormState(prev => ({
@@ -142,26 +87,25 @@ const ProjectOverview = () => {
 	const applicationId = useGetApplicationId();
 
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
-	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview, fetchProjectList, projectList } = useProjectStore();
+	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview } = useProjectStore();
 	const remainingChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.projectDescription.length);
 	const getRelatedCpoDetailsString = (val: typeof formState.relatedCpoDetails) =>
 		typeof val === 'string' ? val : (val && typeof val.field === 'string' ? val.field : '');
 	const relatedCpoDetailsStr = getRelatedCpoDetailsString(formState.relatedCpoDetails);
 	const remainingCpoChars = Math.max(0, MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length);
+	const remainingRelatedAppsChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.relatedApplicationsDetails.length);
 
 	// Clear form state when applicationId changes
 	useEffect(() => {
 		setFormState(emptyProjectOverview);
 	}, [applicationId]);
 
-	// Fetch project overview and project list on mount
+	// Fetch project overview on mount
 	useEffect(() => {
 		if (applicationId) {
 			fetchProjectOverview(applicationId);
-
 		}
-		fetchProjectList(applicationId);
-	}, [applicationId, fetchProjectOverview, fetchProjectList]);
+	}, [applicationId, fetchProjectOverview]);
 
 
 	// Bind fetched data to form fields (flat model)
@@ -227,19 +171,7 @@ const ProjectOverview = () => {
 				hasRelatedApplications: typeof projectData.hasRelatedApplications === 'boolean'
 					? String(projectData.hasRelatedApplications)
 					: (projectData.hasRelatedApplications ?? ""),
-				relatedApplications: Array.isArray(projectData.relatedApplications)
-					? projectData.relatedApplications.map((ra: any) => ({
-						relatedApplicationId: ra.related_application_id || ra.relatedApplicationId || "",
-						projectId: ra.project_id || ra.projectId || "",
-						applicationRelationId: ra.application_relation_id || ra.applicationRelationId || "",
-						project_name: ra.project_name || "",
-						operator_ref: ra.operator_ref || "",
-						value: ra.related_application_id || ra.relatedApplicationId || ra.project_id || ra.projectId || "",
-						relationType: ra.relation_type || ra.relationType || "",
-						details: ra.details || "",
-						createdAt: ra.created_at || ra.createdAt || "",
-					}))
-					: [],
+				relatedApplicationsDetails: projectData.relatedApplicationsDetails ?? "",
 				// If cpoField has a value, set hasRelatedCpo to 'true', else fallback to projectData.hasRelatedCpo
 				hasRelatedCpo: cpoField && cpoField.trim() !== ''
 					? 'true'
@@ -520,6 +452,13 @@ const ProjectOverview = () => {
 					if (formState.hasRelatedApplications === "true" && (!formState.relatedApplications || formState.relatedApplications.length === 0)) {
 						newErrors.push(createErrorLink('relatedApplications-search', PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_ADD));
 						newFieldErrors.hasRelatedApplications = PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_ADD;
+						newErrors.push('<a href="#hasRelatedApplications">Select yes if there are any other SYEIA applications related to this one</a>');
+						newFieldErrors.hasRelatedApplications = "Select yes if there are any other SYEIA applications related to this one";
+					}
+					// Validation: If user selects 'Yes' for related applications but no details are provided
+					if (formState.hasRelatedApplications === "true" && !formState.relatedApplicationsDetails.trim()) {
+						newErrors.push('<a href="#relatedApplicationsDetails-inputValue">Enter details of all related applications</a>');
+						newFieldErrors.relatedApplicationsDetails = "Enter details of all related applications";
 					}
 
 					// Validate Related CPO
@@ -573,10 +512,8 @@ const ProjectOverview = () => {
 						relatedCpoDetails: typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
 							? formState.relatedCpoDetails.field || ''
 							: (formState.relatedCpoDetails || ''),
-						// Remove applicationRelationId from relatedApplications for backend validation
-						relatedApplications: Array.isArray(formState.relatedApplications)
-							? formState.relatedApplications.map(({ applicationRelationId, ...rest }) => rest)
-							: [],
+						// Send relatedApplicationsDetails as string
+						relatedApplicationsDetails: formState.relatedApplicationsDetails || '',
 						// Include both existing application documents and newly uploaded documents from this submission
 						applicationDocuments: [...(formState.applicationDocuments || []), ...newlyUploadedDocuments].map(d => ({
 							documentId: d.documentId || '',
@@ -599,7 +536,9 @@ const ProjectOverview = () => {
 								response?.application_overview?.application_id ||
 								applicationIdForSave ||
 								'';
-							navigate(`${S37_BASE_URL}/${redirectId}/task-list`);
+							// Navigate to the next page in the task list sequence
+							const nextPageUrl = getNextPageUrl(TASK_NAMES.PROJECT_OVERVIEW, redirectId);
+							navigate(nextPageUrl);
 						})
 						.catch((err: any) => {
 							setErrors([err.message || 'Failed to save project overview']);
@@ -898,12 +837,73 @@ const ProjectOverview = () => {
 					</details>
 
 					{/* Related Applications */}
+					<div id="planInformationDocuments" className={`govuk-form-group${(fieldErrors?.uploadedFiles || fileValidationErrors.length > 0) ? " govuk-form-group--error" : ""} govuk-!-margin-bottom-0`}> 
+						<fieldset className="govuk-fieldset">
+						<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+							{projectOverview.planInformationDocuments}
+						</legend>
+						{fieldErrors?.uploadedFiles && fieldErrors.uploadedFiles !== 'validation-error' && (
+							<p id="uploadedFiles-error" className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
+							</p>
+						)}
+						{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+							<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {error}
+							</p>
+						))}
+						<FileUpload
+							ref={fileUploadRef}
+							title='Upload a file'
+							showTitle={false}
+							prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
+							applicationId={applicationId}
+							category={FILE_CATEGORIES.PLAN_INFO}
+							addedBy={userId}
+							uploadedFiles={formState.uploadedFiles}
+							applicationDocuments={formState.applicationDocuments}
+							showDocumentsHeading={true}
+							onDeleteFile={handleDeleteFile}
+							onPendingFilesChange={setPendingFiles}
+							onValidationErrors={(errors) => {
+						// Handle validation errors
+						setFileValidationErrors(errors);
+						// Set field error for red border styling, but message only shows in error summary
+						if (errors.length > 0) {
+							setFieldErrors(prev => ({ ...prev, uploadedFiles: 'validation-error' }));
+						} else {
+							setFieldErrors(prev => { const newErrors = {...prev}; delete newErrors.uploadedFiles; return newErrors; });
+						}
+					}}						onUploaded={(newUploadedFiles, newProjectDocuments) => {
+							setFormState(prev => ({
+								...prev,
+								uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
+								applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
+							}));
+						}}
+					/>
+				</fieldset>
+			</div>
+
+			{/* Details: What information should be included in the plan */}
+		<details className="govuk-details govuk-!-margin-bottom-6">
+				<summary className="govuk-details__summary">
+					<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
+				</summary>
+				<div className="govuk-details__text">
+					<p className="govuk-body">
+						{projectOverview.planDetailsText}
+					</p>
+				</div>
+			</details>
+
+			{/* Related Applications */}
 					<div className={`govuk-form-group${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`}>
-						<fieldset className="govuk-fieldset" aria-describedby={`fieldset-5-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()} id="relatedApplications-section">
+						<fieldset className="govuk-fieldset" aria-describedby={`relatedApplications-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()} id="relatedApplications-section">
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 								<h2 className="govuk-fieldset__heading">{projectOverview.relatedApplications}</h2>
 							</legend>
-							<div className="govuk-hint govuk-!-width-two-thirds" id="fieldset-5-hint">
+							<div className="govuk-hint govuk-!-width-two-thirds" id="relatedApplications-hint">
 								{projectOverview.relatedApplicationsHint}
 							</div>
 							{fieldErrors?.hasRelatedApplications && (
@@ -913,111 +913,66 @@ const ProjectOverview = () => {
 							)}
 							<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="hasRelatedApplications" name="hasRelatedApplications" type="radio" value="true" checked={formState.hasRelatedApplications === "true"} onChange={() => {
-										setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
-										clearFieldError('hasRelatedApplications');
-									}} aria-controls="hasRelatedApplications-hidden" aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"} />
+									<input 
+										className="govuk-radios__input" 
+										id="hasRelatedApplications" 
+										name="hasRelatedApplications" 
+										type="radio" 
+										value="true" 
+										checked={formState.hasRelatedApplications === "true"} 
+										onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }))} 
+										aria-controls="hasRelatedApplications-hidden" 
+										aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"} 
+									/>
 									<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 								</div>
 								{formState.hasRelatedApplications === "true" && (
 									<div className="govuk-radios__conditional" id="hasRelatedApplications-hidden">
-										{/* Related applications table */}
-										<table className="govuk-table govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
-											<thead className="govuk-table__head">
-												<tr className="govuk-table__row">
-													<th scope="col" className="govuk-table__header govuk-!-width-one-half">Related applications</th>
-													<th scope="col" className="govuk-table__header govuk-!-width-one-quarter">Actions</th>
-												</tr>
-											</thead>
-											<tbody className="govuk-table__body">
-												{formState.relatedApplications.length === 0 ? (
-													<tr className="govuk-table__row">
-														<td className="govuk-table__cell" colSpan={2}>
-															<div className="govuk-inset-text">{projectOverview.relatedApplicationsNone}</div>
-														</td>
-													</tr>
-												) : (
-													formState.relatedApplications.map((app: any) => (
-														<tr className="govuk-table__row" key={app.value}>
-															<td className="govuk-table__cell">
-																{app.project_name || app.projectId || app.relatedApplicationId}
-															</td>
-															<td className="govuk-table__cell">
-																<a
-																	href="#"
-																	className="govuk-link"
-																	style={{ color: '#1d70b8', textDecoration: 'underline', fontWeight: 400, fontSize: '16px', lineHeight: '1.2' }}
-																	onClick={e => { e.preventDefault(); handleRemoveRelated(app.value); }}
-																>
-																	Remove
-																</a>
-															</td>
-														</tr>
-													))
-												)}
-											</tbody>
-										</table>
-										<div style={{ position: "relative", maxWidth: 600, marginTop: 8 }}>
-											<label className="govuk-label" htmlFor="relatedApplications-search">
-												Search for Section 37 and Wayleave applications by the developer or network operator reference
+										<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
+											<label className="govuk-label" htmlFor="relatedApplicationsDetails-inputValue">
+												{projectOverview.relatedApplicationsDetails}
 											</label>
-											<input
-												ref={searchInputRef}
-												className="govuk-input govuk-!-width-full"
-												id="relatedApplications-search"
-												type="text"
-												autoComplete="off"
-												value={dropdownValue}
-												onChange={handleSearchChange}
-												onFocus={() => setShowDropdown(true)}
-												onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-												placeholder="Type to search project names..."
-
-											/>
-											{showDropdown && (
-												<ul
-													style={{
-														position: "absolute",
-														left: 0,
-														right: 0,
-														background: "#fff",
-														border: "1px solid #ccc",
-														zIndex: 10,
-														margin: 0,
-														padding: 0,
-														listStyle: "none",
-														maxHeight: 180,
-														overflowY: "auto",
-														fontSize: '16px',
-														lineHeight: '1.2',
-													}}
-												>
-													{dropdownValue.trim() === '' ? (
-														<li style={{ padding: 8, color: "#505a5f" }}>Please enter 1 or more characters</li>
-													) : searchResults.length === 0 ? (
-														<li style={{ padding: 8, color: "#888" }}>No results found</li>
-													) : (
-														searchResults.map((p: any) => (
-															<li
-																key={p.project_id}
-																style={{ padding: 8, cursor: "pointer" }}
-																onMouseDown={() => handleSelectProject(p)}
-															>
-																{p.operator_ref} || {p.project_name}
-
-															</li>
-														))
-													)}
-												</ul>
+											<div className="govuk-hint" id="relatedApplicationsDetails-hint">
+												{projectOverview.relatedApplicationsDetailsHint}
+											</div>
+											{fieldErrors?.relatedApplicationsDetails && (
+												<p id="relatedApplicationsDetails-inputValue-error" className="govuk-error-message">
+													<span className="govuk-visually-hidden">Error:</span> {fieldErrors.relatedApplicationsDetails}
+												</p>
 											)}
+											<textarea
+												className={`govuk-textarea govuk-js-character-count${fieldErrors?.relatedApplicationsDetails ? " govuk-textarea--error" : ""}`}
+												id="relatedApplicationsDetails-inputValue"
+												name="relatedApplicationsDetails.inputValue"
+												rows={5}
+												maxLength={MAX_DESCRIPTION_LENGTH}
+												value={formState.relatedApplicationsDetails}
+												onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+													const val = e.target.value;
+													if (val.length <= MAX_DESCRIPTION_LENGTH) {
+														setFormState(prev => ({ ...prev, relatedApplicationsDetails: val }));
+													} else {
+														setFormState(prev => ({ ...prev, relatedApplicationsDetails: val.slice(0, MAX_DESCRIPTION_LENGTH) }));
+													}
+												}}
+												aria-describedby={fieldErrors?.relatedApplicationsDetails ? "relatedApplicationsDetails-inputValue-error relatedApplicationsDetails-hint relatedApplicationsDetails-inputValue-info" : "relatedApplicationsDetails-hint relatedApplicationsDetails-inputValue-info"}
+											></textarea>
+											<div id="relatedApplicationsDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
+											<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
+											<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {remainingRelatedAppsChars} characters remaining</div>
 										</div>
 									</div>
 								)}
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="hasRelatedApplications-no" name="hasRelatedApplications" type="radio" value="false" checked={formState.hasRelatedApplications === "false"} onChange={() => {
-										setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplications: [] }));
-										clearFieldError('hasRelatedApplications');
-									}} />
+									<input 
+										className="govuk-radios__input" 
+										id="hasRelatedApplications-no" 
+										name="hasRelatedApplications" 
+										type="radio" 
+										value="false" 
+										checked={formState.hasRelatedApplications === "false"} 
+										onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplicationsDetails: "" }))} 
+									/>
 									<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications-no">No</label>
 								</div>
 							</div>

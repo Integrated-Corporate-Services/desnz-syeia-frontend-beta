@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
@@ -15,6 +16,8 @@ const InvoiceGenerationPage: React.FC = () => {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   // Get payment amounts from location state (passed from PaymentAmountPage)
   const { 
@@ -76,8 +79,7 @@ const InvoiceGenerationPage: React.FC = () => {
 
       const result = await response.json();
       
-      // Navigate to invoice download page
-      navigate(`${S37_BASE_URL}/${applicationId}/invoice-download`, {
+      navigate(`${baseUrl}/${applicationId}/invoice-download`, {
         state: {
           invoiceNumber: result.invoiceNumber,
           s3Key: result.s3Key,
@@ -198,14 +200,12 @@ const InvoiceGenerationPage: React.FC = () => {
                 </div>
                 <button
                   className="govuk-button"
-                  onClick={() => navigate(`${S37_BASE_URL}/${applicationId}/pay-and-submit`)}
+                  onClick={() => navigate(`${baseUrl}/${applicationId}/pay-and-submit`)}
                 >
                   Go back
                 </button>
               </>
             )}
-          {/* </div> */}
-        {/* </div> */}
       </main>
     </div>
   );

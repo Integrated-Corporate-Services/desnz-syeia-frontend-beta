@@ -5,6 +5,7 @@ import { parishApiService } from "../services/parishApiService";
 import { PARISH_VALIDATION } from "../constants/parishConstants";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { createLogger } from "../../../utils/logger";
+import { getNextPageUrl, TASK_NAMES } from "../../../utils/taskListUtils";
 
 const logger = createLogger('useParishSubmit');
 
@@ -28,7 +29,9 @@ export const useParishSubmit = (applicationId: string) => {
       try {
         await parishApiService.saveParishes(applicationId, parishes);
         logger.info("Parishes saved successfully");
-        navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+        // Navigate to the next page in the task list sequence
+        const nextPageUrl = getNextPageUrl(TASK_NAMES.PARISHES, applicationId);
+        navigate(nextPageUrl);
       } catch (error) {
         console.error("Error saving parishes:", error);
         setValidationError("Failed to save parishes. Please try again.");

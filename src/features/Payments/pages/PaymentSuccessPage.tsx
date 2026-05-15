@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 
@@ -8,6 +9,8 @@ const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const applicationId = useGetApplicationId();
+  
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
   
   const { invoiceNumber, paymentId, reference, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
 
@@ -26,7 +29,6 @@ const PaymentSuccessPage: React.FC = () => {
           setDesnzRef(data.desnz_ref || applicationId);
           setError(null);
         } catch (err) {
-          console.error('Error fetching DESNZ reference:', err);
           setError(err instanceof Error ? err.message : 'Failed to fetch DESNZ reference');
           // Fallback to applicationId if fetch fails
           setDesnzRef(applicationId);
@@ -94,13 +96,14 @@ const PaymentSuccessPage: React.FC = () => {
               You will receive an email to confirm your application has been submitted.
             </p>
             <p className="govuk-body">
-              You Overhead Lines (Section 37) will contact you in due course with<br/>
-              any follow up actions.
+              {baseUrl === NWL_BASE_URL 
+                ? 'The wayleave team will contact you in due course with any follow up actions.'
+                : 'The Overhead Lines (Section 37) team will contact you in due course with any follow up actions.'}
             </p>
 
             <div className="govuk-button-group">
               <Link
-                to={`${S37_BASE_URL}/${applicationId}/task-list`}
+                to={`${baseUrl}/${applicationId}/task-list`}
                 className="govuk-button govuk-button--secondary"
               >
                 Back to applications

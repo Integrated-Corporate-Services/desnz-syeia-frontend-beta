@@ -25,7 +25,7 @@ export const useWhoIsApplyingForm = () => {
     setSubmitted(true);
 
     if (!selectedOrgName) {
-      setError("Select the network operator");
+      setError("Select a network operator");
       return;
     }
     setError("");

@@ -89,7 +89,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
 
     const statusKey = getStatusKey(status);
     const statusDisplay = statusKey ? ConsultationStatus[statusKey] : status;
-    
+
     // Determine response path based on consultation type
     const responsePath = consultationType === 'LPA' ? 'response-initial' : 'response';
     const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
@@ -103,6 +103,8 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     }
 
     const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
+    const withdrawUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-withdrawn`;
+
     // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
     function formatDate(dateStr?: string) {
         if (!dateStr) return '';
@@ -118,7 +120,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
         const displayName = doc.name || doc.filename || doc.fileName || '';
         // Truncate extremely long filenames for display
         const truncatedName = displayName.length > 40 ? `${displayName.substring(0, 37)}...` : displayName;
-        
+
         return (
             <div key={idx} className="govuk-!-margin-bottom-1">
                 <a
@@ -328,13 +330,20 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 Provide response
                             </Link>
                         </li>
+                        {consultationType === 'OTHER' && (
+                            <li className="govuk-summary-card__action">
+                                <Link to={withdrawUrl} className="govuk-link">
+                                    Withdraw
+                                </Link>
+                            </li>
+                        )}
                     </ul>
                 </div>
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
                             {renderTableRow('Status', <StatusBadge status={statusDisplay} isConsultation />)}
-                          
+
                             {renderTableRow('Date of consultation request', dateRequestCreated ? formatDate(dateRequestCreated) : '-')}
                             {renderTableRow(
                                 'Evidence of request',
@@ -389,7 +398,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                     : '-'
                             )}
                             {renderTableRow('Objection raised', typeof objectionRaised === 'boolean' ? (objectionRaised ? 'Yes' : 'No') : '-')}
-                            {renderTableRow(
+                            {objectionRaised && renderTableRow(
                                 'Public response documents',
                                 responseDocuments && responseDocuments.length > 0
                                     ? <>{responseDocuments.map((doc, idx) => renderDocumentLink(doc, idx))}</>
@@ -556,14 +565,78 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
      * Render card for WITHDRAWN status
      */
     function renderWithdrawn() {
+        // Check for evidence of response NOT received
+        const hasNotReceivedResponse = !!(evidenceResponseNotReceivedDocs && evidenceResponseNotReceivedDocs.length > 0);
+
+        // Check if response was received before withdrawal
+        const hasReceivedResponse =
+            !hasNotReceivedResponse &&
+            !!(
+                (respondingConsulteeName && respondingConsulteeName.trim() !== '') ||
+                (respondingConsulteeEmail && respondingConsulteeEmail.trim() !== '') ||
+                (objectionRaised !== null && objectionRaised !== undefined) ||
+                (responseDocuments && responseDocuments.length > 0)
+            );
+
         return (
             <>
-                <div className="govuk-summary-card__title-wrapper"></div>
+                <div className="govuk-summary-card__title-wrapper">
+                    <h2 className="govuk-summary-card__title govuk-!-word-break">{displayName}</h2>
+                </div>
                 <div className="govuk-summary-card__content">
                     <table className="govuk-table govuk-!-margin-bottom-0 govuk-!-width-full">
                         <tbody className="govuk-table__body">
+                            {/* Status */}
                             {renderTableRow('Status', <StatusBadge status="Withdrawn" isConsultation />)}
-                            {dateRequestCreated && renderTableRow('Withdrawal date', formatDate(dateRequestCreated))}
+                            
+                            {/* Withdrawal date */}
+                            {dateClosed && renderTableRow('Withdrawal date', formatDate(dateClosed))}
+                            
+                            {/* Original consultation request date */}
+                            {dateRequestCreated && renderTableRow('Date of consultation request', formatDate(dateRequestCreated))}
+                            
+                            {/* Evidence of request */}
+                            {renderTableRow(
+                                'Evidence of request',
+                                consultationRequestDocs && consultationRequestDocs.length > 0
+                                    ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                                    : evidenceUrl
+                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        : '-'
+                            )}
+                            
+                            {/* Consultee contact details - if captured */}
+                            {(respondingConsulteeName || respondingConsulteeEmail || hasReceivedResponse) && (
+                                <>
+                                    {renderTableRow('Consultee contact name', respondingConsulteeName || '-')}
+                                    {renderTableRow(
+                                        'Consultee contact email address',
+                                        respondingConsulteeEmail
+                                            ? <a href={`mailto:${respondingConsulteeEmail}`} className="govuk-link govuk-!-word-break">{respondingConsulteeEmail}</a>
+                                            : '-'
+                                    )}
+                                </>
+                            )}
+                            
+                            {/* Objection raised - if recorded */}
+                            {(objectionRaised !== null && objectionRaised !== undefined) && 
+                                renderTableRow('Objection raised', objectionRaised ? 'Yes' : 'No')
+                            }
+                            
+                            {/* Response documents - if uploaded before withdrawal */}
+                            {responseDocuments && responseDocuments.length > 0 && renderTableRow(
+                                'Response documents',
+                                <>{responseDocuments.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                            )}
+                            
+                            {/* Evidence of response not received - if applicable */}
+                            {hasNotReceivedResponse && renderTableRow(
+                                'Evidence of response not received',
+                                <>{evidenceResponseNotReceivedDocs!.map((doc, idx) => renderDocumentLink(doc, idx))}</>
+                            )}
+                            
+                            {/* Close comments - reason for withdrawal */}
+                            {closeComments && renderTableRow('Withdrawal reason', closeComments)}
                         </tbody>
                     </table>
                 </div>
@@ -592,6 +665,13 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 {statusDisplay === ConsultationStatus.DRAFT ? 'Continue consultation' : 'Start consultation'}
                             </Link>
                         </li>
+                        {statusDisplay === ConsultationStatus.DRAFT && consultationType === 'OTHER' && (
+                            <li className="govuk-summary-card__action">
+                                <Link to={withdrawUrl} className="govuk-link">
+                                    Withdraw
+                                </Link>
+                            </li>
+                        )}
                     </ul>
                 </div>
                 <div className="govuk-summary-card__content">
