@@ -448,13 +448,6 @@ const ProjectOverview = () => {
 						newFieldErrors.hasRelatedApplications = PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_REQUIRED;
 					}
 
-					// Validate Related Applications - If 'Yes' selected but none added
-					if (formState.hasRelatedApplications === "true" && (!formState.relatedApplications || formState.relatedApplications.length === 0)) {
-						newErrors.push(createErrorLink('relatedApplications-search', PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_ADD));
-						newFieldErrors.hasRelatedApplications = PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_ADD;
-						newErrors.push('<a href="#hasRelatedApplications">Select yes if there are any other SYEIA applications related to this one</a>');
-						newFieldErrors.hasRelatedApplications = "Select yes if there are any other SYEIA applications related to this one";
-					}
 					// Validation: If user selects 'Yes' for related applications but no details are provided
 					if (formState.hasRelatedApplications === "true" && !formState.relatedApplicationsDetails.trim()) {
 						newErrors.push('<a href="#relatedApplicationsDetails-inputValue">Enter details of all related applications</a>');
