@@ -2,10 +2,11 @@
 export async function deleteRoute(applicationId: string, route_id: string) {
   return axios.delete(`/backend/api/applications/${applicationId}/route/${route_id}`);
 }
+
 // Bulk delete route points by point_ids
 export async function deleteRoutePoints(applicationId: string, point_ids: string[]) {
   return axios.delete(`/backend/api/applications/${applicationId}/route-points-remove`, {
-    data: { point_ids },
+    data: { point_ids, applicationId },
     headers: { 'Content-Type': 'application/json' },
   });
 }
