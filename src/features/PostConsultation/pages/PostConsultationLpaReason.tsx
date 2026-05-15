@@ -25,6 +25,9 @@ const PostConsultationLpaReason: React.FC = () => {
     saveData,
   } = usePostConsultationData(applicationId);
 
+  const remainingChars = POST_CONSULTATION_CONSTANTS.EXPLANATION_MAX_LENGTH - (explanation?.length || 0);
+  const hasExceededLimit = remainingChars < 0;
+
   const handleSubmit = async (e: React.FormEvent, saveType: SaveType) => {
     e.preventDefault();
     const success = await saveData(saveType, "lpa-reason");
@@ -62,7 +65,7 @@ const PostConsultationLpaReason: React.FC = () => {
      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {(error || explanationError) && (
+            {(error || explanationError || hasExceededLimit) && (
               <div
                 className="govuk-error-summary"
                 aria-labelledby="error-summary-title"
@@ -84,6 +87,11 @@ const PostConsultationLpaReason: React.FC = () => {
                         <a href="#explanation">{explanationError}</a>
                       </li>
                     )}
+                    {hasExceededLimit && (
+                      <li>
+                        <a href="#explanation">{POST_CONSULTATION_CONSTANTS.ERROR_EXPLANATION_MAX_LENGTH}</a>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -91,7 +99,7 @@ const PostConsultationLpaReason: React.FC = () => {
             <form noValidate>
               <div
                 className={`govuk-form-group ${
-                  explanationError ? "govuk-form-group--error" : ""
+                  explanationError || hasExceededLimit ? "govuk-form-group--error" : ""
                 }`}
               >
                 <h1 className="govuk-label-wrapper">
@@ -108,19 +116,31 @@ const PostConsultationLpaReason: React.FC = () => {
                     {explanationError}
                   </p>
                 )}
+                {hasExceededLimit && (
+                  <p id="explanation-length-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span>{" "}
+                    {POST_CONSULTATION_CONSTANTS.ERROR_EXPLANATION_MAX_LENGTH}
+                  </p>
+                )}
                 <textarea
                   className={`govuk-textarea ${
-                    explanationError ? "govuk-textarea--error" : ""
+                    explanationError || hasExceededLimit ? "govuk-textarea--error" : ""
                   }`}
                   id="explanation"
                   name="explanation"
                   rows={5}
                   value={explanation || ""}
                   onChange={(e) => setExplanation(e.target.value)}
+                  maxLength={POST_CONSULTATION_CONSTANTS.EXPLANATION_MAX_LENGTH}
                   aria-describedby={
-                    explanationError ? "explanation-error" : undefined
+                    explanationError || hasExceededLimit
+                      ? "explanation-error explanation-length-error explanation-info"
+                      : "explanation-info"
                   }
                 />
+                <div id="explanation-info" className="govuk-hint govuk-character-count__message" aria-live="polite">
+                  You have {Math.max(0, remainingChars)} characters remaining
+                </div>
               </div>
               <FormButtons
                 onSaveContinue={(e) => handleSubmit(e, "continue")}
