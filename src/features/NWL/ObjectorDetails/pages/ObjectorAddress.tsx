@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveObjectorAddress } from "../services";
 import {
   BREADCRUMBS,
   LABELS,
@@ -13,14 +14,14 @@ import {
 /**
  * Objector Address Page
  * Collects objector's address information
+ * Follows NWL architecture: Hook → Service → Backend
  */
 const ObjectorAddress: React.FC = () => {
   const navigate = useNavigate();
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  
+  // Use dedicated hook (NO application store)
+  const { objectorDetails, isLoading, error: fetchError } = useObjectorDetailsData();
 
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -29,23 +30,19 @@ const ObjectorAddress: React.FC = () => {
   const [postcode, setPostcode] = useState("");
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Load existing data from objectorDetails
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails) {
+      setAddressLine1(objectorDetails.objector_address_line1 || "");
+      setAddressLine2(objectorDetails.objector_address_line2 || "");
+      setTown(objectorDetails.objector_town || "");
+      setCounty(objectorDetails.objector_county || "");
+      setPostcode(objectorDetails.objector_postcode || "");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setAddressLine1(details.objector_address_line1 || "");
-      setAddressLine2(details.objector_address_line2 || "");
-      setTown(details.objector_town || "");
-      setCounty(details.objector_county || "");
-      setPostcode(details.objector_postcode || "");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -74,8 +71,75 @@ const ObjectorAddress: React.FC = () => {
       return;
     }
 
-    navigate(`${NWL_BASE_URL}/${appId}/is-objector-landowner`);
+    if (!appId) {
+      setSaveError('Application ID is missing');
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      console.log('[ObjectorAddress] Saving address data for appId:', appId);
+      
+      await saveObjectorAddress(appId, {
+        objector_address_line1: addressLine1,
+        objector_address_line2: addressLine2,
+        objector_town: town,
+        objector_county: county,
+        objector_postcode: postcode,
+      });
+
+      console.log('[ObjectorAddress] Address saved successfully');
+      
+      // Navigate to next page
+      navigate(`${NWL_BASE_URL}/${appId}/is-objector-landowner`);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save address';
+      console.error('[ObjectorAddress] Save error:', errorMessage, err);
+      setSaveError(errorMessage);
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              <h1 className="govuk-heading-l">{LABELS.OBJECTOR_ADDRESS_TITLE}</h1>
+              <p className="govuk-body">Loading...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Show fetch error
+  if (fetchError) {
+    return (
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              <h1 className="govuk-heading-l">{LABELS.OBJECTOR_ADDRESS_TITLE}</h1>
+              <div className="govuk-error-summary" role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <p>{fetchError}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="govuk-width-container">
@@ -100,6 +164,24 @@ const ObjectorAddress: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.OBJECTOR_ADDRESS_TITLE}</h1>
 
+            {/* Show save error */}
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Show validation errors */}
             {Object.keys(errors).length > 0 && (
               <div
                 className="govuk-error-summary"
@@ -245,8 +327,9 @@ const ObjectorAddress: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
+                disabled={isSaving}
               >
-                {LABELS.CONTINUE}
+                {isSaving ? 'Saving...' : LABELS.CONTINUE}
               </button>
             </form>
           </div>

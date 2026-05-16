@@ -7,13 +7,18 @@ export const getObjectorDetails = async (applicationId: string): Promise<Objecto
     const response = await fetch(`${API_BASE}/${applicationId}/objector-details`);
     if (!response.ok) {
       if (response.status === 404) {
+        // No objector details found yet - this is ok for new forms
         return null;
       }
-      throw new Error(`Failed to fetch objector details: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch objector details: ${response.status} ${errorText}`);
     }
-    return await response.json();
+    const data: ObjectorDetails = await response.json();
+    console.log('[getObjectorDetails] Backend response:', data);
+    return data;
   } catch (error) {
-    return null;
+    console.error('[getObjectorDetails] Error:', error);
+    throw error; // Re-throw so the hook can handle it properly
   }
 };
 

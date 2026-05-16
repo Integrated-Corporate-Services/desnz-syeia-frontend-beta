@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { LABELS } from '../constants/objectorDetailsConstants';
 import { useObjectorDetailsData, useFormValidation, useObjectorNavigation } from '../hooks';
-import { ObjectorDetailsBreadcrumbs, ErrorSummary, PersonDetailsForm, FormActions } from '../components';
+import { 
+  ObjectorDetailsBreadcrumbs, 
+  ErrorSummary, 
+  PersonDetailsForm, 
+  FormActions,
+  Loading,
+  ErrorMessage 
+} from '../components';
 import { saveObjectorPersonalInfo } from '../services';
 
 const ObjectorDetails: React.FC = () => {
-  const { appId, objectorDetails } = useObjectorDetailsData();
+  const { appId, objectorDetails, isLoading, error } = useObjectorDetailsData();
   const { errors, validatePersonDetails } = useFormValidation();
   const { navigateToObjectorAddress, navigateToTaskList } = useObjectorNavigation(appId);
 
@@ -51,6 +58,7 @@ const ObjectorDetails: React.FC = () => {
 
       navigateToObjectorAddress();
     } catch (error) {
+      console.error('Error saving objector details:', error);
     } finally {
       setIsSaving(false);
     }
@@ -65,27 +73,35 @@ const ObjectorDetails: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.OBJECTOR_DETAILS_TITLE}</h1>
 
-            <ErrorSummary errors={errors} />
+            {isLoading && <Loading />}
 
-            <form onSubmit={handleSubmit} noValidate>
-              <PersonDetailsForm
-                title={title}
-                fullName={fullName}
-                organisation={organisation}
-                email={email}
-                phone={phone}
-                errors={errors}
-                onTitleChange={setTitle}
-                onFullNameChange={setFullName}
-                onOrganisationChange={setOrganisation}
-                onEmailChange={setEmail}
-                onPhoneChange={setPhone}
-              />
+            {error && <ErrorMessage message={error} />}
 
-              <FormActions 
-                isSaving={isSaving}
-              />
-            </form>
+            {!isLoading && !error && (
+              <>
+                <ErrorSummary errors={errors} />
+
+                <form onSubmit={handleSubmit} noValidate>
+                  <PersonDetailsForm
+                    title={title}
+                    fullName={fullName}
+                    organisation={organisation}
+                    email={email}
+                    phone={phone}
+                    errors={errors}
+                    onTitleChange={setTitle}
+                    onFullNameChange={setFullName}
+                    onOrganisationChange={setOrganisation}
+                    onEmailChange={setEmail}
+                    onPhoneChange={setPhone}
+                  />
+
+                  <FormActions 
+                    isSaving={isSaving}
+                  />
+                </form>
+              </>
+            )}
           </div>
         </div>
       </main>
