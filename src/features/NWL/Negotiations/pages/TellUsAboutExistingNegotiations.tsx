@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   LABELS,
   HINTS,
   FORM_LABELS,
   CONTENT,
+  CHARACTER_LIMITS,
+  MESSAGES,
 } from '../constants/negotiationsConstants';
 import {
   useNegotiationsData,
@@ -15,21 +17,29 @@ import {
   ErrorSummary,
   DateInput,
   FormActions,
+  TextAreaWithCounter,
 } from '../components';
 import { updateNegotiationsData } from '../services';
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
+import { useAuthUserContext } from '../../../../context/AuthUserContext';
+import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 
 /**
  * Tell Us About Existing Negotiations Page
- * Asks if there have been any negotiations and optionally collects start date
+ * Asks if there have been any negotiations and optionally collects start date,
+ * evidence comments, and supporting documents
  */
 const TellUsAboutExistingNegotiations: React.FC = () => {
   const { appId, negotiationsData } = useNegotiationsData();
-  const { errors, validateRadioSelection, setErrors } = useFormValidation();
+  const { errors, validateRadioSelection, validateComments, setErrors } = useFormValidation();
   const {
-    navigateToEvidenceOfNegotiations,
     navigateToWhyNoNegotiations,
     navigateToTaskList,
   } = useNegotiationsNavigation(appId);
+  const { user } = useAuthUserContext();
+  const userId = user?.user_id;
+  const fileUploadRef = useRef<FileUploadHandle>(null);
 
   const [hasNegotiations, setHasNegotiations] = useState<string>('');
   const [startDate, setStartDate] = useState({
@@ -37,6 +47,10 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
     month: '',
     year: '',
   });
+  const [comments, setComments] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -53,6 +67,9 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         month: negotiationsData.negotiations_start_date_month || '',
         year: negotiationsData.negotiations_start_date_year || '',
       });
+      setComments(negotiationsData.negotiations_comments || '');
+      setUploadedFiles(negotiationsData.uploaded_files || []);
+      setApplicationDocuments(negotiationsData.application_documents || []);
     }
   }, [negotiationsData]);
 
@@ -67,7 +84,18 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Upload pending files first if user selected 'yes'
+    if (hasNegotiations === 'yes' && fileUploadRef.current && pendingFiles.length > 0) {
+      await fileUploadRef.current.triggerUpload();
+    }
+
     if (!validateRadioSelection(hasNegotiations)) {
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    // Validate comments if user selected 'yes' to negotiations
+    if (hasNegotiations === 'yes' && !validateComments(comments, true)) {
       window.scrollTo(0, 0);
       return;
     }
@@ -84,10 +112,11 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         negotiations_start_date_day: hasNegotiations === 'yes' ? startDate.day : undefined,
         negotiations_start_date_month: hasNegotiations === 'yes' ? startDate.month : undefined,
         negotiations_start_date_year: hasNegotiations === 'yes' ? startDate.year : undefined,
+        negotiations_comments: hasNegotiations === 'yes' ? comments : undefined,
       });
 
       if (hasNegotiations === 'yes') {
-        navigateToEvidenceOfNegotiations();
+        navigateToTaskList();
       } else {
         navigateToWhyNoNegotiations();
       }
@@ -107,6 +136,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         negotiations_start_date_day: startDate.day || undefined,
         negotiations_start_date_month: startDate.month || undefined,
         negotiations_start_date_year: startDate.year || undefined,
+        negotiations_comments: comments || undefined,
       });
     } catch (error) {
       console.error('Error saving for later:', error);
@@ -178,6 +208,48 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                         legend={HINTS.START_DATE}
                         hint={HINTS.DATE_FORMAT}
                       />
+
+                      {/* Evidence of Negotiations Section */}
+                      <div className="govuk-!-margin-top-6">
+                        <h2 className="govuk-heading-m">Evidence of negotiations</h2>
+                        
+                        <TextAreaWithCounter
+                          id="comments"
+                          name="comments"
+                          label={FORM_LABELS.ADDITIONAL_COMMENTS}
+                          labelClassName="govuk-label govuk-label--s"
+                          hint={CONTENT.EVIDENCE_INTRO}
+                          value={comments}
+                          error={errors.comments}
+                          rows={8}
+                          maxLength={CHARACTER_LIMITS.MAX_COMMENTS}
+                          onChange={setComments}
+                          characterRemainingMessage={MESSAGES.CHARACTER_REMAINING}
+                        />
+
+                        {/* File Upload Section */}
+                        <div className="govuk-form-group">
+                          <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
+                            {FORM_LABELS.UPLOAD_EVIDENCE}
+                          </h3>
+                          <FileUpload
+                            ref={fileUploadRef}
+                            title=""
+                            prefix={`${appId}/${FILE_CATEGORIES.NEGOTIATIONS}`}
+                            applicationId={appId}
+                            category={FILE_CATEGORIES.NEGOTIATIONS}
+                            addedBy={userId}
+                            uploadedFiles={uploadedFiles}
+                            applicationDocuments={applicationDocuments}
+                            onUploaded={(newUploadedFiles, newDocuments) => {
+                              setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
+                              setApplicationDocuments((prev) => [...prev, ...newDocuments]);
+                            }}
+                            onPendingFilesChange={(files) => setPendingFiles(files)}
+                            showDocumentsHeading={false}
+                          />
+                        </div>
+                      </div>
                     </div>
                     <div className="govuk-radios__item">
                       <input
