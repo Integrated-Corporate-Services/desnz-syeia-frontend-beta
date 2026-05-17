@@ -12,6 +12,10 @@ export const useNegotiationsNavigation = (appId: string | undefined) => {
     navigate(`${NWL_BASE_URL}/${appId}/existing-negotiations`);
   };
 
+  const navigateToEvidenceOfNegotiations = () => {
+    navigate(`${NWL_BASE_URL}/${appId}/evidence-of-negotiations`);
+  };
+
   const navigateToWhyNoNegotiations = () => {
     navigate(`${NWL_BASE_URL}/${appId}/why-no-negotiations`);
   };
@@ -19,6 +23,7 @@ export const useNegotiationsNavigation = (appId: string | undefined) => {
   return {
     navigateToTaskList,
     navigateToExistingNegotiations,
+    navigateToEvidenceOfNegotiations,
     navigateToWhyNoNegotiations,
   };
 };

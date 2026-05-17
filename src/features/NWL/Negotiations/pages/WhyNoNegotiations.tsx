@@ -51,7 +51,13 @@ const WhyNoNegotiations: React.FC = () => {
 
     try {
       await updateNegotiationsData(appId, {
+        has_negotiations: false,
         no_negotiations_reason: reason,
+        // Clear fields from opposite flow
+        negotiations_start_date_day: undefined,
+        negotiations_start_date_month: undefined,
+        negotiations_start_date_year: undefined,
+        negotiations_comments: '',
       });
 
       navigateToTaskList();

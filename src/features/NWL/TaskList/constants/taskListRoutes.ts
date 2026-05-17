@@ -19,6 +19,7 @@ export const NWL_TASK_LIST_ROUTES = {
   PLAN_VERIFICATION: '/nwl/:applicationId/plan-verification',
   
   EXISTING_NEGOTIATIONS: '/nwl/:applicationId/existing-negotiations',
+  EVIDENCE_OF_NEGOTIATIONS: '/nwl/:applicationId/evidence-of-negotiations',
   
   RELATED_APPLICATIONS: '/nwl/:applicationId/related-applications',
   OTHER_IMPORTANT_INFORMATION: '/nwl/:applicationId/other-important-information',

@@ -70,7 +70,10 @@ const EvidenceOfNegotiations: React.FC = () => {
 
     try {
       await updateNegotiationsData(appId, {
+        has_negotiations: true,
         negotiations_comments: comments,
+        // Clear field from opposite flow
+        no_negotiations_reason: '',
       });
 
       navigateToTaskList();
