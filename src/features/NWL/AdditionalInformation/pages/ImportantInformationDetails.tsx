@@ -4,6 +4,7 @@ import {
   HINTS,
   FORM_LABELS,
   CHARACTER_LIMIT,
+  ERRORS,
 } from '../constants';
 import {
   useAdditionalInformationData,
@@ -28,7 +29,7 @@ import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants
  */
 const ImportantInformationDetails: React.FC = () => {
   const { appId, additionalInformationData } = useAdditionalInformationData();
-  const { errors, validateOtherInformationDetails } = useFormValidation();
+  const { errors, setErrors, validateOtherInformationDetails } = useFormValidation();
   const { navigateToTaskList } = useAdditionalInformationNavigation(appId);
   const { user } = useAuthUserContext();
   const userId = user?.user_id;
@@ -80,9 +81,15 @@ const ImportantInformationDetails: React.FC = () => {
       });
 
       navigateToTaskList();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving important information details:', error);
-      // Error handling can be added here if needed
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data
+        ? String(error.response.data.error)
+        : ERRORS.API_ERROR;
+      setErrors({ api: errorMessage });
+      window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
     }

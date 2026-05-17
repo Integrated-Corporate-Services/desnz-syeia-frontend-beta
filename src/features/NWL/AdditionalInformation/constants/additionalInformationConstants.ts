@@ -36,8 +36,11 @@ export const ERRORS = {
   RADIO_REQUIRED: 'Select yes if there are related applications',
   OTHER_INFO_RADIO_REQUIRED: 'Select yes if there is other important information',
   DETAILS_REQUIRED: 'Enter details of the related applications',
+  DETAILS_TOO_SHORT: 'Details must be at least 1 characters',
   OTHER_INFO_REQUIRED: 'Enter the other important information',
+  OTHER_INFO_TOO_SHORT: 'Details must be at least 1 characters',
   DETAILS_TOO_LONG: 'Details must be 4000 characters or less',
+  API_ERROR: 'There was a problem saving your information. Please try again.',
 };
 
 export const CONTENT = {

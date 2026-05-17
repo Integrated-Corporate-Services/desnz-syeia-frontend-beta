@@ -25,7 +25,7 @@ import { createOrUpdateAdditionalInformationData } from '../services/additionalI
  */
 const RelatedApplications: React.FC = () => {
   const { appId, additionalInformationData } = useAdditionalInformationData();
-  const { errors, validateRadioSelection, validateRelatedApplicationsDetails } = useFormValidation();
+  const { errors, setErrors, validateRadioSelection, validateRelatedApplicationsDetails } = useFormValidation();
   const { navigateToOtherImportantInformation, navigateToTaskList } = useAdditionalInformationNavigation(appId);
 
   const [hasRelatedApplications, setHasRelatedApplications] = useState<string>('');
@@ -80,9 +80,15 @@ const RelatedApplications: React.FC = () => {
       } else {
         navigateToTaskList();
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving related applications:', error);
-      // TODO: Show error message to user
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data
+        ? String(error.response.data.error)
+        : ERRORS.API_ERROR;
+      setErrors({ api: errorMessage });
+      window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
     }

@@ -25,7 +25,7 @@ import { createOrUpdateAdditionalInformationData } from '../services/additionalI
  */
 const OtherImportantInformation: React.FC = () => {
   const { appId, additionalInformationData } = useAdditionalInformationData();
-  const { errors, validateRadioSelection } = useFormValidation();
+  const { errors, setErrors, validateRadioSelection } = useFormValidation();
   const { navigateToTaskList } = useAdditionalInformationNavigation(appId);
   const navigate = useNavigate();
 
@@ -56,26 +56,35 @@ const OtherImportantInformation: React.FC = () => {
       return;
     }
 
+    // If user selects "Yes", navigate to details page without saving
+    // The details page will save the complete data including the details text
+    if (hasOtherInformation === 'yes') {
+      navigate(`${NWL_BASE_URL}/${appId}/other-important-information/details`);
+      return;
+    }
+
+    // If user selects "No", save with has_other_information set to false
     setIsSaving(true);
 
     try {
-      // Save other information flag to backend
+      // Save other information flag as false to backend
       await createOrUpdateAdditionalInformationData(appId, {
         has_related_applications: additionalInformationData?.has_related_applications ?? false,
         related_applications_details: additionalInformationData?.related_applications_details,
-        has_other_information: hasOtherInformation === 'yes',
-        other_information_details: additionalInformationData?.other_information_details,
+        has_other_information: false,
+        // Don't send other_information_details when has_other_information is false
       });
 
-      // Navigate based on response
-      if (hasOtherInformation === 'yes') {
-        navigate(`${NWL_BASE_URL}/${appId}/other-important-information/details`);
-      } else {
-        navigateToTaskList();
-      }
-    } catch (error) {
+      navigateToTaskList();
+    } catch (error: unknown) {
       console.error('Error saving other important information:', error);
-      // TODO: Show error message to user
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data
+        ? String(error.response.data.error)
+        : ERRORS.API_ERROR;
+      setErrors({ api: errorMessage });
+      window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
     }

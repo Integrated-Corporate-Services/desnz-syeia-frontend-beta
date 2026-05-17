@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { AdditionalInformationData } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/backend/api';
+const API_BASE_URL = '/backend/api/nwl';
 
 /**
  * Get additional information data for an application
@@ -11,11 +11,13 @@ export const getAdditionalInformationData = async (
 ): Promise<AdditionalInformationData | null> => {
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/nwl/${applicationId}/additional-information`
+      `${API_BASE_URL}/${applicationId}/additional-information`
     );
     return response.data;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'status' in error.response &&
+        error.response.status === 404) {
       return null;
     }
     throw error;
@@ -36,12 +38,31 @@ export const createOrUpdateAdditionalInformationData = async (
     additional_document_ids?: string[];
   }
 ): Promise<void> => {
+  // Clean the data object to remove undefined/null fields
+  const cleanData: Record<string, unknown> = {
+    application_id: applicationId,
+    has_related_applications: data.has_related_applications,
+    has_other_information: data.has_other_information,
+  };
+
+  // Only include related_applications_details if it exists and has_related_applications is true
+  if (data.has_related_applications && data.related_applications_details) {
+    cleanData.related_applications_details = data.related_applications_details;
+  }
+
+  // Only include other_information_details if it exists and has_other_information is true
+  if (data.has_other_information && data.other_information_details) {
+    cleanData.other_information_details = data.other_information_details;
+  }
+
+  // Only include additional_document_ids if it exists and has items
+  if (data.additional_document_ids && data.additional_document_ids.length > 0) {
+    cleanData.additional_document_ids = data.additional_document_ids;
+  }
+
   await axios.post(
-    `${API_BASE_URL}/nwl/additional-information`,
-    {
-      application_id: applicationId,
-      ...data,
-    }
+    `${API_BASE_URL}/additional-information`,
+    cleanData
   );
 };
 
@@ -54,7 +75,7 @@ export const updateAdditionalInformationData = async (
   data: Partial<AdditionalInformationData>
 ): Promise<void> => {
   // Map to backend format and use POST endpoint
-  const backendData: any = {
+  const backendData: Record<string, unknown> = {
     application_id: applicationId,
   };
 
@@ -71,5 +92,5 @@ export const updateAdditionalInformationData = async (
     backendData.other_information_details = data.other_information_details;
   }
 
-  await axios.post(`${API_BASE_URL}/nwl/additional-information`, backendData);
+  await axios.post(`${API_BASE_URL}/additional-information`, backendData);
 };
