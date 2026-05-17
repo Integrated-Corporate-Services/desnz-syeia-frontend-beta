@@ -15,7 +15,7 @@ import {
   FormActions,
   TextAreaWithCounter,
 } from '../components';
-import { updateNegotiationsData } from '../services';
+import { patchNegotiationsData } from '../services';
 
 /**
  * Why No Negotiations Page
@@ -50,13 +50,10 @@ const WhyNoNegotiations: React.FC = () => {
     setIsSaving(true);
 
     try {
-      await updateNegotiationsData(appId, {
-        has_negotiations: false,
+      // Use PATCH to only update reason without affecting other fields
+      await patchNegotiationsData(appId, {
         no_negotiations_reason: reason,
-        // Clear fields from opposite flow
-        negotiations_start_date_day: undefined,
-        negotiations_start_date_month: undefined,
-        negotiations_start_date_year: undefined,
+        // Clear comments from opposite flow
         negotiations_comments: '',
       });
 

@@ -17,7 +17,7 @@ import {
   FormActions,
   TextAreaWithCounter,
 } from '../components';
-import { updateNegotiationsData } from '../services';
+import { patchNegotiationsData } from '../services';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
@@ -52,9 +52,29 @@ const EvidenceOfNegotiations: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Upload pending files first
+    console.log('[EvidenceOfNegotiations] handleSubmit started', {
+      pendingFilesCount: pendingFiles.length,
+      existingUploadedFiles: uploadedFiles.length,
+      existingDocuments: applicationDocuments.length,
+    });
+
+    // Capture newly uploaded files (if any)
+    let newlyUploadedFiles: UploadedFile[] = [];
+    let newlyUploadedDocuments: ApplicationDocument[] = [];
+
+    // Upload pending files first and capture the result
     if (fileUploadRef.current && pendingFiles.length > 0) {
-      await fileUploadRef.current.triggerUpload();
+      console.log('[EvidenceOfNegotiations] Triggering upload for pending files...');
+      const uploadResult = await fileUploadRef.current.triggerUpload();
+      newlyUploadedFiles = uploadResult.uploadedFiles;
+      newlyUploadedDocuments = uploadResult.applicationDocuments;
+      
+      console.log('[EvidenceOfNegotiations] Upload completed:', {
+        newlyUploadedFilesCount: newlyUploadedFiles.length,
+        newlyUploadedDocumentsCount: newlyUploadedDocuments.length,
+        files: newlyUploadedFiles.map(f => ({ id: f.id, filename: f.filename })),
+        documents: newlyUploadedDocuments.map(d => ({ documentId: d.documentId, category: d.category })),
+      });
     }
 
     if (!validateComments(comments, true)) {
@@ -69,16 +89,34 @@ const EvidenceOfNegotiations: React.FC = () => {
     setIsSaving(true);
 
     try {
-      await updateNegotiationsData(appId, {
-        has_negotiations: true,
+      // Merge existing files with newly uploaded files
+      const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
+      const allDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
+
+      console.log('[EvidenceOfNegotiations] Preparing to send to backend:', {
+        uploaded_files_count: allUploadedFiles.length,
+        application_documents_count: allDocuments.length,
+        comments_length: comments.length,
+        uploaded_files: JSON.stringify(allUploadedFiles, null, 2),
+        application_documents: JSON.stringify(allDocuments, null, 2),
+      });
+
+      // Use PATCH to only update comments without affecting other fields like date
+      // IMPORTANT: Send uploaded files and documents so backend can save them to database
+      const result = await patchNegotiationsData(appId, {
         negotiations_comments: comments,
         // Clear field from opposite flow
         no_negotiations_reason: '',
+        // Send ALL file metadata to backend (existing + newly uploaded)
+        uploaded_files: allUploadedFiles,
+        application_documents: allDocuments,
       });
+
+      console.log('[EvidenceOfNegotiations] Backend response:', result);
 
       navigateToTaskList();
     } catch (error) {
-      console.error('Error saving negotiations evidence:', error);
+      console.error('[EvidenceOfNegotiations] Error saving negotiations evidence:', error);
     } finally {
       setIsSaving(false);
     }

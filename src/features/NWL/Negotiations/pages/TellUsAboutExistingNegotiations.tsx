@@ -17,6 +17,7 @@ import {
   FormActions,
 } from '../components';
 import { updateNegotiationsData } from '../services';
+import { NegotiationsData } from '../types/negotiations';
 
 /**
  * Tell Us About Existing Negotiations Page
@@ -79,15 +80,25 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
 
     try {
       const isYes = hasNegotiations === 'yes';
-      await updateNegotiationsData(appId, {
+      const payload: Partial<NegotiationsData> = {
         has_negotiations: isYes,
-        negotiations_start_date_day: isYes ? startDate.day : undefined,
-        negotiations_start_date_month: isYes ? startDate.month : undefined,
-        negotiations_start_date_year: isYes ? startDate.year : undefined,
-        // Clear opposite flow fields on page 1
-        no_negotiations_reason: isYes ? '' : undefined,
-        negotiations_comments: isYes ? undefined : '',
-      });
+      };
+
+      if (isYes) {
+        // Send date fields only when has_negotiations is true AND date is entered
+        if (startDate.day && startDate.month && startDate.year) {
+          payload.negotiations_start_date_day = startDate.day;
+          payload.negotiations_start_date_month = startDate.month;
+          payload.negotiations_start_date_year = startDate.year;
+        }
+        // Clear opposite flow field
+        payload.no_negotiations_reason = '';
+      } else {
+        // Clear date and comments when has_negotiations is false
+        payload.negotiations_comments = '';
+      }
+
+      await updateNegotiationsData(appId, payload);
 
       if (hasNegotiations === 'yes') {
         navigateToEvidenceOfNegotiations();
@@ -162,7 +173,6 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                         errors={errors}
                         onDateChange={handleDateChange}
                         legend={HINTS.START_DATE}
-                        hint={HINTS.DATE_FORMAT}
                       />
                     </div>
                     <div className="govuk-radios__item">
