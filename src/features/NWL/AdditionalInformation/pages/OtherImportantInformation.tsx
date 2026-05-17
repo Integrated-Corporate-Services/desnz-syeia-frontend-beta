@@ -17,6 +17,7 @@ import {
 import { CONTENT } from '../constants';
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
+import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 
 /**
  * Other Important Information Page
@@ -29,6 +30,7 @@ const OtherImportantInformation: React.FC = () => {
   const navigate = useNavigate();
 
   const [hasOtherInformation, setHasOtherInformation] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (additionalInformationData) {
@@ -42,7 +44,7 @@ const OtherImportantInformation: React.FC = () => {
     }
   }, [additionalInformationData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateRadioSelection(hasOtherInformation, ERRORS.OTHER_INFO_RADIO_REQUIRED)) {
@@ -54,15 +56,28 @@ const OtherImportantInformation: React.FC = () => {
       return;
     }
 
-    // Direct navigation without backend interaction
-    if (hasOtherInformation === 'yes') {
-      // Navigate to details page
-      navigate(
-        `${NWL_BASE_URL}/${appId}/other-important-information/details`
-      );
-    } else {
-      // Navigate to task list
-      navigateToTaskList();
+    setIsSaving(true);
+
+    try {
+      // Save other information flag to backend
+      await createOrUpdateAdditionalInformationData(appId, {
+        has_related_applications: additionalInformationData?.has_related_applications ?? false,
+        related_applications_details: additionalInformationData?.related_applications_details,
+        has_other_information: hasOtherInformation === 'yes',
+        other_information_details: additionalInformationData?.other_information_details,
+      });
+
+      // Navigate based on response
+      if (hasOtherInformation === 'yes') {
+        navigate(`${NWL_BASE_URL}/${appId}/other-important-information/details`);
+      } else {
+        navigateToTaskList();
+      }
+    } catch (error) {
+      console.error('Error saving other important information:', error);
+      // TODO: Show error message to user
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -135,7 +150,7 @@ const OtherImportantInformation: React.FC = () => {
                 </fieldset>
               </div>
 
-              <FormActions />
+              <FormActions isSaving={isSaving} />
             </form>
           </div>
         </div>

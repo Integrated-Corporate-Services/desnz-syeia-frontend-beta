@@ -16,7 +16,7 @@ import {
   FormActions,
 } from '../components';
 import { CONTENT } from '../constants';
-import { updateAdditionalInformationData } from '../services';
+import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
@@ -68,12 +68,20 @@ const ImportantInformationDetails: React.FC = () => {
     setIsSaving(true);
 
     try {
-      await updateAdditionalInformationData(appId, {
+      // Get document IDs from uploaded documents
+      const documentIds = applicationDocuments.map(doc => doc.documentId);
+
+      await createOrUpdateAdditionalInformationData(appId, {
+        has_related_applications: additionalInformationData?.has_related_applications ?? false,
+        related_applications_details: additionalInformationData?.related_applications_details,
+        has_other_information: true,
         other_information_details: details,
+        additional_document_ids: documentIds.length > 0 ? documentIds : undefined,
       });
 
       navigateToTaskList();
-    } catch {
+    } catch (error) {
+      console.error('Error saving important information details:', error);
       // Error handling can be added here if needed
     } finally {
       setIsSaving(false);
