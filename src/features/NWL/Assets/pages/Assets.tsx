@@ -97,12 +97,9 @@ const Asset: React.FC = () => {
       };
 
       // Call NWL asset service to save
-      const response = await nwlAssetService.createAssets(payload);
+      await nwlAssetService.createAssets(payload);
 
-      console.log('[Assets] Asset created successfully', { 
-        metadata_id: response.assets_metadata_id,
-        asset_count: response.assets.length 
-      });
+      // Asset creation is logged in the service layer
 
       // Reset form
       resetForm();
@@ -110,7 +107,7 @@ const Asset: React.FC = () => {
       // Navigate to review page
       navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`);
     } catch (error: unknown) {
-      console.error('[Assets] Error saving asset', { error });
+      // Error logging is handled in the service layer
       
       // Type guard for axios error
       interface AxiosError {

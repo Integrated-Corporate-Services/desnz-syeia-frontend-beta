@@ -23,10 +23,12 @@ export const FILE_CATEGORY_LABELS: { [key: string]: string } = {
 	CONSULTATION_RESPONSE_NOT_RECEIVED: 'Evidence of Response Not Received',
 	LPA_CONSULTATION_FORM: 'LPA Consultation Form',
 	NEGOTIATIONS: 'Negotiations Evidence',
+	NWL_PLAN_INFO: 'NWL Application Plan',
 };
 
 
 export const NWL_FILE_CATEGORIES = {
+	NWL_PLAN_INFO: 'NWL_PLAN_INFO',
 	NWL_NEGOTIATIONS: 'NEGOTIATIONS',
 	NWL_SUPPORT_INFO: 'SUPPORTING_INFORMATION',
 	NWL_WAYLEAVE_OFFER: 'WAYLEAVE_OFFER',

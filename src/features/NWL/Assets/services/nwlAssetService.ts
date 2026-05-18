@@ -5,6 +5,7 @@
 
 import axios from 'axios';
 import { createLogger } from '../../../../utils/logger';
+import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
 const logger = createLogger('nwlAssetService');
 const API_BASE = '/backend/api/nwl';
@@ -199,6 +200,42 @@ export const nwlAssetService = {
       logger.error('[updateMetadata] Error updating metadata', {
         error: error.message,
         applicationId
+      });
+      throw error;
+    }
+  },
+
+  /**
+   * Save application plan documents (file metadata)
+   * This saves the uploaded files metadata to the database
+   */
+  saveApplicationPlanDocuments: async (
+    applicationId: string,
+    uploadedFiles: UploadedFile[],
+    applicationDocuments: ApplicationDocument[]
+  ): Promise<void> => {
+    try {
+      logger.debug('[saveApplicationPlanDocuments] Saving documents', {
+        applicationId,
+        uploadedFilesCount: uploadedFiles.length,
+        documentsCount: applicationDocuments.length,
+      });
+
+      // Create empty assets to trigger file processing
+      // The backend will only process files, not create actual assets
+      await axios.post(`${API_BASE}/assets`, {
+        application_id: applicationId,
+        assets: [], // Empty array - no assets to create yet
+        assets_match_plan: false, // Default value
+        uploaded_files: uploadedFiles,
+        application_documents: applicationDocuments,
+      });
+
+      logger.info('[saveApplicationPlanDocuments] Documents saved successfully');
+    } catch (error) {
+      logger.error('[saveApplicationPlanDocuments] Error saving documents', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        applicationId,
       });
       throw error;
     }

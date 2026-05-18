@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { AssetsBreadcrumbs, AssetSummaryCard, FormActions } from '../components';
 import { useApplicationId } from '../hooks';
@@ -29,8 +29,8 @@ const AssetsReview: React.FC = () => {
     try {
       const response = await nwlAssetService.getAssetsByApplicationId(applicationId);
       setAssets(response.assets || []);
-    } catch (err: unknown) {
-      console.error('[AssetsReview] Error fetching assets', { err });
+    } catch {
+      // Error logging is handled in the service layer
       setError('Failed to load assets');
     } finally {
       setLoading(false);
@@ -50,9 +50,9 @@ const AssetsReview: React.FC = () => {
       // Remove from local state immediately for responsive UI
       setAssets(prev => prev.filter(asset => asset.asset_id !== assetId));
       
-      console.log('[AssetsReview] Asset deleted successfully', { assetId });
-    } catch (error: unknown) {
-      console.error('[AssetsReview] Error deleting asset', { error });
+      // Asset deletion is logged in the service layer
+    } catch {
+      // Error logging is handled in the service layer
       setError('Failed to delete asset. Please try again.');
       
       // Refresh to get current state
@@ -145,14 +145,15 @@ const AssetsReview: React.FC = () => {
             </>
           )}
 
-          <p className="govuk-body">
-            <Link
-              to={`${NWL_BASE_URL}/${applicationId}/information-about-lines`}
-              className="govuk-link"
-            >
-              {LABELS.ADD_ANOTHER}
-            </Link>
-          </p>
+          <button
+            type="button"
+            className="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+            onClick={() => navigate(`${NWL_BASE_URL}/${applicationId}/information-about-lines`)}
+            disabled={loading}
+          >
+            {LABELS.ADD_ANOTHER}
+          </button>
 
           <FormActions
             onContinue={handleContinue}
