@@ -85,7 +85,7 @@ const TaskList: React.FC = () => {
       )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <SensitiveAreaBanner status={sensitiveAreaStatus} />
+          <SensitiveAreaBanner status={sensitiveAreaStatus} checkJustStarted={showSensitiveAreaPopup} />
           {!application ? (
             <>
               <h1 className="govuk-heading-l">Loading application...</h1>
