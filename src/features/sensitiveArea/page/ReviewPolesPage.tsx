@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -7,7 +7,6 @@ import { S37_BASE_URL } from '../../../constants/s37';
 const ReviewPolesPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [poleOption, setPoleOption] = useState<SensitiveAreaPoleOption | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
@@ -110,28 +109,19 @@ const ReviewPolesPage: React.FC = () => {
     );
   }
 
-  const getPreviousPagePath = (): string => {
-    const state = location.state as { from?: string; skippedAddAreas?: boolean } | null;
-    
-    if (state?.from === 'add-question' && state?.skippedAddAreas) {
-      return `${S37_BASE_URL}/${applicationId}/sensitive-area-add-question`;
-    } else if (state?.from === 'add-areas') {
-      return `${S37_BASE_URL}/${applicationId}/sensitive-area-add-areas`;
-    }
-    return `${S37_BASE_URL}/${applicationId}/sensitive-area-add-areas`;
-  };
-
-  const previousPagePath = getPreviousPagePath();
-
   return (
     <div className="govuk-width-container">
-      {/* Back link */}
-      <Link 
-        to={previousPagePath}
+
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          navigate(-1);
+        }}
         className="govuk-back-link"
       >
         Back
-      </Link>
+      </a>
 
       <main className="govuk-main-wrapper">
         <div className="govuk-grid-row">

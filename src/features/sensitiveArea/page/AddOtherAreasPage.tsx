@@ -191,10 +191,7 @@ const AddOtherAreasPage: React.FC = () => {
   const handleSaveAndContinue = () => {
     if (!effectiveApplicationId) return;
 
-    // Navigate to the next step in the workflow (review poles page)
-    navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/poles`, {
-      state: { from: 'add-areas' }
-    });
+    navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/poles`);
   };
 
   /**

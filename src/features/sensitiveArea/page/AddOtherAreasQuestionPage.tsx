@@ -152,13 +152,9 @@ const AddOtherAreasQuestionPage: React.FC = () => {
         // For now we silently fallback to local stash
       } finally {
         if (selectedOption === 'yes') {
-          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-areas`, {
-            state: { from: 'add-question' }
-          });
+          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-areas`);
         } else {
-          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/poles`, {
-            state: { from: 'add-question', skippedAddAreas: true }
-          });
+          navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review/poles`);
         }
       }
     })();
