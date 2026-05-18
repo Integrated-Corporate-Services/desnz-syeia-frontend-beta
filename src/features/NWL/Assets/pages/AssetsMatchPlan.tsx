@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
-import { useApplicationId } from '../hooks';
+import { useApplicationId, useAssetsData } from '../hooks';
 import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '../constants';
 import nwlAssetService from '../services/nwlAssetService';
 import { createLogger } from '../../../../utils/logger';
@@ -11,11 +11,31 @@ const logger = createLogger('AssetsMatchPlan');
 const AssetsMatchPlan: React.FC = () => {
   const navigate = useNavigate();
   const applicationId = useApplicationId();
+  
+  // Fetch existing assets data
+  const { assetsData, loading } = useAssetsData(applicationId);
+  
   const [assetsMatch, setAssetsMatch] = useState<string>('');
   const [explanation, setExplanation] = useState<string>('');
   const [errors, setErrors] = useState<{ assetsMatch?: string; explanation?: string; general?: string }>({});
   const [showErrorSummary, setShowErrorSummary] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Load existing metadata when assetsData is available
+  useEffect(() => {
+    if (assetsData && !loading) {
+      logger.debug('[AssetsMatchPlan] Loading existing metadata', {
+        assetsMatchPlan: assetsData.assets_match_plan,
+        hasExplanation: !!assetsData.assets_match_plan_explanation,
+      });
+
+      // Only set the value if metadata exists (not default false)
+      if (assetsData.metadata_id) {
+        setAssetsMatch(assetsData.assets_match_plan ? 'yes' : 'no');
+        setExplanation(assetsData.assets_match_plan_explanation || '');
+      }
+    }
+  }, [assetsData, loading]);
 
   const handleRadioChange = (value: string) => {
     setAssetsMatch(value);
@@ -138,6 +158,11 @@ const AssetsMatchPlan: React.FC = () => {
         <div className="govuk-grid-column-two-thirds">
           
           <h1 className="govuk-heading-xl">{LABELS.ASSETS_MATCH_PLAN_TITLE}</h1>
+
+          {/* Loading State */}
+          {loading && (
+            <p className="govuk-body">Loading existing data...</p>
+          )}
 
           {/* Error Summary */}
           {showErrorSummary && hasErrors && (

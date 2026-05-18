@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
-import { useApplicationId } from '../hooks';
+import { useApplicationId, useAssetsData } from '../hooks';
 import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
@@ -19,12 +19,56 @@ const ProvideApplicationPlan: React.FC = () => {
   const userId = user?.user_id;
   const fileUploadRef = useRef<FileUploadHandle>(null);
   
+  // Fetch existing assets data
+  const { assetsData, loading } = useAssetsData(applicationId);
+  
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [showErrorSummary, setShowErrorSummary] = useState(false);
+
+  // Load existing files when assetsData is available
+  useEffect(() => {
+    console.log('[ProvideApplicationPlan] useEffect triggered', {
+      hasAssetsData: !!assetsData,
+      loading,
+      assetsData
+    });
+
+    if (assetsData && !loading) {
+      logger.debug('[ProvideApplicationPlan] Loading existing files', {
+        uploadedFilesCount: assetsData.uploadedFiles?.length || 0,
+        documentsCount: assetsData.applicationDocuments?.length || 0,
+      });
+
+      console.log('[ProvideApplicationPlan] assetsData.uploadedFiles:', assetsData.uploadedFiles);
+      console.log('[ProvideApplicationPlan] assetsData.applicationDocuments:', assetsData.applicationDocuments);
+
+      if (assetsData.uploadedFiles && assetsData.uploadedFiles.length > 0) {
+        console.log('[ProvideApplicationPlan] Setting uploadedFiles:', assetsData.uploadedFiles);
+        setUploadedFiles(assetsData.uploadedFiles);
+      } else {
+        console.warn('[ProvideApplicationPlan] No uploaded files to set');
+      }
+
+      if (assetsData.applicationDocuments && assetsData.applicationDocuments.length > 0) {
+        console.log('[ProvideApplicationPlan] Setting applicationDocuments:', assetsData.applicationDocuments);
+        setApplicationDocuments(assetsData.applicationDocuments);
+      } else {
+        console.warn('[ProvideApplicationPlan] No application documents to set');
+      }
+    } else {
+      console.log('[ProvideApplicationPlan] Waiting for data or still loading', { hasAssetsData: !!assetsData, loading });
+    }
+  }, [assetsData, loading]);
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('[ProvideApplicationPlan] State changed - uploadedFiles:', uploadedFiles);
+    console.log('[ProvideApplicationPlan] State changed - applicationDocuments:', applicationDocuments);
+  }, [uploadedFiles, applicationDocuments]);
 
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
@@ -139,8 +183,13 @@ const ProvideApplicationPlan: React.FC = () => {
           
           <h1 className="govuk-heading-xl">{LABELS.APPLICATION_PLAN_TITLE}</h1>
 
+          {/* Loading State */}
+          {loading && (
+            <p className="govuk-body">Loading existing files...</p>
+          )}
+
           {/* Error Summary */}
-          {showErrorSummary && (error || fileValidationErrors.length > 0) && (
+          {!loading && showErrorSummary && (error || fileValidationErrors.length > 0) && (
             <div
               className="govuk-error-summary"
               data-module="govuk-error-summary"
@@ -159,58 +208,65 @@ const ProvideApplicationPlan: React.FC = () => {
           )}
 
           {/* Description */}
-          <p className="govuk-body">{HINTS.APPLICATION_PLAN_INTRO}</p>
-          <ul className="govuk-list govuk-list--bullet">
-            {HINTS.APPLICATION_PLAN_BULLETS.map((bullet, index) => (
-              <li key={index}>{bullet}</li>
-            ))}
-          </ul>
+          {!loading && (
+            <>
+              <p className="govuk-body">{HINTS.APPLICATION_PLAN_INTRO}</p>
+              <ul className="govuk-list govuk-list--bullet">
+                {HINTS.APPLICATION_PLAN_BULLETS.map((bullet, index) => (
+                  <li key={index}>{bullet}</li>
+                ))}
+              </ul>
 
-          {/* File Upload Section */}
-          <h2 className="govuk-heading-m">{LABELS.UPLOAD_SECTION_TITLE}</h2>
+              {/* File Upload Section */}
+              <h2 className="govuk-heading-m">{LABELS.UPLOAD_SECTION_TITLE}</h2>
 
-          <div className={`govuk-form-group ${error || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}>
-            {(error || fileValidationErrors.length > 0) && (
-              <p id="file-upload-error" className="govuk-error-message">
-                <span className="govuk-visually-hidden">Error:</span> {error || fileValidationErrors[0]}
-              </p>
-            )}
-            
-            <FileUpload
-              ref={fileUploadRef}
-              title="Upload a file"
-              showTitle={false}
-              prefix={`${applicationId}/application-plan`}
-              applicationId={applicationId}
-              category={NWL_FILE_CATEGORIES.NWL_PLAN_INFO}
-              addedBy={userId}
-              uploadedFiles={uploadedFiles}
-              applicationDocuments={applicationDocuments}
-              showDocumentsHeading={false}
-              onDeleteFile={handleDeleteFile}
-              onPendingFilesChange={setPendingFiles}
-              onValidationErrors={(errors) => {
-                setFileValidationErrors(errors);
-                if (errors.length > 0) {
-                  setShowErrorSummary(true);
-                }
-              }}
-              onUploaded={(newUploadedFiles, newProjectDocuments) => {
-                setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
-                setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
-              }}
-            />
-          </div>
+              <div className={`govuk-form-group ${error || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}>
+                {(error || fileValidationErrors.length > 0) && (
+                  <p id="file-upload-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error || fileValidationErrors[0]}
+                  </p>
+                )}
+                
+                <FileUpload
+                  key={`file-upload-${applicationId}-${assetsData?.metadata_id || 'new'}`}
+                  ref={fileUploadRef}
+                  title="Upload a file"
+                  showTitle={false}
+                  prefix={`${applicationId}/application-plan`}
+                  applicationId={applicationId}
+                  category={NWL_FILE_CATEGORIES.NWL_PLAN_INFO}
+                  addedBy={userId}
+                  uploadedFiles={uploadedFiles}
+                  applicationDocuments={applicationDocuments}
+                  showDocumentsHeading={true}
+                  onDeleteFile={handleDeleteFile}
+                  onPendingFilesChange={setPendingFiles}
+                  onValidationErrors={(errors) => {
+                    setFileValidationErrors(errors);
+                    if (errors.length > 0) {
+                      setShowErrorSummary(true);
+                    }
+                  }}
+                  onUploaded={(newUploadedFiles, newProjectDocuments) => {
+                    setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+                    setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
+                  }}
+                />
+              </div>
+            </>
+          )}
 
           {/* Form Actions */}
-          <button
-            type="button"
-            className="govuk-button"
-            data-module="govuk-button"
-            onClick={handleSubmit}
-          >
-            {LABELS.CONTINUE}
-          </button>
+          {!loading && (
+            <button
+              type="button"
+              className="govuk-button"
+              data-module="govuk-button"
+              onClick={handleSubmit}
+            >
+              {LABELS.CONTINUE}
+            </button>
+          )}
         </div>
       </div>
     </main>

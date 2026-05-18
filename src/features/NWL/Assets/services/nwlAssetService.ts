@@ -42,8 +42,11 @@ export interface AssetsResponse {
   assets_match_plan_explanation?: string | null;
   application_plan_documents?: any[];
   plan_verification_documents?: any[];
+  uploadedFiles?: UploadedFile[];
+  applicationDocuments?: ApplicationDocument[];
   created_at: string;
   updated_at: string;
+  metadata_id?: string;
 }
 
 /**
@@ -87,25 +90,57 @@ export const nwlAssetService = {
       const response = await axios.get(`${API_BASE}/${applicationId}/assets`);
       
       logger.info('[getAssetsByApplicationId] Assets fetched successfully', {
-        asset_count: response.data.assets?.length || 0
+        asset_count: response.data.assets?.length || 0,
+        document_count: response.data.application_plan_documents?.length || 0,
       });
       
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+      // Transform documents to match frontend format
+      const uploadedFiles = (response.data.application_plan_documents || []).map((doc: any) => ({
+        id: doc.file_id,
+        storageProvider: doc.storage_provider || 'aws_s3',
+        s3Key: doc.s3_key,
+        bucketName: doc.bucket_name,
+        virtualFolder: doc.s3_key?.split('/').slice(0, -1).join('/') || '',
+        filename: doc.filename,
+        fileContentType: doc.file_content_type,
+        fileSizeBytes: doc.file_size_bytes,
+        uploadedAtTimestamp: doc.uploaded_at_timestamp || doc.added_at,
+      }));
+
+      const applicationDocuments = (response.data.application_plan_documents || []).map((doc: any) => ({
+        documentId: doc.document_id,
+        applicationId: applicationId,
+        fileId: doc.file_id,
+        category: 'NWL_PLAN_INFO',
+        title: doc.title || doc.filename,
+        virtualFolder: doc.s3_key?.split('/').slice(0, -1).join('/') || '',
+        addedBy: response.data.created_by || '',
+        addedAt: doc.added_at,
+      }));
+
+      return {
+        ...response.data,
+        metadata_id: response.data.metadata_id || response.data.assets_metadata_id,
+        uploadedFiles,
+        applicationDocuments,
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
         logger.debug('[getAssetsByApplicationId] No assets found', { applicationId });
         return {
           assets_metadata_id: '',
           application_id: applicationId,
           assets: [],
-          assets_match_plan: true,
+          assets_match_plan: false,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          uploadedFiles: [],
+          applicationDocuments: [],
         };
       }
       
       logger.error('[getAssetsByApplicationId] Error fetching assets', {
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         applicationId
       });
       throw error;
