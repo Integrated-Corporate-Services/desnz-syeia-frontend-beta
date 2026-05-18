@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
@@ -205,13 +205,16 @@ const ReviewDocumentsPage: React.FC = () => {
   return (
     <main className="govuk-main-wrapper govuk-!-padding-top-2">
      {/* <div className="govuk-width-container"> */}
-      {/* Back link */}
-      <Link 
-        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review/poles`}
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          navigate(-1);
+        }}
         className="govuk-back-link"
       >
         Back
-      </Link>
+      </a>
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds govuk-!-margin-top-4">

@@ -50,7 +50,18 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
 
   useEffect(() => {
     if (mapRef.current && !mapInstance.current) {
-      const map = L.map(mapRef.current).setView([54.5, -3.5], 6);
+      const ukBounds = L.latLngBounds(
+        L.latLng(49.5, -8.5), // Southwest
+        L.latLng(61, 2)       // Northeast
+      );
+      
+      const map = L.map(mapRef.current, {
+        maxBounds: ukBounds,
+        maxBoundsViscosity: 1.0,
+        minZoom: 5,
+        maxZoom: 18
+      }).setView([54.5, -3.5], 6);
+      
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
@@ -67,7 +78,15 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
         }
       });
     }
-  }, [selectedIdx, setPoints]);
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
+    };
+  }, []); // Empty deps - map should only be created once
 
   useEffect(() => {
     const map = mapInstance.current;
@@ -82,12 +101,16 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
         markersRef.current.forEach(marker => map.removeLayer(marker));
         markersRef.current = [];
       }
-      // Multi-route support
-      const allRoutes: MapRoute[] = routes && routes.length > 0
-        ? routes
-        : points && points.length > 0
-          ? [{ points, routeName }]
-          : [];
+      // In edit mode, combine existing routes with current editing route
+      let allRoutes: MapRoute[] = [];
+      if (mode === 'edit' && routes && routes.length > 0 && points && points.length > 0) {
+        // Show all OTHER routes (background) + current route being edited (foreground)
+        allRoutes = [...routes, { points, routeName }];
+      } else if (routes && routes.length > 0) {
+        allRoutes = routes;
+      } else if (points && points.length > 0) {
+        allRoutes = [{ points, routeName }];
+      }
 
       // For bounds
       let allLatLngs: [number, number][] = [];
@@ -107,11 +130,16 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
 
         // Markers and labels for each route
         if (mode === 'edit') {
+          // Only show numbered markers on the CURRENT route being edited (last route in array)
+          const isCurrentRoute = routeIdx === allRoutes.length - 1;
+          
           latlngs.forEach((latlng, i) => {
             const marker = L.marker(latlng, {
               icon: L.divIcon({
                 className: 'custom-marker',
-                html: `<span style="font-size: 15px; color: #111; background: none; border: none; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;">${i + 1}</span>`
+                html: isCurrentRoute 
+                  ? `<span style="font-size: 15px; color: #111; background: none; border: none; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;">${i + 1}</span>`
+                  : `<span style="color: ${MARKER_COLOR}; font-size: 12px; font-weight: bold; background: none; border: none;">&#10005;</span>`
               })
             }).addTo(map);
             markersRef.current.push(marker);
