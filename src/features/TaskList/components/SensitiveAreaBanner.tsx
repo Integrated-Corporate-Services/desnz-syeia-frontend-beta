@@ -19,8 +19,6 @@ const SensitiveAreaBanner: React.FC<SensitiveAreaBannerProps> = ({ status, check
   if (!status && !checkJustStarted) return null;
   if (status && !status.inProgress && !checkJustStarted) return null;
 
-  const cleared = status?.cleared || 0;
-  const failed = status?.failed || 0;
   const completed = status?.completed || 0;
   const total = status?.total || 0;
   
