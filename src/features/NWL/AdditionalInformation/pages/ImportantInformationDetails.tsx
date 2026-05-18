@@ -44,8 +44,12 @@ const ImportantInformationDetails: React.FC = () => {
   useEffect(() => {
     if (additionalInformationData) {
       setDetails(additionalInformationData.other_information_details || '');
-      setUploadedFiles(additionalInformationData.uploaded_files || []);
-      setApplicationDocuments(additionalInformationData.application_documents || []);
+      
+      const loadedUploadedFiles = additionalInformationData.uploaded_files || [];
+      const loadedApplicationDocuments = additionalInformationData.application_documents || [];
+            
+      setUploadedFiles(loadedUploadedFiles);
+      setApplicationDocuments(loadedApplicationDocuments);
     }
   }, [additionalInformationData]);
 
@@ -197,7 +201,7 @@ const ImportantInformationDetails: React.FC = () => {
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   onPendingFilesChange={(files) => setPendingFiles(files)}
-                  showDocumentsHeading={false}
+                  showDocumentsHeading={true}
                 />
               </div>
               <FormActions isSaving={isSaving} />
