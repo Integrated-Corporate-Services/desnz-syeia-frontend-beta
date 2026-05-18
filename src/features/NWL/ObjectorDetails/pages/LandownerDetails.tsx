@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
@@ -10,38 +9,42 @@ import {
   FORM_LABELS,
   TITLE_OPTIONS,
 } from "../constants/objectorDetailsConstants";
+import { getObjectorDetails, saveLandownerDetails } from "../services";
 
 const LandownerDetails: React.FC = () => {
   const navigate = useNavigate();
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
 
   const [title, setTitle] = useState("");
   const [fullName, setFullName] = useState("");
-  const [organisation, setOrganisation] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setTitle(details.landowner_title || "");
-      setFullName(details.landowner_full_name || "");
-      setOrganisation(details.landowner_organisation || "");
-      setEmail(details.landowner_email || "");
-      setPhone(details.landowner_phone || "");
-    }
-  }, [application]);
+    const fetchData = async () => {
+      if (!appId) return;
+      
+      try {
+        setIsLoading(true);
+        const details = await getObjectorDetails(appId);
+        if (details) {
+          setTitle(details.landowner_title || "");
+          setFullName(details.landowner_full_name || "");
+          setEmail(details.landowner_email || "");
+          setPhone(details.landowner_phone || "");
+        }
+      } catch (error) {
+        console.error('Error fetching objector details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [appId]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -61,7 +64,23 @@ const LandownerDetails: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
-    navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
+    
+    if (!appId) return;
+    
+    try {
+      setIsSaving(true);
+      await saveLandownerDetails(appId, {
+        landowner_title: title,
+        landowner_full_name: fullName,
+        landowner_email: email,
+        landowner_phone: phone,
+      });
+      navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
+    } catch (error) {
+      console.error('Error saving landowner details:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -108,10 +127,6 @@ const LandownerDetails: React.FC = () => {
                 {errors.fullName && <p id="fullName-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.fullName}</p>}
                 <input className={`govuk-input ${errors.fullName ? "govuk-input--error" : ""}`} id="fullName" name="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} aria-describedby={errors.fullName ? "fullName-error" : undefined} />
               </div>
-              <div className="govuk-form-group">
-                <label className="govuk-label" htmlFor="organisation">{FORM_LABELS.ORGANISATION}</label>
-                <input className="govuk-input" id="organisation" name="organisation" type="text" value={organisation} onChange={(e) => setOrganisation(e.target.value)} />
-              </div>
               <div className={`govuk-form-group ${errors.email ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="email">{FORM_LABELS.EMAIL}</label>
                 {errors.email && <p id="email-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.email}</p>}
@@ -121,7 +136,14 @@ const LandownerDetails: React.FC = () => {
                 <label className="govuk-label" htmlFor="phone">{FORM_LABELS.PHONE}</label>
                 <input className="govuk-input govuk-input--width-20" id="phone" name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
-              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
+              <button 
+                type="submit" 
+                className="govuk-button" 
+                data-module="govuk-button"
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : LABELS.CONTINUE}
+              </button>
             </form>
           </div>
         </div>

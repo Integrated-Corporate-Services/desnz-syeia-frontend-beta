@@ -89,7 +89,6 @@ export const saveObjectorPersonalInfo = async (
   data: {
     objector_title?: string;
     objector_full_name?: string;
-    objector_organisation?: string;
     objector_email?: string;
     objector_phone?: string;
   }
@@ -122,7 +121,6 @@ export const saveLandownerDetails = async (
   data: {
     landowner_title?: string;
     landowner_full_name?: string;
-    landowner_organisation?: string;
     landowner_email?: string;
     landowner_phone?: string;
   }
@@ -155,7 +153,6 @@ export const saveRepresentativeDetails = async (
   data: {
     representative_title?: string;
     representative_full_name?: string;
-    representative_organisation?: string;
     representative_email?: string;
     representative_phone?: string;
   }

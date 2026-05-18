@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
+import { getObjectorDetails, saveRepresentativeAddress } from "../services";
 
 const RepresentativeAddress: React.FC = () => {
   const navigate = useNavigate();
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
 
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -17,23 +15,32 @@ const RepresentativeAddress: React.FC = () => {
   const [county, setCounty] = useState("");
   const [postcode, setPostcode] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setAddressLine1(details.representative_address_line1 || "");
-      setAddressLine2(details.representative_address_line2 || "");
-      setTown(details.representative_town || "");
-      setCounty(details.representative_county || "");
-      setPostcode(details.representative_postcode || "");
-    }
-  }, [application]);
+    const fetchData = async () => {
+      if (!appId) return;
+      
+      try {
+        setIsLoading(true);
+        const details = await getObjectorDetails(appId);
+        if (details) {
+          setAddressLine1(details.representative_address_line1 || "");
+          setAddressLine2(details.representative_address_line2 || "");
+          setTown(details.representative_town || "");
+          setCounty(details.representative_county || "");
+          setPostcode(details.representative_postcode || "");
+        }
+      } catch (error) {
+        console.error('Error fetching objector details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [appId]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -50,7 +57,24 @@ const RepresentativeAddress: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
-    navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    
+    if (!appId) return;
+    
+    try {
+      setIsSaving(true);
+      await saveRepresentativeAddress(appId, {
+        representative_address_line1: addressLine1,
+        representative_address_line2: addressLine2,
+        representative_town: town,
+        representative_county: county,
+        representative_postcode: postcode,
+      });
+      navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    } catch (error) {
+      console.error('Error saving representative address:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

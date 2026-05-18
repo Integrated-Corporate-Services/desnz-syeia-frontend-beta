@@ -43,7 +43,6 @@ export const FORM_ERRORS = {
 export const FORM_LABELS = {
   TITLE: "Title (optional)",
   FULL_NAME: "Full name",
-  ORGANISATION: "Organisation (optional)",
   EMAIL: "Email address (optional)",
   PHONE: "Phone number (optional)",
   ADDRESS_LINE1: "Address line 1",

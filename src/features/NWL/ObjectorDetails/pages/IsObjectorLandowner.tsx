@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
@@ -10,6 +9,7 @@ import {
   FORM_LABELS,
   FORM_HINTS,
 } from "../constants/objectorDetailsConstants";
+import { getObjectorDetails, saveObjectorLandownerStatus } from "../services";
 
 /**
  * Is Objector Landowner Page
@@ -18,27 +18,31 @@ import {
 const IsObjectorLandowner: React.FC = () => {
   const navigate = useNavigate();
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
 
   const [isLandowner, setIsLandowner] = useState<string>("");
-
   const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setIsLandowner(details.is_landowner ? "yes" : "no");
-    }
-  }, [application]);
+    const fetchData = async () => {
+      if (!appId) return;
+      
+      try {
+        setIsLoading(true);
+        const details = await getObjectorDetails(appId);
+        if (details && details.is_landowner !== undefined) {
+          setIsLandowner(details.is_landowner ? "yes" : "no");
+        }
+      } catch (error) {
+        console.error('Error fetching objector details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [appId]);
 
   const validateForm = (): boolean => {
     if (!isLandowner) {
@@ -57,10 +61,21 @@ const IsObjectorLandowner: React.FC = () => {
       return;
     }
 
-    if (isLandowner === "yes") {
-      navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
-    } else {
-      navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
+    if (!appId) return;
+
+    try {
+      setIsSaving(true);
+      await saveObjectorLandownerStatus(appId, isLandowner === "yes");
+      
+      if (isLandowner === "yes") {
+        navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
+      } else {
+        navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
+      }
+    } catch (error) {
+      console.error('Error saving landowner status:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 

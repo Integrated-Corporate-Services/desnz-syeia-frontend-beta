@@ -327,9 +327,8 @@ const ObjectorAddress: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
-                disabled={isSaving}
               >
-                {isSaving ? 'Saving...' : LABELS.CONTINUE}
+                {LABELS.CONTINUE}
               </button>
             </form>
           </div>

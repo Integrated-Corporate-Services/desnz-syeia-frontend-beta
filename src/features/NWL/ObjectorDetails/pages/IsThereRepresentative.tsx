@@ -1,31 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
+import { getObjectorDetails, saveRepresentativeStatus } from "../services";
 
 const IsThereRepresentative: React.FC = () => {
   const navigate = useNavigate();
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
 
   const [hasRepresentative, setHasRepresentative] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setHasRepresentative(details.has_representative ? "yes" : "no");
-    }
-  }, [application]);
+    const fetchData = async () => {
+      if (!appId) return;
+      
+      try {
+        setIsLoading(true);
+        const details = await getObjectorDetails(appId);
+        if (details && details.has_representative !== undefined) {
+          setHasRepresentative(details.has_representative ? "yes" : "no");
+        }
+      } catch (error) {
+        console.error('Error fetching objector details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [appId]);
 
   const validateForm = (): boolean => {
     if (!hasRepresentative) {
@@ -42,10 +49,22 @@ const IsThereRepresentative: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
-    if (hasRepresentative === "yes") {
-      navigate(`${NWL_BASE_URL}/${appId}/representative-details`);
-    } else {
-      navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    
+    if (!appId) return;
+    
+    try {
+      setIsSaving(true);
+      await saveRepresentativeStatus(appId, hasRepresentative === "yes");
+      
+      if (hasRepresentative === "yes") {
+        navigate(`${NWL_BASE_URL}/${appId}/representative-details`);
+      } else {
+        navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+      }
+    } catch (error) {
+      console.error('Error saving representative status:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 

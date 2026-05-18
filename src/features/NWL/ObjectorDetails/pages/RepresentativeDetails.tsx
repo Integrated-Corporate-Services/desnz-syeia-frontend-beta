@@ -1,39 +1,44 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS, TITLE_OPTIONS } from "../constants/objectorDetailsConstants";
+import { getObjectorDetails, saveRepresentativeDetails } from "../services";
 
 const RepresentativeDetails: React.FC = () => {
   const navigate = useNavigate();
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
 
   const [title, setTitle] = useState("");
   const [fullName, setFullName] = useState("");
-  const [organisation, setOrganisation] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setTitle(details.representative_title || "");
-      setFullName(details.representative_full_name || "");
-      setOrganisation(details.representative_organisation || "");
-      setEmail(details.representative_email || "");
-      setPhone(details.representative_phone || "");
-    }
-  }, [application]);
+    const fetchData = async () => {
+      if (!appId) return;
+      
+      try {
+        setIsLoading(true);
+        const details = await getObjectorDetails(appId);
+        if (details) {
+          setTitle(details.representative_title || "");
+          setFullName(details.representative_full_name || "");
+          setEmail(details.representative_email || "");
+          setPhone(details.representative_phone || "");
+        }
+      } catch (error) {
+        console.error('Error fetching objector details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [appId]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -49,7 +54,23 @@ const RepresentativeDetails: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
-    navigate(`${NWL_BASE_URL}/${appId}/representative-address`);
+    
+    if (!appId) return;
+    
+    try {
+      setIsSaving(true);
+      await saveRepresentativeDetails(appId, {
+        representative_title: title,
+        representative_full_name: fullName,
+        representative_email: email,
+        representative_phone: phone,
+      });
+      navigate(`${NWL_BASE_URL}/${appId}/representative-address`);
+    } catch (error) {
+      console.error('Error saving representative details:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -88,10 +109,6 @@ const RepresentativeDetails: React.FC = () => {
                 {errors.fullName && <p id="fullName-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.fullName}</p>}
                 <input className={`govuk-input ${errors.fullName ? "govuk-input--error" : ""}`} id="fullName" name="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} aria-describedby={errors.fullName ? "fullName-error" : undefined} />
               </div>
-              <div className="govuk-form-group">
-                <label className="govuk-label" htmlFor="organisation">{FORM_LABELS.ORGANISATION}</label>
-                <input className="govuk-input" id="organisation" name="organisation" type="text" value={organisation} onChange={(e) => setOrganisation(e.target.value)} />
-              </div>
               <div className={`govuk-form-group ${errors.email ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="email">{FORM_LABELS.EMAIL}</label>
                 {errors.email && <p id="email-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.email}</p>}
@@ -101,7 +118,14 @@ const RepresentativeDetails: React.FC = () => {
                 <label className="govuk-label" htmlFor="phone">{FORM_LABELS.PHONE}</label>
                 <input className="govuk-input govuk-input--width-20" id="phone" name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
-              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
+              <button 
+                type="submit" 
+                className="govuk-button" 
+                data-module="govuk-button"
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : LABELS.CONTINUE}
+              </button>
             </form>
           </div>
         </div>

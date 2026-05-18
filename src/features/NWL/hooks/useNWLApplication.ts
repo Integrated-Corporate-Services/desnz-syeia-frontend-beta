@@ -5,10 +5,10 @@
 
 import { useEffect, useState } from 'react';
 import { applicationApiService } from '../../../services/applicationApiService';
-import type { NWLApplication } from '../../../types/nwlApplication';
+import type { Application } from '../../../types/application';
 
 interface UseNWLApplicationResult {
-  application: NWLApplication | null;
+  application: Application | null;
   isLoading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
@@ -22,7 +22,7 @@ interface UseNWLApplicationResult {
  * @returns Complete NWL application data with loading and error states
  */
 export const useNWLApplication = (applicationId: string | null): UseNWLApplicationResult => {
-  const [application, setApplication] = useState<NWLApplication | null>(null);
+  const [application, setApplication] = useState<Application | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,12 +37,12 @@ export const useNWLApplication = (applicationId: string | null): UseNWLApplicati
     setError(null);
 
     try {
-      const data = await applicationApiService.getNWLApplicationById(applicationId);
+      const data = await applicationApiService.getApplicationById(applicationId);
       console.log('[useNWLApplication] Received complete NWL data:', {
         hasApplicationDetails: !!data.application_details,
         hasObjectorDetails: !!data.objector_details,
       });
-      setApplication(data as NWLApplication);
+      setApplication(data as Application);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load NWL application';
       console.error('[useNWLApplication] Error:', errorMessage, err);

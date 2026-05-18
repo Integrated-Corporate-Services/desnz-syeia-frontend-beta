@@ -5,13 +5,11 @@ import type { FormErrors } from '../types';
 interface PersonDetailsFormProps {
   title: string;
   fullName: string;
-  organisation: string;
   email: string;
   phone: string;
   errors: FormErrors;
   onTitleChange: (value: string) => void;
   onFullNameChange: (value: string) => void;
-  onOrganisationChange: (value: string) => void;
   onEmailChange: (value: string) => void;
   onPhoneChange: (value: string) => void;
 }
@@ -19,13 +17,11 @@ interface PersonDetailsFormProps {
 export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
   title,
   fullName,
-  organisation,
   email,
   phone,
   errors,
   onTitleChange,
   onFullNameChange,
-  onOrganisationChange,
   onEmailChange,
   onPhoneChange,
 }) => {
@@ -74,20 +70,6 @@ export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
           value={fullName}
           onChange={(e) => onFullNameChange(e.target.value)}
           aria-describedby={errors.fullName ? 'fullName-error' : undefined}
-        />
-      </div>
-
-      <div className="govuk-form-group">
-        <label className="govuk-label" htmlFor="organisation">
-          {FORM_LABELS.ORGANISATION}
-        </label>
-        <input
-          className="govuk-input"
-          id="organisation"
-          name="organisation"
-          type="text"
-          value={organisation}
-          onChange={(e) => onOrganisationChange(e.target.value)}
         />
       </div>
 

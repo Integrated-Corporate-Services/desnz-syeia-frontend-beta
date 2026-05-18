@@ -18,7 +18,6 @@ const ObjectorDetails: React.FC = () => {
 
   const [title, setTitle] = useState('');
   const [fullName, setFullName] = useState('');
-  const [organisation, setOrganisation] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -27,7 +26,6 @@ const ObjectorDetails: React.FC = () => {
     if (objectorDetails) {
       setTitle(objectorDetails.objector_title || '');
       setFullName(objectorDetails.objector_full_name || '');
-      setOrganisation(objectorDetails.objector_organisation || '');
       setEmail(objectorDetails.objector_email || '');
       setPhone(objectorDetails.objector_phone || '');
     }
@@ -51,7 +49,6 @@ const ObjectorDetails: React.FC = () => {
       await saveObjectorPersonalInfo(appId, {
         objector_title: title,
         objector_full_name: fullName,
-        objector_organisation: organisation,
         objector_email: email,
         objector_phone: phone,
       });
@@ -85,13 +82,11 @@ const ObjectorDetails: React.FC = () => {
                   <PersonDetailsForm
                     title={title}
                     fullName={fullName}
-                    organisation={organisation}
                     email={email}
                     phone={phone}
                     errors={errors}
                     onTitleChange={setTitle}
                     onFullNameChange={setFullName}
-                    onOrganisationChange={setOrganisation}
                     onEmailChange={setEmail}
                     onPhoneChange={setPhone}
                   />

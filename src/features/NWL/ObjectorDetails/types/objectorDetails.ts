@@ -1,7 +1,6 @@
 export type ObjectorDetails = {
   objector_title?: string;
   objector_full_name?: string;
-  objector_organisation?: string;
   objector_email?: string;
   objector_phone?: string;
   objector_address_line1?: string;
@@ -13,7 +12,6 @@ export type ObjectorDetails = {
   is_landowner?: boolean;
   landowner_title?: string;
   landowner_full_name?: string;
-  landowner_organisation?: string;
   landowner_email?: string;
   landowner_phone?: string;
   landowner_address_line1?: string;
@@ -25,7 +23,6 @@ export type ObjectorDetails = {
   has_representative?: boolean;
   representative_title?: string;
   representative_full_name?: string;
-  representative_organisation?: string;
   representative_email?: string;
   representative_phone?: string;
   representative_address_line1?: string;
@@ -38,7 +35,6 @@ export type ObjectorDetails = {
 export type PersonFormData = {
   title: string;
   fullName: string;
-  organisation: string;
   email: string;
   phone: string;
 };
