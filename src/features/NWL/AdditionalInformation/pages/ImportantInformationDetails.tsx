@@ -52,9 +52,14 @@ const ImportantInformationDetails: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Upload pending files first
+    // Upload pending files first and get the results directly
+    let newlyUploadedFiles: UploadedFile[] = [];
+    let newlyUploadedDocuments: ApplicationDocument[] = [];
+    
     if (fileUploadRef.current && pendingFiles.length > 0) {
-      await fileUploadRef.current.triggerUpload();
+      const uploadResult = await fileUploadRef.current.triggerUpload();
+      newlyUploadedFiles = uploadResult.uploadedFiles;
+      newlyUploadedDocuments = uploadResult.applicationDocuments;
     }
 
     if (!validateOtherInformationDetails(details)) {
@@ -69,8 +74,23 @@ const ImportantInformationDetails: React.FC = () => {
     setIsSaving(true);
 
     try {
-      // Get document IDs from uploaded documents
-      const documentIds = applicationDocuments.map(doc => doc.documentId);
+      // Combine existing and newly uploaded files/documents
+      const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
+      const allApplicationDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
+      
+      // Get document IDs from all uploaded documents
+      const documentIds = allApplicationDocuments.map(doc => doc.documentId);
+
+      console.log('[ImportantInformationDetails] Submitting data:', {
+        appId,
+        has_other_information: true,
+        other_information_details_length: details.length,
+        uploadedFiles_count: allUploadedFiles.length,
+        applicationDocuments_count: allApplicationDocuments.length,
+        documentIds_count: documentIds.length,
+        sample_document: allApplicationDocuments[0],
+        sample_file: allUploadedFiles[0],
+      });
 
       await createOrUpdateAdditionalInformationData(appId, {
         has_related_applications: additionalInformationData?.has_related_applications ?? false,
@@ -78,6 +98,8 @@ const ImportantInformationDetails: React.FC = () => {
         has_other_information: true,
         other_information_details: details,
         additional_document_ids: documentIds.length > 0 ? documentIds : undefined,
+        uploaded_files: allUploadedFiles,
+        application_documents: allApplicationDocuments,
       });
 
       navigateToTaskList();

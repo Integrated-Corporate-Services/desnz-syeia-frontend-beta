@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { AdditionalInformationData } from '../types';
+import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
 const API_BASE_URL = '/backend/api/nwl';
 
@@ -36,6 +37,8 @@ export const createOrUpdateAdditionalInformationData = async (
     has_other_information: boolean;
     other_information_details?: string;
     additional_document_ids?: string[];
+    uploaded_files?: UploadedFile[];
+    application_documents?: ApplicationDocument[];
   }
 ): Promise<void> => {
   // Clean the data object to remove undefined/null fields
@@ -53,6 +56,15 @@ export const createOrUpdateAdditionalInformationData = async (
   // Only include other_information_details if it exists and has_other_information is true
   if (data.has_other_information && data.other_information_details) {
     cleanData.other_information_details = data.other_information_details;
+  }
+
+  // Include uploaded files and documents for database persistence
+  if (data.uploaded_files && data.uploaded_files.length > 0) {
+    cleanData.uploaded_files = data.uploaded_files;
+  }
+
+  if (data.application_documents && data.application_documents.length > 0) {
+    cleanData.application_documents = data.application_documents;
   }
 
   // Only include additional_document_ids if it exists and has items
