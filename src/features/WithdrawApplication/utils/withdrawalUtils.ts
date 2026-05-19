@@ -23,15 +23,21 @@ export const getReasonLabel = (applicationType: 'NWL' | 'S37' | 'TLP', reasonVal
 };
 
 export const validateWithdrawalForm = (
+    applicationType: 'NWL' | 'S37' | 'TLP',
     reason: string | null,
     confirmed: boolean,
+    voluntaryAgreement: string | null,
     additionalComments?: string
-): { reason?: string; confirmation?: string; comments?: string } => {
-    const errors: { reason?: string; confirmation?: string; comments?: string } = {};
+): { reason?: string; confirmation?: string; comments?: string; voluntaryAgreement?: string } => {
+    const errors: { reason?: string; confirmation?: string; comments?: string; voluntaryAgreement?: string } = {};
 
-    if (!reason) {
-        errors.reason = CONSTANTS.WITHDRAW_PAGE.REASON_ERROR;
+    // For NWL and TLP, voluntary agreement is required
+    if ((applicationType === 'NWL' || applicationType === 'TLP') && !voluntaryAgreement) {
+        errors.voluntaryAgreement = CONSTANTS.WITHDRAW_PAGE.VOLUNTARY_AGREEMENT_ERROR;
     }
+
+    // Reason is optional for all application types
+    // No validation needed for reason
 
     if (!confirmed) {
         errors.confirmation = CONSTANTS.WITHDRAW_PAGE.CONFIRMATION_ERROR;

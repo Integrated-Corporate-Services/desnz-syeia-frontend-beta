@@ -15,7 +15,13 @@ export const WITHDRAWAL_CONSTANTS = {
         WARNING_TEXT: 'Withdrawing your application is permanent and cannot be undone. You will need to submit a new application if you change your mind.',
         DESCRIPTION: 'Tell us why you want to withdraw this application.',
         
-        REASON_LABEL: 'Reason for withdrawal',
+        VOLUNTARY_AGREEMENT_LABEL: 'Have you reached a voluntary agreement with the landowner or occupier?',
+        VOLUNTARY_AGREEMENT_HINT: 'Select yes if you have reached a voluntary agreement.',
+        VOLUNTARY_AGREEMENT_ERROR: 'Select yes if you have reached a voluntary agreement with the landowner or occupier',
+        VOLUNTARY_AGREEMENT_YES: 'Yes',
+        VOLUNTARY_AGREEMENT_NO: 'No',
+        
+        REASON_LABEL: 'Reason for withdrawal (optional)',
         REASON_HINT: 'Select the reason that best describes why you are withdrawing this application.',
         REASON_ERROR: 'Select a reason for withdrawal',
         

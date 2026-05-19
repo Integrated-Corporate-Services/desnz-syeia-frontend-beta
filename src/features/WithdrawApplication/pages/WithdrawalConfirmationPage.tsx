@@ -6,6 +6,13 @@ import { WithdrawApplicationBreadcrumbs } from '../components';
 
 import { formatDate, getCaseTypeLabel, getReasonLabel } from '../utils';
 
+interface WithdrawalConfirmationState {
+    desnzRef?: string;
+    withdrawalDate?: string;
+    reason?: string;
+    voluntaryAgreement?: boolean;
+}
+
 const WithdrawalConfirmationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const location = useLocation();
@@ -16,7 +23,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
         ? 'TLP'
         : 'S37';
 
-    const { desnzRef, withdrawalDate, reason } = (location.state as any) || {};
+    const { desnzRef, withdrawalDate, reason, voluntaryAgreement } = (location.state as WithdrawalConfirmationState) || {};
     
     const handlePrint = () => {
         window.print();
@@ -69,6 +76,15 @@ const WithdrawalConfirmationPage: React.FC = () => {
                                 </dt>
                                 <dd className="govuk-summary-list__value">{getCaseTypeLabel(applicationType)}</dd>
                             </div>
+                            {(applicationType === 'NWL' || applicationType === 'TLP') &&
+                                voluntaryAgreement !== undefined && (
+                                    <div className="govuk-summary-list__row">
+                                        <dt className="govuk-summary-list__key">Voluntary agreement reached</dt>
+                                        <dd className="govuk-summary-list__value">
+                                            {voluntaryAgreement ? 'Yes' : 'No'}
+                                        </dd>
+                                    </div>
+                                )}
                             {withdrawalDate && (
                                 <div className="govuk-summary-list__row">
                                     <dt className="govuk-summary-list__key">
