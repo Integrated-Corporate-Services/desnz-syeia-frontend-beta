@@ -28,7 +28,7 @@ import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
  * Collects comments and documents about negotiations
  */
 const EvidenceOfNegotiations: React.FC = () => {
-  const { appId, negotiationsData } = useNegotiationsData();
+  const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
   const { errors, validateComments } = useFormValidation();
   const { navigateToTaskList } = useNegotiationsNavigation(appId);
   const { user } = useAuthUserContext();
@@ -42,10 +42,25 @@ const EvidenceOfNegotiations: React.FC = () => {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   useEffect(() => {
+    console.log('[EvidenceOfNegotiations] negotiationsData changed:', {
+      hasData: !!negotiationsData,
+      comments: negotiationsData?.negotiations_comments,
+      uploadedFilesCount: negotiationsData?.uploaded_files?.length || 0,
+      applicationDocumentsCount: negotiationsData?.application_documents?.length || 0,
+    });
+    
     if (negotiationsData) {
       setComments(negotiationsData.negotiations_comments || '');
       setUploadedFiles(negotiationsData.uploaded_files || []);
       setApplicationDocuments(negotiationsData.application_documents || []);
+      
+      console.log('[EvidenceOfNegotiations] State updated:', {
+        comments: negotiationsData.negotiations_comments,
+        uploadedFilesCount: negotiationsData.uploaded_files?.length || 0,
+        applicationDocumentsCount: negotiationsData.application_documents?.length || 0,
+      });
+    } else {
+      console.log('[EvidenceOfNegotiations] No negotiations data available');
     }
   }, [negotiationsData]);
 
@@ -101,7 +116,7 @@ const EvidenceOfNegotiations: React.FC = () => {
         application_documents: JSON.stringify(allDocuments, null, 2),
       });
 
-      // Use PATCH to only update comments without affecting other fields like date
+      // Use POST (upsert) instead of PATCH to ensure record is created if it doesn't exist
       // IMPORTANT: Send uploaded files and documents so backend can save them to database
       const result = await patchNegotiationsData(appId, {
         negotiations_comments: comments,
@@ -114,9 +129,21 @@ const EvidenceOfNegotiations: React.FC = () => {
 
       console.log('[EvidenceOfNegotiations] Backend response:', result);
 
+      if (!result) {
+        console.error('[EvidenceOfNegotiations] No response from backend - save may have failed');
+        alert('Failed to save data. Please try again.');
+        return;
+      }
+
+      // Refetch data to ensure state is updated
+      console.log('[EvidenceOfNegotiations] Refetching negotiations data...');
+      await refetchNegotiationsData();
+      console.log('[EvidenceOfNegotiations] Refetch complete');
+      
       navigateToTaskList();
     } catch (error) {
       console.error('[EvidenceOfNegotiations] Error saving negotiations evidence:', error);
+      alert('An error occurred while saving. Please try again.');
     } finally {
       setIsSaving(false);
     }

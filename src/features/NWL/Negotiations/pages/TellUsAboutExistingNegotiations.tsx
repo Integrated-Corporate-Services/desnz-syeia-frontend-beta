@@ -24,7 +24,7 @@ import { NegotiationsData } from '../types/negotiations';
  * Asks if there have been any negotiations and optionally collects start date
  */
 const TellUsAboutExistingNegotiations: React.FC = () => {
-  const { appId, negotiationsData } = useNegotiationsData();
+  const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
   const { errors, validateRadioSelection, setErrors } = useFormValidation();
   const {
     navigateToEvidenceOfNegotiations,
@@ -40,19 +40,38 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    console.log('[TellUsAboutExistingNegotiations] negotiationsData changed:', {
+      hasData: !!negotiationsData,
+      has_negotiations: negotiationsData?.has_negotiations,
+      date_day: negotiationsData?.negotiations_start_date_day,
+      date_month: negotiationsData?.negotiations_start_date_month,
+      date_year: negotiationsData?.negotiations_start_date_year,
+    });
+    
     if (negotiationsData) {
-      setHasNegotiations(
-        negotiationsData.has_negotiations === true
-          ? 'yes'
-          : negotiationsData.has_negotiations === false
-          ? 'no'
-          : ''
-      );
+      const hasNegValue = negotiationsData.has_negotiations === true
+        ? 'yes'
+        : negotiationsData.has_negotiations === false
+        ? 'no'
+        : '';
+      
+      setHasNegotiations(hasNegValue);
       setStartDate({
         day: negotiationsData.negotiations_start_date_day || '',
         month: negotiationsData.negotiations_start_date_month || '',
         year: negotiationsData.negotiations_start_date_year || '',
       });
+      
+      console.log('[TellUsAboutExistingNegotiations] State updated:', {
+        hasNegotiations: hasNegValue,
+        startDate: {
+          day: negotiationsData.negotiations_start_date_day || '',
+          month: negotiationsData.negotiations_start_date_month || '',
+          year: negotiationsData.negotiations_start_date_year || '',
+        },
+      });
+    } else {
+      console.log('[TellUsAboutExistingNegotiations] No negotiations data available');
     }
   }, [negotiationsData]);
 
@@ -98,7 +117,20 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         payload.negotiations_comments = '';
       }
 
-      await updateNegotiationsData(appId, payload);
+      console.log('[TellUsAboutExistingNegotiations] Calling updateNegotiationsData with payload:', payload);
+      const result = await updateNegotiationsData(appId, payload);
+      console.log('[TellUsAboutExistingNegotiations] Backend response:', result);
+
+      if (!result) {
+        console.error('[TellUsAboutExistingNegotiations] No response from backend - save may have failed');
+        alert('Failed to save data. Please try again.');
+        return;
+      }
+
+      // Refetch data to ensure state is updated
+      console.log('[TellUsAboutExistingNegotiations] Refetching negotiations data...');
+      await refetchNegotiationsData();
+      console.log('[TellUsAboutExistingNegotiations] Refetch complete');
 
       if (hasNegotiations === 'yes') {
         navigateToEvidenceOfNegotiations();
