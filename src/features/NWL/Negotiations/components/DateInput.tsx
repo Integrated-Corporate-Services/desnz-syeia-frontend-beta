@@ -1,5 +1,5 @@
 import React from 'react';
-import { FORM_LABELS, HINTS } from '../constants/negotiationsConstants';
+import { FORM_LABELS } from '../constants/negotiationsConstants';
 import type { FormErrors, DateFormData } from '../types';
 
 interface DateInputProps {
@@ -15,7 +15,6 @@ export const DateInput: React.FC<DateInputProps> = ({
   errors,
   onDateChange,
   legend = "Please confirm the start date of negotiations.",
-  hint = HINTS.DATE_FORMAT,
 }) => {
   const hasError = errors.date || errors.day || errors.month || errors.year;
 
@@ -25,9 +24,7 @@ export const DateInput: React.FC<DateInputProps> = ({
         <legend className="govuk-fieldset__legend">
           {legend}
         </legend>
-        <div id="date-hint" className="govuk-hint">
-          {hint}
-        </div>
+        
         {hasError && (
           <p id="date-error" className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span>{' '}

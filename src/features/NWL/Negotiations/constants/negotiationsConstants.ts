@@ -18,7 +18,6 @@ export const LABELS = {
 export const HINTS = {
   EXISTING_NEGOTIATIONS: "Parties are strongly encouraged to reach a negotiated settlement where possible.",
   START_DATE: "Please confirm the start date of negotiations.",
-  DATE_FORMAT: "For example, 27 3 2007",
   EVIDENCE_COMMENTS: "Tell us about any negotiations with the objector to reach a voluntary solution. If possible, provide a timeline of events or copies of relevant correspondence. If no negotiations have taken place, you must explain why.",
   NO_NEGOTIATIONS: "You can enter up to 4,000 characters",
 } as const;
