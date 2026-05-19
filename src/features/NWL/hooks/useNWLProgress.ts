@@ -68,29 +68,7 @@ export const useNWLProgress = (applicationId?: string) => {
     [applicationId, fetchProgress]
   );
 
-  /**
-   * Mark Application Details as completed
-   */
-  const markApplicationDetailsCompleted = useCallback(async () => {
-    if (!applicationId) {
-      throw new Error('Application ID is required');
-    }
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await nwlProgressService.markApplicationDetailsCompleted(applicationId);
-      await fetchProgress();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to mark section as completed';
-      setError(errorMessage);
-      console.error('[useNWLProgress] Error marking application details as completed:', err);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [applicationId, fetchProgress]);
 
   /**
    * Get progress status for a specific subsection
@@ -109,7 +87,6 @@ export const useNWLProgress = (applicationId?: string) => {
     error,
     fetchProgress,
     updateProgress,
-    markApplicationDetailsCompleted,
     getSubsectionStatus,
   };
 };
