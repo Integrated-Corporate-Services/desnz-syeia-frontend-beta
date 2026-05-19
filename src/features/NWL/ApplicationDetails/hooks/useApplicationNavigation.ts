@@ -23,71 +23,71 @@ export const useApplicationNavigation = (appId: string) => {
 
   // New Lines Flow
   const navigateToWayleaveOffer = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/wayleave-offer`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/wayleave-offer`);
   };
 
   // Existing Lines Flow - Entry Points
   const navigateToGroundsForApplication = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/grounds-for-application`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/grounds-for-application`);
   };
 
   const navigateToWayleaveType = (groundsForApplication?: string) => {
-    navigate(`${NWL_BASE_URL}/${appId}/wayleave-type`, {
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/wayleave-type`, {
       state: groundsForApplication ? { grounds_for_application: groundsForApplication } : undefined,
     });
   };
 
   // Wayleave Expired Path
   const navigateToWayleaveExpiryDate = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/wayleave-expiry-date`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/wayleave-expiry-date`);
   };
 
   // Wayleave Terminated Path - Upload Pages
   const navigateToUploadWrittenWayleave = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/upload-written-wayleave`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/upload-written-wayleave`);
   };
 
   const navigateToUploadImpliedWayleave = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/upload-implied-wayleave`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/upload-implied-wayleave`);
   };
 
   const navigateToNoticeToTerminate = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/notice-to-terminate`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/notice-to-terminate`);
   };
 
   const navigateToTerminationPeriodExpired = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/termination-period-expired`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/termination-period-expired`);
   };
 
   const navigateToCannotContinueApplication = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/cannot-continue-application`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/cannot-continue-application`);
   };
 
   // Common Path - Notice to Remove
   const navigateToNoticeToRemove = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/notice-to-remove`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/notice-to-remove`);
   };
 
   const navigateToNoticeToRemoveClear = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/notice-to-remove-clear`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/notice-to-remove-clear`);
   };
 
   const navigateToNoticeToRemoveUnclear = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/notice-to-remove-unclear`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/notice-to-remove-unclear`);
   };
 
   // Application Timing
   const navigateToApplicationWithinThreeMonths = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/application-within-three-months`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/application-within-three-months`);
   };
 
   const navigateToApplicationOutsideTimeframe = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/application-outside-timeframe`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/application-outside-timeframe`);
   };
 
   // Standard Term
   const navigateToStandardTerm = () => {
-    navigate(`${NWL_BASE_URL}/${appId}/standard-term`);
+    navigate(`${NWL_BASE_URL}/${appId}/application-details/standard-term`);
   };
 
   return {

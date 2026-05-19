@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import React, { useState, useEffect, useRef } from "react";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { 
+  useApplicationNavigation, 
+  useApplicationDetailsData
+} from "../hooks";
+import { VALIDATION_MESSAGES } from "../services/applicationDetailsService";
 import {
   BREADCRUMBS,
   LABELS,
   GROUNDS_OPTIONS,
 } from "../constants/groundsForApplicationConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
  * Grounds For Application Page
@@ -16,60 +18,97 @@ import {
  */
 const GroundsForApplication: React.FC = () => {
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { applicationDetails, updateFields, isLoading } = useApplicationDetailsData(appId);
   const {
     navigateToWayleaveType,
     navigateToNoticeToRemove,
+    navigateToWayleaveOffer,
+    navigateToTaskList,
   } = useApplicationNavigation(appId || "");
 
   const [groundsForApplication, setGroundsForApplication] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const initialGroundsRef = useRef<string | null>(null);
+
+  // Check type_of_use and redirect if new_lines
+  useEffect(() => {
+    if (applicationDetails?.type_of_use === 'new_lines') {
+      // Redirect to WayleaveOffer page for new lines flow
+      navigateToWayleaveOffer();
+    }
+  }, [applicationDetails?.type_of_use, navigateToWayleaveOffer]);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load saved data and track the initial value
+    if (applicationDetails?.grounds_for_application) {
+      setGroundsForApplication(applicationDetails.grounds_for_application);
+      // Only set initial value once on first load
+      if (initialGroundsRef.current === null) {
+        initialGroundsRef.current = applicationDetails.grounds_for_application;
+      }
     }
-  }, [appId, fetchAndSetApplication]);
+  }, [applicationDetails]);
 
-  useEffect(() => {
-    // Load saved data if it exists
-    if (application?.grounds_for_application) {
-      setGroundsForApplication(application.grounds_for_application);
-    }
-  }, [application]);
+  const handleGroundsChange = (newValue: string) => {
+    setGroundsForApplication(newValue);
+    setError("");
+    // Note: Backend call happens only on "Save and continue" button click
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    // Navigate based on selection, passing the grounds as state
-    if (groundsForApplication === "wayleave_expired") {
-      navigateToWayleaveType("wayleave_expired");
-    } else if (groundsForApplication === "wayleave_terminated") {
-      navigateToWayleaveType("wayleave_terminated");
-    } else if (groundsForApplication === "no_wayleave_exists") {
-      navigateToNoticeToRemove();
+    // Validation
+    if (!groundsForApplication) {
+      setError(VALIDATION_MESSAGES.RADIO_REQUIRED);
+      return;
+    }
+
+    try {
+      // Check if the selection has changed from the previously saved value
+      const hasChangedSelection = initialGroundsRef.current && initialGroundsRef.current !== groundsForApplication;
+
+      // If selection changed, prevent the change and show error message
+      if (hasChangedSelection) {
+        setError("You cannot change the Para 8 legislation type. To make this change, you must create a new application.");
+        return;
+      }
+
+      // Save the current selection
+      await updateFields({ 
+        type_of_use: 'existing_lines',
+        grounds_for_application: groundsForApplication 
+      }, APPLICATION_DETAILS_PAGE_IDS.GROUNDS_FOR_APPLICATION);
+
+      // Update the initial ref after successful save
+      initialGroundsRef.current = groundsForApplication;
+
+      // Navigate based on selection
+      if (groundsForApplication === "wayleave_expired") {
+        navigateToWayleaveType("wayleave_expired");
+      } else if (groundsForApplication === "wayleave_terminated") {
+        navigateToWayleaveType("wayleave_terminated");
+      } else if (groundsForApplication === "no_wayleave_exists") {
+        navigateToNoticeToRemove();
+      }
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
     }
   };
-
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
 
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}
@@ -141,8 +180,7 @@ const GroundsForApplication: React.FC = () => {
                           value={option.value}
                           checked={groundsForApplication === option.value}
                           onChange={(e) => {
-                            setGroundsForApplication(e.target.value);
-                            setError("");
+                            handleGroundsChange(e.target.value);
                           }}
                         />
                         <label
@@ -178,8 +216,9 @@ const GroundsForApplication: React.FC = () => {
                   type="submit"
                   className="govuk-button"
                   data-module="govuk-button"
+                  disabled={isLoading}
                 >
-                  Save and continue
+                  {isLoading ? 'Saving...' : 'Save and continue'}
                 </button>
                 {/* <button
                   type="button"

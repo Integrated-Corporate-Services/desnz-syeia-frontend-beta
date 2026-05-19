@@ -7,9 +7,10 @@ import { SHARED_BREADCRUMBS, SHARED_DATE_LABELS, SHARED_DATE_ERRORS, SHARED_UPLO
 export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
-  PAGE_TITLE: "Wayleave offer",
-  DATE_LABEL: "Date of your offer or letter to the owner or occupier",
-  UPLOAD_LABEL: "Upload a copy of the offer or letter",
+  PAGE_TITLE: "Wayleave notice",
+  PAGE_HINT: "The notice must have been served to the objector more than 21 days ago. You cannot continue your application at this time.",
+  DATE_LABEL: "Enter the date of the notice to the objector",
+  UPLOAD_LABEL: "Upload a copy of the notice to the objector",
   UPLOAD_HINT: "You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.",
   ...SHARED_UPLOAD_LABELS,
   ...SHARED_DATE_LABELS,

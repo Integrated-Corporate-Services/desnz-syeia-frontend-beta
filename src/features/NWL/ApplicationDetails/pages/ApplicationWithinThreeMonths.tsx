@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import React, { useState, useEffect, useRef } from "react";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
   OPTIONS,
 } from "../constants/applicationWithinThreeMonthsConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
  * Application Within Three Months Page
@@ -21,36 +19,71 @@ const ApplicationWithinThreeMonths: React.FC = () => {
     navigateToApplicationOutsideTimeframe, 
     navigateToTaskList 
   } = useApplicationNavigation(appId || "");
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
 
   const [isWithinThreeMonths, setIsWithinThreeMonths] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const initialWithinRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load saved data if it exists (only when there's an actual boolean value)
+    if (applicationDetails?.is_within_three_months != null) {
+      const withinValue = applicationDetails.is_within_three_months ? "yes" : "no";
+      setIsWithinThreeMonths(withinValue);
+      // Only set initial value once on first load
+      if (initialWithinRef.current === null) {
+        initialWithinRef.current = withinValue;
+      }
     }
-  }, [appId, fetchAndSetApplication]);
+  }, [applicationDetails]);
 
-  useEffect(() => {
-    // Load saved data if it exists
-    if (application?.is_within_three_months !== undefined) {
-      setIsWithinThreeMonths(application.is_within_three_months ? "yes" : "no");
-    }
-  }, [application]);
+  const handleWithinChange = (newValue: string) => {
+    setIsWithinThreeMonths(newValue);
+    setError("");
+    // Note: Backend call happens only on "Save and continue" button click
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    // Navigate based on selection
-    if (isWithinThreeMonths === "yes") {
-      navigateToStandardTerm();
-    } else if (isWithinThreeMonths === "no") {
-      navigateToApplicationOutsideTimeframe();
+    // Validation
+    if (!isWithinThreeMonths) {
+      setError("Select yes or no");
+      return;
+    }
+
+    try {
+      // Check if user changed their selection
+      const hasChangedSelection = initialWithinRef.current && initialWithinRef.current !== isWithinThreeMonths;
+      
+      // If selection changed, clear all downstream fields
+      if (hasChangedSelection) {
+        await updateFields({
+          type_of_use: 'existing_lines',
+          is_within_three_months: isWithinThreeMonths === "yes",
+          is_standard_term: null,
+          standard_term_explanation: null,
+        }, APPLICATION_DETAILS_PAGE_IDS.APPLICATION_WITHIN_THREE_MONTHS);
+      } else {
+        // Normal save without clearing
+        await updateFields({
+          type_of_use: 'existing_lines',
+          is_within_three_months: isWithinThreeMonths === "yes",
+        }, APPLICATION_DETAILS_PAGE_IDS.APPLICATION_WITHIN_THREE_MONTHS);
+      }
+
+      // Update the initial ref after successful save
+      initialWithinRef.current = isWithinThreeMonths;
+
+      // Navigate based on selection
+      if (isWithinThreeMonths === "yes") {
+        navigateToStandardTerm();
+      } else if (isWithinThreeMonths === "no") {
+        navigateToApplicationOutsideTimeframe();
+      }
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
     }
   };
 
@@ -63,12 +96,13 @@ const ApplicationWithinThreeMonths: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}
@@ -131,8 +165,7 @@ const ApplicationWithinThreeMonths: React.FC = () => {
                           value={option.value}
                           checked={isWithinThreeMonths === option.value}
                           onChange={(e) => {
-                            setIsWithinThreeMonths(e.target.value);
-                            setError("");
+                            handleWithinChange(e.target.value);
                           }}
                         />
                         <label

@@ -21,18 +21,15 @@ const NetworkOperatorContactDetails: React.FC = () => {
   const appId = useGetApplicationId();
   const party = application?.application_party;
 
-  // Fetch application data on mount
   useEffect(() => {
     if (appId) {
       fetchAndSetApplication(appId);
     }
   }, [appId, fetchAndSetApplication]);
 
-  // Contact confirmation state
   const { contactIsConfirmed, setContactIsConfirmed } =
     useContactConfirmation(application);
 
-  // Form submission handler
   const { handleSubmit } = useContactDetailsSubmit({
     application,
     party,
@@ -43,8 +40,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
   // Format contact details for display
   const contactDetails = formatContactDetails(party);
-
-  return (
+return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
