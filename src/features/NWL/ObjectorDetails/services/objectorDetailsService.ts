@@ -48,24 +48,34 @@ export const saveObjectorDetails = async (
 export const updateObjectorDetails = async (
   applicationId: string,
   details: Partial<ObjectorDetails>
-): Promise<ObjectorDetails | null> => {
-  try {
-    const response = await fetch(`${API_BASE}/${applicationId}/objector-details`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(details),
+): Promise<ObjectorDetails> => {
+  console.log('[updateObjectorDetails] Sending PATCH request:', {
+    applicationId,
+    endpoint: `${API_BASE}/${applicationId}/objector-details`,
+    payload: details
+  });
+  
+  const response = await fetch(`${API_BASE}/${applicationId}/objector-details`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(details),
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[updateObjectorDetails] Failed:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText
     });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to update objector details: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    return null;
+    throw new Error(`Failed to update objector details: ${response.status} ${errorText}`);
   }
+  
+  const data = await response.json();
+  console.log('[updateObjectorDetails] Success response:', data);
+  return data;
 };
 
 export const deleteObjectorDetails = async (applicationId: string): Promise<boolean> => {
@@ -92,7 +102,8 @@ export const saveObjectorPersonalInfo = async (
     objector_email?: string;
     objector_phone?: string;
   }
-): Promise<ObjectorDetails | null> => {
+): Promise<ObjectorDetails> => {
+  console.log('[saveObjectorPersonalInfo] Saving:', { applicationId, data });
   return updateObjectorDetails(applicationId, data);
 };
 
@@ -105,14 +116,15 @@ export const saveObjectorAddress = async (
     objector_county?: string;
     objector_postcode?: string;
   }
-): Promise<ObjectorDetails | null> => {
+): Promise<ObjectorDetails> => {
+  console.log('[saveObjectorAddress] Saving:', { applicationId, data });
   return updateObjectorDetails(applicationId, data);
 };
 
 export const saveObjectorLandownerStatus = async (
   applicationId: string,
   isLandowner: boolean
-): Promise<ObjectorDetails | null> => {
+): Promise<ObjectorDetails> => {
   return updateObjectorDetails(applicationId, { is_landowner: isLandowner });
 };
 
@@ -124,7 +136,7 @@ export const saveLandownerDetails = async (
     landowner_email?: string;
     landowner_phone?: string;
   }
-): Promise<ObjectorDetails | null> => {
+): Promise<ObjectorDetails> => {
   return updateObjectorDetails(applicationId, data);
 };
 
@@ -137,14 +149,14 @@ export const saveLandownerAddress = async (
     landowner_county?: string;
     landowner_postcode?: string;
   }
-): Promise<ObjectorDetails | null> => {
+): Promise<ObjectorDetails> => {
   return updateObjectorDetails(applicationId, data);
 };
 
 export const saveRepresentativeStatus = async (
   applicationId: string,
   hasRepresentative: boolean
-): Promise<ObjectorDetails | null> => {
+): Promise<ObjectorDetails> => {
   return updateObjectorDetails(applicationId, { has_representative: hasRepresentative });
 };
 
@@ -156,7 +168,7 @@ export const saveRepresentativeDetails = async (
     representative_email?: string;
     representative_phone?: string;
   }
-): Promise<ObjectorDetails | null> => {
+): Promise<ObjectorDetails> => {
   return updateObjectorDetails(applicationId, data);
 };
 
@@ -169,6 +181,6 @@ export const saveRepresentativeAddress = async (
     representative_county?: string;
     representative_postcode?: string;
   }
-): Promise<ObjectorDetails | null> => {
+): Promise<ObjectorDetails> => {
   return updateObjectorDetails(applicationId, data);
 };
