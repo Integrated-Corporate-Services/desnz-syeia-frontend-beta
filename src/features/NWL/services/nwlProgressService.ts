@@ -3,8 +3,6 @@
  * Handles progress tracking for NWL subsections
  */
 
-import { NWL_SUBSECTIONS } from '../TaskList/utils/nwlProgressUtils';
-
 export const nwlProgressService = {
   /**
    * Fetch progress for an NWL application
@@ -28,7 +26,11 @@ export const nwlProgressService = {
     const response = await fetch(`/backend/api/applications/${applicationId}/progress`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subsection_name: subsectionName, status }),
+      body: JSON.stringify({ 
+        subsection_name: subsectionName, 
+        status,
+        application_type: 'NWL'
+      }),
     });
     
     if (!response.ok) {
@@ -38,36 +40,4 @@ export const nwlProgressService = {
     return response.json();
   },
 
-  /**
-   * Mark Type of use subsection as completed
-   */
-  markTypeOfUseCompleted: async (applicationId: string) => {
-    return nwlProgressService.updateProgress(
-      applicationId,
-      NWL_SUBSECTIONS.TYPE_OF_USE,
-      'Completed'
-    );
-  },
-
-  /**
-   * Mark Grounds for application subsection as completed
-   */
-  markGroundsForApplicationCompleted: async (applicationId: string) => {
-    return nwlProgressService.updateProgress(
-      applicationId,
-      NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION,
-      'Completed'
-    );
-  },
-
-  /**
-   * Mark Application Details subsection as completed
-   */
-  markApplicationDetailsCompleted: async (applicationId: string) => {
-    return nwlProgressService.updateProgress(
-      applicationId,
-      NWL_SUBSECTIONS.APPLICATION_DETAILS,
-      'Completed'
-    );
-  },
-};
+}

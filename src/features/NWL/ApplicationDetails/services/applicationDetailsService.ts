@@ -67,12 +67,12 @@ export interface CreateApplicationDetailsPayload {
  * First page should create, subsequent pages update
  * @param applicationId - The application ID
  * @param data - Application details data to save
- * @param pageId - Page ID for page-specific validation (required)
+ * @param pageId - Page ID for page-specific validation (required, must be string)
  */
 export const createOrUpdateApplicationDetails = async (
   applicationId: string,
   data: CreateApplicationDetailsPayload,
-  pageId: number
+  pageId: string
 ): Promise<ApplicationDetailsData> => {
   if (!pageId) {
     throw new Error('Page ID is required for application details updates');
@@ -81,7 +81,7 @@ export const createOrUpdateApplicationDetails = async (
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'X-Correlation-ID': generateCorrelationId(),
-    'X-Page-ID': pageId.toString(), // Send page ID in header
+    'X-Page-ID': pageId, // Send page ID in header as string
   };
 
   // URL without page parameter - page ID is sent in header
@@ -111,12 +111,12 @@ export const createOrUpdateApplicationDetails = async (
  * Update specific fields in application details
  * @param applicationId - The application ID
  * @param data - Partial data to update
- * @param pageId - Page ID for page-specific validation (required)
+ * @param pageId - Page ID for page-specific validation (required, must be string)
  */
 export const updateApplicationDetailsFields = async (
   applicationId: string,
   data: Partial<CreateApplicationDetailsPayload>,
-  pageId: number
+  pageId: string
 ): Promise<ApplicationDetailsData> => {
   // Ensure application_id is included
   const payload = { ...data, application_id: applicationId };

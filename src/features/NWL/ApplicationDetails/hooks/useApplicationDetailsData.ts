@@ -34,7 +34,7 @@ export const useApplicationDetailsData = (appId: string | null) => {
   }, [appId]);
 
   // Create or update application details
-  const saveDetails = useCallback(async (data: CreateApplicationDetailsPayload, pageId: number) => {
+  const saveDetails = useCallback(async (data: CreateApplicationDetailsPayload, pageId: string) => {
     if (!appId) throw new Error('Application ID is required');
     if (!pageId) throw new Error('Page ID is required');
     
@@ -54,7 +54,7 @@ export const useApplicationDetailsData = (appId: string | null) => {
   }, [appId]);
 
   // Update specific fields
-  const updateFields = useCallback(async (data: Partial<CreateApplicationDetailsPayload>, pageId: number) => {
+  const updateFields = useCallback(async (data: Partial<CreateApplicationDetailsPayload>, pageId: string) => {
     if (!appId) throw new Error('Application ID is required');
     if (!pageId) throw new Error('Page ID is required');
     
