@@ -31,44 +31,21 @@ const ProvideApplicationPlan: React.FC = () => {
 
   // Load existing files when assetsData is available
   useEffect(() => {
-    console.log('[ProvideApplicationPlan] useEffect triggered', {
-      hasAssetsData: !!assetsData,
-      loading,
-      assetsData
-    });
-
     if (assetsData && !loading) {
       logger.debug('[ProvideApplicationPlan] Loading existing files', {
         uploadedFilesCount: assetsData.uploadedFiles?.length || 0,
         documentsCount: assetsData.applicationDocuments?.length || 0,
       });
 
-      console.log('[ProvideApplicationPlan] assetsData.uploadedFiles:', assetsData.uploadedFiles);
-      console.log('[ProvideApplicationPlan] assetsData.applicationDocuments:', assetsData.applicationDocuments);
-
       if (assetsData.uploadedFiles && assetsData.uploadedFiles.length > 0) {
-        console.log('[ProvideApplicationPlan] Setting uploadedFiles:', assetsData.uploadedFiles);
         setUploadedFiles(assetsData.uploadedFiles);
-      } else {
-        console.warn('[ProvideApplicationPlan] No uploaded files to set');
       }
 
       if (assetsData.applicationDocuments && assetsData.applicationDocuments.length > 0) {
-        console.log('[ProvideApplicationPlan] Setting applicationDocuments:', assetsData.applicationDocuments);
         setApplicationDocuments(assetsData.applicationDocuments);
-      } else {
-        console.warn('[ProvideApplicationPlan] No application documents to set');
       }
-    } else {
-      console.log('[ProvideApplicationPlan] Waiting for data or still loading', { hasAssetsData: !!assetsData, loading });
     }
   }, [assetsData, loading]);
-
-  // Debug state changes
-  useEffect(() => {
-    console.log('[ProvideApplicationPlan] State changed - uploadedFiles:', uploadedFiles);
-    console.log('[ProvideApplicationPlan] State changed - applicationDocuments:', applicationDocuments);
-  }, [uploadedFiles, applicationDocuments]);
 
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
