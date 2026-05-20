@@ -62,9 +62,9 @@ export async function updateAllConsultations(applicationId: string, userId: stri
 }
 
 // Create LPA consultations for selected LPAs
-export async function createLpaConsultations(applicationId: string, lpas: Array<{ lpa_code: string; lpa_name: string }>, userId: string): Promise<any> {
+export async function createLpaConsultations(applicationId: string, lpas: Array<{ lpa_code: string; lpa_name: string }>, userId: string, consultationType?: string): Promise<any> {
     const url = `/backend/api/applications/${applicationId}/consultations`;
-    const payload = { lpas, userId };
+    const payload = { lpas, userId, consultationType };
 
     try {
         const response = await axios.post(url, payload, { withCredentials: true });

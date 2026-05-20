@@ -5,6 +5,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
+import { ConsultationType } from '../../../constants/consultationType';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 
 const ConsultationResponse3: React.FC = () => {
@@ -66,7 +67,7 @@ const ConsultationResponse3: React.FC = () => {
         }
 
         if (!declarationAccepted) {
-            const errorMessage = consultationType === 'PUBLIC'
+            const errorMessage = consultationType === ConsultationType.PUBLIC
                 ? CONSULTATION_VALIDATION_MESSAGES.responseReviewDeclaration.emptyPublic
                 : CONSULTATION_VALIDATION_MESSAGES.responseReviewDeclaration.emptyNonPublic;
             newErrors.declaration = errorMessage;
@@ -173,13 +174,13 @@ const ConsultationResponse3: React.FC = () => {
                             </div>
                         )}
 
-                        {consultationType === 'PUBLIC' && <h2 className="govuk-caption-xl">Public notices</h2>}
-                        {consultationType !== 'PUBLIC' && <h2 className="govuk-caption-xl">{consultationName}</h2>}
-                        <h1 className="govuk-heading-l">{consultationType === 'PUBLIC' ? 'Add additional comments about public responses (optional)' : 'Provide consultation response'}</h1>
+                        {consultationType === ConsultationType.PUBLIC && <h2 className="govuk-caption-xl">Public notices</h2>}
+                        {consultationType !== ConsultationType.PUBLIC && <h2 className="govuk-caption-xl">{consultationName}</h2>}
+                        <h1 className="govuk-heading-l">{consultationType === ConsultationType.PUBLIC ? 'Add additional comments about public responses (optional)' : 'Provide consultation response'}</h1>
 
                         <form noValidate>
                             <div className={`govuk-form-group ${errors.comments ? 'govuk-form-group--error' : ''}`}>
-                                {consultationType !== 'PUBLIC' && (
+                                {consultationType !== ConsultationType.PUBLIC && (
                                 <h2 className="govuk-label-wrapper">
                                     <label className="govuk-label govuk-label--m" htmlFor="comments">
                                         Add any additional comments (optional)
@@ -214,7 +215,7 @@ const ConsultationResponse3: React.FC = () => {
 
                             <div className={`govuk-form-group ${errors.declaration ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset">
-                                    {consultationType !== 'PUBLIC' && (
+                                    {consultationType !== ConsultationType.PUBLIC && (
                                     <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                                         <h2 className="govuk-fieldset__heading">Declaration</h2>
                                     </legend>
@@ -242,7 +243,7 @@ const ConsultationResponse3: React.FC = () => {
                                                 aria-describedby={errors.declaration ? 'declaration-error' : undefined}
                                             />
                                             <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
-                                                {consultationType === 'PUBLIC' 
+                                                {consultationType === ConsultationType.PUBLIC
                                                     ? 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this public consultation. You cannot undo this action.'
                                                     : 'Confirm you have provided all relevant information, uploaded all supporting documents and want to close this consultation. You cannot undo this action.'}
                                             </label>

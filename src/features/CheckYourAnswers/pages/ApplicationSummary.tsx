@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { ConsultationType } from "../../../constants/consultationType";
 import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
@@ -1652,7 +1653,7 @@ const ApplicationSummary: React.FC = () => {
                 const responseReceived = !!(
                   consultation.responseDocuments && consultation.responseDocuments.length > 0
                 );
-                const isPublicConsultation = consultation.consultationType === "PUBLIC";
+                const isPublicConsultation = consultation.consultationType === ConsultationType.PUBLIC;
 
                 return (
                   <div className="govuk-summary-card" key={consultation.id || idx}>
