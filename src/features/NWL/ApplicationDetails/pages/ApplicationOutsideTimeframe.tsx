@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
 } from "../constants/applicationOutsideTimeframeConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
  * Application Outside Timeframe Page
@@ -15,33 +13,46 @@ import {
  */
 const ApplicationOutsideTimeframe: React.FC = () => {
   const appId = useGetApplicationId();
-  const { navigateToStandardTerm } = useApplicationNavigation(appId || "");
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { navigateToStandardTerm, navigateToTaskList } = useApplicationNavigation(appId || "");
+  const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
 
   const [explanation, setExplanation] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load saved data if it exists, or clear if it's been reset to null
+    if (applicationDetails?.application_outside_timeframe_explanation) {
+      setExplanation(applicationDetails.application_outside_timeframe_explanation);
+    } else if (applicationDetails && applicationDetails.application_outside_timeframe_explanation === null) {
+      // Explicitly clear local state if explanation was set to null
+      setExplanation("");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    // Load saved data if it exists
-    if (application?.application_outside_timeframe_explanation) {
-      setExplanation(application.application_outside_timeframe_explanation);
-    }
-  }, [application]);
+  }, [applicationDetails]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    navigateToStandardTerm();
+    // Validation
+    if (!explanation.trim()) {
+      setError("Explain why your application is being submitted more than 3 months after the Notice to Remove");
+      return;
+    }
+
+    try {
+      // Save to backend
+      // This page is only for existing_lines flow
+      // Pass page name constant for page-specific validation
+      await updateFields({
+        type_of_use: 'existing_lines',
+        is_within_three_months: false,
+        application_outside_timeframe_explanation: explanation.trim(),
+      }, APPLICATION_DETAILS_PAGE_IDS.APPLICATION_OUTSIDE_TIMEFRAME);
+
+      navigateToStandardTerm();
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
+    }
   };
 
   // const handleSaveForLater = () => {
@@ -53,12 +64,13 @@ const ApplicationOutsideTimeframe: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}

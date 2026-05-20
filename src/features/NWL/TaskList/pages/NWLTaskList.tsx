@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
+import { useProgressStore } from "../../../../store/useProgressStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes';
+import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
 
 const NWLTaskList: React.FC = () => {
 	const appId = useGetApplicationId();
 	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
 	const application = useApplicationStore(state => state.application);
+	const { progress, loading: progressLoading, fetchProgress } = useProgressStore();
 	const [orgName, setOrgName] = useState('');
 	const [submitting] = useState(false);
   	const navigate = useNavigate();
@@ -16,8 +19,9 @@ const NWLTaskList: React.FC = () => {
 	useEffect(() => {
 		if (appId) {
 			fetchAndSetApplication(appId);
+			fetchProgress(appId);
 		}
-	}, [appId, fetchAndSetApplication]);
+	}, [appId, fetchAndSetApplication, fetchProgress]);
 
 	useEffect(() => {
 		if (application?.application_party?.organisation_name) {
@@ -25,9 +29,55 @@ const NWLTaskList: React.FC = () => {
 		}
 	}, [application]);
 
+	// Helper to get status for a subsection
+	const getStatus = (subsectionName: string) => {
+		return getSubsectionStatus(progress, subsectionName);
+	};
+
+	// Helper to check if a link should be disabled
+	const isLinkDisabled = (subsectionName: string) => {
+		const status = getStatus(subsectionName);
+		return status.toLowerCase() === 'cannot start yet';
+	};
+
+	// Helper to render status tag
+	const renderStatusTag = (subsectionName: string) => {
+		const status = getStatus(subsectionName);
+		const statusClass = getStatusClass(status);
+		const statusText = getStatusText(status);
+		
+		return (
+			<div className="govuk-task-list__status">
+				<strong className={statusClass}>{statusText}</strong>
+			</div>
+		);
+	};
+
+	// Helper to render link or disabled text
+	const renderLink = (subsectionName: string, displayText: string, route: string) => {
+		const disabled = isLinkDisabled(subsectionName);
+		
+		if (disabled) {
+			return <strong className="govuk-task-list__name-and-hint">{displayText}</strong>;
+		}
+		
+		return (
+			<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(route, appId)}>
+				<strong>{displayText}</strong>
+			</Link>
+		);
+	};
+
 	return (
 		<div className="govuk-width-container">
 			<main className="govuk-main-wrapper" id="main-content">
+				{progressLoading && (
+					<div className="govuk-notification-banner" role="region" aria-labelledby="banner-title">
+						<div className="govuk-notification-banner__content">
+							<p className="govuk-body">Loading progress...</p>
+						</div>
+					</div>
+				)}
 				<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">
 						<span className="govuk-caption-l">{orgName || 'Organisation'}</span>
@@ -42,9 +92,7 @@ const NWLTaskList: React.FC = () => {
 								<strong>Applicant details</strong>
 							</Link>
 							</div>
-							<div className="govuk-task-list__status">
-								<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-							</div>
+						{renderStatusTag(NWL_SUBSECTIONS.APPLICANT_DETAILS)}
 						</li>
 						<li className="govuk-task-list__item govuk-task-list__item--with-link">
 							<div className="govuk-task-list__name-and-hint">
@@ -52,9 +100,7 @@ const NWLTaskList: React.FC = () => {
 								<strong>Check applicant contact details</strong>
 							</Link>
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag(NWL_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS)}
 							</li>
 						</ul>
 
@@ -66,19 +112,13 @@ const NWLTaskList: React.FC = () => {
 									<strong>Type of use</strong>
 								</Link>
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag(NWL_SUBSECTIONS.TYPE_OF_USE)}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.GROUNDS_FOR_APPLICATION, appId)}>
-									<strong>Grounds for application</strong>
-								</Link>
+									{renderLink(NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION, 'Grounds for application', NWL_TASK_LIST_ROUTES.GROUNDS_FOR_APPLICATION)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag(NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION)}
 							</li>
 						</ul>
 
@@ -86,23 +126,15 @@ const NWLTaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS_INTRODUCTION, appId)}>
-									<strong>Introduction</strong>
-								</Link>
+									{renderLink('Objector introduction', 'Introduction', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS_INTRODUCTION)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag('Objector introduction')}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS, appId)}>
-									<strong>Objector details</strong>
-								</Link>
+									{renderLink('Objector details', 'Objector details', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag('Objector details')}
 							</li>
 						</ul>
 
@@ -110,43 +142,27 @@ const NWLTaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.SITE_ADDRESS, appId)}>
-									<strong>Site address</strong>
-								</Link>
+									{renderLink('Site address', 'Site address', NWL_TASK_LIST_ROUTES.SITE_ADDRESS)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag('Site address')}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.LAND_REGISTRY, appId)}>
-									<strong>Land registry</strong>
-								</Link>
+									{renderLink('Land registry', 'Land registry', NWL_TASK_LIST_ROUTES.LAND_REGISTRY)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag('Land registry')}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.OS_GRID_REFERENCE, appId)}>
-									<strong>OS Grid reference</strong>
-								</Link>
+									{renderLink('OS Grid reference', 'OS Grid reference', NWL_TASK_LIST_ROUTES.OS_GRID_REFERENCE)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag('OS Grid reference')}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.IDENTIFYING_INFORMATION, appId)}>
-									<strong>Identifying information</strong>
-								</Link>
+									{renderLink('Identifying information', 'Identifying information', NWL_TASK_LIST_ROUTES.IDENTIFYING_INFORMATION)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag('Identifying information')}
 							</li>
 						</ul>
 
@@ -154,13 +170,9 @@ const NWLTaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.INFORMATION_ABOUT_LINES, appId)}>
-									<strong>Information about the lines</strong>
-								</Link>
+									{renderLink('Information about the lines', 'Information about the lines', NWL_TASK_LIST_ROUTES.INFORMATION_ABOUT_LINES)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag('Information about the lines')}
 							</li>
 						</ul>
 
@@ -168,13 +180,9 @@ const NWLTaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.EXISTING_NEGOTIATIONS, appId)}>
-									<strong>Existing negotiations</strong>
-								</Link>
+									{renderLink('Existing negotiations', 'Existing negotiations', NWL_TASK_LIST_ROUTES.EXISTING_NEGOTIATIONS)}
 								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
+								{renderStatusTag('Existing negotiations')}
 							</li>
 					</ul>
 
@@ -196,25 +204,21 @@ const NWLTaskList: React.FC = () => {
 					<ul className="govuk-task-list">
 						<li className="govuk-task-list__item govuk-task-list__item--with-link">
 							<div className="govuk-task-list__name-and-hint">
-						<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS, appId)}>
-								<strong>Check your answers</strong>
-							</Link>
+								{renderLink('Check your answers', 'Check your answers', NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS)}
 							</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--grey">Cannot start yet</strong>
-								</div>
-							</li>
-						</ul>
+							{renderStatusTag('Check your answers')}
+						</li>
+					</ul>
 
-						<button
-							className="govuk-button govuk-button--warning"
-							type="button"
-							onClick={() => navigate(`${NWL_BASE_URL}/${appId}/delete`)}
-							disabled={submitting}
-							style={{ marginRight: '1rem' }}
-						>
-							Delete application
-						</button>
+					<button
+						className="govuk-button govuk-button--warning"
+						type="button"
+						onClick={() => navigate(`${NWL_BASE_URL}/${appId}/delete`)}
+						disabled={submitting}
+						style={{ marginRight: '1rem' }}
+					>
+						Delete application
+					</button>
 					</div>
 				</div>
 			</main>

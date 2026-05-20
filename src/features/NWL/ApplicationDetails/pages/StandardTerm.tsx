@@ -1,69 +1,116 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import React, { useState, useEffect, useRef } from "react";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
+import { useNWLProgress } from "../../hooks/useNWLProgress";
+import { VALIDATION_MESSAGES } from "../services/applicationDetailsService";
 import {
   BREADCRUMBS,
   LABELS,
   OPTIONS,
 } from "../constants/standardTermConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
-/**
- * Standard Term Page
- * Are you applying for the standard term of 15 years?
- */
 const StandardTerm: React.FC = () => {
   const appId = useGetApplicationId();
   const { navigateToTaskList } = useApplicationNavigation(appId || "");
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { applicationDetails, updateFields, isLoading } = useApplicationDetailsData(appId);
+  const { updateProgress } = useNWLProgress(appId || undefined);
 
   const [isStandardTerm, setIsStandardTerm] = useState<string>("");
   const [explanation, setExplanation] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [explanationError, setExplanationError] = useState<string>("");
+  const initialTermRef = useRef<string | null>(null);
+
+  const typeOfUse = applicationDetails?.type_of_use || 'existing_lines';
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (applicationDetails?.is_standard_term != null) {
+      const termValue = applicationDetails.is_standard_term ? "yes" : "no";
+      setIsStandardTerm(termValue);
+      if (initialTermRef.current === null) {
+        initialTermRef.current = termValue;
+      }
     }
-  }, [appId, fetchAndSetApplication]);
+    if (applicationDetails?.standard_term_explanation) {
+      setExplanation(applicationDetails.standard_term_explanation);
+    } else if (applicationDetails && applicationDetails.standard_term_explanation === null) {
+      setExplanation("");
+    }
+  }, [applicationDetails]);
 
-  useEffect(() => {
-    // Load saved data if it exists
-    if (application?.is_standard_term !== undefined) {
-      setIsStandardTerm(application.is_standard_term ? "yes" : "no");
+  const handleTermChange = (newValue: string) => {
+    setIsStandardTerm(newValue);
+    setError("");
+    
+    if (newValue === "yes") {
+      setExplanation("");
+      setExplanationError("");
     }
-    if (application?.standard_term_explanation) {
-      setExplanation(application.standard_term_explanation);
+  };
+
+  const validateForm = (): boolean => {
+    let isValid = true;
+    setError("");
+    setExplanationError("");
+
+    if (!isStandardTerm) {
+      setError(VALIDATION_MESSAGES.RADIO_REQUIRED);
+      isValid = false;
     }
-  }, [application]);
+
+    if (isStandardTerm === "no" && !explanation.trim()) {
+      setExplanationError(VALIDATION_MESSAGES.TEXT_REQUIRED);
+      isValid = false;
+    }
+
+    if (explanation.length > LABELS.CHAR_LIMIT) {
+      setExplanationError(VALIDATION_MESSAGES.TEXT_MAX_LENGTH(LABELS.CHAR_LIMIT));
+      isValid = false;
+    }
+
+    return isValid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    navigateToTaskList();
-  };
+    if (!validateForm()) {
+      return;
+    }
 
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
+    try {
+      const hasChangedSelection = initialTermRef.current && initialTermRef.current !== isStandardTerm;
+      
+      await updateFields({
+        type_of_use: typeOfUse,
+        is_standard_term: isStandardTerm === "yes",
+        standard_term_explanation: isStandardTerm === "yes" ? null : (hasChangedSelection ? null : explanation),
+      }, APPLICATION_DETAILS_PAGE_IDS.STANDARD_TERM);
+
+      initialTermRef.current = isStandardTerm;
+
+      await updateProgress('Grounds for application', 'Completed');
+
+      navigateToTaskList();
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
+    }
+  };
 
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}
@@ -74,7 +121,7 @@ const StandardTerm: React.FC = () => {
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {error && (
+            {(error || explanationError) && (
               <div
                 className="govuk-error-summary"
                 data-module="govuk-error-summary"
@@ -86,9 +133,16 @@ const StandardTerm: React.FC = () => {
                 </h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
-                    <li>
-                      <a href="#isStandardTerm">{error}</a>
-                    </li>
+                    {error && (
+                      <li>
+                        <a href="#isStandardTerm">{error}</a>
+                      </li>
+                    )}
+                    {explanationError && (
+                      <li>
+                        <a href="#explanation">{explanationError}</a>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -126,8 +180,7 @@ const StandardTerm: React.FC = () => {
                           value={option.value}
                           checked={isStandardTerm === option.value}
                           onChange={(e) => {
-                            setIsStandardTerm(e.target.value);
-                            setError("");
+                            handleTermChange(e.target.value);
                           }}
                           data-aria-controls={option.value === "no" ? "conditional-explanation" : undefined}
                         />
@@ -143,22 +196,29 @@ const StandardTerm: React.FC = () => {
                   
                   {isStandardTerm === "no" && (
                     <div className="govuk-radios__conditional" id="conditional-explanation">
-                      <div className="govuk-form-group">
+                      <div className={`govuk-form-group ${explanationError ? "govuk-form-group--error" : ""}`}>
                         <label className="govuk-label govuk-label--s govuk-bold" htmlFor="explanation">
                           {LABELS.TEXTAREA_LABEL}
                         </label>
-                      
+                        {explanationError && (
+                          <p id="explanation-error" className="govuk-error-message">
+                            <span className="govuk-visually-hidden">Error:</span> {explanationError}
+                          </p>
+                        )}
                         <textarea
-                          className="govuk-textarea"
+                          className={`govuk-textarea ${explanationError ? "govuk-textarea--error" : ""}`}
                           id="explanation"
                           name="explanation"
                           rows={8}
                           aria-describedby="explanation-hint"
                           value={explanation}
-                          onChange={(e) => setExplanation(e.target.value)}
+                          onChange={(e) => {
+                            setExplanation(e.target.value);
+                            setExplanationError("");
+                          }}
                           maxLength={LABELS.CHAR_LIMIT}
                         />
-                          <div className="govuk-hint" id="explanation-hint">
+                        <div className="govuk-hint" id="explanation-hint">
                           You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
                         </div>
                       </div>
@@ -172,16 +232,10 @@ const StandardTerm: React.FC = () => {
                   type="submit"
                   className="govuk-button"
                   data-module="govuk-button"
+                  disabled={isLoading}
                 >
-                  Save and continue
+                  {isLoading ? 'Saving...' : 'Save and continue'}
                 </button>
-                {/* <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  onClick={handleSaveForLater}
-                >
-                  Save for later
-                </button> */}
               </div>
             </form>
           </div>

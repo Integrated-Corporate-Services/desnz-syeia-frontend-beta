@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import React, { useState, useEffect, useRef } from "react";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
   OPTIONS,
 } from "../constants/noticeToRemoveClearConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
  * Notice to Remove Clear Page
@@ -21,36 +19,72 @@ const NoticeToRemoveClear: React.FC = () => {
     navigateToNoticeToRemoveUnclear, 
     navigateToTaskList 
   } = useApplicationNavigation(appId || "");
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
 
   const [isNoticeClear, setIsNoticeClear] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const initialClearRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load saved data if it exists (only when there's an actual boolean value)
+    if (applicationDetails?.is_notice_to_remove_clear != null) {
+      const clearValue = applicationDetails.is_notice_to_remove_clear ? "yes" : "no";
+      setIsNoticeClear(clearValue);
+      // Only set initial value once on first load
+      if (initialClearRef.current === null) {
+        initialClearRef.current = clearValue;
+      }
     }
-  }, [appId, fetchAndSetApplication]);
+  }, [applicationDetails]);
 
-  useEffect(() => {
-    // Load saved data if it exists
-    if (application?.is_notice_to_remove_clear !== undefined) {
-      setIsNoticeClear(application.is_notice_to_remove_clear ? "yes" : "no");
-    }
-  }, [application]);
+  const handleClearChange = (newValue: string) => {
+    setIsNoticeClear(newValue);
+    setError("");
+    // Note: Backend call happens only on "Save and continue" button click
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    // Navigate based on selection
-    if (isNoticeClear === "yes") {
-      navigateToApplicationWithinThreeMonths();
-    } else if (isNoticeClear === "no") {
-      navigateToNoticeToRemoveUnclear();
+    // Validation
+    if (!isNoticeClear) {
+      setError("Select yes or no");
+      return;
+    }
+
+    try {
+      // Check if user changed their selection
+      const hasChangedSelection = initialClearRef.current && initialClearRef.current !== isNoticeClear;
+      
+      // If selection changed, clear all downstream fields
+      if (hasChangedSelection) {
+        await updateFields({
+          type_of_use: 'existing_lines',
+          is_notice_to_remove_clear: isNoticeClear === "yes",
+          is_within_three_months: null,
+          is_standard_term: null,
+          standard_term_explanation: null,
+        }, APPLICATION_DETAILS_PAGE_IDS.NOTICE_TO_REMOVE_CLEAR);
+      } else {
+        // Normal save without clearing
+        await updateFields({
+          type_of_use: 'existing_lines',
+          is_notice_to_remove_clear: isNoticeClear === "yes",
+        }, APPLICATION_DETAILS_PAGE_IDS.NOTICE_TO_REMOVE_CLEAR);
+      }
+
+      // Update the initial ref after successful save
+      initialClearRef.current = isNoticeClear;
+
+      // Navigate based on selection
+      if (isNoticeClear === "yes") {
+        navigateToApplicationWithinThreeMonths();
+      } else if (isNoticeClear === "no") {
+        navigateToNoticeToRemoveUnclear();
+      }
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
     }
   };
 
@@ -63,12 +97,13 @@ const NoticeToRemoveClear: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}
@@ -131,8 +166,7 @@ const NoticeToRemoveClear: React.FC = () => {
                           value={option.value}
                           checked={isNoticeClear === option.value}
                           onChange={(e) => {
-                            setIsNoticeClear(e.target.value);
-                            setError("");
+                            handleClearChange(e.target.value);
                           }}
                         />
                         <label

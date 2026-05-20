@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
 } from "../constants/noticeToRemoveUnclearConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
  * Notice to Remove Unclear Page
@@ -15,33 +13,46 @@ import {
  */
 const NoticeToRemoveUnclear: React.FC = () => {
   const appId = useGetApplicationId();
-  const { navigateToApplicationWithinThreeMonths } = useApplicationNavigation(appId || "");
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { navigateToApplicationWithinThreeMonths, navigateToTaskList } = useApplicationNavigation(appId || "");
+  const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
 
   const [explanation, setExplanation] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load saved data if it exists, or clear if it's been reset to null
+    if (applicationDetails?.notice_to_remove_unclear_explanation) {
+      setExplanation(applicationDetails.notice_to_remove_unclear_explanation);
+    } else if (applicationDetails && applicationDetails.notice_to_remove_unclear_explanation === null) {
+      // Explicitly clear local state if explanation was set to null
+      setExplanation("");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    // Load saved data if it exists
-    if (application?.notice_to_remove_unclear_explanation) {
-      setExplanation(application.notice_to_remove_unclear_explanation);
-    }
-  }, [application]);
+  }, [applicationDetails]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    navigateToApplicationWithinThreeMonths();
+    // Validation
+    if (!explanation.trim()) {
+      setError("Explain why the Notice to Remove is unclear");
+      return;
+    }
+
+    try {
+      // Save to backend
+      // This page is only for existing_lines flow
+      // Pass page name constant for page-specific validation
+      await updateFields({
+        type_of_use: 'existing_lines',
+        is_notice_to_remove_clear: false,
+        notice_to_remove_unclear_explanation: explanation.trim(),
+      }, APPLICATION_DETAILS_PAGE_IDS.NOTICE_TO_REMOVE_UNCLEAR);
+
+      navigateToApplicationWithinThreeMonths();
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
+    }
   };
 
   // const handleSaveForLater = () => {
@@ -53,12 +64,13 @@ const NoticeToRemoveUnclear: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}
@@ -101,6 +113,9 @@ const NoticeToRemoveUnclear: React.FC = () => {
                   error ? "govuk-form-group--error" : ""
                 }`}
               >
+                <div className="govuk-hint" id="explanation-hint">
+                  You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
+                </div>
               
                 {error && (
                   <p id="explanation-error" className="govuk-error-message">
@@ -123,9 +138,7 @@ const NoticeToRemoveUnclear: React.FC = () => {
                   maxLength={LABELS.CHAR_LIMIT}
                 />
               </div>
-  <div className="govuk-hint" id="explanation-hint">
-                  You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
-                </div>
+
               <div className="govuk-button-group">
                 <button
                   type="submit"

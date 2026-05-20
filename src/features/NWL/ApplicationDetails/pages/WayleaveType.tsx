@@ -1,18 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import React, { useState, useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
-  WAYLEAVE_TYPE_OPTIONS,
+  FORM_ERRORS,
+  WAYLEAVE_EXPIRED_OPTIONS,
+  WAYLEAVE_EXPIRED_DETAILS,
+  WAYLEAVE_TERMINATED_OPTIONS,
+  WAYLEAVE_TERMINATED_DETAILS,
 } from "../constants/wayleaveTypeConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
  * Wayleave Type Page
  * What type of wayleave existed?
+ * 
+ * Content varies based on grounds_for_application:
+ * - wayleave_expired: Shows "Inherited necessary wayleave" and "Wayleave"
+ * - wayleave_terminated: Shows "Implied wayleave" and "Wayleave"
  */
 const WayleaveType: React.FC = () => {
   const location = useLocation();
@@ -23,42 +30,65 @@ const WayleaveType: React.FC = () => {
     navigateToUploadImpliedWayleave, 
     navigateToTaskList 
   } = useApplicationNavigation(appId || "");
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { applicationDetails, updateFields, isLoading } = useApplicationDetailsData(appId);
 
   const [wayleaveType, setWayleaveType] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // Get grounds_for_application from location state or application
+  // Get grounds_for_application from location state or applicationDetails
   const groundsForApplication = 
     (location.state as any)?.grounds_for_application || 
-    application?.grounds_for_application;
+    applicationDetails?.grounds_for_application;
+
+  // Determine which options and details to show based on grounds_for_application
+  const { options, details } = useMemo(() => {
+    if (groundsForApplication === 'wayleave_expired') {
+      return {
+        options: WAYLEAVE_EXPIRED_OPTIONS,
+        details: WAYLEAVE_EXPIRED_DETAILS,
+      };
+    } else {
+      // Default to wayleave_terminated options
+      return {
+        options: WAYLEAVE_TERMINATED_OPTIONS,
+        details: WAYLEAVE_TERMINATED_DETAILS,
+      };
+    }
+  }, [groundsForApplication]);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load saved data if it exists, or clear if it's been reset to null
+    if (applicationDetails?.wayleave_type) {
+      setWayleaveType(applicationDetails.wayleave_type);
+    } else if (applicationDetails && applicationDetails.wayleave_type === null) {
+      // Explicitly clear local state if wayleave_type was set to null
+      setWayleaveType("");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    // Load saved data if it exists
-    if (application?.wayleave_type) {
-      setWayleaveType(application.wayleave_type);
-    }
-  }, [application]);
+  }, [applicationDetails]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Check if a selection has been made
     if (!wayleaveType) {
-      setError("Select the type of wayleave that existed");
+      setError(FORM_ERRORS.MISSING_TYPE);
       return;
     }
 
-    // TODO: Save to backend when API is ready
+    try {
+      // Save to backend
+      // This page is only for existing_lines flow
+      // Pass page ID constant for page-specific validation
+      await updateFields({ 
+        type_of_use: 'existing_lines',
+        wayleave_type: wayleaveType 
+      }, APPLICATION_DETAILS_PAGE_IDS.WAYLEAVE_TYPE);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
+      return;
+    }
+
     // Navigate based on grounds for application and wayleave type selection
     
     if (groundsForApplication === "wayleave_expired") {
@@ -90,12 +120,13 @@ const WayleaveType: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}
@@ -145,7 +176,7 @@ const WayleaveType: React.FC = () => {
                     </p>
                   )}
                   <div className="govuk-radios govuk-!-margin-bottom-6" data-module="govuk-radios">
-                    {WAYLEAVE_TYPE_OPTIONS.map((option) => (
+                    {options.map((option) => (
                       <div key={option.value} className="govuk-radios__item">
                         <input
                           className="govuk-radios__input"
@@ -177,21 +208,21 @@ const WayleaveType: React.FC = () => {
                   <details className="govuk-details">
                     <summary className="govuk-details__summary">
                       <span className="govuk-details__summary-text">
-                        {LABELS.DETAILS_SUMMARY}
+                        {details.SUMMARY}
                       </span>
                     </summary>
                     <div className="govuk-details__text">
-                      <p className="govuk-body">{LABELS.DETAILS_TEXT_1}</p>
-                      <p className="govuk-body">{LABELS.DETAILS_TEXT_2}</p>
-                      <p className="govuk-body">{LABELS.DETAILS_TEXT_3}</p>
+                      <p className="govuk-body">{details.TEXT_1}</p>
+                      <p className="govuk-body">{details.TEXT_2}</p>
+                      <p className="govuk-body">{details.TEXT_3}</p>
                       <p className="govuk-body">
                         <a
-                          href={LABELS.DETAILS_LINK_URL}
+                          href={details.LINK_URL}
                           className="govuk-link"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          {LABELS.DETAILS_LINK_TEXT}
+                          {details.LINK_TEXT}
                         </a>
                       </p>
                     </div>
@@ -204,8 +235,9 @@ const WayleaveType: React.FC = () => {
                   type="submit"
                   className="govuk-button"
                   data-module="govuk-button"
+                  disabled={isLoading}
                 >
-                  Save and continue
+                  {isLoading ? 'Saving...' : 'Save and continue'}
                 </button>
                 {/* <button
                   type="button"

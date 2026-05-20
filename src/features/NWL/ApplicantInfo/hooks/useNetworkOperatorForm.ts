@@ -21,9 +21,6 @@ interface UseNetworkOperatorFormReturn {
   resetForm: () => void;
 }
 
-/**
- * Custom hook for network operator form state and validation
- */
 export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
   const [networkOperatorRef, setNetworkOperatorRef] = useState("");
   const [selectedOrgName, setSelectedOrgName] = useState("");
@@ -35,12 +32,10 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
   const validateForm = useCallback((): boolean => {
     const newErrors: string[] = [];
 
-    // Applicant contact name is mandatory
     if (!selectedOrgName.trim()) {
       newErrors.push(FORM_ERRORS.MISSING_OPERATOR);
     }
 
-    // Reference is optional, only validate if provided
     if (networkOperatorRef.trim() && !/^[A-Za-z0-9 -]+$/.test(networkOperatorRef.trim())) {
       newErrors.push(FORM_ERRORS.INVALID_REFERENCE);
     }
@@ -58,7 +53,6 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
       const org = options.find((opt) => opt.person_name === selectedName);
       setSelectedOrganisation(org || null);
       
-      // Clear errors when a valid selection is made
       if (selectedName.trim()) {
         setErrors(prev => prev.filter(error => error !== FORM_ERRORS.MISSING_OPERATOR));
         const filteredErrors = errors.filter(error => error !== FORM_ERRORS.MISSING_OPERATOR);

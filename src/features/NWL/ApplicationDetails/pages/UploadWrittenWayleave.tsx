@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import FileUpload from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
@@ -12,6 +9,7 @@ import {
   BREADCRUMBS,
   LABELS,
 } from "../constants/uploadWrittenWayleaveConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
  * Upload Written Wayleave Page
@@ -22,24 +20,46 @@ const UploadWrittenWayleave: React.FC = () => {
   const { navigateToNoticeToTerminate, navigateToTaskList } = useApplicationNavigation(appId || "");
   const { user } = useAuthUser();
   const userId = user?.user_id;
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { applicationDetails, updateFields, isLoading } = useApplicationDetailsData(appId);
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load uploaded documents
+    if (applicationDetails?.implied_wayleave_documents) {
+      const docs = applicationDetails.implied_wayleave_documents.map((doc) => ({
+        documentId: doc.document_id,
+        applicationId: appId || '',
+        fileId: doc.document_id,
+        category: 'implied_wayleave',
+        filename: doc.filename,
+        addedBy: '',
+        addedAt: doc.uploaded_at,
+      }));
+      setApplicationDocuments(docs as unknown as ApplicationDocument[]);
     }
-  }, [appId, fetchAndSetApplication]);
+  }, [applicationDetails, appId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    navigateToNoticeToTerminate();
+    try {
+      const documentIds = applicationDocuments.map(doc => doc.documentId);
+      
+      // This page is only for existing_lines flow
+      // Pass page ID constant for page-specific validation
+      await updateFields({
+        type_of_use: 'existing_lines',
+        implied_wayleave_document_ids: documentIds,
+      }, APPLICATION_DETAILS_PAGE_IDS.UPLOAD_WRITTEN_WAYLEAVE);
+
+      navigateToNoticeToTerminate();
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
+    }
   };
 
   // const handleSaveForLater = () => {
@@ -51,12 +71,13 @@ const UploadWrittenWayleave: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}

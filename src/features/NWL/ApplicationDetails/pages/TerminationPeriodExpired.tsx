@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
   BREADCRUMBS,
   LABELS,
   OPTIONS,
 } from "../constants/terminationPeriodExpiredConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
  * Termination Period Expired Page
@@ -21,36 +19,45 @@ const TerminationPeriodExpired: React.FC = () => {
     navigateToCannotContinueApplication, 
     navigateToTaskList 
   } = useApplicationNavigation(appId || "");
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
 
   const [hasExpired, setHasExpired] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load saved data if it exists (only when there's an actual boolean value)
+    if (applicationDetails?.termination_period_expired != null) {
+      setHasExpired(applicationDetails.termination_period_expired ? "yes" : "no");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    // Load saved data if it exists
-    if (application?.termination_period_expired !== undefined) {
-      setHasExpired(application.termination_period_expired ? "yes" : "no");
-    }
-  }, [application]);
+  }, [applicationDetails]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    // Navigate based on selection
-    if (hasExpired === "yes") {
-      navigateToNoticeToRemove();
-    } else if (hasExpired === "no") {
-      navigateToCannotContinueApplication();
+    // Validation
+    if (!hasExpired) {
+      setError("Select yes or no");
+      return;
+    }
+
+    try {
+      // Save to backend
+      // This page is only for existing_lines flow
+      // Pass page name constant for page-specific validation
+      await updateFields({
+        type_of_use: 'existing_lines',
+        termination_period_expired: hasExpired === "yes",
+      }, APPLICATION_DETAILS_PAGE_IDS.TERMINATION_PERIOD_EXPIRED);
+
+      // Navigate based on selection
+      if (hasExpired === "yes") {
+        navigateToNoticeToRemove();
+      } else if (hasExpired === "no") {
+        navigateToCannotContinueApplication();
+      }
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to save');
     }
   };
 
@@ -63,12 +70,13 @@ const TerminationPeriodExpired: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}

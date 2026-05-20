@@ -1,31 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
-import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import FileUpload from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
-import { useApplicationNavigation } from "../hooks";
+import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
+import {
+  validateDate,
+  validateDateNotInFuture,
+  validateDateAtLeast21DaysAgo,
+  formatDateForAPI,
+  parseDateFromAPI,
+  VALIDATION_MESSAGES,
+} from "../services/applicationDetailsService";
 import {
   BREADCRUMBS,
   LABELS,
 } from "../constants/wayleaveOfferConstants";
+import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
- * Wayleave Offer Page
- * For new lines - collects wayleave offer date and document upload
+ * Wayleave Notice Page (New Lines)
+ * For new lines - collects wayleave notice date with 21-day validation
+ * Navigates to StandardTermNewLines page after successful save
  */
 const WayleaveOffer: React.FC = () => {
   const appId = useGetApplicationId();
   const { user } = useAuthUser();
   const userId = user?.user_id;
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
-  const { navigateToTaskList } = useApplicationNavigation(appId || "");
+  const { applicationDetails, updateFields, isLoading } = useApplicationDetailsData(appId);
+  const { navigateToTaskList, navigateToStandardTerm } = useApplicationNavigation(appId || "");
 
   const [day, setDay] = useState<string>("");
   const [month, setMonth] = useState<string>("");
@@ -38,36 +42,98 @@ const WayleaveOffer: React.FC = () => {
     month?: string;
     year?: string;
   }>({});
+  const [has21DayError, setHas21DayError] = useState<boolean>(false);
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    // Load saved data
+    const savedDate = applicationDetails?.wayleave_offer_date;
+    if (savedDate) {
+      const parsed = parseDateFromAPI(savedDate);
+      if (parsed) {
+        setDay(parsed.day);
+        setMonth(parsed.month);
+        setYear(parsed.year);
+      }
     }
-  }, [appId, fetchAndSetApplication]);
 
-  useEffect(() => {
-    // Load saved data if it exists
-    // TODO: Update when backend API is ready
-    if (application?.wayleave_offer_date) {
-      const date = new Date(application.wayleave_offer_date);
-      setDay(date.getDate().toString());
-      setMonth((date.getMonth() + 1).toString());
-      setYear(date.getFullYear().toString());
+    // Load uploaded documents
+    if (applicationDetails?.wayleave_offer_documents) {
+      // Map DocumentInfo to ApplicationDocument format
+      const docs = applicationDetails.wayleave_offer_documents.map((doc) => ({
+        documentId: doc.document_id,
+        applicationId: appId || '',
+        fileId: doc.document_id,
+        category: 'wayleave_offer',
+        filename: doc.filename,
+        addedBy: '',
+        addedAt: doc.uploaded_at,
+      }));
+      setApplicationDocuments(docs as unknown as ApplicationDocument[]);
     }
-    // TODO: Load uploaded files from backend
-  }, [application]);
+  }, [applicationDetails, appId]);
+
+  const validateForm = (): boolean => {
+    const newErrors: string[] = [];
+    const newFieldErrors: typeof fieldErrors = {};
+
+    // Validate date fields are filled
+    if (!day || !month || !year) {
+      newErrors.push(VALIDATION_MESSAGES.DATE_REQUIRED);
+      if (!day) newFieldErrors.day = VALIDATION_MESSAGES.DATE_REQUIRED;
+      if (!month) newFieldErrors.month = VALIDATION_MESSAGES.DATE_REQUIRED;
+      if (!year) newFieldErrors.year = VALIDATION_MESSAGES.DATE_REQUIRED;
+    } else if (!validateDate(day, month, year)) {
+      newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
+      newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
+    } else if (!validateDateNotInFuture(day, month, year)) {
+      newErrors.push(VALIDATION_MESSAGES.DATE_FUTURE);
+      newFieldErrors.day = VALIDATION_MESSAGES.DATE_FUTURE;
+    } else if (!validateDateAtLeast21DaysAgo(day, month, year)) {
+      newErrors.push(VALIDATION_MESSAGES.DATE_NOT_21_DAYS_AGO);
+      newFieldErrors.day = VALIDATION_MESSAGES.DATE_NOT_21_DAYS_AGO;
+      setHas21DayError(true);
+    } else {
+      setHas21DayError(false);
+    }
+
+    setErrors(newErrors);
+    setFieldErrors(newFieldErrors);
+
+    return newErrors.length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Save to backend when API is ready
-    // For now, just navigate to next page
-    navigateToTaskList();
-  };
+    if (!validateForm()) {
+      // If has21DayError, navigate to task list
+      if (has21DayError) {
+        navigateToTaskList();
+      }
+      return;
+    }
 
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
+    try {
+      // Prepare document IDs from uploaded files
+      const documentIds = applicationDocuments.map(doc => doc.documentId);
+
+      // Update the existing record with wayleave notice details
+      // This page is only for new_lines flow, so always set type_of_use to 'new_lines'
+      // Pass page name constant for page-specific validation
+      const formattedDate = formatDateForAPI(day, month, year);
+      await updateFields({
+        type_of_use: 'new_lines',
+        wayleave_offer_date: formattedDate,
+        wayleave_offer_document_ids: documentIds,
+      }, APPLICATION_DETAILS_PAGE_IDS.WAYLEAVE_OFFER);
+
+      // Navigate to standard term page
+      navigateToStandardTerm();
+    } catch (error: unknown) {
+      const err = error as Error;
+      setErrors([err.message || 'Failed to save application details']);
+    }
+  };
 
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
@@ -76,12 +142,13 @@ const WayleaveOffer: React.FC = () => {
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
+            <a
               className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
             >
               {BREADCRUMBS.TASK_LIST}
-            </Link>
+            </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
             {BREADCRUMBS.APPLICATION_DETAILS}
@@ -93,6 +160,10 @@ const WayleaveOffer: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
+
+            {!has21DayError && (
+              <p className="govuk-hint">{LABELS.PAGE_HINT}</p>
+            )}
 
             {errors.length > 0 && (
               <div
@@ -158,6 +229,7 @@ const WayleaveOffer: React.FC = () => {
                             setDay(e.target.value);
                             setErrors([]);
                             setFieldErrors({});
+                            setHas21DayError(false);
                           }}
                         />
                       </div>
@@ -184,6 +256,7 @@ const WayleaveOffer: React.FC = () => {
                             setMonth(e.target.value);
                             setErrors([]);
                             setFieldErrors({});
+                            setHas21DayError(false);
                           }}
                         />
                       </div>
@@ -210,6 +283,7 @@ const WayleaveOffer: React.FC = () => {
                             setYear(e.target.value);
                             setErrors([]);
                             setFieldErrors({});
+                            setHas21DayError(false);
                           }}
                         />
                       </div>
@@ -240,16 +314,10 @@ const WayleaveOffer: React.FC = () => {
                   type="submit"
                   className="govuk-button"
                   data-module="govuk-button"
+                  disabled={isLoading}
                 >
-                  Save and continue
+                  {isLoading ? 'Saving...' : (has21DayError ? 'Return to tasklist' : 'Save and continue')}
                 </button>
-                {/* <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  onClick={handleSaveForLater}
-                >
-                  Save for later
-                </button> */}
               </div>
             </form>
           </div>

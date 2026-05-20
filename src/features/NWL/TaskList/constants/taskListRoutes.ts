@@ -2,9 +2,9 @@ export const NWL_TASK_LIST_ROUTES = {
   APPLICANT_DETAILS: '/nwl/:applicationId/applicant-details',
   NETWORK_OPERATOR_CONTACT_DETAILS: '/nwl/:applicationId/network-operator-contact-details',
   
-  TYPE_OF_USE: '/nwl/:applicationId/type-of-use',
-  WAYLEAVE_OFFER: '/nwl/:applicationId/wayleave-offer',
-  GROUNDS_FOR_APPLICATION: '/nwl/:applicationId/grounds-for-application',
+  TYPE_OF_USE: '/nwl/:applicationId/application-details/type-of-use',
+  WAYLEAVE_OFFER: '/nwl/:applicationId/application-details/wayleave-offer',
+  GROUNDS_FOR_APPLICATION: '/nwl/:applicationId/application-details/grounds-for-application',
   
   OBJECTOR_DETAILS_INTRODUCTION: '/nwl/:applicationId/objector-details-introduction',
   OBJECTOR_DETAILS: '/nwl/:applicationId/objector-details',

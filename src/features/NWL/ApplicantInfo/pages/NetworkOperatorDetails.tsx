@@ -11,29 +11,25 @@ import { useNetworkOperatorForm } from "../hooks/useNetworkOperatorForm";
 import { useApplicationSync } from "../hooks/useApplicationSync";
 import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
 import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
+import { useNWLProgress } from "../../hooks/useNWLProgress";
 
 const NWL_BASE_URL = "/nwl";
+
 import {
   MAX_REFERENCE_LENGTH,
   BREADCRUMBS,
   FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
 
-/**
- * Network Operator Details Page
- * Allows user to enter applicant reference and select team coordinator
- */
 const NetworkOperatorDetails: React.FC = () => {
   const { user } = useAuthUserContext();
   const navigate = useNavigate();
   const location = useLocation();
   const appId = useGetApplicationId();
 
-  // Get organization from route state
   const stateOrgId = location.state?.organisationId;
   const stateOrgName = location.state?.organisationName;
 
-  // Store
   const application = useApplicationStore((state) => state.application);
   const applicationParty = useApplicationStore(
     (state) => state.applicationParty
@@ -43,7 +39,6 @@ const NetworkOperatorDetails: React.FC = () => {
     (state) => state.fetchAndSetApplication
   );
 
-  // Custom hooks
   const {
     networkOperatorRef,
     setNetworkOperatorRef,
@@ -75,17 +70,15 @@ const NetworkOperatorDetails: React.FC = () => {
   const organisationName =
     application?.application_party?.organisation_name || stateOrgName || "";
 
-  // Fetch role-based network operators using the updated endpoint
   const { coordinators } = useRoleBasedNetworkOperators();
+  const { updateProgress } = useNWLProgress(appId || undefined);
 
-  // Map coordinators to dropdown options
   const options = useCoordinatorOptions({
     coordinators,
     organisationId,
     organisationName,
   });
 
-  // Role-based logic for filtering options and auto-selection
   const { filteredOptions } = useRoleBasedLogic({
     coordinators,
     options,
@@ -95,7 +88,6 @@ const NetworkOperatorDetails: React.FC = () => {
     setAdditionalContacts,
   });
 
-  // Fetch application data on mount
   useEffect(() => {
     if (appId) {
       fetchAndSetApplication(appId).then(() => {
@@ -120,7 +112,7 @@ const NetworkOperatorDetails: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appId]);
 
-  // Sync application data with form state
+
   useApplicationSync({
     application,
     options: filteredOptions,
@@ -132,7 +124,6 @@ const NetworkOperatorDetails: React.FC = () => {
     onContactsSync: setAdditionalContacts,
   });
 
-  // Handle dropdown change
   const handleOperatorChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       handleOperatorChangeBase(e, filteredOptions);
@@ -165,14 +156,12 @@ const NetworkOperatorDetails: React.FC = () => {
         };
         app = await useApplicationStore.getState().startApplication(newAppData);
         
-        // Navigate after successful creation
         if (app?.application_id) {
           navigate(
             `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`
           );
         }
       } else {
-        // Prepare data for save operation
         const saveData = {
           application_id: appId,
           operator_ref: networkOperatorRef,
@@ -188,7 +177,11 @@ const NetworkOperatorDetails: React.FC = () => {
 
         const result = await useApplicationStore.getState().saveNetworkOperator(saveData);
 
-        // Only navigate if the save was successful and we have an application ID
+        const targetAppId = result?.application?.application_id || app.application_id;
+        if (targetAppId) {
+          await updateProgress('Applicant details', 'Completed');
+        }
+
         if (result?.application?.application_id) {
           navigate(
             `${NWL_BASE_URL}/${result.application.application_id}/network-operator-contact-details`
@@ -200,7 +193,7 @@ const NetworkOperatorDetails: React.FC = () => {
         }
       }
     } catch (error) {
-      
+      console.error('Failed to save network operator:', error);
     }
   };
 
@@ -227,7 +220,6 @@ const NetworkOperatorDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Applicant details</h1>
-            {/* Error summary */}
             {(showErrorSummary || emailInputError) && (
               <div
                 className="govuk-error-summary"
@@ -255,7 +247,6 @@ const NetworkOperatorDetails: React.FC = () => {
               </div>
             )}
             <form onSubmit={handleSubmit} noValidate>
-              {/* Applicant contact name */}
               <div
                 className={`govuk-form-group${
                   errors.includes(FORM_ERRORS.MISSING_OPERATOR)
