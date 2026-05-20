@@ -162,26 +162,6 @@ const NWLTaskList: React.FC = () => {
 									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
 								</div>
 							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.APPLICATION_PLAN, appId)}>
-									<strong>Application plan</strong>
-								</Link>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
-							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.PLAN_VERIFICATION, appId)}>
-									<strong>Plan verification</strong>
-								</Link>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
-							</li>
 						</ul>
 
 						<h2 className="govuk-heading-m">6. Negotiations</h2>

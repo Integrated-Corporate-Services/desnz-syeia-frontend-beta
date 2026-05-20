@@ -1,16 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
-import { useApplicationId } from '../hooks';
+import { useApplicationId, useAssetsData } from '../hooks';
 import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '../constants';
+import nwlAssetService from '../services/nwlAssetService';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('AssetsMatchPlan');
 
 const AssetsMatchPlan: React.FC = () => {
   const navigate = useNavigate();
   const applicationId = useApplicationId();
+  
+  // Fetch existing assets data
+  const { assetsData, loading } = useAssetsData(applicationId);
+  
   const [assetsMatch, setAssetsMatch] = useState<string>('');
   const [explanation, setExplanation] = useState<string>('');
-  const [errors, setErrors] = useState<{ assetsMatch?: string; explanation?: string }>({});
+  const [errors, setErrors] = useState<{ assetsMatch?: string; explanation?: string; general?: string }>({});
   const [showErrorSummary, setShowErrorSummary] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Load existing metadata when assetsData is available
+  useEffect(() => {
+    if (assetsData && !loading) {
+      logger.debug('[AssetsMatchPlan] Loading existing metadata', {
+        assetsMatchPlan: assetsData.assets_match_plan,
+        hasExplanation: !!assetsData.assets_match_plan_explanation,
+      });
+
+      // Only set the value if metadata exists (not default false)
+      if (assetsData.metadata_id) {
+        setAssetsMatch(assetsData.assets_match_plan ? 'yes' : 'no');
+        setExplanation(assetsData.assets_match_plan_explanation || '');
+      }
+    }
+  }, [assetsData, loading]);
 
   const handleRadioChange = (value: string) => {
     setAssetsMatch(value);
@@ -52,7 +77,7 @@ const AssetsMatchPlan: React.FC = () => {
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
@@ -60,11 +85,52 @@ const AssetsMatchPlan: React.FC = () => {
     // Clear errors
     setErrors({});
     setShowErrorSummary(false);
+    setSaving(true);
 
-    // TODO: Save data to backend
+    try {
+      logger.debug('[handleSubmit] Updating assets metadata', {
+        applicationId,
+        assetsMatch,
+        hasExplanation: !!explanation,
+      });
 
-    // Navigate to task list
-    navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
+      // Save data to backend
+      await nwlAssetService.updateMetadata(
+        applicationId,
+        assetsMatch === 'yes',
+        assetsMatch === 'no' ? explanation : undefined
+      );
+
+      logger.info('[handleSubmit] Metadata updated successfully');
+
+      // Navigate to task list
+      navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
+    } catch (error: unknown) {
+      logger.error('[handleSubmit] Error updating metadata', { error });
+
+      // Type guard for axios error
+      interface AxiosError {
+        response?: {
+          data?: {
+            details?: string;
+            error?: string;
+            message?: string;
+          };
+        };
+      }
+
+      const axiosError = error as AxiosError;
+      const errorMessage =
+        axiosError?.response?.data?.details ||
+        axiosError?.response?.data?.error ||
+        axiosError?.response?.data?.message ||
+        'Failed to save. Please try again.';
+
+      setErrors({ general: errorMessage });
+      setShowErrorSummary(true);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const hasErrors = Object.keys(errors).length > 0;
@@ -93,6 +159,11 @@ const AssetsMatchPlan: React.FC = () => {
           
           <h1 className="govuk-heading-xl">{LABELS.ASSETS_MATCH_PLAN_TITLE}</h1>
 
+          {/* Loading State */}
+          {loading && (
+            <p className="govuk-body">Loading existing data...</p>
+          )}
+
           {/* Error Summary */}
           {showErrorSummary && hasErrors && (
             <div
@@ -104,6 +175,9 @@ const AssetsMatchPlan: React.FC = () => {
               <h2 className="govuk-error-summary__title">There is a problem</h2>
               <div className="govuk-error-summary__body">
                 <ul className="govuk-list govuk-error-summary__list">
+                  {errors.general && (
+                    <li>{errors.general}</li>
+                  )}
                   {errors.assetsMatch && (
                     <li>
                       <a href="#assets-match">{errors.assetsMatch}</a>
@@ -118,6 +192,7 @@ const AssetsMatchPlan: React.FC = () => {
               </div>
             </div>
           )}
+
 
           <form noValidate>
             {/* Radio buttons */}
@@ -233,8 +308,9 @@ const AssetsMatchPlan: React.FC = () => {
               className="govuk-button"
               data-module="govuk-button"
               onClick={handleSubmit}
+              disabled={saving}
             >
-              {LABELS.CONTINUE}
+              {saving ? 'Saving...' : LABELS.CONTINUE}
             </button>
           </form>
         </div>
