@@ -1,16 +1,20 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 
 /**
- * Read-only Assets Summary Page
- * Displayed when consultations have started (section locked)
+ * Assets Summary Page
+ * Shows asset details with individual Change links per section (except line voltage)
+ * When consultations start, Change links are hidden (read-only mode)
  */
 const AssetSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
+    const navigate = useNavigate();
     const { assets, loading, fetchAssets } = useAssetStore();
+    const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(applicationId);
 
     useEffect(() => {
         if (applicationId) {
@@ -47,7 +51,7 @@ const AssetSummary: React.FC = () => {
                             </strong>
                         </div>
 
-                        {loading ? (
+                        {loading || consultationsLoading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : assets && assets.length > 0 ? (
                             <div className="govuk-summary-card">
@@ -56,27 +60,76 @@ const AssetSummary: React.FC = () => {
                                 </div>
                                 <div className="govuk-summary-card__content">
                                     <dl className="govuk-summary-list">
+                                        {/* Standard specification reference number - WITH CHANGE LINK */}
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Standard specification reference number</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].standardSpecificationReferenceNumber || '-'}</dd>
+                                            {!consultationsStarted && (
+                                                <dd className="govuk-summary-list__actions">
+                                                    <Link
+                                                        to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        className="govuk-link"
+                                                    >
+                                                        Change<span className="govuk-visually-hidden"> standard specification reference number</span>
+                                                    </Link>
+                                                </dd>
+                                            )}
                                         </div>
+                                        
+                                        {/* Type of line - WITH CHANGE LINK */}
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Type of line</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].typeOfLine ? assets[0].typeOfLine.charAt(0).toUpperCase() + assets[0].typeOfLine.slice(1) : '-'}</dd>
+                                            {!consultationsStarted && (
+                                                <dd className="govuk-summary-list__actions">
+                                                    <Link
+                                                        to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        className="govuk-link"
+                                                    >
+                                                        Change<span className="govuk-visually-hidden"> type of line</span>
+                                                    </Link>
+                                                </dd>
+                                            )}
                                         </div>
+                                        
+                                        {/* TORI/NOI code - WITH CHANGE LINK */}
                                         {assets[0].typeOfLine === 'transmission' && assets[0].tori_noi && (
                                             <div className="govuk-summary-list__row">
                                                 <dt className="govuk-summary-list__key">TORI/NOI code for this project</dt>
                                                 <dd className="govuk-summary-list__value">{assets[0].tori_noi}</dd>
+                                                {!consultationsStarted && (
+                                                    <dd className="govuk-summary-list__actions">
+                                                        <Link
+                                                            to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                            className="govuk-link"
+                                                        >
+                                                            Change<span className="govuk-visually-hidden"> TORI/NOI code</span>
+                                                        </Link>
+                                                    </dd>
+                                                )}
                                             </div>
                                         )}
+                                        
+                                        {/* Line voltage - NO CHANGE LINK (as per requirements) */}
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Line voltage</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].lineVoltage ? (Array.isArray(assets[0].lineVoltage) ? assets[0].lineVoltage.join(', ') : assets[0].lineVoltage) : '-'}</dd>
                                         </div>
+                                        
+                                        {/* Line length - WITH CHANGE LINK */}
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Line length</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].lineLength ? `${assets[0].lineLength}m` : '-'}</dd>
+                                            {!consultationsStarted && (
+                                                <dd className="govuk-summary-list__actions">
+                                                    <Link
+                                                        to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        className="govuk-link"
+                                                    >
+                                                        Change<span className="govuk-visually-hidden"> line length</span>
+                                                    </Link>
+                                                </dd>
+                                            )}
                                         </div>
                                     </dl>
                                 </div>
