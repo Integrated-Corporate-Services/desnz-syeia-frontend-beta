@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveRepresentativeStatus } from "../services/objectorDetailsService";
 
 const IsThereRepresentative: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [hasRepresentative, setHasRepresentative] = useState<string>("");
   const [error, setError] = useState<string>("");
 
+  // Only populate radio button if value is explicitly defined (not undefined)
+  // This prevents defaulting to "no" on first visit
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails && objectorDetails.has_representative !== undefined) {
+      setHasRepresentative(objectorDetails.has_representative ? "yes" : "no");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setHasRepresentative(details.has_representative ? "yes" : "no");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     if (!hasRepresentative) {
@@ -42,6 +35,10 @@ const IsThereRepresentative: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
+
+    // Save to backend
+    await saveRepresentativeStatus(appId, hasRepresentative === "yes");
+
     if (hasRepresentative === "yes") {
       navigate(`${NWL_BASE_URL}/${appId}/representative-details`);
     } else {

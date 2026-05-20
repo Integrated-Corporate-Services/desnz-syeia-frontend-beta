@@ -1,23 +1,36 @@
-import { useEffect } from 'react';
-import { useApplicationStore } from '../../../../store/useApplicationStore';
+import { useEffect, useState } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import { getObjectorDetails } from '../services/objectorDetailsService';
+import { ObjectorDetails } from '../types';
 
 export const useObjectorDetailsData = () => {
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const [objectorDetails, setObjectorDetails] = useState<ObjectorDetails | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch objector details directly via service
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
-    }
-  }, [appId, fetchAndSetApplication]);
+    const fetchObjectorDetails = async () => {
+      if (appId) {
+        setIsLoading(true);
+        try {
+          const details = await getObjectorDetails(appId);
+          setObjectorDetails(details);
+        } catch (error) {
+          console.error('Failed to fetch objector details:', error);
+          setObjectorDetails(null);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchObjectorDetails();
+  }, [appId]);
 
   return {
     appId,
-    application,
-    objectorDetails: application?.objector_details,
+    objectorDetails,
+    isLoading,
   };
 };

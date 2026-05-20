@@ -38,8 +38,8 @@ const CountrySelection: React.FC = () => {
     setIsSaving(true);
 
     try {
-      updateLandDetails({
-        site_country: selectedCountry,
+      await updateLandDetails({
+        site_country: selectedCountry, // Send capitalized value - backend will convert to lowercase
       });
 
       goToLandRegistry();

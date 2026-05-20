@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
@@ -9,6 +7,8 @@ import {
   FORM_ERRORS,
   FORM_LABELS,
 } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveObjectorAddress } from "../services/objectorDetailsService";
 
 /**
  * Objector Address Page
@@ -16,11 +16,7 @@ import {
  */
 const ObjectorAddress: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -31,21 +27,14 @@ const ObjectorAddress: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails) {
+      setAddressLine1(objectorDetails.objector_address_line1 || "");
+      setAddressLine2(objectorDetails.objector_address_line2 || "");
+      setTown(objectorDetails.objector_town || "");
+      setCounty(objectorDetails.objector_county || "");
+      setPostcode(objectorDetails.objector_postcode || "");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setAddressLine1(details.objector_address_line1 || "");
-      setAddressLine2(details.objector_address_line2 || "");
-      setTown(details.objector_town || "");
-      setCounty(details.objector_county || "");
-      setPostcode(details.objector_postcode || "");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -73,6 +62,15 @@ const ObjectorAddress: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
+
+    // Save to backend
+    await saveObjectorAddress(appId, {
+      objector_address_line1: addressLine1,
+      objector_address_line2: addressLine2,
+      objector_town: town,
+      objector_county: county,
+      objector_postcode: postcode,
+    });
 
     navigate(`${NWL_BASE_URL}/${appId}/is-objector-landowner`);
   };

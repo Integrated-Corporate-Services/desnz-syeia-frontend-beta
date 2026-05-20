@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS, TITLE_OPTIONS } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveRepresentativeDetails } from "../services/objectorDetailsService";
 
 const RepresentativeDetails: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [title, setTitle] = useState("");
   const [fullName, setFullName] = useState("");
@@ -19,21 +17,14 @@ const RepresentativeDetails: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails) {
+      setTitle(objectorDetails.representative_title || "");
+      setFullName(objectorDetails.representative_full_name || "");
+      setOrganisation(objectorDetails.representative_organisation || "");
+      setEmail(objectorDetails.representative_email || "");
+      setPhone(objectorDetails.representative_phone || "");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setTitle(details.representative_title || "");
-      setFullName(details.representative_full_name || "");
-      setOrganisation(details.representative_organisation || "");
-      setEmail(details.representative_email || "");
-      setPhone(details.representative_phone || "");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -49,6 +40,16 @@ const RepresentativeDetails: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
+
+    // Save to backend
+    await saveRepresentativeDetails(appId, {
+      representative_title: title,
+      representative_full_name: fullName,
+      representative_organisation: organisation,
+      representative_email: email,
+      representative_phone: phone,
+    });
+
     navigate(`${NWL_BASE_URL}/${appId}/representative-address`);
   };
 

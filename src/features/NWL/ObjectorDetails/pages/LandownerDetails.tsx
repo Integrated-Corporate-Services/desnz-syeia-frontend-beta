@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
@@ -10,14 +8,12 @@ import {
   FORM_LABELS,
   TITLE_OPTIONS,
 } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveLandownerDetails } from "../services/objectorDetailsService";
 
 const LandownerDetails: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [title, setTitle] = useState("");
   const [fullName, setFullName] = useState("");
@@ -27,21 +23,14 @@ const LandownerDetails: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails) {
+      setTitle(objectorDetails.landowner_title || "");
+      setFullName(objectorDetails.landowner_full_name || "");
+      setOrganisation(objectorDetails.landowner_organisation || "");
+      setEmail(objectorDetails.landowner_email || "");
+      setPhone(objectorDetails.landowner_phone || "");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setTitle(details.landowner_title || "");
-      setFullName(details.landowner_full_name || "");
-      setOrganisation(details.landowner_organisation || "");
-      setEmail(details.landowner_email || "");
-      setPhone(details.landowner_phone || "");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -61,6 +50,16 @@ const LandownerDetails: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
+
+    // Save to backend
+    await saveLandownerDetails(appId, {
+      landowner_title: title,
+      landowner_full_name: fullName,
+      landowner_organisation: organisation,
+      landowner_email: email,
+      landowner_phone: phone,
+    });
+
     navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
   };
 

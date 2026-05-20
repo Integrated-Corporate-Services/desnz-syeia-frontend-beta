@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveLandownerAddress } from "../services/objectorDetailsService";
 
 const LandownerAddress: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -19,21 +17,14 @@ const LandownerAddress: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails) {
+      setAddressLine1(objectorDetails.landowner_address_line1 || "");
+      setAddressLine2(objectorDetails.landowner_address_line2 || "");
+      setTown(objectorDetails.landowner_town || "");
+      setCounty(objectorDetails.landowner_county || "");
+      setPostcode(objectorDetails.landowner_postcode || "");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setAddressLine1(details.landowner_address_line1 || "");
-      setAddressLine2(details.landowner_address_line2 || "");
-      setTown(details.landowner_town || "");
-      setCounty(details.landowner_county || "");
-      setPostcode(details.landowner_postcode || "");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -50,6 +41,16 @@ const LandownerAddress: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
+
+    // Save to backend
+    await saveLandownerAddress(appId, {
+      landowner_address_line1: addressLine1,
+      landowner_address_line2: addressLine2,
+      landowner_town: town,
+      landowner_county: county,
+      landowner_postcode: postcode,
+    });
+
     navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
   };
 

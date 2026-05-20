@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
@@ -10,6 +8,8 @@ import {
   FORM_LABELS,
   FORM_HINTS,
 } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveObjectorLandownerStatus } from "../services/objectorDetailsService";
 
 /**
  * Is Objector Landowner Page
@@ -17,28 +17,19 @@ import {
  */
 const IsObjectorLandowner: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [isLandowner, setIsLandowner] = useState<string>("");
 
   const [error, setError] = useState<string>("");
 
+  // Only populate radio button if value is explicitly defined (not undefined)
+  // This prevents defaulting to "no" on first visit
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails && objectorDetails.is_landowner !== undefined) {
+      setIsLandowner(objectorDetails.is_landowner ? "yes" : "no");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setIsLandowner(details.is_landowner ? "yes" : "no");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     if (!isLandowner) {
@@ -56,6 +47,9 @@ const IsObjectorLandowner: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
+
+    // Save to backend
+    await saveObjectorLandownerStatus(appId, isLandowner === "yes");
 
     if (isLandowner === "yes") {
       navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
