@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
+import { ConsultationType, isLpaJourney as isLpaJourneyHelper, isOtherConsultation } from '../../../constants/consultationType';
 import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../utils/logger';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
@@ -90,15 +91,22 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     const statusKey = getStatusKey(status);
     const statusDisplay = statusKey ? ConsultationStatus[statusKey] : status;
 
-    // Determine response path based on consultation type
-    const responsePath = consultationType === 'LPA' ? 'response-initial' : 'response';
-    const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
+    // Determine if this is an LPA or OTHER-LPA consultation (both follow LPA journey)
+    const isLpaJourney = isLpaJourneyHelper(consultationType || '');
 
+    // Determine response path based on consultation type
+    const responsePath = isLpaJourney ? 'response-initial' : 'response';
+    const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
+    
     // Determine request URL based on consultation type and status
     let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
-    if (consultationType === 'PUBLIC') {
+    
+    if (consultationType === ConsultationType.PUBLIC) {
         requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`;
+    } else if (isLpaJourney) {
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
     } else if (statusDisplay === ConsultationStatus.DRAFT) {
+        // Only use consultation-request for DRAFT status if it's NOT an LPA journey (i.e., it's an OTHER consultation)
         requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
     }
 
@@ -163,7 +171,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     // ============================================================================
 
     /**
-     * Render card for OTHER consultation type with NOT_STARTED status
+     * Render card for OTHER or OTHER-LPA consultation type with NOT_STARTED status
      */
     function renderOtherNotStarted() {
         return (
@@ -267,7 +275,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     }
 
     /**
-     * Render card for LPA consultation with REQUEST_SENT status
+     * Render card for LPA or OTHER-LPA consultation with REQUEST_SENT status
      */
     function renderLpaRequestSent() {
         return (
@@ -280,6 +288,13 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 Provide response
                             </Link>
                         </li>
+                        {consultationType === ConsultationType.OTHER_LPA && (
+                            <li className="govuk-summary-card__action">
+                                <Link to={withdrawUrl} className="govuk-link">
+                                    Withdraw
+                                </Link>
+                            </li>
+                        )}
                     </ul>
                 </div>
                 <div className="govuk-summary-card__content">
@@ -330,7 +345,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 Provide response
                             </Link>
                         </li>
-                        {consultationType === 'OTHER' && (
+                        {consultationType === ConsultationType.OTHER && (
                             <li className="govuk-summary-card__action">
                                 <Link to={withdrawUrl} className="govuk-link">
                                     Withdraw
@@ -665,7 +680,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 {statusDisplay === ConsultationStatus.DRAFT ? 'Continue consultation' : 'Start consultation'}
                             </Link>
                         </li>
-                        {statusDisplay === ConsultationStatus.DRAFT && consultationType === 'OTHER' && (
+                        {statusDisplay === ConsultationStatus.DRAFT && consultationType === ConsultationType.OTHER && (
                             <li className="govuk-summary-card__action">
                                 <Link to={withdrawUrl} className="govuk-link">
                                     Withdraw
@@ -702,8 +717,8 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
      * Determine which card content to render based on status and consultation type
      */
     function renderCardContent() {
-        // Special case: OTHER consultation type with NOT_STARTED status
-        if (consultationType === 'OTHER' && statusDisplay === ConsultationStatus.NOT_STARTED) {
+        // Special case: OTHER or OTHER-LPA consultation type with NOT_STARTED status
+        if (isOtherConsultation(consultationType || '') && statusDisplay === ConsultationStatus.NOT_STARTED) {
             return renderOtherNotStarted();
         }
 
@@ -713,18 +728,18 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                 return renderNotRequired();
 
             case ConsultationStatus.REQUEST_SENT:
-                if (consultationType === 'PUBLIC') {
+                if (consultationType === ConsultationType.PUBLIC) {
                     return renderPublicRequestSent();
-                } else if (consultationType === 'LPA') {
+                } else if (isLpaJourney) {
                     return renderLpaRequestSent();
                 } else {
                     return renderStandardRequestSent();
                 }
 
             case ConsultationStatus.CLOSED:
-                if (consultationType === 'PUBLIC') {
+                if (consultationType === ConsultationType.PUBLIC) {
                     return renderPublicClosed();
-                } else if (consultationType === 'LPA') {
+                } else if (isLpaJourney) {
                     return renderLpaClosed();
                 } else {
                     return renderStandardClosed();

@@ -6,6 +6,7 @@ import ConsultationSummaryCard from '../components/SummaryCard';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
+import { ConsultationType, isOtherConsultation } from '../../../constants/consultationType';
 import { progressApiService } from '../../../services/progressApiService';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { createLogger } from '../../../utils/logger';
@@ -27,8 +28,9 @@ const ConsultationDetailsPage: React.FC = () => {
     const { consultations } = useConsultationDetails(applicationId, user?.user_id);
 
     // Separate consultations into regular and OTHER types
-    const regularConsultations = consultations.filter((c) => c.consultationType !== 'OTHER');
-    const otherConsultations = consultations.filter((c) => c.consultationType === 'OTHER');
+    // Note: "OTHER-LPA" consultations are treated as OTHER for display purposes
+    const regularConsultations = consultations.filter((c) => !isOtherConsultation(c.consultationType || ''));
+    const otherConsultations = consultations.filter((c) => isOtherConsultation(c.consultationType || ''));
 
     // Separate active and historical consultations
     // Only withdrawn consultations are considered historical
@@ -151,7 +153,7 @@ const ConsultationDetailsPage: React.FC = () => {
 
                     {/* Active Regular consultations */}
                     {activeRegularConsultations.map((consultation) => {
-                        const isPublic = consultation.consultationType === 'PUBLIC';
+                        const isPublic = consultation.consultationType === ConsultationType.PUBLIC;
 
                         return (
                             <ConsultationSummaryCard
@@ -191,7 +193,7 @@ const ConsultationDetailsPage: React.FC = () => {
                     )}
 
                     {activeOtherConsultations.map((consultation) => {
-                        const isPublic = consultation.consultationType === 'PUBLIC';
+                        const isPublic = consultation.consultationType === ConsultationType.PUBLIC;
 
                         return (
                             <ConsultationSummaryCard
@@ -237,7 +239,7 @@ const ConsultationDetailsPage: React.FC = () => {
                                 <p className="govuk-body">These consultations have been withdrawn and are shown here for reference.</p>
 
                                 {allHistoricalConsultations.map((consultation) => {
-                                    const isPublic = consultation.consultationType === 'PUBLIC';
+                                    const isPublic = consultation.consultationType === ConsultationType.PUBLIC;
 
                                     return (
                                         <ConsultationSummaryCard

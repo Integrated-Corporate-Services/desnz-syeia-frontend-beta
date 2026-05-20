@@ -5,6 +5,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
 import type { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
+import { ConsultationType } from '../../../constants/consultationType';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 
 const ConsultationResponse: React.FC = () => {
@@ -66,7 +67,7 @@ const ConsultationResponse: React.FC = () => {
         const newErrors: { [key: string]: string } = {};
 
         // For PUBLIC consultations, only validate objection field
-        if (consultationType === 'PUBLIC') {
+        if (consultationType === ConsultationType.PUBLIC) {
             if (!hasObjection) {
                 newErrors.hasObjection = CONSULTATION_VALIDATION_MESSAGES.hasObjection.empty;
             }
@@ -136,7 +137,7 @@ const ConsultationResponse: React.FC = () => {
             await saveConsultationResponse(payload, applicationId);
             
             // For PUBLIC consultations with NO objections, skip document upload and go directly to comments page
-            if (consultationType === 'PUBLIC' && hasObjection === 'no') {
+            if (consultationType === ConsultationType.PUBLIC && hasObjection === 'no') {
                 navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response3`);
             } else {
                 // For all other cases (PUBLIC with objections OR non-PUBLIC), go to document upload page
@@ -228,12 +229,12 @@ const ConsultationResponse: React.FC = () => {
                             </div>
                         )}
 
-                        {consultationType === 'PUBLIC' && <h2 className="govuk-caption-xl">Public notices</h2>}
-                        {consultationType !== 'PUBLIC' && <h2 className="govuk-caption-xl">{consultationName}</h2>}
-                        <h1 className="govuk-heading-l">{consultationType === 'PUBLIC' ? 'Are there any objections to the application?' : 'Provide consultation response'}</h1>
+                        {consultationType === ConsultationType.PUBLIC && <h2 className="govuk-caption-xl">Public notices</h2>}
+                        {consultationType !== ConsultationType.PUBLIC && <h2 className="govuk-caption-xl">{consultationName}</h2>}
+                        <h1 className="govuk-heading-l">{consultationType === ConsultationType.PUBLIC ? 'Are there any objections to the application?' : 'Provide consultation response'}</h1>
 
                         <form noValidate>
-                            {consultationType !== 'PUBLIC' && (
+                            {consultationType !== ConsultationType.PUBLIC && (
                             <div className={`govuk-form-group ${errors.contactName ? 'govuk-form-group--error' : ''}`}>
                                 <label className="govuk-label" htmlFor="contactName">
                                     <strong>Consultee contact name</strong>
@@ -264,7 +265,7 @@ const ConsultationResponse: React.FC = () => {
                             </div>
                             )}
 
-                            {consultationType !== 'PUBLIC' && (
+                            {consultationType !== ConsultationType.PUBLIC && (
                             <div className={`govuk-form-group ${errors.email ? 'govuk-form-group--error' : ''}`}>
                                 <label className="govuk-label" htmlFor="email">
                                     <strong>Consultee contact email address</strong>
@@ -298,7 +299,7 @@ const ConsultationResponse: React.FC = () => {
 
                             <div className={`govuk-form-group ${errors.hasObjection ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset" aria-describedby={errors.hasObjection ? 'hasObjection-error' : undefined}>
-                                    {consultationType !== 'PUBLIC' && (
+                                    {consultationType !== ConsultationType.PUBLIC && (
                                     <legend className="govuk-fieldset__legend">
                                         <strong>Does the consultee have any objections to the application?</strong>
                                     </legend>

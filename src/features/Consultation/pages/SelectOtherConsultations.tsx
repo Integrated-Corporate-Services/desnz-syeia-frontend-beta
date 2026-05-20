@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { ConsultationType } from '../../../constants/consultationType';
 import LpaSelector, { Lpa } from '../../../components/LpaSelector';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { updateAllConsultations, createLpaConsultations, getOtherConsulteeOrganisations, createOtherConsultations } from '../../../services/consultationService';
@@ -148,8 +149,8 @@ const SelectOtherConsultations: React.FC = () => {
                 log.debug('[SelectOtherConsultations] Creating manually selected LPA consultations', {
                     count: selectedLpas.length,
                 });
-                await createLpaConsultations(applicationId, selectedLpas, user.user_id);
-                log.debug('[SelectOtherConsultations] Manually selected LPA consultations created successfully');
+                await createLpaConsultations(applicationId, selectedLpas, user.user_id, ConsultationType.OTHER_LPA);
+                log.debug('[SelectOtherConsultations] Manually selected LPA consultations created successfully as OTHER-LPA type');
             }
 
             // Create OTHER consultations if any OTHER consultees were selected

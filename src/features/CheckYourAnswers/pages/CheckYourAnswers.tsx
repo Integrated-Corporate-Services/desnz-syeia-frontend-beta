@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { ConsultationType, isLpaJourney } from "../../../constants/consultationType";
 import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { applicationApiService } from "../../../services/applicationApiService";
@@ -1677,7 +1678,7 @@ const CheckYourAnswers: React.FC = () => {
                 const responseReceived = !!(
                   consultation.responseDocuments && consultation.responseDocuments.length > 0
                 );
-                const isPublicConsultation = consultation.consultationType === "PUBLIC";
+                const isPublicConsultation = consultation.consultationType === ConsultationType.PUBLIC;
 
                 return (
                   <div className="govuk-summary-card" key={consultation.id || idx}>
@@ -1812,8 +1813,8 @@ const CheckYourAnswers: React.FC = () => {
                           /* Non-PUBLIC consultation fields - existing code */
                           <>
 
-                            {/* ONLY show for LPA consultations */}
-                            {consultation.consultationType === "LPA" && (
+                            {/* ONLY show for LPA and OTHER-LPA consultations */}
+                            {isLpaJourney(consultation.consultationType || '') && (
                               <div className="govuk-summary-list__row">
                                 <dt className="govuk-summary-list__key">Consultation request document</dt>
                                 <dd className="govuk-summary-list__value">
