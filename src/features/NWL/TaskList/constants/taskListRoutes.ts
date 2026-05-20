@@ -22,7 +22,6 @@ export const NWL_TASK_LIST_ROUTES = {
   EVIDENCE_OF_NEGOTIATIONS: '/nwl/:applicationId/evidence-of-negotiations',
   
   RELATED_APPLICATIONS: '/nwl/:applicationId/related-applications',
-  OTHER_IMPORTANT_INFORMATION: '/nwl/:applicationId/other-important-information',
   
   CHECK_YOUR_ANSWERS: '/nwl/:applicationId/check-your-answers',
   PAY_AND_SUBMIT: '/nwl/:applicationId/pay-and-submit',

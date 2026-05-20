@@ -4,6 +4,7 @@ import {
   HINTS,
   FORM_LABELS,
   CHARACTER_LIMIT,
+  ERRORS,
 } from '../constants';
 import {
   useAdditionalInformationData,
@@ -16,7 +17,7 @@ import {
   FormActions,
 } from '../components';
 import { CONTENT } from '../constants';
-import { updateAdditionalInformationData } from '../services';
+import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
@@ -28,7 +29,7 @@ import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants
  */
 const ImportantInformationDetails: React.FC = () => {
   const { appId, additionalInformationData } = useAdditionalInformationData();
-  const { errors, validateOtherInformationDetails } = useFormValidation();
+  const { errors, setErrors, validateOtherInformationDetails } = useFormValidation();
   const { navigateToTaskList } = useAdditionalInformationNavigation(appId);
   const { user } = useAuthUserContext();
   const userId = user?.user_id;
@@ -43,17 +44,26 @@ const ImportantInformationDetails: React.FC = () => {
   useEffect(() => {
     if (additionalInformationData) {
       setDetails(additionalInformationData.other_information_details || '');
-      setUploadedFiles(additionalInformationData.uploaded_files || []);
-      setApplicationDocuments(additionalInformationData.application_documents || []);
+      
+      const loadedUploadedFiles = additionalInformationData.uploaded_files || [];
+      const loadedApplicationDocuments = additionalInformationData.application_documents || [];
+            
+      setUploadedFiles(loadedUploadedFiles);
+      setApplicationDocuments(loadedApplicationDocuments);
     }
   }, [additionalInformationData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Upload pending files first
+    // Upload pending files first and get the results directly
+    let newlyUploadedFiles: UploadedFile[] = [];
+    let newlyUploadedDocuments: ApplicationDocument[] = [];
+    
     if (fileUploadRef.current && pendingFiles.length > 0) {
-      await fileUploadRef.current.triggerUpload();
+      const uploadResult = await fileUploadRef.current.triggerUpload();
+      newlyUploadedFiles = uploadResult.uploadedFiles;
+      newlyUploadedDocuments = uploadResult.applicationDocuments;
     }
 
     if (!validateOtherInformationDetails(details)) {
@@ -68,13 +78,44 @@ const ImportantInformationDetails: React.FC = () => {
     setIsSaving(true);
 
     try {
-      await updateAdditionalInformationData(appId, {
+      // Combine existing and newly uploaded files/documents
+      const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
+      const allApplicationDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
+      
+      // Get document IDs from all uploaded documents
+      const documentIds = allApplicationDocuments.map(doc => doc.documentId);
+
+      console.log('[ImportantInformationDetails] Submitting data:', {
+        appId,
+        has_other_information: true,
+        other_information_details_length: details.length,
+        uploadedFiles_count: allUploadedFiles.length,
+        applicationDocuments_count: allApplicationDocuments.length,
+        documentIds_count: documentIds.length,
+        sample_document: allApplicationDocuments[0],
+        sample_file: allUploadedFiles[0],
+      });
+
+      await createOrUpdateAdditionalInformationData(appId, {
+        has_related_applications: additionalInformationData?.has_related_applications ?? false,
+        related_applications_details: additionalInformationData?.related_applications_details,
+        has_other_information: true,
         other_information_details: details,
+        additional_document_ids: documentIds.length > 0 ? documentIds : undefined,
+        uploaded_files: allUploadedFiles,
+        application_documents: allApplicationDocuments,
       });
 
       navigateToTaskList();
-    } catch {
-      // Error handling can be added here if needed
+    } catch (error: unknown) {
+      console.error('Error saving important information details:', error);
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data
+        ? String(error.response.data.error)
+        : ERRORS.API_ERROR;
+      setErrors({ api: errorMessage });
+      window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
     }
@@ -160,7 +201,7 @@ const ImportantInformationDetails: React.FC = () => {
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   onPendingFilesChange={(files) => setPendingFiles(files)}
-                  showDocumentsHeading={false}
+                  showDocumentsHeading={true}
                 />
               </div>
               <FormActions isSaving={isSaving} />

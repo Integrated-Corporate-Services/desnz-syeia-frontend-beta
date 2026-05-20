@@ -17,6 +17,7 @@ import {
 import { CONTENT } from '../constants';
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
+import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 
 /**
  * Other Important Information Page
@@ -24,11 +25,12 @@ import { NWL_BASE_URL } from '../../../../constants/nwl';
  */
 const OtherImportantInformation: React.FC = () => {
   const { appId, additionalInformationData } = useAdditionalInformationData();
-  const { errors, validateRadioSelection } = useFormValidation();
+  const { errors, setErrors, validateRadioSelection } = useFormValidation();
   const { navigateToTaskList } = useAdditionalInformationNavigation(appId);
   const navigate = useNavigate();
 
   const [hasOtherInformation, setHasOtherInformation] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (additionalInformationData) {
@@ -42,7 +44,7 @@ const OtherImportantInformation: React.FC = () => {
     }
   }, [additionalInformationData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateRadioSelection(hasOtherInformation, ERRORS.OTHER_INFO_RADIO_REQUIRED)) {
@@ -54,15 +56,37 @@ const OtherImportantInformation: React.FC = () => {
       return;
     }
 
-    // Direct navigation without backend interaction
+    // If user selects "Yes", navigate to details page without saving
+    // The details page will save the complete data including the details text
     if (hasOtherInformation === 'yes') {
-      // Navigate to details page
-      navigate(
-        `${NWL_BASE_URL}/${appId}/other-important-information/details`
-      );
-    } else {
-      // Navigate to task list
+      navigate(`${NWL_BASE_URL}/${appId}/other-important-information/details`);
+      return;
+    }
+
+    // If user selects "No", save with has_other_information set to false
+    setIsSaving(true);
+
+    try {
+      // Save other information flag as false to backend
+      await createOrUpdateAdditionalInformationData(appId, {
+        has_related_applications: additionalInformationData?.has_related_applications ?? false,
+        related_applications_details: additionalInformationData?.related_applications_details,
+        has_other_information: false,
+        // Don't send other_information_details when has_other_information is false
+      });
+
       navigateToTaskList();
+    } catch (error: unknown) {
+      console.error('Error saving other important information:', error);
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data
+        ? String(error.response.data.error)
+        : ERRORS.API_ERROR;
+      setErrors({ api: errorMessage });
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -135,7 +159,7 @@ const OtherImportantInformation: React.FC = () => {
                 </fieldset>
               </div>
 
-              <FormActions />
+              <FormActions isSaving={isSaving} />
             </form>
           </div>
         </div>
