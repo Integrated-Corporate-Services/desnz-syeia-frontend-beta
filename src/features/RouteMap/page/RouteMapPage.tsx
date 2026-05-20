@@ -350,6 +350,18 @@ const RouteMapPage: React.FC = () => {
                           setSelectedIdx={setSelectedIdx}
                           routeName={location.state?.routeName || 'Route'}
                           mode="edit"
+                          routes={
+                            // Pass all OTHER existing routes (exclude current one being edited)
+                            routes
+                              ?.filter(r => r.route_id !== routeId && Array.isArray(r.gridPoints) && r.gridPoints.length > 0)
+                              .map(r => ({
+                                points: r.gridPoints.map((pt: any) => ({
+                                  easting: String(pt.easting || ''),
+                                  northing: String(pt.northing || ''),
+                                })),
+                                routeName: r.routeName,
+                              }))
+                          }
                         />
                       </ErrorBoundary>
                     </div>

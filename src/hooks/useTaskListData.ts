@@ -34,6 +34,7 @@ export function useTaskListData() {
     const [deletedRouteName, setDeletedRouteName] = useState<string | null>(null);
     const [showSensitiveAreaPopup, setShowSensitiveAreaPopup] = useState(false);
     const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const justStartedCheckRef = useRef<boolean>(false);
 
     // Fetch application if not present in store but available in route params
     useEffect(() => {
@@ -76,8 +77,8 @@ export function useTaskListData() {
                 const status = await getSensitiveAreaCheckStatus(effectiveId);
                 setSensitiveAreaStatus(status);
 
-                // If check is in progress, poll for updates
-                if (status.inProgress) {
+                if (status.inProgress || justStartedCheckRef.current) {
+                    justStartedCheckRef.current = false; // consume the flag
                     if (!pollingIntervalRef.current) {
                         pollingIntervalRef.current = setInterval(async () => {
                             try {
@@ -88,6 +89,7 @@ export function useTaskListData() {
                                 if (!updatedStatus.inProgress && pollingIntervalRef.current) {
                                     clearInterval(pollingIntervalRef.current);
                                     pollingIntervalRef.current = null;
+                                    setShowSensitiveAreaPopup(false);
                                     fetchProgress(effectiveId);
                                 }
                             } catch (err) {
@@ -123,6 +125,7 @@ export function useTaskListData() {
         }
         if (location.state && (location.state as any).showSensitiveAreaPopup) {
             setShowSensitiveAreaPopup(true);
+            justStartedCheckRef.current = true;
             setTimeout(() => {
                 navigate(location.pathname + location.search, { replace: true, state: undefined });
             }, 0);

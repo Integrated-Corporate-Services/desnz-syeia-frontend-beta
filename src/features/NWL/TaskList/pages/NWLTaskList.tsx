@@ -196,17 +196,7 @@ const NWLTaskList: React.FC = () => {
 									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
 								</div>
 							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.EVIDENCE_OF_NEGOTIATIONS, appId)}>
-									<strong>Evidence of negotiations</strong>
-								</Link>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
-							</li>
-						</ul>
+					</ul>
 
 						<h2 className="govuk-heading-m">7. Additional information</h2>
 						<ul className="govuk-task-list">
@@ -222,24 +212,14 @@ const NWLTaskList: React.FC = () => {
 							</li>
 						</ul>
 
-						<h2 className="govuk-heading-m">8. Pay and submit</h2>
-						<ul className="govuk-task-list">
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS, appId)}>
-									<strong>Check your answers</strong>
-								</Link>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--grey">Cannot start yet</strong>
-								</div>
-							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.PAY_AND_SUBMIT, appId)}>
-									<strong>Pay and submit</strong>
-								</Link>
-								</div>
+					<h2 className="govuk-heading-m">8. Pay and submit</h2>
+					<ul className="govuk-task-list">
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+						<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS, appId)}>
+								<strong>Check your answers</strong>
+							</Link>
+							</div>
 								<div className="govuk-task-list__status">
 									<strong className="govuk-tag govuk-tag--grey">Cannot start yet</strong>
 								</div>

@@ -12,16 +12,15 @@ interface SensitiveAreaStatus {
 
 interface SensitiveAreaBannerProps {
   status: SensitiveAreaStatus | null;
+  checkJustStarted?: boolean;
 }
 
-const SensitiveAreaBanner: React.FC<SensitiveAreaBannerProps> = ({ status }) => {
-  if (!status || !status.inProgress) return null;
+const SensitiveAreaBanner: React.FC<SensitiveAreaBannerProps> = ({ status, checkJustStarted }) => {
+  if (!status && !checkJustStarted) return null;
+  if (status && !status.inProgress && !checkJustStarted) return null;
 
-  const passed = status.passed || 0;
-  const cleared = status.cleared || 0;
-  const failed = status.failed || 0;
-  const completed = status.completed || 0;
-  const total = status.total || 0;
+  const completed = status?.completed || 0;
+  const total = status?.total || 0;
   
   return (
     <div className="govuk-notification-banner" role="region" aria-labelledby="sensitive-area-title" data-module="govuk-notification-banner">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -111,13 +111,17 @@ const ReviewPolesPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      {/* Back link */}
-      <Link 
-        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-add-areas`}
+
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          navigate(-1);
+        }}
         className="govuk-back-link"
       >
         Back
-      </Link>
+      </a>
 
       <main className="govuk-main-wrapper">
         <div className="govuk-grid-row">

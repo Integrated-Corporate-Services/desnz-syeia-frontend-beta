@@ -17,18 +17,18 @@ import {
   FormActions,
 } from '../components';
 import { updateNegotiationsData } from '../services';
+import { NegotiationsData } from '../types/negotiations';
 
 /**
  * Tell Us About Existing Negotiations Page
  * Asks if there have been any negotiations and optionally collects start date
  */
 const TellUsAboutExistingNegotiations: React.FC = () => {
-  const { appId, negotiationsData } = useNegotiationsData();
+  const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
   const { errors, validateRadioSelection, setErrors } = useFormValidation();
   const {
     navigateToEvidenceOfNegotiations,
     navigateToWhyNoNegotiations,
-    navigateToTaskList,
   } = useNegotiationsNavigation(appId);
 
   const [hasNegotiations, setHasNegotiations] = useState<string>('');
@@ -40,19 +40,38 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    console.log('[TellUsAboutExistingNegotiations] negotiationsData changed:', {
+      hasData: !!negotiationsData,
+      has_negotiations: negotiationsData?.has_negotiations,
+      date_day: negotiationsData?.negotiations_start_date_day,
+      date_month: negotiationsData?.negotiations_start_date_month,
+      date_year: negotiationsData?.negotiations_start_date_year,
+    });
+    
     if (negotiationsData) {
-      setHasNegotiations(
-        negotiationsData.has_negotiations === true
-          ? 'yes'
-          : negotiationsData.has_negotiations === false
-          ? 'no'
-          : ''
-      );
+      const hasNegValue = negotiationsData.has_negotiations === true
+        ? 'yes'
+        : negotiationsData.has_negotiations === false
+        ? 'no'
+        : '';
+      
+      setHasNegotiations(hasNegValue);
       setStartDate({
         day: negotiationsData.negotiations_start_date_day || '',
         month: negotiationsData.negotiations_start_date_month || '',
         year: negotiationsData.negotiations_start_date_year || '',
       });
+      
+      console.log('[TellUsAboutExistingNegotiations] State updated:', {
+        hasNegotiations: hasNegValue,
+        startDate: {
+          day: negotiationsData.negotiations_start_date_day || '',
+          month: negotiationsData.negotiations_start_date_month || '',
+          year: negotiationsData.negotiations_start_date_year || '',
+        },
+      });
+    } else {
+      console.log('[TellUsAboutExistingNegotiations] No negotiations data available');
     }
   }, [negotiationsData]);
 
@@ -79,12 +98,39 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
     setIsSaving(true);
 
     try {
-      await updateNegotiationsData(appId, {
-        has_negotiations: hasNegotiations === 'yes',
-        negotiations_start_date_day: hasNegotiations === 'yes' ? startDate.day : undefined,
-        negotiations_start_date_month: hasNegotiations === 'yes' ? startDate.month : undefined,
-        negotiations_start_date_year: hasNegotiations === 'yes' ? startDate.year : undefined,
-      });
+      const isYes = hasNegotiations === 'yes';
+      const payload: Partial<NegotiationsData> = {
+        has_negotiations: isYes,
+      };
+
+      if (isYes) {
+        // Send date fields only when has_negotiations is true AND date is entered
+        if (startDate.day && startDate.month && startDate.year) {
+          payload.negotiations_start_date_day = startDate.day;
+          payload.negotiations_start_date_month = startDate.month;
+          payload.negotiations_start_date_year = startDate.year;
+        }
+        // Clear opposite flow field
+        payload.no_negotiations_reason = '';
+      } else {
+        // Clear date and comments when has_negotiations is false
+        payload.negotiations_comments = '';
+      }
+
+      console.log('[TellUsAboutExistingNegotiations] Calling updateNegotiationsData with payload:', payload);
+      const result = await updateNegotiationsData(appId, payload);
+      console.log('[TellUsAboutExistingNegotiations] Backend response:', result);
+
+      if (!result) {
+        console.error('[TellUsAboutExistingNegotiations] No response from backend - save may have failed');
+        alert('Failed to save data. Please try again.');
+        return;
+      }
+
+      // Refetch data to ensure state is updated
+      console.log('[TellUsAboutExistingNegotiations] Refetching negotiations data...');
+      await refetchNegotiationsData();
+      console.log('[TellUsAboutExistingNegotiations] Refetch complete');
 
       if (hasNegotiations === 'yes') {
         navigateToEvidenceOfNegotiations();
@@ -96,23 +142,6 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleSaveForLater = async () => {
-    if (!appId) return;
-
-    try {
-      await updateNegotiationsData(appId, {
-        has_negotiations: hasNegotiations === 'yes' ? true : hasNegotiations === 'no' ? false : undefined,
-        negotiations_start_date_day: startDate.day || undefined,
-        negotiations_start_date_month: startDate.month || undefined,
-        negotiations_start_date_year: startDate.year || undefined,
-      });
-    } catch (error) {
-      console.error('Error saving for later:', error);
-    }
-
-    navigateToTaskList();
   };
 
   return (
@@ -176,7 +205,6 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                         errors={errors}
                         onDateChange={handleDateChange}
                         legend={HINTS.START_DATE}
-                        hint={HINTS.DATE_FORMAT}
                       />
                     </div>
                     <div className="govuk-radios__item">
