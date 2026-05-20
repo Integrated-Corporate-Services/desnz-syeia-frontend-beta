@@ -174,18 +174,6 @@ const NWLTaskList: React.FC = () => {
 								</div>
 								{renderStatusTag('Information about the lines')}
 							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Application plan', 'Application plan', NWL_TASK_LIST_ROUTES.APPLICATION_PLAN)}
-								</div>
-								{renderStatusTag('Application plan')}
-							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Plan verification', 'Plan verification', NWL_TASK_LIST_ROUTES.PLAN_VERIFICATION)}
-								</div>
-								{renderStatusTag('Plan verification')}
-							</li>
 						</ul>
 
 						<h2 className="govuk-heading-m">6. Negotiations</h2>

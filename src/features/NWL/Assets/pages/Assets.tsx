@@ -1,5 +1,4 @@
 import React from "react";
-import { createAsset } from '../../../../services/asset-service';
 import { useNavigate } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
@@ -13,8 +12,10 @@ import { useApplicationId, useAssetForm } from '../hooks';
 import { 
   LABELS, 
   HINTS, 
-  LINE_TYPE_OPTIONS
+  LINE_TYPE_OPTIONS,
+  FORM_ERRORS,
 } from '../constants';
+import nwlAssetService, { CreateAssetsPayload } from '../services/nwlAssetService';
 
 const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
   ? VOLTAGE_CLASS_OPTIONS.map((opt: { label: string }) => opt.label)
@@ -32,11 +33,102 @@ const Asset: React.FC = () => {
     handleVoltageChange,
     handleCheckboxChange,
     handleDescriptionChange,
+    validateForm,
+    resetForm,
+    setErrors,
+    setShowErrorSummary,
   } = useAssetForm();
 
+  const [saving, setSaving] = React.useState(false);
+
+  // Map frontend line type keys to backend codes
+  const lineTypeCodeMap: Record<string, string> = {
+    'overhead-line': 'overhead_line',
+    'overhead-line-wooden-poles': 'overhead_line_wooden_pole',
+    'overhead-line-wooden-poles-stays': 'overhead_line_wooden_pole_stay',
+    'overhead-line-steel-towers': 'overhead_line_steel_tower',
+    'wooden-poles': 'wooden_pole',
+    'stays': 'stay',
+    'steel-towers': 'steel_tower',
+    'underground-cable': 'underground_cable',
+    'earth-wire-apparatus': 'earth_wire_apparatus',
+    'other': 'other',
+  };
+
   const handleSubmit = async () => {
-    // Navigate directly to assets review page without saving
-    navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`);
+    // Validate form first
+    if (!validateForm()) {
+      return;
+    }
+
+    setSaving(true);
+    setErrors({});
+    setShowErrorSummary(false);
+
+    try {
+      // Build line types array with backend codes
+      const selectedLineTypes = Object.entries(lineTypes)
+        .filter(([, value]) => value.checked)
+        .map(([key]) => lineTypeCodeMap[key] || key);
+
+      // Build component descriptions with backend codes
+      const componentDescriptions = Object.entries(lineTypes)
+        .filter(([, value]) => value.checked)
+        .reduce((acc, [key, value]) => {
+          const backendCode = lineTypeCodeMap[key] || key;
+          return {
+            ...acc,
+            [backendCode]: value.description,
+          };
+        }, {});
+
+      // Create payload for NWL backend
+      const payload: CreateAssetsPayload = {
+        application_id: applicationId,
+        assets: [
+          {
+            line_voltage: voltage,
+            line_types: selectedLineTypes,
+            component_descriptions: componentDescriptions,
+          },
+        ],
+        assets_match_plan: true, // Default, will be updated in final page
+        assets_match_plan_explanation: undefined,
+      };
+
+      // Call NWL asset service to save
+      await nwlAssetService.createAssets(payload);
+
+      // Asset creation is logged in the service layer
+
+      // Reset form
+      resetForm();
+
+      // Navigate to review page
+      navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`);
+    } catch (error: unknown) {
+      // Error logging is handled in the service layer
+      
+      // Type guard for axios error
+      interface AxiosError {
+        response?: {
+          data?: {
+            details?: string;
+            error?: string;
+          };
+        };
+      }
+      
+      const axiosError = error as AxiosError;
+      const errorMessage = axiosError?.response?.data?.details || 
+                          axiosError?.response?.data?.error || 
+                          FORM_ERRORS.SAVE_FAILED;
+      
+      setErrors({ general: errorMessage });
+      setShowErrorSummary(true);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -51,7 +143,17 @@ const Asset: React.FC = () => {
 
           {showErrorSummary && <ErrorSummary errors={errors} />}
 
-          <form noValidate>
+          {saving && (
+            <div className="govuk-notification-banner" role="region" aria-labelledby="saving-banner">
+              <div className="govuk-notification-banner__content">
+                <p className="govuk-notification-banner__heading" id="saving-banner">
+                  Saving asset...
+                </p>
+              </div>
+            </div>
+          )}
+
+          <form noValidate onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
             {/* Line Voltage */}
             <div className={`govuk-form-group ${errors.voltage ? 'govuk-form-group--error' : ''}`}>
               <label className="govuk-label govuk-label--s" htmlFor="line-voltage">
@@ -72,6 +174,7 @@ const Asset: React.FC = () => {
                 value={voltage} 
                 onChange={e => handleVoltageChange(e.target.value)}
                 aria-describedby={`line-voltage-hint ${errors.voltage ? 'line-voltage-error' : ''}`}
+                disabled={saving}
               >
                 <option value="select">Select an option</option>
                 {voltageOptions.map(opt => (
@@ -92,6 +195,8 @@ const Asset: React.FC = () => {
             {/* Form Buttons */}
             <FormActions
               onContinue={handleSubmit}
+              disabled={saving}
+              continueLabel={saving ? 'Saving...' : LABELS.CONTINUE}
             />
           </form>
         </div>
