@@ -15,14 +15,14 @@ import {
   FormActions,
   TextAreaWithCounter,
 } from '../components';
-import { updateNegotiationsData } from '../services';
+import { patchNegotiationsData } from '../services';
 
 /**
  * Why No Negotiations Page
  * Collects reason why there have been no negotiations
  */
 const WhyNoNegotiations: React.FC = () => {
-  const { appId, negotiationsData } = useNegotiationsData();
+  const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
   const { errors, validateNoNegotiationsReason } = useFormValidation();
   const { navigateToTaskList } = useNegotiationsNavigation(appId);
 
@@ -30,13 +30,26 @@ const WhyNoNegotiations: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    console.log('[WhyNoNegotiations] negotiationsData changed:', {
+      hasData: !!negotiationsData,
+      no_negotiations_reason: negotiationsData?.no_negotiations_reason,
+    });
+    
     if (negotiationsData) {
       setReason(negotiationsData.no_negotiations_reason || '');
+      console.log('[WhyNoNegotiations] State updated with reason:', negotiationsData.no_negotiations_reason);
+    } else {
+      console.log('[WhyNoNegotiations] No negotiations data available');
     }
   }, [negotiationsData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log('[WhyNoNegotiations] handleSubmit started', {
+      reason_length: reason.length,
+      reason: reason,
+    });
 
     if (!validateNoNegotiationsReason(reason)) {
       window.scrollTo(0, 0);
@@ -50,13 +63,31 @@ const WhyNoNegotiations: React.FC = () => {
     setIsSaving(true);
 
     try {
-      await updateNegotiationsData(appId, {
+      // Use PATCH to only update reason without affecting other fields
+      console.log('[WhyNoNegotiations] Calling patchNegotiationsData...');
+      const result = await patchNegotiationsData(appId, {
         no_negotiations_reason: reason,
+        // Clear comments from opposite flow
+        negotiations_comments: '',
       });
 
+      console.log('[WhyNoNegotiations] Backend response:', result);
+
+      if (!result) {
+        console.error('[WhyNoNegotiations] No response from backend - save may have failed');
+        alert('Failed to save data. Please try again.');
+        return;
+      }
+
+      // Refetch data to ensure state is updated
+      console.log('[WhyNoNegotiations] Refetching negotiations data...');
+      await refetchNegotiationsData();
+      console.log('[WhyNoNegotiations] Refetch complete');
+      
       navigateToTaskList();
     } catch (error) {
-      console.error('Error saving no negotiations reason:', error);
+      console.error('[WhyNoNegotiations] Error saving no negotiations reason:', error);
+      alert('An error occurred while saving. Please try again.');
     } finally {
       setIsSaving(false);
     }

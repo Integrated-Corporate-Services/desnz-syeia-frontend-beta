@@ -196,63 +196,43 @@ const NWLTaskList: React.FC = () => {
 								</div>
 								{renderStatusTag('Existing negotiations')}
 							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Evidence of negotiations', 'Evidence of negotiations', NWL_TASK_LIST_ROUTES.EVIDENCE_OF_NEGOTIATIONS)}
-								</div>
-								{renderStatusTag('Evidence of negotiations')}
-							</li>
-						</ul>
+					</ul>
 
-						<h2 className="govuk-heading-m">7. Additional information</h2>
-						<ul className="govuk-task-list">
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Related applications', 'Related applications', NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS)}
-								</div>
-								{renderStatusTag('Related applications')}
-							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Other important information', 'Other important information', NWL_TASK_LIST_ROUTES.OTHER_IMPORTANT_INFORMATION)}
-								</div>
-								{renderStatusTag('Other important information')}
-							</li>
-						</ul>
+					<h2 className="govuk-heading-m">7. Additional information</h2>
+					<ul className="govuk-task-list">
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink('Related applications', 'Related applications', NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS)}
+							</div>
+							{renderStatusTag('Related applications')}
+						</li>
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink('Other important information', 'Other important information', NWL_TASK_LIST_ROUTES.OTHER_IMPORTANT_INFORMATION)}
+							</div>
+							{renderStatusTag('Other important information')}
+						</li>
+					</ul>
 
-						<h2 className="govuk-heading-m">8. Pay and submit</h2>
-						<ul className="govuk-task-list">
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS, appId)}>
-									<strong>Check your answers</strong>
-								</Link>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--grey">Cannot start yet</strong>
-								</div>
-							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.PAY_AND_SUBMIT, appId)}>
-									<strong>Pay and submit</strong>
-								</Link>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--grey">Cannot start yet</strong>
-								</div>
-							</li>
-						</ul>
+					<h2 className="govuk-heading-m">8. Pay and submit</h2>
+					<ul className="govuk-task-list">
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink('Check your answers', 'Check your answers', NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS)}
+							</div>
+							{renderStatusTag('Check your answers')}
+						</li>
+					</ul>
 
-						<button
-							className="govuk-button govuk-button--warning"
-							type="button"
-							onClick={() => navigate(`${NWL_BASE_URL}/${appId}/delete`)}
-							disabled={submitting}
-							style={{ marginRight: '1rem' }}
-						>
-							Delete application
-						</button>
+					<button
+						className="govuk-button govuk-button--warning"
+						type="button"
+						onClick={() => navigate(`${NWL_BASE_URL}/${appId}/delete`)}
+						disabled={submitting}
+						style={{ marginRight: '1rem' }}
+					>
+						Delete application
+					</button>
 					</div>
 				</div>
 			</main>
