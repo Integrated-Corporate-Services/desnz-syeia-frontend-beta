@@ -163,42 +163,38 @@ const NWLTaskList: React.FC = () => {
 									{renderLink('Identifying information', 'Identifying information', NWL_TASK_LIST_ROUTES.IDENTIFYING_INFORMATION)}
 								</div>
 								{renderStatusTag('Identifying information')}
-							</li>
-						</ul>
-
-						<h2 className="govuk-heading-m">5. Assets</h2>
-						<ul className="govuk-task-list">
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Information about the lines', 'Information about the lines', NWL_TASK_LIST_ROUTES.INFORMATION_ABOUT_LINES)}
-								</div>
-								{renderStatusTag('Information about the lines')}
-							</li>
-						</ul>
-
-						<h2 className="govuk-heading-m">6. Negotiations</h2>
-						<ul className="govuk-task-list">
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Existing negotiations', 'Existing negotiations', NWL_TASK_LIST_ROUTES.EXISTING_NEGOTIATIONS)}
-								</div>
-								{renderStatusTag('Existing negotiations')}
-							</li>
+						</li>
 					</ul>
 
-						<h2 className="govuk-heading-m">7. Additional information</h2>
-						<ul className="govuk-task-list">
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS, appId)}>
-									<strong>Related applications</strong>
-								</Link>
-								</div>
-								<div className="govuk-task-list__status">
-									<strong className="govuk-tag govuk-tag--blue">Incomplete</strong>
-								</div>
-							</li>
-						</ul>
+					<h2 className="govuk-heading-m">5. Assets</h2>
+					<ul className="govuk-task-list">
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink(NWL_SUBSECTIONS.ASSETS, 'Information about the lines', NWL_TASK_LIST_ROUTES.INFORMATION_ABOUT_LINES)}
+							</div>
+							{renderStatusTag(NWL_SUBSECTIONS.ASSETS)}
+						</li>
+					</ul>
+
+					<h2 className="govuk-heading-m">6. Negotiations</h2>
+					<ul className="govuk-task-list">
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink(NWL_SUBSECTIONS.NEGOTIATIONS, 'Existing negotiations', NWL_TASK_LIST_ROUTES.EXISTING_NEGOTIATIONS)}
+							</div>
+							{renderStatusTag(NWL_SUBSECTIONS.NEGOTIATIONS)}
+						</li>
+					</ul>
+
+					<h2 className="govuk-heading-m">7. Additional information</h2>
+					<ul className="govuk-task-list">
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink(NWL_SUBSECTIONS.SUPPORTING_INFORMATION, 'Related applications', NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS)}
+							</div>
+							{renderStatusTag(NWL_SUBSECTIONS.SUPPORTING_INFORMATION)}
+						</li>
+					</ul>
 
 					<h2 className="govuk-heading-m">8. Pay and submit</h2>
 					<ul className="govuk-task-list">

@@ -19,6 +19,8 @@ import {
 import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 
+import { useNWLProgress } from '../../hooks/useNWLProgress';
+
 /**
  * Related Applications Page
  * Asks if there are any related applications and collects details if yes
@@ -27,6 +29,7 @@ const RelatedApplications: React.FC = () => {
   const { appId, additionalInformationData } = useAdditionalInformationData();
   const { errors, setErrors, validateRadioSelection, validateRelatedApplicationsDetails } = useFormValidation();
   const { navigateToOtherImportantInformation, navigateToTaskList } = useAdditionalInformationNavigation(appId);
+  const { updateProgress } = useNWLProgress(appId);
 
   const [hasRelatedApplications, setHasRelatedApplications] = useState<string>('');
   const [details, setDetails] = useState('');
@@ -73,6 +76,17 @@ const RelatedApplications: React.FC = () => {
         has_other_information: additionalInformationData?.has_other_information ?? false,
         other_information_details: additionalInformationData?.other_information_details,
       });
+
+      // If "no", update progress to Completed (the flow is done)
+      if (hasRelatedApplications === 'no') {
+        try {
+          await updateProgress('Supporting information', 'Completed');
+          console.log('[RelatedApplications] Progress updated for Supporting information section');
+        } catch (progressError) {
+          console.error('[RelatedApplications] Error updating progress', progressError);
+          // Continue even if progress update fails
+        }
+      }
 
       // Navigate based on response
       if (hasRelatedApplications === 'yes') {

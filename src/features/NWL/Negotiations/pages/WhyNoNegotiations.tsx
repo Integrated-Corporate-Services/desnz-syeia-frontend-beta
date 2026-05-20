@@ -16,6 +16,7 @@ import {
   TextAreaWithCounter,
 } from '../components';
 import { patchNegotiationsData } from '../services';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 
 /**
  * Why No Negotiations Page
@@ -25,6 +26,7 @@ const WhyNoNegotiations: React.FC = () => {
   const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
   const { errors, validateNoNegotiationsReason } = useFormValidation();
   const { navigateToTaskList } = useNegotiationsNavigation(appId);
+  const { updateProgress } = useNWLProgress(appId);
 
   const [reason, setReason] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -83,6 +85,15 @@ const WhyNoNegotiations: React.FC = () => {
       console.log('[WhyNoNegotiations] Refetching negotiations data...');
       await refetchNegotiationsData();
       console.log('[WhyNoNegotiations] Refetch complete');
+      
+      // Update progress for Negotiations section
+      try {
+        await updateProgress('Negotiations', 'Completed');
+        console.log('[WhyNoNegotiations] Progress updated for Negotiations section');
+      } catch (progressError) {
+        console.error('[WhyNoNegotiations] Error updating progress', progressError);
+        // Continue even if progress update fails
+      }
       
       navigateToTaskList();
     } catch (error) {

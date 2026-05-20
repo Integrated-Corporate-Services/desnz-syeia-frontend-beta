@@ -23,6 +23,8 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 
+import { useNWLProgress } from '../../hooks/useNWLProgress';
+
 /**
  * Evidence of Negotiations Page
  * Collects comments and documents about negotiations
@@ -34,6 +36,7 @@ const EvidenceOfNegotiations: React.FC = () => {
   const { user } = useAuthUserContext();
   const userId = user?.user_id;
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  const { updateProgress } = useNWLProgress(appId);
 
   const [comments, setComments] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -139,6 +142,15 @@ const EvidenceOfNegotiations: React.FC = () => {
       console.log('[EvidenceOfNegotiations] Refetching negotiations data...');
       await refetchNegotiationsData();
       console.log('[EvidenceOfNegotiations] Refetch complete');
+      
+      // Update progress for Negotiations section
+      try {
+        await updateProgress('Negotiations', 'Completed');
+        console.log('[EvidenceOfNegotiations] Progress updated for Negotiations section');
+      } catch (progressError) {
+        console.error('[EvidenceOfNegotiations] Error updating progress', progressError);
+        // Continue even if progress update fails
+      }
       
       navigateToTaskList();
     } catch (error) {

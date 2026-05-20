@@ -23,6 +23,8 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 
+import { useNWLProgress } from '../../hooks/useNWLProgress';
+
 /**
  * Important Information Details Page
  * Collects detailed information and supporting documents
@@ -34,6 +36,7 @@ const ImportantInformationDetails: React.FC = () => {
   const { user } = useAuthUserContext();
   const userId = user?.user_id;
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  const { updateProgress } = useNWLProgress(appId);
 
   const [details, setDetails] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -105,6 +108,15 @@ const ImportantInformationDetails: React.FC = () => {
         uploaded_files: allUploadedFiles,
         application_documents: allApplicationDocuments,
       });
+
+      // Update progress for Supporting information section (backend subsection name)
+      try {
+        await updateProgress('Supporting information', 'Completed');
+        console.log('[ImportantInformationDetails] Progress updated for Supporting information section');
+      } catch (progressError) {
+        console.error('[ImportantInformationDetails] Error updating progress', progressError);
+        // Continue even if progress update fails
+      }
 
       navigateToTaskList();
     } catch (error: unknown) {
