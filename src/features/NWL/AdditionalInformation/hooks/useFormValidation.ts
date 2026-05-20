@@ -32,6 +32,11 @@ export const useFormValidation = () => {
       return false;
     }
     
+    if (details.trim().length < 1) {
+      setErrors({ details: ERRORS.DETAILS_TOO_SHORT });
+      return false;
+    }
+    
     if (details.length > CHARACTER_LIMIT) {
       setErrors({ details: ERRORS.DETAILS_TOO_LONG });
       return false;
@@ -47,6 +52,11 @@ export const useFormValidation = () => {
   const validateOtherInformationDetails = (details: string): boolean => {
     if (!details || details.trim().length === 0) {
       setErrors({ details: ERRORS.OTHER_INFO_REQUIRED });
+      return false;
+    }
+    
+    if (details.trim().length < 1) {
+      setErrors({ details: ERRORS.OTHER_INFO_TOO_SHORT });
       return false;
     }
     

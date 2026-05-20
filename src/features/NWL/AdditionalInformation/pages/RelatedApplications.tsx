@@ -17,6 +17,7 @@ import {
   FormActions,
 } from '../components';
 import { CONTENT } from '../constants';
+import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 
 /**
  * Related Applications Page
@@ -24,11 +25,12 @@ import { CONTENT } from '../constants';
  */
 const RelatedApplications: React.FC = () => {
   const { appId, additionalInformationData } = useAdditionalInformationData();
-  const { errors, validateRadioSelection, validateRelatedApplicationsDetails } = useFormValidation();
+  const { errors, setErrors, validateRadioSelection, validateRelatedApplicationsDetails } = useFormValidation();
   const { navigateToOtherImportantInformation, navigateToTaskList } = useAdditionalInformationNavigation(appId);
 
   const [hasRelatedApplications, setHasRelatedApplications] = useState<string>('');
   const [details, setDetails] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (additionalInformationData) {
@@ -43,7 +45,7 @@ const RelatedApplications: React.FC = () => {
     }
   }, [additionalInformationData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateRadioSelection(hasRelatedApplications, ERRORS.RADIO_REQUIRED)) {
@@ -61,11 +63,34 @@ const RelatedApplications: React.FC = () => {
       return;
     }
 
-    // Direct navigation without backend interaction
-    if (hasRelatedApplications === 'yes') {
-      navigateToOtherImportantInformation();
-    } else {
-      navigateToTaskList();
+    setIsSaving(true);
+
+    try {
+      // Save related applications data to backend
+      await createOrUpdateAdditionalInformationData(appId, {
+        has_related_applications: hasRelatedApplications === 'yes',
+        related_applications_details: hasRelatedApplications === 'yes' ? details : undefined,
+        has_other_information: additionalInformationData?.has_other_information ?? false,
+        other_information_details: additionalInformationData?.other_information_details,
+      });
+
+      // Navigate based on response
+      if (hasRelatedApplications === 'yes') {
+        navigateToOtherImportantInformation();
+      } else {
+        navigateToTaskList();
+      }
+    } catch (error: unknown) {
+      console.error('Error saving related applications:', error);
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data
+        ? String(error.response.data.error)
+        : ERRORS.API_ERROR;
+      setErrors({ api: errorMessage });
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -196,7 +221,7 @@ const RelatedApplications: React.FC = () => {
                 </fieldset>
               </div>
 
-              <FormActions />
+              <FormActions isSaving={isSaving} />
             </form>
           </div>
         </div>
