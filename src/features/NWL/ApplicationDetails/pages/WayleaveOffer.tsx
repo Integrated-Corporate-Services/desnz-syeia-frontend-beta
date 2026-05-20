@@ -229,6 +229,7 @@ const WayleaveOffer: React.FC = () => {
                             setDay(e.target.value);
                             setErrors([]);
                             setFieldErrors({});
+                            setHas21DayError(false);
                           }}
                         />
                       </div>
@@ -255,6 +256,7 @@ const WayleaveOffer: React.FC = () => {
                             setMonth(e.target.value);
                             setErrors([]);
                             setFieldErrors({});
+                            setHas21DayError(false);
                           }}
                         />
                       </div>
@@ -281,6 +283,7 @@ const WayleaveOffer: React.FC = () => {
                             setYear(e.target.value);
                             setErrors([]);
                             setFieldErrors({});
+                            setHas21DayError(false);
                           }}
                         />
                       </div>
