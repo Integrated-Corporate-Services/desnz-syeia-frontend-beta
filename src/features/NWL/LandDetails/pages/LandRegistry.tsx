@@ -10,11 +10,12 @@ import {
   useFormValidation,
   useLandNavigation,
 } from '../hooks';
+import { saveLandRegistry } from '../services/landDetailsService';
 import { LAND_DETAILS_LABELS } from '../constants';
 
 const LandRegistry: React.FC = () => {
   const applicationId = useGetApplicationId();
-  const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
+  const { landDetails, isLoading } = useLandDetailsData(applicationId);
   const { errors, validateLandRegistry } = useFormValidation();
   const { goToLandRegistryInfo, goToUnregisteredLandDetails } = useLandNavigation(applicationId);
 
@@ -22,10 +23,10 @@ const LandRegistry: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (landDetails.has_land_registry !== undefined) {
+    if (landDetails && landDetails.has_land_registry !== undefined) {
       setHasLandRegistry(landDetails.has_land_registry ? 'yes' : 'no');
     }
-  }, [landDetails.has_land_registry]);
+  }, [landDetails]);
 
   const handleRadioChange = (value: 'yes' | 'no') => {
     setHasLandRegistry(value);
@@ -39,12 +40,15 @@ const LandRegistry: React.FC = () => {
       return;
     }
 
+    if (!applicationId) return;
+
     setIsSaving(true);
 
     try {
       const hasRegistry = hasLandRegistry === 'yes';
-      updateLandDetails({
-        has_land_registry: hasRegistry,
+      await saveLandRegistry(applicationId, {
+        is_land_registered: hasRegistry,
+        land_registry_title_number: undefined
       });
 
       if (hasRegistry) {
@@ -53,6 +57,8 @@ const LandRegistry: React.FC = () => {
         goToUnregisteredLandDetails();
       }
     } catch (error) {
+      console.error('Error saving land registry status:', error);
+    } finally {
       setIsSaving(false);
     }
   };

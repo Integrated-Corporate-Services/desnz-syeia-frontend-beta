@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -10,18 +10,27 @@ import {
   useFormValidation,
   useLandNavigation,
 } from '../hooks';
+import { saveCountry } from '../services/landDetailsService';
 import { LAND_DETAILS_LABELS } from '../constants';
 
 const CountrySelection: React.FC = () => {
   const applicationId = useGetApplicationId();
-  const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
+  const { landDetails, isLoading } = useLandDetailsData(applicationId);
   const { errors, validateCountry } = useFormValidation();
   const { goToLandRegistry } = useLandNavigation(applicationId);
 
-  const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>(
-    landDetails.site_country || ''
-  );
+  const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>('');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Load existing data from backend
+  useEffect(() => {
+    if (landDetails) {
+      const country = landDetails.country || '';
+      // Database stores lowercase, convert to capitalized for display
+      const capitalizedCountry = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+      setSelectedCountry((capitalizedCountry === 'England' || capitalizedCountry === 'Wales') ? capitalizedCountry as 'England' | 'Wales' : '');
+    }
+  }, [landDetails]);
 
   const handleCountryChange = (country: 'England' | 'Wales') => {
     setSelectedCountry(country);
@@ -35,15 +44,17 @@ const CountrySelection: React.FC = () => {
       return;
     }
 
+    if (!applicationId) return;
+
     setIsSaving(true);
 
     try {
-      updateLandDetails({
-        site_country: selectedCountry,
-      });
-
+      // Database expects lowercase country values
+      await saveCountry(applicationId, selectedCountry.toLowerCase());
       goToLandRegistry();
     } catch (error) {
+      console.error('Error saving country:', error);
+    } finally {
       setIsSaving(false);
     }
   };

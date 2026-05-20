@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { 
   LandDetailsBreadcrumbs, 
@@ -11,23 +11,37 @@ import {
   useFormValidation,
   useLandNavigation,
 } from '../hooks';
+import { saveSiteAddress } from '../services/landDetailsService';
 import { LAND_DETAILS_LABELS } from '../constants';
 
 const SiteAddress: React.FC = () => {
   const applicationId = useGetApplicationId();
-  const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
+  const { landDetails, isLoading } = useLandDetailsData(applicationId);
   const { errors, validateSiteAddress, clearError } = useFormValidation();
   const { goToCountrySelection } = useLandNavigation(applicationId);
 
   const [formData, setFormData] = useState({
-    addressLine1: landDetails.site_address_line1 || '',
-    addressLine2: landDetails.site_address_line2 || '',
-    town: landDetails.site_town || '',
-    county: landDetails.site_county || '',
-    postcode: landDetails.site_postcode || '',
+    addressLine1: '',
+    addressLine2: '',
+    town: '',
+    county: '',
+    postcode: '',
   });
 
   const [isSaving, setIsSaving] = useState(false);
+
+  // Load existing data from backend
+  useEffect(() => {
+    if (landDetails) {
+      setFormData({
+        addressLine1: landDetails.site_address_line1 || '',
+        addressLine2: landDetails.site_address_line2 || '',
+        town: landDetails.site_town || '',
+        county: landDetails.site_county || '',
+        postcode: landDetails.site_postcode || '',
+      });
+    }
+  }, [landDetails]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -46,10 +60,12 @@ const SiteAddress: React.FC = () => {
       return;
     }
 
+    if (!applicationId) return;
+
     setIsSaving(true);
 
     try {
-      updateLandDetails({
+      await saveSiteAddress(applicationId, {
         site_address_line1: formData.addressLine1,
         site_address_line2: formData.addressLine2,
         site_town: formData.town,
@@ -59,6 +75,8 @@ const SiteAddress: React.FC = () => {
 
       goToCountrySelection();
     } catch (error) {
+      console.error('Error saving site address:', error);
+    } finally {
       setIsSaving(false);
     }
   };

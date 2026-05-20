@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -16,7 +16,7 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 
 const UploadSiteInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
-  const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
+  const { landDetails, isLoading } = useLandDetailsData(applicationId);
   const { goToEquipmentVisibility } = useLandNavigation(applicationId);
   const { user } = useAuthUser();
   const userId = user?.user_id;
@@ -27,31 +27,19 @@ const UploadSiteInformation: React.FC = () => {
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 
   const handleDeleteFile = (fileId: string) => {
-    updateLandDetails({
-      uploadedFiles: landDetails.uploadedFiles?.filter(file => file.id !== fileId),
-      applicationDocuments: landDetails.applicationDocuments?.filter(doc => doc.fileId !== fileId)
-    });
+    // TODO: Call API to delete file
+    console.log('Delete file:', fileId);
   };
 
   const handleSaveAndContinue = async () => {
     setIsSaving(true);
 
     try {
-      // Trigger file upload if there are pending files
-      if (fileUploadRef.current && pendingFiles.length > 0) {
-        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = 
-          await fileUploadRef.current.triggerUpload();
-        
-        if (newUploadedFiles.length > 0) {
-          updateLandDetails({
-            uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
-          });
-        }
-      }
-
+      // TODO: Handle file upload API call
       goToEquipmentVisibility();
     } catch (error) {
+      console.error('Error saving files:', error);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -91,17 +79,15 @@ const UploadSiteInformation: React.FC = () => {
                   category={FILE_CATEGORIES.APPLICATION_LAND_DETAILS}
                   subCategory="SITE_INFORMATION"
                   addedBy={userId}
-                  uploadedFiles={landDetails.uploadedFiles || []}
-                  applicationDocuments={landDetails.applicationDocuments || []}
+                  uploadedFiles={landDetails?.uploadedFiles || []}
+                  applicationDocuments={landDetails?.applicationDocuments || []}
                   showDocumentsHeading={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}
                   onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {
-                    updateLandDetails({
-                      uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-                      applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
-                    });
+                    // TODO: Call API to save uploaded files
+                    console.log('Files uploaded:', newUploadedFiles);
                   }}
                 />
               </div>

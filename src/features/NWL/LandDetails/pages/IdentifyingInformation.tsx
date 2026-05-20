@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -10,18 +10,26 @@ import {
   useFormValidation,
   useLandNavigation,
 } from '../hooks';
+import { saveIdentifyingInformation } from '../services/landDetailsService';
 import { LAND_DETAILS_LABELS } from '../constants';
 
 const IdentifyingInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
-  const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
+  const { landDetails, isLoading } = useLandDetailsData(applicationId);
   const { errors, validateIdentifyingInfo, clearError } = useFormValidation();
   const { goToUploadSiteInformation } = useLandNavigation(applicationId);
 
-  const [identifyingInfo, setIdentifyingInfo] = useState(landDetails.identifying_information || '');
+  const [identifyingInfo, setIdentifyingInfo] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const maxCharacters = 4000;
+
+  // Load existing data from backend
+  useEffect(() => {
+    if (landDetails) {
+      setIdentifyingInfo(landDetails.land_description || '');
+    }
+  }, [landDetails]);
 
   const handleIdentifyingInfoChange = (value: string) => {
     if (value.length <= maxCharacters) {
@@ -38,15 +46,17 @@ const IdentifyingInformation: React.FC = () => {
       return;
     }
 
+    if (!applicationId) return;
+
     setIsSaving(true);
 
     try {
-      updateLandDetails({
-        identifying_information: identifyingInfo,
-      });
+      await saveIdentifyingInformation(applicationId, identifyingInfo);
 
       goToUploadSiteInformation();
     } catch (error) {
+      console.error('Error saving identifying information:', error);
+    } finally {
       setIsSaving(false);
     }
   };

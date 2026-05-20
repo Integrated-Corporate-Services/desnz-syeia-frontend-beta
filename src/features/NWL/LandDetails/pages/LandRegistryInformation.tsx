@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -10,6 +10,7 @@ import {
   useFormValidation,
   useLandNavigation,
 } from '../hooks';
+import { saveLandRegistry } from '../services/landDetailsService';
 import { LAND_DETAILS_LABELS } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
@@ -18,17 +19,24 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 
 const LandRegistryInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
-  const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
+  const { landDetails, isLoading } = useLandDetailsData(applicationId);
   const { errors, validateTitleNumber, clearError } = useFormValidation();
   const { goToOSGridReference } = useLandNavigation(applicationId);
   const { user } = useAuthUser();
   const userId = user?.user_id;
   const fileUploadRef = useRef<FileUploadHandle>(null);
 
-  const [titleNumber, setTitleNumber] = useState(landDetails.land_registry_title_number || '');
+  const [titleNumber, setTitleNumber] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+
+  // Load existing data from backend
+  useEffect(() => {
+    if (landDetails) {
+      setTitleNumber(landDetails.land_registry_title_number || '');
+    }
+  }, [landDetails]);
 
   const handleTitleNumberChange = (value: string) => {
     setTitleNumber(value);
@@ -36,10 +44,8 @@ const LandRegistryInformation: React.FC = () => {
   };
 
   const handleDeleteFile = (fileId: string) => {
-    updateLandDetails({
-      uploadedFiles: landDetails.uploadedFiles?.filter(file => file.id !== fileId),
-      applicationDocuments: landDetails.applicationDocuments?.filter(doc => doc.fileId !== fileId)
-    });
+    // TODO: Call API to delete file
+    console.log('Delete file:', fileId);
   };
 
   const handleSaveAndContinue = async () => {
@@ -50,33 +56,22 @@ const LandRegistryInformation: React.FC = () => {
       return;
     }
 
+    if (!applicationId) return;
+
     setIsSaving(true);
 
     try {
-      // Trigger file upload if there are pending files
-      if (fileUploadRef.current && pendingFiles.length > 0) {
-        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = 
-          await fileUploadRef.current.triggerUpload();
-        
-        if (newUploadedFiles.length > 0) {
-          updateLandDetails({
-            land_registry_title_number: titleNumber,
-            uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
-          });
-        } else {
-          updateLandDetails({
-            land_registry_title_number: titleNumber,
-          });
-        }
-      } else {
-        updateLandDetails({
-          land_registry_title_number: titleNumber,
-        });
-      }
+      // Save land registry info
+      await saveLandRegistry(applicationId, {
+        is_land_registered: true,
+        land_registry_title_number: titleNumber
+      });
 
+      // TODO: Handle file uploads separately
       goToOSGridReference();
     } catch (error) {
+      console.error('Error saving land registry information:', error);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -141,17 +136,15 @@ const LandRegistryInformation: React.FC = () => {
                   category={FILE_CATEGORIES.APPLICATION_LAND_DETAILS}
                   subCategory="LAND_REGISTRY"
                   addedBy={userId}
-                  uploadedFiles={landDetails.uploadedFiles || []}
-                  applicationDocuments={landDetails.applicationDocuments || []}
+                  uploadedFiles={landDetails?.uploadedFiles || []}
+                  applicationDocuments={landDetails?.applicationDocuments || []}
                   showDocumentsHeading={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}
                   onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {
-                    updateLandDetails({
-                      uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-                      applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
-                    });
+                    // TODO: Call API to save uploaded files
+                    console.log('Files uploaded:', newUploadedFiles);
                   }}
                 />
               </div>

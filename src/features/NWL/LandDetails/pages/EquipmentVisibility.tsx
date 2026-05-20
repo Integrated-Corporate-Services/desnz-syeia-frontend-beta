@@ -10,11 +10,12 @@ import {
   useFormValidation,
   useLandNavigation,
 } from '../hooks';
+import { updateLandDetails } from '../services/landDetailsService';
 import { LAND_DETAILS_LABELS } from '../constants';
 
 const EquipmentVisibility: React.FC = () => {
   const applicationId = useGetApplicationId();
-  const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
+  const { landDetails, isLoading } = useLandDetailsData(applicationId);
   const { errors, validateEquipmentVisibility } = useFormValidation();
   const { goToTaskList } = useLandNavigation(applicationId);
 
@@ -22,10 +23,10 @@ const EquipmentVisibility: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (landDetails.equipment_visible_from_public_road !== undefined) {
+    if (landDetails && landDetails.equipment_visible_from_public_road !== undefined) {
       setIsVisible(landDetails.equipment_visible_from_public_road ? 'yes' : 'no');
     }
-  }, [landDetails.equipment_visible_from_public_road]);
+  }, [landDetails]);
 
   const handleRadioChange = (value: 'yes' | 'no') => {
     setIsVisible(value);
@@ -40,16 +41,20 @@ const EquipmentVisibility: React.FC = () => {
       return;
     }
 
+    if (!applicationId) return;
+
     setIsSaving(true);
 
     try {
       const visibleFromRoad = isVisible === 'yes';
-      updateLandDetails({
+      await updateLandDetails(applicationId, {
         equipment_visible_from_public_road: visibleFromRoad,
       });
 
       goToTaskList();
     } catch (error) {
+      console.error('Error saving equipment visibility:', error);
+    } finally {
       setIsSaving(false);
     }
   };

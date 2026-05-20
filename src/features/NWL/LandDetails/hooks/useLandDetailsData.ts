@@ -1,42 +1,47 @@
 import { useState, useEffect } from 'react';
 import { LandDetails } from '../types';
+import { getLandDetails } from '../services/landDetailsService';
 
+/**
+ * Hook to fetch land details for NWL application
+ * Follows the same pattern as objector details
+ * Pages should use service functions directly for updates
+ */
 export const useLandDetailsData = (applicationId: string) => {
-  const [landDetails, setLandDetails] = useState<LandDetails>({
-    site_address_line1: '',
-    site_address_line2: '',
-    site_town: '',
-    site_county: '',
-    site_postcode: '',
-    site_country: '',
-    land_registry_title_number: '',
-    os_grid_reference_letter: '',
-    os_grid_reference_easting: '',
-    os_grid_reference_northing: '',
-    what3words_address: '',
-    identifying_information: '',
-    additional_land_description: '',
-    uploadedFiles: [],
-    applicationDocuments: [],
-  });
-
-  const [isLoading, setIsLoading] = useState(false);
+  const [landDetails, setLandDetails] = useState<LandDetails | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!applicationId) return;
+    const fetchLandDetails = async () => {
+      if (!applicationId) {
+        setIsLoading(false);
+        return;
+      }
 
-    setIsLoading(true);
-    
-    setIsLoading(false);
+      console.log('[useLandDetailsData] Fetching land details for appId:', applicationId);
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const data = await getLandDetails(applicationId);
+        console.log('[useLandDetailsData] Received data:', data);
+        setLandDetails(data);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load land details';
+        console.error('[useLandDetailsData] Error:', errorMessage, err);
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLandDetails();
   }, [applicationId]);
-
-  const updateLandDetails = (updates: Partial<LandDetails>) => {
-    setLandDetails(prev => ({ ...prev, ...updates }));
-  };
 
   return {
     landDetails,
-    updateLandDetails,
     isLoading,
+    error,
   };
 };

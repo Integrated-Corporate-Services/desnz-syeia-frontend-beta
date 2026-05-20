@@ -74,6 +74,9 @@ export const LAND_DETAILS_VALIDATION = {
   UNREGISTERED_LAND_REQUIRED: 'Enter details about why the land is not registered',
   IDENTIFYING_INFO_REQUIRED: 'Enter identifying information about the land',
   EQUIPMENT_VISIBILITY_REQUIRED: 'Select whether the equipment can be seen from a public road',
+  GRID_LETTER_INVALID: 'Grid letter must be exactly 2 uppercase letters (e.g., SP, TQ)',
+  EASTING_INVALID: 'Easting must be a number between 0 and 999999',
+  NORTHING_INVALID: 'Northing must be a number between 0 and 999999',
 };
 
 export const LAND_DETAILS_ROUTES = {
