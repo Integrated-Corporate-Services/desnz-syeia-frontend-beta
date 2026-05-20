@@ -18,6 +18,7 @@ import { CONTENT } from '../constants';
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 
 /**
  * Other Important Information Page
@@ -28,6 +29,7 @@ const OtherImportantInformation: React.FC = () => {
   const { errors, setErrors, validateRadioSelection } = useFormValidation();
   const { navigateToTaskList } = useAdditionalInformationNavigation(appId);
   const navigate = useNavigate();
+  const { updateProgress } = useNWLProgress(appId);
 
   const [hasOtherInformation, setHasOtherInformation] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
@@ -74,6 +76,15 @@ const OtherImportantInformation: React.FC = () => {
         has_other_information: false,
         // Don't send other_information_details when has_other_information is false
       });
+
+      // Update progress for Supporting information section (backend subsection name)
+      try {
+        await updateProgress('Supporting information', 'Completed');
+        console.log('[OtherImportantInformation] Progress updated for Supporting information section');
+      } catch (progressError) {
+        console.error('[OtherImportantInformation] Error updating progress', progressError);
+        // Continue even if progress update fails
+      }
 
       navigateToTaskList();
     } catch (error: unknown) {

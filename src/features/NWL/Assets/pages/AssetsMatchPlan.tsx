@@ -5,12 +5,14 @@ import { useApplicationId, useAssetsData } from '../hooks';
 import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '../constants';
 import nwlAssetService from '../services/nwlAssetService';
 import { createLogger } from '../../../../utils/logger';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 
 const logger = createLogger('AssetsMatchPlan');
 
 const AssetsMatchPlan: React.FC = () => {
   const navigate = useNavigate();
   const applicationId = useApplicationId();
+  const { updateProgress } = useNWLProgress(applicationId);
   
   // Fetch existing assets data
   const { assetsData, loading } = useAssetsData(applicationId);
@@ -102,6 +104,15 @@ const AssetsMatchPlan: React.FC = () => {
       );
 
       logger.info('[handleSubmit] Metadata updated successfully');
+
+      // Update progress for Assets section
+      try {
+        await updateProgress('Assets', 'Completed');
+        logger.info('[handleSubmit] Progress updated for Assets section');
+      } catch (progressError) {
+        logger.error('[handleSubmit] Error updating progress', { error: progressError });
+        // Continue even if progress update fails
+      }
 
       // Navigate to task list
       navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);

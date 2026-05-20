@@ -64,13 +64,10 @@ export function checkDependencies(
     'Land registry',
     'OS Grid reference',
     'Identifying information',
-    'Information about the lines',
-    'Application plan',
-    'Plan verification',
-    'Existing negotiations',
-    'Evidence of negotiations',
-    'Related applications',
-    'Other important information'
+    NWL_SUBSECTIONS.ASSETS,
+    NWL_SUBSECTIONS.NEGOTIATIONS,
+    NWL_SUBSECTIONS.SUPPORTING_INFORMATION,
+    'Check your answers'
   ];
   
   if (afterGroundsSubsections.includes(subsectionName)) {
