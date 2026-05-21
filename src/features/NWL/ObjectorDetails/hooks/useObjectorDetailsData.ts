@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { getObjectorDetails } from '../services/objectorDetailsService';
 import { ObjectorDetails } from '../types';
+import logger from '../../../../logger';
 
 export const useObjectorDetailsData = () => {
   const appId = useGetApplicationId();
@@ -17,7 +18,7 @@ export const useObjectorDetailsData = () => {
           const details = await getObjectorDetails(appId);
           setObjectorDetails(details);
         } catch (error) {
-          console.error('Failed to fetch objector details:', error);
+          logger.error('Failed to fetch objector details:', error);
           setObjectorDetails(null);
         } finally {
           setIsLoading(false);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LandDetails } from '../types';
 import { landDetailsService } from '../services/landDetailsService';
+import logger from '../../../../logger';
 
 export const useLandDetailsData = (applicationId: string) => {
   const [landDetails, setLandDetails] = useState<LandDetails>({
@@ -34,7 +35,7 @@ export const useLandDetailsData = (applicationId: string) => {
           setLandDetails(prev => ({ ...prev, ...data }));
         }
       } catch (error) {
-        console.error('Failed to fetch land details:', error);
+        logger.error('Failed to fetch land details:', error);
       } finally {
         setIsLoading(false);
       }
@@ -55,7 +56,7 @@ export const useLandDetailsData = (applicationId: string) => {
         setLandDetails(prev => ({ ...prev, ...result }));
       }
     } catch (error) {
-      console.error('Failed to save land details:', error);
+      logger.error('Failed to save land details:', error);
       // Don't revert local state - user can retry
       throw error;
     }

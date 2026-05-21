@@ -1,5 +1,6 @@
 import { LandDetails } from '../types';
 import { mapBackendToFrontend, mapFrontendToBackend } from '../utils/landDetailsMapper';
+import logger from '../../../../logger';
 
 const API_BASE_URL = '/backend/api/nwl';
 
@@ -19,7 +20,7 @@ export const landDetailsService = {
       // Transform backend response to frontend structure
       return mapBackendToFrontend(backendData);
     } catch (error) {
-      console.error('Error fetching land details:', error);
+      logger.error('Error fetching land details:', error);
       return null;
     }
   },
@@ -62,14 +63,14 @@ export const landDetailsService = {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        console.error('Error creating land details:', errorData);
+        logger.error('Error creating land details:', errorData);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const responseData = await response.json();
       return mapBackendToFrontend(responseData);
     } catch (error) {
-      console.error('Error saving land details:', error);
+      logger.error('Error saving land details:', error);
       throw error;
     }
   },
@@ -86,7 +87,7 @@ export const landDetailsService = {
 
       // If no valid fields after filtering, return current state
       if (Object.keys(filteredData).length === 0) {
-        console.warn('No valid fields to update');
+        logger.warn('No valid fields to update');
         return this.getLandDetails(applicationId);
       }
 
@@ -94,7 +95,7 @@ export const landDetailsService = {
       // Backend's createLandDetails checks for existing record and updates if found
       return this.saveLandDetails(applicationId, filteredData);
     } catch (error) {
-      console.error('Error updating land details:', error);
+      logger.error('Error updating land details:', error);
       throw error;
     }
   },

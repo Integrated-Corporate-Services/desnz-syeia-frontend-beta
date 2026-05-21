@@ -5,13 +5,14 @@
 
 import { landDetailsService } from '../services/landDetailsService';
 import { LandDetails } from '../types';
+import logger from '../../../../logger';
 
 /**
  * Validate Land Details Data Structure
  */
 export const validateLandDetailsResponse = (data: LandDetails | null): boolean => {
   if (!data) {
-    console.warn('[Validation] Land details data is null');
+    logger.warn('[Validation] Land details data is null');
     return false;
   }
 
@@ -28,7 +29,7 @@ export const validateLandDetailsResponse = (data: LandDetails | null): boolean =
   });
 
   if (missingFields.length > 0) {
-    console.warn('[Validation] Missing required fields:', missingFields);
+    logger.warn('[Validation] Missing required fields:', missingFields);
     return false;
   }
 
@@ -39,31 +40,31 @@ export const validateLandDetailsResponse = (data: LandDetails | null): boolean =
  * Test GET operation for Land Details
  */
 export const testLandDetailsGET = async (applicationId: string): Promise<boolean> => {
-  console.log('[Test] Testing Land Details GET operation', { applicationId });
+  logger.info('[Test] Testing Land Details GET operation', { applicationId });
   
   try {
     const data = await landDetailsService.getLandDetails(applicationId);
     
     if (!data) {
-      console.log('[Test] No land details found (404 expected for new applications)');
+      logger.info('[Test] No land details found (404 expected for new applications)');
       return true;
     }
 
     const isValid = validateLandDetailsResponse(data);
     
     if (isValid) {
-      console.log('[Test] ✅ Land Details GET successful', {
+      logger.info('[Test] Land Details GET successful', {
         site_address: data.site_address_line1,
         country: data.site_country,
         has_grid_reference: !!data.os_grid_reference_letter,
       });
     } else {
-      console.error('[Test] ❌ Land Details validation failed');
+      logger.error('[Test] Land Details validation failed');
     }
 
     return isValid;
   } catch (error) {
-    console.error('[Test] ❌ Land Details GET error:', error);
+    logger.error('[Test] Land Details GET error:', error);
     return false;
   }
 };
@@ -75,20 +76,20 @@ export const testLandDetailsPATCH = async (
   applicationId: string,
   updateData: Partial<LandDetails>
 ): Promise<boolean> => {
-  console.log('[Test] Testing Land Details PATCH operation', { applicationId, updateData });
+  logger.info('[Test] Testing Land Details PATCH operation', { applicationId, updateData });
   
   try {
     const result = await landDetailsService.updateLandDetails(applicationId, updateData);
     
     if (!result) {
-      console.error('[Test] ❌ Land Details PATCH returned null');
+      logger.error('[Test] Land Details PATCH returned null');
       return false;
     }
 
-    console.log('[Test] ✅ Land Details PATCH successful', result);
+    logger.info('[Test] Land Details PATCH successful', result);
     return true;
   } catch (error) {
-    console.error('[Test] ❌ Land Details PATCH error:', error);
+    logger.error('[Test] Land Details PATCH error:', error);
     return false;
   }
 };
@@ -148,7 +149,7 @@ export const checkGDSCompliance = (data: LandDetails): {
  * Run all tests
  */
 export const runAllTests = async (applicationId: string) => {
-  console.log('[Test Suite] Starting comprehensive tests for application:', applicationId);
+  logger.info('[Test Suite] Starting comprehensive tests for application:', applicationId);
   
   const results = {
     get: false,
@@ -172,12 +173,12 @@ export const runAllTests = async (applicationId: string) => {
     const complianceCheck = checkGDSCompliance(data);
     results.gdsCompliance = complianceCheck.compliant;
     if (!complianceCheck.compliant) {
-      console.warn('[GDS Compliance] Issues found:', complianceCheck.issues);
+      logger.warn('[GDS Compliance] Issues found:', complianceCheck.issues);
     } else {
-      console.log('[GDS Compliance] ✅ All checks passed');
+      logger.info('[GDS Compliance] All checks passed');
     }
   }
 
-  console.log('[Test Suite] Results:', results);
+  logger.info('[Test Suite] Results:', results);
   return results;
 };
