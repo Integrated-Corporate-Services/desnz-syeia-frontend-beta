@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { NWL_BASE_URL } from "../../../constants/nwl";
+import { TLP_BASE_URL } from "../../../constants/tlp";
 import { WITHDRAWAL_LABELS } from "../constants/applicationSummaryLabels";
 
 interface ConfirmationLocationState {
@@ -17,6 +19,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
   // Get application data from location state or use defaults
   const locationState = location.state as ConfirmationLocationState | null;
   const desnzRef = locationState?.desnzRef;
+  const formType = locationState?.formType || "S37";
   
   const getApplicationId = () => {
     if (params.applicationId) return params.applicationId;
@@ -31,6 +34,14 @@ const WithdrawalConfirmationPage: React.FC = () => {
   };
 
   const applicationId = getApplicationId();
+
+  // Helper function to get base URL based on application type
+  const getBaseUrl = () => {
+    const type = formType.toUpperCase();
+    if (type === 'NWL') return NWL_BASE_URL;
+    if (type === 'TLP' || type === 'TL') return TLP_BASE_URL;
+    return S37_BASE_URL;
+  };
 
   // Scroll to top on mount
   useEffect(() => {
@@ -70,7 +81,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
             </div>
 
             <p className="govuk-body">
-              <Link to={`${S37_BASE_URL}/${applicationId}/application-summary`} className="govuk-link">
+              <Link to={`${getBaseUrl()}/${applicationId}/application-summary`} className="govuk-link">
                 {WITHDRAWAL_LABELS.RETURN_TO_SUMMARY}
               </Link>
             </p>
