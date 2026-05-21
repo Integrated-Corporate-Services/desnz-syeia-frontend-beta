@@ -1,5 +1,5 @@
 import { S37_BASE_URL } from '../../../constants/s37';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useApplicationStore } from '../../../store/useApplicationStore';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
@@ -18,7 +18,8 @@ import log from '../../../logger';
 import '../component/AssetInformationForm.css';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
-import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
+import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
+import { ConsultationStatus } from '../../../constants/consultationStatus';
 import AssetSummary from './AssetSummary';
 
 interface AssetFormState {
@@ -51,6 +52,9 @@ const AssetInformationForm: React.FC = () => {
     const { application, fetchAndSetApplication } = useApplicationStore();
     const { user } = useAuthUserContext();
     const navigate = useNavigate();
+    const location = useLocation();
+    // Check if accessed via change link from AssetSummary
+    const fromSummary = location.state?.fromSummary === true;
     // Ref for first error field
     const firstErrorRef = useRef<HTMLInputElement | null>(null);
 
@@ -60,8 +64,42 @@ const AssetInformationForm: React.FC = () => {
     const applicationId = useGetApplicationId();
     const effectiveApplicationId = useGetApplicationId();
 
-    // Check if consultations have started - if so, show read-only summary instead
-    const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(effectiveApplicationId);
+    // Get consultation details for custom logic
+    const { consultations, loading: consultationsLoading } = useConsultationDetails(effectiveApplicationId, user?.user_id);
+
+    // Check if any consultation has started (status != "Not started yet")
+    const consultationsStarted = useMemo(() => {
+        if (!consultations || consultations.length === 0) {
+            return false;
+        }
+        return consultations.some((consultation) => 
+            consultation.status.toLowerCase() !== ConsultationStatus.NOT_STARTED.toLowerCase()
+        );
+    }, [consultations]);
+
+    // Redirect to summary when PUBLIC consultation started OR all consultations closed
+    const shouldShowSummary = useMemo(() => {
+        if (!consultations || consultations.length === 0) {
+            return false;
+        }
+
+        // Find the PUBLIC consultation
+        const publicConsultation = consultations.find(
+            (consultation) => consultation.consultationType === 'PUBLIC'
+        );
+
+        // Check if public notice consultation has started
+        const publicNoticeStarted = publicConsultation && 
+            publicConsultation.status.toLowerCase() !== ConsultationStatus.NOT_STARTED.toLowerCase();
+
+        // Check if ALL consultations are closed
+        const allConsultationsClosed = consultations.every(
+            (consultation) => consultation.status.toLowerCase() === ConsultationStatus.CLOSED.toLowerCase()
+        );
+
+        // Show summary if public notice started OR all consultations are closed
+        return publicNoticeStarted || allConsultationsClosed;
+    }, [consultations]);
 
     // Focus the first error field when errors change
     useEffect(() => {
@@ -273,8 +311,14 @@ const AssetInformationForm: React.FC = () => {
         );
     }
 
-    // If consultations started, show read-only AssetSummary page
-    if (consultationsStarted) {
+    // If PUBLIC consultation started OR all consultations closed, show read-only AssetSummary page
+    // UNLESS accessed via change link from AssetSummary
+    if (shouldShowSummary && !fromSummary) {
+        return <AssetSummary />;
+    }
+
+    // If consultations started and NOT from summary, redirect to AssetSummary
+    if (consultationsStarted && !fromSummary && !shouldShowSummary) {
         return <AssetSummary />;
     }
 
@@ -378,7 +422,7 @@ const AssetInformationForm: React.FC = () => {
                                 selected={form.lineVoltage}
                                 onChange={(selected: string[]) => setForm((prev) => ({ ...prev, lineVoltage: selected }))}
                                 error={errors.lineVoltage}
-                                disabled={isReadOnly}
+                                disabled={consultationsStarted}
                             />
 
                             {/* Line Length */}
