@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { 
   LandDetailsBreadcrumbs, 
@@ -28,6 +28,17 @@ const SiteAddress: React.FC = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+
+  // Update form when landDetails loads from backend
+  useEffect(() => {
+    setFormData({
+      addressLine1: landDetails.site_address_line1 || '',
+      addressLine2: landDetails.site_address_line2 || '',
+      town: landDetails.site_town || '',
+      county: landDetails.site_county || '',
+      postcode: landDetails.site_postcode || '',
+    });
+  }, [landDetails.site_address_line1, landDetails.site_address_line2, landDetails.site_town, landDetails.site_county, landDetails.site_postcode]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

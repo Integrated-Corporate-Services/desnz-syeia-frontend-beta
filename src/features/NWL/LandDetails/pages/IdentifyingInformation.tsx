@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -18,10 +18,17 @@ const IdentifyingInformation: React.FC = () => {
   const { errors, validateIdentifyingInfo, clearError } = useFormValidation();
   const { goToUploadSiteInformation } = useLandNavigation(applicationId);
 
-  const [identifyingInfo, setIdentifyingInfo] = useState(landDetails.identifying_information || '');
+  const [identifyingInfo, setIdentifyingInfo] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const maxCharacters = 4000;
+
+  // Update value when landDetails loads from backend
+  useEffect(() => {
+    if (landDetails.identifying_information !== undefined) {
+      setIdentifyingInfo(landDetails.identifying_information || '');
+    }
+  }, [landDetails.identifying_information]);
 
   const handleIdentifyingInfoChange = (value: string) => {
     if (value.length <= maxCharacters) {
@@ -73,6 +80,9 @@ const IdentifyingInformation: React.FC = () => {
 
             <form>
               <div className={`govuk-form-group${errors.identifyingInfo ? ' govuk-form-group--error' : ''}`}>
+                <label className="govuk-label govuk-label--m" htmlFor="identifying-info">
+                  {labels.PAGE_TITLE}
+                </label>
                 <div className="govuk-hint">
                   {labels.DESCRIPTION}
                 </div>

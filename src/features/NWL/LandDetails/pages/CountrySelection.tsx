@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -18,11 +18,16 @@ const CountrySelection: React.FC = () => {
   const { errors, validateCountry } = useFormValidation();
   const { goToLandRegistry } = useLandNavigation(applicationId);
 
-  const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>(
-    landDetails.site_country || ''
-  );
+  const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+
+  // Update country when landDetails loads from backend
+  useEffect(() => {
+    if (landDetails.site_country) {
+      setSelectedCountry(landDetails.site_country as 'England' | 'Wales');
+    }
+  }, [landDetails.site_country]);
 
   const handleCountryChange = (country: 'England' | 'Wales') => {
     setSelectedCountry(country);

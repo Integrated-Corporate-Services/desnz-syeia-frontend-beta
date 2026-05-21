@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -31,6 +31,11 @@ const UnregisteredLandDetails: React.FC = () => {
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 
   const maxCharacters = 4000;
+
+  // Update value when landDetails loads from backend
+  useEffect(() => {
+    setExplanation(landDetails.unregistered_land_explanation || '');
+  }, [landDetails.unregistered_land_explanation]);
 
   const handleExplanationChange = (value: string) => {
     if (value.length <= maxCharacters) {

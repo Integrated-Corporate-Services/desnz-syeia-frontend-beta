@@ -9,7 +9,7 @@ export type LandDetails = {
   site_country?: 'England' | 'Wales' | '';
   
   land_registry_title_number?: string;
-  has_land_registry?: boolean;
+  has_land_registry?: boolean | null;
   unregistered_land_explanation?: string;
   
   os_grid_reference_letter?: string;
@@ -19,7 +19,7 @@ export type LandDetails = {
   
   identifying_information?: string;
   additional_land_description?: string;
-  equipment_visible_from_public_road?: boolean;
+  equipment_visible_from_public_road?: boolean | null;
   
   uploadedFiles?: UploadedFile[];
   applicationDocuments?: ApplicationDocument[];

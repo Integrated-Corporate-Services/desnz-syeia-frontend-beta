@@ -50,7 +50,7 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
     
     // Land registry fields
     land_registry_title_number: backendData.land_registry?.reference_number || '',
-    has_land_registry: backendData.is_land_registered,
+    has_land_registry: backendData.is_land_registered !== null ? backendData.is_land_registered : undefined,
     unregistered_land_explanation: backendData.land_ownership_unknown_reason || '',
     
     // OS Grid Reference fields
@@ -60,7 +60,7 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
     
     // Other fields
     identifying_information: backendData.land_description || '',
-    equipment_visible_from_public_road: backendData.is_equipment_visible_from_public_road,
+    equipment_visible_from_public_road: backendData.is_equipment_visible_from_public_road !== null ? backendData.is_equipment_visible_from_public_road : undefined,
     
     // Documents
     uploadedFiles: [],

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -25,10 +25,18 @@ const LandRegistryInformation: React.FC = () => {
   const userId = user?.user_id;
   const fileUploadRef = useRef<FileUploadHandle>(null);
 
-  const [titleNumber, setTitleNumber] = useState(landDetails.land_registry_title_number || '');
+  const [titleNumber, setTitleNumber] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+
+  // Update value when landDetails loads from backend
+  useEffect(() => {
+    if (landDetails.land_registry_title_number !== undefined) {
+      setTitleNumber(landDetails.land_registry_title_number || '');
+    }
+  }, [landDetails.land_registry_title_number]);
 
   const handleTitleNumberChange = (value: string) => {
     setTitleNumber(value);
@@ -51,6 +59,7 @@ const LandRegistryInformation: React.FC = () => {
     }
 
     setIsSaving(true);
+    setSaveError("");
 
     try {
       // Trigger file upload if there are pending files
@@ -59,24 +68,27 @@ const LandRegistryInformation: React.FC = () => {
           await fileUploadRef.current.triggerUpload();
         
         if (newUploadedFiles.length > 0) {
-          updateLandDetails({
+          await updateLandDetails({
             land_registry_title_number: titleNumber,
             uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
             applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
           });
         } else {
-          updateLandDetails({
+          await updateLandDetails({
             land_registry_title_number: titleNumber,
           });
         }
       } else {
-        updateLandDetails({
+        await updateLandDetails({
           land_registry_title_number: titleNumber,
         });
       }
 
       goToOSGridReference();
     } catch (error) {
+      setSaveError("Failed to save land registry information. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -97,6 +109,21 @@ const LandRegistryInformation: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             <ErrorSummary errors={errors} errorFields={errorFields} />
 
             <h1 className="govuk-heading-l">{labels.INFO_PAGE_TITLE}</h1>

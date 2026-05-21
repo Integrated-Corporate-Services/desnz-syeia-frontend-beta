@@ -22,7 +22,7 @@ const EquipmentVisibility: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (landDetails.equipment_visible_from_public_road !== undefined) {
+    if (landDetails.equipment_visible_from_public_road !== undefined && landDetails.equipment_visible_from_public_road !== null) {
       setIsVisible(landDetails.equipment_visible_from_public_road ? 'yes' : 'no');
     }
   }, [landDetails.equipment_visible_from_public_road]);

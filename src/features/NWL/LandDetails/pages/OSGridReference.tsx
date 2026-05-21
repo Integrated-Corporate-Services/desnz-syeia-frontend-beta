@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -22,6 +22,13 @@ const OSGridReference: React.FC = () => {
   const [errors, setErrors] = useState<{ gridLetter?: string; easting?: string; northing?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+
+  // Update values when landDetails loads from backend
+  useEffect(() => {
+    setGridLetter(landDetails.os_grid_reference_letter || '');
+    setEasting(landDetails.os_grid_reference_easting || '');
+    setNorthing(landDetails.os_grid_reference_northing || '');
+  }, [landDetails.os_grid_reference_letter, landDetails.os_grid_reference_easting, landDetails.os_grid_reference_northing]);
 
   const validateForm = () => {
     const newErrors: { gridLetter?: string; easting?: string; northing?: string } = {};

@@ -33,13 +33,7 @@ export const landDetailsService = {
       // Add application_id for POST
       backendData.application_id = applicationId;
       
-      // Set defaults only for boolean fields that are required by database
-      if (backendData.is_land_registered === undefined) {
-        backendData.is_land_registered = false;
-      }
-      if (backendData.is_equipment_visible_from_public_road === undefined) {
-        backendData.is_equipment_visible_from_public_road = false;
-      }
+      // Only set defaults for is_site_at_objector_address which is truly required
       if (backendData.is_site_at_objector_address === undefined) {
         backendData.is_site_at_objector_address = false;
       }
@@ -91,9 +85,25 @@ export const landDetailsService = {
         return this.getLandDetails(applicationId);
       }
 
-      // Use POST instead of PATCH - backend handles create-or-update
-      // Backend's createLandDetails checks for existing record and updates if found
-      return this.saveLandDetails(applicationId, filteredData);
+      // Use PATCH with flat structure for incremental updates
+      const backendData = mapFrontendToBackend(filteredData, false);
+
+      const response = await fetch(`${API_BASE_URL}/${applicationId}/land-details`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(backendData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        logger.error('Error updating land details:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      return mapBackendToFrontend(responseData);
     } catch (error) {
       logger.error('Error updating land details:', error);
       throw error;
