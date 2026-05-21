@@ -19,12 +19,11 @@ const WithdrawApplicationPage: React.FC = () => {
 
     const applicationType = getApplicationTypeFromLocation(location);
 
-    const [voluntaryAgreement, setVoluntaryAgreement] = useState<string>('');
     const [selectedReason, setSelectedReason] = useState<string>('');
     const [additionalComments, setAdditionalComments] = useState<string>('');
     const [confirmed, setConfirmed] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [errors, setErrors] = useState<{ reason?: string; confirmation?: string; comments?: string; voluntaryAgreement?: string }>({});
+    const [errors, setErrors] = useState<{ reason?: string; confirmation?: string; comments?: string }>({});
 
     const reasons = getWithdrawalReasons(applicationType);
     const remainingChars = getRemainingCharacters(additionalComments, CONSTANTS.WITHDRAW_PAGE.COMMENTS_MAXLENGTH);
@@ -32,13 +31,7 @@ const WithdrawApplicationPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const validationErrors = validateWithdrawalForm(
-            applicationType,
-            selectedReason,
-            confirmed,
-            voluntaryAgreement,
-            additionalComments
-        );
+        const validationErrors = validateWithdrawalForm(selectedReason, confirmed, additionalComments);
         setErrors(validationErrors);
 
         if (Object.keys(validationErrors).length > 0) {
@@ -56,7 +49,6 @@ const WithdrawApplicationPage: React.FC = () => {
                 applicationId: applicationId!,
                 applicationType,
                 reason: selectedReason,
-                voluntaryAgreement: voluntaryAgreement === 'yes' ? true : voluntaryAgreement === 'no' ? false : undefined,
                 additionalComments: additionalComments || undefined,
                 requestedBy: 'current-user',
                 requestedDate: new Date().toISOString(),
@@ -69,7 +61,6 @@ const WithdrawApplicationPage: React.FC = () => {
                     desnzRef: response.desnzRef,
                     withdrawalDate: new Date().toISOString(),
                     reason: selectedReason,
-                    voluntaryAgreement: request.voluntaryAgreement,
                 },
             });
         } catch (err: any) {
@@ -112,11 +103,6 @@ const WithdrawApplicationPage: React.FC = () => {
                                 </h2>
                                 <div className="govuk-error-summary__body">
                                     <ul className="govuk-list govuk-error-summary__list">
-                                        {errors.voluntaryAgreement && (
-                                            <li>
-                                                <a href="#voluntary-agreement">{errors.voluntaryAgreement}</a>
-                                            </li>
-                                        )}
                                         {errors.reason && (
                                             <li>
                                                 <a href="#reason">{errors.reason}</a>
@@ -144,69 +130,6 @@ const WithdrawApplicationPage: React.FC = () => {
                         <p className="govuk-body">{CONSTANTS.WITHDRAW_PAGE.DESCRIPTION}</p>
 
                         <form onSubmit={handleSubmit}>
-                            {/* Voluntary Agreement Question - Only for NWL and TLP */}
-                            {(applicationType === 'NWL' || applicationType === 'TLP') && (
-                                <div
-                                    className={`govuk-form-group ${errors.voluntaryAgreement ? 'govuk-form-group--error' : ''}`}
-                                >
-                                    <fieldset className="govuk-fieldset" id="voluntary-agreement">
-                                        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                                            <h2 className="govuk-fieldset__heading">
-                                                {CONSTANTS.WITHDRAW_PAGE.VOLUNTARY_AGREEMENT_LABEL}
-                                            </h2>
-                                        </legend>
-                                        <div id="voluntary-agreement-hint" className="govuk-hint">
-                                            {CONSTANTS.WITHDRAW_PAGE.VOLUNTARY_AGREEMENT_HINT}
-                                        </div>
-                                        {errors.voluntaryAgreement && (
-                                            <p id="voluntary-agreement-error" className="govuk-error-message">
-                                                <span className="govuk-visually-hidden">Error:</span>{' '}
-                                                {errors.voluntaryAgreement}
-                                            </p>
-                                        )}
-                                        <div className="govuk-radios" data-module="govuk-radios">
-                                            <div className="govuk-radios__item">
-                                                <input
-                                                    className="govuk-radios__input"
-                                                    id="voluntary-agreement-yes"
-                                                    name="voluntary-agreement"
-                                                    type="radio"
-                                                    value="yes"
-                                                    checked={voluntaryAgreement === 'yes'}
-                                                    onChange={(e) => setVoluntaryAgreement(e.target.value)}
-                                                    aria-describedby="voluntary-agreement-hint"
-                                                />
-                                                <label
-                                                    className="govuk-label govuk-radios__label"
-                                                    htmlFor="voluntary-agreement-yes"
-                                                >
-                                                    {CONSTANTS.WITHDRAW_PAGE.VOLUNTARY_AGREEMENT_YES}
-                                                </label>
-                                            </div>
-                                            <div className="govuk-radios__item">
-                                                <input
-                                                    className="govuk-radios__input"
-                                                    id="voluntary-agreement-no"
-                                                    name="voluntary-agreement"
-                                                    type="radio"
-                                                    value="no"
-                                                    checked={voluntaryAgreement === 'no'}
-                                                    onChange={(e) => setVoluntaryAgreement(e.target.value)}
-                                                    aria-describedby="voluntary-agreement-hint"
-                                                />
-                                                <label
-                                                    className="govuk-label govuk-radios__label"
-                                                    htmlFor="voluntary-agreement-no"
-                                                >
-                                                    {CONSTANTS.WITHDRAW_PAGE.VOLUNTARY_AGREEMENT_NO}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                </div>
-                            )}
-
-                            {/* Reason for withdrawal - Optional */}
                             <div className={`govuk-form-group ${errors.reason ? 'govuk-form-group--error' : ''}`}>
                                 <fieldset className="govuk-fieldset">
                                     <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">

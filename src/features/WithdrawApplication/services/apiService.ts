@@ -8,9 +8,10 @@ export const submitWithdrawal = async (request: WithdrawalRequest): Promise<With
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            voluntary_agreement: request.voluntaryAgreement !== undefined ? request.voluntaryAgreement : false,
-            withdrawal_reason: request.reason || null,
+            application_type: request.applicationType,
+            withdrawal_reason: request.reason,
             additional_comments: request.additionalComments || null,
+            requested_by: request.requestedBy,
         }),
     });
 
