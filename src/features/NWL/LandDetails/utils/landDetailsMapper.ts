@@ -39,6 +39,15 @@ export interface BackendLandDetailsResponse {
  * Map backend response to frontend form structure
  */
 export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): LandDetails => {
+  // Capitalize country for frontend display
+  const capitalizeCountry = (country: string | null): 'England' | 'Wales' | '' => {
+    if (!country) return '';
+    const normalized = country.toLowerCase();
+    if (normalized === 'england') return 'England';
+    if (normalized === 'wales') return 'Wales';
+    return '';
+  };
+
   return {
     // Site address fields
     site_address_line1: backendData.site_address?.line1 || '',
@@ -46,7 +55,7 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
     site_town: backendData.site_address?.town_city || '',
     site_county: backendData.site_address?.county || '',
     site_postcode: backendData.site_address?.postcode || '',
-    site_country: backendData.country || '',
+    site_country: capitalizeCountry(backendData.country),
     
     // Land registry fields
     land_registry_title_number: backendData.land_registry?.reference_number || '',

@@ -33,25 +33,14 @@ export const landDetailsService = {
       // Add application_id for POST
       backendData.application_id = applicationId;
       
-      // Set defaults only for boolean fields that are required by database
-      if (backendData.is_land_registered === undefined) {
-        backendData.is_land_registered = false;
-      }
-      if (backendData.is_equipment_visible_from_public_road === undefined) {
-        backendData.is_equipment_visible_from_public_road = false;
-      }
+      // Default is_site_at_objector_address to false if not provided
       if (backendData.is_site_at_objector_address === undefined) {
         backendData.is_site_at_objector_address = false;
       }
       
-      // Remove country and land_description if not provided by user
-      // These should only be sent when user explicitly fills them
-      if (!backendData.country) {
-        delete backendData.country;
-      }
-      if (!backendData.land_description) {
-        delete backendData.land_description;
-      }
+      // Do NOT set defaults for user-facing boolean fields
+      // Leave them as undefined/null until user explicitly selects an option
+      // This prevents pre-selecting radio buttons on form pages
       
       const response = await fetch(`${API_BASE_URL}/land-details`, {
         method: 'POST',
@@ -77,23 +66,42 @@ export const landDetailsService = {
 
   async updateLandDetails(applicationId: string, landDetails: Partial<LandDetails>): Promise<LandDetails | null> {
     try {
-      // Filter out empty values
-      const filteredData = Object.entries(landDetails).reduce((acc, [key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          (acc as any)[key] = value;
-        }
-        return acc;
-      }, {} as Partial<LandDetails>);
+      // Check if record exists first to determine POST vs PATCH
+      const existingRecord = await this.getLandDetails(applicationId);
+      
+      if (!existingRecord) {
+        // No record exists - use POST to create
+        logger.info('No existing land details found, creating new record');
+        return this.saveLandDetails(applicationId, landDetails);
+      }
+      
+      // Record exists - use PATCH to update
+      // Don't filter out empty values for updates - allow clearing fields
+      const backendData = mapFrontendToBackend(landDetails, false);
 
-      // If no valid fields after filtering, return current state
-      if (Object.keys(filteredData).length === 0) {
+      // If no valid fields after mapping, return current state
+      if (Object.keys(backendData).length === 0) {
         logger.warn('No valid fields to update');
         return this.getLandDetails(applicationId);
       }
 
-      // Use POST instead of PATCH - backend handles create-or-update
-      // Backend's createLandDetails checks for existing record and updates if found
-      return this.saveLandDetails(applicationId, filteredData);
+      // Use PATCH for updates - backend has dedicated update endpoint
+      const response = await fetch(`${API_BASE_URL}/${applicationId}/land-details`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(backendData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        logger.error('Error updating land details:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      return mapBackendToFrontend(responseData);
     } catch (error) {
       logger.error('Error updating land details:', error);
       throw error;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -19,6 +19,13 @@ const OSGridReference: React.FC = () => {
   const [gridLetter, setGridLetter] = useState(landDetails.os_grid_reference_letter || '');
   const [easting, setEasting] = useState(landDetails.os_grid_reference_easting || '');
   const [northing, setNorthing] = useState(landDetails.os_grid_reference_northing || '');
+
+  // Sync form with fetched data
+  useEffect(() => {
+    setGridLetter(landDetails.os_grid_reference_letter || '');
+    setEasting(landDetails.os_grid_reference_easting || '');
+    setNorthing(landDetails.os_grid_reference_northing || '');
+  }, [landDetails.os_grid_reference_letter, landDetails.os_grid_reference_easting, landDetails.os_grid_reference_northing]);
   const [errors, setErrors] = useState<{ gridLetter?: string; easting?: string; northing?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");

@@ -22,9 +22,13 @@ const LandRegistry: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (landDetails.has_land_registry !== undefined) {
-      setHasLandRegistry(landDetails.has_land_registry ? 'yes' : 'no');
+    // Only set state if the value has been explicitly saved (not null/undefined)
+    if (landDetails.has_land_registry === true) {
+      setHasLandRegistry('yes');
+    } else if (landDetails.has_land_registry === false) {
+      setHasLandRegistry('no');
     }
+    // If null or undefined, leave as empty string (no selection)
   }, [landDetails.has_land_registry]);
 
   const handleRadioChange = (value: 'yes' | 'no') => {
@@ -43,7 +47,7 @@ const LandRegistry: React.FC = () => {
 
     try {
       const hasRegistry = hasLandRegistry === 'yes';
-      updateLandDetails({
+      await updateLandDetails({
         has_land_registry: hasRegistry,
       });
 
@@ -53,6 +57,8 @@ const LandRegistry: React.FC = () => {
         goToUnregisteredLandDetails();
       }
     } catch (error) {
+      // Error is handled by updateLandDetails
+    } finally {
       setIsSaving(false);
     }
   };

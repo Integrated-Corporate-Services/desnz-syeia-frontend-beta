@@ -23,6 +23,13 @@ const IdentifyingInformation: React.FC = () => {
 
   const maxCharacters = 4000;
 
+  // Update local state when landDetails changes (after fetching from backend)
+  React.useEffect(() => {
+    if (landDetails.identifying_information !== undefined) {
+      setIdentifyingInfo(landDetails.identifying_information);
+    }
+  }, [landDetails.identifying_information]);
+
   const handleIdentifyingInfoChange = (value: string) => {
     if (value.length <= maxCharacters) {
       setIdentifyingInfo(value);
@@ -73,6 +80,9 @@ const IdentifyingInformation: React.FC = () => {
 
             <form>
               <div className={`govuk-form-group${errors.identifyingInfo ? ' govuk-form-group--error' : ''}`}>
+                <label className="govuk-label" htmlFor="identifying-info">
+                  Identifying information
+                </label>
                 <div className="govuk-hint">
                   {labels.DESCRIPTION}
                 </div>

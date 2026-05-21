@@ -43,7 +43,7 @@ const UploadSiteInformation: React.FC = () => {
           await fileUploadRef.current.triggerUpload();
         
         if (newUploadedFiles.length > 0) {
-          updateLandDetails({
+          await updateLandDetails({
             uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
             applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
           });
@@ -52,6 +52,8 @@ const UploadSiteInformation: React.FC = () => {
 
       goToEquipmentVisibility();
     } catch (error) {
+      // Error is handled by updateLandDetails or file upload
+    } finally {
       setIsSaving(false);
     }
   };
