@@ -4,14 +4,32 @@ const API_BASE = '/backend/api/nwl';
 
 export const getNegotiationsData = async (applicationId: string): Promise<NegotiationsData | null> => {
   try {
+    console.log('[getNegotiationsData] Fetching from API:', `${API_BASE}/${applicationId}/negotiations`);
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`);
+    
+    console.log('[getNegotiationsData] Response status:', response.status);
+    
     if (!response.ok) {
       if (response.status === 404) {
+        console.log('[getNegotiationsData] No data found (404)');
         return null;
       }
       throw new Error(`Failed to fetch negotiations data: ${response.statusText}`);
     }
-    return await response.json();
+    
+    const data = await response.json();
+    console.log('[getNegotiationsData] Received data from API:', {
+      hasData: !!data,
+      negotiations_comments: data?.negotiations_comments,
+      comments_length: data?.negotiations_comments?.length,
+      uploaded_files_count: data?.uploaded_files?.length || 0,
+      application_documents_count: data?.application_documents?.length || 0,
+      uploaded_files_sample: data?.uploaded_files?.[0],
+      application_documents_sample: data?.application_documents?.[0],
+      full_data: JSON.stringify(data, null, 2),
+    });
+    
+    return data;
   } catch (error: unknown) {
     console.error('[getNegotiationsData] Error:', error);
     return null;
@@ -27,6 +45,11 @@ export const saveNegotiationsData = async (
   data: Partial<NegotiationsData>
 ): Promise<NegotiationsData | null> => {
   try {
+    console.log('[saveNegotiationsData] Sending POST request:', {
+      applicationId,
+      data: JSON.stringify(data, null, 2),
+    });
+
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'POST',
       headers: {
@@ -36,12 +59,20 @@ export const saveNegotiationsData = async (
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to save negotiations data: ${response.statusText}`);
+      const errorBody = await response.text();
+      console.error('[saveNegotiationsData] POST failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+      });
+      throw new Error(`Failed to save negotiations data: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     
-    return await response.json();
+    const result = await response.json();
+    console.log('[saveNegotiationsData] POST successful:', result);
+    return result;
   } catch (error) {
-    console.error('Error saving negotiations data:', error);
+    console.error('[saveNegotiationsData] Error:', error);
     return null;
   }
 };
@@ -67,7 +98,7 @@ export const patchNegotiationsData = async (
   data: Partial<NegotiationsData>
 ): Promise<NegotiationsData | null> => {
   try {
-    console.log('[patchNegotiationsData] Attempting PATCH for applicationId:', applicationId, 'with data:', data);
+    console.log('[patchNegotiationsData] Attempting PATCH for applicationId:', applicationId, 'with data:', JSON.stringify(data, null, 2));
     
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'PATCH',
@@ -84,7 +115,13 @@ export const patchNegotiationsData = async (
     }
     
     if (!response.ok) {
-      throw new Error(`Failed to update negotiations data: ${response.statusText}`);
+      const errorBody = await response.text();
+      console.error('[patchNegotiationsData] PATCH failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+      });
+      throw new Error(`Failed to update negotiations data: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     
     const result = await response.json();

@@ -66,8 +66,10 @@ const WhyNoNegotiations: React.FC = () => {
 
     try {
       // Use PATCH to only update reason without affecting other fields
+      // If record doesn't exist (404), will fallback to POST which requires has_negotiations
       console.log('[WhyNoNegotiations] Calling patchNegotiationsData...');
       const result = await patchNegotiationsData(appId, {
+        has_negotiations: false, // Required for POST fallback - user reached this page via "No" answer
         no_negotiations_reason: reason,
         // Clear comments from opposite flow
         negotiations_comments: '',
