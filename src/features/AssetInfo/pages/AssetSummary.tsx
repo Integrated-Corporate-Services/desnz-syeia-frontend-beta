@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
+import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
+import { useAuthUser } from '../../../hooks/useAuthUser';
+import { ConsultationStatus } from '../../../constants/consultationStatus';
 
 /**
  * Assets Summary Page
@@ -14,7 +16,32 @@ const AssetSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
     const navigate = useNavigate();
     const { assets, loading, fetchAssets } = useAssetStore();
-    const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(applicationId);
+    const { user } = useAuthUser();
+    const { consultations, loading: consultationsLoading } = useConsultationDetails(applicationId, user?.user_id);
+
+    // Custom logic for Asset Summary: Hide change links when PUBLIC consultation started OR all consultations closed
+    const shouldHideChangeLinks = useMemo(() => {
+        if (!consultations || consultations.length === 0) {
+            return false;
+        }
+
+        // Find the PUBLIC consultation
+        const publicConsultation = consultations.find(
+            (consultation) => consultation.consultationType === 'PUBLIC'
+        );
+
+        // Check if public notice consultation has started
+        const publicNoticeStarted = publicConsultation && 
+            publicConsultation.status.toLowerCase() !== ConsultationStatus.NOT_STARTED.toLowerCase();
+
+        // Check if ALL consultations are closed
+        const allConsultationsClosed = consultations.every(
+            (consultation) => consultation.status.toLowerCase() === ConsultationStatus.CLOSED.toLowerCase()
+        );
+
+        // Hide change links if public notice started OR all consultations are closed
+        return publicNoticeStarted || allConsultationsClosed;
+    }, [consultations]);
 
     useEffect(() => {
         if (applicationId) {
@@ -64,10 +91,11 @@ const AssetSummary: React.FC = () => {
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Standard specification reference number</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].standardSpecificationReferenceNumber || '-'}</dd>
-                                            {!consultationsStarted && (
+                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
                                                 <dd className="govuk-summary-list__actions">
                                                     <Link
                                                         to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        state={{ fromSummary: true }}
                                                         className="govuk-link"
                                                     >
                                                         Change<span className="govuk-visually-hidden"> standard specification reference number</span>
@@ -80,10 +108,11 @@ const AssetSummary: React.FC = () => {
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Type of line</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].typeOfLine ? assets[0].typeOfLine.charAt(0).toUpperCase() + assets[0].typeOfLine.slice(1) : '-'}</dd>
-                                            {!consultationsStarted && (
+                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
                                                 <dd className="govuk-summary-list__actions">
                                                     <Link
                                                         to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        state={{ fromSummary: true }}
                                                         className="govuk-link"
                                                     >
                                                         Change<span className="govuk-visually-hidden"> type of line</span>
@@ -97,10 +126,11 @@ const AssetSummary: React.FC = () => {
                                             <div className="govuk-summary-list__row">
                                                 <dt className="govuk-summary-list__key">TORI/NOI code for this project</dt>
                                                 <dd className="govuk-summary-list__value">{assets[0].tori_noi}</dd>
-                                                {!consultationsStarted && (
+                                                {(!consultationsLoading && !shouldHideChangeLinks) && (
                                                     <dd className="govuk-summary-list__actions">
                                                         <Link
                                                             to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                            state={{ fromSummary: true }}
                                                             className="govuk-link"
                                                         >
                                                             Change<span className="govuk-visually-hidden"> TORI/NOI code</span>
@@ -120,10 +150,11 @@ const AssetSummary: React.FC = () => {
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Line length</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].lineLength ? `${assets[0].lineLength}m` : '-'}</dd>
-                                            {!consultationsStarted && (
+                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
                                                 <dd className="govuk-summary-list__actions">
                                                     <Link
                                                         to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        state={{ fromSummary: true }}
                                                         className="govuk-link"
                                                     >
                                                         Change<span className="govuk-visually-hidden"> line length</span>
