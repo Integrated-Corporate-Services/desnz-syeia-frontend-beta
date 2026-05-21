@@ -21,13 +21,13 @@ const IsObjectorLandowner: React.FC = () => {
 
   const [isLandowner, setIsLandowner] = useState<string>("");
 
-  const [error, setError] = useState<string>("");
-
+  const [error, setError] = useState<string>("");  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
   // Only populate radio button if value is explicitly defined (not undefined)
   // This prevents defaulting to "no" on first visit
   useEffect(() => {
-    if (objectorDetails && objectorDetails.is_landowner !== undefined) {
-      setIsLandowner(objectorDetails.is_landowner ? "yes" : "no");
+    if (objectorDetails && objectorDetails.is_objector_also_landowner !== undefined && objectorDetails.is_objector_also_landowner !== null) {
+      setIsLandowner(objectorDetails.is_objector_also_landowner ? "yes" : "no");
     }
   }, [objectorDetails]);
 
@@ -48,13 +48,23 @@ const IsObjectorLandowner: React.FC = () => {
       return;
     }
 
-    // Save to backend
-    await saveObjectorLandownerStatus(appId, isLandowner === "yes");
+    setIsSaving(true);
+    setSaveError("");
 
-    if (isLandowner === "yes") {
-      navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
-    } else {
-      navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
+    try {
+      // Save to backend
+      await saveObjectorLandownerStatus(appId, isLandowner === "yes");
+
+      if (isLandowner === "yes") {
+        navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
+      } else {
+        navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
+      }
+    } catch (error) {
+      setSaveError("Failed to save landowner status. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -79,6 +89,21 @@ const IsObjectorLandowner: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             {error && (
               <div
                 className="govuk-error-summary"
@@ -163,8 +188,9 @@ const IsObjectorLandowner: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
+                disabled={isSaving}
               >
-                {LABELS.CONTINUE}
+                {isSaving ? "Saving..." : LABELS.CONTINUE}
               </button>
             </form>
           </div>

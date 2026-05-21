@@ -25,6 +25,8 @@ const ObjectorAddress: React.FC = () => {
   const [postcode, setPostcode] = useState("");
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
 
   useEffect(() => {
     if (objectorDetails) {
@@ -63,16 +65,26 @@ const ObjectorAddress: React.FC = () => {
       return;
     }
 
-    // Save to backend
-    await saveObjectorAddress(appId, {
-      objector_address_line1: addressLine1,
-      objector_address_line2: addressLine2,
-      objector_town: town,
-      objector_county: county,
-      objector_postcode: postcode,
-    });
+    setIsSaving(true);
+    setSaveError("");
 
-    navigate(`${NWL_BASE_URL}/${appId}/is-objector-landowner`);
+    try {
+      // Save to backend
+      await saveObjectorAddress(appId, {
+        objector_address_line1: addressLine1,
+        objector_address_line2: addressLine2,
+        objector_town: town,
+        objector_county: county,
+        objector_postcode: postcode,
+      });
+
+      navigate(`${NWL_BASE_URL}/${appId}/is-objector-landowner`);
+    } catch (error) {
+      setSaveError("Failed to save objector address. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -97,6 +109,22 @@ const ObjectorAddress: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.OBJECTOR_ADDRESS_TITLE}</h1>
+
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
 
             {Object.keys(errors).length > 0 && (
               <div
@@ -243,8 +271,9 @@ const ObjectorAddress: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
+                disabled={isSaving}
               >
-                {LABELS.CONTINUE}
+                {isSaving ? "Saving..." : LABELS.CONTINUE}
               </button>
             </form>
           </div>

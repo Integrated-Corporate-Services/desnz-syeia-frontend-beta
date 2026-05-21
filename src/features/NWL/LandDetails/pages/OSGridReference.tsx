@@ -21,6 +21,7 @@ const OSGridReference: React.FC = () => {
   const [northing, setNorthing] = useState(landDetails.os_grid_reference_northing || '');
   const [errors, setErrors] = useState<{ gridLetter?: string; easting?: string; northing?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
 
   const validateForm = () => {
     const newErrors: { gridLetter?: string; easting?: string; northing?: string } = {};
@@ -50,6 +51,7 @@ const OSGridReference: React.FC = () => {
     }
 
     setIsSaving(true);
+    setSaveError("");
 
     try {
       // Only save if at least one field has a value
@@ -63,6 +65,9 @@ const OSGridReference: React.FC = () => {
 
       goToIdentifyingInformation();
     } catch (error) {
+      setSaveError("Failed to save OS grid reference. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -79,6 +84,21 @@ const OSGridReference: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             <ErrorSummary errors={{}} errorFields={{}} />
 
             <h1 className="govuk-heading-l">{labels.PAGE_TITLE}</h1>

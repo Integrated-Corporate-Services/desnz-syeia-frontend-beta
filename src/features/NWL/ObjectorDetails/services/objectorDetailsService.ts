@@ -109,7 +109,7 @@ export const saveObjectorLandownerStatus = async (
   applicationId: string,
   isLandowner: boolean
 ): Promise<ObjectorDetails | null> => {
-  return updateObjectorDetails(applicationId, { is_landowner: isLandowner });
+  return updateObjectorDetails(applicationId, { is_objector_also_landowner: isLandowner });
 };
 
 export const saveLandownerDetails = async (

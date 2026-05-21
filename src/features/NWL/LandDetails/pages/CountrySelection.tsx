@@ -22,6 +22,7 @@ const CountrySelection: React.FC = () => {
     landDetails.site_country || ''
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
 
   const handleCountryChange = (country: 'England' | 'Wales') => {
     setSelectedCountry(country);
@@ -36,6 +37,7 @@ const CountrySelection: React.FC = () => {
     }
 
     setIsSaving(true);
+    setSaveError("");
 
     try {
       await updateLandDetails({
@@ -44,6 +46,9 @@ const CountrySelection: React.FC = () => {
 
       goToLandRegistry();
     } catch (error) {
+      setSaveError("Failed to save country selection. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -64,6 +69,21 @@ const CountrySelection: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             <ErrorSummary errors={errors} errorFields={errorFields} />
 
             <form>

@@ -15,6 +15,8 @@ const LandownerAddress: React.FC = () => {
   const [county, setCounty] = useState("");
   const [postcode, setPostcode] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
 
   useEffect(() => {
     if (objectorDetails) {
@@ -42,16 +44,26 @@ const LandownerAddress: React.FC = () => {
       return;
     }
 
-    // Save to backend
-    await saveLandownerAddress(appId, {
-      landowner_address_line1: addressLine1,
-      landowner_address_line2: addressLine2,
-      landowner_town: town,
-      landowner_county: county,
-      landowner_postcode: postcode,
-    });
+    setIsSaving(true);
+    setSaveError("");
 
-    navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
+    try {
+      // Save to backend
+      await saveLandownerAddress(appId, {
+        landowner_address_line1: addressLine1,
+        landowner_address_line2: addressLine2,
+        landowner_town: town,
+        landowner_county: county,
+        landowner_postcode: postcode,
+      });
+
+      navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
+    } catch (error) {
+      setSaveError("Failed to save landowner address. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -68,6 +80,14 @@ const LandownerAddress: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.LANDOWNER_ADDRESS_TITLE}</h1>
+            {saveError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             {Object.keys(errors).length > 0 && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -102,7 +122,9 @@ const LandownerAddress: React.FC = () => {
                 {errors.postcode && <p id="postcode-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.postcode}</p>}
                 <input className={`govuk-input ${errors.postcode ? "govuk-input--error" : ""}`} id="postcode" name="postcode" type="text" value={postcode} onChange={(e) => setPostcode(e.target.value)} aria-describedby={errors.postcode ? "postcode-error" : undefined} />
               </div>
-              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
+              <button type="submit" className="govuk-button" data-module="govuk-button" disabled={isSaving}>
+                {isSaving ? "Saving..." : LABELS.CONTINUE}
+              </button>
             </form>
           </div>
         </div>

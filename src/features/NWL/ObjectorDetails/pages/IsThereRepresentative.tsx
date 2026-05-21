@@ -11,11 +11,13 @@ const IsThereRepresentative: React.FC = () => {
 
   const [hasRepresentative, setHasRepresentative] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
 
-  // Only populate radio button if value is explicitly defined (not undefined)
+  // Only populate radio button if value is explicitly defined (not undefined or null)
   // This prevents defaulting to "no" on first visit
   useEffect(() => {
-    if (objectorDetails && objectorDetails.has_representative !== undefined) {
+    if (objectorDetails && objectorDetails.has_representative !== undefined && objectorDetails.has_representative !== null) {
       setHasRepresentative(objectorDetails.has_representative ? "yes" : "no");
     }
   }, [objectorDetails]);
@@ -36,13 +38,23 @@ const IsThereRepresentative: React.FC = () => {
       return;
     }
 
-    // Save to backend
-    await saveRepresentativeStatus(appId, hasRepresentative === "yes");
+    setIsSaving(true);
+    setSaveError("");
 
-    if (hasRepresentative === "yes") {
-      navigate(`${NWL_BASE_URL}/${appId}/representative-details`);
-    } else {
-      navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+    try {
+      // Save to backend
+      await saveRepresentativeStatus(appId, hasRepresentative === "yes");
+
+      if (hasRepresentative === "yes") {
+        navigate(`${NWL_BASE_URL}/${appId}/representative-details`);
+      } else {
+        navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+      }
+    } catch (error) {
+      setSaveError("Failed to save representative status. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -59,6 +71,14 @@ const IsThereRepresentative: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {saveError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             {error && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -88,7 +108,9 @@ const IsThereRepresentative: React.FC = () => {
                   </div>
                 </fieldset>
               </div>
-              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
+              <button type="submit" className="govuk-button" data-module="govuk-button" disabled={isSaving}>
+                {isSaving ? "Saving..." : LABELS.CONTINUE}
+              </button>
             </form>
           </div>
         </div>

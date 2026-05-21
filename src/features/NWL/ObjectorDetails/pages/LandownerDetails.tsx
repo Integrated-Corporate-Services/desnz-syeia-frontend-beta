@@ -21,6 +21,8 @@ const LandownerDetails: React.FC = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
 
   useEffect(() => {
     if (objectorDetails) {
@@ -51,16 +53,26 @@ const LandownerDetails: React.FC = () => {
       return;
     }
 
-    // Save to backend
-    await saveLandownerDetails(appId, {
-      landowner_title: title,
-      landowner_full_name: fullName,
-      landowner_organisation: organisation,
-      landowner_email: email,
-      landowner_phone: phone,
-    });
+    setIsSaving(true);
+    setSaveError("");
 
-    navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
+    try {
+      // Save to backend
+      await saveLandownerDetails(appId, {
+        landowner_title: title,
+        landowner_full_name: fullName,
+        landowner_organisation: organisation,
+        landowner_email: email,
+        landowner_phone: phone,
+      });
+
+      navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
+    } catch (error) {
+      setSaveError("Failed to save landowner details. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -81,6 +93,14 @@ const LandownerDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.LANDOWNER_DETAILS_TITLE}</h1>
+            {saveError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             {Object.keys(errors).length > 0 && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -120,7 +140,9 @@ const LandownerDetails: React.FC = () => {
                 <label className="govuk-label" htmlFor="phone">{FORM_LABELS.PHONE}</label>
                 <input className="govuk-input govuk-input--width-20" id="phone" name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
-              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
+              <button type="submit" className="govuk-button" data-module="govuk-button" disabled={isSaving}>
+                {isSaving ? "Saving..." : LABELS.CONTINUE}
+              </button>
             </form>
           </div>
         </div>
