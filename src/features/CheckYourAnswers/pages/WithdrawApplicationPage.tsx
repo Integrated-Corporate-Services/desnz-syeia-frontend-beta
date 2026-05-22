@@ -256,7 +256,7 @@ const WithdrawApplicationPage: React.FC = () => {
               )}
 
               {/* Reason field - optional for all application types */}
-              <div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds" data-module="govuk-character-count" data-maxlength={maxCharacters}>
+              <div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={maxCharacters}>
                 <label className="govuk-label govuk-label--m" htmlFor="withdrawal-reason">
                   {WITHDRAWAL_LABELS.REASON_LABEL}
                 </label>
@@ -285,12 +285,12 @@ const WithdrawApplicationPage: React.FC = () => {
                 </div>
                 {typeof remainingChars === 'number' && (
                   <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">
-                    You have {remainingChars} characters remaining
+                    You can enter upto {remainingChars} characters
                   </div>
                 )}
                 {typeof remainingChars === 'number' && (
                   <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">
-                    You have {remainingChars} characters remaining
+                    You can enter upto {remainingChars} characters
                   </div>
                 )}
               </div>
