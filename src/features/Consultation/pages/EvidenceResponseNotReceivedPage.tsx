@@ -45,10 +45,19 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>(consultationNameParam);
     const fileUploadRef = useRef<FileUploadHandle>(null);
+    const errorSummaryRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
+    // Scroll and focus error summary when file validation errors appear
+    useEffect(() => {
+        if (fileValidationErrors.length > 0 && errorSummaryRef.current) {
+            errorSummaryRef.current.focus();
+            errorSummaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [fileValidationErrors]);
 
     useEffect(() => {
         // Fetch existing evidence if available
@@ -293,8 +302,8 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 </nav>
 
                 {/* Error Summary */}
-                {submitted && (Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
-                    <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} id="error-summary">
+                {((submitted && Object.values(errors).some(Boolean)) || fileValidationErrors.length > 0) && (
+                    <div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} id="error-summary">
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem
                         </h2>

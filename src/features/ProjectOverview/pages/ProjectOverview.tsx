@@ -52,6 +52,7 @@ const ProjectOverview = () => {
 	const navigate = useNavigate();
 	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
 	const fileUploadRef = useRef<FileUploadHandle>(null);
+	const errorSummaryRef = useRef<HTMLDivElement>(null);
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 	
 	// Handle file deletion
@@ -68,6 +69,14 @@ const ProjectOverview = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { user } = useAuthUser();
 	const userId = user?.user_id;
+
+	// Scroll and focus error summary when validation errors appear
+	useEffect(() => {
+		if ((errors.length > 0 || fileValidationErrors.length > 0) && errorSummaryRef.current) {
+			errorSummaryRef.current.focus();
+			errorSummaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+	}, [errors, fileValidationErrors]);
 
 	// Helper function to clear field-specific errors
 	const clearFieldError = (fieldName: string) => {
@@ -230,18 +239,28 @@ const ProjectOverview = () => {
 			<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
 				<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
 				{(errors.length > 0 || fileValidationErrors.length > 0) && (
-					<div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
+					<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
 						<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
 						<div className="govuk-error-summary__body">
 							<ul className="govuk-list govuk-error-summary__list">
 								{fileValidationErrors.map((error, index) => (
 									<li key={`file-${index}`}>
-										<a href="#file-upload">{error}</a>
+										<a href="#planInformationDocuments">{error}</a>
 									</li>
 								))}
-								{errors.map((err, idx) => (
-									<li key={idx}>{err}</li>
-								))}
+							{errors.map((err, idx) => {
+								// Parse error link: errors are in format '<a href="#id">message</a>'
+								const match = err.match(/<a href="#([^"]+)">([^<]+)<\/a>/);
+								if (match) {
+									const [, href, message] = match;
+									return (
+										<li key={idx}>
+											<a href={`#${href}`}>{message}</a>
+										</li>
+									);
+								}
+								return <li key={idx}>{err}</li>;
+							})}
 							</ul>
 						</div>
 					</div>
@@ -784,7 +803,11 @@ const ProjectOverview = () => {
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 								{projectOverview.planInformationDocuments}
 							</legend>
-							{/* Field error removed - validation errors only shown in error summary above */}
+						{fieldErrors?.uploadedFiles && (
+							<p id="uploadedFiles-error" className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
+							</p>
+						)}
 							<FileUpload
 								ref={fileUploadRef}
 								title='Upload a file'
@@ -800,9 +823,10 @@ const ProjectOverview = () => {
 								onValidationErrors={(errors) => {
 									// Handle validation errors
 									setFileValidationErrors(errors);
-									// Set field error for red border styling, but message only shows in error summary
-									if (errors.length > 0) {
-										setFieldErrors(prev => ({ ...prev, uploadedFiles: 'validation-error' }));
+								// Set field error with the actual error message
+								if (errors.length > 0) {
+									// Use the first error message directly (validation errors are plain text from our code)
+									setFieldErrors(prev => ({ ...prev, uploadedFiles: errors[0] }));
 									} else {
 										setFieldErrors(prev => { const newErrors = { ...prev }; delete newErrors.uploadedFiles; return newErrors; });
 									}
@@ -861,10 +885,10 @@ const ProjectOverview = () => {
 								{formState.hasRelatedApplications === "true" && (
 									<div className="govuk-radios__conditional" id="hasRelatedApplications-hidden">
 										<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
-											<label className="govuk-label" htmlFor="relatedApplicationsDetails-inputValue">
-												{projectOverview.relatedApplicationsDetails}
-											</label>
-											<div className="govuk-hint" id="relatedApplicationsDetails-hint">
+										<label className="govuk-label govuk-!-width-two-thirds" htmlFor="relatedApplicationsDetails-inputValue">
+											{projectOverview.relatedApplicationsDetails}
+										</label>
+										<div className="govuk-hint govuk-!-width-two-thirds" id="relatedApplicationsDetails-hint">
 												{projectOverview.relatedApplicationsDetailsHint}
 											</div>
 											{fieldErrors?.relatedApplicationsDetails && (
@@ -873,7 +897,7 @@ const ProjectOverview = () => {
 												</p>
 											)}
 											<textarea
-												className={`govuk-textarea govuk-js-character-count${fieldErrors?.relatedApplicationsDetails ? " govuk-textarea--error" : ""}`}
+											className={`govuk-textarea govuk-!-width-two-thirds govuk-js-character-count${fieldErrors?.relatedApplicationsDetails ? " govuk-textarea--error" : ""}`}
 												id="relatedApplicationsDetails-inputValue"
 												name="relatedApplicationsDetails.inputValue"
 												rows={5}
@@ -921,7 +945,7 @@ const ProjectOverview = () => {
 							label: "Yes",
 							conditionalRender: (
 								<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
-									<label className="govuk-label" htmlFor="relatedCpoDetails-inputValue">
+									<label className="govuk-label govuk-!-width-two-thirds" htmlFor="relatedCpoDetails-inputValue">
 										{projectOverview.relatedCpoDetails}
 									</label>
 									{fieldErrors?.relatedCpoDetails && (
@@ -930,7 +954,7 @@ const ProjectOverview = () => {
 										</p>
 									)}
 									<textarea
-										className={`govuk-textarea govuk-js-character-count${fieldErrors?.relatedCpoDetails ? " govuk-textarea--error" : ""}`}
+										className={`govuk-textarea govuk-!-width-two-thirds govuk-js-character-count${fieldErrors?.relatedCpoDetails ? " govuk-textarea--error" : ""}`}
 										id="relatedCpoDetails-inputValue"
 										name="relatedCpoDetails.inputValue"
 										rows={5}
