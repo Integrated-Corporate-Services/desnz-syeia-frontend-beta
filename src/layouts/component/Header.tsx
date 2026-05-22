@@ -61,17 +61,6 @@ const Header = () => {
         </div>
       </div>
     </header>
-      <div className="govuk-phase-banner govuk-width-container">
-        <p className="govuk-phase-banner__content">
-          <strong className="govuk-tag govuk-phase-banner__content__tag" style={{ backgroundColor: '#1d70b8', color: '#fff', fontWeight: 700 }}>
-            BETA
-          </strong>
-          <span className="govuk-phase-banner__text">
-            This is a new service – your <a href="#" className="govuk-link">feedback</a> will help us to improve it.
-          </span>
-        </p>
-      </div>
-      <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: 0 }} />
   </>
   );
 };

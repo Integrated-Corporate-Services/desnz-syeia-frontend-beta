@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BASE_URL } from "../../constants/routes";
 import { useLocation } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
@@ -8,6 +8,7 @@ import { logout } from "../../services/authService";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuthUserContext();
 
@@ -53,102 +54,99 @@ const ServiceNavigation = () => {
       (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
 
   return (
-    <div className="govuk-width-container">
-      <section
-        aria-label="Service information"
-        className="govuk-service-navigation"
-        data-module="govuk-service-navigation"
-      >
-        <nav aria-label="Menu" className="govuk-service-navigation__wrapper">
-          <div className="govuk-service-navigation__wrapper-container">
-            {/* User name on the left */}
-            <span className="govuk-body govuk-service-navigation__user-name">
-              {user
-                ? `${(user as any).first_name || ""} ${
-                    (user as any).last_name || ""
-                  }`.trim() || "\u00A0"
-                : "\u00A0"}
-            </span>
+    <nav className="rcc-service-nav" aria-label="Service navigation">
+      <div className="rcc-service-nav__container">
+        {/* User name on the left */}
+        {user && (
+          <div className="rcc-service-nav__user-name">
+            {`${(user as AuthUser).first_name || ""} ${
+              (user as AuthUser).last_name || ""
+            }`.trim() || "\u00A0"}
+          </div>
+        )}
 
-            {/* Navigation links on the right */}
-            <ul
-              className="govuk-service-navigation__list govuk-service-navigation__list--right"
-              id="navigation"
-            >
-              {!isInRegistrationFlow && (
-                <>
-                  {isAdmin && (
-                    <li
-                      className={`govuk-service-navigation__item ${
-                        isOnOrganisationPages
-                          ? "govuk-service-navigation__item--active"
-                          : ""
-                      }`}
-                    >
-                      <a
-                        className="govuk-service-navigation__link"
-                        href={`${BASE_URL}/admin/user-management`}
-                        aria-current={
-                          isOnOrganisationPages ? "true" : undefined
-                        }
-                      >
-                        Organisation
-                      </a>
-                    </li>
-                  )}
-                  <li
-                    className={`govuk-service-navigation__item ${
-                      isOnApplicationPages
-                        ? "govuk-service-navigation__item--active"
-                        : ""
-                    }`}
-                  >
-                    <a
-                      className="govuk-service-navigation__link"
-                      href={`${BASE_URL}/workbasket`}
-                      aria-current={isOnApplicationPages ? "true" : undefined}
-                    >
-                      Applications
-                    </a>
-                  </li>
-                  <li className="govuk-service-navigation__item">
-                    <a
-                      className="govuk-service-navigation__link"
-                      href="#"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      Notifications{" "}
-                      <span className="moj-notification-badge"></span>
-                    </a>
-                  </li>
-                  <li className="govuk-service-navigation__item">
-                    <a
-                      className="govuk-service-navigation__link"
-                      href="#"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      Account
-                    </a>
-                  </li>
-                </>
-              )}
-              <li className="govuk-service-navigation__item">
-                <a
-                  className="govuk-service-navigation__link"
-                  href="#"
-                  onClick={async (event) => {
-                    event.preventDefault();
-                    await logout();
-                  }}
+        {/* Mobile toggle */}
+        <button
+          type="button"
+          className="rcc-service-nav__toggle"
+          id="rcc-service-nav-toggle"
+          aria-controls="rcc-service-nav-list"
+          aria-expanded={menuOpen}
+          aria-label="Show or hide navigation menu"
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          Menu <span className="rcc-service-nav__toggle-arrow" aria-hidden="true" />
+        </button>
+
+        <ul
+          className={`rcc-service-nav__list${menuOpen ? " is-open" : ""}`}
+          id="rcc-service-nav-list"
+        >
+          {!isInRegistrationFlow && (
+            <>
+              {isAdmin && (
+                <li
+                  className={`rcc-service-nav__item${
+                    isOnOrganisationPages ? " rcc-service-nav__item--active" : ""
+                  }`}
                 >
-                  Sign out
+                  <a
+                    className="rcc-service-nav__link"
+                    href={`${BASE_URL}/admin/user-management`}
+                    aria-current={isOnOrganisationPages ? "page" : undefined}
+                  >
+                    Organisation
+                  </a>
+                </li>
+              )}
+              <li
+                className={`rcc-service-nav__item${
+                  isOnApplicationPages ? " rcc-service-nav__item--active" : ""
+                }`}
+              >
+                <a
+                  className="rcc-service-nav__link"
+                  href={`${BASE_URL}/workbasket`}
+                  aria-current={isOnApplicationPages ? "page" : undefined}
+                >
+                  Applications
                 </a>
               </li>
-            </ul>
-          </div>
-        </nav>
-      </section>
-    </div>
+              <li className="rcc-service-nav__item">
+                <a
+                  className="rcc-service-nav__link"
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Notifications <span className="moj-notification-badge"></span>
+                </a>
+              </li>
+              <li className="rcc-service-nav__item">
+                <a
+                  className="rcc-service-nav__link"
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Account
+                </a>
+              </li>
+            </>
+          )}
+          <li className="rcc-service-nav__item">
+            <a
+              className="rcc-service-nav__link"
+              href="#"
+              onClick={async (event) => {
+                event.preventDefault();
+                await logout();
+              }}
+            >
+              Sign out
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
   );
 };
 export default ServiceNavigation;
