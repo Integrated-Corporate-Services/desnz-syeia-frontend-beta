@@ -61,6 +61,7 @@ const ApplicationWithinThreeMonths: React.FC = () => {
         await updateFields({
           type_of_use: 'existing_lines',
           is_within_three_months: isWithinThreeMonths === "yes",
+          application_outside_timeframe_explanation: null,
           is_standard_term: null,
           standard_term_explanation: null,
         }, APPLICATION_DETAILS_PAGE_IDS.APPLICATION_WITHIN_THREE_MONTHS);

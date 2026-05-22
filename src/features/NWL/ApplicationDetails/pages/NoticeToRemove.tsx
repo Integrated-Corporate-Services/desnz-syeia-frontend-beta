@@ -14,6 +14,7 @@ import {
 import {
   BREADCRUMBS,
   LABELS,
+  FORM_ERRORS,
 } from "../constants/noticeToRemoveConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
@@ -45,8 +46,8 @@ const NoticeToRemove: React.FC = () => {
 
   // Handle file validation errors from FileUpload component
   const handleFileValidationErrors = (errors: string[]) => {
+    // Always update from FileUpload component to clear errors when new files selected
     setFileValidationErrors(errors);
-    // Clear form-level errors when file validation errors are present
     if (errors.length === 0) {
       setErrors([]);
     }
@@ -98,7 +99,7 @@ const NoticeToRemove: React.FC = () => {
       const docs = applicationDetails.notice_to_remove_documents.map((doc) => ({
         documentId: doc.document_id,
         applicationId: appId || '',
-        fileId: doc.document_id,
+        fileId: doc.file_id,
         category: NWL_FILE_CATEGORIES.NWL_NOTICE_TO_REMOVE,
         title: doc.filename,
         filename: doc.filename,
@@ -107,7 +108,7 @@ const NoticeToRemove: React.FC = () => {
       }));
       
       const files = applicationDetails.notice_to_remove_documents.map((doc) => ({
-        id: doc.document_id,
+        id: doc.file_id,
         storageProvider: 'aws_s3',
         s3Key: doc.s3_key,
         bucketName: '',
@@ -143,7 +144,12 @@ const NoticeToRemove: React.FC = () => {
     // Validate files
     const totalFiles = uploadedFilesCount + applicationDocsCount;
     if (totalFiles === 0) {
-      newErrors.push('You must upload at least one document');
+      newErrors.push(FORM_ERRORS.NO_FILES);
+      // Set file validation errors for inline display
+      setFileValidationErrors([FORM_ERRORS.NO_FILES]);
+    } else {
+      // Clear file validation errors if files are present
+      setFileValidationErrors([]);
     }
 
     setErrors(newErrors);
@@ -168,6 +174,8 @@ const NoticeToRemove: React.FC = () => {
         // Update state immediately so files remain visible even if validation fails
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
+        // Clear file validation errors after successful upload
+        setFileValidationErrors([]);
       } catch {
         const errorMsg = 'Failed to upload files. Please try again.';
         setFileValidationErrors([errorMsg]);

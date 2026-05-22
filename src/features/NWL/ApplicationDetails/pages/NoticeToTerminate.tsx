@@ -14,6 +14,7 @@ import {
 import {
   BREADCRUMBS,
   LABELS,
+  FORM_ERRORS,
 } from "../constants/noticeToTerminateConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
@@ -45,6 +46,7 @@ const NoticeToTerminate: React.FC = () => {
 
   // Handle file validation errors from FileUpload component
   const handleFileValidationErrors = (errors: string[]) => {
+    // Always update from FileUpload component to clear errors when new files selected
     setFileValidationErrors(errors);
     if (errors.length === 0) {
       setErrors([]);
@@ -93,7 +95,7 @@ const NoticeToTerminate: React.FC = () => {
       const docs = applicationDetails.notice_to_terminate_documents.map((doc) => ({
         documentId: doc.document_id,
         applicationId: appId || '',
-        fileId: doc.document_id,
+        fileId: doc.file_id,
         category: NWL_FILE_CATEGORIES.NWL_NOTICE_TO_TERMINATE,
         title: doc.filename,
         filename: doc.filename,
@@ -102,7 +104,7 @@ const NoticeToTerminate: React.FC = () => {
       }));
       
       const files = applicationDetails.notice_to_terminate_documents.map((doc) => ({
-        id: doc.document_id,
+        id: doc.file_id,
         storageProvider: 'aws_s3',
         s3Key: doc.s3_key,
         bucketName: '',
@@ -156,6 +158,8 @@ const NoticeToTerminate: React.FC = () => {
         
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
+        // Clear file validation errors after successful upload
+        setFileValidationErrors([]);
       } catch {
         const errorMsg = 'Failed to upload files. Please try again.';
         setFileValidationErrors([errorMsg]);
@@ -174,8 +178,15 @@ const NoticeToTerminate: React.FC = () => {
       return;
     }
 
+    // Check if at least one file is uploaded (mandatory)
+    const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
+    if (allUploadedFiles.length === 0) {
+      setFileValidationErrors([FORM_ERRORS.NO_FILES]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     try {
-      const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
       const allDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
       const documentIds = allDocuments.map(doc => doc.documentId);
       const formattedDate = formatDateForAPI(day, month, year);

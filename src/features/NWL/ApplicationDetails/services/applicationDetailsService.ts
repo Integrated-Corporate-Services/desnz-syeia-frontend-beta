@@ -11,6 +11,7 @@ const logger = createLogger('ApplicationDetailsService');
 
 export interface DocumentInfo {
   document_id: string;
+  file_id: string;
   filename: string;
   uploaded_at: string;
   file_size: number;

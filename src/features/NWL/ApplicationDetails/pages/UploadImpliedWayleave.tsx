@@ -29,6 +29,7 @@ const UploadImpliedWayleave: React.FC = () => {
   const fileUploadRef = useRef<FileUploadHandle>(null);
 
   const handleFileValidationErrors = (errors: string[]) => {
+    // Always update from FileUpload component to clear errors when new files selected
     setFileValidationErrors(errors);
     if (errors.length === 0) {
       setError("");
@@ -66,7 +67,7 @@ const UploadImpliedWayleave: React.FC = () => {
       const docs = impliedDocs.map((doc) => ({
         documentId: doc.document_id,
         applicationId: appId || '',
-        fileId: doc.document_id,
+        fileId: doc.file_id,
         category: NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE,
         title: doc.filename,
         filename: doc.filename,
@@ -75,7 +76,7 @@ const UploadImpliedWayleave: React.FC = () => {
       }));
       
       const files = impliedDocs.map((doc) => ({
-        id: doc.document_id,
+        id: doc.file_id,
         storageProvider: 'aws_s3',
         s3Key: doc.s3_key,
         bucketName: '',
@@ -105,6 +106,8 @@ const UploadImpliedWayleave: React.FC = () => {
         
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
+        // Clear file validation errors after successful upload
+        setFileValidationErrors([]);
       } catch {
         const errorMsg = 'Failed to upload files. Please try again.';
         setFileValidationErrors([errorMsg]);
