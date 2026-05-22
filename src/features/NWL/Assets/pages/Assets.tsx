@@ -40,6 +40,31 @@ const Asset: React.FC = () => {
   } = useAssetForm();
 
   const [saving, setSaving] = React.useState(false);
+  const [checkingAssets, setCheckingAssets] = React.useState(true);
+
+  // Check if assets already exist - redirect to review if they do
+  React.useEffect(() => {
+    const checkExistingAssets = async () => {
+      if (!applicationId) return;
+
+      try {
+        const response = await nwlAssetService.getAssetsByApplicationId(applicationId);
+        
+        // If assets exist, redirect to review page
+        if (response.assets && response.assets.length > 0) {
+          navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`, { replace: true });
+          return;
+        }
+      } catch {
+        // If error (e.g., 404 - no assets), continue to show add form
+        // Error logging is handled in the service layer
+      } finally {
+        setCheckingAssets(false);
+      }
+    };
+
+    checkExistingAssets();
+  }, [applicationId, navigate]);
 
   // Map frontend line type keys to backend codes
   const lineTypeCodeMap: Record<string, string> = {
@@ -144,6 +169,21 @@ const Asset: React.FC = () => {
       setSaving(false);
     }
   };
+
+  // Show loading state while checking for existing assets
+  if (checkingAssets) {
+    return (
+      <main className="govuk-main-wrapper" id="main-content">
+        <AssetsBreadcrumbs applicationId={applicationId} currentPage="add" />
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <h1 className="govuk-heading-xl">{LABELS.ADD_ASSET_TITLE}</h1>
+            <p className="govuk-body">Loading...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="govuk-main-wrapper" id="main-content">
