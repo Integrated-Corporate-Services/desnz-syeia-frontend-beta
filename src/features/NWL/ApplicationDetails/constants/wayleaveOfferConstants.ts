@@ -17,8 +17,8 @@ export const LABELS = {
 } as const;
 
 export const FORM_ERRORS = {
-  MISSING_DATE: "Enter the date of your offer or letter",
-  MISSING_FILE: "Upload a copy of the offer or letter",
+  MISSING_DATE: "Enter the date of the notice to the objector",
+  MISSING_FILE: "Upload a copy of the notice to the objector",
   FILE_TOO_LARGE: "The selected file must be smaller than 25MB",
   INVALID_FILE_TYPE: "The selected file must be a PDF, JPG, JPEG, PNG, MSG, DOC, DOCX, XLS or XLSX",
   MISSING_DAY: SHARED_DATE_ERRORS.MISSING_DAY,
