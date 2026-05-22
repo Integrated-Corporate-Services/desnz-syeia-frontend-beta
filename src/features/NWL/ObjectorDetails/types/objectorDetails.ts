@@ -10,7 +10,7 @@ export type ObjectorDetails = {
   objector_county?: string;
   objector_postcode?: string;
   
-  is_landowner?: boolean;
+  is_objector_also_landowner?: boolean | null;
   landowner_title?: string;
   landowner_full_name?: string;
   landowner_organisation?: string;
@@ -22,7 +22,7 @@ export type ObjectorDetails = {
   landowner_county?: string;
   landowner_postcode?: string;
   
-  has_representative?: boolean;
+  has_representative?: boolean | null;
   representative_title?: string;
   representative_full_name?: string;
   representative_organisation?: string;

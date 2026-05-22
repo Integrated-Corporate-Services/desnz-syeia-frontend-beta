@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { getSensitiveAreaSettings } from '../../../services/sensitiveAreaSettingsService';
+import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary as ReviewSummaryData } from '../../../services/sensitiveAreaService';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getRoutesWithPoints } from '../../../services/routeMapService';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
@@ -15,6 +16,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
     const [toleranceRequired, setToleranceRequired] = useState<string | null>(null);
     const [toleranceValue, setToleranceValue] = useState('');
     const [routes, setRoutes] = useState<Array<{ route_id: string; routeName: string; gridPoints: Array<{ easting: string | number; northing: string | number }> }>>([]);
+    const [reviewSummary, setReviewSummary] = useState<ReviewSummaryData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -35,6 +37,10 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                         setToleranceValue(String(first.tolerance_meters ?? ''));
                     }
                 }
+
+                // Fetch review summary to get intersected layers
+                const summaryData = await getSensitiveAreaReviewSummary(applicationId);
+                setReviewSummary(summaryData);
             } catch {
                 // Silently fail - no data available
             } finally {
@@ -126,6 +132,38 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                                                     <dd className="govuk-summary-list__value">{toleranceValue ? `${toleranceValue}m` : '-'}</dd>
                                                 </div>
                                             )}
+                                            <div className="govuk-summary-list__row">
+                                                <dt className="govuk-summary-list__key">Sensitive areas that route passes through</dt>
+                                                <dd className="govuk-summary-list__value">
+                                                    {(() => {
+                                                        const passedScreeningRequired = reviewSummary?.checks?.automated?.passed?.screeningRequired || [];
+                                                        const passedNoScreening = reviewSummary?.checks?.automated?.passed?.noScreening || [];
+                                                        
+                                                        // Combine both passed categories
+                                                        const allPassedLayers = [...passedScreeningRequired, ...passedNoScreening];
+                                                        
+                                                        // Extract layer names
+                                                        const layerNames = allPassedLayers
+                                                            .map((layer: any) => layer.layerName)
+                                                            .filter(Boolean);
+                                                        
+                                                        if (layerNames.length === 0) {
+                                                            return '-';
+                                                        }
+                                                        
+                                                        // Get unique layer names
+                                                        const uniqueLayerNames = Array.from(new Set(layerNames));
+                                                        
+                                                        return (
+                                                            <ul className="govuk-list govuk-list--bullet">
+                                                                {uniqueLayerNames.map((layerName, index) => (
+                                                                    <li key={index}>{layerName}</li>
+                                                                ))}
+                                                            </ul>
+                                                        );
+                                                    })()}
+                                                </dd>
+                                            </div>
                                         </dl>
                                     </div>
                                 </div>

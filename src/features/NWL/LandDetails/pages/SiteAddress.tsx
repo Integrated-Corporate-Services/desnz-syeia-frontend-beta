@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { 
   LandDetailsBreadcrumbs, 
@@ -28,6 +28,18 @@ const SiteAddress: React.FC = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
+
+  // Sync form with fetched data
+  useEffect(() => {
+    setFormData({
+      addressLine1: landDetails.site_address_line1 || '',
+      addressLine2: landDetails.site_address_line2 || '',
+      town: landDetails.site_town || '',
+      county: landDetails.site_county || '',
+      postcode: landDetails.site_postcode || '',
+    });
+  }, [landDetails.site_address_line1, landDetails.site_address_line2, landDetails.site_town, landDetails.site_county, landDetails.site_postcode]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -47,9 +59,10 @@ const SiteAddress: React.FC = () => {
     }
 
     setIsSaving(true);
+    setSaveError("");
 
     try {
-      updateLandDetails({
+      await updateLandDetails({
         site_address_line1: formData.addressLine1,
         site_address_line2: formData.addressLine2,
         site_town: formData.town,
@@ -59,6 +72,9 @@ const SiteAddress: React.FC = () => {
 
       goToCountrySelection();
     } catch (error) {
+      setSaveError("Failed to save site address. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -79,6 +95,21 @@ const SiteAddress: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             <ErrorSummary errors={errors} errorFields={errorFields} />
 
             <h1 className="govuk-heading-l">{LAND_DETAILS_LABELS.SITE_ADDRESS.PAGE_TITLE}</h1>

@@ -505,13 +505,13 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/withdraw`,
-        component: WithdrawApplicationPage,  // New modular component for NWL
+        component: S37WithdrawApplicationPage,  // Unified withdraw page for all application types
         auth: true,
         layout: true,
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
-        component: WithdrawalConfirmationPage,  // New modular component for NWL
+        component: S37WithdrawalConfirmationPage,  // Unified confirmation page for all application types
         auth: true,
         layout: true,
     },
@@ -575,6 +575,18 @@ export const ROUTE_CONFIG = [
     {
         path: `${TLP_BASE_URL}/:applicationId/application-statement`,
         component: TLPApplicationStatement,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${TLP_BASE_URL}/:applicationId/withdraw`,
+        component: S37WithdrawApplicationPage,  // Unified withdraw page for all application types
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${TLP_BASE_URL}/:applicationId/withdrawal-confirmation`,
+        component: S37WithdrawalConfirmationPage,  // Unified confirmation page for all application types
         auth: true,
         layout: true,
     },

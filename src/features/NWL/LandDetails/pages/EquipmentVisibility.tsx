@@ -22,9 +22,13 @@ const EquipmentVisibility: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (landDetails.equipment_visible_from_public_road !== undefined) {
-      setIsVisible(landDetails.equipment_visible_from_public_road ? 'yes' : 'no');
+    // Only set state if the value has been explicitly saved (not null/undefined)
+    if (landDetails.equipment_visible_from_public_road === true) {
+      setIsVisible('yes');
+    } else if (landDetails.equipment_visible_from_public_road === false) {
+      setIsVisible('no');
     }
+    // If null or undefined, leave as empty string (no selection)
   }, [landDetails.equipment_visible_from_public_road]);
 
   const handleRadioChange = (value: 'yes' | 'no') => {
@@ -44,12 +48,14 @@ const EquipmentVisibility: React.FC = () => {
 
     try {
       const visibleFromRoad = isVisible === 'yes';
-      updateLandDetails({
+      await updateLandDetails({
         equipment_visible_from_public_road: visibleFromRoad,
       });
 
       goToTaskList();
     } catch (error) {
+      // Error is handled by updateLandDetails
+    } finally {
       setIsSaving(false);
     }
   };

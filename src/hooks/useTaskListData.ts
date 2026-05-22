@@ -77,7 +77,7 @@ export function useTaskListData() {
                 const status = await getSensitiveAreaCheckStatus(effectiveId);
                 setSensitiveAreaStatus(status);
 
-                if (status.inProgress || justStartedCheckRef.current) {
+                if (status?.inProgress || justStartedCheckRef.current) {
                     justStartedCheckRef.current = false; // consume the flag
                     if (!pollingIntervalRef.current) {
                         pollingIntervalRef.current = setInterval(async () => {
@@ -85,8 +85,8 @@ export function useTaskListData() {
                                 const updatedStatus = await getSensitiveAreaCheckStatus(effectiveId);
                                 setSensitiveAreaStatus(updatedStatus);
 
-                                // Stop polling when complete
-                                if (!updatedStatus.inProgress && pollingIntervalRef.current) {
+                                // Stop polling when updatedStatus is null or not in progress
+                                if (!updatedStatus?.inProgress && pollingIntervalRef.current) {
                                     clearInterval(pollingIntervalRef.current);
                                     pollingIntervalRef.current = null;
                                     setShowSensitiveAreaPopup(false);
@@ -95,7 +95,7 @@ export function useTaskListData() {
                             } catch (err) {
                                 logger.error('Failed to poll sensitive area status', err);
                             }
-                        }, 3000); // Poll every 3 seconds
+                        }, 1000);
                     }
                 }
             } catch (err) {

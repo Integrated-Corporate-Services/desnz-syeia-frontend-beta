@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
@@ -10,14 +8,12 @@ import {
   FORM_LABELS,
   TITLE_OPTIONS,
 } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveLandownerDetails } from "../services/objectorDetailsService";
 
 const LandownerDetails: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [title, setTitle] = useState("");
   const [fullName, setFullName] = useState("");
@@ -25,23 +21,18 @@ const LandownerDetails: React.FC = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails) {
+      setTitle(objectorDetails.landowner_title || "");
+      setFullName(objectorDetails.landowner_full_name || "");
+      setOrganisation(objectorDetails.landowner_organisation || "");
+      setEmail(objectorDetails.landowner_email || "");
+      setPhone(objectorDetails.landowner_phone || "");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setTitle(details.landowner_title || "");
-      setFullName(details.landowner_full_name || "");
-      setOrganisation(details.landowner_organisation || "");
-      setEmail(details.landowner_email || "");
-      setPhone(details.landowner_phone || "");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -61,7 +52,27 @@ const LandownerDetails: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
-    navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
+
+    setIsSaving(true);
+    setSaveError("");
+
+    try {
+      // Save to backend
+      await saveLandownerDetails(appId, {
+        landowner_title: title,
+        landowner_full_name: fullName,
+        landowner_organisation: organisation,
+        landowner_email: email,
+        landowner_phone: phone,
+      });
+
+      navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
+    } catch (error) {
+      setSaveError("Failed to save landowner details. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -82,6 +93,14 @@ const LandownerDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.LANDOWNER_DETAILS_TITLE}</h1>
+            {saveError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             {Object.keys(errors).length > 0 && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -121,7 +140,9 @@ const LandownerDetails: React.FC = () => {
                 <label className="govuk-label" htmlFor="phone">{FORM_LABELS.PHONE}</label>
                 <input className="govuk-input govuk-input--width-20" id="phone" name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
-              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
+              <button type="submit" className="govuk-button" data-module="govuk-button" disabled={isSaving}>
+                {isSaving ? "Saving..." : LABELS.CONTINUE}
+              </button>
             </form>
           </div>
         </div>

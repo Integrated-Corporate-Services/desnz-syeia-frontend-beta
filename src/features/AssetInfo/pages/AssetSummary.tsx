@@ -1,16 +1,47 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
+import { useAuthUser } from '../../../hooks/useAuthUser';
+import { ConsultationStatus } from '../../../constants/consultationStatus';
 
 /**
- * Read-only Assets Summary Page
- * Displayed when consultations have started (section locked)
+ * Assets Summary Page
+ * Shows asset details with individual Change links per section (except line voltage)
+ * When consultations start, Change links are hidden (read-only mode)
  */
 const AssetSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
+    const navigate = useNavigate();
     const { assets, loading, fetchAssets } = useAssetStore();
+    const { user } = useAuthUser();
+    const { consultations, loading: consultationsLoading } = useConsultationDetails(applicationId, user?.user_id);
+
+    // Custom logic for Asset Summary: Hide change links when PUBLIC consultation started OR all consultations closed
+    const shouldHideChangeLinks = useMemo(() => {
+        if (!consultations || consultations.length === 0) {
+            return false;
+        }
+
+        // Find the PUBLIC consultation
+        const publicConsultation = consultations.find(
+            (consultation) => consultation.consultationType === 'PUBLIC'
+        );
+
+        // Check if public notice consultation has started
+        const publicNoticeStarted = publicConsultation && 
+            publicConsultation.status.toLowerCase() !== ConsultationStatus.NOT_STARTED.toLowerCase();
+
+        // Check if ALL consultations are closed
+        const allConsultationsClosed = consultations.every(
+            (consultation) => consultation.status.toLowerCase() === ConsultationStatus.CLOSED.toLowerCase()
+        );
+
+        // Hide change links if public notice started OR all consultations are closed
+        return publicNoticeStarted || allConsultationsClosed;
+    }, [consultations]);
 
     useEffect(() => {
         if (applicationId) {
@@ -47,7 +78,7 @@ const AssetSummary: React.FC = () => {
                             </strong>
                         </div>
 
-                        {loading ? (
+                        {loading || consultationsLoading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : assets && assets.length > 0 ? (
                             <div className="govuk-summary-card">
@@ -56,27 +87,80 @@ const AssetSummary: React.FC = () => {
                                 </div>
                                 <div className="govuk-summary-card__content">
                                     <dl className="govuk-summary-list">
+                                        {/* Standard specification reference number - WITH CHANGE LINK */}
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Standard specification reference number</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].standardSpecificationReferenceNumber || '-'}</dd>
+                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
+                                                <dd className="govuk-summary-list__actions">
+                                                    <Link
+                                                        to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        state={{ fromSummary: true }}
+                                                        className="govuk-link"
+                                                    >
+                                                        Change<span className="govuk-visually-hidden"> standard specification reference number</span>
+                                                    </Link>
+                                                </dd>
+                                            )}
                                         </div>
+                                        
+                                        {/* Type of line - WITH CHANGE LINK */}
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Type of line</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].typeOfLine ? assets[0].typeOfLine.charAt(0).toUpperCase() + assets[0].typeOfLine.slice(1) : '-'}</dd>
+                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
+                                                <dd className="govuk-summary-list__actions">
+                                                    <Link
+                                                        to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        state={{ fromSummary: true }}
+                                                        className="govuk-link"
+                                                    >
+                                                        Change<span className="govuk-visually-hidden"> type of line</span>
+                                                    </Link>
+                                                </dd>
+                                            )}
                                         </div>
+                                        
+                                        {/* TORI/NOI code - WITH CHANGE LINK */}
                                         {assets[0].typeOfLine === 'transmission' && assets[0].tori_noi && (
                                             <div className="govuk-summary-list__row">
                                                 <dt className="govuk-summary-list__key">TORI/NOI code for this project</dt>
                                                 <dd className="govuk-summary-list__value">{assets[0].tori_noi}</dd>
+                                                {(!consultationsLoading && !shouldHideChangeLinks) && (
+                                                    <dd className="govuk-summary-list__actions">
+                                                        <Link
+                                                            to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                            state={{ fromSummary: true }}
+                                                            className="govuk-link"
+                                                        >
+                                                            Change<span className="govuk-visually-hidden"> TORI/NOI code</span>
+                                                        </Link>
+                                                    </dd>
+                                                )}
                                             </div>
                                         )}
+                                        
+                                        {/* Line voltage - NO CHANGE LINK (as per requirements) */}
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Line voltage</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].lineVoltage ? (Array.isArray(assets[0].lineVoltage) ? assets[0].lineVoltage.join(', ') : assets[0].lineVoltage) : '-'}</dd>
                                         </div>
+                                        
+                                        {/* Line length - WITH CHANGE LINK */}
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Line length</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].lineLength ? `${assets[0].lineLength}m` : '-'}</dd>
+                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
+                                                <dd className="govuk-summary-list__actions">
+                                                    <Link
+                                                        to={`${S37_BASE_URL}/${applicationId}/asset-information`}
+                                                        state={{ fromSummary: true }}
+                                                        className="govuk-link"
+                                                    >
+                                                        Change<span className="govuk-visually-hidden"> line length</span>
+                                                    </Link>
+                                                </dd>
+                                            )}
                                         </div>
                                     </dl>
                                 </div>
