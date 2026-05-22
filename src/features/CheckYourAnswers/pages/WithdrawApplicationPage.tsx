@@ -181,7 +181,7 @@ const WithdrawApplicationPage: React.FC = () => {
                     <a href="#voluntary-agreement">{validationErrors.voluntaryAgreement}</a>
                   </li>
                 )}
-                {error && !validationErrors.voluntaryAgreement && <li>{error}</li>}
+                {!validationErrors.voluntaryAgreement && <li>{error}</li>}
               </ul>
             </div>
           </div>
