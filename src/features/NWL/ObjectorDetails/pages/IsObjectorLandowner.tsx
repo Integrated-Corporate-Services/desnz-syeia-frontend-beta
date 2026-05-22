@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
@@ -10,6 +8,8 @@ import {
   FORM_LABELS,
   FORM_HINTS,
 } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveObjectorLandownerStatus } from "../services/objectorDetailsService";
 
 /**
  * Is Objector Landowner Page
@@ -17,28 +17,19 @@ import {
  */
 const IsObjectorLandowner: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [isLandowner, setIsLandowner] = useState<string>("");
 
-  const [error, setError] = useState<string>("");
-
+  const [error, setError] = useState<string>("");  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
+  // Only populate radio button if value is explicitly defined (not undefined)
+  // This prevents defaulting to "no" on first visit
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails && objectorDetails.is_objector_also_landowner !== undefined && objectorDetails.is_objector_also_landowner !== null) {
+      setIsLandowner(objectorDetails.is_objector_also_landowner ? "yes" : "no");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setIsLandowner(details.is_landowner ? "yes" : "no");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     if (!isLandowner) {
@@ -57,10 +48,23 @@ const IsObjectorLandowner: React.FC = () => {
       return;
     }
 
-    if (isLandowner === "yes") {
-      navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
-    } else {
-      navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
+    setIsSaving(true);
+    setSaveError("");
+
+    try {
+      // Save to backend
+      await saveObjectorLandownerStatus(appId, isLandowner === "yes");
+
+      if (isLandowner === "yes") {
+        navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
+      } else {
+        navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
+      }
+    } catch (error) {
+      setSaveError("Failed to save landowner status. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -85,6 +89,21 @@ const IsObjectorLandowner: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             {error && (
               <div
                 className="govuk-error-summary"
@@ -169,8 +188,9 @@ const IsObjectorLandowner: React.FC = () => {
                 type="submit"
                 className="govuk-button"
                 data-module="govuk-button"
+                disabled={isSaving}
               >
-                {LABELS.CONTINUE}
+                {isSaving ? "Saving..." : LABELS.CONTINUE}
               </button>
             </form>
           </div>

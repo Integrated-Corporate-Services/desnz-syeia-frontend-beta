@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS, TITLE_OPTIONS } from "../constants/objectorDetailsConstants";
+import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { saveRepresentativeDetails } from "../services/objectorDetailsService";
 
 const RepresentativeDetails: React.FC = () => {
   const navigate = useNavigate();
-  const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
+  const { appId, objectorDetails } = useObjectorDetailsData();
 
   const [title, setTitle] = useState("");
   const [fullName, setFullName] = useState("");
@@ -17,23 +15,18 @@ const RepresentativeDetails: React.FC = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
 
   useEffect(() => {
-    if (appId) {
-      fetchAndSetApplication(appId);
+    if (objectorDetails) {
+      setTitle(objectorDetails.representative_title || "");
+      setFullName(objectorDetails.representative_full_name || "");
+      setOrganisation(objectorDetails.representative_organisation || "");
+      setEmail(objectorDetails.representative_email || "");
+      setPhone(objectorDetails.representative_phone || "");
     }
-  }, [appId, fetchAndSetApplication]);
-
-  useEffect(() => {
-    if (application?.objector_details) {
-      const details = application.objector_details;
-      setTitle(details.representative_title || "");
-      setFullName(details.representative_full_name || "");
-      setOrganisation(details.representative_organisation || "");
-      setEmail(details.representative_email || "");
-      setPhone(details.representative_phone || "");
-    }
-  }, [application]);
+  }, [objectorDetails]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -49,7 +42,27 @@ const RepresentativeDetails: React.FC = () => {
       window.scrollTo(0, 0);
       return;
     }
-    navigate(`${NWL_BASE_URL}/${appId}/representative-address`);
+
+    setIsSaving(true);
+    setSaveError("");
+
+    try {
+      // Save to backend
+      await saveRepresentativeDetails(appId, {
+        representative_title: title,
+        representative_full_name: fullName,
+        representative_organisation: organisation,
+        representative_email: email,
+        representative_phone: phone,
+      });
+
+      navigate(`${NWL_BASE_URL}/${appId}/representative-address`);
+    } catch (error) {
+      setSaveError("Failed to save representative details. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -66,6 +79,14 @@ const RepresentativeDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.REPRESENTATIVE_DETAILS_TITLE}</h1>
+            {saveError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             {Object.keys(errors).length > 0 && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -101,7 +122,9 @@ const RepresentativeDetails: React.FC = () => {
                 <label className="govuk-label" htmlFor="phone">{FORM_LABELS.PHONE}</label>
                 <input className="govuk-input govuk-input--width-20" id="phone" name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
-              <button type="submit" className="govuk-button" data-module="govuk-button">{LABELS.CONTINUE}</button>
+              <button type="submit" className="govuk-button" data-module="govuk-button" disabled={isSaving}>
+                {isSaving ? "Saving..." : LABELS.CONTINUE}
+              </button>
             </form>
           </div>
         </div>

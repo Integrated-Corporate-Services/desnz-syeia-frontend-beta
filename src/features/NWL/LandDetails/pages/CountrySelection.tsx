@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -18,10 +18,16 @@ const CountrySelection: React.FC = () => {
   const { errors, validateCountry } = useFormValidation();
   const { goToLandRegistry } = useLandNavigation(applicationId);
 
-  const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>(
-    landDetails.site_country || ''
-  );
+  const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>('');
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
+
+  // Sync state when landDetails is fetched
+  useEffect(() => {
+    if (landDetails.site_country) {
+      setSelectedCountry(landDetails.site_country);
+    }
+  }, [landDetails.site_country]);
 
   const handleCountryChange = (country: 'England' | 'Wales') => {
     setSelectedCountry(country);
@@ -36,14 +42,18 @@ const CountrySelection: React.FC = () => {
     }
 
     setIsSaving(true);
+    setSaveError("");
 
     try {
-      updateLandDetails({
+      await updateLandDetails({
         site_country: selectedCountry,
       });
 
       goToLandRegistry();
     } catch (error) {
+      setSaveError("Failed to save country selection. Please try again.");
+      window.scrollTo(0, 0);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -64,6 +74,21 @@ const CountrySelection: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {saveError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{saveError}</p>
+                </div>
+              </div>
+            )}
             <ErrorSummary errors={errors} errorFields={errorFields} />
 
             <form>

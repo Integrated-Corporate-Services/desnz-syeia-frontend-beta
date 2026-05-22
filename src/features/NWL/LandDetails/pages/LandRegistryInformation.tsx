@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -26,6 +26,11 @@ const LandRegistryInformation: React.FC = () => {
   const fileUploadRef = useRef<FileUploadHandle>(null);
 
   const [titleNumber, setTitleNumber] = useState(landDetails.land_registry_title_number || '');
+
+  // Sync form with fetched data
+  useEffect(() => {
+    setTitleNumber(landDetails.land_registry_title_number || '');
+  }, [landDetails.land_registry_title_number]);
   const [isSaving, setIsSaving] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
@@ -59,24 +64,26 @@ const LandRegistryInformation: React.FC = () => {
           await fileUploadRef.current.triggerUpload();
         
         if (newUploadedFiles.length > 0) {
-          updateLandDetails({
+          await updateLandDetails({
             land_registry_title_number: titleNumber,
             uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
             applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
           });
         } else {
-          updateLandDetails({
+          await updateLandDetails({
             land_registry_title_number: titleNumber,
           });
         }
       } else {
-        updateLandDetails({
+        await updateLandDetails({
           land_registry_title_number: titleNumber,
         });
       }
 
       goToOSGridReference();
     } catch (error) {
+      // Error is handled by updateLandDetails or file upload
+    } finally {
       setIsSaving(false);
     }
   };
