@@ -248,9 +248,19 @@ const ProjectOverview = () => {
 										<a href="#planInformationDocuments">{error}</a>
 									</li>
 								))}
-								{errors.map((err, idx) => (
-									<li key={idx} dangerouslySetInnerHTML={{ __html: err }}></li>
-								))}
+							{errors.map((err, idx) => {
+								// Parse error link: errors are in format '<a href="#id">message</a>'
+								const match = err.match(/<a href="#([^"]+)">([^<]+)<\/a>/);
+								if (match) {
+									const [, href, message] = match;
+									return (
+										<li key={idx}>
+											<a href={`#${href}`}>{message}</a>
+										</li>
+									);
+								}
+								return <li key={idx}>{err}</li>;
+							})}
 							</ul>
 						</div>
 					</div>
@@ -815,9 +825,8 @@ const ProjectOverview = () => {
 									setFileValidationErrors(errors);
 								// Set field error with the actual error message
 								if (errors.length > 0) {
-									// Use the first error message (without HTML tags if present)
-									const errorMessage = errors[0].replace(/<[^>]*>/g, '');
-									setFieldErrors(prev => ({ ...prev, uploadedFiles: errorMessage }));
+									// Use the first error message directly (validation errors are plain text from our code)
+									setFieldErrors(prev => ({ ...prev, uploadedFiles: errors[0] }));
 									} else {
 										setFieldErrors(prev => { const newErrors = { ...prev }; delete newErrors.uploadedFiles; return newErrors; });
 									}
