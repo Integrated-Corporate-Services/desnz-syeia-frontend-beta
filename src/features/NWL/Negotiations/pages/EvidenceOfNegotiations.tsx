@@ -22,8 +22,11 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { createLogger } from '../../../../utils/logger';
 
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+
+const logger = createLogger('EvidenceOfNegotiations');
 
 /**
  * Evidence of Negotiations Page
@@ -46,7 +49,7 @@ const EvidenceOfNegotiations: React.FC = () => {
   const [isFormDirty, setIsFormDirty] = useState(false); // Track if user has modified the form
 
   // Log every render to track state changes
-  console.log('[EvidenceOfNegotiations] ===== COMPONENT RENDER ===== ', {
+  logger.debug('[EvidenceOfNegotiations] ===== COMPONENT RENDER ===== ', {
     comments_value: comments,
     comments_length: comments.length,
     uploadedFiles_count: uploadedFiles.length,
@@ -58,8 +61,8 @@ const EvidenceOfNegotiations: React.FC = () => {
   });
 
   useEffect(() => {
-    console.log('[EvidenceOfNegotiations] ===== useEffect triggered by negotiationsData change ===== ');
-    console.log('[EvidenceOfNegotiations] negotiationsData value:', {
+    logger.debug('[EvidenceOfNegotiations] ===== useEffect triggered by negotiationsData change ===== ');
+    logger.debug('[EvidenceOfNegotiations] negotiationsData value:', {
       hasData: !!negotiationsData,
       isNull: negotiationsData === null,
       isUndefined: negotiationsData === undefined,
@@ -75,7 +78,7 @@ const EvidenceOfNegotiations: React.FC = () => {
       const newUploadedFiles = negotiationsData.uploaded_files || [];
       const newApplicationDocuments = negotiationsData.application_documents || [];
 
-      console.log('[EvidenceOfNegotiations] About to update state with:', {
+      logger.debug('[EvidenceOfNegotiations] About to update state with:', {
         newComments,
         commentsLength: newComments.length,
         uploadedFilesCount: newUploadedFiles.length,
@@ -100,29 +103,41 @@ const EvidenceOfNegotiations: React.FC = () => {
     } else {
       console.log('[EvidenceOfNegotiations] negotiationsData is null/undefined - not updating state');
     }
-  }, [negotiationsData]); // CRITICAL: Do NOT include isFormDirty in dependencies!
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [negotiationsData]); // CRITICAL: Do NOT include isFormDirty in dependencies - it would cause infinite loop!
+
+  // Track when user modifies the comments field
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
   // Watch for comments state changes
   useEffect(() => {
-    console.log('[EvidenceOfNegotiations] Comments state changed:', {
+    logger.debug('[EvidenceOfNegotiations] Comments state changed:', {
       comments_value: comments,
       comments_length: comments.length,
+      hasUserInteracted,
       timestamp: new Date().toISOString(),
     });
-    // Mark form as dirty when user types (but not on initial load when comments is empty)
-    if (comments.length > 0) {
+    // Mark form as dirty ONLY if user has interacted with the field
+    // This prevents initial data load from marking the form as dirty
+    if (hasUserInteracted) {
       setIsFormDirty(true);
-      console.log('[EvidenceOfNegotiations] Form marked as DIRTY (user has typed)');
+      logger.debug('[EvidenceOfNegotiations] Form marked as DIRTY (user has interacted)');
     }
-  }, [comments]);
+  }, [comments, hasUserInteracted]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('[EvidenceOfNegotiations] handleSubmit started', {
+    console.log('[EvidenceOfNegotiations] ========== HANDLE SUBMIT CALLED ==========');
+    console.log('[EvidenceOfNegotiations] Current state at submit time:', {
+      comments_state_value: comments,
+      comments_state_length: comments.length,
+      comments_state_type: typeof comments,
       pendingFilesCount: pendingFiles.length,
       existingUploadedFiles: uploadedFiles.length,
       existingDocuments: applicationDocuments.length,
+      isFormDirty,
+      hasUserInteracted,
     });
 
     // Capture newly uploaded files (if any)
@@ -144,12 +159,23 @@ const EvidenceOfNegotiations: React.FC = () => {
       });
     }
 
+    console.log('[EvidenceOfNegotiations] About to validate comments:', {
+      comments_to_validate: comments,
+      comments_length: comments.length,
+      comments_trimmed: comments.trim(),
+      comments_trimmed_length: comments.trim().length,
+    });
+
     if (!validateComments(comments, true)) {
+      console.error('[EvidenceOfNegotiations] ❌ VALIDATION FAILED');
       window.scrollTo(0, 0);
       return;
     }
 
+    logger.debug('[EvidenceOfNegotiations] ✓ Validation passed');
+
     if (!appId) {
+      logger.error('[EvidenceOfNegotiations] ✗ No appId - cannot submit');
       return;
     }
 
@@ -160,20 +186,23 @@ const EvidenceOfNegotiations: React.FC = () => {
       const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
       const allDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
 
-      console.log('[EvidenceOfNegotiations] Preparing to send to backend:', {
-        comments_VALUE: comments,
+      console.log('[EvidenceOfNegotiations] ========== PREPARING TO SAVE ==========');
+      console.log('[EvidenceOfNegotiations] Comments value details:', {
+        comments_raw_value: comments,
+        comments_type: typeof comments,
         comments_length: comments.length,
+        comments_is_empty_string: comments === '',
+        comments_is_null: comments === null,
+        comments_is_undefined: comments === undefined,
+        comments_trimmed: comments.trim(),
+        comments_trimmed_length: comments.trim().length,
+      });
+      console.log('[EvidenceOfNegotiations] Full payload to send:', {
         has_negotiations: true,
+        negotiations_comments: comments,
         no_negotiations_reason: '',
         uploaded_files_count: allUploadedFiles.length,
         application_documents_count: allDocuments.length,
-        full_payload: {
-          has_negotiations: true,
-          negotiations_comments: comments,
-          no_negotiations_reason: '',
-          uploaded_files: allUploadedFiles,
-          application_documents: allDocuments,
-        },
       });
 
       // Use PATCH to update existing record
@@ -200,9 +229,10 @@ const EvidenceOfNegotiations: React.FC = () => {
       // Wait a short moment to ensure database transaction is fully committed
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Reset dirty flag since we just saved
+      // Reset both dirty flags since we just saved
       setIsFormDirty(false);
-      console.log('[EvidenceOfNegotiations] Form dirty flag reset after successful save');
+      setHasUserInteracted(false);
+      console.log('[EvidenceOfNegotiations] Form dirty flags reset after successful save');
 
       // Refetch data to ensure state is updated
       console.log('[EvidenceOfNegotiations] Refetching negotiations data...');
@@ -263,6 +293,8 @@ const EvidenceOfNegotiations: React.FC = () => {
                     value,
                     value_length: value.length,
                   });
+                  // Mark that user has interacted with this field
+                  setHasUserInteracted(true);
                   setComments(value);
                 }}
                 characterRemainingMessage={MESSAGES.CHARACTER_REMAINING}

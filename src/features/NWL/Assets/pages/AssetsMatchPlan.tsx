@@ -33,7 +33,9 @@ const AssetsMatchPlan: React.FC = () => {
 
       // Only set the value if metadata exists (not default false)
       if (assetsData.metadata_id) {
-        setAssetsMatch(assetsData.assets_match_plan ? 'yes' : 'no');
+        if (assetsData.assets_match_plan !== null) {
+          setAssetsMatch(assetsData.assets_match_plan ? 'yes' : 'no');
+        }
         setExplanation(assetsData.assets_match_plan_explanation || '');
       }
     }

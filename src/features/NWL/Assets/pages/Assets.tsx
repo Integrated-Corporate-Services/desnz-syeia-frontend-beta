@@ -92,7 +92,6 @@ const Asset: React.FC = () => {
             component_descriptions: componentDescriptions,
           },
         ],
-        assets_match_plan: true, // Default, will be updated in final page
         assets_match_plan_explanation: undefined,
       };
 
