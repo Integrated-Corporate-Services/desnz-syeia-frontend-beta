@@ -109,19 +109,34 @@ const Asset: React.FC = () => {
       // Error logging is handled in the service layer
       
       // Type guard for axios error
+      interface ValidationDetail {
+        field: string;
+        message: string;
+      }
+      
       interface AxiosError {
         response?: {
           data?: {
-            details?: string;
+            details?: ValidationDetail[] | string;
             error?: string;
           };
         };
       }
       
       const axiosError = error as AxiosError;
-      const errorMessage = axiosError?.response?.data?.details || 
-                          axiosError?.response?.data?.error || 
-                          FORM_ERRORS.SAVE_FAILED;
+      
+      // Extract error message from response
+      let errorMessage: string;
+      const details = axiosError?.response?.data?.details;
+      
+      if (Array.isArray(details)) {
+        // Backend validation errors - extract messages
+        errorMessage = details.map(d => d.message).join('; ');
+      } else if (typeof details === 'string') {
+        errorMessage = details;
+      } else {
+        errorMessage = axiosError?.response?.data?.error || FORM_ERRORS.SAVE_FAILED;
+      }
       
       setErrors({ general: errorMessage });
       setShowErrorSummary(true);
