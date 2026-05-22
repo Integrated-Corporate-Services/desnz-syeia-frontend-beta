@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { BASE_URL } from "../../constants/routes";
 import { useLocation } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useUserManagementDashboard } from "../../../hooks";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
@@ -7,8 +7,11 @@ import { TabNavigation } from "../components/TabNavigation";
 import { OrganisationsTab } from "../components/OrganisationsTab";
 import { ActiveUsersTab } from "../components/ActiveUsersTab";
 import { PendingRequestsTab } from "../components/PendingRequestsTab";
+import "../../../styles/DashboardMobile.css";
 
 const UserManagementDashboard: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  
   const {
     activeTab,
     // showFilters,
@@ -32,6 +35,12 @@ const UserManagementDashboard: React.FC = () => {
     organisationsError,
   } = useUserManagementDashboard();
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Search functionality can be implemented here
+    console.log("Searching for:", searchQuery);
+  };
+
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
@@ -43,10 +52,33 @@ const UserManagementDashboard: React.FC = () => {
               Operators.
             </p>
 
-            {/* <FilterSection
-              showFilters={showFilters}
-              onToggleFilters={toggleFilters}
-            /> */}
+            {/* Search section */}
+            <div className="user-search-section govuk-!-margin-bottom-6">
+              <h2 className="govuk-heading-m">Search for a user</h2>
+              <form onSubmit={handleSearch}>
+                <div className="govuk-form-group">
+                  <label className="govuk-label" htmlFor="search-organisation">
+                    Organisation name
+                  </label>
+                  <input
+                    className="govuk-input govuk-!-width-full"
+                    id="search-organisation"
+                    name="search-organisation"
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    aria-describedby="search-hint"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="govuk-button"
+                  data-module="govuk-button"
+                >
+                  Search
+                </button>
+              </form>
+            </div>
 
             <TabNavigation
               activeTab={activeTab}

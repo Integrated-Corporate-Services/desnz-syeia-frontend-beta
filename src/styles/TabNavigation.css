@@ -51,13 +51,59 @@
   background-color: #ffdd00;
 }
 
-/* Allow wrapping only on mobile screens */
+/* ==========================================================================
+   MOBILE - HORIZONTALLY SCROLLABLE TABS
+   ========================================================================== */
+
 @media (max-width: 640px) {
+  /* Make tabs container scrollable horizontally */
   .govuk-tabs__list {
-    flex-wrap: wrap !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #b1b4b6 transparent;
+    padding-bottom: 2px;
+    margin-bottom: 0;
+    border-bottom: 1px solid #b1b4b6;
+    gap: 0 !important;
   }
-  
+
+  .govuk-tabs__list::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .govuk-tabs__list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .govuk-tabs__list::-webkit-scrollbar-thumb {
+    background-color: #b1b4b6;
+    border-radius: 2px;
+  }
+
   .govuk-tabs__list-item {
-    flex-shrink: 1 !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    margin-right: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .govuk-tabs__list-item--selected {
+    background: #ffffff !important;
+    border: 1px solid #b1b4b6 !important;
+    border-bottom: 1px solid #ffffff !important;
+    position: relative;
+    z-index: 2;
+    margin-bottom: -1px;
+  }
+
+  .govuk-tabs__tab {
+    padding: 10px 15px;
+    font-size: 16px;
+    white-space: nowrap;
   }
 }

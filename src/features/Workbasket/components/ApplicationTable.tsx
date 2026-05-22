@@ -4,6 +4,7 @@ import type { Application } from "../../../types/application";
 import { StatusBadge } from "../../../components/shared/StatusBadge";
 import type { TabType } from "../constants/filterOptions";
 import { createLogger } from "../../../utils/logger";
+import "../../../styles/DashboardMobile.css";
 
 const logger = createLogger('ApplicationTable');
 
@@ -106,6 +107,7 @@ export const ApplicationTable: React.FC<Props> = ({
   };
 
   return (
+    <>
     <table
       className="govuk-table"
       role="table"
@@ -229,6 +231,54 @@ export const ApplicationTable: React.FC<Props> = ({
         ))}
       </tbody>
     </table>
+
+    {/* Mobile card view - visible only on small screens */}
+    <div className="application-card-list" role="list" aria-label="Applications list">
+      {sortedApplications.map((app) => {
+        const isDraft = app.status?.toLowerCase() === 'draft';
+        const destination = (isDraft || app.permissions?.canEdit) ? "task-list" : "application-summary";
+        
+        return (
+          <div 
+            key={`card-${app.application_id}`} 
+            className="application-card"
+            role="listitem"
+          >
+            <div className="application-card__header">
+              <div className="application-card__reference">
+                <a
+                  href={getNavigationPath(app.type, app.application_id, destination)}
+                  className="govuk-link"
+                  onClick={(e) => handleApplicationClick(e, app)}
+                >
+                  {app.desnz_ref || "N/A"}
+                </a>
+              </div>
+              {activeTab !== "draft" && (
+                <div className="application-card__status">
+                  <StatusBadge status={app.status} />
+                </div>
+              )}
+            </div>
+            <div className="application-card__body">
+              <div className="application-card__row">
+                <span className="application-card__label">Your reference: </span>
+                <span className="application-card__value">{app.your_reference || "—"}</span>
+              </div>
+              <div className="application-card__row">
+                <span className="application-card__label">Case type: </span>
+                <span className="application-card__value">{getCaseTypeLabel(app.type)}</span>
+              </div>
+              <div className="application-card__row">
+                <span className="application-card__label">{dateColumnConfig.label}: </span>
+                <span className="application-card__value">{formatDate(dateColumnConfig.getDate(app))}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+    </>
   );
 };
 

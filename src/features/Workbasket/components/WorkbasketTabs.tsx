@@ -1,5 +1,6 @@
 import React from "react";
 import { TAB_OPTIONS, TabType } from "../constants/filterOptions";
+import "../../../styles/DashboardMobile.css";
 
 interface WorkbasketTabsProps {
   activeTab: TabType;
