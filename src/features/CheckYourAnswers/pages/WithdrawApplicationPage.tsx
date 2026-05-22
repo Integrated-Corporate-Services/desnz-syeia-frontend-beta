@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { NWL_BASE_URL } from "../../../constants/nwl";
+import { TLP_BASE_URL } from "../../../constants/tlp";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { CONTENT } from "../../../constants/content";
 import { applicationApiService } from "../../../services/applicationApiService";
@@ -19,8 +21,8 @@ const WithdrawApplicationPage: React.FC = () => {
   
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const [voluntaryAgreement, setVoluntaryAgreement] = useState<string | null>(null);
   const [withdrawalReason, setWithdrawalReason] = useState<string>("");
+  const [voluntaryAgreement, setVoluntaryAgreement] = useState<string>(""); // "yes" or "no" for NWL/TLP
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [applicationData, setApplicationData] = useState<{ desnzRef: string; formType: string } | null>(null);
   
@@ -75,15 +77,32 @@ const WithdrawApplicationPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Helper function to get base URL based on application type
+  const getBaseUrl = () => {
+    const type = formType.toUpperCase();
+    if (type === 'NWL') return NWL_BASE_URL;
+    if (type === 'TLP' || type === 'TL') return TLP_BASE_URL;
+    return S37_BASE_URL;
+  };
+
+  // Check if application requires voluntary agreement question (NWL and TLP)
+  const requiresVoluntaryAgreement = () => {
+    const type = formType.toUpperCase();
+    return type === 'NWL' || type === 'TLP' || type === 'TL';
+  };
+
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form
+    // Validation
     const errors: Record<string, string> = {};
-    if (voluntaryAgreement === null) {
-      errors.voluntaryAgreement = "Select yes if you have reached a voluntary agreement with the landowner or occupier";
-    }
     
+    // For NWL and TLP, voluntary agreement is required
+    if (requiresVoluntaryAgreement() && !voluntaryAgreement) {
+      errors.voluntaryAgreement = "Select yes or no";
+    }
+    // For S37, no validation required - both fields are optional
+
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       setError("There is a problem");
@@ -102,20 +121,30 @@ const WithdrawApplicationPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // Determine voluntary agreement value based on application type
+      let voluntaryAgreementValue: boolean;
+      if (requiresVoluntaryAgreement()) {
+        voluntaryAgreementValue = voluntaryAgreement === "yes";
+      } else {
+        // For S37, voluntary_agreement is not applicable
+        voluntaryAgreementValue = false;
+      }
+
       // Call the API to submit the withdrawal request
       await applicationApiService.withdrawApplication(
         applicationId,
-        voluntaryAgreement === "yes",
+        voluntaryAgreementValue,
         withdrawalReason || undefined
       );
 
-      // Navigate to confirmation page on success
-      navigate(`${S37_BASE_URL}/${applicationId}/withdrawal-confirmation`, {
+      // Navigate to confirmation page on success (dynamic based on application type)
+      const baseUrl = getBaseUrl();
+      navigate(`${baseUrl}/${applicationId}/withdrawal-confirmation`, {
         state: {
           desnzRef,
           formType,
-          voluntaryAgreement: voluntaryAgreement === "yes",
-          withdrawalReason
+          withdrawalReason,
+          voluntaryAgreement: requiresVoluntaryAgreement() ? voluntaryAgreement : undefined
         }
       });
     } catch (err: unknown) {
@@ -127,13 +156,15 @@ const WithdrawApplicationPage: React.FC = () => {
     }
   };
 
+  const baseUrl = getBaseUrl();
+
   return (
     <div className="govuk-width-container">
-      <Link to={`${S37_BASE_URL}/${applicationId}/application-summary`} className="govuk-back-link">
+      <Link to={`${baseUrl}/${applicationId}/application-summary`} className="govuk-back-link">
         Back
       </Link>
       <main className="govuk-main-wrapper" id="main-content">
-        {error && Object.keys(validationErrors).length > 0 && (
+        {error && (
           <div
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
@@ -150,24 +181,7 @@ const WithdrawApplicationPage: React.FC = () => {
                     <a href="#voluntary-agreement">{validationErrors.voluntaryAgreement}</a>
                   </li>
                 )}
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {error && Object.keys(validationErrors).length === 0 && (
-          <div
-            className="govuk-error-summary"
-            aria-labelledby="error-summary-title"
-            role="alert"
-            data-module="govuk-error-summary"
-          >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                <li>{error}</li>
+                {!validationErrors.voluntaryAgreement && <li>{error}</li>}
               </ul>
             </div>
           </div>
@@ -187,54 +201,62 @@ const WithdrawApplicationPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleWithdraw}>
-              <div className={`govuk-form-group${validationErrors.voluntaryAgreement ? " govuk-form-group--error" : ""}`}>
-                <fieldset className="govuk-fieldset" id="voluntary-agreement">
-                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h2 className="govuk-fieldset__heading">
-                      {WITHDRAWAL_LABELS.VOLUNTARY_AGREEMENT_QUESTION}
-                    </h2>
-                  </legend>
-                  {validationErrors.voluntaryAgreement && (
-                    <p id="voluntary-agreement-error" className="govuk-error-message">
-                      <span className="govuk-visually-hidden">Error:</span> {validationErrors.voluntaryAgreement}
-                    </p>
-                  )}
-                  <div className="govuk-radios" data-module="govuk-radios">
-                    <div className="govuk-radios__item">
-                      <input
-                        className="govuk-radios__input"
-                        id="voluntary-agreement-yes"
-                        name="voluntary-agreement"
-                        type="radio"
-                        value="yes"
-                        checked={voluntaryAgreement === "yes"}
-                        onChange={(e) => setVoluntaryAgreement(e.target.value)}
-                        aria-describedby={validationErrors.voluntaryAgreement ? "voluntary-agreement-error" : undefined}
-                      />
-                      <label className="govuk-label govuk-radios__label" htmlFor="voluntary-agreement-yes">
-                        Yes
-                      </label>
+              {/* NWL and TLP show voluntary agreement question */}
+              {requiresVoluntaryAgreement() && (
+                <div className={`govuk-form-group ${validationErrors.voluntaryAgreement ? 'govuk-form-group--error' : ''}`}>
+                  <fieldset className="govuk-fieldset" aria-describedby="voluntary-agreement-hint">
+                    <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                      <h2 className="govuk-fieldset__heading">
+                        {WITHDRAWAL_LABELS.VOLUNTARY_AGREEMENT_QUESTION}
+                      </h2>
+                    </legend>
+                    {validationErrors.voluntaryAgreement && (
+                      <p id="voluntary-agreement-error" className="govuk-error-message">
+                        <span className="govuk-visually-hidden">Error:</span> {validationErrors.voluntaryAgreement}
+                      </p>
+                    )}
+                    <div className="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                      <div className="govuk-radios__item">
+                        <input
+                          className="govuk-radios__input"
+                          id="voluntary-agreement-yes"
+                          name="voluntary-agreement"
+                          type="radio"
+                          value="yes"
+                          checked={voluntaryAgreement === "yes"}
+                          onChange={(e) => {
+                            setVoluntaryAgreement(e.target.value);
+                            setValidationErrors({});
+                          }}
+                        />
+                        <label className="govuk-label govuk-radios__label" htmlFor="voluntary-agreement-yes">
+                          Yes
+                        </label>
+                      </div>
+                      <div className="govuk-radios__item">
+                        <input
+                          className="govuk-radios__input"
+                          id="voluntary-agreement-no"
+                          name="voluntary-agreement"
+                          type="radio"
+                          value="no"
+                          checked={voluntaryAgreement === "no"}
+                          onChange={(e) => {
+                            setVoluntaryAgreement(e.target.value);
+                            setValidationErrors({});
+                          }}
+                        />
+                        <label className="govuk-label govuk-radios__label" htmlFor="voluntary-agreement-no">
+                          No
+                        </label>
+                      </div>
                     </div>
-                    <div className="govuk-radios__item">
-                      <input
-                        className="govuk-radios__input"
-                        id="voluntary-agreement-no"
-                        name="voluntary-agreement"
-                        type="radio"
-                        value="no"
-                        checked={voluntaryAgreement === "no"}
-                        onChange={(e) => setVoluntaryAgreement(e.target.value)}
-                        aria-describedby={validationErrors.voluntaryAgreement ? "voluntary-agreement-error" : undefined}
-                      />
-                      <label className="govuk-label govuk-radios__label" htmlFor="voluntary-agreement-no">
-                        No
-                      </label>
-                    </div>
-                  </div>
-                </fieldset>
-              </div>
+                  </fieldset>
+                </div>
+              )}
 
-              <div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-top-6" data-module="govuk-character-count" data-maxlength={maxCharacters}>
+              {/* Reason field - optional for all application types */}
+              <div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds" data-module="govuk-character-count" data-maxlength={maxCharacters}>
                 <label className="govuk-label govuk-label--m" htmlFor="withdrawal-reason">
                   {WITHDRAWAL_LABELS.REASON_LABEL}
                 </label>
