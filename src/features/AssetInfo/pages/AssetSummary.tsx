@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useAssetStore } from '../../../store/useAssetStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
@@ -14,7 +14,6 @@ import { ConsultationStatus } from '../../../constants/consultationStatus';
  */
 const AssetSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
-    const navigate = useNavigate();
     const { assets, loading, fetchAssets } = useAssetStore();
     const { user } = useAuthUser();
     const { consultations, loading: consultationsLoading } = useConsultationDetails(applicationId, user?.user_id);
@@ -91,7 +90,7 @@ const AssetSummary: React.FC = () => {
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Standard specification reference number</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].standardSpecificationReferenceNumber || '-'}</dd>
-                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
+                                            {!shouldHideChangeLinks && (
                                                 <dd className="govuk-summary-list__actions">
                                                     <Link
                                                         to={`${S37_BASE_URL}/${applicationId}/asset-information`}
@@ -108,7 +107,7 @@ const AssetSummary: React.FC = () => {
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Type of line</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].typeOfLine ? assets[0].typeOfLine.charAt(0).toUpperCase() + assets[0].typeOfLine.slice(1) : '-'}</dd>
-                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
+                                            {!shouldHideChangeLinks && (
                                                 <dd className="govuk-summary-list__actions">
                                                     <Link
                                                         to={`${S37_BASE_URL}/${applicationId}/asset-information`}
@@ -126,7 +125,7 @@ const AssetSummary: React.FC = () => {
                                             <div className="govuk-summary-list__row">
                                                 <dt className="govuk-summary-list__key">TORI/NOI code for this project</dt>
                                                 <dd className="govuk-summary-list__value">{assets[0].tori_noi}</dd>
-                                                {(!consultationsLoading && !shouldHideChangeLinks) && (
+                                                {!shouldHideChangeLinks && (
                                                     <dd className="govuk-summary-list__actions">
                                                         <Link
                                                             to={`${S37_BASE_URL}/${applicationId}/asset-information`}
@@ -150,7 +149,7 @@ const AssetSummary: React.FC = () => {
                                         <div className="govuk-summary-list__row">
                                             <dt className="govuk-summary-list__key">Line length</dt>
                                             <dd className="govuk-summary-list__value">{assets[0].lineLength ? `${assets[0].lineLength}m` : '-'}</dd>
-                                            {(!consultationsLoading && !shouldHideChangeLinks) && (
+                                            {!shouldHideChangeLinks && (
                                                 <dd className="govuk-summary-list__actions">
                                                     <Link
                                                         to={`${S37_BASE_URL}/${applicationId}/asset-information`}

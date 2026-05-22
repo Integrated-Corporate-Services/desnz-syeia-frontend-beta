@@ -154,10 +154,10 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                                 {(() => {
                                                     if (review?.asset_presence_option_id === SensitiveAreaPoleOption.POLES_WITHIN) {
                                                         return 'Yes, there are poles in the sensitive areas';
-                                                    } else if (review?.asset_presence_option_id === 2) {
-                                                        return 'No, the lines are overhead only';
+                                                    } else if (review?.asset_presence_option_id === SensitiveAreaPoleOption.ONLY_OVERHEAD) {
+                                                        return 'Only overhead lines pass through (all poles are outside)';
                                                     } else {
-                                                        return '-';
+                                                        return 'No, there are no poles or overhead lines in the sensitive areas';
                                                     }
                                                 })()}
                                             </dd>
