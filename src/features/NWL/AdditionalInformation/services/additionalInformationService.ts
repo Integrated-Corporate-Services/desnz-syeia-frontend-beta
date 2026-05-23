@@ -34,7 +34,7 @@ export const createOrUpdateAdditionalInformationData = async (
   data: {
     has_related_applications: boolean;
     related_applications_details?: string;
-    has_other_information: boolean;
+    has_other_information?: boolean;
     other_information_details?: string;
     additional_document_ids?: string[];
     uploaded_files?: UploadedFile[];

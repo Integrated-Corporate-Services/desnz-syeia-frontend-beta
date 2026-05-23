@@ -14,7 +14,7 @@ const API_BASE = '/backend/api/nwl';
 export interface CreateAssetsPayload {
   application_id: string;
   assets: AssetInput[];
-  assets_match_plan: boolean;
+  assets_match_plan?: boolean;
   assets_match_plan_explanation?: string;
   application_plan_document_ids?: string[];
   plan_verification_document_ids?: string[];
@@ -261,7 +261,6 @@ export const nwlAssetService = {
       await axios.post(`${API_BASE}/assets`, {
         application_id: applicationId,
         assets: [], // Empty array - no assets to create yet
-        assets_match_plan: false, // Default value
         uploaded_files: uploadedFiles,
         application_documents: applicationDocuments,
       });

@@ -10,6 +10,27 @@ export const ErrorSummary: React.FC<ErrorSummaryProps> = ({ errors }) => {
     return null;
   }
 
+  // Helper to safely extract error message
+  const getErrorMessage = (value: any): string => {
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (Array.isArray(value)) {
+      return value.map(v => 
+        typeof v === 'object' && v !== null && 'message' in v 
+          ? v.message 
+          : String(v)
+      ).join('; ');
+    }
+    if (typeof value === 'object' && value !== null) {
+      if ('message' in value) {
+        return String(value.message);
+      }
+      return JSON.stringify(value);
+    }
+    return String(value);
+  };
+
   return (
     <div
       className="govuk-error-summary"
@@ -22,7 +43,7 @@ export const ErrorSummary: React.FC<ErrorSummaryProps> = ({ errors }) => {
         <ul className="govuk-list govuk-error-summary__list">
           {Object.entries(errors).map(([key, value]) => (
             <li key={key}>
-              <a href={`#${key}`}>{value}</a>
+              <a href={`#${key}`}>{getErrorMessage(value)}</a>
             </li>
           ))}
         </ul>
