@@ -39,10 +39,6 @@ const AssetsReview: React.FC = () => {
 
   const handleRemove = async (assetId: string) => {
     if (!assetId || !applicationId) return;
-    
-    if (!window.confirm(MESSAGES.CONFIRM_DELETE)) {
-      return;
-    }
 
     try {
       await nwlAssetService.deleteAsset(assetId);
@@ -149,7 +145,7 @@ const AssetsReview: React.FC = () => {
             type="button"
             className="govuk-button govuk-button--secondary"
             data-module="govuk-button"
-            onClick={() => navigate(`${NWL_BASE_URL}/${applicationId}/information-about-lines`)}
+            onClick={() => navigate(`${NWL_BASE_URL}/${applicationId}/information-about-lines?add=true`)}
             disabled={loading}
           >
             {LABELS.ADD_ANOTHER}

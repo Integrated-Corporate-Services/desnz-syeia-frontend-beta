@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { 
@@ -23,7 +23,9 @@ const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
 
 const Asset: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const applicationId = useApplicationId();
+  const isAddingAnother = searchParams.get('add') === 'true';
   
   const {
     voltage,
@@ -42,7 +44,7 @@ const Asset: React.FC = () => {
   const [saving, setSaving] = React.useState(false);
   const [checkingAssets, setCheckingAssets] = React.useState(true);
 
-  // Check if assets already exist - redirect to review if they do
+  // Check if assets already exist - redirect to review if they do (unless explicitly adding another)
   React.useEffect(() => {
     const checkExistingAssets = async () => {
       if (!applicationId) return;
@@ -50,8 +52,8 @@ const Asset: React.FC = () => {
       try {
         const response = await nwlAssetService.getAssetsByApplicationId(applicationId);
         
-        // If assets exist, redirect to review page
-        if (response.assets && response.assets.length > 0) {
+        // If assets exist and user is not explicitly adding another, redirect to review page
+        if (response.assets && response.assets.length > 0 && !isAddingAnother) {
           navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`, { replace: true });
           return;
         }
@@ -64,7 +66,7 @@ const Asset: React.FC = () => {
     };
 
     checkExistingAssets();
-  }, [applicationId, navigate]);
+  }, [applicationId, navigate, isAddingAnother]);
 
   // Map frontend line type keys to backend codes
   const lineTypeCodeMap: Record<string, string> = {
