@@ -1,3 +1,5 @@
+import React from 'react';
+
 // ── PhaseBanner Constants ────────────────────────────────────────────────────
 const PHASE_TAG = 'Beta';
 const PHASE_TEXT = 'This is a new service – your';
