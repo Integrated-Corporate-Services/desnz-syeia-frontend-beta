@@ -48,6 +48,11 @@ const EvidenceOfNegotiations: React.FC = () => {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [isFormDirty, setIsFormDirty] = useState(false); // Track if user has modified the form
 
+  const handleDeleteFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+  };
+
   // Log every render to track state changes
   logger.debug('[EvidenceOfNegotiations] ===== COMPONENT RENDER ===== ', {
     comments_value: comments,
@@ -314,8 +319,7 @@ const EvidenceOfNegotiations: React.FC = () => {
                   category={FILE_CATEGORIES.NEGOTIATIONS}
                   addedBy={userId}
                   uploadedFiles={uploadedFiles}
-                  applicationDocuments={applicationDocuments}
-                  onUploaded={(newUploadedFiles, newDocuments) => {
+                  applicationDocuments={applicationDocuments}                  onDeleteFile={handleDeleteFile}                  onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
