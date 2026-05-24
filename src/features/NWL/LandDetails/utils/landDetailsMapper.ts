@@ -4,6 +4,7 @@
  */
 
 import { LandDetails } from '../types';
+import { LAND_DETAILS_SUBCATEGORIES } from '../constants';
 
 export interface BackendLandDetailsResponse {
   land_details_id: string;
@@ -31,6 +32,7 @@ export interface BackendLandDetailsResponse {
   is_equipment_visible_from_public_road: boolean;
   land_registry_documents?: any[];
   site_information_documents?: any[];
+  unregistered_land_documents?: any[];
   created_at: string;
   updated_at: string;
 }
@@ -47,6 +49,123 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
     if (normalized === 'wales') return 'Wales';
     return '';
   };
+
+  // Build a combined list of document rows from all known backend arrays
+  const allDocRows: any[] = [
+    ...(backendData.land_registry_documents || []),
+    // Some backend responses use the "_application_documents" suffix (PATCH/echo shape)
+    ...(backendData.land_registry_application_documents || []),
+    ...(backendData.site_information_documents || []),
+    ...(backendData.site_information_application_documents || []),
+    ...(backendData.unregistered_land_documents || []),
+    ...(backendData.unregistered_land_application_documents || []),
+  ];
+
+  // Also accept a top-level uploaded_files array if backend returns it
+  // Accept multiple shapes from backend: top-level `uploaded_files`, camel `uploadedFiles`,
+  // or category-scoped uploaded files returned/echoed as `site_information_uploaded_files` etc.
+  const topLevelUploadedFiles: any[] =
+    (backendData as any).uploaded_files ||
+    (backendData as any).uploadedFiles ||
+    (backendData as any).site_information_uploaded_files ||
+    (backendData as any).land_registry_uploaded_files ||
+    (backendData as any).site_information_uploadedFiles ||
+    (backendData as any).land_registry_uploadedFiles ||
+    [];
+
+  // Build uploadedFiles list (unique by id)
+  const fileMap: Record<string, any> = {};
+  // First map document rows
+  allDocRows.forEach((d: any) => {
+    const fileId = d.file_id || d.fileId || d.document_id || d.documentId;
+    if (!fileId) return;
+    if (!fileMap[fileId]) {
+      const s3Key = d.s3_key || d.s3Key || '';
+      const sizeRaw = d.file_size_bytes || d.fileSize || 0;
+      fileMap[fileId] = {
+        id: fileId,
+        storageProvider: d.storage_provider || d.storageProvider || 'aws_s3',
+        s3Key,
+        bucketName: d.bucket_name || d.bucketName || '',
+        virtualFolder: s3Key.split('/').slice(0, -1).join('/'),
+        filename: d.filename || d.title || '',
+        fileContentType: d.file_content_type || d.fileContentType || 'application/octet-stream',
+        fileSizeBytes: typeof sizeRaw === 'string' ? Number(sizeRaw) : sizeRaw,
+        uploadedAtTimestamp: d.added_at || d.uploaded_at || d.uploadedAt || new Date().toISOString(),
+      };
+    }
+  });
+
+  // Merge any top-level uploaded files (they may come from uploaded_files table)
+  topLevelUploadedFiles.forEach((f: any) => {
+    const fid = f.file_id || f.fileId || f.id || f.document_id || f.documentId;
+    if (!fid) return;
+    if (!fileMap[fid]) {
+      const s3Key = f.s3_key || f.s3Key || f.s3key || f.key || '';
+      const sizeRaw = f.file_size_bytes || f.fileSize || f.size || 0;
+      fileMap[fid] = {
+        id: fid,
+        storageProvider: f.storage_provider || f.storageProvider || 'aws_s3',
+        s3Key,
+        bucketName: f.bucket_name || f.bucketName || f.bucket || '',
+        virtualFolder: s3Key.split('/').slice(0, -1).join('/'),
+        filename: f.filename || f.name || '',
+        fileContentType: f.file_content_type || f.fileContentType || f.contentType || 'application/octet-stream',
+        fileSizeBytes: typeof sizeRaw === 'string' ? Number(sizeRaw) : sizeRaw,
+        uploadedAtTimestamp: f.added_at || f.uploaded_at || f.uploadedAt || new Date().toISOString(),
+      };
+    }
+  });
+
+  // Build applicationDocuments from document rows
+  const initialApplicationDocuments = allDocRows.map((d: any) => {
+    const rawSub = d.subcategory || d.subCategory || d.sub_category || '';
+    const normalizedSub = (rawSub || '').toString().toUpperCase();
+    let computedSub = normalizedSub;
+    if (!backendData.is_land_registered && normalizedSub === 'LAND_REGISTRY') {
+      computedSub = 'UNREGISTERED_LAND';
+    }
+    return {
+      documentId: d.document_id || d.documentId,
+      applicationId: d.application_id || d.applicationId,
+      fileId: d.file_id || d.fileId || d.document_id || d.documentId,
+      category: d.category || d.category_name || '',
+      subCategory: computedSub,
+      title: d.filename || d.title || '',
+      virtualFolder: (d.s3_key || d.s3Key || '').split('/').slice(0, -1).join('/'),
+      addedBy: d.added_by || d.addedBy || '',
+      addedAt: d.added_at || d.uploaded_at || d.addedAt || '',
+      description: d.description || '',
+      consultationId: d.consultation_id || d.consultationId,
+    };
+  });
+
+  // If there are top-level uploaded files that don't have corresponding document rows,
+  // generate lightweight applicationDocuments so the UI can associate them with a page.
+  const referencedFileIds = new Set(initialApplicationDocuments.map((ad) => ad.fileId));
+  const generatedDocs: any[] = [];
+  Object.values(fileMap).forEach((file: any) => {
+    if (!referencedFileIds.has(file.id)) {
+      // Default subcategory: UNREGISTERED_LAND when not registered, otherwise SITE_INFORMATION
+      const defaultSub = !backendData.is_land_registered ? 'UNREGISTERED_LAND' : 'SITE_INFORMATION';
+      generatedDocs.push({
+        documentId: undefined,
+        applicationId: backendData.application_id,
+        fileId: file.id,
+        category: 'APPLICATION_LAND_DETAILS',
+        subCategory: defaultSub,
+        title: file.filename || '',
+        virtualFolder: file.virtualFolder || '',
+        addedBy: undefined,
+        addedAt: file.uploadedAtTimestamp || '',
+        description: undefined,
+      });
+    }
+  });
+
+  const applicationDocumentsArr = [...initialApplicationDocuments, ...generatedDocs];
+
+  const uploadedFilesArr = Object.values(fileMap);
 
   return {
     // Site address fields
@@ -71,47 +190,9 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
     identifying_information: backendData.land_description || '',
     equipment_visible_from_public_road: backendData.is_equipment_visible_from_public_road,
     
-    // Documents - build uploadedFiles from backend document rows and normalize applicationDocuments
-    uploadedFiles: (() => {
-      const docs = [...(backendData.land_registry_documents || []), ...(backendData.site_information_documents || [])];
-      const fileMap: Record<string, any> = {};
-      docs.forEach((d: any) => {
-        const fileId = d.file_id || d.fileId;
-        if (!fileId) return;
-        if (!fileMap[fileId]) {
-          const s3Key = d.s3_key || d.s3Key || '';
-          const sizeRaw = d.file_size_bytes || d.fileSize || 0;
-          fileMap[fileId] = {
-            id: fileId,
-            storageProvider: d.storage_provider || d.storageProvider || 'aws_s3',
-            s3Key,
-            bucketName: d.bucket_name || d.bucketName || '',
-            virtualFolder: s3Key.split('/').slice(0, -1).join('/'),
-            filename: d.filename || d.title || '',
-            fileContentType: d.file_content_type || d.fileContentType || 'application/octet-stream',
-            fileSizeBytes: typeof sizeRaw === 'string' ? Number(sizeRaw) : sizeRaw,
-            uploadedAtTimestamp: d.added_at || d.uploaded_at || d.uploadedAt || new Date().toISOString(),
-          };
-        }
-      });
-      return Object.values(fileMap);
-    })(),
-    applicationDocuments: (() => {
-      const docs = [...(backendData.land_registry_documents || []), ...(backendData.site_information_documents || [])];
-      return docs.map((d: any) => ({
-        documentId: d.document_id || d.documentId,
-        applicationId: d.application_id || d.applicationId,
-        fileId: d.file_id || d.fileId,
-        category: d.category || d.category_name || '',
-        subCategory: d.subcategory || d.subCategory || d.sub_category || '',
-        title: d.filename || d.title || '',
-        virtualFolder: (d.s3_key || d.s3Key || '').split('/').slice(0, -1).join('/'),
-        addedBy: d.added_by || d.addedBy || '',
-        addedAt: d.added_at || d.uploaded_at || d.addedAt || '',
-        description: d.description || '',
-        consultationId: d.consultation_id || d.consultationId,
-      }));
-    })(),
+    // Documents - include land_registry, site_information and any unregistered_land docs
+    uploadedFiles: uploadedFilesArr,
+    applicationDocuments: applicationDocumentsArr,
   };
 };
 
@@ -237,8 +318,12 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
     const uploadedFiles = (frontendData as any).uploadedFiles as any[] | undefined;
     const applicationDocuments = (frontendData as any).applicationDocuments as any[] | undefined;
     if (Array.isArray(applicationDocuments) && applicationDocuments.length > 0) {
-      const landRegistryDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toUpperCase() === 'LAND_REGISTRY');
-      const siteInfoDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toUpperCase() === 'SITE_INFORMATION');
+      const landRegistryDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toString().toUpperCase() === LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY);
+      // Treat UNREGISTERED_LAND documents as SITE_INFORMATION for backend mapping
+      const siteInfoDocs = applicationDocuments.filter(d => {
+        const sub = (d.subCategory || d.sub_category || '').toString().toUpperCase();
+        return sub === LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION || sub === LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND;
+      });
 
       if (landRegistryDocs.length > 0) {
         backendData.land_registry_application_documents = landRegistryDocs;

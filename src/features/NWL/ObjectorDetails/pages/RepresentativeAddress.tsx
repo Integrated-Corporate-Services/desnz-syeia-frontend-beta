@@ -59,8 +59,10 @@ const RepresentativeAddress: React.FC = () => {
         representative_postcode: postcode,
       });
 
+
+
       try {
-        await updateProgress('Representative address', 'Completed');
+        await updateProgress('Objector details', 'Completed');
       } catch (e) {
         // ignore progress errors
       }

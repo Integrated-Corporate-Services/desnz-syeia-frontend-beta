@@ -54,7 +54,12 @@ const EquipmentVisibility: React.FC = () => {
         equipment_visible_from_public_road: visibleFromRoad,
       });
 
-      await updateProgress('Identifying information', 'Completed');
+
+      try {
+        await updateProgress('Land registry', 'Completed');
+      } catch (err) {
+        // Non-blocking: progress update failure shouldn't prevent navigation
+      }
 
       goToTaskList();
     } catch (error) {

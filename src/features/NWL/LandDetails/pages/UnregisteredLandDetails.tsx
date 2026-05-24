@@ -13,6 +13,7 @@ import {
 import { LAND_DETAILS_LABELS } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { LAND_DETAILS_SUBCATEGORIES } from '../constants';
 import { useAuthUser } from '../../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
@@ -45,9 +46,22 @@ const UnregisteredLandDetails: React.FC = () => {
   };
 
   const handleDeleteFile = (fileId: string) => {
+    // Only remove files/documents belonging to UNREGISTERED_LAND subCategory
+    const targetSub = LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND;
+    const remainingDocuments = (landDetails.applicationDocuments || []).filter(doc => {
+      const sub = (doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase();
+      if (doc.fileId === fileId && sub === targetSub) return false;
+      return true;
+    });
+    const remainingFiles = (landDetails.uploadedFiles || []).filter(file => {
+      const hasDocInThisSub = (landDetails.applicationDocuments || []).some(doc => (doc.fileId === file.id) && ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase() === targetSub));
+      if (file.id === fileId && hasDocInThisSub) return false;
+      return true;
+    });
+
     updateLandDetails({
-      uploadedFiles: landDetails.uploadedFiles?.filter(file => file.id !== fileId),
-      applicationDocuments: landDetails.applicationDocuments?.filter(doc => doc.fileId !== fileId)
+      uploadedFiles: remainingFiles,
+      applicationDocuments: remainingDocuments,
     });
   };
 
@@ -142,18 +156,29 @@ const UnregisteredLandDetails: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
+                {landDetails.uploadedFiles && landDetails.uploadedFiles.length > 0 && (
+                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
+                )}
                 
-                <FileUpload
+                  {/* Files/documents only for this page's subCategory */}
+                  {(() => {
+                    const pageSubCategory = LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND;
+                    const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase()) === pageSubCategory);
+                    const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
+
+                    return (
+                      <FileUpload
                   ref={fileUploadRef}
                   title={labels.UPLOAD_SECTION_TITLE}
                   showTitle={false}
                   prefix={`${applicationId}/${FILE_CATEGORIES.APPLICATION_LAND_DETAILS}`}
                   applicationId={applicationId}
                   category={FILE_CATEGORIES.APPLICATION_LAND_DETAILS}
-                  subCategory="UNREGISTERED_LAND"
-                  addedBy={userId}
-                  uploadedFiles={landDetails.uploadedFiles || []}
-                  applicationDocuments={landDetails.applicationDocuments || []}
+                    subCategory="UNREGISTERED_LAND"
+                    addedBy={userId}
+                    uploadedFiles={pageUploadedFiles}
+                    applicationDocuments={pageApplicationDocuments}
+                    uploadImmediately={true}
                   showDocumentsHeading={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
@@ -164,7 +189,9 @@ const UnregisteredLandDetails: React.FC = () => {
                       applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
                     });
                   }}
-                />
+                      />
+                    );
+                  })()}
               </div>
 
               <FormActions

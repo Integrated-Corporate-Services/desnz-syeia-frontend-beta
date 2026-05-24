@@ -13,6 +13,7 @@ import {
 import { LAND_DETAILS_LABELS } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { LAND_DETAILS_SUBCATEGORIES } from '../constants';
 import { useAuthUser } from '../../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
@@ -42,7 +43,7 @@ const LandRegistryInformation: React.FC = () => {
 
   const handleDeleteFile = (fileId: string) => {
     // Only remove files/documents belonging to LAND_REGISTRY subCategory
-    const targetSub = 'LAND_REGISTRY';
+    const targetSub = LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY;
     const remainingDocuments = (landDetails.applicationDocuments || []).filter(doc => {
       const sub = (doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase();
       if (doc.fileId === fileId && sub === targetSub) return false;
@@ -62,7 +63,7 @@ const LandRegistryInformation: React.FC = () => {
   };
 
   // Files/documents only for this page's subCategory
-  const pageSubCategory = 'LAND_REGISTRY';
+  const pageSubCategory = LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY;
   const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase()) === pageSubCategory);
   const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 

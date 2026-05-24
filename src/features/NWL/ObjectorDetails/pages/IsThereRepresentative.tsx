@@ -4,10 +4,12 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { saveRepresentativeStatus } from "../services/objectorDetailsService";
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 
 const IsThereRepresentative: React.FC = () => {
   const navigate = useNavigate();
   const { appId, objectorDetails } = useObjectorDetailsData();
+  const { updateProgress } = useNWLProgress(appId);
 
   const [hasRepresentative, setHasRepresentative] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -48,6 +50,12 @@ const IsThereRepresentative: React.FC = () => {
       if (hasRepresentative === "yes") {
         navigate(`${NWL_BASE_URL}/${appId}/representative-details`);
       } else {
+
+        try {
+          await updateProgress('Objector details', 'Completed');
+        } catch (e) {
+          // ignore progress errors
+        }
         navigate(`${NWL_BASE_URL}/${appId}/task-list`);
       }
     } catch (error) {
