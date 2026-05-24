@@ -33,6 +33,10 @@ export interface BackendLandDetailsResponse {
   land_registry_documents?: any[];
   site_information_documents?: any[];
   unregistered_land_documents?: any[];
+  // Accept echo/patch shapes that use the *_application_documents naming
+  land_registry_application_documents?: any[];
+  site_information_application_documents?: any[];
+  unregistered_land_application_documents?: any[];
   created_at: string;
   updated_at: string;
 }
@@ -146,10 +150,16 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
   const generatedDocs: any[] = [];
   Object.values(fileMap).forEach((file: any) => {
     if (!referencedFileIds.has(file.id)) {
-      // Default subcategory: UNREGISTERED_LAND when not registered, otherwise SITE_INFORMATION
-      const defaultSub = !backendData.is_land_registered ? 'UNREGISTERED_LAND' : 'SITE_INFORMATION';
+      // Prefer SITE_INFORMATION if backend already returns site information docs/files
+      const hasSiteInfo = 
+        (backendData.site_information_documents && backendData.site_information_documents.length > 0) ||
+        ((backendData as any).site_information_application_documents && (backendData as any).site_information_application_documents.length > 0) ||
+        ((backendData as any).site_information_uploaded_files && (backendData as any).site_information_uploaded_files.length > 0);
+      // Default subcategory: if site info already present, use SITE_INFORMATION; otherwise
+      // use UNREGISTERED_LAND when not registered, else SITE_INFORMATION.
+      const defaultSub = hasSiteInfo ? 'SITE_INFORMATION' : (!backendData.is_land_registered ? 'UNREGISTERED_LAND' : 'SITE_INFORMATION');
       generatedDocs.push({
-        documentId: undefined,
+        documentId: crypto?.randomUUID ? crypto.randomUUID() : `gen-${file.id}`,
         applicationId: backendData.application_id,
         fileId: file.id,
         category: 'APPLICATION_LAND_DETAILS',

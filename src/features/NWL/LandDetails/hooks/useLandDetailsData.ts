@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { LandDetails } from '../types';
 import { landDetailsService } from '../services/landDetailsService';
 import logger from '../../../../logger';
+import { useAuthUser } from '../../../../hooks/useAuthUser';
 
 export const useLandDetailsData = (applicationId: string) => {
+  const { user } = useAuthUser();
   const [landDetails, setLandDetails] = useState<LandDetails>({
     site_address_line1: '',
     site_address_line2: '',
@@ -76,6 +78,15 @@ export const useLandDetailsData = (applicationId: string) => {
 
     // Save to backend
     try {
+      // Ensure applicationDocuments include a non-null addedBy (backend requires added_by)
+      if ((reducedUpdates as any).applicationDocuments && Array.isArray((reducedUpdates as any).applicationDocuments)) {
+        const uid = user?.user_id || undefined;
+        (reducedUpdates as any).applicationDocuments = (reducedUpdates as any).applicationDocuments.map((doc: any) => ({
+          ...doc,
+          addedBy: doc.addedBy || doc.added_by || uid,
+        }));
+      }
+
       const result = await landDetailsService.updateLandDetails(applicationId, reducedUpdates);
       if (result) {
         // Update with server response to ensure consistency
