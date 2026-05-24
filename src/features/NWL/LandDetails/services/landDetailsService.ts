@@ -17,6 +17,7 @@ export const landDetailsService = {
       }
 
       const backendData = await response.json();
+      logger.debug('Raw land-details response', backendData);
       // Transform backend response to frontend structure
       return mapBackendToFrontend(backendData);
     } catch (error) {

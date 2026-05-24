@@ -9,12 +9,14 @@ import {
   useLandDetailsData,
   useLandNavigation,
 } from '../hooks';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import { LAND_DETAILS_LABELS } from '../constants';
 
 const OSGridReference: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { goToIdentifyingInformation } = useLandNavigation(applicationId);
+  const { updateProgress } = useNWLProgress(applicationId);
 
   const [gridLetter, setGridLetter] = useState(landDetails.os_grid_reference_letter || '');
   const [easting, setEasting] = useState(landDetails.os_grid_reference_easting || '');
@@ -69,6 +71,12 @@ const OSGridReference: React.FC = () => {
           os_grid_reference_northing: northing,
         });
       }
+
+        try {
+          await updateProgress('OS Grid reference', 'Completed');
+        } catch (e) {
+          // ignore progress errors
+        }
 
       goToIdentifyingInformation();
     } catch (error) {

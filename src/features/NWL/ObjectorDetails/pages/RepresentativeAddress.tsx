@@ -3,11 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import { saveRepresentativeAddress } from "../services/objectorDetailsService";
 
 const RepresentativeAddress: React.FC = () => {
   const navigate = useNavigate();
   const { appId, objectorDetails } = useObjectorDetailsData();
+  const { updateProgress } = useNWLProgress(appId);
 
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -56,6 +58,12 @@ const RepresentativeAddress: React.FC = () => {
         representative_county: county,
         representative_postcode: postcode,
       });
+
+      try {
+        await updateProgress('Representative address', 'Completed');
+      } catch (e) {
+        // ignore progress errors
+      }
 
       navigate(`${NWL_BASE_URL}/${appId}/task-list`);
     } catch (error) {

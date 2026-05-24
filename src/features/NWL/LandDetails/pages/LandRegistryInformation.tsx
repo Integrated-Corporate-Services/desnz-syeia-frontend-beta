@@ -41,11 +41,30 @@ const LandRegistryInformation: React.FC = () => {
   };
 
   const handleDeleteFile = (fileId: string) => {
+    // Only remove files/documents belonging to LAND_REGISTRY subCategory
+    const targetSub = 'LAND_REGISTRY';
+    const remainingDocuments = (landDetails.applicationDocuments || []).filter(doc => {
+      const sub = (doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase();
+      if (doc.fileId === fileId && sub === targetSub) return false;
+      return true;
+    });
+    const remainingFiles = (landDetails.uploadedFiles || []).filter(file => {
+      // Keep file if it is not the one being deleted for this subcategory
+      const hasDocInThisSub = (landDetails.applicationDocuments || []).some(doc => (doc.fileId === file.id) && ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase() === targetSub));
+      if (file.id === fileId && hasDocInThisSub) return false;
+      return true;
+    });
+
     updateLandDetails({
-      uploadedFiles: landDetails.uploadedFiles?.filter(file => file.id !== fileId),
-      applicationDocuments: landDetails.applicationDocuments?.filter(doc => doc.fileId !== fileId)
+      uploadedFiles: remainingFiles,
+      applicationDocuments: remainingDocuments,
     });
   };
+
+  // Files/documents only for this page's subCategory
+  const pageSubCategory = 'LAND_REGISTRY';
+  const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase()) === pageSubCategory);
+  const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 
   const handleSaveAndContinue = async () => {
     const isValid = validateTitleNumber(titleNumber);
@@ -138,6 +157,9 @@ const LandRegistryInformation: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
+                {landDetails.uploadedFiles && landDetails.uploadedFiles.length > 0 && (
+                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
+                )}
                 
                 <FileUpload
                   ref={fileUploadRef}
@@ -148,9 +170,10 @@ const LandRegistryInformation: React.FC = () => {
                   category={FILE_CATEGORIES.APPLICATION_LAND_DETAILS}
                   subCategory="LAND_REGISTRY"
                   addedBy={userId}
-                  uploadedFiles={landDetails.uploadedFiles || []}
-                  applicationDocuments={landDetails.applicationDocuments || []}
+                  uploadedFiles={pageUploadedFiles}
+                  applicationDocuments={pageApplicationDocuments}
                   showDocumentsHeading={true}
+                  uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}

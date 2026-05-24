@@ -71,12 +71,47 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
     identifying_information: backendData.land_description || '',
     equipment_visible_from_public_road: backendData.is_equipment_visible_from_public_road,
     
-    // Documents
-    uploadedFiles: [],
-    applicationDocuments: [
-      ...(backendData.land_registry_documents || []),
-      ...(backendData.site_information_documents || [])
-    ],
+    // Documents - build uploadedFiles from backend document rows and normalize applicationDocuments
+    uploadedFiles: (() => {
+      const docs = [...(backendData.land_registry_documents || []), ...(backendData.site_information_documents || [])];
+      const fileMap: Record<string, any> = {};
+      docs.forEach((d: any) => {
+        const fileId = d.file_id || d.fileId;
+        if (!fileId) return;
+        if (!fileMap[fileId]) {
+          const s3Key = d.s3_key || d.s3Key || '';
+          const sizeRaw = d.file_size_bytes || d.fileSize || 0;
+          fileMap[fileId] = {
+            id: fileId,
+            storageProvider: d.storage_provider || d.storageProvider || 'aws_s3',
+            s3Key,
+            bucketName: d.bucket_name || d.bucketName || '',
+            virtualFolder: s3Key.split('/').slice(0, -1).join('/'),
+            filename: d.filename || d.title || '',
+            fileContentType: d.file_content_type || d.fileContentType || 'application/octet-stream',
+            fileSizeBytes: typeof sizeRaw === 'string' ? Number(sizeRaw) : sizeRaw,
+            uploadedAtTimestamp: d.added_at || d.uploaded_at || d.uploadedAt || new Date().toISOString(),
+          };
+        }
+      });
+      return Object.values(fileMap);
+    })(),
+    applicationDocuments: (() => {
+      const docs = [...(backendData.land_registry_documents || []), ...(backendData.site_information_documents || [])];
+      return docs.map((d: any) => ({
+        documentId: d.document_id || d.documentId,
+        applicationId: d.application_id || d.applicationId,
+        fileId: d.file_id || d.fileId,
+        category: d.category || d.category_name || '',
+        subCategory: d.subcategory || d.subCategory || d.sub_category || '',
+        title: d.filename || d.title || '',
+        virtualFolder: (d.s3_key || d.s3Key || '').split('/').slice(0, -1).join('/'),
+        addedBy: d.added_by || d.addedBy || '',
+        addedAt: d.added_at || d.uploaded_at || d.addedAt || '',
+        description: d.description || '',
+        consultationId: d.consultation_id || d.consultationId,
+      }));
+    })(),
   };
 };
 
@@ -197,6 +232,30 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
     }
     if (frontendData.equipment_visible_from_public_road !== undefined) {
       backendData.is_equipment_visible_from_public_road = frontendData.equipment_visible_from_public_road;
+    }
+    // Map uploadedFiles and applicationDocuments into category-specific backend fields
+    const uploadedFiles = (frontendData as any).uploadedFiles as any[] | undefined;
+    const applicationDocuments = (frontendData as any).applicationDocuments as any[] | undefined;
+    if (Array.isArray(applicationDocuments) && applicationDocuments.length > 0) {
+      const landRegistryDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toUpperCase() === 'LAND_REGISTRY');
+      const siteInfoDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toUpperCase() === 'SITE_INFORMATION');
+
+      if (landRegistryDocs.length > 0) {
+        backendData.land_registry_application_documents = landRegistryDocs;
+        if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
+          backendData.land_registry_uploaded_files = uploadedFiles.filter(f => landRegistryDocs.some(d => (d.fileId || d.file_id) === f.id));
+        }
+      }
+
+      if (siteInfoDocs.length > 0) {
+        backendData.site_information_application_documents = siteInfoDocs;
+        if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
+          backendData.site_information_uploaded_files = uploadedFiles.filter(f => siteInfoDocs.some(d => (d.fileId || d.file_id) === f.id));
+        }
+      }
+    } else if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
+      // Fallback: if only uploadedFiles provided (no documents), assume they belong to land registry
+      backendData.land_registry_uploaded_files = uploadedFiles;
     }
   }
 
