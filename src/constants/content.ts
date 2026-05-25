@@ -28,8 +28,8 @@ export const CONTENT = {
     relatedApplicationsHint: "Related applications would include those related to a CPO or another S37 application that shares the same consultation or environmental report.",
     relatedApplicationsDetails: "Provide details of all related applications",
     relatedApplicationsDetailsHint: "Include application details such as DESNZ reference numbers, your internal references or site addresses. Ensure you list all related applications and explain why they are related.",
-    relatedCpo: "Have you submitted a CPO which is related to this project of work?",
-    relatedCpoDetails: "Provide the details of the related CPO",
+    relatedCpo: "Is there a compulsory purchase order (CPO) that is related to this application?",
+    relatedCpoDetails: "Enter the name and status of the related CPO.",
     saveAndContinue: "Save and continue",
   },
   header : {
