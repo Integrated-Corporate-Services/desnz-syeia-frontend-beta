@@ -818,6 +818,7 @@ const ProjectOverview = () => {
 								addedBy={userId}
 								uploadedFiles={formState.uploadedFiles}
 								showDocumentsHeading={true}
+								uploadImmediately={true} 
 								onDeleteFile={handleDeleteFile}
 								onPendingFilesChange={setPendingFiles}
 								onValidationErrors={(errors) => {
