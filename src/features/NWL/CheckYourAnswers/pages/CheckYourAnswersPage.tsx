@@ -26,6 +26,7 @@ import {
     LandLocationSummaryCard,
     AssetSummaryCard,
     NWLAdditionalInformationSummaryCard,
+    NegotiationsSummaryCard,
 } from '../components';
 
 export const CheckYourAnswersPage: React.FC = () => {
@@ -45,6 +46,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [representativeDetails, setRepresentativeDetails] = useState<any>(null);
     const [landDetails, setLandDetails] = useState<any>(null);
     const [assets, setAssets] = useState<any[]>([]);
+    const [negotiations, setNegotiations] = useState<any>(null);
     const [additionalInformation, setAdditionalInformation] = useState<any>(null);
     const [permissions, setPermissions] = useState({ canEdit: true });
 
@@ -68,6 +70,8 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setRepresentativeDetails(data.representativeDetails);
                 setLandDetails(data.landDetails);
                 setAssets(data.assets);
+
+                setNegotiations(data.negotiations);
                 setAdditionalInformation(data.additionalInformation);
                 setPermissions(data.permissions);
 
@@ -135,11 +139,24 @@ export const CheckYourAnswersPage: React.FC = () => {
 
                         <LandLocationSummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
+
                         {/* Assets */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ASSETS}</h2>
-                        {assets.map((asset, index) => (
-                            <AssetSummaryCard key={asset.asset_id || index} data={asset} index={index} applicationId={applicationId!} canEdit={permissions.canEdit} />
-                        ))}
+                        {(assets && assets.length > 0) ? (
+                            assets.map((asset, index) => (
+                                <AssetSummaryCard key={asset.asset_id || index} data={asset} index={index} applicationId={applicationId!} canEdit={permissions.canEdit} />
+                            ))
+                        ) : (
+                            <p className="govuk-body">No assets provided yet</p>
+                        )}
+
+                        {/* Negotiations */}
+                        {negotiations && (
+                            <>
+                                <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.NEGOTIATIONS || 'Negotiations'}</h2>
+                                <NegotiationsSummaryCard data={negotiations} applicationId={applicationId!} canEdit={permissions.canEdit} />
+                            </>
+                        )}
 
                         {/* Additional information */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ADDITIONAL_INFORMATION}</h2>
