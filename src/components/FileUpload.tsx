@@ -442,7 +442,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   // Handle file deletion from S3
   const handleDeleteFile = async (fileId: string, s3Key: string) => {
     try {
-      console.log('Attempting to delete file', { fileId, s3Key });  
       await deleteFileCompletely(fileId, s3Key);
       if (onDeleteFile) {
         onDeleteFile(fileId);
