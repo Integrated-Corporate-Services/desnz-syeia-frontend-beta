@@ -44,6 +44,11 @@ const ImportantInformationDetails: React.FC = () => {
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
+  const handleDeleteFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+  };
+
   useEffect(() => {
     if (additionalInformationData) {
       setDetails(additionalInformationData.other_information_details || '');
@@ -208,6 +213,7 @@ const ImportantInformationDetails: React.FC = () => {
                   addedBy={userId}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
+                  onDeleteFile={handleDeleteFile}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);

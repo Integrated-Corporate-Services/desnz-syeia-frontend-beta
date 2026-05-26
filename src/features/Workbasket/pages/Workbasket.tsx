@@ -22,6 +22,7 @@ import {
 import Header from "../../../layouts/component/Header";
 import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
 import Footer from "../../../layouts/component/Footer";
+import PhaseBanner from "../../../layouts/component/PhaseBanner";
 import "../../../styles/Workbasket.css";
 
 const Workbasket: React.FC = () => {
@@ -90,6 +91,7 @@ const Workbasket: React.FC = () => {
     <>
       <Header />
       <ServiceNavigation />
+      <PhaseBanner />
 
       <div className="app-wide-container">
         <div className="app-your-applications-section">

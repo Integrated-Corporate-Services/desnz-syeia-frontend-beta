@@ -18,6 +18,9 @@ import {
 } from '../components';
 import { updateNegotiationsData } from '../services';
 import { NegotiationsData } from '../types/negotiations';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('TellUsAboutExistingNegotiations');
 
 /**
  * Tell Us About Existing Negotiations Page
@@ -40,7 +43,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    console.log('[TellUsAboutExistingNegotiations] negotiationsData changed:', {
+    logger.debug('[TellUsAboutExistingNegotiations] negotiationsData changed:', {
       hasData: !!negotiationsData,
       has_negotiations: negotiationsData?.has_negotiations,
       date_day: negotiationsData?.negotiations_start_date_day,
@@ -62,7 +65,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         year: negotiationsData.negotiations_start_date_year || '',
       });
       
-      console.log('[TellUsAboutExistingNegotiations] State updated:', {
+      logger.debug('[TellUsAboutExistingNegotiations] State updated:', {
         hasNegotiations: hasNegValue,
         startDate: {
           day: negotiationsData.negotiations_start_date_day || '',
@@ -71,7 +74,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         },
       });
     } else {
-      console.log('[TellUsAboutExistingNegotiations] No negotiations data available');
+      logger.debug('[TellUsAboutExistingNegotiations] No negotiations data available');
     }
   }, [negotiationsData]);
 
@@ -103,34 +106,54 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         has_negotiations: isYes,
       };
 
-      if (isYes) {
-        // Send date fields only when has_negotiations is true AND date is entered
-        if (startDate.day && startDate.month && startDate.year) {
+      // Send date fields only when has_negotiations is true AND date is entered
+        if (isYes && startDate.day && startDate.month && startDate.year) {
           payload.negotiations_start_date_day = startDate.day;
           payload.negotiations_start_date_month = startDate.month;
           payload.negotiations_start_date_year = startDate.year;
-        }
-        // Clear opposite flow field
-        payload.no_negotiations_reason = '';
-      } else {
-        // Clear date and comments when has_negotiations is false
-        payload.negotiations_comments = '';
-      }
 
-      console.log('[TellUsAboutExistingNegotiations] Calling updateNegotiationsData with payload:', payload);
+          payload.no_negotiations_reason = '';
+          // Preserve existing comments
+          payload.negotiations_evidence_comments = negotiationsData?.negotiations_evidence_comments || '';
+        }else{
+          payload.no_negotiations_reason = negotiationsData?.no_negotiations_reason || '';
+          // Clear opposite flow field
+          payload.negotiations_evidence_comments = '';
+          payload.evidence_documents = [];
+          payload.application_documents = [];
+          payload.uploaded_files = [];
+        }
+
+      // if (isYes) {
+      //   // Send date fields only when has_negotiations is true AND date is entered
+      //   if (startDate.day && startDate.month && startDate.year) {
+      //     payload.negotiations_start_date_day = startDate.day;
+      //     payload.negotiations_start_date_month = startDate.month;
+      //     payload.negotiations_start_date_year = startDate.year;
+      //   }
+      //   // Clear opposite flow field
+      //   payload.no_negotiations_reason = negotiationsData?.no_negotiations_reason || '';
+      //   payload.negotiations_evidence_comments = negotiationsData?.negotiations_evidence_comments || '';
+      // } else {
+      //   // Clear date and comments when has_negotiations is false
+      //   payload.no_negotiations_reason = negotiationsData?.no_negotiations_reason || '';
+      //   payload.negotiations_evidence_comments = negotiationsData?.negotiations_evidence_comments || '';      
+      // }
+
+      logger.debug('[TellUsAboutExistingNegotiations] Calling updateNegotiationsData with payload:', payload);
       const result = await updateNegotiationsData(appId, payload);
-      console.log('[TellUsAboutExistingNegotiations] Backend response:', result);
+      logger.debug('[TellUsAboutExistingNegotiations] Backend response:', result);
 
       if (!result) {
-        console.error('[TellUsAboutExistingNegotiations] No response from backend - save may have failed');
+        logger.error('[TellUsAboutExistingNegotiations] No response from backend - save may have failed');
         alert('Failed to save data. Please try again.');
         return;
       }
 
       // Refetch data to ensure state is updated
-      console.log('[TellUsAboutExistingNegotiations] Refetching negotiations data...');
+      logger.debug('[TellUsAboutExistingNegotiations] Refetching negotiations data...');
       await refetchNegotiationsData();
-      console.log('[TellUsAboutExistingNegotiations] Refetch complete');
+      logger.debug('[TellUsAboutExistingNegotiations] Refetch complete');
 
       if (hasNegotiations === 'yes') {
         navigateToEvidenceOfNegotiations();
@@ -138,7 +161,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         navigateToWhyNoNegotiations();
       }
     } catch (error) {
-      console.error('Error saving negotiations data:', error);
+      logger.error('Error saving negotiations data:', error);
     } finally {
       setIsSaving(false);
     }

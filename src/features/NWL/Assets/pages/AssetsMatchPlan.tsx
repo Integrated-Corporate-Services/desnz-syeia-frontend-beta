@@ -33,7 +33,9 @@ const AssetsMatchPlan: React.FC = () => {
 
       // Only set the value if metadata exists (not default false)
       if (assetsData.metadata_id) {
-        setAssetsMatch(assetsData.assets_match_plan ? 'yes' : 'no');
+        if (assetsData.assets_match_plan !== null) {
+          setAssetsMatch(assetsData.assets_match_plan ? 'yes' : 'no');
+        }
         setExplanation(assetsData.assets_match_plan_explanation || '');
       }
     }
@@ -120,10 +122,15 @@ const AssetsMatchPlan: React.FC = () => {
       logger.error('[handleSubmit] Error updating metadata', { error });
 
       // Type guard for axios error
+      interface ValidationDetail {
+        field: string;
+        message: string;
+      }
+      
       interface AxiosError {
         response?: {
           data?: {
-            details?: string;
+            details?: ValidationDetail[] | string;
             error?: string;
             message?: string;
           };
@@ -131,11 +138,21 @@ const AssetsMatchPlan: React.FC = () => {
       }
 
       const axiosError = error as AxiosError;
-      const errorMessage =
-        axiosError?.response?.data?.details ||
-        axiosError?.response?.data?.error ||
-        axiosError?.response?.data?.message ||
-        'Failed to save. Please try again.';
+      
+      // Extract error message from response
+      let errorMessage: string;
+      const details = axiosError?.response?.data?.details;
+      
+      if (Array.isArray(details)) {
+        // Backend validation errors - extract messages
+        errorMessage = details.map(d => d.message).join('; ');
+      } else if (typeof details === 'string') {
+        errorMessage = details;
+      } else {
+        errorMessage = axiosError?.response?.data?.error ||
+                      axiosError?.response?.data?.message ||
+                      'Failed to save. Please try again.';
+      }
 
       setErrors({ general: errorMessage });
       setShowErrorSummary(true);

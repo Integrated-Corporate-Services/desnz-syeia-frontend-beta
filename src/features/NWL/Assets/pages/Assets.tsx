@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { 
@@ -23,7 +23,9 @@ const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
 
 const Asset: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const applicationId = useApplicationId();
+  const isAddingAnother = searchParams.get('add') === 'true';
   
   const {
     voltage,
@@ -40,6 +42,31 @@ const Asset: React.FC = () => {
   } = useAssetForm();
 
   const [saving, setSaving] = React.useState(false);
+  const [checkingAssets, setCheckingAssets] = React.useState(true);
+
+  // Check if assets already exist - redirect to review if they do (unless explicitly adding another)
+  React.useEffect(() => {
+    const checkExistingAssets = async () => {
+      if (!applicationId) return;
+
+      try {
+        const response = await nwlAssetService.getAssetsByApplicationId(applicationId);
+        
+        // If assets exist and user is not explicitly adding another, redirect to review page
+        if (response.assets && response.assets.length > 0 && !isAddingAnother) {
+          navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`, { replace: true });
+          return;
+        }
+      } catch {
+        // If error (e.g., 404 - no assets), continue to show add form
+        // Error logging is handled in the service layer
+      } finally {
+        setCheckingAssets(false);
+      }
+    };
+
+    checkExistingAssets();
+  }, [applicationId, navigate, isAddingAnother]);
 
   // Map frontend line type keys to backend codes
   const lineTypeCodeMap: Record<string, string> = {
@@ -92,7 +119,6 @@ const Asset: React.FC = () => {
             component_descriptions: componentDescriptions,
           },
         ],
-        assets_match_plan: true, // Default, will be updated in final page
         assets_match_plan_explanation: undefined,
       };
 
@@ -110,19 +136,34 @@ const Asset: React.FC = () => {
       // Error logging is handled in the service layer
       
       // Type guard for axios error
+      interface ValidationDetail {
+        field: string;
+        message: string;
+      }
+      
       interface AxiosError {
         response?: {
           data?: {
-            details?: string;
+            details?: ValidationDetail[] | string;
             error?: string;
           };
         };
       }
       
       const axiosError = error as AxiosError;
-      const errorMessage = axiosError?.response?.data?.details || 
-                          axiosError?.response?.data?.error || 
-                          FORM_ERRORS.SAVE_FAILED;
+      
+      // Extract error message from response
+      let errorMessage: string;
+      const details = axiosError?.response?.data?.details;
+      
+      if (Array.isArray(details)) {
+        // Backend validation errors - extract messages
+        errorMessage = details.map(d => d.message).join('; ');
+      } else if (typeof details === 'string') {
+        errorMessage = details;
+      } else {
+        errorMessage = axiosError?.response?.data?.error || FORM_ERRORS.SAVE_FAILED;
+      }
       
       setErrors({ general: errorMessage });
       setShowErrorSummary(true);
@@ -130,6 +171,21 @@ const Asset: React.FC = () => {
       setSaving(false);
     }
   };
+
+  // Show loading state while checking for existing assets
+  if (checkingAssets) {
+    return (
+      <main className="govuk-main-wrapper" id="main-content">
+        <AssetsBreadcrumbs applicationId={applicationId} currentPage="add" />
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <h1 className="govuk-heading-xl">{LABELS.ADD_ASSET_TITLE}</h1>
+            <p className="govuk-body">Loading...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="govuk-main-wrapper" id="main-content">

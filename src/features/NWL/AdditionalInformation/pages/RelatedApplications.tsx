@@ -18,8 +18,10 @@ import {
 } from '../components';
 import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
-
+import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+
+const logger = createLogger('RelatedApplications');
 
 /**
  * Related Applications Page
@@ -73,17 +75,16 @@ const RelatedApplications: React.FC = () => {
       await createOrUpdateAdditionalInformationData(appId, {
         has_related_applications: hasRelatedApplications === 'yes',
         related_applications_details: hasRelatedApplications === 'yes' ? details : undefined,
-        has_other_information: additionalInformationData?.has_other_information ?? false,
-        other_information_details: additionalInformationData?.other_information_details,
+        other_information_details: additionalInformationData?.other_information_details || undefined,
       });
 
       // If "no", update progress to Completed (the flow is done)
       if (hasRelatedApplications === 'no') {
         try {
           await updateProgress('Supporting information', 'Completed');
-          console.log('[RelatedApplications] Progress updated for Supporting information section');
+          logger.info('[RelatedApplications] Progress updated for Supporting information section');
         } catch (progressError) {
-          console.error('[RelatedApplications] Error updating progress', progressError);
+          logger.error('[RelatedApplications] Error updating progress', progressError);
           // Continue even if progress update fails
         }
       }
@@ -95,7 +96,7 @@ const RelatedApplications: React.FC = () => {
         navigateToTaskList();
       }
     } catch (error: unknown) {
-      console.error('Error saving related applications:', error);
+      logger.error('Error saving related applications:', error);
       const errorMessage = error && typeof error === 'object' && 'response' in error && 
         error.response && typeof error.response === 'object' && 'data' in error.response &&
         error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data

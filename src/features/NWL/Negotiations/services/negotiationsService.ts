@@ -1,19 +1,54 @@
 import { NegotiationsData } from '../types';
+import { createLogger } from '../../../../utils/logger';
 
+const logger = createLogger('negotiationsService');
 const API_BASE = '/backend/api/nwl';
 
 export const getNegotiationsData = async (applicationId: string): Promise<NegotiationsData | null> => {
   try {
+    logger.debug('[getNegotiationsData] Fetching from API:', `${API_BASE}/${applicationId}/negotiations`);
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`);
+    
+    logger.debug('[getNegotiationsData] Response status:', response.status);
+    
     if (!response.ok) {
       if (response.status === 404) {
+        logger.debug('[getNegotiationsData] Not found (404), returning null');
         return null;
       }
+      const errorText = await response.text();
+      logger.error('[getNegotiationsData] Error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+      });
       throw new Error(`Failed to fetch negotiations data: ${response.statusText}`);
     }
-    return await response.json();
+    
+    const data = await response.json();
+    logger.debug('[getNegotiationsData] Received data from API:', {
+      hasData: !!data,
+      has_negotiations: data?.has_negotiations,
+      negotiations_comments: data?.negotiations_comments,
+      comments_length: data?.negotiations_comments?.length,
+      no_negotiations_reason: data?.no_negotiations_reason,
+      reason_length: data?.no_negotiations_reason?.length || 0,
+      uploaded_files_count: data?.uploaded_files?.length || 0,
+      application_documents_count: data?.application_documents?.length || 0,
+      uploaded_files_sample: data?.uploaded_files?.[0],
+      application_documents_sample: data?.application_documents?.[0],
+      full_data: JSON.stringify(data, null, 2),
+    });
+    
+    return data;
   } catch (error: unknown) {
-    console.error('[getNegotiationsData] Error:', error);
+    logger.error('[getNegotiationsData] Error:', error);
+    if (error instanceof Error) {
+      logger.error('[getNegotiationsData] Error details:', {
+        message: error.message,
+        stack: error.stack,
+      });
+    }
     return null;
   }
 };
@@ -27,6 +62,11 @@ export const saveNegotiationsData = async (
   data: Partial<NegotiationsData>
 ): Promise<NegotiationsData | null> => {
   try {
+    logger.debug('[saveNegotiationsData] Sending POST request:', {
+      applicationId,
+      data: JSON.stringify(data, null, 2),
+    });
+
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'POST',
       headers: {
@@ -36,12 +76,20 @@ export const saveNegotiationsData = async (
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to save negotiations data: ${response.statusText}`);
+      const errorBody = await response.text();
+      logger.error('[saveNegotiationsData] POST failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+      });
+      throw new Error(`Failed to save negotiations data: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     
-    return await response.json();
+    const result = await response.json();
+    logger.debug('[saveNegotiationsData] POST successful:', result);
+    return result;
   } catch (error) {
-    console.error('Error saving negotiations data:', error);
+    logger.error('[saveNegotiationsData] Error:', error);
     return null;
   }
 };
@@ -67,7 +115,8 @@ export const patchNegotiationsData = async (
   data: Partial<NegotiationsData>
 ): Promise<NegotiationsData | null> => {
   try {
-    console.log('[patchNegotiationsData] Attempting PATCH for applicationId:', applicationId, 'with data:', data);
+    logger.debug('[patchNegotiationsData] Attempting PATCH for applicationId:', applicationId);
+    logger.debug('[patchNegotiationsData] Payload:', JSON.stringify(data, null, 2));
     
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'PATCH',
@@ -77,28 +126,42 @@ export const patchNegotiationsData = async (
       body: JSON.stringify(data),
     });
     
+    logger.debug('[patchNegotiationsData] Response status:', response.status);
+    
     // If record doesn't exist (404), fallback to POST (upsert)
     if (response.status === 404) {
-      console.log('[patchNegotiationsData] Record not found (404), falling back to POST (upsert)...');
+      logger.debug('[patchNegotiationsData] Record not found (404), falling back to POST (upsert)...');
       return await saveNegotiationsData(applicationId, data);
     }
     
     if (!response.ok) {
-      throw new Error(`Failed to update negotiations data: ${response.statusText}`);
+      const errorBody = await response.text();
+      logger.error('[patchNegotiationsData] PATCH failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+      });
+      throw new Error(`Failed to update negotiations data: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     
     const result = await response.json();
-    console.log('[patchNegotiationsData] PATCH successful:', result);
+    logger.debug('[patchNegotiationsData] PATCH successful:', {
+      negotiations_id: result.negotiations_id,
+      has_negotiations: result.has_negotiations,
+      no_negotiations_reason: result.no_negotiations_reason,
+      reason_length: result.no_negotiations_reason?.length || 0,
+      full_result: JSON.stringify(result, null, 2),
+    });
     return result;
   } catch (error: unknown) {
-    console.error('[patchNegotiationsData] Error updating negotiations data:', error);
+    logger.error('[patchNegotiationsData] Error updating negotiations data:', error);
     
     // If PATCH fails, try POST as fallback
-    console.log('[patchNegotiationsData] Attempting POST fallback after error...');
+    logger.debug('[patchNegotiationsData] Attempting POST fallback after error...');
     try {
       return await saveNegotiationsData(applicationId, data);
     } catch (fallbackError: unknown) {
-      console.error('[patchNegotiationsData] POST fallback also failed:', fallbackError);
+      logger.error('[patchNegotiationsData] POST fallback also failed:', fallbackError);
       return null;
     }
   }
