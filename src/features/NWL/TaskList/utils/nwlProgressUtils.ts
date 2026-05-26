@@ -13,6 +13,7 @@ export const NWL_SUBSECTIONS = {
   NEGOTIATIONS: 'Negotiations',
   APPLICATION_STATEMENT: 'Application statement',
   PAYMENT: 'Payment',
+  PAY_AND_SUBMIT: 'Pay and submit',
 };
 
 /**
