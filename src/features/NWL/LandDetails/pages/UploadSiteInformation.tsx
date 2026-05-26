@@ -10,7 +10,7 @@ import {
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
-import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
@@ -110,9 +110,9 @@ const UploadSiteInformation: React.FC = () => {
                   ref={fileUploadRef}
                   title={labels.UPLOAD_SECTION_TITLE}
                   showTitle={false}
-                  prefix={`${applicationId}/${FILE_CATEGORIES.APPLICATION_LAND_DETAILS}`}
+                  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_SITE_INFORMATION}`}
                   applicationId={applicationId}
-                  category={FILE_CATEGORIES.APPLICATION_LAND_DETAILS}
+                  category={NWL_FILE_CATEGORIES.NWL_SITE_INFORMATION}
                   subCategory="SITE_INFORMATION"
                   addedBy={userId}
                   uploadedFiles={pageUploadedFiles}

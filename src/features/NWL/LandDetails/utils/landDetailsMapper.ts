@@ -125,10 +125,7 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
   const initialApplicationDocuments = allDocRows.map((d: any) => {
     const rawSub = d.subcategory || d.subCategory || d.sub_category || '';
     const normalizedSub = (rawSub || '').toString().toUpperCase();
-    let computedSub = normalizedSub;
-    if (!backendData.is_land_registered && normalizedSub === 'LAND_REGISTRY') {
-      computedSub = 'UNREGISTERED_LAND';
-    }
+    const computedSub = normalizedSub;
     return {
       documentId: d.document_id || d.documentId,
       applicationId: d.application_id || d.applicationId,
@@ -150,20 +147,38 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
   const generatedDocs: any[] = [];
   Object.values(fileMap).forEach((file: any) => {
     if (!referencedFileIds.has(file.id)) {
-      // Prefer SITE_INFORMATION if backend already returns site information docs/files
-      const hasSiteInfo = 
-        (backendData.site_information_documents && backendData.site_information_documents.length > 0) ||
-        ((backendData as any).site_information_application_documents && (backendData as any).site_information_application_documents.length > 0) ||
-        ((backendData as any).site_information_uploaded_files && (backendData as any).site_information_uploaded_files.length > 0);
-      // Default subcategory: if site info already present, use SITE_INFORMATION; otherwise
-      // use UNREGISTERED_LAND when not registered, else SITE_INFORMATION.
-      const defaultSub = hasSiteInfo ? 'SITE_INFORMATION' : (!backendData.is_land_registered ? 'UNREGISTERED_LAND' : 'SITE_INFORMATION');
+      // Try to infer subcategory from the virtual folder (last segment)
+      const folder = (file.virtualFolder || '').toString();
+      const lastSegment = folder.split('/').filter(Boolean).pop() || '';
+      const inferredSub = (lastSegment || '').toString().toUpperCase();
+      const validSubs = [
+        LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY,
+        LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION,
+        LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND,
+      ];
+      let finalSub = '';
+      let finalCategory = 'APPLICATION_LAND_DETAILS';
+
+      if (validSubs.includes(inferredSub)) {
+        finalSub = inferredSub;
+        // Backend historically uses category = APPLICATION_LAND_DETAILS for SITE_INFORMATION
+        finalCategory = inferredSub === LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION ? 'APPLICATION_LAND_DETAILS' : inferredSub;
+      } else {
+        // Fallback behavior if we can't infer: prefer SITE_INFORMATION if backend has site info
+        const hasSiteInfo = 
+          (backendData.site_information_documents && backendData.site_information_documents.length > 0) ||
+          ((backendData as any).site_information_application_documents && (backendData as any).site_information_application_documents.length > 0) ||
+          ((backendData as any).site_information_uploaded_files && (backendData as any).site_information_uploaded_files.length > 0);
+        finalSub = hasSiteInfo ? 'SITE_INFORMATION' : 'APPLICATION_LAND_DETAILS';
+        finalCategory = finalSub === 'SITE_INFORMATION' ? 'APPLICATION_LAND_DETAILS' : finalSub;
+      }
+
       generatedDocs.push({
         documentId: crypto?.randomUUID ? crypto.randomUUID() : `gen-${file.id}`,
         applicationId: backendData.application_id,
         fileId: file.id,
-        category: 'APPLICATION_LAND_DETAILS',
-        subCategory: defaultSub,
+        category: finalCategory,
+        subCategory: finalSub,
         title: file.filename || '',
         virtualFolder: file.virtualFolder || '',
         addedBy: undefined,
@@ -329,11 +344,8 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
     const applicationDocuments = (frontendData as any).applicationDocuments as any[] | undefined;
     if (Array.isArray(applicationDocuments) && applicationDocuments.length > 0) {
       const landRegistryDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toString().toUpperCase() === LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY);
-      // Treat UNREGISTERED_LAND documents as SITE_INFORMATION for backend mapping
-      const siteInfoDocs = applicationDocuments.filter(d => {
-        const sub = (d.subCategory || d.sub_category || '').toString().toUpperCase();
-        return sub === LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION || sub === LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND;
-      });
+      const siteInfoDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toString().toUpperCase() === LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION);
+      const unregisteredDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toString().toUpperCase() === LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND);
 
       if (landRegistryDocs.length > 0) {
         backendData.land_registry_application_documents = landRegistryDocs;
@@ -346,6 +358,13 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
         backendData.site_information_application_documents = siteInfoDocs;
         if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
           backendData.site_information_uploaded_files = uploadedFiles.filter(f => siteInfoDocs.some(d => (d.fileId || d.file_id) === f.id));
+        }
+      }
+
+      if (unregisteredDocs.length > 0) {
+        backendData.unregistered_land_application_documents = unregisteredDocs;
+        if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
+          backendData.unregistered_land_uploaded_files = uploadedFiles.filter(f => unregisteredDocs.some(d => (d.fileId || d.file_id) === f.id));
         }
       }
     } else if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
