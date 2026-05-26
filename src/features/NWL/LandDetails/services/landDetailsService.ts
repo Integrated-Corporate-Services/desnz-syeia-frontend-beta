@@ -17,8 +17,11 @@ export const landDetailsService = {
       }
 
       const backendData = await response.json();
+      logger.debug('Raw land-details response', backendData);
       // Transform backend response to frontend structure
-      return mapBackendToFrontend(backendData);
+      const mapped = mapBackendToFrontend(backendData);
+      logger.debug('Mapped land-details (frontend)', mapped);
+      return mapped;
     } catch (error) {
       logger.error('Error fetching land details:', error);
       return null;

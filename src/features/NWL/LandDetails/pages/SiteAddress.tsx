@@ -11,6 +11,7 @@ import {
   useFormValidation,
   useLandNavigation,
 } from '../hooks';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import { LAND_DETAILS_LABELS } from '../constants';
 
 const SiteAddress: React.FC = () => {
@@ -18,6 +19,7 @@ const SiteAddress: React.FC = () => {
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { errors, validateSiteAddress, clearError } = useFormValidation();
   const { goToCountrySelection } = useLandNavigation(applicationId);
+  const { updateProgress } = useNWLProgress(applicationId);
 
   const [formData, setFormData] = useState({
     addressLine1: landDetails.site_address_line1 || '',
@@ -69,6 +71,12 @@ const SiteAddress: React.FC = () => {
         site_county: formData.county,
         site_postcode: formData.postcode,
       });
+
+        try {
+          await updateProgress('Site address', 'Completed');
+        } catch (e) {
+          // ignore progress errors
+        }
 
       goToCountrySelection();
     } catch (error) {

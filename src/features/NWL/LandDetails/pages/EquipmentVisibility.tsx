@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -17,6 +18,7 @@ const EquipmentVisibility: React.FC = () => {
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { errors, validateEquipmentVisibility } = useFormValidation();
   const { goToTaskList } = useLandNavigation(applicationId);
+  const { updateProgress } = useNWLProgress(applicationId || undefined);
 
   const [isVisible, setIsVisible] = useState<'yes' | 'no' | ''>('');
   const [isSaving, setIsSaving] = useState(false);
@@ -51,6 +53,13 @@ const EquipmentVisibility: React.FC = () => {
       await updateLandDetails({
         equipment_visible_from_public_road: visibleFromRoad,
       });
+
+
+      try {
+        await updateProgress('Land registry', 'Completed');
+      } catch (err) {
+        // Non-blocking: progress update failure shouldn't prevent navigation
+      }
 
       goToTaskList();
     } catch (error) {

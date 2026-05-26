@@ -26,6 +26,14 @@ export const saveObjectorDetails = async (
   details: Partial<ObjectorDetails>
 ): Promise<ObjectorDetails | null> => {
   try {
+    console.log('[Frontend Service] About to send PATCH request', {
+      applicationId,
+      details,
+      detailsKeys: Object.keys(details),
+      objector_organisation: details.objector_organisation,
+      detailsStringified: JSON.stringify(details)
+    });
+
     const response = await fetch(`${API_BASE}/${applicationId}/objector-details`, {
       method: 'PATCH',
       headers: {
@@ -34,12 +42,18 @@ export const saveObjectorDetails = async (
       body: JSON.stringify(details),
     });
     
+    console.log('[Frontend Service] Response status:', response.status);
+    
     if (!response.ok) {
       throw new Error(`Failed to save objector details: ${response.statusText}`);
     }
     
-    return await response.json();
+    const result = await response.json();
+    console.log('[Frontend Service] Response data:', result);
+    
+    return result;
   } catch (error) {
+    console.error('[Frontend Service] Error saving objector details:', error);
     return null;
   }
 };

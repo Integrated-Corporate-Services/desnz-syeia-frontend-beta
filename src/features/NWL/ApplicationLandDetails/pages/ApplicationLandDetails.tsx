@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import FileUpload from '../../../../components/FileUpload';
 // Use the advanced FileUpload component from ProjectOverview
-import { FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
+import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Link, useParams } from "react-router-dom";
 // You may need to adjust the import paths above to match your project structure
@@ -134,7 +134,7 @@ const ApplicationLandDetails: React.FC = () => {
 								</label>
 								<FileUpload
 									title=""
-									  prefix={`${applicationId}/${FILE_CATEGORIES.APPLICATION_LAND_DETAILS}`}
+																	  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_APPLICATION_LAND_DETAILS}`}
 									uploadedFiles={uploadedFiles}
 									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {
 										setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));

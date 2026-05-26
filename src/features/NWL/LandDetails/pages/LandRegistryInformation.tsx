@@ -12,7 +12,8 @@ import {
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
-import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { LAND_DETAILS_SUBCATEGORIES } from '../constants';
 import { useAuthUser } from '../../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
@@ -41,11 +42,30 @@ const LandRegistryInformation: React.FC = () => {
   };
 
   const handleDeleteFile = (fileId: string) => {
+    // Only remove files/documents belonging to LAND_REGISTRY subCategory
+    const targetSub = LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY;
+    const remainingDocuments = (landDetails.applicationDocuments || []).filter(doc => {
+      const sub = (doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase();
+      if (doc.fileId === fileId && sub === targetSub) return false;
+      return true;
+    });
+    const remainingFiles = (landDetails.uploadedFiles || []).filter(file => {
+      // Keep file if it is not the one being deleted for this subcategory
+      const hasDocInThisSub = (landDetails.applicationDocuments || []).some(doc => (doc.fileId === file.id) && ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase() === targetSub));
+      if (file.id === fileId && hasDocInThisSub) return false;
+      return true;
+    });
+
     updateLandDetails({
-      uploadedFiles: landDetails.uploadedFiles?.filter(file => file.id !== fileId),
-      applicationDocuments: landDetails.applicationDocuments?.filter(doc => doc.fileId !== fileId)
+      uploadedFiles: remainingFiles,
+      applicationDocuments: remainingDocuments,
     });
   };
+
+  // Files/documents only for this page's subCategory
+  const pageSubCategory = LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY;
+  const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase()) === pageSubCategory);
+  const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 
   const handleSaveAndContinue = async () => {
     const isValid = validateTitleNumber(titleNumber);
@@ -138,19 +158,23 @@ const LandRegistryInformation: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
+                {landDetails.uploadedFiles && landDetails.uploadedFiles.length > 0 && (
+                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
+                )}
                 
                 <FileUpload
                   ref={fileUploadRef}
                   title={labels.UPLOAD_SECTION_TITLE}
                   showTitle={false}
-                  prefix={`${applicationId}/${FILE_CATEGORIES.APPLICATION_LAND_DETAILS}`}
+                  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_LAND_REGISTRY}`}
                   applicationId={applicationId}
-                  category={FILE_CATEGORIES.APPLICATION_LAND_DETAILS}
+                  category={NWL_FILE_CATEGORIES.NWL_LAND_REGISTRY}
                   subCategory="LAND_REGISTRY"
                   addedBy={userId}
-                  uploadedFiles={landDetails.uploadedFiles || []}
-                  applicationDocuments={landDetails.applicationDocuments || []}
+                  uploadedFiles={pageUploadedFiles}
+                  applicationDocuments={pageApplicationDocuments}
                   showDocumentsHeading={true}
+                  uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}

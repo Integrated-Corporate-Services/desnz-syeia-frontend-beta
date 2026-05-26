@@ -88,6 +88,12 @@ export const LAND_DETAILS_ROUTES = {
   TASK_LIST: '/nwl/:applicationId/task-list',
 };
 
+export const LAND_DETAILS_SUBCATEGORIES = {
+  LAND_REGISTRY: 'LAND_REGISTRY',
+  UNREGISTERED_LAND: 'UNREGISTERED_LAND',
+  SITE_INFORMATION: 'SITE_INFORMATION',
+};
+
 export const buildLandDetailsRoute = (routeTemplate: string, applicationId: string | undefined): string => {
   if (!applicationId) {
     return routeTemplate;
