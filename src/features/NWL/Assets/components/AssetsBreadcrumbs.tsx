@@ -5,7 +5,7 @@ import { BREADCRUMBS } from '../constants';
 
 interface AssetsBreadcrumbsProps {
   applicationId: string;
-  currentPage?: 'add' | 'review';
+  currentPage?: 'add' | 'edit' | 'review';
 }
 
 export const AssetsBreadcrumbs: React.FC<AssetsBreadcrumbsProps> = ({

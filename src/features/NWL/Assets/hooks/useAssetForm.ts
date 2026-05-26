@@ -151,5 +151,7 @@ export const useAssetForm = () => {
     resetForm,
     setErrors,
     setShowErrorSummary,
+    setVoltage,
+    setLineTypes,
   };
 };
