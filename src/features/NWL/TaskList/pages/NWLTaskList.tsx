@@ -213,12 +213,6 @@ const NWLTaskList: React.FC = () => {
 							</div>
 							{renderStatusTag(NWL_SUBSECTIONS.PAY_AND_SUBMIT)}
 						</li>
-						<li className="govuk-task-list__item govuk-task-list__item--with-link">
-							<div className="govuk-task-list__name-and-hint">
-								{renderLink(NWL_SUBSECTIONS.PAY_AND_SUBMIT, 'Pay and submit', NWL_TASK_LIST_ROUTES.PAY_AND_SUBMIT)}
-							</div>
-							{renderStatusTag(NWL_SUBSECTIONS.PAY_AND_SUBMIT)}
-						</li>
 					</ul>
 
 					<button
