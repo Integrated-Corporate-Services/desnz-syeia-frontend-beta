@@ -26,6 +26,8 @@ const Asset: React.FC = () => {
   const [searchParams] = useSearchParams();
   const applicationId = useApplicationId();
   const isAddingAnother = searchParams.get('add') === 'true';
+  const editAssetId = searchParams.get('edit');
+  const isEditMode = !!editAssetId;
   
   const {
     voltage,
@@ -39,12 +41,15 @@ const Asset: React.FC = () => {
     resetForm,
     setErrors,
     setShowErrorSummary,
+    setVoltage,
+    setLineTypes,
   } = useAssetForm();
 
   const [saving, setSaving] = React.useState(false);
   const [checkingAssets, setCheckingAssets] = React.useState(true);
+  const [loadingAsset, setLoadingAsset] = React.useState(false);
 
-  // Check if assets already exist - redirect to review if they do (unless explicitly adding another)
+  // Check if assets already exist - redirect to review if they do (unless explicitly adding another or editing)
   React.useEffect(() => {
     const checkExistingAssets = async () => {
       if (!applicationId) return;
@@ -52,8 +57,8 @@ const Asset: React.FC = () => {
       try {
         const response = await nwlAssetService.getAssetsByApplicationId(applicationId);
         
-        // If assets exist and user is not explicitly adding another, redirect to review page
-        if (response.assets && response.assets.length > 0 && !isAddingAnother) {
+        // If assets exist and user is not explicitly adding another or editing, redirect to review page
+        if (response.assets && response.assets.length > 0 && !isAddingAnother && !isEditMode) {
           navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`, { replace: true });
           return;
         }
@@ -66,7 +71,62 @@ const Asset: React.FC = () => {
     };
 
     checkExistingAssets();
-  }, [applicationId, navigate, isAddingAnother]);
+  }, [applicationId, navigate, isAddingAnother, isEditMode]);
+
+  // Load asset data if in edit mode
+  React.useEffect(() => {
+    const loadAssetForEdit = async () => {
+      if (!isEditMode || !editAssetId) return;
+
+      setLoadingAsset(true);
+      try {
+        const asset = await nwlAssetService.getAssetById(editAssetId);
+        
+        // Set voltage
+        setVoltage(asset.line_voltage);
+        
+        // Reverse map backend codes to frontend keys and populate line types
+        const backendToFrontendMap: Record<string, string> = {
+          'overhead_line': 'overhead-line',
+          'overhead_line_wooden_pole': 'overhead-line-wooden-poles',
+          'overhead_line_wooden_pole_stay': 'overhead-line-wooden-poles-stays',
+          'overhead_line_steel_tower': 'overhead-line-steel-towers',
+          'wooden_pole': 'wooden-poles',
+          'stay': 'stays',
+          'steel_tower': 'steel-towers',
+          'underground_cable': 'underground-cable',
+          'earth_wire_apparatus': 'earth-wire-apparatus',
+          'other': 'other',
+        };
+        
+        // Build line types state from asset data
+        const newLineTypes: Record<string, { checked: boolean; description: string }> = {};
+        LINE_TYPE_OPTIONS.forEach(opt => {
+          const backendCode = Object.entries(backendToFrontendMap).find(
+            ([, frontend]) => frontend === opt.value
+          )?.[0];
+          
+          const isChecked = backendCode ? asset.line_types.includes(backendCode) : false;
+          const description = backendCode && asset.component_descriptions[backendCode] ? 
+            asset.component_descriptions[backendCode] : '';
+          
+          newLineTypes[opt.value] = {
+            checked: isChecked,
+            description: description,
+          };
+        });
+        
+        setLineTypes(newLineTypes);
+      } catch (error) {
+        setErrors({ general: 'Failed to load asset for editing. Please try again.' });
+        setShowErrorSummary(true);
+      } finally {
+        setLoadingAsset(false);
+      }
+    };
+
+    loadAssetForEdit();
+  }, [isEditMode, editAssetId, setVoltage, setLineTypes, setErrors, setShowErrorSummary]);
 
   // Map frontend line type keys to backend codes
   const lineTypeCodeMap: Record<string, string> = {
@@ -109,23 +169,34 @@ const Asset: React.FC = () => {
           };
         }, {});
 
-      // Create payload for NWL backend
-      const payload: CreateAssetsPayload = {
-        application_id: applicationId,
-        assets: [
-          {
-            line_voltage: voltage,
-            line_types: selectedLineTypes,
-            component_descriptions: componentDescriptions,
-          },
-        ],
-        assets_match_plan_explanation: undefined,
-      };
+      if (isEditMode && editAssetId) {
+        // Update existing asset
+        await nwlAssetService.updateAsset(editAssetId, {
+          line_voltage: voltage,
+          line_types: selectedLineTypes,
+          component_descriptions: componentDescriptions,
+        });
 
-      // Call NWL asset service to save
-      await nwlAssetService.createAssets(payload);
+        // Asset update is logged in the service layer
+      } else {
+        // Create payload for NWL backend
+        const payload: CreateAssetsPayload = {
+          application_id: applicationId,
+          assets: [
+            {
+              line_voltage: voltage,
+              line_types: selectedLineTypes,
+              component_descriptions: componentDescriptions,
+            },
+          ],
+          assets_match_plan_explanation: undefined,
+        };
 
-      // Asset creation is logged in the service layer
+        // Call NWL asset service to save
+        await nwlAssetService.createAssets(payload);
+
+        // Asset creation is logged in the service layer
+      }
 
       // Reset form
       resetForm();
@@ -172,14 +243,14 @@ const Asset: React.FC = () => {
     }
   };
 
-  // Show loading state while checking for existing assets
-  if (checkingAssets) {
+  // Show loading state while checking for existing assets or loading asset for edit
+  if (checkingAssets || loadingAsset) {
     return (
       <main className="govuk-main-wrapper" id="main-content">
-        <AssetsBreadcrumbs applicationId={applicationId} currentPage="add" />
+        <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-xl">{LABELS.ADD_ASSET_TITLE}</h1>
+            <h1 className="govuk-heading-xl">{isEditMode ? LABELS.EDIT_ASSET_TITLE : LABELS.ADD_ASSET_TITLE}</h1>
             <p className="govuk-body">Loading...</p>
           </div>
         </div>
@@ -189,13 +260,13 @@ const Asset: React.FC = () => {
 
   return (
     <main className="govuk-main-wrapper" id="main-content">
-      <AssetsBreadcrumbs applicationId={applicationId} currentPage="add" />
+      <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
       
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-xl">{LABELS.ADD_ASSET_TITLE}</h1>
+          <h1 className="govuk-heading-xl">{isEditMode ? LABELS.EDIT_ASSET_TITLE : LABELS.ADD_ASSET_TITLE}</h1>
           
-          <p className="govuk-body">{HINTS.ADD_ASSET_INTRO}</p>
+          <p className="govuk-body">{isEditMode ? HINTS.EDIT_ASSET_INTRO : HINTS.ADD_ASSET_INTRO}</p>
 
           {showErrorSummary && <ErrorSummary errors={errors} />}
 
@@ -252,7 +323,7 @@ const Asset: React.FC = () => {
             <FormActions
               onContinue={handleSubmit}
               disabled={saving}
-              continueLabel={saving ? 'Saving...' : LABELS.CONTINUE}
+              continueLabel={saving ? 'Saving...' : (isEditMode ? 'Save changes' : LABELS.CONTINUE)}
             />
           </form>
         </div>

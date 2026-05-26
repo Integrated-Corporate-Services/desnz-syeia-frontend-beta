@@ -13,6 +13,7 @@ export const BREADCRUMBS = {
 
 export const LABELS = {
   ADD_ASSET_TITLE: "Add an asset",
+  EDIT_ASSET_TITLE: "Edit asset",
   REVIEW_ASSETS_TITLE: "You have added",
   LINE_VOLTAGE: "Line voltage",
   LINE_TYPE: "Line type",
@@ -36,6 +37,7 @@ export const LABELS = {
 
 export const HINTS = {
   ADD_ASSET_INTRO: "Tell us about each electricity asset that is, or will be, on the land covered by this application. You will be able to add more than one asset.",
+  EDIT_ASSET_INTRO: "Update the details for this asset. Changes will be reflected in your asset review page.",
   SELECT_VOLTAGE: "Select the voltage for this asset",
   SELECT_LINE_TYPES: "Select all that apply. You can add a Comment for each item you select.",
   REVIEW_INTRO: "Review the assets you have added. You can change any of them before you submit the application.",
