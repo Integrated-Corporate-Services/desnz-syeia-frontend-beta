@@ -794,6 +794,24 @@ const CheckYourAnswers: React.FC = () => {
                       </dd>
                     </div>
                   )}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Related CPO
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {projectDetails?.has_related_cpo === "true" ? "Yes" : projectDetails?.has_related_cpo === "false" ? "No" : "-"}
+                    </dd>
+                  </div>
+                  {projectDetails?.has_related_cpo === "true" && projectDetails?.related_cpo_details && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Related CPO details
+                      </dt>
+                      <dd className="govuk-summary-list__value" style={{ whiteSpace: 'pre-wrap' }}>
+                        {projectDetails.related_cpo_details}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>

@@ -42,6 +42,8 @@ export interface ProjectDetails {
 	updated_at?: string;
 	has_related_applications?: string;
 	related_applications_details?: string;
+	has_related_cpo?: string;
+	related_cpo_details?: string;
 	assetInformation?: AssetInformation[];
 	consultations?: Consultation[];
 }
