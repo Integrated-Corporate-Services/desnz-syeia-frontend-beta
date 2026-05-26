@@ -64,12 +64,14 @@ const NoticeToRemoveClear: React.FC = () => {
           is_within_three_months: null,
           is_standard_term: null,
           standard_term_explanation: null,
+          notice_to_remove_unclear_explanation: null,
         }, APPLICATION_DETAILS_PAGE_IDS.NOTICE_TO_REMOVE_CLEAR);
       } else {
         // Normal save without clearing
         await updateFields({
           type_of_use: 'existing_lines',
           is_notice_to_remove_clear: isNoticeClear === "yes",
+
         }, APPLICATION_DETAILS_PAGE_IDS.NOTICE_TO_REMOVE_CLEAR);
       }
 

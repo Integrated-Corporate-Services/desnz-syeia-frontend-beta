@@ -20,11 +20,11 @@ const NoticeToRemoveUnclear: React.FC = () => {
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    // Load saved data if it exists, or clear if it's been reset to null
+    // Load saved data if it exists, or clear if it's been reset to null or empty
     if (applicationDetails?.notice_to_remove_unclear_explanation) {
       setExplanation(applicationDetails.notice_to_remove_unclear_explanation);
-    } else if (applicationDetails && applicationDetails.notice_to_remove_unclear_explanation === null) {
-      // Explicitly clear local state if explanation was set to null
+    } else if (applicationDetails && (applicationDetails.notice_to_remove_unclear_explanation === null || applicationDetails.notice_to_remove_unclear_explanation === '')) {
+      // Explicitly clear local state if explanation was set to null or empty string
       setExplanation("");
     }
   }, [applicationDetails]);

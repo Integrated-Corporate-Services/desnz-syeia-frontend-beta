@@ -34,7 +34,8 @@ const StandardTerm: React.FC = () => {
     }
     if (applicationDetails?.standard_term_explanation) {
       setExplanation(applicationDetails.standard_term_explanation);
-    } else if (applicationDetails && applicationDetails.standard_term_explanation === null) {
+    } else if (applicationDetails && (applicationDetails.standard_term_explanation === null || applicationDetails.standard_term_explanation === '')) {
+      // Explicitly clear local state if explanation was set to null or empty string
       setExplanation("");
     }
   }, [applicationDetails]);
@@ -85,7 +86,7 @@ const StandardTerm: React.FC = () => {
       await updateFields({
         type_of_use: typeOfUse,
         is_standard_term: isStandardTerm === "yes",
-        standard_term_explanation: isStandardTerm === "yes" ? null : (hasChangedSelection ? null : explanation),
+        standard_term_explanation: isStandardTerm === "yes" ? null : explanation,
       }, APPLICATION_DETAILS_PAGE_IDS.STANDARD_TERM);
 
       initialTermRef.current = isStandardTerm;

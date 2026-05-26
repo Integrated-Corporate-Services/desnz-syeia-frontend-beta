@@ -5,14 +5,19 @@
 
 import { createLogger } from '../../../../utils/logger';
 import { generateCorrelationId } from '../../../../utils/correlationId';
+import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
 const logger = createLogger('ApplicationDetailsService');
 
 export interface DocumentInfo {
   document_id: string;
+  file_id: string;
   filename: string;
   uploaded_at: string;
   file_size: number;
+  category: string;
+  s3_key: string;
+  file_content_type: string;
 }
 
 export interface ApplicationDetailsData {
@@ -45,15 +50,23 @@ export interface CreateApplicationDetailsPayload {
   type_of_use: string;
   wayleave_offer_date?: string | null;
   wayleave_offer_document_ids?: string[];
+  wayleave_offer_uploaded_files?: UploadedFile[];
+  wayleave_offer_application_documents?: ApplicationDocument[];
   grounds_for_application?: string | null;
   wayleave_type?: string | null;
   wayleave_expiry_date?: string | null;
   implied_wayleave_document_ids?: string[];
+  implied_wayleave_uploaded_files?: UploadedFile[];
+  implied_wayleave_application_documents?: ApplicationDocument[];
   notice_to_terminate_date?: string | null;
   notice_to_terminate_document_ids?: string[];
+  notice_to_terminate_uploaded_files?: UploadedFile[];
+  notice_to_terminate_application_documents?: ApplicationDocument[];
   termination_period_expired?: boolean | null;
   notice_to_remove_date?: string | null;
   notice_to_remove_document_ids?: string[];
+  notice_to_remove_uploaded_files?: UploadedFile[];
+  notice_to_remove_application_documents?: ApplicationDocument[];
   is_notice_to_remove_clear?: boolean | null;
   notice_to_remove_unclear_explanation?: string | null;
   is_within_three_months?: boolean | null;
