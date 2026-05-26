@@ -18,15 +18,9 @@ export const NWL_SUBSECTIONS = {
   SUPPORTING_INFORMATION: 'Supporting information',
   NEGOTIATIONS: 'Negotiations',
   APPLICATION_STATEMENT: 'Application statement',
-<<<<<<< feature/SYEIA-1857-file-upload-changes
-  // PAYMENT: 'Payment',
-  PAY_AND_SUBMIT: 'Pay and submit',
-
-=======
   CHECK_YOUR_ANSWERS: 'Check your answers',
   PAY_AND_SUBMIT: 'Pay and submit',
   PAYMENT: 'Payment',
->>>>>>> develop
 };
 
 /**
