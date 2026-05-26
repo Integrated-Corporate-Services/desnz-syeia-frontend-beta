@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useProgressStore } from "../../../../store/useProgressStore";
@@ -11,15 +11,17 @@ const NWLTaskList: React.FC = () => {
 	const appId = useGetApplicationId();
 	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
 	const application = useApplicationStore(state => state.application);
-	const { progress, loading: progressLoading, fetchProgress } = useProgressStore();
+	const { progress, fetchProgress } = useProgressStore();
 	const [orgName, setOrgName] = useState('');
 	const [submitting] = useState(false);
   	const navigate = useNavigate();
+	const initialLoadComplete = useRef(false);
 
 	useEffect(() => {
-		if (appId) {
+		if (appId && !initialLoadComplete.current) {
 			fetchAndSetApplication(appId);
 			fetchProgress(appId);
+			initialLoadComplete.current = true;
 		}
 	}, [appId, fetchAndSetApplication, fetchProgress]);
 
@@ -70,14 +72,15 @@ const NWLTaskList: React.FC = () => {
 
 	return (
 		<div className="govuk-width-container">
+			<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+				<ol className="govuk-breadcrumbs__list">
+					<li className="govuk-breadcrumbs__list-item">
+						<Link className="govuk-breadcrumbs__link" to="/workbasket">Workbasket</Link>
+					</li>
+					<li className="govuk-breadcrumbs__list-item govuk-breadcrumbs__list-item--current" aria-current="true">Task list</li>
+				</ol>
+			</nav>
 			<main className="govuk-main-wrapper" id="main-content">
-				{progressLoading && (
-					<div className="govuk-notification-banner" role="region" aria-labelledby="banner-title">
-						<div className="govuk-notification-banner__content">
-							<p className="govuk-body">Loading progress...</p>
-						</div>
-					</div>
-				)}
 				<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">
 						<span className="govuk-caption-l">{orgName || 'Organisation'}</span>
@@ -126,15 +129,15 @@ const NWLTaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Objector introduction', 'Introduction', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS_INTRODUCTION)}
+									{renderLink(NWL_SUBSECTIONS.OBJECTOR_INTRODUCTION, 'Introduction', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS_INTRODUCTION)}
 								</div>
-								{renderStatusTag('Objector introduction')}
+								{renderStatusTag(NWL_SUBSECTIONS.OBJECTOR_INTRODUCTION)}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Objector details', 'Objector details', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS)}
+									{renderLink(NWL_SUBSECTIONS.OBJECTOR_DETAILS, 'Objector details', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS)}
 								</div>
-								{renderStatusTag('Objector details')}
+								{renderStatusTag(NWL_SUBSECTIONS.OBJECTOR_DETAILS)}
 							</li>
 						</ul>
 
@@ -142,27 +145,27 @@ const NWLTaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Site address', 'Site address', NWL_TASK_LIST_ROUTES.SITE_ADDRESS)}
+									{renderLink(NWL_SUBSECTIONS.SITE_ADDRESS, 'Site address', NWL_TASK_LIST_ROUTES.SITE_ADDRESS)}
 								</div>
-								{renderStatusTag('Site address')}
+								{renderStatusTag(NWL_SUBSECTIONS.SITE_ADDRESS)}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Land registry', 'Land registry', NWL_TASK_LIST_ROUTES.LAND_REGISTRY)}
+									{renderLink(NWL_SUBSECTIONS.LAND_REGISTRY, 'Land registry', NWL_TASK_LIST_ROUTES.LAND_REGISTRY)}
 								</div>
-								{renderStatusTag('Land registry')}
+								{renderStatusTag(NWL_SUBSECTIONS.LAND_REGISTRY)}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									{renderLink('OS Grid reference', 'OS Grid reference', NWL_TASK_LIST_ROUTES.OS_GRID_REFERENCE)}
+									{renderLink(NWL_SUBSECTIONS.OS_GRID_REFERENCE, 'OS Grid reference', NWL_TASK_LIST_ROUTES.OS_GRID_REFERENCE)}
 								</div>
-								{renderStatusTag('OS Grid reference')}
+								{renderStatusTag(NWL_SUBSECTIONS.OS_GRID_REFERENCE)}
 							</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									{renderLink('Identifying information', 'Identifying information', NWL_TASK_LIST_ROUTES.IDENTIFYING_INFORMATION)}
+									{renderLink(NWL_SUBSECTIONS.IDENTIFYING_INFORMATION, 'Identifying information', NWL_TASK_LIST_ROUTES.IDENTIFYING_INFORMATION)}
 								</div>
-								{renderStatusTag('Identifying information')}
+								{renderStatusTag(NWL_SUBSECTIONS.IDENTIFYING_INFORMATION)}
 						</li>
 					</ul>
 
@@ -200,9 +203,15 @@ const NWLTaskList: React.FC = () => {
 					<ul className="govuk-task-list">
 						<li className="govuk-task-list__item govuk-task-list__item--with-link">
 							<div className="govuk-task-list__name-and-hint">
-								{renderLink('Check your answers', 'Check your answers', NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS)}
+								{renderLink(NWL_SUBSECTIONS.CHECK_YOUR_ANSWERS, 'Check your answers', NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS)}
 							</div>
-							{renderStatusTag('Check your answers')}
+							{renderStatusTag(NWL_SUBSECTIONS.CHECK_YOUR_ANSWERS)}
+						</li>
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink(NWL_SUBSECTIONS.PAY_AND_SUBMIT, 'Pay and submit', NWL_TASK_LIST_ROUTES.PAY_AND_SUBMIT)}
+							</div>
+							{renderStatusTag(NWL_SUBSECTIONS.PAY_AND_SUBMIT)}
 						</li>
 					</ul>
 

@@ -20,11 +20,11 @@ const ApplicationOutsideTimeframe: React.FC = () => {
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    // Load saved data if it exists, or clear if it's been reset to null
+    // Load saved data if it exists, or clear if it's been reset to null or empty
     if (applicationDetails?.application_outside_timeframe_explanation) {
       setExplanation(applicationDetails.application_outside_timeframe_explanation);
-    } else if (applicationDetails && applicationDetails.application_outside_timeframe_explanation === null) {
-      // Explicitly clear local state if explanation was set to null
+    } else if (applicationDetails && (applicationDetails.application_outside_timeframe_explanation === null || applicationDetails.application_outside_timeframe_explanation === '')) {
+      // Explicitly clear local state if explanation was set to null or empty string
       setExplanation("");
     }
   }, [applicationDetails]);

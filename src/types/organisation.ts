@@ -3,6 +3,7 @@
 export interface Organisation {
   organisation_id: string;
   organisation_name: string;
+  organisation_type?: string;
   team_coordinators: string[];
   approved_domains: string[];
   address_line1?: string;

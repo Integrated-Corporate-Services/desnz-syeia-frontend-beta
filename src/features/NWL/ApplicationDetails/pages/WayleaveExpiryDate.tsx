@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { useAuthUser } from "../../../../hooks/useAuthUser";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
-import FileUpload from "../../../../components/FileUpload";
+import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
 import {
   validateDate,
@@ -15,6 +14,7 @@ import {
 import {
   BREADCRUMBS,
   LABELS,
+  FORM_ERRORS,
 } from "../constants/wayleaveExpiryDateConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
@@ -25,9 +25,7 @@ import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 const WayleaveExpiryDate: React.FC = () => {
   const appId = useGetApplicationId();
   const { navigateToNoticeToRemove, navigateToTaskList } = useApplicationNavigation(appId || "");
-  const { user } = useAuthUser();
-  const userId = user?.user_id;
-  const { applicationDetails, updateFields, isLoading } = useApplicationDetailsData(appId);
+  const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
 
   const [day, setDay] = useState<string>("");
   const [month, setMonth] = useState<string>("");
@@ -40,6 +38,38 @@ const WayleaveExpiryDate: React.FC = () => {
     month?: string;
     year?: string;
   }>({});
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  
+  const fileUploadRef = useRef<FileUploadHandle>(null);
+
+  const handleFileValidationErrors = (errors: string[]) => {
+    // Always update from FileUpload component to clear errors when new files selected
+    setFileValidationErrors(errors);
+    if (errors.length === 0) {
+      setErrors([]);
+    }
+  };
+
+  const handleErrorClick = (errorType: string) => {
+    if (errorType === 'fileUpload') {
+      const fileUploadSection = document.querySelector('#file-upload');
+      if (fileUploadSection) {
+        fileUploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          const uploadContainer = fileUploadSection.querySelector('.gds-upload-container');
+          if (uploadContainer) {
+            (uploadContainer as HTMLElement).focus();
+          } else {
+            const fileInput = fileUploadSection.querySelector('#file-upload-input');
+            if (fileInput) {
+              (fileInput as HTMLElement).focus();
+            }
+          }
+        }, 300);
+      }
+    }
+  };
 
   useEffect(() => {
     // Load saved data if it exists, or clear if it's been reset to null
@@ -57,18 +87,33 @@ const WayleaveExpiryDate: React.FC = () => {
       setYear("");
     }
 
-    // Load uploaded documents  
+    // Load uploaded documents and files 
     if (applicationDetails?.implied_wayleave_documents) {
       const docs = applicationDetails.implied_wayleave_documents.map((doc) => ({
         documentId: doc.document_id,
         applicationId: appId || '',
-        fileId: doc.document_id,
-        category: 'implied_wayleave',
+        fileId: doc.file_id,
+        category: NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE,
+        title: doc.filename,
         filename: doc.filename,
         addedBy: '',
         addedAt: doc.uploaded_at,
       }));
+      
+      const files = applicationDetails.implied_wayleave_documents.map((doc) => ({
+        id: doc.file_id,
+        storageProvider: 'aws_s3',
+        s3Key: doc.s3_key,
+        bucketName: '',
+        virtualFolder: doc.s3_key.split('/').slice(0, -1).join('/'),
+        filename: doc.filename,
+        fileContentType: doc.file_content_type || 'application/octet-stream',
+        fileSizeBytes: Number(doc.file_size),
+        uploadedAtTimestamp: doc.uploaded_at,
+      }));
+      
       setApplicationDocuments(docs as unknown as ApplicationDocument[]);
+      setUploadedFiles(files as unknown as UploadedFile[]);
     }
   }, [applicationDetails, appId]);
 
@@ -98,26 +143,63 @@ const WayleaveExpiryDate: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let newlyUploadedFiles: UploadedFile[] = [];
+    let newlyUploadedDocuments: ApplicationDocument[] = [];
+    
+    if (fileUploadRef.current && pendingFiles.length > 0) {
+      try {
+        const result = await fileUploadRef.current.triggerUpload();
+        newlyUploadedFiles = result.uploadedFiles;
+        newlyUploadedDocuments = result.applicationDocuments;
+        
+        setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
+        setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
+        // Clear file validation errors after successful upload
+        setFileValidationErrors([]);
+      } catch {
+        const errorMsg = 'Failed to upload files. Please try again.';
+        setFileValidationErrors([errorMsg]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
     if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (fileValidationErrors.length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // Check if at least one file is uploaded (mandatory)
+    const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
+    if (allUploadedFiles.length === 0) {
+      setFileValidationErrors([FORM_ERRORS.NO_FILES]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
     try {
-      const documentIds = applicationDocuments.map(doc => doc.documentId);
+      const allDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
+      const documentIds = allDocuments.map(doc => doc.documentId);
       const formattedDate = formatDateForAPI(day, month, year);
       
-      // This page is only for existing_lines flow
-      // Pass page ID constant for page-specific validation
       await updateFields({
         type_of_use: 'existing_lines',
         wayleave_expiry_date: formattedDate,
         implied_wayleave_document_ids: documentIds,
+        implied_wayleave_uploaded_files: allUploadedFiles,
+        implied_wayleave_application_documents: allDocuments,
       }, APPLICATION_DETAILS_PAGE_IDS.WAYLEAVE_EXPIRY_DATE);
 
       navigateToNoticeToRemove();
     } catch (error: unknown) {
       const err = error as Error;
       setErrors([err.message || 'Failed to save application details']);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -151,7 +233,7 @@ const WayleaveExpiryDate: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
-            {errors.length > 0 && (
+            {(errors.length > 0 || fileValidationErrors.length > 0) && (
               <div
                 className="govuk-error-summary"
                 data-module="govuk-error-summary"
@@ -163,11 +245,32 @@ const WayleaveExpiryDate: React.FC = () => {
                 </h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
-                    {errors.map((error, idx) => (
-                      <li key={idx}>
-                        <a href="#wayleave-expiry-date-day">{error}</a>
+                    {fileValidationErrors.map((error, index) => (
+                      <li key={`file-${index}`}>
+                        <a href="#" onClick={(e) => {
+                          e.preventDefault();
+                          handleErrorClick('fileUpload');
+                        }}>
+                          {error}
+                        </a>
                       </li>
                     ))}
+                    {errors.map((error, idx) => {
+                      const isFileError = error.includes('upload') || error.includes('document');
+                      return (
+                        <li key={idx}>
+                          <a 
+                            href={isFileError ? "#" : "#wayleave-expiry-date-day"}
+                            onClick={isFileError ? (e) => {
+                              e.preventDefault();
+                              handleErrorClick('fileUpload');
+                            } : undefined}
+                          >
+                            {error}
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </div>
@@ -276,19 +379,28 @@ const WayleaveExpiryDate: React.FC = () => {
               </div>
 
               {/* File upload */}
-              <div className="govuk-form-group">
+              <div className={`govuk-form-group ${fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
+                {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+                  <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                ))}
                 <FileUpload
+                  ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_WAYLEAVE_EXPIRY}/`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE}/`}
                   applicationId={appId}
-                  category={NWL_FILE_CATEGORIES.NWL_WAYLEAVE_EXPIRY}
-                  addedBy={userId}
+                  category={NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
-                  onUploaded={(newUploadedFiles: UploadedFile[], newProjectDocuments: ApplicationDocument[]) => {
-                    setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
-                    setApplicationDocuments((prev) => [...prev, ...newProjectDocuments]);
+                  showDocumentsHeading={true}
+                  onDeleteFile={(fileId) => {
+                    setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+                    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+                    setErrors([]);
                   }}
+                  onValidationErrors={handleFileValidationErrors}
+                  onPendingFilesChange={(files) => setPendingFiles(files)}
                 />
               </div>
 

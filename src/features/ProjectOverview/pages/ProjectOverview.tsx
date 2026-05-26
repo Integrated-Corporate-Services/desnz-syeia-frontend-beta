@@ -70,24 +70,33 @@ const ProjectOverview = () => {
 	const { user } = useAuthUser();
 	const userId = user?.user_id;
 
-	// Scroll and focus error summary when validation errors appear
+	// Scroll and focus error summary ONLY when errors first appear (not on every error state change)
+	const prevErrorsRef = React.useRef<number>(0);
+	const prevFileValidationErrorsRef = React.useRef<number>(0);
 	useEffect(() => {
-		if ((errors.length > 0 || fileValidationErrors.length > 0) && errorSummaryRef.current) {
+		const hadNoErrors = prevErrorsRef.current === 0 && prevFileValidationErrorsRef.current === 0;
+		const hasErrors = (errors.length > 0 || fileValidationErrors.length > 0);
+		if (hadNoErrors && hasErrors && errorSummaryRef.current) {
 			errorSummaryRef.current.focus();
 			errorSummaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}
+		prevErrorsRef.current = errors.length;
+		prevFileValidationErrorsRef.current = fileValidationErrors.length;
 	}, [errors, fileValidationErrors]);
 
-	// Helper function to clear field-specific errors
+	// Helper function to clear field-specific errors (always use *-inputValue keys)
 	const clearFieldError = (fieldName: string) => {
-		// Clear from fieldErrors
-		if (fieldErrors[fieldName]) {
-			setFieldErrors(prev => {
-				const newErrors = { ...prev };
-				delete newErrors[fieldName];
-				return newErrors;
-			});
-		}
+		// Always clear both the *-inputValue and legacy keys for robustness
+		setFieldErrors(prev => {
+			const newErrors = { ...prev };
+			delete newErrors[fieldName];
+			// Also try deleting legacy keys for migration safety
+			if (fieldName.endsWith('-inputValue')) {
+				const legacyKey = fieldName.replace('-inputValue', '');
+				delete newErrors[legacyKey];
+			}
+			return newErrors;
+		});
 		// Clear from errors array (error summary links)
 		setErrors(prev => prev.filter(error => !error.includes(`#${fieldName}`)));
 	};
@@ -238,33 +247,28 @@ const ProjectOverview = () => {
 			</nav>
 			<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
 				<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
-				{(errors.length > 0 || fileValidationErrors.length > 0) && (
-					<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
-						<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
-						<div className="govuk-error-summary__body">
-							<ul className="govuk-list govuk-error-summary__list">
-								{fileValidationErrors.map((error, index) => (
-									<li key={`file-${index}`}>
-										<a href="#planInformationDocuments">{error}</a>
-									</li>
-								))}
-							{errors.map((err, idx) => {
-								// Parse error link: errors are in format '<a href="#id">message</a>'
-								const match = err.match(/<a href="#([^"]+)">([^<]+)<\/a>/);
-								if (match) {
-									const [, href, message] = match;
-									return (
-										<li key={idx}>
-											<a href={`#${href}`}>{message}</a>
-										</li>
-									);
-								}
-								return <li key={idx}>{err}</li>;
-							})}
-							</ul>
-						</div>
-					</div>
-				)}
+				   {errors.length > 0 && (
+					   <div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
+						   <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+						   <div className="govuk-error-summary__body">
+							   <ul className="govuk-list govuk-error-summary__list">
+							   {errors.map((err, idx) => {
+								   // Parse error link: errors are in format '<a href="#id">message</a>'
+								   const match = err.match(/<a href="#([^"]+)">([^<]+)<\/a>/);
+								   if (match) {
+									   const [, href, message] = match;
+									   return (
+										   <li key={idx}>
+											   <a href={`#${href}`}>{message}</a>
+										   </li>
+									   );
+								   }
+								   return <li key={idx}>{err}</li>;
+							   })}
+							   </ul>
+						   </div>
+					   </div>
+				   )}
 				<form method="post" onSubmit={async e => {
 					e.preventDefault();
 					setIsSubmitting(true);
@@ -303,35 +307,35 @@ const ProjectOverview = () => {
 					// Validate Project Name
 					if (!formState.projectName?.trim()) {
 						newErrors.push(createErrorLink('projectName-inputValue', PROJECT_OVERVIEW_ERRORS.PROJECT_NAME_REQUIRED));
-						newFieldErrors.projectName = PROJECT_OVERVIEW_ERRORS.PROJECT_NAME_REQUIRED;
+						newFieldErrors['projectName-inputValue'] = PROJECT_OVERVIEW_ERRORS.PROJECT_NAME_REQUIRED;
 					}
 
 					// Validate Project Description
 					if (!formState.projectDescription?.trim()) {
 						newErrors.push(createErrorLink('projectDescription-inputValue', PROJECT_OVERVIEW_ERRORS.PROJECT_DESCRIPTION_REQUIRED));
-						newFieldErrors.projectDescription = PROJECT_OVERVIEW_ERRORS.PROJECT_DESCRIPTION_REQUIRED;
+						newFieldErrors['projectDescription-inputValue'] = PROJECT_OVERVIEW_ERRORS.PROJECT_DESCRIPTION_REQUIRED;
 					}
 
 					// Validate Tallest Pole Height
 					if (!formState.tallestPoleHeight?.trim()) {
 						newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_REQUIRED));
-						newFieldErrors.tallestPoleHeight = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_REQUIRED;
+						newFieldErrors['tallestPoleHeight-inputValue'] = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_REQUIRED;
 					} else {
 						const val = formState.tallestPoleHeight.trim();
 						const numVal = Number(val);
 
 						if (isNaN(numVal)) {
 							newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_INVALID_NUMBER));
-							newFieldErrors.tallestPoleHeight = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_INVALID_NUMBER;
+							newFieldErrors['tallestPoleHeight-inputValue'] = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_INVALID_NUMBER;
 						} else if (numVal < 0) {
 							newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE));
-							newFieldErrors.tallestPoleHeight = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE;
+							newFieldErrors['tallestPoleHeight-inputValue'] = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE;
 						} else {
 							// Check for more than two decimal places
 							const decimalPart = val.includes('.') ? val.split('.')[1] : '';
 							if (decimalPart.length > 2) {
 								newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_DECIMAL_PLACES));
-								newFieldErrors.tallestPoleHeight = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_DECIMAL_PLACES;
+								newFieldErrors['tallestPoleHeight-inputValue'] = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_DECIMAL_PLACES;
 							}
 						}
 					}
@@ -339,7 +343,7 @@ const ProjectOverview = () => {
 					// Validate Plan Reference
 					if (!formState.planReference?.trim()) {
 						newErrors.push(createErrorLink('planReference-inputValue', PROJECT_OVERVIEW_ERRORS.PLAN_REFERENCE_REQUIRED));
-						newFieldErrors.planReference = PROJECT_OVERVIEW_ERRORS.PLAN_REFERENCE_REQUIRED;
+						newFieldErrors['planReference-inputValue'] = PROJECT_OVERVIEW_ERRORS.PLAN_REFERENCE_REQUIRED;
 					}
 
 					// Validate Work Start Dates Known
@@ -464,25 +468,25 @@ const ProjectOverview = () => {
 					// Validate Related Applications
 					if (!formState.hasRelatedApplications) {
 						newErrors.push(createErrorLink('hasRelatedApplications', PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_REQUIRED));
-						newFieldErrors.hasRelatedApplications = PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_REQUIRED;
+						newFieldErrors['hasRelatedApplications-inputValue'] = PROJECT_OVERVIEW_ERRORS.RELATED_APPLICATIONS_REQUIRED;
 					}
 
 					// Validation: If user selects 'Yes' for related applications but no details are provided
 					if (formState.hasRelatedApplications === "true" && !formState.relatedApplicationsDetails.trim()) {
 						newErrors.push('<a href="#relatedApplicationsDetails-inputValue">Enter details of all related applications</a>');
-						newFieldErrors.relatedApplicationsDetails = "Enter details of all related applications";
+						newFieldErrors['relatedApplicationsDetails-inputValue'] = "Enter details of all related applications";
 					}
 
 					// Validate Related CPO
 					if (!formState.hasRelatedCpo) {
 						newErrors.push(createErrorLink('hasRelatedCpo', PROJECT_OVERVIEW_ERRORS.RELATED_CPO_REQUIRED));
-						newFieldErrors.hasRelatedCpo = PROJECT_OVERVIEW_ERRORS.RELATED_CPO_REQUIRED;
+						newFieldErrors['hasRelatedCpo-inputValue'] = PROJECT_OVERVIEW_ERRORS.RELATED_CPO_REQUIRED;
 					}
 
 					// Validate Related CPO Details
 					if (formState.hasRelatedCpo === "true" && !getRelatedCpoDetailsString(formState.relatedCpoDetails).trim()) {
 						newErrors.push(createErrorLink('relatedCpoDetails-inputValue', PROJECT_OVERVIEW_ERRORS.RELATED_CPO_DETAILS_REQUIRED));
-						newFieldErrors.relatedCpoDetails = PROJECT_OVERVIEW_ERRORS.RELATED_CPO_DETAILS_REQUIRED;
+						newFieldErrors['relatedCpoDetails-inputValue'] = PROJECT_OVERVIEW_ERRORS.RELATED_CPO_DETAILS_REQUIRED;
 					}
 					// Removed EIP details validation logic as requested
 					setErrors(newErrors);
@@ -566,7 +570,7 @@ const ProjectOverview = () => {
 							id="projectName-inputValue"
 							name="projectName.inputValue"
 							value={formState.projectName}
-							error={fieldErrors?.projectName}
+							error={fieldErrors['projectName-inputValue']}
 							maxLength={4000}
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 								setFormState(prev => ({ ...prev, projectName: e.target.value }));
@@ -583,7 +587,7 @@ const ProjectOverview = () => {
 							id="projectDescription-inputValue"
 							name="projectDescription.inputValue"
 							value={formState.projectDescription}
-							error={fieldErrors?.projectDescription}
+							error={fieldErrors['projectDescription-inputValue']}
 							maxLength={MAX_DESCRIPTION_LENGTH}
 							infoId="projectDescription-inputValue-info"
 							remainingChars={remainingChars}
@@ -620,7 +624,7 @@ const ProjectOverview = () => {
 							id="tallestPoleHeight-inputValue"
 							name="tallestPoleHeight.inputValue"
 							value={formState.tallestPoleHeight}
-							error={fieldErrors?.tallestPoleHeight}
+							error={fieldErrors['tallestPoleHeight-inputValue']}
 							maxLength={4000}
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 								setFormState(prev => ({ ...prev, tallestPoleHeight: e.target.value }));
@@ -631,17 +635,17 @@ const ProjectOverview = () => {
 
 					{/* Plan Reference Section */}
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Plan reference</h2>
-					<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors?.planReference ? " govuk-form-group--error" : ""}`}>
+					<div className={`govuk-form-group govuk-!-margin-bottom-6 govuk-!-width-two-thirds${fieldErrors['planReference-inputValue'] ? " govuk-form-group--error" : ""}`}>
 						<label className="govuk-label govuk-visually-hidden" htmlFor="planReference-inputValue">
 							Plan reference
 						</label>
-						{fieldErrors?.planReference && (
+						{fieldErrors['planReference-inputValue'] && (
 							<p id="planReference-inputValue-error" className="govuk-error-message">
-								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.planReference}
+								<span className="govuk-visually-hidden">Error:</span> {fieldErrors['planReference-inputValue']}
 							</p>
 						)}
 						<input
-							className={`govuk-input${fieldErrors?.planReference ? " govuk-input--error" : ""}`}
+							className={`govuk-input${fieldErrors['planReference-inputValue'] ? " govuk-input--error" : ""}`}
 							id="planReference-inputValue"
 							name="planReference.inputValue"
 							type="text"
@@ -651,7 +655,7 @@ const ProjectOverview = () => {
 								setFormState(prev => ({ ...prev, planReference: e.target.value }));
 								clearFieldError('planReference-inputValue');
 							}}
-							aria-describedby={fieldErrors?.planReference ? "planReference-inputValue-error" : undefined}
+							aria-describedby={fieldErrors['planReference-inputValue'] ? "planReference-inputValue-error" : undefined}
 						/>
 					</div>
 
@@ -854,7 +858,7 @@ const ProjectOverview = () => {
 					</details>
 
 					{/* Related Applications */}
-					<div className={`govuk-form-group${fieldErrors?.hasRelatedApplications ? " govuk-form-group--error" : ""}`}>
+					<div className={`govuk-form-group${fieldErrors['hasRelatedApplications-inputValue'] ? " govuk-form-group--error" : ""}`}>
 						<fieldset className="govuk-fieldset" aria-describedby={`relatedApplications-hint${fieldErrors?.hasRelatedApplications ? ' hasRelatedApplications-error' : ''}`.trim()} id="relatedApplications-section">
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 								<h2 className="govuk-fieldset__heading">{projectOverview.relatedApplications}</h2>
@@ -862,9 +866,9 @@ const ProjectOverview = () => {
 							<div className="govuk-hint govuk-!-width-two-thirds" id="relatedApplications-hint">
 								{projectOverview.relatedApplicationsHint}
 							</div>
-							{fieldErrors?.hasRelatedApplications && (
+							{fieldErrors['hasRelatedApplications-inputValue'] && (
 								<p id="hasRelatedApplications-error" className="govuk-error-message">
-									<span className="govuk-visually-hidden">Error:</span> {fieldErrors.hasRelatedApplications}
+									<span className="govuk-visually-hidden">Error:</span> {fieldErrors['hasRelatedApplications-inputValue']}
 								</p>
 							)}
 							<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
@@ -891,9 +895,9 @@ const ProjectOverview = () => {
 										<div className="govuk-hint govuk-!-width-two-thirds" id="relatedApplicationsDetails-hint">
 												{projectOverview.relatedApplicationsDetailsHint}
 											</div>
-											{fieldErrors?.relatedApplicationsDetails && (
+											{fieldErrors['relatedApplicationsDetails-inputValue'] && (
 												<p id="relatedApplicationsDetails-inputValue-error" className="govuk-error-message">
-													<span className="govuk-visually-hidden">Error:</span> {fieldErrors.relatedApplicationsDetails}
+													<span className="govuk-visually-hidden">Error:</span> {fieldErrors['relatedApplicationsDetails-inputValue']}
 												</p>
 											)}
 											<textarea
@@ -910,11 +914,12 @@ const ProjectOverview = () => {
 													} else {
 														setFormState(prev => ({ ...prev, relatedApplicationsDetails: val.slice(0, MAX_DESCRIPTION_LENGTH) }));
 													}
+													clearFieldError('relatedApplicationsDetails-inputValue');
 												}}
 												aria-describedby={fieldErrors?.relatedApplicationsDetails ? "relatedApplicationsDetails-inputValue-error relatedApplicationsDetails-hint relatedApplicationsDetails-inputValue-info" : "relatedApplicationsDetails-hint relatedApplicationsDetails-inputValue-info"}
 											></textarea>
 											<div id="relatedApplicationsDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
-											<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
+											<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You have {remainingRelatedAppsChars} characters remaining</div>
 											<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {remainingRelatedAppsChars} characters remaining</div>
 										</div>
 									</div>
@@ -927,7 +932,10 @@ const ProjectOverview = () => {
 										type="radio" 
 										value="false" 
 										checked={formState.hasRelatedApplications === "false"} 
-										onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplicationsDetails: "" }))} 
+										onChange={() => {
+											setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplicationsDetails: "" }));
+											clearFieldError('hasRelatedApplications-inputValue');
+										}} 
 									/>
 									<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications-no">No</label>
 								</div>
@@ -948,13 +956,13 @@ const ProjectOverview = () => {
 									<label className="govuk-label govuk-!-width-two-thirds" htmlFor="relatedCpoDetails-inputValue">
 										{projectOverview.relatedCpoDetails}
 									</label>
-									{fieldErrors?.relatedCpoDetails && (
+									{fieldErrors['relatedCpoDetails-inputValue'] && (
 										<p id="relatedCpoDetails-inputValue-error" className="govuk-error-message">
-											<span className="govuk-visually-hidden">Error:</span> {fieldErrors.relatedCpoDetails}
+											<span className="govuk-visually-hidden">Error:</span> {fieldErrors['relatedCpoDetails-inputValue']}
 										</p>
 									)}
 									<textarea
-										className={`govuk-textarea govuk-!-width-two-thirds govuk-js-character-count${fieldErrors?.relatedCpoDetails ? " govuk-textarea--error" : ""}`}
+										className={`govuk-textarea govuk-!-width-two-thirds govuk-js-character-count${fieldErrors['relatedCpoDetails-inputValue'] ? " govuk-textarea--error" : ""}`}
 										id="relatedCpoDetails-inputValue"
 										name="relatedCpoDetails.inputValue"
 										rows={5}
@@ -964,7 +972,7 @@ const ProjectOverview = () => {
 											setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }));
 											clearFieldError('relatedCpoDetails-inputValue');
 										}}
-										aria-describedby={fieldErrors?.relatedCpoDetails ? "relatedCpoDetails-inputValue-error relatedCpoDetails-inputValue-info" : "relatedCpoDetails-inputValue-info"}
+										aria-describedby={fieldErrors['relatedCpoDetails-inputValue'] ? "relatedCpoDetails-inputValue-error relatedCpoDetails-inputValue-info" : "relatedCpoDetails-inputValue-info"}
 									></textarea>
 									<div id="relatedCpoDetails-inputValue-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {MAX_DESCRIPTION_LENGTH} characters</div>
 									<div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You have {remainingCpoChars} characters remaining</div>
@@ -976,10 +984,10 @@ const ProjectOverview = () => {
 							label: "No",
 						}]}
 						value={formState.hasRelatedCpo}
-						error={fieldErrors?.hasRelatedCpo}
+						error={fieldErrors['hasRelatedCpo-inputValue']}
 						onChange={(val: string) => {
 							setFormState(prev => ({ ...prev, hasRelatedCpo: val }));
-							clearFieldError('hasRelatedCpo');
+							clearFieldError('hasRelatedCpo-inputValue');
 						}}
 						ariaControls={["hasRelatedCpo-hidden", "hasRelatedCpo-no-hidden"]}
 					/>
