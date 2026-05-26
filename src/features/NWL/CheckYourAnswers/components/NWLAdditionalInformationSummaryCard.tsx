@@ -42,14 +42,14 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
     rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_APPLICATIONS, formatBoolean(data.has_related)));
 
     if (data.has_related) {
-        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_DETAILS, data.related_details || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_DETAILS, data.related_details || CONSTANTS.DEFAULTS.EMPTY));
     }
 
     // Other important information
     rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_INFORMATION, formatBoolean(data.has_other)));
 
     if (data.has_other) {
-        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DETAILS, data.other_details || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DETAILS, data.other_details || CONSTANTS.DEFAULTS.EMPTY));
 
         // Other documents
         if (data.other_documents) {
@@ -59,7 +59,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
                 value: { text: '', html: docHtml },
             });
         } else {
-            rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DOCUMENTS, CONSTANTS.DEFAULTS.NOT_PROVIDED));
+            rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DOCUMENTS, CONSTANTS.DEFAULTS.EMPTY));
         }
     }
 

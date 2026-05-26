@@ -35,7 +35,7 @@ export const AssetSummaryCard: React.FC<Props> = ({ data, index, applicationId, 
     const rows: SummaryRow[] = [];
 
     // Line voltage
-    rows.push(createSummaryRow(CONSTANTS.ASSET_FIELDS.LINE_VOLTAGE, data.line_voltage || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.ASSET_FIELDS.LINE_VOLTAGE, data.line_voltage || CONSTANTS.DEFAULTS.EMPTY));
 
     // Line types
     if (data.line_types && data.line_types.length > 0) {
@@ -56,7 +56,7 @@ export const AssetSummaryCard: React.FC<Props> = ({ data, index, applicationId, 
             value: { text: '', html: commentsHtml },
         });
     } else {
-        rows.push(createSummaryRow(CONSTANTS.ASSET_FIELDS.LINE_TYPES, CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        rows.push(createSummaryRow(CONSTANTS.ASSET_FIELDS.LINE_TYPES, CONSTANTS.DEFAULTS.EMPTY));
     }
 
     return (

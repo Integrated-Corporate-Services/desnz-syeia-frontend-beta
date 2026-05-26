@@ -43,7 +43,7 @@ export const NoticeComplianceSummaryCard: React.FC<Props> = ({ data, application
 
     // If NO - show explanation
     if (data.notice_clearly_refers === false) {
-        rows.push(createSummaryRow(CONSTANTS.NOTICE_FIELDS.UNCLEAR_EXPLANATION, data.unclear_explanation || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        rows.push(createSummaryRow(CONSTANTS.NOTICE_FIELDS.UNCLEAR_EXPLANATION, data.unclear_explanation || CONSTANTS.DEFAULTS.EMPTY));
     }
 
     // Within three months
@@ -51,7 +51,7 @@ export const NoticeComplianceSummaryCard: React.FC<Props> = ({ data, application
 
     // If NO - show reason
     if (data.within_three_months === false) {
-        rows.push(createSummaryRow(CONSTANTS.NOTICE_FIELDS.LATE_REASON, data.late_reason || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        rows.push(createSummaryRow(CONSTANTS.NOTICE_FIELDS.LATE_REASON, data.late_reason || CONSTANTS.DEFAULTS.EMPTY));
     }
 
     // Different term
@@ -59,7 +59,7 @@ export const NoticeComplianceSummaryCard: React.FC<Props> = ({ data, application
 
     // If YES - show explanation
     if (data.different_term === true) {
-        rows.push(createSummaryRow(CONSTANTS.NOTICE_FIELDS.DIFFERENT_TERM_EXPLANATION, data.different_term_explanation || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        rows.push(createSummaryRow(CONSTANTS.NOTICE_FIELDS.DIFFERENT_TERM_EXPLANATION, data.different_term_explanation || CONSTANTS.DEFAULTS.EMPTY));
     }
 
     return (

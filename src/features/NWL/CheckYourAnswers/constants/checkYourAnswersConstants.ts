@@ -159,9 +159,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
 
     // Default values
     DEFAULTS: {
-        NOT_PROVIDED: 'Not provided',
-        NONE: 'None',
-        DASH: '-',
+        EMPTY: '',
     },
 
     // Declaration

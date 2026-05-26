@@ -38,21 +38,21 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
             <>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Start date</dt>
-                <dd className="govuk-summary-list__value">{data.negotiations_start_date || 'Not provided'}</dd>
+                <dd className="govuk-summary-list__value">{data.negotiations_start_date}</dd>
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Comments</dt>
-                <dd className="govuk-summary-list__value">{data.negotiations_comments || 'Not provided'}</dd>
+                <dd className="govuk-summary-list__value">{data.negotiations_comments}</dd>
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Evidence comments</dt>
-                <dd className="govuk-summary-list__value">{data.negotiations_evidence_comments || 'Not provided'}</dd>
+                <dd className="govuk-summary-list__value">{data.negotiations_evidence_comments}</dd>
               </div>
             </>
           ) : (
             <div className="govuk-summary-list__row">
               <dt className="govuk-summary-list__key">Reason for no negotiations</dt>
-              <dd className="govuk-summary-list__value">{data.no_negotiations_reason || 'Not provided'}</dd>
+              <dd className="govuk-summary-list__value">{data.no_negotiations_reason}</dd>
             </div>
           )}
         </dl>

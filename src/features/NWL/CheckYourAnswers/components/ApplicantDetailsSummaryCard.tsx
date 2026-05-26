@@ -39,24 +39,24 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ data, application
     const rows: SummaryRow[] = [];
 
     // Applicant name
-    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.APPLICANT_NAME, data.applicant_name || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.APPLICANT_NAME, data.applicant_name || CONSTANTS.DEFAULTS.EMPTY));
 
     // Applicant contact name
-    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.CONTACT_NAME, data.applicant_contact_name || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.CONTACT_NAME, data.applicant_contact_name || CONSTANTS.DEFAULTS.EMPTY));
 
     // Address
     const addressParts = [data.address_line1, data.address_line2, data.postcode].filter((part) => part && part !== '-');
-    const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.NOT_PROVIDED;
+    const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
     rows.push({
         key: { text: CONSTANTS.APPLICANT_FIELDS.ADDRESS },
         value: { text: '', html: addressHtml },
     });
 
     // Email
-    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.EMAIL, formatEmail(data.email)));
+    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.EMAIL, formatEmail(data.email) || CONSTANTS.DEFAULTS.EMPTY));
 
     // Phone
-    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.PHONE, formatPhone(data.phone)));
+    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.PHONE, formatPhone(data.phone) || CONSTANTS.DEFAULTS.EMPTY));
 
     // Additional contacts
     if (data.additional_contacts && data.additional_contacts.length > 0) {
@@ -66,7 +66,7 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ data, application
             value: { text: '', html: contactsHtml },
         });
     } else {
-        rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.ADDITIONAL_CONTACTS, CONSTANTS.DEFAULTS.NONE));
+        rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.ADDITIONAL_CONTACTS, CONSTANTS.DEFAULTS.EMPTY));
     }
 
     return (

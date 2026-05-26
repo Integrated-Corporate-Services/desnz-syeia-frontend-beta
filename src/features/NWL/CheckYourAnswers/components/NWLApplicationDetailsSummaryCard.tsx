@@ -3,11 +3,16 @@
  * Displays application type, paragraph, dates, and documents
  */
 
+
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
 import { createSummaryRow, formatDate } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
+
+
+import NewLineDetailsCard from './NewLineDetailsCard';
+import ExistingLineDetailsCard from './ExistingLineDetailsCard';
 
 interface Props {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,56 +41,32 @@ export const NWLApplicationDetailsSummaryCard: React.FC<Props> = ({ data, applic
         );
     }
 
-    const rows: SummaryRow[] = [];
-
-    // Application type
-    rows.push(createSummaryRow(CONSTANTS.APPLICATION_FIELDS.APPLICATION_TYPE, data.application_type || CONSTANTS.DEFAULTS.NOT_PROVIDED));
-
-    // Paragraph
-    rows.push(createSummaryRow(CONSTANTS.APPLICATION_FIELDS.PARAGRAPH, data.paragraph || CONSTANTS.DEFAULTS.NOT_PROVIDED));
-
-    // Offer date
-    rows.push(createSummaryRow(CONSTANTS.APPLICATION_FIELDS.OFFER_DATE, formatDate(data.offer_date)));
-
-    // Offer document
-    if (data.offer_document) {
-        const docHtml = `<a href="#" class="govuk-link">${data.offer_document}</a>`;
-        rows.push({
-            key: { text: CONSTANTS.APPLICATION_FIELDS.OFFER_DOCUMENT },
-            value: { text: '', html: docHtml },
-        });
+    // Route to the correct details card based on application_type
+    if (data.application_type === 'New line') {
+        return <NewLineDetailsCard data={data} applicationId={applicationId} canEdit={canEdit} />;
+    } else if (
+        data.application_type === 'Existing line' ||
+        data.application_type === 'Existing lines' ||
+        data.application_type === 'existing_lines'
+    ) {
+        return <ExistingLineDetailsCard data={data} applicationId={applicationId} canEdit={canEdit} />;
     } else {
-        rows.push(createSummaryRow(CONSTANTS.APPLICATION_FIELDS.OFFER_DOCUMENT, CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        // fallback: show just the type
+        return (
+            <SummaryCard
+                title={CONSTANTS.CARD_TITLES.APPLICATION_DETAILS}
+                rows={[createSummaryRow(CONSTANTS.APPLICATION_FIELDS.APPLICATION_TYPE, data.application_type || CONSTANTS.DEFAULTS.EMPTY)]}
+                actions={
+                    canEdit
+                        ? [
+                              {
+                                  href: CONSTANTS.ROUTES.APPLICATION_DETAILS(applicationId),
+                                  text: CONSTANTS.ACTIONS.CHANGE,
+                              },
+                          ]
+                        : undefined
+                }
+            />
+        );
     }
-
-    // Notice date
-    rows.push(createSummaryRow(CONSTANTS.APPLICATION_FIELDS.NOTICE_DATE, formatDate(data.notice_date)));
-
-    // Notice documents
-    if (data.notice_documents) {
-        const docHtml = `<a href="#" class="govuk-link">${data.notice_documents}</a>`;
-        rows.push({
-            key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_DOCUMENTS },
-            value: { text: '', html: docHtml },
-        });
-    } else {
-        rows.push(createSummaryRow(CONSTANTS.APPLICATION_FIELDS.NOTICE_DOCUMENTS, CONSTANTS.DEFAULTS.NOT_PROVIDED));
-    }
-
-    return (
-        <SummaryCard
-            title={CONSTANTS.CARD_TITLES.APPLICATION_DETAILS}
-            rows={rows}
-            actions={
-                canEdit
-                    ? [
-                          {
-                              href: CONSTANTS.ROUTES.APPLICATION_DETAILS(applicationId),
-                              text: CONSTANTS.ACTIONS.CHANGE,
-                          },
-                      ]
-                    : undefined
-            }
-        />
-    );
 };
