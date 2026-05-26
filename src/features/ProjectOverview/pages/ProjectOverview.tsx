@@ -932,7 +932,10 @@ const ProjectOverview = () => {
 										type="radio" 
 										value="false" 
 										checked={formState.hasRelatedApplications === "false"} 
-										onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplicationsDetails: "" }))} 
+										onChange={() => {
+											setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplicationsDetails: "" }));
+											clearFieldError('hasRelatedApplications-inputValue');
+										}} 
 									/>
 									<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications-no">No</label>
 								</div>
@@ -984,7 +987,7 @@ const ProjectOverview = () => {
 						error={fieldErrors['hasRelatedCpo-inputValue']}
 						onChange={(val: string) => {
 							setFormState(prev => ({ ...prev, hasRelatedCpo: val }));
-							clearFieldError('hasRelatedCpo');
+							clearFieldError('hasRelatedCpo-inputValue');
 						}}
 						ariaControls={["hasRelatedCpo-hidden", "hasRelatedCpo-no-hidden"]}
 					/>
