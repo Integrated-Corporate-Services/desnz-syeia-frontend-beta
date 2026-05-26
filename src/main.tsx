@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "govuk-frontend/dist/govuk/govuk-frontend.min.css"; // GDS base styles first
 import "./index.css";

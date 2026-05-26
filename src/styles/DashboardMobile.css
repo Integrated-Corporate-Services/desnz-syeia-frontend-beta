@@ -6,6 +6,8 @@
  * - User Management Dashboard
  * 
  * Following GDS Design System guidelines.
+ * 
+ * NOTE: Global scrolling fixes are in src/index.css
  */
 
 /* ==========================================================================
@@ -305,9 +307,12 @@
    ========================================================================== */
 
 @media (max-width: 640px) {
-  /* Header section responsive */
+  /* Header section responsive - use full available width */
   .workbasket-hero-section {
     padding: 15px 0;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .workbasket-hero-section .govuk-heading-l,
@@ -320,21 +325,28 @@
   /* Stack buttons vertically on mobile and make full width */
   .workbasket-header-buttons {
     flex-direction: column !important;
-    gap: 15px !important;
+    gap: 12px !important;
     width: 100% !important;
     align-items: stretch !important;
+    padding: 0 !important;
+    margin: 15px 0 20px 0 !important;
   }
 
+  /* Buttons stretch to full container width */
   .workbasket-header-buttons .govuk-button {
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
+    padding: 12px 16px !important;
     text-align: center;
+    box-sizing: border-box !important;
   }
 
-  /* Description text */
+  /* Description text - use full width */
   .workbasket-hero-section .govuk-body {
     font-size: 16px;
     line-height: 1.5;
+    width: 100%;
   }
 }
 
@@ -521,7 +533,7 @@
 
 @media (max-width: 640px) {
   .app-wide-container {
-    padding: 0 15px;
+    padding: 0 5px;
   }
 
   .app-your-applications-section {
@@ -529,10 +541,16 @@
     margin: 0;
   }
 
-  /* Ensure full width on smallest screens */
+  /* Ensure full width on smallest screens - minimal margins for maximum content width */
   .govuk-width-container {
-    margin: 0 15px;
-    max-width: calc(100% - 30px);
+    margin: 0 5px;
+    max-width: calc(100% - 10px);
+    padding: 0;
+  }
+
+  /* Override any nested padding */
+  .govuk-width-container > * {
+    max-width: 100%;
   }
 }
 

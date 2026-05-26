@@ -68,6 +68,17 @@ button:focus-visible {
 }
 */
 
+/* Keep default document scrolling behavior predictable across devices */
+html,
+body {
+  overflow-x: hidden;
+}
+
+body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Utility class for centering pagination - extends GDS */
 .app-pagination-container {
   display: flex;

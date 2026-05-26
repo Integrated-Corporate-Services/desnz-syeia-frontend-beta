@@ -1,29 +1,3 @@
-.workbasket-page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.workbasket-page-container main {
-  flex: 1 0 auto; /* Grow to fill space, push footer down */
-}
-
-.workbasket-page-container footer {
-  flex-shrink: 0; /* Footer stays at bottom */
-}
-
-/* Scope override to workbasket page only to prevent global impact */
-.workbasket-page-container .govuk-main-wrapper {
-  padding-top: 0;
-  padding-bottom: 40px;
-  min-height: calc(100vh - 400px);
-}
-
-/* Increase container width for workbasket to accommodate longer status badges */
-.workbasket-page-container .govuk-width-container {
-  max-width: 1200px;
-}
-
 /* Hero section inside govuk-width-container */
 .workbasket-hero-section {
   padding-top: 30px;
@@ -219,13 +193,6 @@
   height: auto;
 }
 
-@media (max-width: 640px) {
-  .workbasket-results-column .govuk-tag,
-  .workbasket-table-wrapper .govuk-tag {
-    /* GDS handles responsive sizing */
-  }
-}
-
 /* Responsive: stack on mobile */
 @media (max-width: 1024px) {
   .workbasket-two-column-layout {
@@ -262,7 +229,42 @@
   .workbasket-results-column {
     overflow-x: auto;
   }
+}
 
+/* Small mobile (iPhone SE, etc.) - minimal margins for maximum content width */
+@media (max-width: 640px) {
+  .workbasket-two-column-layout {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 15px;
+  }
+
+  /* Hero section - extend to use more width */
+  .workbasket-hero-section {
+    padding: 10px 0;
+    width: 100%;
+  }
+
+  /* Buttons stretch full width on small mobile */
+  .workbasket-header-buttons {
+    width: 100% !important;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    padding: 0;
+  }
+
+  .workbasket-header-buttons .govuk-button {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
   .workbasket-results-column .govuk-table__cell,
   .workbasket-results-column .govuk-table__header {
     padding: 12px 15px 12px 0; /* Improved mobile padding */
@@ -691,6 +693,21 @@
 
   .app-wide-container .govuk-grid-row {
     margin: 0 5px; /* govuk-spacing(1) */
+  }
+}
+
+/* Tablet and up: keep tabs/results container fully expandable and leave space before footer */
+@media (min-width: 768px) {
+  #filterTabsWrapper,
+  #tabsPanel,
+  .workbasket-table-wrapper {
+    overflow: visible;
+    height: auto;
+    max-height: none;
+  }
+
+  #filterTabsWrapper {
+    padding-bottom: 24px;
   }
 }
 
