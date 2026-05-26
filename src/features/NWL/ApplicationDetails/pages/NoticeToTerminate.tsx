@@ -120,9 +120,10 @@ const NoticeToTerminate: React.FC = () => {
     }
   }, [applicationDetails, appId]);
 
-  const validateForm = (): boolean => {
+  const validateForm = (filesToCheck: UploadedFile[] = uploadedFiles): boolean => {
     const newErrors: string[] = [];
     const newFieldErrors: typeof fieldErrors = {};
+    let fileError = "";
 
     if (!day || !month || !year) {
       newErrors.push(VALIDATION_MESSAGES.DATE_REQUIRED);
@@ -137,10 +138,17 @@ const NoticeToTerminate: React.FC = () => {
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_FUTURE;
     }
 
+    // File upload validation
+    if (filesToCheck.length === 0) {
+      fileError = FORM_ERRORS.NO_FILES;
+    }
+
     setErrors(newErrors);
     setFieldErrors(newFieldErrors);
+    setFileValidationErrors(fileError ? [fileError] : []);
 
-    return newErrors.length === 0;
+    // Return true if no errors at all
+    return newErrors.length === 0 && !fileError;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -168,20 +176,8 @@ const NoticeToTerminate: React.FC = () => {
       }
     }
 
-    if (!validateForm()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (fileValidationErrors.length > 0) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    // Check if at least one file is uploaded (mandatory)
     const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
-    if (allUploadedFiles.length === 0) {
-      setFileValidationErrors([FORM_ERRORS.NO_FILES]);
+    if (!validateForm(allUploadedFiles)) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
