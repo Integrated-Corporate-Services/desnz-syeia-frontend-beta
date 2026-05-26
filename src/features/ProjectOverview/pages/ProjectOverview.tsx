@@ -826,14 +826,16 @@ const ProjectOverview = () => {
 								onDeleteFile={handleDeleteFile}
 								onPendingFilesChange={setPendingFiles}
 								onValidationErrors={(errors) => {
-									// Handle validation errors
 									setFileValidationErrors(errors);
-								// Set field error with the actual error message
-								if (errors.length > 0) {
-									// Use the first error message directly (validation errors are plain text from our code)
-									setFieldErrors(prev => ({ ...prev, uploadedFiles: errors[0] }));
+									if (errors.length > 0) {
+										setFieldErrors(prev => ({ ...prev, uploadedFiles: errors[0] }));
+										setErrors(prev => [
+											...prev.filter(e => !e.includes('#planInformationDocuments')),
+											...errors.map(error => `<a href="#planInformationDocuments">${error}</a>`)
+										]);
 									} else {
 										setFieldErrors(prev => { const newErrors = { ...prev }; delete newErrors.uploadedFiles; return newErrors; });
+										setErrors(prev => prev.filter(e => !e.includes('#planInformationDocuments')));
 									}
 								}} onUploaded={(newUploadedFiles, newProjectDocuments) => {
 									setFormState(prev => ({
