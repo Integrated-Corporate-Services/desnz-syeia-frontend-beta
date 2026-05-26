@@ -28,10 +28,10 @@ export const RepresentativeDetailsSummaryCard: React.FC<Props> = ({ data, applic
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.HAS_REPRESENTATIVE, formatBoolean(data.has_representative)));
 
     // Name
-    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.EMPTY));
 
     // Organisation
-    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.DASH));
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.EMPTY));
 
     // Email
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.EMAIL, formatEmail(data.email)));

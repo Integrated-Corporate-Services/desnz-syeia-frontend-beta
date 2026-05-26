@@ -39,17 +39,17 @@ export const LandownerDetailsSummaryCard: React.FC<Props> = ({ data, application
     const rows: SummaryRow[] = [];
 
     // Title
-    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.TITLE, data.title || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.TITLE, data.title || CONSTANTS.DEFAULTS.EMPTY));
 
     // Name
-    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.EMPTY));
 
     // Organisation
-    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.DASH));
+    rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.EMPTY));
 
     // Address
     const addressParts = [data.address_line1, data.address_line2, data.town_city, data.postcode].filter((part) => part && part !== '-');
-    const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.NOT_PROVIDED;
+    const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
     rows.push({
         key: { text: CONSTANTS.LANDOWNER_FIELDS.ADDRESS },
         value: { text: '', html: addressHtml },

@@ -49,7 +49,7 @@ export const SiteAddressSummaryCard: React.FC<Props> = ({ data, applicationId, c
             value: { text: '', html: addressHtml },
         });
     } else {
-        rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SITE_ADDRESS, CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SITE_ADDRESS, CONSTANTS.DEFAULTS.EMPTY));
     }
 
     return (

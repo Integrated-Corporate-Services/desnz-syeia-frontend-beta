@@ -21,6 +21,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         OWNER_OCCUPIER_DETAILS: 'Owner and/or occupier details',
         LAND_DETAILS: 'Land details',
         ASSETS: 'Assets',
+        NEGOTIATIONS: 'Existing negotiations',
         ADDITIONAL_INFORMATION: 'Additional information',
         DECLARATION: 'Declaration',
         PAY_AND_SUBMIT: 'Pay and submit this application',
@@ -37,6 +38,8 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         SITE_ADDRESS: 'Site address',
         LAND_LOCATION: 'Land location',
         ASSET: 'Asset',
+        NEGOTIATIONS: 'Existing negotiations',
+        ADDITIONAL_INFORMATION: 'Additional information',
         TREES_AND_VEGETATION: 'Trees and vegetation',
     },
 
@@ -156,9 +159,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
 
     // Default values
     DEFAULTS: {
-        NOT_PROVIDED: 'Not provided',
-        NONE: 'None',
-        DASH: '-',
+        EMPTY: '',
     },
 
     // Declaration

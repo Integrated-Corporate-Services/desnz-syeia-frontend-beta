@@ -11,7 +11,7 @@ import { SummaryRow } from '../types';
  * @returns Formatted date string (e.g., "10 May 2026")
  */
 export const formatDate = (date: string | Date | null | undefined): string => {
-    if (!date) return 'Not provided';
+    if (!date) return '';
 
     const dateObj = typeof date === 'string' ? new Date(date) : date;
 
@@ -30,7 +30,7 @@ export const formatDate = (date: string | Date | null | undefined): string => {
  * @returns Formatted string
  */
 export const formatBoolean = (value: boolean | null | undefined, yesText: string = 'Yes', noText: string = 'No'): string => {
-    if (value === null || value === undefined) return 'Not provided';
+    if (value === null || value === undefined) return '';
     return value ? yesText : noText;
 };
 
@@ -40,7 +40,7 @@ export const formatBoolean = (value: boolean | null | undefined, yesText: string
  * @returns HTML string with line breaks
  */
 export const formatAddress = (address: { line1?: string; line2?: string; town_city?: string; county?: string; postcode?: string }): string => {
-    if (!address) return 'Not provided';
+    if (!address) return '';
 
     const lines = [address.line1, address.line2, address.town_city, address.county, address.postcode].filter(Boolean);
 
@@ -104,7 +104,7 @@ export const truncateText = (text: string, maxLength: number = 100): string => {
  * @returns Human-readable text (e.g., "New lines")
  */
 export const formatEnumValue = (value: string | null | undefined): string => {
-    if (!value) return 'Not provided';
+    if (!value) return '';
 
     return value
         .split('_')
@@ -115,19 +115,19 @@ export const formatEnumValue = (value: string | null | undefined): string => {
 /**
  * Format phone number
  * @param phone - Phone number
- * @returns Formatted phone number or "Not provided"
+ * @returns Formatted phone number or empty string
  */
 export const formatPhone = (phone: string | null | undefined): string => {
-    return phone || 'Not provided';
+    return phone || '';
 };
 
 /**
  * Format email
  * @param email - Email address
- * @returns Email or "Not provided"
+ * @returns Email or empty string
  */
 export const formatEmail = (email: string | null | undefined): string => {
-    return email || 'Not provided';
+    return email || '';
 };
 
 /**
@@ -137,7 +137,7 @@ export const formatEmail = (email: string | null | undefined): string => {
  * @param defaultValue - Default value if property not found
  * @returns Property value or default
  */
-export const getNestedProperty = (obj: any, path: string, defaultValue: any = 'Not provided'): any => {
+export const getNestedProperty = (obj: any, path: string, defaultValue: any = ''): any => {
     const keys = path.split('.');
     let result = obj;
 

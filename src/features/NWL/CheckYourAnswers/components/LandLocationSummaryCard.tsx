@@ -39,14 +39,14 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
     const rows: SummaryRow[] = [];
 
     // Land location (country)
-    rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.COUNTRY, data.country || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.COUNTRY, data.country || CONSTANTS.DEFAULTS.EMPTY));
 
     // Registered with Land Registry
     rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.IS_REGISTERED, formatBoolean(data.is_registered)));
 
     // If registered - show details
     if (data.is_registered) {
-        rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_REF, data.land_registry_ref || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+        rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_REF, data.land_registry_ref || CONSTANTS.DEFAULTS.EMPTY));
 
         if (data.land_registry_doc) {
             const docHtml = `<a href="#" class="govuk-link">${data.land_registry_doc}</a>`;
@@ -55,15 +55,15 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
                 value: { text: '', html: docHtml },
             });
         } else {
-            rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, CONSTANTS.DEFAULTS.NOT_PROVIDED));
+            rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, CONSTANTS.DEFAULTS.EMPTY));
         }
     }
 
     // OS Grid Reference
-    rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.OS_GRID_REF, data.os_grid_ref || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.OS_GRID_REF, data.os_grid_ref || CONSTANTS.DEFAULTS.EMPTY));
 
     // Land identification
-    rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.LAND_IDENTIFICATION, data.land_identification || CONSTANTS.DEFAULTS.NOT_PROVIDED));
+    rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.LAND_IDENTIFICATION, data.land_identification || CONSTANTS.DEFAULTS.EMPTY));
 
     // Visible from public road
     rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.VISIBLE_FROM_ROAD, formatBoolean(data.visible_from_road)));
@@ -76,7 +76,7 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
             value: { text: '', html: photosHtml },
         });
     } else {
-        rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.SITE_PHOTOS, CONSTANTS.DEFAULTS.NONE));
+        rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.SITE_PHOTOS, CONSTANTS.DEFAULTS.EMPTY));
     }
 
     return (
