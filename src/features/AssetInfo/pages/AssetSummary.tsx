@@ -34,12 +34,16 @@ const AssetSummary: React.FC = () => {
             publicConsultation.status.toLowerCase() !== ConsultationStatus.NOT_STARTED.toLowerCase();
 
         // Check if ALL consultations are closed
-        const allConsultationsClosed = consultations.every(
-            (consultation) => consultation.status.toLowerCase() === ConsultationStatus.CLOSED.toLowerCase()
+        const allConsultationsComplete = consultations.every(
+            (consultation) => {
+                const status = consultation.status.toLowerCase();
+                return status === ConsultationStatus.CLOSED.toLowerCase() || 
+                       status === 'not required' ||
+                       status === 'completed';
+            }
         );
 
-        // Hide change links if public notice started OR all consultations are closed
-        return publicNoticeStarted || allConsultationsClosed;
+        return publicNoticeStarted || allConsultationsComplete;
     }, [consultations]);
 
     useEffect(() => {
