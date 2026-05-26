@@ -144,7 +144,7 @@ const NoticeToRemove: React.FC = () => {
     // Validate files
     const totalFiles = uploadedFilesCount + applicationDocsCount;
     if (totalFiles === 0) {
-      newErrors.push(FORM_ERRORS.NO_FILES);
+      //newErrors.push(FORM_ERRORS.NO_FILES);
       // Set file validation errors for inline display
       setFileValidationErrors([FORM_ERRORS.NO_FILES]);
     } else {
