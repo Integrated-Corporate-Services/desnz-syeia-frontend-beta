@@ -1,27 +1,24 @@
-.workbasket-page-container {
+/* Workbasket page shell: keeps footer in normal flow and reachable on all viewports */
+.workbasket-shell {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
 }
 
-.workbasket-page-container main {
-  flex: 1 0 auto; /* Grow to fill space, push footer down */
+.workbasket-shell-content {
+  flex: 1 0 auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-.workbasket-page-container footer {
-  flex-shrink: 0; /* Footer stays at bottom */
+.workbasket-shell .govuk-footer {
+  flex-shrink: 0;
 }
 
-/* Scope override to workbasket page only to prevent global impact */
-.workbasket-page-container .govuk-main-wrapper {
-  padding-top: 0;
-  padding-bottom: 40px;
-  min-height: calc(100vh - 400px);
-}
-
-/* Increase container width for workbasket to accommodate longer status badges */
-.workbasket-page-container .govuk-width-container {
-  max-width: 1200px;
+/* Keep footer content reachable on devices with dynamic browser UI/safe areas */
+.workbasket-shell .govuk-footer {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Hero section inside govuk-width-container */
@@ -219,13 +216,6 @@
   height: auto;
 }
 
-@media (max-width: 640px) {
-  .workbasket-results-column .govuk-tag,
-  .workbasket-table-wrapper .govuk-tag {
-    /* GDS handles responsive sizing */
-  }
-}
-
 /* Responsive: stack on mobile */
 @media (max-width: 1024px) {
   .workbasket-two-column-layout {
@@ -262,7 +252,42 @@
   .workbasket-results-column {
     overflow-x: auto;
   }
+}
 
+/* Small mobile (iPhone SE, etc.) - minimal margins for maximum content width */
+@media (max-width: 640px) {
+  .workbasket-two-column-layout {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 15px;
+  }
+
+  /* Hero section - extend to use more width */
+  .workbasket-hero-section {
+    padding: 10px 0;
+    width: 100%;
+  }
+
+  /* Buttons stretch full width on small mobile */
+  .workbasket-header-buttons {
+    width: 100% !important;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    padding: 0;
+  }
+
+  .workbasket-header-buttons .govuk-button {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
   .workbasket-results-column .govuk-table__cell,
   .workbasket-results-column .govuk-table__header {
     padding: 12px 15px 12px 0; /* Improved mobile padding */

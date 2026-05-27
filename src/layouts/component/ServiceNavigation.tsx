@@ -8,7 +8,7 @@ import { logout } from "../../services/authService";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const location = useLocation();
     const { user } = useAuthUserContext();
 

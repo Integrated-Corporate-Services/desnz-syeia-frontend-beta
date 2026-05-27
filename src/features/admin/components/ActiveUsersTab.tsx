@@ -2,6 +2,7 @@ import React from "react";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import PaginationComponent from "./PaginationComponent";
 import { ROLES } from "../../../constants/roles";
+import "../../../styles/DashboardMobile.css";
 
 interface User {
   id: string;
@@ -13,12 +14,21 @@ interface User {
   lastLogin: string | null;
 }
 
-  const formatRole = (role: string) => {
-    if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
-    if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
-    if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
-    return 'Applicant';
-  };
+const formatRole = (role: string) => {
+  if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
+  if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
+  if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
+  return 'Applicant';
+};
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return 'Never';
+  return new Date(dateString).toLocaleDateString('en-GB', { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric' 
+  });
+};
 
 interface ActiveUsersTabProps {
   totalResults: number;
@@ -70,7 +80,8 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
         <LoadingSkeleton type="table" />
       ) : (
         <>
-          <table className="govuk-table">
+          {/* Desktop table view */}
+          <table className="govuk-table user-management-table">
             <thead className="govuk-table__head">
               <tr className="govuk-table__row">
                 <th scope="col" className="govuk-table__header">
@@ -138,6 +149,56 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
               )}
             </tbody>
           </table>
+
+          {/* Mobile card view */}
+          <div className="user-card-list" role="list" aria-label="Active users list">
+            {paginatedUsers.length === 0 ? (
+              <p className="govuk-body">No active users found.</p>
+            ) : (
+              paginatedUsers.map((user) => (
+                <div key={`card-${user.id}`} className="user-card" role="listitem">
+                  <div className="user-card__header">
+                    <div className="user-card__name">{user.fullName}</div>
+                    <div className="user-card__status">
+                      <strong className="govuk-tag govuk-tag--green">Active</strong>
+                    </div>
+                  </div>
+                  <div className="user-card__body">
+                    <div className="user-card__row">
+                      <span className="user-card__label">Organisation: </span>
+                      <span className="user-card__value">{user.organisation || 'SSE Networks'}</span>
+                    </div>
+                    <div className="user-card__row">
+                      <span className="user-card__label">Email: </span>
+                      <span className="user-card__value">{user.email}</span>
+                    </div>
+                    <div className="user-card__row">
+                      <span className="user-card__label">Role: </span>
+                      <span className="user-card__value">{formatRole(user.role)}</span>
+                    </div>
+                    <div className="user-card__row">
+                      <span className="user-card__label">Last login: </span>
+                      <span className="user-card__value">{formatDate(user.lastLogin)}</span>
+                    </div>
+                  </div>
+                  {user.role !== "SYSTEM" && (
+                    <div className="user-card__action">
+                      <a
+                        className="govuk-link"
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigateToRevokeUser(user.id);
+                        }}
+                      >
+                        Manage
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
 
           {totalPages > 1 && (
             <div className="app-pagination-container govuk-!-margin-top-6">

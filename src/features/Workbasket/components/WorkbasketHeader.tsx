@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "../../../styles/Workbasket.css";
+import "../../../styles/DashboardMobile.css";
 
 interface WorkbasketHeaderProps {
   onToggleFilters: () => void;
