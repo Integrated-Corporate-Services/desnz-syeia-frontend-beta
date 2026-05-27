@@ -10,6 +10,9 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 const logger = createLogger('nwlAssetService');
 const API_BASE = '/backend/api/nwl';
 
+// Re-export Page IDs for convenience
+export { ASSETS_PAGE_IDS } from '../constants/pageNames';
+
 // Types
 export interface CreateAssetsPayload {
   application_id: string;
@@ -55,15 +58,24 @@ export interface AssetsResponse {
 export const nwlAssetService = {
   /**
    * Create assets (bulk operation)
+   * @param payload - Assets creation payload
+   * @param pageId - Optional Page ID for page-specific validation (e.g., 'add-asset', 'upload-plan', 'assets-match-plan')
    */
-  createAssets: async (payload: CreateAssetsPayload): Promise<AssetsResponse> => {
+  createAssets: async (payload: CreateAssetsPayload, pageId?: string): Promise<AssetsResponse> => {
     try {
       logger.debug('[createAssets] Creating assets', { 
         application_id: payload.application_id,
-        asset_count: payload.assets.length 
+        asset_count: payload.assets.length,
+        page_id: pageId
       });
       
-      const response = await axios.post(`${API_BASE}/assets`, payload);
+      const headers: Record<string, string> = {};
+      // Add X-Page-ID header if pageId is provided for page-specific validation
+      if (pageId) {
+        headers['X-Page-ID'] = pageId;
+      }
+      
+      const response = await axios.post(`${API_BASE}/assets`, payload, { headers });
       
       logger.info('[createAssets] Assets created successfully', {
         metadata_id: response.data.assets_metadata_id,

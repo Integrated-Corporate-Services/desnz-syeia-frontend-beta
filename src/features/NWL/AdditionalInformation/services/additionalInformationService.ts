@@ -4,6 +4,9 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 
 const API_BASE_URL = '/backend/api/nwl';
 
+// Re-export Page IDs for convenience
+export { ADDITIONAL_INFO_PAGE_IDS } from '../constants/pageNames';
+
 /**
  * Get additional information data for an application
  */
@@ -28,6 +31,9 @@ export const getAdditionalInformationData = async (
 /**
  * Create or update additional information data for an application
  * Uses POST to create/upsert in the backend
+ * @param applicationId - Application ID
+ * @param data - Additional information data
+ * @param pageId - Optional Page ID for page-specific validation (e.g., 'related-applications', 'other-important-info', 'important-info-details')
  */
 export const createOrUpdateAdditionalInformationData = async (
   applicationId: string,
@@ -39,7 +45,8 @@ export const createOrUpdateAdditionalInformationData = async (
     additional_document_ids?: string[];
     uploaded_files?: UploadedFile[];
     application_documents?: ApplicationDocument[];
-  }
+  },
+  pageId?: string
 ): Promise<void> => {
   // Clean the data object to remove undefined/null fields
   const cleanData: Record<string, unknown> = {
@@ -72,9 +79,16 @@ export const createOrUpdateAdditionalInformationData = async (
     cleanData.additional_document_ids = data.additional_document_ids;
   }
 
+  const headers: Record<string, string> = {};
+  // Add X-Page-ID header if pageId is provided for page-specific validation
+  if (pageId) {
+    headers['X-Page-ID'] = pageId;
+  }
+
   await axios.post(
     `${API_BASE_URL}/additional-information`,
-    cleanData
+    cleanData,
+    { headers }
   );
 };
 
