@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { useUserManagementDashboard } from "../../../hooks";
-import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import { TabNavigation } from "../components/TabNavigation";
 // import { FilterSection } from "../components/FilterSection";
 import { OrganisationsTab } from "../components/OrganisationsTab";
@@ -38,7 +36,6 @@ const UserManagementDashboard: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // Search functionality can be implemented here
-    console.log("Searching for:", searchQuery);
   };
 
   return (
