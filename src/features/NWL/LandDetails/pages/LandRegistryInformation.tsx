@@ -158,7 +158,7 @@ const LandRegistryInformation: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
-                {landDetails.uploadedFiles && landDetails.uploadedFiles.length > 0 && (
+                {pageUploadedFiles && pageUploadedFiles.length > 0 && (
                   <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
                 )}
                 

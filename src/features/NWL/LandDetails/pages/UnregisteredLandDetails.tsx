@@ -156,9 +156,6 @@ const UnregisteredLandDetails: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
-                {landDetails.uploadedFiles && landDetails.uploadedFiles.length > 0 && (
-                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
-                )}
                 
                   {/* Files/documents only for this page's subCategory */}
                   {(() => {
@@ -167,7 +164,11 @@ const UnregisteredLandDetails: React.FC = () => {
                     const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 
                     return (
-                      <FileUpload
+                      <>
+                        {pageUploadedFiles && pageUploadedFiles.length > 0 && (
+                          <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
+                        )}
+                        <FileUpload
                   ref={fileUploadRef}
                   title={labels.UPLOAD_SECTION_TITLE}
                   showTitle={false}
@@ -189,7 +190,8 @@ const UnregisteredLandDetails: React.FC = () => {
                       applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
                     });
                   }}
-                      />
+                        />
+                      </>
                     );
                   })()}
               </div>

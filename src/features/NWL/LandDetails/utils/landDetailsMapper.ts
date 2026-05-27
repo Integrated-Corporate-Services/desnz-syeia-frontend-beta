@@ -54,141 +54,89 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
     return '';
   };
 
-  // Build a combined list of document rows from all known backend arrays
-  const allDocRows: any[] = [
-    ...(backendData.land_registry_documents || []),
-    // Some backend responses use the "_application_documents" suffix (PATCH/echo shape)
+  const fileMap: Record<string, any> = {};
+  const allDocuments: any[] = [];
+  
+  const processCategory = (docs: any[], subCategory: string) => {
+    (docs || []).forEach((doc: any) => {
+      const fileId = doc.file_id || doc.fileId || doc.id;
+      const documentId = doc.document_id || doc.documentId || doc.id;
+      const fileUrlOrS3Key = doc.fileUrl || doc.file_url || doc.s3_key || doc.s3Key || '';
+      if (!fileId) return;
+
+      if (!fileMap[fileId]) {
+        fileMap[fileId] = {
+          id: fileId,
+          storageProvider: 'AWS_S3',
+          s3Key: fileUrlOrS3Key, 
+          bucketName: '',
+          virtualFolder: fileUrlOrS3Key.split('/').slice(0, -1).join('/'),
+          filename: doc.filename || doc.title || '',
+          fileContentType: doc.file_content_type || doc.fileContentType || '',
+          fileSizeBytes: parseInt(doc.file_size || doc.file_size_bytes || '0', 10),
+          uploadedAtTimestamp: doc.uploaded_at || doc.added_at || doc.uploadedAtTimestamp || '',
+        };
+      }
+      
+      allDocuments.push({
+        documentId: documentId,
+        applicationId: backendData.application_id,
+        fileId: fileId,
+        category: subCategory,
+        subCategory: subCategory,
+        title: doc.filename || doc.title || '',
+        virtualFolder: fileUrlOrS3Key.split('/').slice(0, -1).join('/'),
+        addedBy: doc.added_by || doc.addedBy || '',
+        addedAt: doc.uploaded_at || doc.added_at || doc.addedAt || '',
+        description: doc.description || '',
+      });
+    });
+  };
+
+  processCategory(backendData.land_registry_documents || [], LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY);
+  processCategory(backendData.unregistered_land_documents || [], LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND);
+  processCategory(backendData.site_information_documents || [], LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION);
+  
+  const alternativeFormatDocuments = [
     ...(backendData.land_registry_application_documents || []),
-    ...(backendData.site_information_documents || []),
     ...(backendData.site_information_application_documents || []),
-    ...(backendData.unregistered_land_documents || []),
     ...(backendData.unregistered_land_application_documents || []),
   ];
-
-  // Also accept a top-level uploaded_files array if backend returns it
-  // Accept multiple shapes from backend: top-level `uploaded_files`, camel `uploadedFiles`,
-  // or category-scoped uploaded files returned/echoed as `site_information_uploaded_files` etc.
-  const topLevelUploadedFiles: any[] =
-    (backendData as any).uploaded_files ||
-    (backendData as any).uploadedFiles ||
-    (backendData as any).site_information_uploaded_files ||
-    (backendData as any).land_registry_uploaded_files ||
-    (backendData as any).site_information_uploadedFiles ||
-    (backendData as any).land_registry_uploadedFiles ||
-    [];
-
-  // Build uploadedFiles list (unique by id)
-  const fileMap: Record<string, any> = {};
-  // First map document rows
-  allDocRows.forEach((d: any) => {
+  
+  alternativeFormatDocuments.forEach((d: any) => {
     const fileId = d.file_id || d.fileId || d.document_id || d.documentId;
     if (!fileId) return;
-    if (!fileMap[fileId]) {
-      const s3Key = d.s3_key || d.s3Key || '';
-      const sizeRaw = d.file_size_bytes || d.fileSize || 0;
-      fileMap[fileId] = {
-        id: fileId,
-        storageProvider: d.storage_provider || d.storageProvider || 'aws_s3',
-        s3Key,
-        bucketName: d.bucket_name || d.bucketName || '',
-        virtualFolder: s3Key.split('/').slice(0, -1).join('/'),
-        filename: d.filename || d.title || '',
-        fileContentType: d.file_content_type || d.fileContentType || 'application/octet-stream',
-        fileSizeBytes: typeof sizeRaw === 'string' ? Number(sizeRaw) : sizeRaw,
-        uploadedAtTimestamp: d.added_at || d.uploaded_at || d.uploadedAt || new Date().toISOString(),
-      };
-    }
-  });
-
-  // Merge any top-level uploaded files (they may come from uploaded_files table)
-  topLevelUploadedFiles.forEach((f: any) => {
-    const fid = f.file_id || f.fileId || f.id || f.document_id || f.documentId;
-    if (!fid) return;
-    if (!fileMap[fid]) {
-      const s3Key = f.s3_key || f.s3Key || f.s3key || f.key || '';
-      const sizeRaw = f.file_size_bytes || f.fileSize || f.size || 0;
-      fileMap[fid] = {
-        id: fid,
-        storageProvider: f.storage_provider || f.storageProvider || 'aws_s3',
-        s3Key,
-        bucketName: f.bucket_name || f.bucketName || f.bucket || '',
-        virtualFolder: s3Key.split('/').slice(0, -1).join('/'),
-        filename: f.filename || f.name || '',
-        fileContentType: f.file_content_type || f.fileContentType || f.contentType || 'application/octet-stream',
-        fileSizeBytes: typeof sizeRaw === 'string' ? Number(sizeRaw) : sizeRaw,
-        uploadedAtTimestamp: f.added_at || f.uploaded_at || f.uploadedAt || new Date().toISOString(),
-      };
-    }
-  });
-
-  // Build applicationDocuments from document rows
-  const initialApplicationDocuments = allDocRows.map((d: any) => {
     const rawSub = d.subcategory || d.subCategory || d.sub_category || '';
     const normalizedSub = (rawSub || '').toString().toUpperCase();
-    const computedSub = normalizedSub;
-    return {
-      documentId: d.document_id || d.documentId,
-      applicationId: d.application_id || d.applicationId,
-      fileId: d.file_id || d.fileId || d.document_id || d.documentId,
-      category: d.category || d.category_name || '',
-      subCategory: computedSub,
+    
+    if (!fileMap[fileId]) {
+      const s3Key = d.s3_key || d.s3Key || '';
+      fileMap[fileId] = {
+        id: fileId,
+        storageProvider: 'AWS_S3',
+        s3Key: s3Key,
+        bucketName: '',
+        virtualFolder: s3Key.split('/').slice(0, -1).join('/'),
+        filename: d.filename || d.title || '',
+        fileContentType: d.file_content_type || d.fileContentType || '',
+        fileSizeBytes: parseInt(d.file_size_bytes || d.file_size || '0', 10),
+        uploadedAtTimestamp: d.added_at || d.uploaded_at || '',
+      };
+    }
+    
+    allDocuments.push({
+      documentId: d.document_id || d.documentId || fileId,
+      applicationId: d.application_id || d.applicationId || backendData.application_id,
+      fileId: fileId,
+      category: d.category || '',
+      subCategory: normalizedSub,
       title: d.filename || d.title || '',
       virtualFolder: (d.s3_key || d.s3Key || '').split('/').slice(0, -1).join('/'),
       addedBy: d.added_by || d.addedBy || '',
-      addedAt: d.added_at || d.uploaded_at || d.addedAt || '',
+      addedAt: d.added_at || d.addedAt || '',
       description: d.description || '',
-      consultationId: d.consultation_id || d.consultationId,
-    };
+    });
   });
-
-  // If there are top-level uploaded files that don't have corresponding document rows,
-  // generate lightweight applicationDocuments so the UI can associate them with a page.
-  const referencedFileIds = new Set(initialApplicationDocuments.map((ad) => ad.fileId));
-  const generatedDocs: any[] = [];
-  Object.values(fileMap).forEach((file: any) => {
-    if (!referencedFileIds.has(file.id)) {
-      // Try to infer subcategory from the virtual folder (last segment)
-      const folder = (file.virtualFolder || '').toString();
-      const lastSegment = folder.split('/').filter(Boolean).pop() || '';
-      const inferredSub = (lastSegment || '').toString().toUpperCase();
-      const validSubs = [
-        LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY,
-        LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION,
-        LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND,
-      ];
-      let finalSub = '';
-      let finalCategory = 'APPLICATION_LAND_DETAILS';
-
-      if (validSubs.includes(inferredSub)) {
-        finalSub = inferredSub;
-        // Backend historically uses category = APPLICATION_LAND_DETAILS for SITE_INFORMATION
-        finalCategory = inferredSub === LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION ? 'APPLICATION_LAND_DETAILS' : inferredSub;
-      } else {
-        // Fallback behavior if we can't infer: prefer SITE_INFORMATION if backend has site info
-        const hasSiteInfo = 
-          (backendData.site_information_documents && backendData.site_information_documents.length > 0) ||
-          ((backendData as any).site_information_application_documents && (backendData as any).site_information_application_documents.length > 0) ||
-          ((backendData as any).site_information_uploaded_files && (backendData as any).site_information_uploaded_files.length > 0);
-        finalSub = hasSiteInfo ? 'SITE_INFORMATION' : 'APPLICATION_LAND_DETAILS';
-        finalCategory = finalSub === 'SITE_INFORMATION' ? 'APPLICATION_LAND_DETAILS' : finalSub;
-      }
-
-      generatedDocs.push({
-        documentId: crypto?.randomUUID ? crypto.randomUUID() : `gen-${file.id}`,
-        applicationId: backendData.application_id,
-        fileId: file.id,
-        category: finalCategory,
-        subCategory: finalSub,
-        title: file.filename || '',
-        virtualFolder: file.virtualFolder || '',
-        addedBy: undefined,
-        addedAt: file.uploadedAtTimestamp || '',
-        description: undefined,
-      });
-    }
-  });
-
-  const applicationDocumentsArr = [...initialApplicationDocuments, ...generatedDocs];
 
   const uploadedFilesArr = Object.values(fileMap);
 
@@ -215,9 +163,8 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
     identifying_information: backendData.land_description || '',
     equipment_visible_from_public_road: backendData.is_equipment_visible_from_public_road,
     
-    // Documents - include land_registry, site_information and any unregistered_land docs
     uploadedFiles: uploadedFilesArr,
-    applicationDocuments: applicationDocumentsArr,
+    applicationDocuments: allDocuments,
   };
 };
 
