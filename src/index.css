@@ -72,11 +72,16 @@ button:focus-visible {
 html,
 body {
   overflow-x: hidden;
+  min-height: 100%;
 }
 
 body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+#root {
+  min-height: 100%;
 }
 
 /* Utility class for centering pagination - extends GDS */

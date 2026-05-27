@@ -1,3 +1,26 @@
+/* Workbasket page shell: keeps footer in normal flow and reachable on all viewports */
+.workbasket-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+}
+
+.workbasket-shell-content {
+  flex: 1 0 auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.workbasket-shell .govuk-footer {
+  flex-shrink: 0;
+}
+
+/* Keep footer content reachable on devices with dynamic browser UI/safe areas */
+.workbasket-shell .govuk-footer {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
 /* Hero section inside govuk-width-container */
 .workbasket-hero-section {
   padding-top: 30px;
@@ -693,21 +716,6 @@
 
   .app-wide-container .govuk-grid-row {
     margin: 0 5px; /* govuk-spacing(1) */
-  }
-}
-
-/* Tablet and up: keep tabs/results container fully expandable and leave space before footer */
-@media (min-width: 768px) {
-  #filterTabsWrapper,
-  #tabsPanel,
-  .workbasket-table-wrapper {
-    overflow: visible;
-    height: auto;
-    max-height: none;
-  }
-
-  #filterTabsWrapper {
-    padding-bottom: 24px;
   }
 }
 

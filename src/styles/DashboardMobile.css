@@ -454,6 +454,27 @@
    ========================================================================== */
 
 @media (max-width: 640px) {
+  /* Keep dashboard content within viewport on small screens */
+  .user-management-dashboard {
+    margin: 0 5px;
+    max-width: calc(100% - 10px);
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .user-management-dashboard .govuk-grid-row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .user-management-dashboard .govuk-grid-column-full {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   /* Dashboard header */
   .govuk-heading-l {
     font-size: 24px;
@@ -471,6 +492,8 @@
 
   .user-search-section .govuk-input {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .user-search-section .govuk-button {

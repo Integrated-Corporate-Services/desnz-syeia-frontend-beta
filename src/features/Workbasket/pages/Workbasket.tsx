@@ -88,10 +88,12 @@ const Workbasket: React.FC = () => {
   );
 
   return (
-    <>
+    <div className="workbasket-shell">
       <Header />
       <ServiceNavigation />
       <PhaseBanner />
+
+      <div className="workbasket-shell-content">
 
       <div className="app-wide-container">
         <div className="app-your-applications-section">
@@ -192,8 +194,10 @@ const Workbasket: React.FC = () => {
         </div>
       </div>
 
+      </div>
+
       <Footer />
-    </>
+    </div>
   );
 };
 
