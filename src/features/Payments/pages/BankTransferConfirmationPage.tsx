@@ -17,19 +17,12 @@ const BankTransferConfirmationPage: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [proofFile, setProofFile] = useState<File | null>(null);
 
   const { invoiceNumber, totalAmount } = location.state || {};
 
   const handleSubmit = async () => {
-    // Validation
-    if (!transactionNumber.trim()) {
-      setError('You must provide the transaction number');
-      setTimeout(() => {
-        const errorSummary = document.querySelector('.govuk-error-summary');
-        if (errorSummary) errorSummary.scrollIntoView();
-      }, 0);
-      return;
-    }
+    // Transaction number is optional now
 
     if (!isChecked) {
       setError('You must confirm you have made the payment');
@@ -50,10 +43,11 @@ const BankTransferConfirmationPage: React.FC = () => {
         transactionNumber
       });
 
+      // Prepare payload - transactionNumber may be empty
       const result = await submitApplicationWithBankTransfer(
         applicationId,
         invoiceNumber,
-        transactionNumber,
+        transactionNumber || undefined,
         totalAmount,
         user?.user_id
       );
@@ -127,17 +121,12 @@ const BankTransferConfirmationPage: React.FC = () => {
               Please provide the transaction number provided via bank transfer that you have completed for the payment of this application.
             </p>
 
-            <div className={`govuk-form-group ${error && !transactionNumber.trim() ? 'govuk-form-group--error' : ''}`}>
+            <div className={`govuk-form-group ${error && transactionNumber.trim() && !isChecked ? 'govuk-form-group--error' : ''}`}>
               <label className="govuk-label govuk-label--m" htmlFor="transaction-number">
-                Transaction number
+                Transaction number (optional)
               </label>
-              {error && !transactionNumber.trim() && (
-                <p id="transaction-number-error" className="govuk-error-message">
-                  <span className="govuk-visually-hidden">Error:</span> {error}
-                </p>
-              )}
               <input
-                className={`govuk-input ${error && !transactionNumber.trim() ? 'govuk-input--error' : ''}`}
+                className="govuk-input"
                 id="transaction-number"
                 name="transaction-number"
                 type="text"
@@ -146,8 +135,21 @@ const BankTransferConfirmationPage: React.FC = () => {
                   setTransactionNumber(e.target.value);
                   setError('');
                 }}
-                aria-describedby={error && !transactionNumber.trim() ? 'transaction-number-error' : undefined}
               />
+            </div>
+
+            <div className="govuk-form-group govuk-!-margin-top-4">
+              <label className="govuk-label" htmlFor="proof-file">Upload a document showing full details of the bank transfer (optional)</label>
+              <input
+                id="proof-file"
+                name="proof-file"
+                type="file"
+                className="govuk-file-upload"
+                onChange={(e) => {
+                  setProofFile(e.target.files && e.target.files[0] ? e.target.files[0] : null);
+                }}
+              />
+              <p className="govuk-hint">You can upload .pdf, .jpg, .png files up to 25MB each. Files cannot be password protected.</p>
             </div>
 
             <div className={`govuk-form-group ${error && transactionNumber.trim() && !isChecked ? 'govuk-form-group--error' : ''}`}>
