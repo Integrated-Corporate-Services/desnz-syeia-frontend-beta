@@ -21,7 +21,7 @@ export const BANK_DETAILS = {
 export const PAYMENT_METHOD = {
   CARD: 'card',
   BANK_TRANSFER: 'bank_transfer',
-  BACS_TRANSFER: 'bacs_transfer',
+  BACS: 'bacs',
 } as const;
 
 export type PaymentMethod = typeof PAYMENT_METHOD[keyof typeof PAYMENT_METHOD];

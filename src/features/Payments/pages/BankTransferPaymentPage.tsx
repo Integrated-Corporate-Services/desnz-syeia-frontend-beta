@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { PAYMENT_PAGE_TITLES } from '../../../constants/payment';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 const BankTransferPaymentPage: React.FC = () => {
@@ -53,55 +54,36 @@ const BankTransferPaymentPage: React.FC = () => {
           </ol>
         </nav>
 
+        <h1 className="govuk-heading-xl">{PAYMENT_PAGE_TITLES.BANK_TRANSFER_PAYMENT}</h1>
+
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {error && (
-              <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
-                <h2 className="govuk-error-summary__title" id="error-summary-title">
-                  There is a problem
-                </h2>
-                <div className="govuk-error-summary__body">
-                  <ul className="govuk-list govuk-error-summary__list">
-                    <li>
-                      <a href="#confirm-bank-transfer">{error}</a>
-                    </li>
-                  </ul>
-                </div>
+
+            <p className="govuk-body">You must make your payment using these banking details:</p>
+
+            <dl className="govuk-summary-list govuk-!-margin-bottom-3">
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">Account name</dt>
+                <dd className="govuk-summary-list__value">Department for Energy Security and Net Zero</dd>
               </div>
-            )}
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">Sort Code</dt>
+                <dd className="govuk-summary-list__value">60-70-80</dd>
+              </div>
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">Account Number</dt>
+                <dd className="govuk-summary-list__value">10033769</dd>
+              </div>
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">Payment reference</dt>
+                <dd className="govuk-summary-list__value">{invoiceNumber || '[invoice number]'}</dd>
+              </div>
+            </dl>
 
-            <h1 className="govuk-heading-xl">Pay by bank transfer</h1>
-
-            <p className="govuk-body">
-              You should only pay by bank transfer if you cannot pay by credit or debit card.
-            </p>
-
-            <div className="govuk-inset-text">
-              <h2 className="govuk-heading-m">You must make your payment into this bank account:</h2>
-              
-              <dl className="govuk-summary-list">
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Account name</dt>
-                  <dd className="govuk-summary-list__value">Department for Energy Security and Net Zero</dd>
-                </div>
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Sort code</dt>
-                  <dd className="govuk-summary-list__value">60-70-80</dd>
-                </div>
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Account number</dt>
-                  <dd className="govuk-summary-list__value">10033769</dd>
-                </div>
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Payment reference</dt>
-                  <dd className="govuk-summary-list__value"><strong>{invoiceNumber || 'N/A'}</strong></dd>
-                </div>
-              </dl>
+            <div className="govuk-inset-text govuk-!-margin-bottom-3">
+              <p className="govuk-body">You must use your invoice number as the payment reference to help us match your payment to this application.</p>
             </div>
-
-            <p className="govuk-body">
-              <strong>You must use your invoice number as the payment reference</strong> to help us match your payment to this application.
-            </p>
+            
 
             <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
               <fieldset className="govuk-fieldset">
@@ -133,7 +115,7 @@ const BankTransferPaymentPage: React.FC = () => {
                 data-module="govuk-button"
                 onClick={handleContinue}
               >
-                Pay by bank transfer
+                Save and continue
               </button>
               <button
                 type="button"

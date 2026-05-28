@@ -53,7 +53,9 @@ export const submitApplicationWithBankTransfer = async (
   invoiceNumber: string,
   transactionNumber: string,
   amount: number,
-  userId?: string
+  userId?: string,
+  uploaded_files?: any[],
+  application_documents?: any[]
 ) => {
   try {
     log.debug('[submitApplicationWithBankTransfer] Submitting application', {
@@ -62,13 +64,43 @@ export const submitApplicationWithBankTransfer = async (
       transactionNumber
     });
 
-    const payload = {
+    // Build payload using snake_case keys for file/document entries to match backend expectations
+    const payload: any = {
       paymentMethod: 'bank_transfer',
       invoiceNumber,
       transactionNumber,
       amount,
       userId
     };
+
+    if (Array.isArray(uploaded_files) && uploaded_files.length > 0) {
+      payload.uploaded_files = uploaded_files.map((f: any) => ({
+        id: f.id,
+        storage_provider: f.storage_provider || f.storageProvider || null,
+        s3_key: f.s3_key || f.s3Key || null,
+        bucket_name: f.bucket_name || f.bucketName || null,
+        virtual_folder: f.virtual_folder || f.virtualFolder || null,
+        filename: f.filename || f.fileName || null,
+        file_content_type: f.file_content_type || f.fileContentType || f.contentType || null,
+        file_size_bytes: f.file_size_bytes || f.fileSizeBytes || f.fileSize || null,
+        uploaded_at_timestamp: f.uploaded_at_timestamp || f.uploadedAtTimestamp || f.uploadedAt || null
+      }));
+    }
+
+    if (Array.isArray(application_documents) && application_documents.length > 0) {
+      payload.application_documents = application_documents.map((d: any) => ({
+        document_id: d.document_id || d.documentId || null,
+        application_id: d.application_id || d.applicationId || null,
+        file_id: d.file_id || d.fileId || null,
+        category: d.category || null,
+        sub_category: d.sub_category || d.subCategory || null,
+        title: d.title || null,
+        virtual_folder: d.virtual_folder || d.virtualFolder || null,
+        added_by: d.added_by || d.addedBy || null,
+        added_at: d.added_at || d.addedAt || null,
+        consultation_id: d.consultation_id || d.consultationId || null
+      }));
+    }
 
     const response = await fetch(`/backend/api/applications/${applicationId}/submit-with-bank-transfer`, {
       method: 'POST',

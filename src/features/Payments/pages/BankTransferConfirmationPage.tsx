@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-import { submitApplicationWithBankTransfer } from '../../../services/govPayService';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('BankTransferConfirmationPage');
@@ -18,11 +18,32 @@ const BankTransferConfirmationPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [proofFile, setProofFile] = useState<File | null>(null);
+  const fileUploadRef = useRef<FileUploadHandle>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const { invoiceNumber, totalAmount } = location.state || {};
 
   const handleSubmit = async () => {
     // Transaction number is optional now
+
+    // Validate required fields: invoiceNumber and totalAmount
+    if (!invoiceNumber || invoiceNumber === '') {
+      setError('Invoice number is required');
+      setTimeout(() => {
+        const errorSummary = document.querySelector('.govuk-error-summary');
+        if (errorSummary) errorSummary.scrollIntoView();
+      }, 0);
+      return;
+    }
+
+    if (totalAmount === undefined || totalAmount === null) {
+      setError('Amount is required');
+      setTimeout(() => {
+        const errorSummary = document.querySelector('.govuk-error-summary');
+        if (errorSummary) errorSummary.scrollIntoView();
+      }, 0);
+      return;
+    }
 
     if (!isChecked) {
       setError('You must confirm you have made the payment');
@@ -43,18 +64,106 @@ const BankTransferConfirmationPage: React.FC = () => {
         transactionNumber
       });
 
-      // Prepare payload - transactionNumber may be empty
-      const result = await submitApplicationWithBankTransfer(
-        applicationId,
-        invoiceNumber,
-        transactionNumber || undefined,
-        totalAmount,
-        user?.user_id
-      );
+      // If there are pending files in the FileUpload component, trigger upload now
+      let uploadedFiles: any[] = [];
+      let applicationDocuments: any[] = [];
+      if (fileUploadRef.current && pendingFiles.length > 0) {
+        const uploadResult = await fileUploadRef.current.triggerUpload();
+        uploadedFiles = uploadResult.uploadedFiles || [];
+        applicationDocuments = uploadResult.applicationDocuments || [];
+      }
 
+      // Prepare payload including both snake_case and camelCase keys
+      const payload: any = {
+        // snake_case
+        payment_method: 'bank_transfer',
+        invoice_number: invoiceNumber,
+        transaction_number: transactionNumber || null,
+        amount: totalAmount,
+        user_id: user?.user_id || null,
+        // camelCase (controller may expect these)
+        paymentMethod: 'bank_transfer',
+        invoiceNumber: invoiceNumber,
+        transactionNumber: transactionNumber || null,
+        userId: user?.user_id || null,
+      };
+
+      if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
+        // include both forms for uploaded files
+        payload.uploaded_files = uploadedFiles.map((f: any) => ({
+          id: f.id,
+          storage_provider: f.storage_provider || f.storageProvider || null,
+          s3_key: f.s3_key || f.s3Key || null,
+          bucket_name: f.bucket_name || f.bucketName || null,
+          virtual_folder: f.virtual_folder || f.virtualFolder || null,
+          filename: f.filename || f.fileName || null,
+          file_content_type: f.file_content_type || f.fileContentType || f.contentType || null,
+          file_size_bytes: f.file_size_bytes || f.fileSizeBytes || f.fileSize || null,
+          uploaded_at_timestamp: f.uploaded_at_timestamp || f.uploadedAtTimestamp || f.uploadedAt || null
+        }));
+        payload.uploadedFiles = uploadedFiles.map((f: any) => ({
+          id: f.id,
+          storageProvider: f.storage_provider || f.storageProvider || null,
+          s3Key: f.s3_key || f.s3Key || null,
+          bucketName: f.bucket_name || f.bucketName || null,
+          virtualFolder: f.virtual_folder || f.virtualFolder || null,
+          filename: f.filename || f.fileName || null,
+          fileContentType: f.file_content_type || f.fileContentType || f.contentType || null,
+          fileSizeBytes: f.file_size_bytes || f.fileSizeBytes || f.fileSize || null,
+          uploadedAtTimestamp: f.uploaded_at_timestamp || f.uploadedAtTimestamp || f.uploadedAt || null
+        }));
+      }
+
+      if (Array.isArray(applicationDocuments) && applicationDocuments.length > 0) {
+        payload.application_documents = applicationDocuments.map((d: any) => ({
+          document_id: d.document_id || d.documentId || null,
+          application_id: d.application_id || d.applicationId || null,
+          file_id: d.file_id || d.fileId || null,
+          category: d.category || null,
+          sub_category: d.sub_category || d.subCategory || null,
+          title: d.title || null,
+          virtual_folder: d.virtual_folder || d.virtualFolder || null,
+          added_by: d.added_by || d.addedBy || null,
+          added_at: d.added_at || d.addedAt || null,
+          consultation_id: d.consultation_id || d.consultationId || null
+        }));
+        payload.applicationDocuments = applicationDocuments.map((d: any) => ({
+          documentId: d.document_id || d.documentId || null,
+          applicationId: d.application_id || d.applicationId || null,
+          fileId: d.file_id || d.fileId || null,
+          category: d.category || null,
+          subCategory: d.sub_category || d.subCategory || null,
+          title: d.title || null,
+          virtualFolder: d.virtual_folder || d.virtualFolder || null,
+          addedBy: d.added_by || d.addedBy || null,
+          addedAt: d.added_at || d.addedAt || null,
+          consultationId: d.consultation_id || d.consultationId || null
+        }));
+      }
+
+      const response = await fetch(`/backend/api/applications/${applicationId}/submit-with-bank-transfer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type');
+        let errorMessage = 'Failed to submit application with bank transfer';
+        if (contentType?.includes('application/json')) {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+          logger.error('[BankTransferConfirmationPage] Submission failed:', errorData);
+        } else {
+          logger.error('[BankTransferConfirmationPage] Non-JSON response:', { status: response.status, statusText: response.statusText });
+        }
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
       logger.info('Application submitted successfully:', result);
 
-      // Navigate to success page
       navigate(`${S37_BASE_URL}/${applicationId}/bank-transfer-success`, {
         state: {
           invoiceNumber,
@@ -102,26 +211,27 @@ const BankTransferConfirmationPage: React.FC = () => {
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">
-                  <ul className="govuk-list govuk-error-summary__list">
-                    <li>
-                      <a href="#transaction-number">{error}</a>
-                    </li>
-                  </ul>
+                      <ul className="govuk-list govuk-error-summary__list">
+                        <li>{error}</li>
+                      </ul>
                 </div>
               </div>
             )}
 
-            <h1 className="govuk-heading-xl">Confirm your payment action</h1>
+            <h1 className="govuk-heading-xl">Provide proof of payment</h1>
 
             <p className="govuk-body">
-              At this point, we expect you have completed the bank transfer.
+              If possible, please provide proof of payment to help us reconcile your payment more quickly.
             </p>
 
-            <p className="govuk-body">
-              Please provide the transaction number provided via bank transfer that you have completed for the payment of this application.
-            </p>
+            <p className="govuk-body">Here are some examples of acceptable proof of payment:</p>
 
-            <div className={`govuk-form-group ${error && transactionNumber.trim() && !isChecked ? 'govuk-form-group--error' : ''}`}>
+            <ul className="govuk-list govuk-!-margin-bottom-4">
+              <li><strong>Transaction number</strong> - this is usually found within the details of the bank transfer</li>
+              <li><strong>Document showing the bank transfer</strong> - this could be a remittance advice note or transfer receipt showing all the details of the transaction</li>
+            </ul>
+
+            <div className={`govuk-form-group`}>
               <label className="govuk-label govuk-label--m" htmlFor="transaction-number">
                 Transaction number (optional)
               </label>
@@ -140,19 +250,24 @@ const BankTransferConfirmationPage: React.FC = () => {
 
             <div className="govuk-form-group govuk-!-margin-top-4">
               <label className="govuk-label" htmlFor="proof-file">Upload a document showing full details of the bank transfer (optional)</label>
-              <input
-                id="proof-file"
-                name="proof-file"
-                type="file"
-                className="govuk-file-upload"
-                onChange={(e) => {
-                  setProofFile(e.target.files && e.target.files[0] ? e.target.files[0] : null);
-                }}
+              <FileUpload
+                ref={fileUploadRef}
+                showTitle={false}
+                prefix={`${applicationId}/PAYMENT_PROOF`}
+                applicationId={applicationId}
+                category={'PAYMENT_PROOF'}
+                addedBy={user?.user_id}
+                uploadedFiles={[]}
+                applicationDocuments={[]}
+                onPendingFilesChange={setPendingFiles}
+                onValidationErrors={() => {}}
+                onUploaded={() => {}}
+                uploadImmediately={false}
               />
               <p className="govuk-hint">You can upload .pdf, .jpg, .png files up to 25MB each. Files cannot be password protected.</p>
             </div>
 
-            <div className={`govuk-form-group ${error && transactionNumber.trim() && !isChecked ? 'govuk-form-group--error' : ''}`}>
+            <div className={`govuk-form-group ${error && !isChecked ? 'govuk-form-group--error' : ''}`}>
               <fieldset className="govuk-fieldset">
                 <div className="govuk-checkboxes" data-module="govuk-checkboxes">
                   <div className="govuk-checkboxes__item">
