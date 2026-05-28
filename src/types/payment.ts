@@ -37,6 +37,8 @@ export interface BankTransferConfirmationState extends BankTransferState {
 export interface BankTransferSuccessState extends BankTransferState {
   desnz_ref: string;
   transactionNumber?: string;
+  referenceNumber?: string | number;
+  paymentId?: string | null;
 }
 
 /**

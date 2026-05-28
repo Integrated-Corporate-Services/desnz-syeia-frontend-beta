@@ -168,7 +168,10 @@ const BankTransferConfirmationPage: React.FC = () => {
         state: {
           invoiceNumber,
           totalAmount,
-          desnz_ref: result.desnz_ref || result.desnzReference
+          desnz_ref: result.desnz_ref || result.desnzReference,
+          referenceNumber: result.payment?.id ?? result.payment?.reference,
+          paymentId: result.payment?.paymentId,
+          transactionNumber: transactionNumber || undefined,
         }
       });
     } catch (err: any) {
