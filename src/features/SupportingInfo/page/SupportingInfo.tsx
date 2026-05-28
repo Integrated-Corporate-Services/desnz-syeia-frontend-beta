@@ -56,7 +56,6 @@ const SupportingInfo: React.FC = () => {
   const wayleavesRef = useRef<HTMLInputElement>(null);
   const wayleavesReasonRef = useRef<HTMLTextAreaElement>(null);
   const regulationsRef = useRef<HTMLInputElement>(null);
-  const commentsRef = useRef<HTMLTextAreaElement>(null);
   const supportingDocsRef = useRef<HTMLInputElement>(null);
   const fileUploadRef = useRef<FileUploadHandle>(null);
   useEffect(() => {
@@ -216,7 +215,14 @@ const SupportingInfo: React.FC = () => {
       if (firstError === "wayleaves" && wayleavesRef.current) wayleavesRef.current.focus();
       if (firstError === "wayleavesReason" && wayleavesReasonRef.current) wayleavesReasonRef.current.focus();
       if (firstError === "regulations" && regulationsRef.current) regulationsRef.current.focus();
-      if (firstError === "comments" && commentsRef.current) commentsRef.current.focus();
+      if (firstError === "comments") {
+        // For comments field, scroll to the element since TextArea doesn't support ref
+        const commentsElement = document.getElementById('comments-inputValue');
+        if (commentsElement) {
+          commentsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          commentsElement.focus();
+        }
+      }
       if (firstError === "supportingDocs" && supportingDocsRef.current) supportingDocsRef.current.focus();
     }
   };
@@ -225,7 +231,14 @@ const SupportingInfo: React.FC = () => {
     if (key === "wayleaves" && wayleavesRef.current) wayleavesRef.current.focus();
     if (key === "wayleavesReason" && wayleavesReasonRef.current) wayleavesReasonRef.current.focus();
     if (key === "regulations" && regulationsRef.current) regulationsRef.current.focus();
-    if (key === "comments" && commentsRef.current) commentsRef.current.focus();
+    if (key === "comments") {
+      // For comments field, use getElementById since TextArea doesn't support ref
+      const commentsElement = document.getElementById('comments-inputValue');
+      if (commentsElement) {
+        commentsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        commentsElement.focus();
+      }
+    }
     if (key === "supportingDocs" && supportingDocsRef.current) supportingDocsRef.current.focus();
     if (key === "fileUpload" || key === "supportingDocsFiles") {
       // Focus the file upload area without opening file dialog
@@ -433,7 +446,6 @@ const SupportingInfo: React.FC = () => {
 
   <div className={`govuk-form-group govuk-character-count${hasError("comments") ? " govuk-form-group--error" : ""}`} style={{ marginBottom: 32 }}>
     <TextArea
-      ref={commentsRef}
       label="Do you have any comments to make in support of your application? (optional)"
       id="comments-inputValue"
       name="comments"
