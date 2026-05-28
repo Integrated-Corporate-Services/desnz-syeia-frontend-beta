@@ -60,6 +60,7 @@ const ReviewManualPage: React.FC = () => {
           selected[m.layerId] = true;
         }
         setSelectedFailedLayers(selected);
+        if(data.checks?.manual?.noneSelected) setNoneSelected(true);
       } catch (err) {
         if (!mounted) return;
         setError('Failed to fetch sensitive area review summary');

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -25,6 +26,7 @@ const LandRegistryInformation: React.FC = () => {
   const { user } = useAuthUser();
   const userId = user?.user_id;
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  const { updateProgress } = useNWLProgress(applicationId || undefined);
 
   const [titleNumber, setTitleNumber] = useState(landDetails.land_registry_title_number || '');
 
@@ -100,6 +102,11 @@ const LandRegistryInformation: React.FC = () => {
         });
       }
 
+       try {
+        await updateProgress('Land registry', 'Completed');
+      } catch (err) {
+      }
+
       goToOSGridReference();
     } catch (error) {
       // Error is handled by updateLandDetails or file upload
@@ -158,7 +165,7 @@ const LandRegistryInformation: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
-                {landDetails.uploadedFiles && landDetails.uploadedFiles.length > 0 && (
+                {pageUploadedFiles && pageUploadedFiles.length > 0 && (
                   <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
                 )}
                 

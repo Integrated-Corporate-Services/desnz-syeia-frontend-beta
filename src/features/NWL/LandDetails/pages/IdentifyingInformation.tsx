@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -17,6 +18,7 @@ const IdentifyingInformation: React.FC = () => {
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { errors, validateIdentifyingInfo, clearError } = useFormValidation();
   const { goToUploadSiteInformation } = useLandNavigation(applicationId);
+  const { updateProgress } = useNWLProgress(applicationId || undefined);
 
   const [identifyingInfo, setIdentifyingInfo] = useState(landDetails.identifying_information || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -48,9 +50,14 @@ const IdentifyingInformation: React.FC = () => {
     setIsSaving(true);
 
     try {
-      updateLandDetails({
+      await updateLandDetails({
         identifying_information: identifyingInfo,
       });
+
+      try {
+        await updateProgress('Identifying information', 'Completed');
+      } catch (err) {
+      }
 
       goToUploadSiteInformation();
     } catch (error) {

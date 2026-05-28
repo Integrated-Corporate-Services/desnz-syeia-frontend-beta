@@ -56,7 +56,7 @@ const EquipmentVisibility: React.FC = () => {
 
 
       try {
-        await updateProgress('Land registry', 'Completed');
+        await updateProgress('Identifying information', 'Completed');
       } catch (err) {
         // Non-blocking: progress update failure shouldn't prevent navigation
       }

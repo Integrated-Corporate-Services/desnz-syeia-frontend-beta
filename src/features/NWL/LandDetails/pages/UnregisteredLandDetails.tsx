@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -25,6 +26,7 @@ const UnregisteredLandDetails: React.FC = () => {
   const { user } = useAuthUser();
   const userId = user?.user_id;
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  const { updateProgress } = useNWLProgress(applicationId || undefined);
 
   const [explanation, setExplanation] = useState(landDetails.unregistered_land_explanation || '');
 
@@ -98,6 +100,11 @@ const UnregisteredLandDetails: React.FC = () => {
         });
       }
 
+      try {
+        await updateProgress('Land registry', 'Completed');
+      } catch (err) {
+      }
+
       goToOSGridReference();
     } catch (error) {
       // Error is handled by updateLandDetails or file upload
@@ -156,9 +163,6 @@ const UnregisteredLandDetails: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
-                {landDetails.uploadedFiles && landDetails.uploadedFiles.length > 0 && (
-                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
-                )}
                 
                   {/* Files/documents only for this page's subCategory */}
                   {(() => {
@@ -167,7 +171,11 @@ const UnregisteredLandDetails: React.FC = () => {
                     const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 
                     return (
-                      <FileUpload
+                      <>
+                        {pageUploadedFiles && pageUploadedFiles.length > 0 && (
+                          <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
+                        )}
+                        <FileUpload
                   ref={fileUploadRef}
                   title={labels.UPLOAD_SECTION_TITLE}
                   showTitle={false}
@@ -189,7 +197,8 @@ const UnregisteredLandDetails: React.FC = () => {
                       applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
                     });
                   }}
-                      />
+                        />
+                      </>
                     );
                   })()}
               </div>
