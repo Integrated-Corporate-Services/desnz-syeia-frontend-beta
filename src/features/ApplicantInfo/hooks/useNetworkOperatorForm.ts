@@ -35,14 +35,16 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
   const validateForm = useCallback((): boolean => {
     const newErrors: string[] = [];
 
-    // Applicant contact name is mandatory
-    if (!selectedOrgName.trim()) {
-      newErrors.push(FORM_ERRORS.MISSING_OPERATOR);
+    // Network operator reference is required and must not exceed 24 characters
+    if (!networkOperatorRef.trim() || networkOperatorRef.length > 24) {
+      newErrors.push(FORM_ERRORS.MISSING_REFERENCE);
+    } else if (!/^[A-Za-z0-9 \-]+$/.test(networkOperatorRef.trim())) {
+      newErrors.push(FORM_ERRORS.INVALID_REFERENCE);
     }
 
-    // Reference is optional, only validate if provided
-    if (networkOperatorRef.trim() && !/^[A-Za-z0-9 \-]+$/.test(networkOperatorRef.trim())) {
-      newErrors.push(FORM_ERRORS.INVALID_REFERENCE);
+    // Network operator selection is mandatory
+    if (!selectedOrgName.trim()) {
+      newErrors.push(FORM_ERRORS.MISSING_OPERATOR);
     }
 
     setErrors(newErrors);
