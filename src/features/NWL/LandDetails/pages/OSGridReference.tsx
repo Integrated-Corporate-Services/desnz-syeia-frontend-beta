@@ -35,19 +35,23 @@ const OSGridReference: React.FC = () => {
   const validateForm = () => {
     const newErrors: { gridLetter?: string; easting?: string; northing?: string } = {};
 
-    // Grid letter must be exactly 2 uppercase letters
-    if (gridLetter && !/^[A-Z]{2}$/.test(gridLetter)) {
-      newErrors.gridLetter = 'Grid letter must be exactly 2 uppercase letters (e.g. TL, SP, SK)';
+    // Each field is independently optional - only validate format if provided
+    if (gridLetter && gridLetter.trim() !== '') {
+      if (!/^[A-Z]{2}$/.test(gridLetter.trim())) {
+        newErrors.gridLetter = 'Grid letter must be exactly 2 uppercase letters (e.g. TL, SP, SK)';
+      }
     }
 
-    // Easting must be 1-6 digits
-    if (easting && !/^\d{1,6}$/.test(easting)) {
-      newErrors.easting = 'Easting must be 1-6 digits';
+    if (easting && easting.trim() !== '') {
+      if (!/^\d{1,6}$/.test(easting.trim())) {
+        newErrors.easting = 'Easting must be 1-6 digits';
+      }
     }
 
-    // Northing must be 1-6 digits
-    if (northing && !/^\d{1,6}$/.test(northing)) {
-      newErrors.northing = 'Northing must be 1-6 digits';
+    if (northing && northing.trim() !== '') {
+      if (!/^\d{1,6}$/.test(northing.trim())) {
+        newErrors.northing = 'Northing must be 1-6 digits';
+      }
     }
 
     setErrors(newErrors);
@@ -63,20 +67,19 @@ const OSGridReference: React.FC = () => {
     setSaveError("");
 
     try {
-      // Only save if at least one field has a value
-      if (gridLetter || easting || northing) {
-        await updateLandDetails({
-          os_grid_reference_letter: gridLetter,
-          os_grid_reference_easting: easting,
-          os_grid_reference_northing: northing,
-        });
-      }
+      // Always save - send actual values or empty strings (backend will handle)
+      // Each field is independently optional
+      await updateLandDetails({
+        os_grid_reference_letter: gridLetter.trim() || '',
+        os_grid_reference_easting: easting.trim() || '',
+        os_grid_reference_northing: northing.trim() || '',
+      });
 
-        try {
-          await updateProgress('OS Grid reference', 'Completed');
-        } catch (e) {
-          // ignore progress errors
-        }
+      try {
+        await updateProgress('OS Grid reference', 'Completed');
+      } catch (e) {
+        // ignore progress errors
+      }
 
       goToIdentifyingInformation();
     } catch (error) {
