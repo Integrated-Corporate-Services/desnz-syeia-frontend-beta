@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useProgressStore } from "../../../../store/useProgressStore";
@@ -15,13 +15,11 @@ const NWLTaskList: React.FC = () => {
 	const [orgName, setOrgName] = useState('');
 	const [submitting] = useState(false);
   	const navigate = useNavigate();
-	const initialLoadComplete = useRef(false);
 
 	useEffect(() => {
-		if (appId && !initialLoadComplete.current) {
+		if (appId) {
 			fetchAndSetApplication(appId);
 			fetchProgress(appId);
-			initialLoadComplete.current = true;
 		}
 	}, [appId, fetchAndSetApplication, fetchProgress]);
 

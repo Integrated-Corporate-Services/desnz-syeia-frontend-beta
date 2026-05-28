@@ -18,10 +18,10 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
     SECTION_HEADINGS: {
         APPLICANT_DETAILS: 'Applicant details',
         APPLICATION_DETAILS: 'Application details',
-        OWNER_OCCUPIER_DETAILS: 'Owner and/or occupier details',
+        OWNER_OCCUPIER_DETAILS: 'Objector details',
         LAND_DETAILS: 'Land details',
         ASSETS: 'Assets',
-        NEGOTIATIONS: 'Existing negotiations',
+        NEGOTIATIONS: 'Negotiations',
         ADDITIONAL_INFORMATION: 'Additional information',
         DECLARATION: 'Declaration',
         PAY_AND_SUBMIT: 'Pay and submit this application',
@@ -32,9 +32,9 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         APPLICANT_DETAILS: 'Applicant details',
         APPLICATION_DETAILS: 'Application details',
         NOTICE_COMPLIANCE: 'Notice and compliance',
-        OCCUPIER_DETAILS: 'Occupier details',
+        OCCUPIER_DETAILS: 'Objector details',
         LANDOWNER_DETAILS: 'Landowner details',
-        REPRESENTATIVE_DETAILS: 'Landowner representative details',
+        REPRESENTATIVE_DETAILS: 'Representative details',
         SITE_ADDRESS: 'Site address',
         LAND_LOCATION: 'Land location',
         ASSET: 'Asset',
@@ -73,33 +73,36 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         DIFFERENT_TERM_EXPLANATION: 'Tell us what term you would like granted and explain why 15 years are not suitable.',
     },
 
-    // Field labels - Occupier Details
+    // Field labels - Occupier (Objector) Details
     OCCUPIER_FIELDS: {
-        TITLE: 'Occupier title',
-        NAME: 'Occupier name',
-        ORGANISATION: 'Occupier organisation',
-        ADDRESS: 'Occupier address',
-        EMAIL: 'Occupier email',
-        PHONE: 'Occupier phone',
+        TITLE: 'Title',
+        NAME: 'Full name',
+        ORGANISATION: 'Organisation',
+        ADDRESS: 'Address',
+        EMAIL: 'Email address',
+        PHONE: 'Phone number',
     },
 
     // Field labels - Landowner Details
     LANDOWNER_FIELDS: {
-        TITLE: 'Landowner title',
-        NAME: 'Landowner name',
-        ORGANISATION: 'Landowner organisation',
-        ADDRESS: 'Landowner address',
-        EMAIL: 'Landowner email',
-        PHONE: 'Landowner phone',
+        IS_ALSO_LANDOWNER: 'Is the objector also the landowner?',
+        TITLE: 'Title',
+        NAME: 'Full name',
+        ORGANISATION: 'Organisation',
+        ADDRESS: 'Address',
+        EMAIL: 'Email address',
+        PHONE: 'Phone number',
     },
 
     // Field labels - Representative Details
     REPRESENTATIVE_FIELDS: {
-        HAS_REPRESENTATIVE: 'Landowner representative?',
-        NAME: 'Representative name',
-        ORGANISATION: 'Representative organisation',
-        EMAIL: 'Representative email',
-        PHONE: 'Representative phone',
+        HAS_REPRESENTATIVE: 'Is there an objector representative?',
+        TITLE: 'Title',
+        NAME: 'Full name',
+        ORGANISATION: 'Organisation',
+        ADDRESS: 'Address',
+        EMAIL: 'Email address',
+        PHONE: 'Phone number',
     },
 
     // Field labels - Site Address
@@ -117,7 +120,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         OS_GRID_REF: 'OS Grid Reference',
         LAND_IDENTIFICATION: 'Land identification',
         VISIBLE_FROM_ROAD: 'Visible from public road?',
-        SITE_PHOTOS: 'Site photographs',
+        SITE_PHOTOS: 'Site Information Documents',
     },
 
     // Field labels - Assets
