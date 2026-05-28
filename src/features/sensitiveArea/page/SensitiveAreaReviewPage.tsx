@@ -8,6 +8,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary } from '../../../services/sensitiveAreaService';
 import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
+import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 
 const SensitiveAreaReviewPage: React.FC = () => {
   // Get applicationId from URL params or query string
@@ -50,7 +51,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
         setLoading(false);
       })
       .catch(() => {
-        setError('Failed to fetch sensitive area review summary');
+        setError(SENSITIVE_AREA_ERRORS.FETCH_SENSITIVE_AREAS_FAILED);
         setLoading(false);
       });
     // Fetch sensitive area review data
@@ -94,7 +95,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
       } catch (err: any) {
-        setApiError('Failed to upload files. Please try again.');
+        setApiError(SENSITIVE_AREA_ERRORS.FILE_UPLOAD_FAILED);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
@@ -107,10 +108,10 @@ const SensitiveAreaReviewPage: React.FC = () => {
       // Validation: require at least one document
       const totalFiles = (uploadedFiles?.length || 0) + newlyUploadedFiles.length + pendingFiles.length;
       if (totalFiles === 0) {
-        errors.push('Upload at least one environmental and archaeological document');
+        errors.push(SENSITIVE_AREA_ERRORS.UPLOAD_AT_LEAST_ONE_DOCUMENT);
       }
       if (poleOption === null) {
-        errors.push('Select whether there are poles or overhead lines within the sensitive areas');
+        errors.push(SENSITIVE_AREA_ERRORS.SELECT_POLE_OPTION);
       }
       
       // Validate failed areas checkboxes if there are failed areas
@@ -121,7 +122,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
       if (failedAreas.length > 0) {
         const hasSelectedAtLeastOne = Object.values(selectedFailedLayers).some(v => v);
         if (!hasSelectedAtLeastOne) {
-          errors.push('Please confirm whether your route passes through any of the failed sensitive areas');
+          errors.push(SENSITIVE_AREA_ERRORS.CONFIRM_FAILED_AREAS);
         }
       }
     }
@@ -153,7 +154,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
         navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to save sensitive area review';
+      const errorMessage = err instanceof Error ? err.message : SENSITIVE_AREA_ERRORS.SAVE_REVIEW_FAILED;
       setApiError(errorMessage);
     }
   };
@@ -205,9 +206,9 @@ const SensitiveAreaReviewPage: React.FC = () => {
               <ul className="govuk-list govuk-error-summary__list">
                 {formErrors.map((err, idx) => {
                   let href = "#";
-                  if (err === 'Upload at least one environmental and archaeological document') href = '#document-upload';
-                  if (err === 'Select whether there are poles or overhead lines within the sensitive areas') href = '#pole-radio-group';
-                  if (err === 'Please confirm whether your route passes through any of the failed sensitive areas') href = '#failed-areas-checkboxes';
+                  if (err === SENSITIVE_AREA_ERRORS.UPLOAD_AT_LEAST_ONE_DOCUMENT) href = '#document-upload';
+                  if (err === SENSITIVE_AREA_ERRORS.SELECT_POLE_OPTION) href = '#pole-radio-group';
+                  if (err === SENSITIVE_AREA_ERRORS.CONFIRM_FAILED_AREAS) href = '#failed-areas-checkboxes';
                   return <li key={idx}><a href={href}>{err}</a></li>;
                 })}
                 {apiError && <li><a href="#">{apiError}</a></li>}
@@ -282,7 +283,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
 
               <div 
                 id="failed-areas-checkboxes" 
-                className={`govuk-form-group${formErrors.includes('Please confirm whether your route passes through any of the failed sensitive areas') ? ' govuk-form-group--error' : ''}`}
+                className={`govuk-form-group${formErrors.includes(SENSITIVE_AREA_ERRORS.CONFIRM_FAILED_AREAS) ? ' govuk-form-group--error' : ''}`}
               >
                 <fieldset className="govuk-fieldset" aria-describedby="failed-areas-hint">
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
@@ -290,9 +291,9 @@ const SensitiveAreaReviewPage: React.FC = () => {
                       Confirm which of the following sensitive areas your route passes through:
                     </h3>
                   </legend>
-                  {formErrors.includes('Please confirm whether your route passes through any of the failed sensitive areas') && (
+                  {formErrors.includes(SENSITIVE_AREA_ERRORS.CONFIRM_FAILED_AREAS) && (
                     <span id="failed-areas-error" className="govuk-error-message">
-                      <span className="govuk-visually-hidden">Error:</span> Please confirm whether your route passes through any of the failed sensitive areas
+                      <span className="govuk-visually-hidden">Error:</span> {SENSITIVE_AREA_ERRORS.CONFIRM_FAILED_AREAS}
                     </span>
                   )}
                   <div className="govuk-checkboxes" data-module="govuk-checkboxes">
@@ -352,10 +353,10 @@ const SensitiveAreaReviewPage: React.FC = () => {
           </div>
 
           <h2 className="govuk-heading-m">Environmental and archaeological documents</h2>
-          <div id="document-upload" className={`govuk-form-group govuk-!-margin-bottom-6${formErrors.includes('Upload at least one environmental and archaeological document') ? ' govuk-form-group--error' : ''}`}> 
-            {formErrors.includes('Upload at least one environmental and archaeological document') && (
+          <div id="document-upload" className={`govuk-form-group govuk-!-margin-bottom-6${formErrors.includes(SENSITIVE_AREA_ERRORS.UPLOAD_AT_LEAST_ONE_DOCUMENT) ? ' govuk-form-group--error' : ''}`}> 
+            {formErrors.includes(SENSITIVE_AREA_ERRORS.UPLOAD_AT_LEAST_ONE_DOCUMENT) && (
               <span className="govuk-error-message">
-                Upload at least one environmental and archaeological document
+                {SENSITIVE_AREA_ERRORS.UPLOAD_AT_LEAST_ONE_DOCUMENT}
               </span>
             )}
             <FileUpload
@@ -379,14 +380,14 @@ const SensitiveAreaReviewPage: React.FC = () => {
             </div>
           </details>
 
-          <div id="pole-radio-group" className={`govuk-form-group govuk-!-margin-bottom-6${formErrors.includes('Select whether there are poles or overhead lines within the sensitive areas') ? ' govuk-form-group--error' : ''}`}> 
+          <div id="pole-radio-group" className={`govuk-form-group govuk-!-margin-bottom-6${formErrors.includes(SENSITIVE_AREA_ERRORS.SELECT_POLE_OPTION) ? ' govuk-form-group--error' : ''}`}> 
             <fieldset className="govuk-fieldset">
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                 Are any poles within the identified sensitive areas or are the lines just overhead?
               </legend>
-              {formErrors.includes('Select whether there are poles or overhead lines within the sensitive areas') && (
+              {formErrors.includes(SENSITIVE_AREA_ERRORS.SELECT_POLE_OPTION) && (
                 <span className="govuk-error-message">
-                  Select whether there are poles or overhead lines within the sensitive areas
+                  {SENSITIVE_AREA_ERRORS.SELECT_POLE_OPTION}
                 </span>
               )}
               <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
