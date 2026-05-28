@@ -3,10 +3,22 @@ import React from 'react';
 import ErrorSummary from '../../components/commonFormFields/ErrorSummary';
 import { RadioGroup } from './components/RadioGroup';
 import { useApplicationTypeSelection } from './hooks/useApplicationTypeSelection';
+
 import { APPLICATION_TYPE_OPTIONS } from './constants/applicationTypeOptions';
 
 const ChooseApplicationTypePage: React.FC = () => {
+
   const { selectedType, error, handleChange, handleSubmit, errors } = useApplicationTypeSelection();
+
+  // Disable form types listed in VITE_DISABLED_FORM_TYPES (comma-separated)
+  const disabledTypes = (import.meta.env.VITE_DISABLED_FORM_TYPES || "")
+    .split(',')
+    .map((type: string) => type.trim())
+    .filter(Boolean);
+
+  const filteredOptions = APPLICATION_TYPE_OPTIONS.filter(
+    option => !disabledTypes.includes(option.value)
+  );
 
   return (
     <div className="govuk-width-container">
@@ -18,7 +30,7 @@ const ChooseApplicationTypePage: React.FC = () => {
         <form onSubmit={handleSubmit} noValidate>
           <RadioGroup
             name="applicationType"
-            options={APPLICATION_TYPE_OPTIONS}
+            options={filteredOptions}
             selectedValue={selectedType}
             onChange={handleChange}
             error={error}
