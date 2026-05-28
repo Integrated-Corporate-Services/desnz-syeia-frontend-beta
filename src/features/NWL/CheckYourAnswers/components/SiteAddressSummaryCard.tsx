@@ -38,12 +38,18 @@ export const SiteAddressSummaryCard: React.FC<Props> = ({ data, applicationId, c
 
     const rows: SummaryRow[] = [];
 
-    // Site address same as occupier
     rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SAME_AS_OCCUPIER, formatBoolean(data.site_address_same)));
 
-    // Site address
     if (data.site_address) {
-        const addressHtml = data.site_address.split('\n').join('<br>');
+        const addr = data.site_address;
+        let addressHtml: string;
+        if (typeof addr === 'string') {
+            addressHtml = addr.split('\n').join('<br>');
+        } else {
+            const parts = [addr.line1, addr.line2, addr.town_city, addr.county, addr.postcode]
+                .filter((p: string) => p && p.trim() !== '');
+            addressHtml = parts.join('<br>');
+        }
         rows.push({
             key: { text: CONSTANTS.SITE_ADDRESS_FIELDS.SITE_ADDRESS },
             value: { text: '', html: addressHtml },
