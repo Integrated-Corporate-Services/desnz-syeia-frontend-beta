@@ -16,6 +16,11 @@
   flex-shrink: 0;
 }
 
+/* Hidden by default; enabled only on very small screens. */
+.workbasket-shell .app-pagination-container .app-pagination-short-label {
+  display: none;
+}
+
 /* Keep footer content reachable on devices with dynamic browser UI/safe areas */
 .workbasket-shell .govuk-footer {
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
@@ -283,6 +288,68 @@
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
+    margin: 0;
+  }
+
+  /* Keep pagination controls on a single line on mobile. */
+  .workbasket-shell .app-pagination-container {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workbasket-shell .app-pagination-container .govuk-pagination {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    min-width: max-content;
+  }
+
+  .workbasket-shell .app-pagination-container .govuk-pagination__list {
+    display: flex;
+    flex-wrap: nowrap;
+    margin: 0 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .workbasket-shell .app-pagination-container .govuk-pagination {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .workbasket-shell .app-pagination-container .govuk-pagination__list {
+    margin: 0 4px;
+  }
+
+  .workbasket-shell .app-pagination-container .govuk-pagination__item,
+  .workbasket-shell .app-pagination-container .govuk-pagination__prev,
+  .workbasket-shell .app-pagination-container .govuk-pagination__next {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 4px 6px;
+  }
+
+  .workbasket-shell .app-pagination-container .govuk-pagination__link {
+    min-width: 0;
+  }
+
+  .workbasket-shell .app-pagination-container .govuk-pagination__prev .govuk-pagination__link-title,
+  .workbasket-shell .app-pagination-container .govuk-pagination__next .govuk-pagination__link-title {
+    display: none;
+  }
+
+  .workbasket-shell .app-pagination-container .app-pagination-short-label {
+    display: inline;
+    font-size: 14px;
+    line-height: 1.2;
+    margin: 0 4px;
+  }
+
+  .workbasket-shell .app-pagination-container .govuk-pagination__icon--prev,
+  .workbasket-shell .app-pagination-container .govuk-pagination__icon--next {
     margin: 0;
   }
 }
