@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -25,6 +26,7 @@ const UnregisteredLandDetails: React.FC = () => {
   const { user } = useAuthUser();
   const userId = user?.user_id;
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  const { updateProgress } = useNWLProgress(applicationId || undefined);
 
   const [explanation, setExplanation] = useState(landDetails.unregistered_land_explanation || '');
 
@@ -96,6 +98,11 @@ const UnregisteredLandDetails: React.FC = () => {
         await updateLandDetails({
           unregistered_land_explanation: explanation,
         });
+      }
+
+      try {
+        await updateProgress('Land registry', 'Completed');
+      } catch (err) {
       }
 
       goToOSGridReference();
