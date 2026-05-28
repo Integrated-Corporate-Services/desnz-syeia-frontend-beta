@@ -4,6 +4,9 @@ import { createLogger } from '../../../../utils/logger';
 const logger = createLogger('negotiationsService');
 const API_BASE = '/backend/api/nwl';
 
+// Re-export Page IDs for convenience
+export { NEGOTIATIONS_PAGE_IDS } from '../constants/pageNames';
+
 export const getNegotiationsData = async (applicationId: string): Promise<NegotiationsData | null> => {
   try {
     logger.debug('[getNegotiationsData] Fetching from API:', `${API_BASE}/${applicationId}/negotiations`);
@@ -56,22 +59,34 @@ export const getNegotiationsData = async (applicationId: string): Promise<Negoti
 /**
  * Save negotiations data (creates if doesn't exist, updates if exists)
  * Uses POST which does upsert on backend
+ * @param applicationId - Application ID
+ * @param data - Negotiations data
+ * @param pageId - Optional Page ID for page-specific validation (e.g., 'tell-us-negotiations', 'evidence-of-negotiations', 'why-no-negotiations')
  */
 export const saveNegotiationsData = async (
   applicationId: string,
-  data: Partial<NegotiationsData>
+  data: Partial<NegotiationsData>,
+  pageId?: string
 ): Promise<NegotiationsData | null> => {
   try {
     logger.debug('[saveNegotiationsData] Sending POST request:', {
       applicationId,
+      pageId,
       data: JSON.stringify(data, null, 2),
     });
 
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // Add X-Page-ID header if pageId is provided for page-specific validation
+    if (pageId) {
+      headers['X-Page-ID'] = pageId;
+    }
+
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(data),
     });
     
@@ -97,32 +112,44 @@ export const saveNegotiationsData = async (
 /**
  * Update negotiations data (alias for saveNegotiationsData for backward compatibility)
  * Now uses POST instead of PATCH to support upsert pattern
+ * @param pageId - Optional Page ID for page-specific validation
  */
 export const updateNegotiationsData = async (
   applicationId: string,
-  data: Partial<NegotiationsData>
+  data: Partial<NegotiationsData>,
+  pageId?: string
 ): Promise<NegotiationsData | null> => {
   // Use POST (upsert) instead of PATCH to ensure record is created if it doesn't exist
-  return saveNegotiationsData(applicationId, data);
+  return saveNegotiationsData(applicationId, data, pageId);
 };
 
 /**
  * Partial update of negotiations (only updates provided fields)
  * If record doesn't exist (404), automatically falls back to POST (upsert)
+ * @param pageId - Optional Page ID for page-specific validation
  */
 export const patchNegotiationsData = async (
   applicationId: string,
-  data: Partial<NegotiationsData>
+  data: Partial<NegotiationsData>,
+  pageId?: string
 ): Promise<NegotiationsData | null> => {
   try {
     logger.debug('[patchNegotiationsData] Attempting PATCH for applicationId:', applicationId);
+    logger.debug('[patchNegotiationsData] PageId:', pageId);
     logger.debug('[patchNegotiationsData] Payload:', JSON.stringify(data, null, 2));
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // Add X-Page-ID header if pageId is provided for page-specific validation
+    if (pageId) {
+      headers['X-Page-ID'] = pageId;
+    }
     
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(data),
     });
     
@@ -131,7 +158,7 @@ export const patchNegotiationsData = async (
     // If record doesn't exist (404), fallback to POST (upsert)
     if (response.status === 404) {
       logger.debug('[patchNegotiationsData] Record not found (404), falling back to POST (upsert)...');
-      return await saveNegotiationsData(applicationId, data);
+      return await saveNegotiationsData(applicationId, data, pageId);
     }
     
     if (!response.ok) {
