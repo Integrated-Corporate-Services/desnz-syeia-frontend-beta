@@ -39,7 +39,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         LAND_LOCATION: 'Land location',
         ASSET: 'Asset',
         NEGOTIATIONS: 'Existing negotiations',
-        ADDITIONAL_INFORMATION: 'Additional information',s
+        ADDITIONAL_INFORMATION: 'Additional information',
         TREES_AND_VEGETATION: 'Trees and vegetation',
     },
 
