@@ -18,7 +18,7 @@ export interface SensitiveAreaReviewSummary {
       failed: { screeningRequired: LayerCheckItem[]; noScreening: LayerCheckItem[] };
       cleared: { screeningRequired: LayerCheckItem[]; noScreening: LayerCheckItem[] };
     };
-    manual: { selected: LayerCheckItem[]; customAdded: unknown[] };
+    manual: { selected: LayerCheckItem[]; customAdded: unknown[]; noneSelected: boolean; };
     summary: { totalChecked: number; totalLayers: number };
   };
 }
