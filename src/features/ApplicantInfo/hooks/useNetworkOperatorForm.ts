@@ -36,8 +36,10 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
     const newErrors: string[] = [];
 
     // Network operator reference is required and must not exceed 24 characters
-    if (!networkOperatorRef.trim() || networkOperatorRef.length > 24) {
+    if (!networkOperatorRef.trim()) {
       newErrors.push(FORM_ERRORS.MISSING_REFERENCE);
+    } else if (networkOperatorRef.length > 24) {
+      newErrors.push(FORM_ERRORS.REFERENCE_TOO_LONG);
     } else if (!/^[A-Za-z0-9 \-]+$/.test(networkOperatorRef.trim())) {
       newErrors.push(FORM_ERRORS.INVALID_REFERENCE);
     }
