@@ -40,7 +40,7 @@ const ReviewPolesPage: React.FC = () => {
     const errors: string[] = [];
 
     if (poleOption === null) {
-      errors.push('Select whether there are poles or overhead lines within the sensitive areas');
+      errors.push('Select an option');
     }
 
     return errors;
@@ -188,7 +188,7 @@ const ReviewPolesPage: React.FC = () => {
                 ) && (
                   <span id="pole-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span>
-                    Select whether there are poles or overhead lines within the sensitive areas
+                    Select an option
                   </span>
                 )}
 
