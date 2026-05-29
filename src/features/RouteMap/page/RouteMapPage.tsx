@@ -8,15 +8,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useRouteStore } from '../../../store/useRouteStore';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
+import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
 
-// Validation function for a single point
- function getPointError(easting: string, northing: string) {
-  if (!easting && !northing) return 'Enter a grid reference';
-  if (!easting) return 'Enter easting';
-  if (!northing) return 'Enter northing';
+// Validation function for a single point using centralized error messages
+function getPointError(easting: string, northing: string, routeName: string, idx: number) {
+  if (!easting && !northing) return ROUTE_ERROR_MESSAGES.missingEastingNorthing(routeName, idx);
+  if (!easting) return ROUTE_ERROR_MESSAGES.missingEasting(routeName, idx);
+  if (!northing) return ROUTE_ERROR_MESSAGES.missingNorthing(routeName, idx);
   const valid6 = (val: string) => /^\d{6}$/.test(val) && Number(val) >= 1 && Number(val) <= 999999;
   if (!valid6(easting) || !valid6(northing)) {
-    return 'Enter the northing and easting for each grid reference. The northing and easting must be between 000001 and 999999 with leading zeros included.';
+    return ROUTE_ERROR_MESSAGES.invalidEastingNorthing;
   }
   return undefined;
 }
@@ -122,8 +123,9 @@ const RouteMapPage: React.FC = () => {
     let summaryError: string | undefined = undefined;
     
     // Check each point for validation errors
-    for (const pt of points) {
-      const err = getPointError(pt.easting, pt.northing);
+    for (let i = 0; i < points.length; i++) {
+      const pt = points[i];
+      const err = getPointError(pt.easting, pt.northing, routeName, i);
       if (err) {
         summaryError = err;
         break;
@@ -290,7 +292,7 @@ const RouteMapPage: React.FC = () => {
                             let firstInvalidIdx: number | null = null;
                             if (validationError) {
                               for (let i = 0; i < points.length; i++) {
-                                const err = getPointError(points[i].easting, points[i].northing);
+                                const err = getPointError(points[i].easting, points[i].northing, routeName, i);
                                 if (err) {
                                   firstInvalidIdx = i;
                                   break;
@@ -300,7 +302,7 @@ const RouteMapPage: React.FC = () => {
                             return points.map((point, idx) => {
                               let errorMsg: string | undefined = undefined;
                               if (validationError && idx === firstInvalidIdx) {
-                                errorMsg = getPointError(point.easting, point.northing);
+                                errorMsg = getPointError(point.easting, point.northing, routeName, idx);
                               }
                               // Use a stable key for each point: point_id if present, else idx
                               const stableKey = point.point_id || idx;
