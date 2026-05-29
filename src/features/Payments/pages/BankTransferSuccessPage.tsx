@@ -20,39 +20,51 @@ const BankTransferSuccessPage: React.FC = () => {
     totalAmount,
     desnz_ref: passedDesnzRef,
     referenceNumber: passedReferenceNumber,
-    paymentId: passedPaymentId,
-    transactionNumber,
   } = (location.state as BankTransferSuccessState | null) || {};
 
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
+  const [referenceNumber, setReferenceNumber] = useState<string | undefined>(
+    passedReferenceNumber != null ? String(passedReferenceNumber) : undefined
+  );
   const [loading, setLoading] = useState(!passedDesnzRef);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!passedDesnzRef && applicationId) {
-      const fetchDesnzRef = async () => {
-        try {
-          setLoading(true);
+    if (!applicationId) return;
+
+    const fetchMissingData = async () => {
+      const needsDesnzRef = !passedDesnzRef;
+      const needsReference = !passedReferenceNumber;
+
+      if (!needsDesnzRef && !needsReference) return;
+
+      try {
+        if (needsDesnzRef) setLoading(true);
+
+        if (needsDesnzRef) {
           const data = await applicationApiService.fetchApplicationDetails(applicationId);
           setDesnzRef(data.desnz_ref || applicationId);
-          setError(null);
-        } catch (err) {
-          console.error('Error fetching DESNZ reference:', err);
-          setError(err instanceof Error ? err.message : 'Failed to fetch DESNZ reference');
-          setDesnzRef(applicationId);
-        } finally {
-          setLoading(false);
         }
-      };
 
-      fetchDesnzRef();
-    }
-  }, [applicationId, passedDesnzRef]);
+        // removed: skip fetching payment reference from backend; keep UI showing 'Not available' if missing
+
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching bank transfer success data:', err);
+        if (needsDesnzRef) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch application details');
+          setDesnzRef(applicationId);
+        }
+      } finally {
+        if (needsDesnzRef) setLoading(false);
+      }
+    };
+
+    fetchMissingData();
+  }, [applicationId, passedDesnzRef, passedReferenceNumber]);
 
   const displayReferenceNumber =
-    passedReferenceNumber != null
-      ? String(passedReferenceNumber)
-      : passedPaymentId || transactionNumber || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT;
+    referenceNumber || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT;
 
   const handleGoToSummary = () => {
     navigate(`${S37_BASE_URL}/${applicationId}/application-summary`);

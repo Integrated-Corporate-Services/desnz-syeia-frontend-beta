@@ -102,7 +102,7 @@ export const submitApplicationWithBankTransfer = async (
       }));
     }
 
-    const response = await fetch(`/backend/api/applications/${applicationId}/submit-with-bank-transfer`, {
+    const response = await fetch(`/backend/api/application/${applicationId}/save-with-bank-transfer`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

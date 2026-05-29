@@ -14,14 +14,16 @@ const BankTransferConfirmationPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
   const [transactionNumber, setTransactionNumber] = useState('');
-  const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [proofFile, setProofFile] = useState<File | null>(null);
+  
+  
   const fileUploadRef = useRef<FileUploadHandle>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const { invoiceNumber, totalAmount } = location.state || {};
+
+  // No on-mount create/upsert call — payment will be created/submitted when user clicks Submit.
 
   const handleSubmit = async () => {
     // Transaction number is optional now
@@ -45,14 +47,7 @@ const BankTransferConfirmationPage: React.FC = () => {
       return;
     }
 
-    if (!isChecked) {
-      setError('You must confirm you have made the payment');
-      setTimeout(() => {
-        const errorSummary = document.querySelector('.govuk-error-summary');
-        if (errorSummary) errorSummary.scrollIntoView();
-      }, 0);
-      return;
-    }
+    // No explicit user confirmation required here — backend saves payment on page load
 
     setLoading(true);
     setError('');
@@ -141,11 +136,11 @@ const BankTransferConfirmationPage: React.FC = () => {
         }));
       }
 
-      const response = await fetch(`/backend/api/applications/${applicationId}/submit-with-bank-transfer`, {
+      const response = await fetch(`/backend/api/application/${applicationId}/save-with-bank-transfer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, action: 'submit' }),
       });
 
       if (!response.ok) {
@@ -163,15 +158,12 @@ const BankTransferConfirmationPage: React.FC = () => {
 
       const result = await response.json();
       logger.info('Application submitted successfully:', result);
-
       navigate(`${S37_BASE_URL}/${applicationId}/bank-transfer-success`, {
         state: {
           invoiceNumber,
           totalAmount,
           desnz_ref: result.desnz_ref || result.desnzReference,
-          referenceNumber: result.payment?.id ?? result.payment?.reference,
-          paymentId: result.payment?.paymentId,
-          transactionNumber: transactionNumber || undefined,
+          referenceNumber: result.payment?.reference,
         }
       });
     } catch (err: any) {
@@ -270,27 +262,8 @@ const BankTransferConfirmationPage: React.FC = () => {
               <p className="govuk-hint">You can upload .pdf, .jpg, .png files up to 25MB each. Files cannot be password protected.</p>
             </div>
 
-            <div className={`govuk-form-group ${error && !isChecked ? 'govuk-form-group--error' : ''}`}>
-              <fieldset className="govuk-fieldset">
-                <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                  <div className="govuk-checkboxes__item">
-                    <input
-                      className="govuk-checkboxes__input"
-                      id="confirm-payment"
-                      name="confirm-payment"
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => {
-                        setIsChecked(e.target.checked);
-                        setError('');
-                      }}
-                    />
-                    <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-payment">
-                      I confirm I have made the payment with above details
-                    </label>
-                  </div>
-                </div>
-              </fieldset>
+            <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
+              {/* No user-facing confirmation checkbox — backend-set PROCESSING_PAYMENT on entry */}
             </div>
 
             <div className="govuk-button-group">

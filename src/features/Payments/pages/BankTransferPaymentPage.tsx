@@ -23,7 +23,7 @@ const BankTransferPaymentPage: React.FC = () => {
       return;
     }
 
-    // Navigate to confirmation page
+    // Navigate to confirmation page; the confirmation page will create the BACS payment
     navigate(`${S37_BASE_URL}/${applicationId}/bank-transfer-confirmation`, {
       state: { invoiceNumber, totalAmount }
     });
