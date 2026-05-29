@@ -5,7 +5,7 @@ export const SUPPORTING_INFO_ERRORS = {
   REGULATIONS_REQUIRED: 'Confirm that the works will comply with the regulations',
   COMMENTS_MAX_LENGTH: 'You cannot enter more than 4,000 characters',
   SUPPORTING_DOCS_REQUIRED: "Select 'Yes' or 'No'",
-  SUPPORTING_DOCS_FILES_REQUIRED: 'Upload at least one supporting document',
+  SUPPORTING_DOCS_FILES_REQUIRED: 'Upload your supporting document',
   FILE_UPLOAD_FAILED: 'Failed to upload files. Please try again.',
   SAVE_FAILED: 'Failed to save supporting information',
 };
