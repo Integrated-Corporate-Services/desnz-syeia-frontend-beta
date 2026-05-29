@@ -93,7 +93,7 @@ export const CheckYourAnswersPage: React.FC = () => {
         }
         setSubmitting(true);
         
-        navigate(`/frontend${NWL_BASE_URL}/${applicationId}/pay-and-submit`);
+        navigate(`${NWL_BASE_URL}/${applicationId}/pay-and-submit`);
     };
 
     if (loading) {

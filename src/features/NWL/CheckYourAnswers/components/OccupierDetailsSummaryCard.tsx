@@ -1,8 +1,3 @@
-/**
- * Occupier Details Summary Card
- * Displays occupier contact information
- */
-
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
@@ -48,7 +43,7 @@ export const OccupierDetailsSummaryCard: React.FC<Props> = ({ data, applicationI
     rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.EMPTY));
 
     // Address
-    const addressParts = [data.address_line1, data.address_line2, data.postcode].filter((part) => part && part !== '-');
+    const addressParts = [data.address_line1, data.address_line2, data.town_city, data.postcode].filter((part) => part && part !== '-');
     const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
     rows.push({
         key: { text: CONSTANTS.OCCUPIER_FIELDS.ADDRESS },

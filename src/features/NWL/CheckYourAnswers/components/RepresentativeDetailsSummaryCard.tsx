@@ -24,19 +24,23 @@ export const RepresentativeDetailsSummaryCard: React.FC<Props> = ({ data, applic
 
     const rows: SummaryRow[] = [];
 
-    // Has representative (always Yes if showing)
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.HAS_REPRESENTATIVE, formatBoolean(data.has_representative)));
 
-    // Name
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.TITLE, data.title || CONSTANTS.DEFAULTS.EMPTY));
+
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.EMPTY));
 
-    // Organisation
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.EMPTY));
 
-    // Email
+    const addressParts = [data.address_line1, data.address_line2, data.town_city, data.postcode].filter((part: string) => part && part !== '-');
+    const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
+    rows.push({
+        key: { text: CONSTANTS.REPRESENTATIVE_FIELDS.ADDRESS },
+        value: { text: '', html: addressHtml },
+    });
+
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.EMAIL, formatEmail(data.email)));
 
-    // Phone
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.PHONE, formatPhone(data.phone)));
 
     return (
