@@ -1,39 +1,56 @@
-import React, { useEffect, useState,useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
-import { useProgressStore } from "../../../../store/useProgressStore";
-import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
+import React, { useEffect, useState, useRef } from "react";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes';
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
+import { applicationApiService } from '../../../../services/applicationApiService';
+import { progressApiService } from '../../../../services/progressApiService';
 
 
 const NWLTaskList: React.FC = () => {
-	const appId = useGetApplicationId();
-	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
-	const application = useApplicationStore(state => state.application);
-	const { progress, fetchProgress } = useProgressStore();
+	const params = useParams();
+	const location = useLocation();
+	const navigate = useNavigate();
+	const [application, setApplication] = useState<any>(null);
+	const [progress, setProgress] = useState<any>(null);
 	const [orgName, setOrgName] = useState('');
 	const [submitting] = useState(false);
-	const navigate = useNavigate();
 	const lastFetchedAppId = useRef<string | null>(null);
+
+	// Get applicationId from params, query, or application state
+	const getApplicationId = () => {
+		if (application && application.application_id) return application.application_id;
+		if (params.applicationId) return params.applicationId as string;
+		if (params.id) return params.id as string;
+		if (typeof window !== "undefined") {
+			const searchParams = new URLSearchParams(location.search);
+			const idFromQuery = searchParams.get("id") || searchParams.get("applicationId");
+			if (idFromQuery) return idFromQuery;
+		}
+		return "";
+	};
+	const appId = getApplicationId();
+
 
 	// Fetch application and progress only when appId changes
 	useEffect(() => {
 		if (!appId || lastFetchedAppId.current === appId) return;
 		lastFetchedAppId.current = appId;
-		fetchAndSetApplication(appId);
-		fetchProgress(appId);
-	}, [appId, fetchAndSetApplication, fetchProgress]);
+		// Fetch application
+		applicationApiService.getApplicationById(appId)
+			.then(app => {
+				setApplication(app);
+				if (app?.application_party?.organisation_name) {
+					setOrgName(app.application_party.organisation_name);
+				} else {
+					setOrgName('');
+				}
+			});
+		// Fetch progress
+		progressApiService.fetchApplicationProgress(appId)
+			.then(data => setProgress(data));
+	}, [appId]);
 
-	// Set org name when application changes
-	useEffect(() => {
-		if (application?.application_party?.organisation_name) {
-			setOrgName(application.application_party.organisation_name);
-		} else {
-			setOrgName('');
-		}
-	}, [application]);
 
 
 	// Helper to get status for a subsection, always based on current progress and appId
@@ -42,11 +59,13 @@ const NWLTaskList: React.FC = () => {
 	};
 
 
+
 	// Helper to check if a link should be disabled
 	const isLinkDisabled = (subsectionName: string) => {
 		const status = getStatus(subsectionName);
 		return status.toLowerCase() === 'cannot start yet';
 	};
+
 
 
 	// Helper to render status tag
@@ -60,6 +79,7 @@ const NWLTaskList: React.FC = () => {
 			</div>
 		);
 	};
+
 
 
 	// Helper to render link or disabled text
