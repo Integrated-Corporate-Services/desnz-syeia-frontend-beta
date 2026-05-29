@@ -12,9 +12,9 @@ import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
 
 // Validation function for a single point using centralized error messages
 function getPointError(easting: string, northing: string, routeName: string, idx: number) {
-  if (!easting && !northing) return ROUTE_ERROR_MESSAGES.missingEastingNorthing(routeName, idx);
-  if (!easting) return ROUTE_ERROR_MESSAGES.missingEasting(routeName, idx);
-  if (!northing) return ROUTE_ERROR_MESSAGES.missingNorthing(routeName, idx);
+  if (!easting && !northing) return ROUTE_ERROR_MESSAGES.missingEastingNorthing;
+  if (!easting) return ROUTE_ERROR_MESSAGES.missingEasting;
+  if (!northing) return ROUTE_ERROR_MESSAGES.missingNorthing;
   const valid6 = (val: string) => /^\d{6}$/.test(val) && Number(val) >= 1 && Number(val) <= 999999;
   if (!valid6(easting) || !valid6(northing)) {
     return ROUTE_ERROR_MESSAGES.invalidEastingNorthing;
