@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { useProgressStore } from "../../../../store/useProgressStore";
@@ -7,6 +7,7 @@ import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes';
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
 
+
 const NWLTaskList: React.FC = () => {
 	const appId = useGetApplicationId();
 	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
@@ -14,25 +15,32 @@ const NWLTaskList: React.FC = () => {
 	const { progress, fetchProgress } = useProgressStore();
 	const [orgName, setOrgName] = useState('');
 	const [submitting] = useState(false);
-  	const navigate = useNavigate();
+	const navigate = useNavigate();
+	const lastFetchedAppId = useRef<string | null>(null);
 
+	// Fetch application and progress only when appId changes
 	useEffect(() => {
-		if (appId) {
-			fetchAndSetApplication(appId);
-			fetchProgress(appId);
-		}
+		if (!appId || lastFetchedAppId.current === appId) return;
+		lastFetchedAppId.current = appId;
+		fetchAndSetApplication(appId);
+		fetchProgress(appId);
 	}, [appId, fetchAndSetApplication, fetchProgress]);
 
+	// Set org name when application changes
 	useEffect(() => {
 		if (application?.application_party?.organisation_name) {
 			setOrgName(application.application_party.organisation_name);
+		} else {
+			setOrgName('');
 		}
 	}, [application]);
 
-	// Helper to get status for a subsection
+
+	// Helper to get status for a subsection, always based on current progress and appId
 	const getStatus = (subsectionName: string) => {
 		return getSubsectionStatus(progress, subsectionName);
 	};
+
 
 	// Helper to check if a link should be disabled
 	const isLinkDisabled = (subsectionName: string) => {
@@ -40,12 +48,12 @@ const NWLTaskList: React.FC = () => {
 		return status.toLowerCase() === 'cannot start yet';
 	};
 
+
 	// Helper to render status tag
 	const renderStatusTag = (subsectionName: string) => {
 		const status = getStatus(subsectionName);
 		const statusClass = getStatusClass(status);
 		const statusText = getStatusText(status);
-		
 		return (
 			<div className="govuk-task-list__status">
 				<strong className={statusClass}>{statusText}</strong>
@@ -53,14 +61,13 @@ const NWLTaskList: React.FC = () => {
 		);
 	};
 
+
 	// Helper to render link or disabled text
 	const renderLink = (subsectionName: string, displayText: string, route: string) => {
 		const disabled = isLinkDisabled(subsectionName);
-		
 		if (disabled) {
 			return <strong className="govuk-task-list__name-and-hint">{displayText}</strong>;
 		}
-		
 		return (
 			<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(route, appId)}>
 				<strong>{displayText}</strong>
