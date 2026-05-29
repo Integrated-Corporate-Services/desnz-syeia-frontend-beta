@@ -7,6 +7,7 @@ import { applicationApiService } from '../../../../services/applicationApiServic
 import { progressApiService } from '../../../../services/progressApiService';
 
 
+
 const NWLTaskList: React.FC = () => {
 	const params = useParams();
 	const location = useLocation();
@@ -59,13 +60,11 @@ const NWLTaskList: React.FC = () => {
 	};
 
 
-
 	// Helper to check if a link should be disabled
 	const isLinkDisabled = (subsectionName: string) => {
 		const status = getStatus(subsectionName);
 		return status.toLowerCase() === 'cannot start yet';
 	};
-
 
 
 	// Helper to render status tag
@@ -79,7 +78,6 @@ const NWLTaskList: React.FC = () => {
 			</div>
 		);
 	};
-
 
 
 	// Helper to render link or disabled text
