@@ -17,7 +17,7 @@ export const LABELS = {
   REVIEW_ASSETS_TITLE: "You have added",
   LINE_VOLTAGE: "Line voltage",
   LINE_TYPE: "Line type",
-  DESCRIPTION_LABEL: "Text to support the user to understand what is expected",
+  DESCRIPTION_LABEL: "Add any helpful information (optional)",
   COMMENTS: "Comments",
   ASSET: "Asset",
   CONTINUE: "Save and continue",
@@ -42,24 +42,29 @@ export const HINTS = {
   SELECT_LINE_TYPES: "Select all item for this asset. You can add a Comment for each item you select.",
   REVIEW_INTRO: "Review the assets you have added. You can change them at any time before you submit this application.",
   // Application Plan page
-  APPLICATION_PLAN_INTRO: "It is recommended that pole numbers are indicated on the plan. The plan must clearly highlight the:",
+  APPLICATION_PLAN_INTRO: "We recommend using an Ordnance Survey plan showing the whole property and the closely surrounding area.",
+  APPLICATION_PLAN_MUST_SHOW_HEADING: "The plan must clearly show the:",
   APPLICATION_PLAN_BULLETS: [
-    "the electric line",
-    "differentiating between voltage types and underground cables",
-    "the property boundary"
+    "electric line",
+    "voltage types, overhead lines and underground cables",
+    "pole numbers",
+    "property boundary",
+    "date, key and scale"
   ],
+  APPLICATION_PLAN_GUIDANCE_LINK_TEXT: "See the full guidance (opens in a new tab)",
+  APPLICATION_PLAN_GUIDANCE_LINK_URL: "https://assets.publishing.service.gov.uk/media/5a756afae5274a3edd9a4c25/wayleave_guidance.pdf",
   // Assets Match Plan page
-  EXPLAIN_MISMATCH_HINT: "You can enter up to 4,000 characters",
+  EXPLAIN_MISMATCH_HINT: "You can enter up to 4,000 characters saurav",
 } as const;
 
 export const LINE_TYPE_OPTIONS: LineTypeOption[] = [
   { value: "overhead-line", label: "Overhead line" },
-  { value: "overhead-line-wooden-poles", label: "Overhead line and wooden pole(s)" },
-  { value: "overhead-line-wooden-poles-stays", label: "Overhead line and wooden pole(s) and stay(s)" },
-  { value: "overhead-line-steel-towers", label: "Overhead line and steel tower(s)" },
-  { value: "wooden-poles", label: "Wooden pole(s)" },
-  { value: "stays", label: "Stay(s)" },
-  { value: "steel-towers", label: "Steel tower(s)" },
+  { value: "overhead-line-wooden-poles", label: "Overhead line and wooden poles" },
+  { value: "overhead-line-wooden-poles-stays", label: "Overhead line and wooden poles and stays" },
+  { value: "overhead-line-steel-towers", label: "Overhead line and steel towers" },
+  { value: "wooden-poles", label: "Wooden poles" },
+  { value: "stays", label: "Stay" },
+  { value: "steel-towers", label: "Steel tower" },
   { value: "underground-cable", label: "Underground cable" },
   { value: "earth-wire", label: "Earth wire and any other associated apparatus" },
   { value: "other", label: "Other" },
@@ -91,6 +96,6 @@ export const MESSAGES = {
     if (remaining === 0) return 'You have 0 characters remaining';
     if (remaining < 0) return `You have ${Math.abs(remaining)} characters too many`;
     if (remaining === 1) return 'You have 1 character remaining';
-    return `You have ${remaining.toLocaleString()} characters remaining`;
+    return `You can enter up to ${remaining.toLocaleString()} characters`;
   },
 } as const;

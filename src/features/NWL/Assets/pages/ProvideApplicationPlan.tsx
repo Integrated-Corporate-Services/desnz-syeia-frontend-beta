@@ -187,12 +187,23 @@ const ProvideApplicationPlan: React.FC = () => {
           {/* Description */}
           {!loading && (
             <>
+
               <p className="govuk-body">{HINTS.APPLICATION_PLAN_INTRO}</p>
+              <p className="govuk-body">{HINTS.APPLICATION_PLAN_MUST_SHOW_HEADING}</p>
               <ul className="govuk-list govuk-list--bullet">
                 {HINTS.APPLICATION_PLAN_BULLETS.map((bullet, index) => (
                   <li key={index}>{bullet}</li>
                 ))}
               </ul>
+              <p className="govuk-body">
+                <a
+                  href={HINTS.APPLICATION_PLAN_GUIDANCE_LINK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {HINTS.APPLICATION_PLAN_GUIDANCE_LINK_TEXT}
+                </a>
+              </p>
 
               {/* File Upload Section */}
               <h2 className="govuk-heading-m">{LABELS.UPLOAD_SECTION_TITLE}</h2>
