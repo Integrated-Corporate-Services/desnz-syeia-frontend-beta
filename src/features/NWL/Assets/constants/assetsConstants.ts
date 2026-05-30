@@ -36,11 +36,11 @@ export const LABELS = {
 } as const;
 
 export const HINTS = {
-  ADD_ASSET_INTRO: "Tell us about each electricity asset that is, or will be, on the land covered by this application. You will be able to add more than one asset.",
+  ADD_ASSET_INTRO: "Tell us about every electrical asset that is or will be on the land specified in this application. You can only add one asset per page and can add another one on the next page.",
   EDIT_ASSET_INTRO: "Update the details for this asset. Changes will be reflected in your asset review page.",
   SELECT_VOLTAGE: "Select the voltage for this asset",
-  SELECT_LINE_TYPES: "Select all that apply. You can add a Comment for each item you select.",
-  REVIEW_INTRO: "Review the assets you have added. You can change any of them before you submit the application.",
+  SELECT_LINE_TYPES: "Select all item for this asset. You can add a Comment for each item you select.",
+  REVIEW_INTRO: "Review the assets you have added. You can change them at any time before you submit this application.",
   // Application Plan page
   APPLICATION_PLAN_INTRO: "It is recommended that pole numbers are indicated on the plan. The plan must clearly highlight the:",
   APPLICATION_PLAN_BULLETS: [
