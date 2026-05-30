@@ -140,7 +140,7 @@ const BankTransferConfirmationPage: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ ...payload, action: 'submit' }),
+        body: JSON.stringify({ ...payload, action: 'create' }),
       });
 
       if (!response.ok) {
