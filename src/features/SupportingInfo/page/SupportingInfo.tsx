@@ -11,6 +11,7 @@ import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
+import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
 
 const logger = createLogger('SupportingInfo');
 
@@ -36,7 +37,6 @@ const SupportingInfo: React.FC = () => {
     fetchSupportingInfo,
     saveSupportingInfo,
     loading,
-    error,
   } = useSupportingInfoStore();
 
   const [wayleaves, setWayleaves] = useState<string>("");
@@ -119,17 +119,36 @@ const SupportingInfo: React.FC = () => {
 
   const validate = (newlyUploadedFiles: UploadedFile[] = []) => {
     const errs: { key: string; message: string }[] = [];
-    if (!wayleaves) errs.push({ key: "wayleaves", message: "Select yes if all wayleaves have been obtained" });
-    if (wayleaves === "no" && !wayleavesReason.trim()) {
-      errs.push({ key: "wayleavesReason", message: "Please provide a reason why wayleaves have not been obtained" });
+    
+    // Wayleaves validation
+    if (!wayleaves) {
+      errs.push({ key: "wayleaves", message: SUPPORTING_INFO_ERRORS.WAYLEAVES_REQUIRED });
     }
-    if (!regulations) errs.push({ key: "regulations", message: "Confirm that the works will comply with regulations" });
-    if (!supportingDocs) errs.push({ key: "supportingDocs", message: "Select yes if this application has supporting documents" });
-      // Validation: If 'Yes' is selected for supportingDocs, at least one file must be uploaded
-      const totalFiles = uploadedFiles.length + newlyUploadedFiles.length + pendingFiles.length;
-      if (supportingDocs === "yes" && totalFiles === 0) {
-        errs.push({ key: "supportingDocsFiles", message: "Upload at least one supporting document" });
-      }
+    if (wayleaves === "no" && !wayleavesReason.trim()) {
+      errs.push({ key: "wayleavesReason", message: SUPPORTING_INFO_ERRORS.WAYLEAVES_REASON_REQUIRED });
+    }
+    
+    // Regulations validation
+    if (!regulations) {
+      errs.push({ key: "regulations", message: SUPPORTING_INFO_ERRORS.REGULATIONS_REQUIRED });
+    }
+    
+    // Comments character limit validation
+    if (comments.length > MAX_COMMENTS_LENGTH) {
+      errs.push({ key: "comments", message: SUPPORTING_INFO_ERRORS.COMMENTS_MAX_LENGTH });
+    }
+    
+    // Supporting documents validation
+    if (!supportingDocs) {
+      errs.push({ key: "supportingDocs", message: SUPPORTING_INFO_ERRORS.SUPPORTING_DOCS_REQUIRED });
+    }
+    
+    // File upload validation: If 'Yes' is selected for supportingDocs, at least one file must be uploaded
+    const totalFiles = uploadedFiles.length + newlyUploadedFiles.length + pendingFiles.length;
+    if (supportingDocs === "yes" && totalFiles === 0) {
+      errs.push({ key: "supportingDocsFiles", message: SUPPORTING_INFO_ERRORS.SUPPORTING_DOCS_FILES_REQUIRED });
+    }
+    
     return errs;
   };
 
@@ -151,7 +170,7 @@ const SupportingInfo: React.FC = () => {
       setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
     } catch (err: any) {
       logger.error('File upload failed:', err);
-      setErrors([{ key: 'fileUpload', message: 'Failed to upload files. Please try again.' }]);
+      setErrors([{ key: 'fileUpload', message: SUPPORTING_INFO_ERRORS.FILE_UPLOAD_FAILED }]);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -187,14 +206,23 @@ const SupportingInfo: React.FC = () => {
       logger.error('Save failed:', err);
       setErrors([{ 
         key: 'save', 
-        message: err?.response?.data?.message || err?.message || 'Failed to save supporting information' 
+        message: err?.response?.data?.message || err?.message || SUPPORTING_INFO_ERRORS.SAVE_FAILED
       }]);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   } else {
       const firstError = errs[0].key;
       if (firstError === "wayleaves" && wayleavesRef.current) wayleavesRef.current.focus();
+      if (firstError === "wayleavesReason" && wayleavesReasonRef.current) wayleavesReasonRef.current.focus();
       if (firstError === "regulations" && regulationsRef.current) regulationsRef.current.focus();
+      if (firstError === "comments") {
+        // For comments field, scroll to the element since TextArea doesn't support ref
+        const commentsElement = document.getElementById('comments-inputValue');
+        if (commentsElement) {
+          commentsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          commentsElement.focus();
+        }
+      }
       if (firstError === "supportingDocs" && supportingDocsRef.current) supportingDocsRef.current.focus();
     }
   };
@@ -203,6 +231,14 @@ const SupportingInfo: React.FC = () => {
     if (key === "wayleaves" && wayleavesRef.current) wayleavesRef.current.focus();
     if (key === "wayleavesReason" && wayleavesReasonRef.current) wayleavesReasonRef.current.focus();
     if (key === "regulations" && regulationsRef.current) regulationsRef.current.focus();
+    if (key === "comments") {
+      // For comments field, use getElementById since TextArea doesn't support ref
+      const commentsElement = document.getElementById('comments-inputValue');
+      if (commentsElement) {
+        commentsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        commentsElement.focus();
+      }
+    }
     if (key === "supportingDocs" && supportingDocsRef.current) supportingDocsRef.current.focus();
     if (key === "fileUpload" || key === "supportingDocsFiles") {
       // Focus the file upload area without opening file dialog
@@ -285,15 +321,7 @@ const SupportingInfo: React.FC = () => {
                       handleErrorClick(err.key);
                     }}
                   >
-                    {err.key === "wayleavesReason"
-                      ? "Enter details about why wayleaves have not been obtained"
-                      : err.key === "wayleaves"
-                      ? "Select yes if all wayleaves have been obtained"
-                      : err.key === "regulations"
-                      ? "Confirm that the works will comply with regulations"
-                      : err.key === "supportingDocs"
-                      ? "Select yes if this application has supporting documents"
-                      : err.message}
+                    {err.message}
                   </a>
                 </li>
               ))}
@@ -315,7 +343,7 @@ const SupportingInfo: React.FC = () => {
           </legend>
           {hasError("wayleaves") && (
             <span className="govuk-error-message" id="wayleaves-error">
-              <span className="govuk-visually-hidden">Error:</span> Select yes if all wayleaves have been obtained
+              <span className="govuk-visually-hidden">Error:</span> {SUPPORTING_INFO_ERRORS.WAYLEAVES_REQUIRED}
             </span>
           )}
           <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
@@ -358,7 +386,7 @@ const SupportingInfo: React.FC = () => {
                   </label>
                   {hasError("wayleavesReason") && (
                     <p id="wayleavesNotObtainedComments-inputValue-error" className="govuk-error-message">
-                      <span className="govuk-visually-hidden">Error:</span> Enter details about why wayleaves have not been obtained
+                      <span className="govuk-visually-hidden">Error:</span> {SUPPORTING_INFO_ERRORS.WAYLEAVES_REASON_REQUIRED}
                     </p>
                   )}
                   <textarea
@@ -394,7 +422,7 @@ const SupportingInfo: React.FC = () => {
         <div>
           {hasError("regulations") && (
             <span className="govuk-error-message" id="regulations-error">
-              <span className="govuk-visually-hidden">Error:</span> Confirm that the works will comply with regulations
+              <span className="govuk-visually-hidden">Error:</span> {SUPPORTING_INFO_ERRORS.REGULATIONS_REQUIRED}
             </span>
           )}
           <div className="govuk-checkboxes">
@@ -416,7 +444,7 @@ const SupportingInfo: React.FC = () => {
         </div>
       </fieldset>
 
-  <div className="govuk-form-group govuk-character-count" style={{ marginBottom: 32 }}>
+  <div className={`govuk-form-group govuk-character-count${hasError("comments") ? " govuk-form-group--error" : ""}`} style={{ marginBottom: 32 }}>
     <TextArea
       label="Do you have any comments to make in support of your application? (optional)"
       id="comments-inputValue"
@@ -425,6 +453,7 @@ const SupportingInfo: React.FC = () => {
       maxLength={MAX_COMMENTS_LENGTH}
       remainingChars={remainingCommentChars}
       onChange={e => setComments(e.target.value)}
+      error={hasError("comments") ? SUPPORTING_INFO_ERRORS.COMMENTS_MAX_LENGTH : undefined}
     />
   </div>
 
@@ -444,7 +473,7 @@ const SupportingInfo: React.FC = () => {
 
   {hasError("supportingDocs") && (
     <span className="govuk-error-message" id="supportingDocs-error">
-      <span className="govuk-visually-hidden">Error:</span> Select yes if this application has supporting documents
+      <span className="govuk-visually-hidden">Error:</span> {SUPPORTING_INFO_ERRORS.SUPPORTING_DOCS_REQUIRED}
     </span>
   )}
   <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios" style={{ marginTop: 8 }}>
@@ -473,7 +502,7 @@ const SupportingInfo: React.FC = () => {
         
           {hasError("supportingDocsFiles") && (
             <span className="govuk-error-message" id="supportingDocsFiles-error">
-              <span className="govuk-visually-hidden">Error:</span> Upload at least one supporting document
+              <span className="govuk-visually-hidden">Error:</span> {SUPPORTING_INFO_ERRORS.SUPPORTING_DOCS_FILES_REQUIRED}
             </span>
           )}
           {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
