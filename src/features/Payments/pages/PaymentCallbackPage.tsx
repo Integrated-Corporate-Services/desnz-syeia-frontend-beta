@@ -11,7 +11,7 @@ import { applicationApiService } from '../../../services/applicationApiService';
 const PaymentCallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<'loading' | 'success' | 'failed' | 'cancelled'>('loading');
+  const [status, setStatus] = useState<'loading' | 'success'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [baseUrl, setBaseUrl] = useState(S37_BASE_URL);
 
@@ -30,8 +30,7 @@ const PaymentCallbackPage: React.FC = () => {
         logger.info('Payment callback - applicationId:', applicationId);
 
         if (!paymentId || !applicationId) {
-          setStatus('failed');
-          setErrorMessage('Missing payment or application information');
+          navigate('/workbasket', { replace: true });
           return;
         }
 
@@ -84,18 +83,52 @@ const PaymentCallbackPage: React.FC = () => {
             });
           }, 1000);
 
-        } else if (paymentStatus === 'failed') {
-          setStatus('failed');
-          setErrorMessage('Your payment was not successful. Please try again.');
-        } else if (paymentStatus === 'cancelled') {
-          setStatus('cancelled');
-          setErrorMessage('Payment was cancelled.');
+        } else if (paymentStatus === 'failed' || paymentStatus === 'cancelled') {
+          navigate(`${detectedBaseUrl}/${applicationId}/payment-failed`, {
+            replace: true,
+            state: {
+              showBanner: true,
+              errorMessage:
+                paymentStatus === 'cancelled'
+                  ? 'Payment was cancelled.'
+                  : 'Your payment was not successful. Please try again.',
+              paymentId,
+              invoiceNumber,
+              totalAmount: totalAmount ? parseFloat(totalAmount) : undefined,
+            },
+          });
         } else {
-          setStatus('failed');
-          setErrorMessage(`Unexpected payment status: ${paymentStatus}`);
+          navigate(`${detectedBaseUrl}/${applicationId}/payment-failed`, {
+            replace: true,
+            state: {
+              showBanner: true,
+              errorMessage: `Unexpected payment status: ${paymentStatus}`,
+              paymentId,
+              invoiceNumber,
+              totalAmount: totalAmount ? parseFloat(totalAmount) : undefined,
+            },
+          });
         }
       } catch (error) {
-        setStatus('failed');
+        const applicationId = sessionStorage.getItem('applicationId');
+        const invoiceNumber = sessionStorage.getItem('invoiceNumber') || undefined;
+        const totalAmount = sessionStorage.getItem('totalAmount');
+        const paymentId = sessionStorage.getItem('paymentId') || undefined;
+
+        if (applicationId) {
+          navigate(`${baseUrl}/${applicationId}/payment-failed`, {
+            replace: true,
+            state: {
+              showBanner: true,
+              errorMessage: error instanceof Error ? error.message : 'Failed to verify payment',
+              paymentId,
+              invoiceNumber,
+              totalAmount: totalAmount ? parseFloat(totalAmount) : undefined,
+            },
+          });
+          return;
+        }
+
         setErrorMessage(error instanceof Error ? error.message : 'Failed to verify payment');
       }
       
@@ -103,24 +136,6 @@ const PaymentCallbackPage: React.FC = () => {
 
     verifyPayment();
   }, [searchParams, navigate]);
-
-  const handleTryAgain = () => {
-    const applicationId = sessionStorage.getItem('applicationId');
-    if (applicationId) {
-      navigate(`${baseUrl}/${applicationId}/payment-method`);
-    } else {
-      navigate('/workbasket');
-    }
-  };
-
-  const handleBackToTaskList = () => {
-    const applicationId = sessionStorage.getItem('applicationId');
-    if (applicationId) {
-      navigate(`${baseUrl}/${applicationId}/task-list`);
-    } else {
-      navigate('/workbasket');
-    }
-  };
 
   return (
     <div className="govuk-width-container">
@@ -160,60 +175,15 @@ const PaymentCallbackPage: React.FC = () => {
               </div>
             )}
 
-            {status === 'failed' && (
-              <>
-                <h1 className="govuk-heading-l">Payment failed</h1>
-                <div className="govuk-error-summary" role="alert">
-                  <h2 className="govuk-error-summary__title">There was a problem</h2>
-                  <div className="govuk-error-summary__body">
-                    <p>{errorMessage || 'Your payment could not be processed.'}</p>
-                  </div>
+            {errorMessage && (
+              <div className="govuk-error-summary" role="alert" aria-labelledby="payment-callback-error-title">
+                <h2 className="govuk-error-summary__title" id="payment-callback-error-title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <p>{errorMessage}</p>
                 </div>
-                <p className="govuk-body">
-                  Your application has not been submitted because the payment was not successful.
-                </p>
-                <div className="govuk-button-group">
-                  <button
-                    type="button"
-                    className="govuk-button"
-                    onClick={handleTryAgain}
-                  >
-                    Try payment again
-                  </button>
-                  <button
-                    type="button"
-                    className="govuk-button govuk-button--secondary"
-                    onClick={handleBackToTaskList}
-                  >
-                    Back to task list
-                  </button>
-                </div>
-              </>
-            )}
-
-            {status === 'cancelled' && (
-              <>
-                <h1 className="govuk-heading-l">Payment cancelled</h1>
-                <p className="govuk-body">
-                  You cancelled the payment. Your application has not been submitted.
-                </p>
-                <div className="govuk-button-group">
-                  <button
-                    type="button"
-                    className="govuk-button"
-                    onClick={handleTryAgain}
-                  >
-                    Try payment again
-                  </button>
-                  <button
-                    type="button"
-                    className="govuk-button govuk-button--secondary"
-                    onClick={handleBackToTaskList}
-                  >
-                    Back to task list
-                  </button>
-                </div>
-              </>
+              </div>
             )}
           </div>
         </div>
