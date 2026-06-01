@@ -38,6 +38,11 @@
     vertical-align: baseline;
   }
 
+  /* GDS optional text styling - grey color for secondary information */
+  .govuk-secondary-colour {
+    color: #626a6b; /* GDS secondary text color */
+  }
+
   /* Map container styling - GDS compliant */
   .map-container {
     width: 100%;
