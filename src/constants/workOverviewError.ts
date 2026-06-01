@@ -7,7 +7,10 @@ export const WORKS_OVERVIEW_VALIDATION_MESSAGES = {
   POLE_MATERIAL_REQUIRED: 'Enter a description of materials used',
   CHEMICAL_TREATMENTS_REQUIRED: 'Enter chemical treatments.',
   POLES_ADDED_REQUIRED: 'Enter the number of poles to be added',
+  POLES_ADDED_FORMAT: 'You can only enter letters and numbers',
   POLES_REPLACED_REQUIRED: 'Enter the number of poles to be replaced',
+  POLES_REPLACED_FORMAT: 'You can only enter letters and numbers',
+  POLE_COMMENTS_REQUIRED: 'Add a comment',
   
   // Overhead lines section
   ADDING_OR_REPLACING_LINES_REQUIRED: "Select 'Yes' or 'No'",

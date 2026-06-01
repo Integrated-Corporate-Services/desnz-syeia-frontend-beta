@@ -149,8 +149,25 @@ const WorksOverview: React.FC = () => {
     } else if (data.addingOrReplacingPoles === 'yes') {
       if (!data.poleMaterial.trim()) newErrors.poleMaterial = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLE_MATERIAL_REQUIRED;
       if (!data.chemicalTreatments.trim()) newErrors.chemicalTreatments = WORKS_OVERVIEW_VALIDATION_MESSAGES.CHEMICAL_TREATMENTS_REQUIRED;
-      if (!data.polesAdded.trim()) newErrors.polesAdded = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_ADDED_REQUIRED;
-      if (!data.polesReplaced.trim()) newErrors.polesReplaced = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_REPLACED_REQUIRED;
+      
+      // Validate polesAdded
+      if (!data.polesAdded.trim()) {
+        newErrors.polesAdded = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_ADDED_REQUIRED;
+      } else if (!/^[a-zA-Z0-9]+$/.test(data.polesAdded.trim())) {
+        newErrors.polesAdded = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_ADDED_FORMAT;
+      }
+      
+      // Validate polesReplaced
+      if (!data.polesReplaced.trim()) {
+        newErrors.polesReplaced = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_REPLACED_REQUIRED;
+      } else if (!/^[a-zA-Z0-9]+$/.test(data.polesReplaced.trim())) {
+        newErrors.polesReplaced = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_REPLACED_FORMAT;
+      }
+      
+      // Validate poleComments
+      if (!data.poleComments.trim()) {
+        newErrors.poleComments = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLE_COMMENTS_REQUIRED;
+      }
     }
     if (!data.addingOrReplacingLines) {
       newErrors.addingOrReplacingLines = WORKS_OVERVIEW_VALIDATION_MESSAGES.ADDING_OR_REPLACING_LINES_REQUIRED;
@@ -333,7 +350,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="poleComments"
                 name="poleComments"
-                label="Comments on poles being added or replaced (optional)"
+                label="Comments on poles being added or replaced"
                 value={form.poleComments}
                 onChange={handleChange}
                 maxLength={4000}
