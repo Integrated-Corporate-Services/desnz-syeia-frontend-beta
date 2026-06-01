@@ -23,9 +23,8 @@ const BankTransferSuccessPage: React.FC = () => {
   } = (location.state as BankTransferSuccessState | null) || {};
 
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
-  const [referenceNumber, setReferenceNumber] = useState<string | undefined>(
-    passedReferenceNumber != null ? String(passedReferenceNumber) : undefined
-  );
+  const referenceNumber =
+    passedReferenceNumber != null ? String(passedReferenceNumber) : undefined;
   const [loading, setLoading] = useState(!passedDesnzRef);
   const [error, setError] = useState<string | null>(null);
 
