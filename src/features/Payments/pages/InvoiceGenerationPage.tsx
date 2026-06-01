@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
@@ -15,7 +15,6 @@ const InvoiceGenerationPage: React.FC = () => {
   const { user } = useAuthUser();
   
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
@@ -30,8 +29,107 @@ const InvoiceGenerationPage: React.FC = () => {
 
   // Add ref to track if invoice has been generated
   const hasGeneratedRef = useRef(false);
+  const hasAttemptedRef = useRef(false);
 
-  const handleGenerateInvoice = async () => {
+  const generationGuardKey = applicationId
+    ? `invoice_generation_in_progress_${applicationId}`
+    : 'invoice_generation_in_progress';
+
+  const clearGenerationGuard = useCallback(() => {
+    sessionStorage.removeItem(generationGuardKey);
+  }, [generationGuardKey]);
+
+  const navigateToErrorPage = useCallback(
+    (code: string, message: string) => {
+      setLoading(false);
+      navigate(`${baseUrl}/${applicationId}/generate-invoice-error`, {
+        state: {
+          errorCode: code,
+          errorMessage: message,
+          consentFee,
+          screeningFee,
+          eiaFee,
+          totalAmount,
+          breakdown,
+        },
+        replace: true,
+      });
+    },
+    [
+      applicationId,
+      baseUrl,
+      navigate,
+      consentFee,
+      screeningFee,
+      eiaFee,
+      totalAmount,
+      breakdown,
+    ]
+  );
+
+  const getErrorMessage = useCallback((code: string, message?: string) => {
+    switch (code) {
+      case 'NETWORK_LOST':
+        return 'Your network connection was lost while we were generating your invoice. Reconnect and try again.';
+      case 'INVOICE_GENERATION_TIMEOUT':
+        return 'Invoice generation took longer than expected. Return to your application and try again.';
+      case 'INVOICE_GENERATION_IN_PROGRESS':
+        return 'Invoice generation is already in progress. Please wait and try again.';
+      default:
+        return message || 'You can return to the application and try again later.';
+    }
+  }, []);
+
+  const navigateToInvoiceIfExists = useCallback(async () => {
+    if (!applicationId) {
+      return false;
+    }
+
+    try {
+      const statusResponse = await fetch(`/backend/api/invoice/${applicationId}/status`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!statusResponse.ok) {
+        return false;
+      }
+
+      const status = await statusResponse.json();
+      if (!status.invoiceExists) {
+        return false;
+      }
+
+      clearGenerationGuard();
+      navigate(`${baseUrl}/${applicationId}/invoice-download`, {
+        state: {
+          invoiceNumber: status.invoiceNumber,
+          s3Key: status.s3Key,
+          consentFee,
+          screeningFee,
+          eiaFee,
+          totalAmount,
+        },
+        replace: true,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }, [
+    applicationId,
+    baseUrl,
+    navigate,
+    clearGenerationGuard,
+    consentFee,
+    screeningFee,
+    eiaFee,
+    totalAmount,
+  ]);
+
+  const handleGenerateInvoice = useCallback(async () => {
     // Prevent duplicate calls
     if (hasGeneratedRef.current) {
       logger.info('[InvoiceGenerationPage] Invoice already generated, skipping');
@@ -39,15 +137,23 @@ const InvoiceGenerationPage: React.FC = () => {
     }
 
     if (!applicationId) {
-      setError('Application ID is missing');
+      navigateToErrorPage('INVOICE_GENERATION_FAILED', 'Application ID is missing.');
+      return;
+    }
+
+    if (!navigator.onLine) {
+      navigateToErrorPage('NETWORK_LOST', getErrorMessage('NETWORK_LOST'));
       return;
     }
 
     hasGeneratedRef.current = true; // Mark as generated
+    hasAttemptedRef.current = true;
+    sessionStorage.setItem(generationGuardKey, Date.now().toString());
+
+    let timeoutId: number | undefined;
 
     try {
       setLoading(true);
-      setError('');
 
       // Prepare invoice data with dynamic fees
       const invoiceData = {
@@ -60,6 +166,9 @@ const InvoiceGenerationPage: React.FC = () => {
         breakdown: breakdown
       };
 
+      const controller = new AbortController();
+      timeoutId = window.setTimeout(() => controller.abort(), 60000);
+
       // Call backend API with applicationId in URL
       const response = await fetch(
         `/backend/api/invoice/${applicationId}/generate`,
@@ -68,16 +177,31 @@ const InvoiceGenerationPage: React.FC = () => {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: controller.signal,
           body: JSON.stringify(invoiceData),
         }
       );
 
+      window.clearTimeout(timeoutId);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate invoice');
+        const errorData = await response.json().catch(() => ({}));
+        const backendCode = errorData.code || 'INVOICE_GENERATION_FAILED';
+
+        if (response.status === 409 && backendCode === 'INVOICE_GENERATION_IN_PROGRESS') {
+          const hasInvoiceNow = await navigateToInvoiceIfExists();
+          if (hasInvoiceNow) {
+            return;
+          }
+        }
+
+        const serviceError = new Error(errorData.error || 'Failed to generate invoice');
+        serviceError.name = backendCode;
+        throw serviceError;
       }
 
       const result = await response.json();
+      clearGenerationGuard();
       
       navigate(`${baseUrl}/${applicationId}/invoice-download`, {
         state: {
@@ -92,24 +216,89 @@ const InvoiceGenerationPage: React.FC = () => {
 
     } catch (err: any) {
       hasGeneratedRef.current = false; // Reset on error to allow retry
-      setError(err.message || 'Failed to generate invoice');
-      setLoading(false);
+      if (err?.name === 'AbortError') {
+        navigateToErrorPage('INVOICE_GENERATION_TIMEOUT', getErrorMessage('INVOICE_GENERATION_TIMEOUT'));
+      } else if (!navigator.onLine) {
+        navigateToErrorPage('NETWORK_LOST', getErrorMessage('NETWORK_LOST'));
+      } else {
+        const code = err?.name || 'INVOICE_GENERATION_FAILED';
+        navigateToErrorPage(code, getErrorMessage(code, err.message));
+      }
+    } finally {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
     }
-  };
+  }, [
+    applicationId,
+    baseUrl,
+    clearGenerationGuard,
+    consentFee,
+    screeningFee,
+    eiaFee,
+    totalAmount,
+    breakdown,
+    user?.full_name,
+    user?.email,
+    navigate,
+    generationGuardKey,
+    navigateToInvoiceIfExists,
+    getErrorMessage,
+    navigateToErrorPage,
+  ]);
+
+  useEffect(() => {
+    const handleOffline = () => {
+      if (loading) {
+        navigateToErrorPage('NETWORK_LOST', getErrorMessage('NETWORK_LOST'));
+      }
+    };
+
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [loading, getErrorMessage, navigateToErrorPage]);
 
   // Auto-generate invoice on page load
   useEffect(() => {
     if (applicationId && totalAmount > 0 && !hasGeneratedRef.current) {
+      const inProgress = sessionStorage.getItem(generationGuardKey);
+      if (inProgress && !hasAttemptedRef.current) {
+        navigateToErrorPage(
+          'INVOICE_GENERATION_IN_PROGRESS',
+          getErrorMessage('INVOICE_GENERATION_IN_PROGRESS')
+        );
+        return;
+      }
       handleGenerateInvoice();
     } else if (applicationId && totalAmount === 0) {
-      setError('Payment amount is not available. Please go back and try again.');
-      setLoading(false);
+      navigateToErrorPage(
+        'INVOICE_GENERATION_FAILED',
+        'Payment amount is not available. Please return to the application and try again.'
+      );
     } 
-  }, [applicationId, totalAmount]);
+  }, [
+    applicationId,
+    totalAmount,
+    handleGenerateInvoice,
+    generationGuardKey,
+    getErrorMessage,
+    navigateToErrorPage,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (!loading) {
+        clearGenerationGuard();
+      }
+    };
+  }, [loading, clearGenerationGuard]);
 
   return (
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
+      <main className="govuk-main-wrapper" id="main-content" aria-busy={loading}>
         {/* <div className="govuk-grid-row"> */}
           {/* <div className="govuk-grid-column-two-thirds"> */}
             {loading && (
@@ -156,7 +345,11 @@ const InvoiceGenerationPage: React.FC = () => {
                   marginTop: '50px',
                   marginBottom: '50px'
                 }}>
+                  <p className="govuk-visually-hidden" role="status" aria-live="assertive" aria-atomic="true">
+                    Generating invoice. Please do not navigate away from this page.
+                  </p>
                   <div 
+                    aria-hidden="true"
                     style={{
                       border: '8px solid #dee0e2',
                       borderTop: '8px solid #1d70b8',
@@ -187,25 +380,6 @@ const InvoiceGenerationPage: React.FC = () => {
               </>
             )}
 
-            {error && !loading && (
-              <>
-                <h1 className="govuk-heading-xl">Generating Invoice</h1>
-                <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
-                  <h2 className="govuk-error-summary__title" id="error-summary-title">
-                    There is a problem
-                  </h2>
-                  <div className="govuk-error-summary__body">
-                    <p>{error}</p>
-                  </div>
-                </div>
-                <button
-                  className="govuk-button"
-                  onClick={() => navigate(`${baseUrl}/${applicationId}/pay-and-submit`)}
-                >
-                  Go back
-                </button>
-              </>
-            )}
       </main>
     </div>
   );
