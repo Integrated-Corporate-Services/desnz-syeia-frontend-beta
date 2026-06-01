@@ -187,13 +187,10 @@ const BankTransferConfirmationPage: React.FC = () => {
                 Task list
               </Link>
             </li>
-            <li className="govuk-breadcrumbs__list-item">
+            <li className="govuk-breadcrumbs__list-item" aria-current="page">
               <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/payment-method`}>
                 Pay and submit
               </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="page">
-              Confirm your payment action
             </li>
           </ol>
         </nav>
@@ -231,7 +228,7 @@ const BankTransferConfirmationPage: React.FC = () => {
                 Transaction number (optional)
               </label>
               <input
-                className="govuk-input"
+                className="govuk-input govuk-input--width-20"
                 id="transaction-number"
                 name="transaction-number"
                 type="text"
@@ -244,7 +241,8 @@ const BankTransferConfirmationPage: React.FC = () => {
             </div>
 
             <div className="govuk-form-group govuk-!-margin-top-4">
-              <label className="govuk-label" htmlFor="proof-file">Upload a document showing full details of the bank transfer (optional)</label>
+              <label className="govuk-label govuk-label--s" htmlFor="proof-file">Upload a document showing full details of the bank transfer (optional)</label>
+              <p className="govuk-hint">You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.</p>
               <FileUpload
                 ref={fileUploadRef}
                 showTitle={false}
@@ -259,7 +257,6 @@ const BankTransferConfirmationPage: React.FC = () => {
                 onUploaded={() => {}}
                 uploadImmediately={false}
               />
-              <p className="govuk-hint">You can upload .pdf, .jpg, .png files up to 25MB each. Files cannot be password protected.</p>
             </div>
 
             <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
@@ -274,7 +271,7 @@ const BankTransferConfirmationPage: React.FC = () => {
                 onClick={handleSubmit}
                 disabled={loading}
               >
-                {loading ? 'Submitting...' : 'Submit application'}
+                {loading ? 'Submitting...' : 'Submit Application'}
               </button>
               <button
                 type="button"

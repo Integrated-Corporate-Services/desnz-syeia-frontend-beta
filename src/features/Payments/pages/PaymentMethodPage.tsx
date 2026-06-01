@@ -87,7 +87,7 @@ const handlePayByCard = async () => {
   };
 
   const handleBankTransfer = () => {
-    navigate(`${baseUrl}/${applicationId}/bank-transfer-success`, {
+    navigate(`${baseUrl}/${applicationId}/bank-transfer-payment`, {
       state: { invoiceNumber, totalAmount, consentFee, eiaScreeningFee }
     });
   };
