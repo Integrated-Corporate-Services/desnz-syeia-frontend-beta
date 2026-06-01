@@ -23,8 +23,8 @@ export const LineTypeCheckboxGroup: React.FC<LineTypeCheckboxGroupProps> = ({
         className="govuk-fieldset" 
         aria-describedby={errors.lineTypes ? 'line-type-error' : undefined}
       >
-        <legend className="govuk-fieldset__legend govuk-label--s">
-          <h2 className="govuk-fieldset__heading">{LABELS.LINE_TYPE}</h2>
+        <legend className="govuk-fieldset__legend govuk-label--m">
+          <strong>{LABELS.LINE_TYPE}</strong>
         </legend>
         
         <div id="line-type-hint" className="govuk-hint">
