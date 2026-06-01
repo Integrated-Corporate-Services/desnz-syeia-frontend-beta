@@ -24,33 +24,10 @@ import { useRef } from "react";
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
-const emptyProjectOverview: ProjectOverviewModel = {
-	applicationFormId: "",
-	projectName: "",
-	projectDescription: "",
-	tallestPoleHeight: "",
-	planReference: "",
-	areWorkStartDatesKnown: "",
-	earliestWorkStartDateMonth: "",
-	earliestWorkStartDateYear: "",
-	latestWorkStartDateMonth: "",
-	latestWorkStartDateYear: "",
-	hasRelatedApplications: "",
-	relatedApplicationsDetails: "",
-	hasRelatedCpo: "",
-	relatedCpoDetails: "",
-	eipDetails: "",
-	uploadedFiles: [],
-	applicationDocuments: [],
-	projectId: "",
-	applicationId: "",
-	createdBy: "",
-};
-
 const ProjectOverview = () => {
 	const params = useParams();
 	const navigate = useNavigate();
-	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
+	const [formState, setFormState] = useState<ProjectOverviewModel>(EMPTY_PROJECT_OVERVIEW);
 	const fileUploadRef = useRef<FileUploadHandle>(null);
 	const errorSummaryRef = useRef<HTMLDivElement>(null);
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -115,7 +92,7 @@ const ProjectOverview = () => {
 
 	// Clear form state when applicationId changes
 	useEffect(() => {
-		setFormState(emptyProjectOverview);
+		setFormState(EMPTY_PROJECT_OVERVIEW);
 	}, [applicationId]);
 
 	// Fetch project overview on mount
@@ -907,9 +884,12 @@ const ProjectOverview = () => {
 											className={`govuk-textarea govuk-!-width-two-thirds govuk-js-character-count${fieldErrors?.relatedApplicationsDetails ? " govuk-textarea--error" : ""}`}
 												id="relatedApplicationsDetails-inputValue"
 												name="relatedApplicationsDetails.inputValue"
-												rows={5}
-												maxLength={MAX_DESCRIPTION_LENGTH}
 												value={formState.relatedApplicationsDetails}
+												error={fieldErrors?.relatedApplicationsDetails}
+												maxLength={MAX_DESCRIPTION_LENGTH}
+												hint={projectOverview.relatedApplicationsDetailsHint}
+												infoId="relatedApplicationsDetails-inputValue-info"
+												remainingChars={remainingRelatedAppsChars}
 												onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
 													const val = e.target.value;
 													if (val.length <= MAX_DESCRIPTION_LENGTH) {
@@ -968,8 +948,6 @@ const ProjectOverview = () => {
 										className={`govuk-textarea govuk-!-width-two-thirds govuk-js-character-count${fieldErrors['relatedCpoDetails-inputValue'] ? " govuk-textarea--error" : ""}`}
 										id="relatedCpoDetails-inputValue"
 										name="relatedCpoDetails.inputValue"
-										rows={5}
-										maxLength={MAX_DESCRIPTION_LENGTH}
 										value={relatedCpoDetailsStr}
 										onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
 											setFormState(prev => ({ ...prev, relatedCpoDetails: e.target.value }));
