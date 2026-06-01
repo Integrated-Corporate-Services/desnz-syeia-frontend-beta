@@ -175,28 +175,28 @@ const handlePayByCard = async () => {
                     {PAYMENT_PAGE_TEXT.bankTransferButton}
                   </button>
                 </div>
-
-                <div className="govuk-!-margin-top-6 govuk-button-group">
-                  <button
-                    type="button"
-                    className="govuk-button"
-                    data-module="govuk-button"
-                    onClick={handlePayByCard}
-                    disabled={loading}
-                  >
-                    {loading ? 'Processing...' : PAYMENT_PAGE_TEXT.payByCardButton}
-                  </button>
-                  <button
-                    type="button"
-                    className="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                    onClick={handleBackToTaskList}
-                  >
-                    {PAYMENT_PAGE_TEXT.backToTaskList}
-                  </button>
-                </div>
               </div>
             </details>
+
+            <div className="govuk-button-group govuk-!-margin-top-6">
+              <button
+                type="button"
+                className="govuk-button"
+                data-module="govuk-button"
+                onClick={handlePayByCard}
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : PAYMENT_PAGE_TEXT.payByCardButton}
+              </button>
+              <button
+                type="button"
+                className="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+                onClick={handleBackToTaskList}
+              >
+                {PAYMENT_PAGE_TEXT.backToTaskList}
+              </button>
+            </div>
           </div>
         </div>
       </main>
