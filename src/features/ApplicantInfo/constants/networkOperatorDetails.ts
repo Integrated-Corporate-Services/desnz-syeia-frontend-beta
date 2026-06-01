@@ -10,9 +10,7 @@ export const BREADCRUMBS = {
 } as const;
 
 export const FORM_ERRORS = {
-  MISSING_REFERENCE: "Enter a network operator reference",
   REFERENCE_TOO_LONG: "You cannot enter more than 24 characters",
-  INVALID_REFERENCE: "Only letters, numbers, spaces, and hyphens are allowed",
   MISSING_OPERATOR: "Select a network operator",
   MISSING_CONTACT_NAME: "Select a contact name",
   INVALID_EMAIL: "Enter a valid email address",

@@ -385,9 +385,7 @@ const NetworkOperatorDetails: React.FC = () => {
               {/* Applicant reference details */}
               <div
                 className={`govuk-form-group${
-                  errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                  errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) ||
-                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                  errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)
                     ? " govuk-form-group--error"
                     : ""
                 }`}
@@ -398,24 +396,15 @@ const NetworkOperatorDetails: React.FC = () => {
                 >
                   Applicant's reference (optional)
                 </label>
-                {(errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                  errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) ||
-                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)) && (
+                {errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) && (
                   <p id="networkOperatorRef-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span>
-                    {errors.find(
-                      (e) =>
-                        e === FORM_ERRORS.MISSING_REFERENCE ||
-                        e === FORM_ERRORS.REFERENCE_TOO_LONG ||
-                        e === FORM_ERRORS.INVALID_REFERENCE,
-                    )}
+                    {FORM_ERRORS.REFERENCE_TOO_LONG}
                   </p>
                 )}
                 <input
                   className={`govuk-input${
-                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                    errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) ||
-                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                    errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)
                       ? " govuk-input--error"
                       : ""
                   }`}
@@ -426,30 +415,23 @@ const NetworkOperatorDetails: React.FC = () => {
                   value={networkOperatorRef}
                   onChange={(e) => {
                     setNetworkOperatorRef(e.target.value);
-                    // Clear errors when user starts typing
-                    if (errors.length > 0) {
+                    // Clear reference length error when user is editing
+                    if (errors.length > 0 && errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)) {
                       const filteredErrors = errors.filter(
-                        (error) => 
-                          error !== FORM_ERRORS.MISSING_REFERENCE &&
-                          error !== FORM_ERRORS.REFERENCE_TOO_LONG &&
-                          error !== FORM_ERRORS.INVALID_REFERENCE
+                        (error) => error !== FORM_ERRORS.REFERENCE_TOO_LONG
                       );
-                      if (filteredErrors.length !== errors.length) {
-                        setErrors(filteredErrors);
-                        if (filteredErrors.length === 0) {
-                          setShowErrorSummary(false);
-                        }
+                      setErrors(filteredErrors);
+                      if (filteredErrors.length === 0) {
+                        setShowErrorSummary(false);
                       }
                     }
                   }}
                   aria-describedby={`${
-                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                    errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) ||
-                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                    errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)
                       ? "networkOperatorRef-error"
                       : ""
                   }`}
-                  aria-invalid={errors.includes(FORM_ERRORS.MISSING_REFERENCE) || errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) || errors.includes(FORM_ERRORS.INVALID_REFERENCE)}
+                  aria-invalid={errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)}
                 />
               </div>
 
