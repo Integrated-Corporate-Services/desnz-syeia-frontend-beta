@@ -9,6 +9,7 @@ import ErrorBoundary from '../../../components/ErrorBoundary';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
+import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -22,7 +23,6 @@ const SensitiveAreaPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
-    const errorMessage = 'Select yes if the route requires tolerance';
     const navigate = useNavigate();
     // Support multiple routes, initially empty
     const [routes, setRoutes] = useState<any[]>([]);
@@ -56,17 +56,17 @@ const SensitiveAreaPage: React.FC = () => {
         setFormError(null);
         setError(null);
         if (!toleranceRequired) {
-            setError(errorMessage);
+            setError(SENSITIVE_AREA_ERRORS.ROUTE_TOLERANCE_REQUIRED);
             return;
         }
         if (toleranceRequired === 'yes') {
             if (!toleranceValue.trim()) {
-                setFormError('Enter the route tolerance');
+                setFormError(SENSITIVE_AREA_ERRORS.ROUTE_TOLERANCE_MISSING);
                 return;
             }
             // Check for integer (0 decimal places)
             if (!/^\d+$/.test(toleranceValue.trim())) {
-                setFormError('The route tolerance must have 0 decimal places');
+                setFormError(SENSITIVE_AREA_ERRORS.ROUTE_TOLERANCE_INTEGER);
                 return;
             }
         }
@@ -83,7 +83,7 @@ const SensitiveAreaPage: React.FC = () => {
             navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`, { state: { showSensitiveAreaPopup: true } });
         } catch (err: any) {
             // Show user-friendly message from backend (validation or system error)
-            setError(err?.response?.data?.message || err?.response?.data?.error || 'Failed to start sensitive area check');
+            setError(err?.response?.data?.message || err?.response?.data?.error || SENSITIVE_AREA_ERRORS.SENSITIVE_AREA_CHECK_FAILED);
         } finally {
             setLoading(false);
         }

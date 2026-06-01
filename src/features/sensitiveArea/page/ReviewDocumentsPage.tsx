@@ -61,7 +61,7 @@ const ReviewDocumentsPage: React.FC = () => {
 
     const totalFiles = (uploadedFiles?.length || 0) + newlyUploadedFiles.length + pendingFiles.length;
     if (totalFiles === 0) {
-      errors.push('Upload at least one environmental and archaeological document');
+      errors.push('Upload at least one document');
     }
 
     return errors;
@@ -277,7 +277,7 @@ const ReviewDocumentsPage: React.FC = () => {
 
             {/* Instructions */}
             <p className="govuk-body">
-              Upload documents that supports your application, such as:
+              Upload documents that support your application, such as:
             </p>
 
             <ul className="govuk-list govuk-list--bullet">
@@ -301,7 +301,7 @@ const ReviewDocumentsPage: React.FC = () => {
                 {formErrors.some((err) => err.includes('document')) && (
                   <span id="file-upload-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span>
-                    Upload at least one environmental and archaeological document
+                    Upload at least one document
                   </span>
                 )}
                 {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
