@@ -72,7 +72,10 @@ export const LineTypeCheckboxGroup: React.FC<LineTypeCheckboxGroupProps> = ({
                       className="govuk-label" 
                       htmlFor={`description-${option.value}`}
                     >
-                      {LABELS.DESCRIPTION_LABEL}
+                      
+                      <span className="govuk-secondary-colour">
+                        Add any helpful information (optional)
+                      </span>
                     </label>
                     
                     {errors[`lineType-${option.value}`] && (
