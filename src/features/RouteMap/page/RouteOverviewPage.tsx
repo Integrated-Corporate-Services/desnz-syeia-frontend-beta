@@ -1,4 +1,5 @@
 import React from 'react';
+import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
 import { S37_BASE_URL } from '../../../constants/s37';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -95,32 +96,6 @@ export const RouteOverviewPage: React.FC = () => {
 
     return (
         <div className="govuk-width-container">
-            {/* Error summary box at the top, if error exists */}
-            {formError && (
-                <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ border: '4px solid #d4351c', background: '#fff', marginBottom: 24 }}>
-                    <h2 className="govuk-error-summary__title" id="error-summary-title">
-                        There is a problem
-                    </h2>
-                    <ul className="govuk-list govuk-error-summary__list">
-                        <li>
-                            <a
-                                href="#addRouteRadioGroup"
-                                className="govuk-link govuk-error-message"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    const el = document.getElementById('addRouteRadioGroup');
-                                    if (el) {
-                                        el.scrollIntoView({ block: 'center' });
-                                        (el as HTMLElement).focus();
-                                    }
-                                }}
-                            >
-                                {formError}
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            )}
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -241,11 +216,11 @@ export const RouteOverviewPage: React.FC = () => {
                                 e.preventDefault();
                                 // Validation: require a radio button selection
                                 if (!spurChoice) {
-                                    setFormError('Select whether you want to add more routes');
+                                    setFormError(ROUTE_ERROR_MESSAGES.addAnotherRoute);
                                     return;
                                 }
                                 if (spurChoice === 'notconnected' && !details.trim()) {
-                                    setFormError('Enter a justification for the additional route');
+                                    setFormError(ROUTE_ERROR_MESSAGES.disconnectedRouteJustification);
                                     setTimeout(() => {
                                         detailsRef.current?.focus();
                                     }, 0);
@@ -269,10 +244,11 @@ export const RouteOverviewPage: React.FC = () => {
                             }}
                             noValidate
                         >
-                            <div className={`govuk-form-group${formError && formError.includes('Select whether you want to add more routes') ? ' govuk-form-group--error' : ''}`.trim()}>
+                            {/* Radio group error only for radio group */}
+                            <div className={`govuk-form-group${formError === ROUTE_ERROR_MESSAGES.addAnotherRoute ? ' govuk-form-group--error' : ''}`.trim()}>
                                 <fieldset
                                     className="govuk-fieldset"
-                                    aria-describedby={`fieldset-1-hint${formError && formError.includes('Select whether you want to add more routes') ? ' addRouteRadioGroup-error' : ''}`.trim()}
+                                    aria-describedby={`fieldset-1-hint${formError === ROUTE_ERROR_MESSAGES.addAnotherRoute ? ' addRouteRadioGroup-error' : ''}`.trim()}
                                     id="addRouteRadioGroup"
                                     tabIndex={-1}
                                 >
@@ -282,7 +258,7 @@ export const RouteOverviewPage: React.FC = () => {
                                     <div className="govuk-hint" id="fieldset-1-hint">
                                         If you have a line off the main route, you will need to add a route spur. If your routes do not connect, you need to provide justification for including it in this application.
                                     </div>
-                                    {formError && formError.includes('Select whether you want to add more routes') && (
+                                    {formError === ROUTE_ERROR_MESSAGES.addAnotherRoute && (
                                         <span className="govuk-error-message" id="addRouteRadioGroup-error">
                                             <span className="govuk-visually-hidden">Error:</span> {formError}
                                         </span>
@@ -308,26 +284,29 @@ export const RouteOverviewPage: React.FC = () => {
                                                 Yes, I want to add another route not connected to the main route
                                             </label>
                                         </div>
+                                        {/* Justification error only for textarea */}
                                         {spurChoice === 'notconnected' && (
-                                            <div className={`govuk-inset-text${formError ? ' govuk-form-group--error' : ''}`} style={{ marginLeft: 0, marginTop: 8, borderLeft: formError ? '4px solid #d4351c' : undefined }}>
+                                            <div className={`govuk-inset-text${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification ? ' govuk-form-group--error' : ''}`} style={{ marginLeft: 0, marginTop: 8, borderLeft: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification ? '4px solid #d4351c' : undefined }}>
                                                 <label htmlFor="routeDetails" className="govuk-label govuk-visually-hidden">
                                                     Explain why this additional route should be included with the main route of this application
                                                 </label>
                                                 <span className="govuk-body" style={{ display: 'block', marginBottom: 4 }}>
                                                     Explain why this additional route should be included with the main route of this application
                                                 </span>
-                                                <span className="govuk-error-message" style={{ color: '#d4351c', display: formError ? 'block' : 'none', marginBottom: 4 }}>
-                                                    {formError}
-                                                </span>
+                                                {formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification && (
+                                                    <span className="govuk-error-message" style={{ color: '#d4351c', marginBottom: 4 }}>
+                                                        {formError}
+                                                    </span>
+                                                )}
                                                 <textarea
                                                     id="routeDetails"
                                                     className="govuk-textarea"
-                                                    style={{ width: '100%', minHeight: 100, border: formError ? '2px solid #d4351c' : undefined }}
+                                                    style={{ width: '100%', minHeight: 100, border: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification ? '2px solid #d4351c' : undefined }}
                                                     ref={detailsRef}
                                                     value={details}
                                                     onChange={(e) => setDetails(e.target.value)}
-                                                    aria-describedby={formError ? 'routeDetails-error' : undefined}
-                                                    aria-invalid={!!formError}
+                                                    aria-describedby={formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification ? 'routeDetails-error' : undefined}
+                                                    aria-invalid={formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification}
                                                 />
                                             </div>
                                         )}
