@@ -9,11 +9,20 @@ export const getObjectorDetails = async (applicationId: string): Promise<Objecto
       if (response.status === 404) {
         return null;
       }
-      throw new Error(`Failed to fetch objector details: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      const error: any = new Error(`Failed to fetch objector details: ${response.statusText}`);
+      error.status = response.status;
+      error.validationErrors = errorData.details || errorData.message || errorData;
+      throw error;
     }
     return await response.json();
   } catch (error) {
-    return null;
+    console.error('[Frontend Service] Error fetching objector details:', error);
+    // Return null for 404, throw for other errors
+    if ((error as any).status === 404) {
+      return null;
+    }
+    throw error;
   }
 };
 
@@ -45,7 +54,11 @@ export const saveObjectorDetails = async (
     console.log('[Frontend Service] Response status:', response.status);
     
     if (!response.ok) {
-      throw new Error(`Failed to save objector details: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      const error: any = new Error(`Failed to save objector details: ${response.statusText}`);
+      error.status = response.status;
+      error.validationErrors = errorData.details || errorData.message || errorData;
+      throw error;
     }
     
     const result = await response.json();
@@ -54,7 +67,7 @@ export const saveObjectorDetails = async (
     return result;
   } catch (error) {
     console.error('[Frontend Service] Error saving objector details:', error);
-    return null;
+    throw error;
   }
 };
 
@@ -65,12 +78,17 @@ export const deleteObjectorDetails = async (applicationId: string): Promise<bool
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to delete objector details: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      const error: any = new Error(`Failed to delete objector details: ${response.statusText}`);
+      error.status = response.status;
+      error.validationErrors = errorData.details || errorData.message || errorData;
+      throw error;
     }
-    
+
     return true;
   } catch (error) {
-    return false;
+    console.error('[Frontend Service] Error deleting objector details:', error);
+    throw error;
   }
 };
 

@@ -90,10 +90,6 @@ const NoticeToRemoveClear: React.FC = () => {
     }
   };
 
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
-
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -148,9 +144,9 @@ const NoticeToRemoveClear: React.FC = () => {
                       {LABELS.PAGE_TITLE}
                     </h1>
                   </legend>
-                  <p className="govuk-body">
+                  {/* <p className="govuk-body">
                     {LABELS.HELPER_TEXT}
-                  </p>
+                  </p> */}
                   {error && (
                     <p id="isNoticeClear-error" className="govuk-error-message">
                       <span className="govuk-visually-hidden">Error:</span>{" "}
@@ -206,13 +202,6 @@ const NoticeToRemoveClear: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                {/* <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  onClick={handleSaveForLater}
-                >
-                  Save for later
-                </button> */}
               </div>
             </form>
           </div>

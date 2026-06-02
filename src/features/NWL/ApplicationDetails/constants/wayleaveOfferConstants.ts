@@ -8,7 +8,7 @@ export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
   PAGE_TITLE: "Wayleave notice",
-  PAGE_HINT: "The notice must have been served to the objector more than 21 days ago. You cannot continue your application at this time.",
+  PAGE_HINT: "The notice must have been served to the objector more than 21 days ago. You will not be able to submit your application if the 21 day notice period has not expired.",
   DATE_LABEL: "Enter the date of the notice to the objector",
   UPLOAD_LABEL: "Upload a copy of the notice to the objector",
   UPLOAD_HINT: "You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.",

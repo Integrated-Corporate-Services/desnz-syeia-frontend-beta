@@ -152,12 +152,6 @@ const NWLTaskList: React.FC = () => {
 						<ul className="govuk-task-list">
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
-									{renderLink(NWL_SUBSECTIONS.OBJECTOR_INTRODUCTION, 'Introduction', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS_INTRODUCTION)}
-								</div>
-								{renderStatusTag(NWL_SUBSECTIONS.OBJECTOR_INTRODUCTION)}
-							</li>
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
 									{renderLink(NWL_SUBSECTIONS.OBJECTOR_DETAILS, 'Objector details', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS)}
 								</div>
 								{renderStatusTag(NWL_SUBSECTIONS.OBJECTOR_DETAILS)}

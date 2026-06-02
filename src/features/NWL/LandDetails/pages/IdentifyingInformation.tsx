@@ -87,7 +87,7 @@ const IdentifyingInformation: React.FC = () => {
 
             <form>
               <div className={`govuk-form-group${errors.identifyingInfo ? ' govuk-form-group--error' : ''}`}>
-                <label className="govuk-label" htmlFor="identifying-info">
+                <label className="govuk-label govuk-visually-hidden" htmlFor="identifying-info">
                   Identifying information
                 </label>
                 <div className="govuk-hint">
@@ -107,7 +107,7 @@ const IdentifyingInformation: React.FC = () => {
                   onChange={(e) => handleIdentifyingInfoChange(e.target.value)}
                   aria-describedby={errors.identifyingInfo ? 'identifying-info-error' : undefined}
                 />
-                <div id="identifying-info-hint" className="govuk-hint">
+                <div className="govuk-hint">
                   {labels.CHARACTER_LIMIT}
                 </div>
               </div>

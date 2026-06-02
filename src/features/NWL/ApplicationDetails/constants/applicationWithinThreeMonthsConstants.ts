@@ -8,7 +8,7 @@ export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
   PAGE_TITLE: "Is your application being submitted within three months of the Notice to Remove?",
-  HELPER_TEXT: "Applications can be submitted at any time, but necessarily should be to obtain the electric line or apparatus has not had three months from the date the wayleave has come to an end. The application must have been submitted more than three months after the Notice to Remove was sent.",
+  HELPER_TEXT: "Applications can be submitted at any time, but temporary rights to retain the electric line on the property will not have been secured if the application is submitted more than three months after the Notice to Remove has been served.",
 } as const;
 
 export const FORM_ERRORS = {

@@ -95,6 +95,10 @@ const UploadSiteInformation: React.FC = () => {
               {labels.DESCRIPTION}
             </p>
 
+            <p className="govuk-body">
+              {labels.SITE_VISIT_INFO}
+            </p>
+
             <form>
               <div className={`govuk-form-group${fileValidationErrors.length > 0 ? ' govuk-form-group--error' : ''}`}>
                 {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
@@ -102,14 +106,14 @@ const UploadSiteInformation: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
-                {landDetails.uploadedFiles && landDetails.uploadedFiles.length > 0 && (
-                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
+                {pageUploadedFiles && pageUploadedFiles.length > 0 && (
+                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">{labels.DOCUMENTS_UPLOADED}</h2>
                 )}
                 
                 <FileUpload
                   ref={fileUploadRef}
                   title={labels.UPLOAD_SECTION_TITLE}
-                  showTitle={false}
+                  showTitle={true}
                   prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_SITE_INFORMATION}`}
                   applicationId={applicationId}
                   category={NWL_FILE_CATEGORIES.NWL_SITE_INFORMATION}

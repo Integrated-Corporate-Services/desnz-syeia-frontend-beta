@@ -8,16 +8,16 @@ export const BREADCRUMBS = {
 } as const;
 
 export const LABELS = {
-  EXISTING_NEGOTIATIONS_TITLE: "Tell us about any existing negotiations",
-  EVIDENCE_TITLE: "Evidence of negotiations",
+  EXISTING_NEGOTIATIONS_TITLE: "Are there any negotiations in progress?",
+  EVIDENCE_TITLE: "Provide evidence of negotiations",
   NO_NEGOTIATIONS_TITLE: "Tell us why there have not been any negotiations",
   CONTINUE: "Save and continue",
   SAVE_FOR_LATER: "Save for later",
 } as const;
 
 export const HINTS = {
-  EXISTING_NEGOTIATIONS: "Parties are strongly encouraged to reach a negotiated settlement where possible.",
-  START_DATE: "Please confirm the start date of negotiations.",
+  EXISTING_NEGOTIATIONS: "We strongly encourage all parties to negotiate and reach a voluntary solution where possible",
+  START_DATE: "Enter the start date of negotiations",
   EVIDENCE_COMMENTS: "Tell us about any negotiations with the objector to reach a voluntary solution. If possible, provide a timeline of events or copies of relevant correspondence. If no negotiations have taken place, you must explain why.",
   NO_NEGOTIATIONS: "You can enter up to 4,000 characters",
 } as const;
@@ -41,7 +41,7 @@ export const FORM_LABELS = {
   DAY: "Day",
   MONTH: "Month",
   YEAR: "Year",
-  ADDITIONAL_COMMENTS: "Additional comments",
+  ADDITIONAL_COMMENTS: "Tell us about the negotiations",
   DOCUMENTS_UPLOADED: "Documents uploaded",
   UPLOAD_EVIDENCE: "Upload any evidence of negotiations (optional)",
   NO_NEGOTIATIONS_REASON: "Tell us why there have not been any negotiations",
@@ -51,8 +51,8 @@ export const FORM_LABELS = {
 } as const;
 
 export const CONTENT = {
-  EXISTING_NEGOTIATIONS_INTRO: "Parties are strongly encouraged to reach a negotiated settlement where possible.",
-  EVIDENCE_INTRO: "Tell us about any negotiations with the objector to reach a voluntary solution. If possible, provide a timeline of events or copies of relevant correspondence. If no negotiations have taken place, you must explain why.",
+  EXISTING_NEGOTIATIONS_INTRO: "We strongly encourage all parties to negotiate and reach a voluntary solution where possible",
+  EVIDENCE_INTRO: "Describe the negotiations to reach a voluntary settlement with the objector. Provide a timeline of events and copies of any relevant correspondence, if possible.",
   CHARACTER_LIMIT: "You can enter up to 4,000 characters",
 } as const;
 

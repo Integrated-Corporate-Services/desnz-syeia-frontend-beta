@@ -9,6 +9,10 @@ export const useLandNavigation = (applicationId: string) => {
     navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.TASK_LIST, applicationId));
   }, [navigate, applicationId]);
 
+  const goToIsSiteAddressSameAsObjector = useCallback(() => {
+    navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.IS_SITE_ADDRESS_SAME_AS_OBJECTOR, applicationId));
+  }, [navigate, applicationId]);
+
   const goToSiteAddress = useCallback(() => {
     navigate(buildLandDetailsRoute(LAND_DETAILS_ROUTES.SITE_ADDRESS, applicationId));
   }, [navigate, applicationId]);
@@ -48,6 +52,7 @@ export const useLandNavigation = (applicationId: string) => {
 
   return {
     goToTaskList,
+    goToIsSiteAddressSameAsObjector,
     goToSiteAddress,
     goToCountrySelection,
     goToLandRegistry,

@@ -111,6 +111,17 @@ export const useFormValidation = () => {
     return Object.keys(newErrors).length === 0;
   }, []);
 
+  const validateRadioSelection = useCallback((value: string): boolean => {
+    const newErrors: ValidationErrors = {};
+
+    if (!value || value === '') {
+      newErrors.isSameAddress = 'Select whether the site address is the same as the objector\'s address';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, []);
+
   return {
     errors,
     clearErrors,
@@ -122,5 +133,6 @@ export const useFormValidation = () => {
     validateUnregisteredLand,
     validateIdentifyingInfo,
     validateEquipmentVisibility,
+    validateRadioSelection,
   };
 };

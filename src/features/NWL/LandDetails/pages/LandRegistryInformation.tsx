@@ -37,6 +37,7 @@ const LandRegistryInformation: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [fileUploadError, setFileUploadError] = useState<string>('');
 
   const handleTitleNumberChange = (value: string) => {
     setTitleNumber(value);
@@ -64,15 +65,37 @@ const LandRegistryInformation: React.FC = () => {
     });
   };
 
+  const handlePendingFilesChange = (files: File[]) => {
+    setPendingFiles(files);
+    // Clear file upload error when files are added to pending
+    if (files && files.length > 0) {
+      setFileUploadError('');
+    }
+  };
+
   // Files/documents only for this page's subCategory
   const pageSubCategory = LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY;
   const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase()) === pageSubCategory);
   const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 
   const handleSaveAndContinue = async () => {
-    const isValid = validateTitleNumber(titleNumber);
+    // Validate both fields simultaneously and collect all errors
+    const titleNumberValid = validateTitleNumber(titleNumber);
+    
+    // Validate that at least one file is uploaded
+    const hasUploadedFiles = pageUploadedFiles && pageUploadedFiles.length > 0;
+    const hasPendingFiles = pendingFiles && pendingFiles.length > 0;
+    const fileUploadValid = hasUploadedFiles || hasPendingFiles;
 
-    if (!isValid) {
+    // Set file upload error if needed
+    if (!fileUploadValid) {
+      setFileUploadError('Upload the Land Registry document');
+    } else {
+      setFileUploadError('');
+    }
+
+    // If either validation fails, show all errors and return
+    if (!titleNumberValid || !fileUploadValid) {
       window.scrollTo(0, 0);
       return;
     }
@@ -117,6 +140,7 @@ const LandRegistryInformation: React.FC = () => {
 
   const errorFields = {
     titleNumber: 'title-number',
+    fileUpload: 'file-upload-error',
   };
 
   const labels = LAND_DETAILS_LABELS.LAND_REGISTRY;
@@ -131,7 +155,10 @@ const LandRegistryInformation: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <ErrorSummary errors={errors} errorFields={errorFields} />
+            <ErrorSummary 
+              errors={{ ...errors, ...(fileUploadError ? { fileUpload: fileUploadError } : {}) }} 
+              errorFields={errorFields} 
+            />
 
             <h1 className="govuk-heading-l">{labels.INFO_PAGE_TITLE}</h1>
 
@@ -159,14 +186,19 @@ const LandRegistryInformation: React.FC = () => {
                 />
               </div>
 
-              <div className={`govuk-form-group${fileValidationErrors.length > 0 ? ' govuk-form-group--error' : ''}`}>
+              <div className={`govuk-form-group${fileValidationErrors.length > 0 || fileUploadError ? ' govuk-form-group--error' : ''}`}>
                 {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
                   <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
+                {fileUploadError && (
+                  <p id="file-upload-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {fileUploadError}
+                  </p>
+                )}
                 {pageUploadedFiles && pageUploadedFiles.length > 0 && (
-                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
+                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">{labels.DOCUMENTS_UPLOADED}</h2>
                 )}
                 
                 <FileUpload
@@ -183,9 +215,10 @@ const LandRegistryInformation: React.FC = () => {
                   showDocumentsHeading={true}
                   uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
-                  onPendingFilesChange={setPendingFiles}
+                  onPendingFilesChange={handlePendingFilesChange}
                   onValidationErrors={setFileValidationErrors}
                   onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {
+                    setFileUploadError(''); // Clear error when files are uploaded
                     updateLandDetails({
                       uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
                       applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]

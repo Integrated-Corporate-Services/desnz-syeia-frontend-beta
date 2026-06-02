@@ -87,7 +87,7 @@ export const AssetSummaryCard: React.FC<AssetSummaryCardProps> = ({
             
             <tr className="govuk-table__row">
               <th scope="row" className="govuk-table__header">
-                Line type(s)
+                Line types
               </th>
               <td className="govuk-table__cell">
                 {lineTypes.length > 0 ? (

@@ -28,7 +28,7 @@ const logger = createLogger('TellUsAboutExistingNegotiations');
  */
 const TellUsAboutExistingNegotiations: React.FC = () => {
   const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
-  const { errors, validateRadioSelection, setErrors } = useFormValidation();
+  const { errors, validateRadioSelection, validateDate, setErrors } = useFormValidation();
   const {
     navigateToEvidenceOfNegotiations,
     navigateToWhyNoNegotiations,
@@ -94,6 +94,22 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
       return;
     }
 
+    // Validate date when 'Yes' is selected
+    if (hasNegotiations === 'yes') {
+      // Check if any date field is empty
+      if (!startDate.day || !startDate.month || !startDate.year) {
+        setErrors({ date: 'Enter the start date' });
+        window.scrollTo(0, 0);
+        return;
+      }
+      
+      // Validate date format and validity
+      if (!validateDate(startDate.day, startDate.month, startDate.year)) {
+        window.scrollTo(0, 0);
+        return;
+      }
+    }
+
     if (!appId) {
       return;
     }
@@ -106,39 +122,23 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         has_negotiations: isYes,
       };
 
-      // Send date fields only when has_negotiations is true AND date is entered
-        if (isYes && startDate.day && startDate.month && startDate.year) {
-          payload.negotiations_start_date_day = startDate.day;
-          payload.negotiations_start_date_month = startDate.month;
-          payload.negotiations_start_date_year = startDate.year;
+      // Date is mandatory when has_negotiations is true
+      if (isYes) {
+        payload.negotiations_start_date_day = startDate.day;
+        payload.negotiations_start_date_month = startDate.month;
+        payload.negotiations_start_date_year = startDate.year;
 
-          payload.no_negotiations_reason = '';
-          // Preserve existing comments
-          payload.negotiations_evidence_comments = negotiationsData?.negotiations_evidence_comments || '';
-        }else{
-          payload.no_negotiations_reason = negotiationsData?.no_negotiations_reason || '';
-          // Clear opposite flow field
-          payload.negotiations_evidence_comments = '';
-          payload.evidence_documents = [];
-          payload.application_documents = [];
-          payload.uploaded_files = [];
-        }
-
-      // if (isYes) {
-      //   // Send date fields only when has_negotiations is true AND date is entered
-      //   if (startDate.day && startDate.month && startDate.year) {
-      //     payload.negotiations_start_date_day = startDate.day;
-      //     payload.negotiations_start_date_month = startDate.month;
-      //     payload.negotiations_start_date_year = startDate.year;
-      //   }
-      //   // Clear opposite flow field
-      //   payload.no_negotiations_reason = negotiationsData?.no_negotiations_reason || '';
-      //   payload.negotiations_evidence_comments = negotiationsData?.negotiations_evidence_comments || '';
-      // } else {
-      //   // Clear date and comments when has_negotiations is false
-      //   payload.no_negotiations_reason = negotiationsData?.no_negotiations_reason || '';
-      //   payload.negotiations_evidence_comments = negotiationsData?.negotiations_evidence_comments || '';      
-      // }
+        payload.no_negotiations_reason = '';
+        // Preserve existing comments
+        payload.negotiations_evidence_comments = negotiationsData?.negotiations_evidence_comments || '';
+      } else {
+        payload.no_negotiations_reason = negotiationsData?.no_negotiations_reason || '';
+        // Clear opposite flow field
+        payload.negotiations_evidence_comments = '';
+        payload.evidence_documents = [];
+        payload.application_documents = [];
+        payload.uploaded_files = [];
+      }
 
       logger.debug('[TellUsAboutExistingNegotiations] Calling updateNegotiationsData with payload:', payload);
       const result = await updateNegotiationsData(appId, payload);
@@ -188,7 +188,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                       {LABELS.EXISTING_NEGOTIATIONS_TITLE}
                     </h1>
                   </legend>
-                  <div className="govuk-hint">
+                  <div className="govuk-body">
                     {CONTENT.EXISTING_NEGOTIATIONS_INTRO}
                   </div>
                   {errors.radio && (

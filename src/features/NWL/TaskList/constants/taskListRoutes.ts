@@ -6,10 +6,9 @@ export const NWL_TASK_LIST_ROUTES = {
   WAYLEAVE_OFFER: '/nwl/:applicationId/application-details/wayleave-offer',
   GROUNDS_FOR_APPLICATION: '/nwl/:applicationId/application-details/grounds-for-application',
   
-  OBJECTOR_DETAILS_INTRODUCTION: '/nwl/:applicationId/objector-details-introduction',
-  OBJECTOR_DETAILS: '/nwl/:applicationId/objector-details',
+  OBJECTOR_DETAILS: '/nwl/:applicationId/objector-details-introduction',
   
-  SITE_ADDRESS: '/nwl/:applicationId/site-address',
+  SITE_ADDRESS: '/nwl/:applicationId/is-site-address-same-as-objector',
   LAND_REGISTRY: '/nwl/:applicationId/land-registry',
   OS_GRID_REFERENCE: '/nwl/:applicationId/os-grid-reference',
   IDENTIFYING_INFORMATION: '/nwl/:applicationId/identifying-information',

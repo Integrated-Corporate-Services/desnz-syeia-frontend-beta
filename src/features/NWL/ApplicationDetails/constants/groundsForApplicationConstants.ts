@@ -11,6 +11,8 @@ export const LABELS = {
   HELPER_TEXT: "You must choose the option that applies to this application for a necessary wayleave to retain existing lines, as per ",
   LEGISLATION_LINK_TEXT: "Paragraphs 6(2) and 8 of Schedule 4 to the Electricity Act 1989 (opens in a new tab)",
   LEGISLATION_LINK_URL: "https://www.legislation.gov.uk/ukpga/1989/29/schedule/4/paragraph/8",
+  OBJECTOR_TITLE: "Who is the objector?",
+  OBJECTOR_CONTENT: "The objector is the person who served a Notice to Remove, or refused to grant a voluntary wayleave.",
   GUIDANCE_LINK_TEXT: "See the full guidance (opens in a new tab)",
   GUIDANCE_LINK_URL: "https://assets.publishing.service.gov.uk/media/5a756afae5274a3edd9a4c25/wayleave_guidance.pdf",
 } as const;

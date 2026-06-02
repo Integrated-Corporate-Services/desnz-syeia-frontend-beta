@@ -8,7 +8,7 @@ export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
   PAGE_TITLE: "Provide the Notice to Remove",
-  DATE_LABEL: "Date of Notice to Remove sent by the owner or occupier",
+  DATE_LABEL: "Enter the date the Notice to Remove was served by the objector",
   UPLOAD_LABEL: "Upload any documents and correspondence related to the Notice to Remove",
   UPLOAD_HINT: "You can upload .pdf, .png, .jpeg, .doc, .docx and .xlsx files. Files cannot be password protected.",
   ...SHARED_DATE_LABELS,

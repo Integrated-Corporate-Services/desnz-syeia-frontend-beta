@@ -1,4 +1,10 @@
 export const LAND_DETAILS_LABELS = {
+  IS_SITE_ADDRESS_SAME_AS_OBJECTOR: {
+    PAGE_TITLE: 'Is the site address the same as the objector\'s address?',
+    YES: 'Yes',
+    NO: 'No',
+    OBJECTOR_ADDRESS_HEADING: 'Objector address',
+  },
   SITE_ADDRESS: {
     PAGE_TITLE: 'Enter the site address',
     ADDRESS_LINE1: 'Address line 1',
@@ -34,7 +40,7 @@ export const LAND_DETAILS_LABELS = {
   },
   OS_GRID_REFERENCE: {
     PAGE_TITLE: 'Enter the OS Grid Reference',
-    DESCRIPTION: 'Enter a grid reference, which you can find on Ordnance Survey maps or at',
+    DESCRIPTION: 'Enter the site’s grid reference, which you can find on Ordnance Survey (OS) maps or at',
     LINK_TEXT: 'gridreferencefinder.com (opens in a new tab).',
     GRID_LETTER: 'Grid letter (optional)',
     EASTING: 'Easting (optional)',
@@ -42,14 +48,15 @@ export const LAND_DETAILS_LABELS = {
   },
   IDENTIFYING_INFORMATION: {
     PAGE_TITLE: 'Identify the land',
-    DESCRIPTION: 'Describe any features on or near the land that can help identify it such as roads, paths and geographical features',
+    DESCRIPTION: 'Describe any features on or near the land that can help identify it such as roads, paths and geographical features. You can upload supporting documents on the next page',
     CHARACTER_LIMIT: 'You can enter up to 4,000 characters',
   },
   UPLOAD_SITE_INFORMATION: {
-    PAGE_TITLE: 'Upload site information',
-    DESCRIPTION: 'Please upload any site plans, images and photos taken during this visit. You should conduct a site visit before submitting this application to confirm the assets are correctly listed and described.',
+    PAGE_TITLE: 'Provide site information',
+    DESCRIPTION: 'Please upload any site plans, images and photos to help identify the site and the assets.',
+    SITE_VISIT_INFO: 'We encourage you to conduct site visits before submitting any application to confirm the assets are correctly listed and described.',
     DOCUMENTS_UPLOADED: 'Documents uploaded',
-    UPLOAD_SECTION_TITLE: 'Upload the site information (optional)',
+    UPLOAD_SECTION_TITLE: 'Upload site information documents (optional)',
     UPLOAD_HINT: 'You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.',
   },
   EQUIPMENT_VISIBILITY: {
@@ -77,6 +84,7 @@ export const LAND_DETAILS_VALIDATION = {
 };
 
 export const LAND_DETAILS_ROUTES = {
+  IS_SITE_ADDRESS_SAME_AS_OBJECTOR: '/nwl/:applicationId/is-site-address-same-as-objector',
   SITE_ADDRESS: '/nwl/:applicationId/site-address',
   COUNTRY_SELECTION: '/nwl/:applicationId/land-country',
   LAND_REGISTRY: '/nwl/:applicationId/land-registry',

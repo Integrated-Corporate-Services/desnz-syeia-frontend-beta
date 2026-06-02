@@ -1,4 +1,5 @@
 export { default as SiteAddress } from './SiteAddress';
+export { default as IsSiteAddressSameAsObjector } from './IsSiteAddressSameAsObjector';
 export { default as CountrySelection } from './CountrySelection';
 export { default as LandRegistry } from './LandRegistry';
 export { default as LandRegistryInformation } from './LandRegistryInformation';

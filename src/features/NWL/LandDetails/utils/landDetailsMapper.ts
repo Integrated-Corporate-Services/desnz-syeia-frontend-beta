@@ -141,6 +141,9 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
   const uploadedFilesArr = Object.values(fileMap);
 
   return {
+    // Site address selection flag
+    is_site_at_objector_address: backendData.is_site_at_objector_address,
+    
     // Site address fields
     site_address_line1: backendData.site_address?.line1 || '',
     site_address_line2: backendData.site_address?.line2 || '',
@@ -197,6 +200,11 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
       };
     }
 
+    // Site at objector address (boolean for POST)
+    if (frontendData.is_site_at_objector_address !== undefined) {
+      backendData.is_site_at_objector_address = frontendData.is_site_at_objector_address;
+    }
+
     // Land registry (nested object for POST)
     if (frontendData.has_land_registry !== undefined) {
       backendData.is_land_registered = frontendData.has_land_registry;
@@ -229,9 +237,6 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
       backendData.is_equipment_visible_from_public_road = frontendData.equipment_visible_from_public_road;
     }
 
-    // Default is_site_at_objector_address to false if not provided
-    backendData.is_site_at_objector_address = false;
-
   } else {
     // For PATCH (update), use flat structure with correct field names
     
@@ -255,6 +260,11 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
     // Country
     if (frontendData.site_country !== undefined) {
       backendData.country = frontendData.site_country;
+    }
+
+    // Site at objector address (boolean for PATCH)
+    if (frontendData.is_site_at_objector_address !== undefined) {
+      backendData.is_site_at_objector_address = frontendData.is_site_at_objector_address;
     }
 
     // Land registry (flat fields for PATCH)

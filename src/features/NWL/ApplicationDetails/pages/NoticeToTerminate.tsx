@@ -285,8 +285,8 @@ const NoticeToTerminate: React.FC = () => {
               >
                 <fieldset className="govuk-fieldset" role="group">
                   <legend className="govuk-fieldset__legend">
-                    <span className="govuk-label">
-                      {LABELS.DATE_QUESTION}
+                    <span className="govuk-body govuk-!-font-weight-bold">
+                      {LABELS.DATE_INSTRUCTION}
                     </span>
                   </legend>
                   {hasDateError && (

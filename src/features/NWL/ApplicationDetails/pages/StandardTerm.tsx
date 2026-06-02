@@ -161,7 +161,7 @@ const StandardTerm: React.FC = () => {
                       {LABELS.PAGE_TITLE}
                     </h1>
                   </legend>
-                  <p className="govuk-body">
+                  <p className="govuk-hint">
                     {LABELS.HELPER_TEXT}
                   </p>
                   {error && (

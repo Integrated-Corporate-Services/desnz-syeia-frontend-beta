@@ -7,7 +7,7 @@ import { SHARED_BREADCRUMBS } from './sharedConstants';
 export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
-  PAGE_TITLE: "You cannot continue this application yet",
+  PAGE_TITLE: "You cannot complete this section now",
   HELPER_TEXT: "The termination period has not expired. A Notice to Remove cannot be served by the current owner or occupier until the termination period has expired.",
   GUIDANCE_TITLE: "You should:",
   GUIDANCE_POINTS: [

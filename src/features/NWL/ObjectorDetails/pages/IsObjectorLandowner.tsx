@@ -136,9 +136,9 @@ const IsObjectorLandowner: React.FC = () => {
                       {LABELS.LANDOWNER_QUESTION_TITLE}
                     </h1>
                   </legend>
-                  <div id="isLandowner-hint" className="govuk-hint">
+                  {/* <div id="isLandowner-hint" className="govuk-hint">
                     {FORM_HINTS.LANDOWNER_QUESTION}
-                  </div>
+                  </div> */}
                   {error && (
                     <p id="isLandowner-error" className="govuk-error-message">
                       <span className="govuk-visually-hidden">Error:</span>{" "}

@@ -307,13 +307,13 @@ const EvidenceOfNegotiations: React.FC = () => {
 
               {/* File Upload Section */}
               <div className="govuk-form-group">
-                <h2 className="govuk-heading-m">{FORM_LABELS.DOCUMENTS_UPLOADED}</h2>
-                <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
-                    {FORM_LABELS.UPLOAD_EVIDENCE}
-                </h3>
+                {uploadedFiles && uploadedFiles.length > 0 && (
+                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">{FORM_LABELS.DOCUMENTS_UPLOADED}</h2>
+                )}
                 <FileUpload
                   ref={fileUploadRef}
-                  title=""
+                  title={FORM_LABELS.UPLOAD_EVIDENCE}
+                  showTitle={true}
                   prefix={`${appId}/${FILE_CATEGORIES.NEGOTIATIONS}`}
                   applicationId={appId}
                   category={FILE_CATEGORIES.NEGOTIATIONS}

@@ -77,17 +77,30 @@ export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
         />
       </div>
 
-      <div className="govuk-form-group">
+      <div
+        className={`govuk-form-group ${
+          errors.organisation ? 'govuk-form-group--error' : ''
+        }`}
+      >
         <label className="govuk-label" htmlFor="organisation">
           {FORM_LABELS.ORGANISATION}
         </label>
+        {errors.organisation && (
+          <p id="organisation-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            {errors.organisation}
+          </p>
+        )}
         <input
-          className="govuk-input"
+          className={`govuk-input ${
+            errors.organisation ? 'govuk-input--error' : ''
+          }`}
           id="organisation"
           name="organisation"
           type="text"
           value={organisation}
           onChange={(e) => onOrganisationChange(e.target.value)}
+          aria-describedby={errors.organisation ? 'organisation-error' : undefined}
         />
       </div>
 
@@ -115,17 +128,29 @@ export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
         />
       </div>
 
-      <div className="govuk-form-group">
+      <div
+        className={`govuk-form-group ${
+          errors.phone ? 'govuk-form-group--error' : ''
+        }`}
+      >
         <label className="govuk-label" htmlFor="phone">
           {FORM_LABELS.PHONE}
         </label>
+        {errors.phone && (
+          <p id="phone-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span> {errors.phone}
+          </p>
+        )}
         <input
-          className="govuk-input"
+          className={`govuk-input ${
+            errors.phone ? 'govuk-input--error' : ''
+          }`}
           id="phone"
           name="phone"
           type="tel"
           value={phone}
           onChange={(e) => onPhoneChange(e.target.value)}
+          aria-describedby={errors.phone ? 'phone-error' : undefined}
         />
       </div>
     </>
