@@ -11,9 +11,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
-import { LAND_DETAILS_LABELS } from '../constants';
 import { getObjectorDetails } from '../../ObjectorDetails/services/objectorDetailsService';
-import { landDetailsService } from '../services/landDetailsService';
 import { ObjectorDetails } from '../../ObjectorDetails/types';
 
 const IsSiteAddressSameAsObjector: React.FC = () => {
