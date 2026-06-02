@@ -103,6 +103,12 @@ const PaymentSuccessPage: React.FC = () => {
 
             <div className="govuk-button-group">
               <Link
+                to={`${baseUrl}/${applicationId}/application-summary`}
+                className="govuk-button"
+              >
+                View application summary
+              </Link>
+              <Link
                 to={`${baseUrl}/${applicationId}/task-list`}
                 className="govuk-button govuk-button--secondary"
               >

@@ -108,6 +108,8 @@ import S37WithdrawApplicationPage from '../features/CheckYourAnswers/pages/Withd
 import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
 // New modular ApplicationSummary - for NWL and future types
 import ApplicationSummary from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
+// NWL-native read-only Application Summary page
+import NWLApplicationSummaryPage from '../features/NWL/ApplicationSummary/pages/NWLApplicationSummaryPage';
 import WithdrawApplicationPage from '../features/WithdrawApplication/pages/WithdrawApplicationPage';
 import WithdrawalConfirmationPage from '../features/WithdrawApplication/pages/WithdrawalConfirmationPage';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
@@ -499,7 +501,7 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/application-summary`,
-        component: ApplicationSummary,  // New modular component for NWL
+        component: NWLApplicationSummaryPage,  // NWL-native read-only summary
         auth: true,
         layout: true,
     },

@@ -49,7 +49,7 @@ import InvoiceGenerationPage from '../Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
 import PaymentMethodPage from '../Payments/pages/PaymentMethodPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
-import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
+import NWLApplicationSummaryPage from './ApplicationSummary/pages/NWLApplicationSummaryPage';
 import WithdrawApplicationPage from '../WithdrawApplication/pages/WithdrawApplicationPage';
 import WithdrawalConfirmationPage from '../WithdrawApplication/pages/WithdrawalConfirmationPage';
 
@@ -443,7 +443,7 @@ export const nwlCheckYourAnswersRoutes = [
 export const nwlApplicationSummaryRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/application-summary`,
-        component: ApplicationSummaryPage,
+        component: NWLApplicationSummaryPage,
         auth: true,
         layout: true,
     },
