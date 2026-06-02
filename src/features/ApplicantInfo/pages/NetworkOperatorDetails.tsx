@@ -247,33 +247,7 @@ const NetworkOperatorDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Applicant details</h1>
-            {/* Error summary */}
-            {(showErrorSummary || emailInputError) && (
-              <div
-                className="govuk-error-summary"
-                data-module="govuk-error-summary"
-                tabIndex={-1}
-                role="alert"
-              >
-                <h2 className="govuk-error-summary__title">
-                  There is a problem
-                </h2>
-                <div className="govuk-error-summary__body">
-                  <ul className="govuk-list govuk-error-summary__list">
-                    {errors.map((err, idx) => (
-                      <li key={idx}>
-                        <a href={`#${err.includes('contact name') ? 'location' : 'networkOperatorRef'}`}>{err}</a>
-                      </li>
-                    ))}
-                    {emailInputError && (
-                      <li>
-                        <a href="#emailAddress">{emailInputError}</a>
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            )}
+            {/* Error summary removed as per request. Field-level errors remain. */}
             <form onSubmit={handleSubmit} noValidate>
               {/* Applicant contact name */}
               <div className={`govuk-form-group${
@@ -293,7 +267,7 @@ const NetworkOperatorDetails: React.FC = () => {
                 {errors.includes(FORM_ERRORS.MISSING_OPERATOR) && (
                   <p id="location-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span>
-                    {FORM_ERRORS.MISSING_OPERATOR}
+                    {FORM_ERRORS.MISSING_CONTACT_NAME}
                   </p>
                 )}
                 <select
@@ -411,8 +385,7 @@ const NetworkOperatorDetails: React.FC = () => {
               {/* Applicant reference details */}
               <div
                 className={`govuk-form-group${
-                  errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                  errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)
                     ? " govuk-form-group--error"
                     : ""
                 }`}
@@ -423,21 +396,15 @@ const NetworkOperatorDetails: React.FC = () => {
                 >
                   Applicant's reference (optional)
                 </label>
-                {(errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                  errors.includes(FORM_ERRORS.INVALID_REFERENCE)) && (
+                {errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) && (
                   <p id="networkOperatorRef-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span>
-                    {errors.find(
-                      (e) =>
-                        e === FORM_ERRORS.MISSING_REFERENCE ||
-                        e === FORM_ERRORS.INVALID_REFERENCE,
-                    )}
+                    {FORM_ERRORS.REFERENCE_TOO_LONG}
                   </p>
                 )}
                 <input
                   className={`govuk-input${
-                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                    errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)
                       ? " govuk-input--error"
                       : ""
                   }`}
@@ -448,28 +415,23 @@ const NetworkOperatorDetails: React.FC = () => {
                   value={networkOperatorRef}
                   onChange={(e) => {
                     setNetworkOperatorRef(e.target.value);
-                    // Clear errors when user starts typing
-                    if (errors.length > 0) {
+                    // Clear reference length error when user is editing
+                    if (errors.length > 0 && errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)) {
                       const filteredErrors = errors.filter(
-                        (error) => 
-                          error !== FORM_ERRORS.MISSING_REFERENCE &&
-                          error !== FORM_ERRORS.INVALID_REFERENCE
+                        (error) => error !== FORM_ERRORS.REFERENCE_TOO_LONG
                       );
-                      if (filteredErrors.length !== errors.length) {
-                        setErrors(filteredErrors);
-                        if (filteredErrors.length === 0) {
-                          setShowErrorSummary(false);
-                        }
+                      setErrors(filteredErrors);
+                      if (filteredErrors.length === 0) {
+                        setShowErrorSummary(false);
                       }
                     }
                   }}
                   aria-describedby={`${
-                    errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
-                    errors.includes(FORM_ERRORS.INVALID_REFERENCE)
+                    errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)
                       ? "networkOperatorRef-error"
                       : ""
                   }`}
-                  aria-invalid={errors.includes(FORM_ERRORS.MISSING_REFERENCE) || errors.includes(FORM_ERRORS.INVALID_REFERENCE)}
+                  aria-invalid={errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG)}
                 />
               </div>
 

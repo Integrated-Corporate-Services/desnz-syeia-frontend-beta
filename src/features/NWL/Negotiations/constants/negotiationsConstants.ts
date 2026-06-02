@@ -51,7 +51,7 @@ export const FORM_LABELS = {
 } as const;
 
 export const CONTENT = {
-  EXISTING_NEGOTIATIONS_INTRO: "We strongly encourage all parties to negotiate and reach a voluntary solution where possible",
+  EXISTING_NEGOTIATIONS_INTRO: "We strongly encourage all parties to negotiate and reach a voluntary solution where possible.",
   EVIDENCE_INTRO: "Describe the negotiations to reach a voluntary settlement with the objector. Provide a timeline of events and copies of any relevant correspondence, if possible.",
   CHARACTER_LIMIT: "You can enter up to 4,000 characters",
 } as const;
@@ -66,6 +66,6 @@ export const MESSAGES = {
     if (remaining === 0) return 'You have 0 characters remaining';
     if (remaining < 0) return `You have ${Math.abs(remaining)} characters too many`;
     if (remaining === 1) return 'You have 1 character remaining';
-    return `You have ${remaining.toLocaleString()} characters remaining`;
+    return `You can enter up to ${remaining.toLocaleString()} characters`;
   },
 } as const;
