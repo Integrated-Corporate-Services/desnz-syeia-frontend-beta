@@ -54,7 +54,7 @@ const RouteMapPage: React.FC = () => {
   const effectiveApplicationId = applicationId 
 
   // Store
-  const { routes, loading, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRoutes();
+  const { routes, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRoutes();
   
   // If coming from add new route, use blank state and provided routeName
   const isNewRoute = location.state?.isNewRoute;
