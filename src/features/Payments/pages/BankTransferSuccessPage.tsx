@@ -9,6 +9,9 @@ import {
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('BankTransferSuccessPage');
 
 const BankTransferSuccessPage: React.FC = () => {
   const navigate = useNavigate();
@@ -49,7 +52,7 @@ const BankTransferSuccessPage: React.FC = () => {
 
         setError(null);
       } catch (err) {
-        console.error('Error fetching bank transfer success data:', err);
+        logger.error('Error fetching bank transfer success data:', err);
         if (needsDesnzRef) {
           setError(err instanceof Error ? err.message : 'Failed to fetch application details');
           setDesnzRef(applicationId);
