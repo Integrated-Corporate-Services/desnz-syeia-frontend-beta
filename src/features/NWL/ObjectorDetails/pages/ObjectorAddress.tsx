@@ -8,6 +8,7 @@ import {
   FORM_LABELS,
 } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
+import { useFormValidation } from "../hooks/useFormValidation";
 import { saveObjectorAddress } from "../services/objectorDetailsService";
 
 /**
@@ -17,6 +18,7 @@ import { saveObjectorAddress } from "../services/objectorDetailsService";
 const ObjectorAddress: React.FC = () => {
   const navigate = useNavigate();
   const { appId, objectorDetails } = useObjectorDetailsData();
+  const { validatePostcode } = useFormValidation();
 
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -57,8 +59,41 @@ const ObjectorAddress: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleClearFieldError = (fieldName: string) => {
+    setErrors(prevErrors => {
+      const newErrors = { ...prevErrors };
+      delete newErrors[fieldName];
+      return newErrors;
+    });
+  };
+
+  const mapBackendErrorFields = (validationErrors: any): { [key: string]: string } => {
+    const mappedErrors: { [key: string]: string } = {};
+    
+    if (validationErrors && typeof validationErrors === 'object') {
+      if (validationErrors.objector_address_line1) {
+        mappedErrors.addressLine1 = validationErrors.objector_address_line1;
+      }
+      if (validationErrors.objector_address_line2) {
+        mappedErrors.addressLine2 = validationErrors.objector_address_line2;
+      }
+      if (validationErrors.objector_town) {
+        mappedErrors.town = validationErrors.objector_town;
+      }
+      if (validationErrors.objector_county) {
+        mappedErrors.county = validationErrors.objector_county;
+      }
+      if (validationErrors.objector_postcode) {
+        mappedErrors.postcode = validationErrors.objector_postcode;
+      }
+    }
+    
+    return mappedErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaveError("");
 
     if (!validateForm()) {
       window.scrollTo(0, 0);
@@ -66,7 +101,6 @@ const ObjectorAddress: React.FC = () => {
     }
 
     setIsSaving(true);
-    setSaveError("");
 
     try {
       // Save to backend
@@ -79,8 +113,36 @@ const ObjectorAddress: React.FC = () => {
       });
 
       navigate(`${NWL_BASE_URL}/${appId}/is-objector-landowner`);
-    } catch (error) {
-      setSaveError("Failed to save objector address. Please try again.");
+    } catch (error: any) {
+      // Handle backend validation errors
+      if (error.status === 400 && error.validationErrors) {
+        const mappedErrors = mapBackendErrorFields(error.validationErrors);
+        setErrors(mappedErrors);
+      } else if (error.message && error.message.includes('objector_')) {
+        // Parse field name from error message (e.g., "objector_postcode" with value ...)
+        const fieldMatch = error.message.match(/"(objector_\w+)"/);
+        if (fieldMatch) {
+          const backendFieldName = fieldMatch[1];
+          const fieldMap: { [key: string]: string } = {
+            'objector_address_line1': 'addressLine1',
+            'objector_address_line2': 'addressLine2',
+            'objector_town': 'town',
+            'objector_county': 'county',
+            'objector_postcode': 'postcode',
+          };
+          const frontendFieldName = fieldMap[backendFieldName];
+          if (frontendFieldName) {
+            setErrors({ [frontendFieldName]: error.message });
+          } else {
+            setSaveError(error.message || "Failed to save objector address. Please try again.");
+          }
+        } else {
+          setSaveError(error.message || "Failed to save objector address. Please try again.");
+        }
+      } else {
+        setSaveError(error.message || "Failed to save objector address. Please try again.");
+      }
+      
       window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
@@ -172,7 +234,10 @@ const ObjectorAddress: React.FC = () => {
                   name="addressLine1"
                   type="text"
                   value={addressLine1}
-                  onChange={(e) => setAddressLine1(e.target.value)}
+                  onChange={(e) => {
+                    setAddressLine1(e.target.value);
+                    handleClearFieldError('addressLine1');
+                  }}
                   aria-describedby={
                     errors.addressLine1 ? "addressLine1-error" : undefined
                   }
@@ -180,17 +245,35 @@ const ObjectorAddress: React.FC = () => {
               </div>
 
               {/* Address Line 2 */}
-              <div className="govuk-form-group">
+              <div
+                className={`govuk-form-group ${
+                  errors.addressLine2 ? "govuk-form-group--error" : ""
+                }`}
+              >
                 <label className="govuk-label" htmlFor="addressLine2">
                   {FORM_LABELS.ADDRESS_LINE2}
                 </label>
+                {errors.addressLine2 && (
+                  <p id="addressLine2-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span>{" "}
+                    {errors.addressLine2}
+                  </p>
+                )}
                 <input
-                  className="govuk-input"
+                  className={`govuk-input ${
+                    errors.addressLine2 ? "govuk-input--error" : ""
+                  }`}
                   id="addressLine2"
                   name="addressLine2"
                   type="text"
                   value={addressLine2}
-                  onChange={(e) => setAddressLine2(e.target.value)}
+                  onChange={(e) => {
+                    setAddressLine2(e.target.value);
+                    handleClearFieldError('addressLine2');
+                  }}
+                  aria-describedby={
+                    errors.addressLine2 ? "addressLine2-error" : undefined
+                  }
                 />
               </div>
 
@@ -217,23 +300,44 @@ const ObjectorAddress: React.FC = () => {
                   name="town"
                   type="text"
                   value={town}
-                  onChange={(e) => setTown(e.target.value)}
+                  onChange={(e) => {
+                    setTown(e.target.value);
+                    handleClearFieldError('town');
+                  }}
                   aria-describedby={errors.town ? "town-error" : undefined}
                 />
               </div>
 
               {/* County */}
-              <div className="govuk-form-group">
+              <div
+                className={`govuk-form-group ${
+                  errors.county ? "govuk-form-group--error" : ""
+                }`}
+              >
                 <label className="govuk-label" htmlFor="county">
                   {FORM_LABELS.COUNTY}
                 </label>
+                {errors.county && (
+                  <p id="county-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span>{" "}
+                    {errors.county}
+                  </p>
+                )}
                 <input
-                  className="govuk-input"
+                  className={`govuk-input ${
+                    errors.county ? "govuk-input--error" : ""
+                  }`}
                   id="county"
                   name="county"
                   type="text"
                   value={county}
-                  onChange={(e) => setCounty(e.target.value)}
+                  onChange={(e) => {
+                    setCounty(e.target.value);
+                    handleClearFieldError('county');
+                  }}
+                  aria-describedby={
+                    errors.county ? "county-error" : undefined
+                  }
                 />
               </div>
 
@@ -260,7 +364,19 @@ const ObjectorAddress: React.FC = () => {
                   name="postcode"
                   type="text"
                   value={postcode}
-                  onChange={(e) => setPostcode(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setPostcode(value);
+                    handleClearFieldError('postcode');
+                    
+                    // Validate postcode format if user is typing
+                    if (value.trim()) {
+                      const postcodeError = validatePostcode(value);
+                      if (postcodeError) {
+                        setErrors(prev => ({ ...prev, postcode: postcodeError }));
+                      }
+                    }
+                  }}
                   aria-describedby={
                     errors.postcode ? "postcode-error" : undefined
                   }

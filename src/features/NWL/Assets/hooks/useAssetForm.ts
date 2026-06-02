@@ -80,13 +80,6 @@ export const useAssetForm = () => {
       newErrors.lineTypes = FORM_ERRORS.MISSING_LINE_TYPE;
     }
 
-    // Validate each checked item has a description
-    Object.entries(lineTypes).forEach(([key, value]) => {
-      if (value.checked && !value.description.trim()) {
-        newErrors[`lineType-${key}`] = FORM_ERRORS.MISSING_DESCRIPTION;
-      }
-    });
-
     setErrors(newErrors);
     setShowErrorSummary(Object.keys(newErrors).length > 0);
 

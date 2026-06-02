@@ -145,6 +145,7 @@ const WayleaveExpiryDate: React.FC = () => {
 
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
+    const fileErrors: string[] = [];
     
     if (fileUploadRef.current && pendingFiles.length > 0) {
       try {
@@ -157,27 +158,26 @@ const WayleaveExpiryDate: React.FC = () => {
         // Clear file validation errors after successful upload
         setFileValidationErrors([]);
       } catch {
-        const errorMsg = 'Failed to upload files. Please try again.';
-        setFileValidationErrors([errorMsg]);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
+        fileErrors.push('Failed to upload files. Please try again.');
       }
     }
 
-    if (!validateForm()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (fileValidationErrors.length > 0) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
+    // Validate date form and get the result
+    const isDateValid = validateForm();
 
     // Check if at least one file is uploaded (mandatory)
     const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
     if (allUploadedFiles.length === 0) {
-      setFileValidationErrors([FORM_ERRORS.NO_FILES]);
+      fileErrors.push(FORM_ERRORS.NO_FILES);
+    }
+
+    // Set file validation errors if any
+    if (fileErrors.length > 0) {
+      setFileValidationErrors(fileErrors);
+    }
+    
+    // If there are any validation errors, stay on page
+    if (!isDateValid || fileErrors.length > 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -202,10 +202,6 @@ const WayleaveExpiryDate: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
-
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
 
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
@@ -412,13 +408,6 @@ const WayleaveExpiryDate: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                {/* <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  onClick={handleSaveForLater}
-                >
-                  Save for later
-                </button> */}
               </div>
             </form>
           </div>

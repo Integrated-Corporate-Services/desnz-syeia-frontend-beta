@@ -200,6 +200,17 @@ const GroundsForApplication: React.FC = () => {
                 </fieldset>
               </div>
 
+              <details className="govuk-details" data-module="govuk-details">
+                <summary className="govuk-details__summary">
+                  <span className="govuk-details__summary-text">
+                    {LABELS.OBJECTOR_TITLE}
+                  </span>
+                </summary>
+                <div className="govuk-details__text">
+                  {LABELS.OBJECTOR_CONTENT}
+                </div>
+              </details>
+
               <p className="govuk-body">
                 <a
                   href={LABELS.GUIDANCE_LINK_URL}
@@ -220,13 +231,6 @@ const GroundsForApplication: React.FC = () => {
                 >
                   {isLoading ? 'Saving...' : 'Save and continue'}
                 </button>
-                {/* <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  onClick={handleSaveForLater}
-                >
-                  Save for later
-                </button> */}
               </div>
             </form>
           </div>

@@ -172,9 +172,6 @@ const WayleaveOffer: React.FC = () => {
     }
 
     if (!validateForm()) {
-      if (has21DayError) {
-        navigateToTaskList();
-      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -240,7 +237,7 @@ const WayleaveOffer: React.FC = () => {
             <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
             {!has21DayError && (
-              <p className="govuk-hint">{LABELS.PAGE_HINT}</p>
+              <p className="govuk-body">{LABELS.PAGE_HINT}</p>
             )}
 
             {(errors.length > 0 || fileValidationErrors.length > 0) && (

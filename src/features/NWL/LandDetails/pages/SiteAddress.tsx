@@ -32,7 +32,7 @@ const SiteAddress: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
 
-  // Sync form with fetched data
+  // Sync form with fetched data only if user selected "Yes" (same as objector)
   useEffect(() => {
     setFormData({
       addressLine1: landDetails.site_address_line1 || '',
@@ -65,6 +65,7 @@ const SiteAddress: React.FC = () => {
 
     try {
       await updateLandDetails({
+        is_site_at_objector_address: false,
         site_address_line1: formData.addressLine1,
         site_address_line2: formData.addressLine2,
         site_town: formData.town,

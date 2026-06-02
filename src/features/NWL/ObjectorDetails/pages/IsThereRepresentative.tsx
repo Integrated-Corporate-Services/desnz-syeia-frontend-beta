@@ -117,7 +117,7 @@ const IsThereRepresentative: React.FC = () => {
                 </fieldset>
               </div>
               <button type="submit" className="govuk-button" data-module="govuk-button" disabled={isSaving}>
-                {isSaving ? "Saving..." : LABELS.CONTINUE}
+                {isSaving ? "Saving..." : "Save and continue"}
               </button>
             </form>
           </div>

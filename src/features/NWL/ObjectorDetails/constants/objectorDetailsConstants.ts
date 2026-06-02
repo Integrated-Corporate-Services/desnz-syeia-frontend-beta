@@ -14,7 +14,7 @@ export const LABELS = {
   LANDOWNER_QUESTION_TITLE: "Is the objector also the landowner?",
   LANDOWNER_DETAILS_TITLE: "Enter the landowner's details",
   LANDOWNER_ADDRESS_TITLE: "Enter the landowner's address",
-  REPRESENTATIVE_QUESTION_TITLE: "Is there an objector representative?",
+  REPRESENTATIVE_QUESTION_TITLE: "Does the objector have a  representative?",
   REPRESENTATIVE_DETAILS_TITLE: "Enter the representative's details",
   REPRESENTATIVE_ADDRESS_TITLE: "Enter the representative's address",
   CONTINUE: "Save and continue",
@@ -23,7 +23,7 @@ export const LABELS = {
 export const INTRODUCTION_CONTENT = {
   HEADING: "On the next pages we'll ask you about:",
   POINTS: [
-    "the objector - the person who served a Notice to Remove or counter-notice, or refused to grant a voluntary wayleave",
+    "the objector - the person who served a Notice to Remove or refused to grant a voluntary wayleave",
     "the landowner, if they are not the objector",
     "any representative appointed by the objector",
   ],

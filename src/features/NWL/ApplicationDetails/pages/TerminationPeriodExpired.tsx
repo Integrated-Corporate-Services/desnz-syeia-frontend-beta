@@ -61,10 +61,6 @@ const TerminationPeriodExpired: React.FC = () => {
     }
   };
 
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
-
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -167,13 +163,6 @@ const TerminationPeriodExpired: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                {/* <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  onClick={handleSaveForLater}
-                >
-                  Save for later
-                </button> */}
               </div>
             </form>
           </div>

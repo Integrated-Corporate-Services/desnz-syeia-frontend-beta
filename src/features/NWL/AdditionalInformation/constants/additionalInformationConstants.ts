@@ -8,14 +8,14 @@ export const LABELS = {
   
   // Other Important Information
   OTHER_INFORMATION_TITLE: 'Is there any other important information our team should know?',
-  IMPORTANT_INFORMATION_TITLE: 'Important information',
+  IMPORTANT_INFORMATION_TITLE: 'Provide the important information',
   
   // Buttons
   CONTINUE: 'Save and continue',
 };
 
 export const HINTS = {
-  RELATED_APPLICATIONS_INTRO: 'A related application could have the same owner or occupier, or where the land is adjacent to another application\'s land.',
+  RELATED_APPLICATIONS_INTRO: 'A related application could have the same objector, or where the land is adjacent to this application\'s land.',
   RELATED_APPLICATIONS_DETAILS: 'Provide details of the related application',
   RELATED_APPLICATIONS_GUIDANCE: 'Include application details such as DESNZ reference numbers, your internal references or site addresses. Ensure you list all related applications and explain why they are related.',
   
@@ -29,7 +29,7 @@ export const FORM_LABELS = {
   NO: 'No',
   ADDITIONAL_INFORMATION: 'Additional information',
   DOCUMENTS_UPLOADED: 'Documents uploaded',
-  UPLOAD_DOCUMENTS: 'Upload any additional documentation considered relevant to the application (optional)',
+  UPLOAD_DOCUMENTS: 'Upload any additional relevant documents for this application (optional)',
 };
 
 export const ERRORS = {

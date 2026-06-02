@@ -10,11 +10,11 @@ export const LABELS = {
   PAGE_TITLE: "Does the Notice to Remove clearly refer to the removal of the electric line?",
   HELPER_TEXT: "The Notice to Remove must make a clear reference to the removal of the electric line or apparatus from the land.",
   GUIDANCE_TITLE: "See more requirements for a Notice to Remove",
-  GUIDANCE_CONTENT: `It should not simply be a request to negotiate, move, divert, reposition or change the electric line.
+  GUIDANCE_CONTENT: `The Notice to Remove must make a clear reference to the removal of the electric line or apparatus from the land.
 
-If there is no explicit reference to removing (or uninstalling) the electric line from the owner or occupier, you cannot continue unless you have spoken to or got consent from the Secretary of State before you apply.
+It should not simply be a request to reposition, move, divert, relocate or underground the electric line, unless the notice also makes clear that the line must be removed from the land.
 
-A request to the owner holder to remove the electric line because the owner or occupier would like to discuss removing/moving it will not be considered a Notice to Remove.`,
+A request to the licence holder to make contact and discuss what can be done about the electric line is not a Notice to Remove.`,
 } as const;
 
 export const FORM_ERRORS = {

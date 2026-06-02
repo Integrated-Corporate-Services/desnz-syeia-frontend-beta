@@ -21,7 +21,7 @@ const ObjectorDetailsIntroduction: React.FC = () => {
   const handleContinue = () => {
     (async () => {
       try {
-        await updateProgress('Objector introduction', 'Completed');
+        await updateProgress('Objector details', 'Not completed');
       } catch (e) {
         // ignore progress errors
       }

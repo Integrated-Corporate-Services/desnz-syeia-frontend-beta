@@ -7,6 +7,7 @@ import { useAuthUser } from '../../../../hooks/useAuthUser';
 export const useLandDetailsData = (applicationId: string) => {
   const { user } = useAuthUser();
   const [landDetails, setLandDetails] = useState<LandDetails>({
+    is_site_at_objector_address: undefined,
     site_address_line1: '',
     site_address_line2: '',
     site_town: '',

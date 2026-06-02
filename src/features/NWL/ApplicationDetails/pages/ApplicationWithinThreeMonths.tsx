@@ -88,10 +88,6 @@ const ApplicationWithinThreeMonths: React.FC = () => {
     }
   };
 
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
-
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

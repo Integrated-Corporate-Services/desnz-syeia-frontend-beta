@@ -55,10 +55,6 @@ const ApplicationOutsideTimeframe: React.FC = () => {
     }
   };
 
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
-
   return (
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -103,7 +99,9 @@ const ApplicationOutsideTimeframe: React.FC = () => {
 
             <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
-         
+            {/* <p className="govuk-body">
+              {LABELS.HELPER_TEXT}
+            </p> */}
 
             <form onSubmit={handleSubmit} noValidate>
               <div
@@ -111,7 +109,8 @@ const ApplicationOutsideTimeframe: React.FC = () => {
                   error ? "govuk-form-group--error" : ""
                 }`}
               >
-               
+              
+              
                 {error && (
                   <p id="explanation-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {error}
@@ -132,10 +131,10 @@ const ApplicationOutsideTimeframe: React.FC = () => {
                   }}
                   maxLength={LABELS.CHAR_LIMIT}
                 />
-              </div>
-    <div className="govuk-hint" id="explanation-hint">
+                  <div className="govuk-hint" id="explanation-hint">
                   You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
                 </div>
+              </div>
               <div className="govuk-button-group">
                 <button
                   type="submit"
@@ -144,13 +143,6 @@ const ApplicationOutsideTimeframe: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                {/* <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  onClick={handleSaveForLater}
-                >
-                  Save for later
-                </button> */}
               </div>
             </form>
           </div>

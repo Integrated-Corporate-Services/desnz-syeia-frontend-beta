@@ -164,6 +164,7 @@ const NoticeToRemove: React.FC = () => {
     // Trigger file upload first if there are pending files (deferred upload pattern)
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
+    const fileErrors: string[] = [];
     
     if (fileUploadRef.current && pendingFiles.length > 0) {
       try {
@@ -178,6 +179,7 @@ const NoticeToRemove: React.FC = () => {
         setFileValidationErrors([]);
       } catch {
         const errorMsg = 'Failed to upload files. Please try again.';
+        fileErrors.push(errorMsg);
         setFileValidationErrors([errorMsg]);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
@@ -188,13 +190,41 @@ const NoticeToRemove: React.FC = () => {
     const totalUploadedFiles = uploadedFiles.length + newlyUploadedFiles.length;
     const totalApplicationDocs = applicationDocuments.length + newlyUploadedDocuments.length;
     
-    if (!validateForm(totalUploadedFiles, totalApplicationDocs)) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
+    // Build validation errors locally without relying on async state
+    const newErrors: string[] = [];
+    const newFieldErrors: typeof fieldErrors = {};
+
+    // Validate date
+    if (!day || !month || !year) {
+      newErrors.push(VALIDATION_MESSAGES.DATE_REQUIRED);
+      if (!day) newFieldErrors.day = VALIDATION_MESSAGES.DATE_REQUIRED;
+      if (!month) newFieldErrors.month = VALIDATION_MESSAGES.DATE_REQUIRED;
+      if (!year) newFieldErrors.year = VALIDATION_MESSAGES.DATE_REQUIRED;
+    } else if (!validateDate(day, month, year)) {
+      newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
+      newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
+    } else if (!validateDateNotInFuture(day, month, year)) {
+      newErrors.push(VALIDATION_MESSAGES.DATE_FUTURE);
+      newFieldErrors.day = VALIDATION_MESSAGES.DATE_FUTURE;
     }
 
-    // Check for file validation errors
-    if (fileValidationErrors.length > 0) {
+    // Validate files
+    const totalFiles = totalUploadedFiles + totalApplicationDocs;
+    if (totalFiles === 0) {
+      fileErrors.push(FORM_ERRORS.NO_FILES);
+    }
+
+    // Set all errors at once
+    setErrors(newErrors);
+    setFieldErrors(newFieldErrors);
+    if (fileErrors.length > 0) {
+      setFileValidationErrors(fileErrors);
+    } else {
+      setFileValidationErrors([]);
+    }
+
+    // If there are any validation errors, stay on page
+    if (newErrors.length > 0 || fileErrors.length > 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -222,10 +252,6 @@ const NoticeToRemove: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
-
-  // const handleSaveForLater = () => {
-  //   navigateToTaskList();
-  // };
 
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
@@ -433,13 +459,6 @@ const NoticeToRemove: React.FC = () => {
                 >
                   Save and continue
                 </button>
-                {/* <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  onClick={handleSaveForLater}
-                >
-                  Save for later
-                </button> */}
               </div>
             </form>
           </div>

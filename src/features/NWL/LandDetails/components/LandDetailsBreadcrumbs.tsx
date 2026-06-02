@@ -22,11 +22,7 @@ const LandDetailsBreadcrumbs: React.FC<LandDetailsBreadcrumbsProps> = ({ applica
         <li className="govuk-breadcrumbs__list-item">
           <span className="govuk-breadcrumbs__link">Land details</span>
         </li>
-        {currentPage && (
-          <li className="govuk-breadcrumbs__list-item govuk-breadcrumbs__list-item--current" aria-current="page">
-            {currentPage}
-          </li>
-        )}
+      
       </ol>
     </nav>
   );

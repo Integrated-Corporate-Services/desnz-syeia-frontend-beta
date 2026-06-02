@@ -1,6 +1,8 @@
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
 export type LandDetails = {
+  is_site_at_objector_address?: boolean;
+  
   site_address_line1?: string;
   site_address_line2?: string;
   site_town?: string;

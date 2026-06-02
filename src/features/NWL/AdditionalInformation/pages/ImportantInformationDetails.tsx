@@ -93,16 +93,6 @@ const ImportantInformationDetails: React.FC = () => {
       // Get document IDs from all uploaded documents
       const documentIds = allApplicationDocuments.map(doc => doc.documentId);
 
-      console.log('[ImportantInformationDetails] Submitting data:', {
-        appId,
-        has_other_information: true,
-        other_information_details_length: details.length,
-        uploadedFiles_count: allUploadedFiles.length,
-        applicationDocuments_count: allApplicationDocuments.length,
-        documentIds_count: documentIds.length,
-        sample_document: allApplicationDocuments[0],
-        sample_file: allUploadedFiles[0],
-      });
 
       await createOrUpdateAdditionalInformationData(appId, {
         has_related_applications: additionalInformationData?.has_related_applications ?? false,
@@ -162,7 +152,7 @@ const ImportantInformationDetails: React.FC = () => {
                   errors.details ? 'govuk-form-group--error' : ''
                 }`}
               >
-                <label className="govuk-label" htmlFor="details">
+                <label className="govuk-label govuk-label--s" htmlFor="details">
                   {HINTS.OTHER_INFORMATION_DETAILS}
                 </label>
                 {errors.details && (
@@ -200,13 +190,13 @@ const ImportantInformationDetails: React.FC = () => {
 
               {/* File Upload Section */}
               <div className="govuk-form-group">
-                <h2 className="govuk-heading-m">{FORM_LABELS.DOCUMENTS_UPLOADED}</h2>
-                <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
-                    {FORM_LABELS.UPLOAD_DOCUMENTS}
-                </h3>
+                {uploadedFiles && uploadedFiles.length > 0 && (
+                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">{FORM_LABELS.DOCUMENTS_UPLOADED}</h2>
+                )}
                 <FileUpload
                   ref={fileUploadRef}
-                  title=""
+                  title={FORM_LABELS.UPLOAD_DOCUMENTS}
+                  showTitle={true}
                   prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_ADDITIONAL_INFORMATION}`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_ADDITIONAL_INFORMATION}
