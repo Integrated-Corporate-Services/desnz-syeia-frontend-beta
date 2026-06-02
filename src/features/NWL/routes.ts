@@ -50,8 +50,10 @@ import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
 import PaymentMethodPage from '../Payments/pages/PaymentMethodPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
 import NWLApplicationSummaryPage from './ApplicationSummary/pages/NWLApplicationSummaryPage';
-import WithdrawApplicationPage from '../WithdrawApplication/pages/WithdrawApplicationPage';
-import WithdrawalConfirmationPage from '../WithdrawApplication/pages/WithdrawalConfirmationPage';
+import {
+    NWLWithdrawApplicationPage,
+    NWLWithdrawalConfirmationPage,
+} from './WithdrawApplication/pages';
 
 export const nwlObjectorDetailsRoutes = [
     {
@@ -452,13 +454,13 @@ export const nwlApplicationSummaryRoutes = [
 export const nwlWithdrawalRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/withdraw`,
-        component: WithdrawApplicationPage,
+        component: NWLWithdrawApplicationPage,
         auth: true,
         layout: true,
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
-        component: WithdrawalConfirmationPage,
+        component: NWLWithdrawalConfirmationPage,
         auth: true,
         layout: true,
     },

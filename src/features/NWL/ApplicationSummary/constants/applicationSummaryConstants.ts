@@ -19,6 +19,12 @@ export const NWL_APPLICATION_SUMMARY_CONSTANTS = {
         DESNZ_REF: 'DESNZ reference',
         CASE_TYPE: 'Case type',
         STATUS: 'Status',
+        WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
+    },
+
+    WITHDRAWAL: {
+        NOTIFICATION_BANNER:
+            'You sent a request to withdraw this application. This is being reviewed by your case officer.',
     },
 
     CASE_TYPE_LABEL: 'Necessary Wayleave (NWL)',

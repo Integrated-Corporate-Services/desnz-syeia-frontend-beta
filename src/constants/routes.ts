@@ -505,18 +505,6 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/withdraw`,
-        component: S37WithdrawApplicationPage,  // Unified withdraw page for all application types
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
-        component: S37WithdrawalConfirmationPage,  // Unified confirmation page for all application types
-        auth: true,
-        layout: true,
-    },
     ...nwlObjectorDetailsRoutes,
     ...nwlLandDetailsRoutes,
     ...nwlRoutes,

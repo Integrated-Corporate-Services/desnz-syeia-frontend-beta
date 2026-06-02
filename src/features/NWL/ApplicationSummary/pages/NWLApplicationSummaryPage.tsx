@@ -9,16 +9,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { NWL_APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
-import { useNWLApplicationSummary } from '../hooks';
+import { useNWLApplicationSummary, useNWLWithdrawalRequest } from '../hooks';
 
 import {
     ApplicationSummaryBreadcrumbs,
     ApplicationInfoCard,
     PaymentDetailsCard,
-    WhatHappensNext,
+    WithdrawalNotificationBanner,
 } from '../components';
 
 import { WithdrawButton } from '../../../ApplicationSummary/components';
@@ -38,12 +38,10 @@ import {
 } from '../../CheckYourAnswers/components';
 
 export const NWLApplicationSummaryPage: React.FC = () => {
+    const navigate = useNavigate();
     const { applicationId } = useParams<{ applicationId: string }>();
     const { data, loading, error } = useNWLApplicationSummary(applicationId);
-
-    const handlePrint = () => {
-        window.print();
-    };
+    const { withdrawalRequest } = useNWLWithdrawalRequest(applicationId);
 
     if (loading) {
         return (
@@ -69,16 +67,15 @@ export const NWLApplicationSummaryPage: React.FC = () => {
                             <p className="govuk-body">{error || CONSTANTS.ERROR}</p>
                         </div>
                     </div>
-                    <Link to={`${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary">
-                        {CONSTANTS.ACTIONS.BACK_TO_APPLICATIONS}
-                    </Link>
                 </main>
             </div>
         );
     }
 
-    const { permissions } = data;
-    const showWithdraw = permissions.canWithdraw && !permissions.canEdit;
+    const showWithdraw =
+        data.permissions?.canWithdraw &&
+        !data.permissions?.canEdit &&
+        !withdrawalRequest;
 
     return (
         <div className="govuk-width-container">
@@ -87,14 +84,33 @@ export const NWLApplicationSummaryPage: React.FC = () => {
             <main className="govuk-main-wrapper" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
+                        {withdrawalRequest?.request_status === 'Requested' && (
+                            <WithdrawalNotificationBanner />
+                        )}
+
                         <h1 className="govuk-heading-xl">{CONSTANTS.HEADING}</h1>
 
-                        <ApplicationInfoCard desnzRef={data.desnzRef} status={data.status} />
+                        <ApplicationInfoCard
+                            desnzRef={data.desnzRef}
+                            status={data.status}
+                            withdrawalRequest={withdrawalRequest}
+                        />
 
                         <PaymentDetailsCard payment={data.payment} />
 
                         {showWithdraw && (
-                            <WithdrawButton applicationType="NWL" applicationId={applicationId!} />
+                            <WithdrawButton
+                                applicationType="NWL"
+                                applicationId={applicationId!}
+                                onWithdraw={(_, id) =>
+                                    navigate(`${NWL_BASE_URL}/${id}/withdraw`, {
+                                        state: {
+                                            desnzRef: data.desnzRef,
+                                            formType: 'NWL',
+                                        },
+                                    })
+                                }
+                            />
                         )}
 
                         {/* Applicant details */}
@@ -144,22 +160,6 @@ export const NWLApplicationSummaryPage: React.FC = () => {
                         {/* Additional information */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ADDITIONAL_INFORMATION}</h2>
                         <NWLAdditionalInformationSummaryCard data={data.additionalInformation} applicationId={applicationId!} canEdit={false} />
-
-                        <WhatHappensNext canWithdraw={showWithdraw} />
-
-                        <div className="govuk-button-group govuk-!-margin-top-6">
-                            <button
-                                type="button"
-                                className="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                                onClick={handlePrint}
-                            >
-                                {CONSTANTS.ACTIONS.PRINT}
-                            </button>
-                            <Link to={`${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-link">
-                                {CONSTANTS.ACTIONS.BACK_TO_APPLICATIONS}
-                            </Link>
-                        </div>
                     </div>
                 </div>
             </main>
