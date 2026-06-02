@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LABELS, FORM_ERRORS } from '../constants/objectorDetailsConstants';
+import { LABELS } from '../constants/objectorDetailsConstants';
 import { useObjectorDetailsData, useFormValidation, useObjectorNavigation } from '../hooks';
 import { ObjectorDetailsBreadcrumbs, ErrorSummary, PersonDetailsForm, FormActions } from '../components';
 import { saveObjectorPersonalInfo } from '../services';
