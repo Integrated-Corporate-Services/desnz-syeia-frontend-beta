@@ -37,6 +37,8 @@ export interface BankTransferConfirmationState extends BankTransferState {
 export interface BankTransferSuccessState extends BankTransferState {
   desnz_ref: string;
   transactionNumber?: string;
+  /** Auto-generated short reference from backend payment.reference (e.g. BACS-A3K7M2NP) */
+  referenceNumber?: string;
 }
 
 /**
@@ -71,7 +73,7 @@ export interface ValidationResult {
 /**
  * Payment method options
  */
-export type PaymentMethodType = 'card' | 'bank_transfer' | 'bacs_transfer';
+export type PaymentMethodType = 'card' | 'bank_transfer' | 'bacs';
 
 /**
  * Payment status types

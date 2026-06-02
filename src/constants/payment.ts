@@ -21,7 +21,7 @@ export const BANK_DETAILS = {
 export const PAYMENT_METHOD = {
   CARD: 'card',
   BANK_TRANSFER: 'bank_transfer',
-  BACS_TRANSFER: 'bacs_transfer',
+  BACS: 'bacs',
 } as const;
 
 export type PaymentMethod = typeof PAYMENT_METHOD[keyof typeof PAYMENT_METHOD];
@@ -120,6 +120,7 @@ export const PAYMENT_BUTTON_LABELS = {
   BACK_TO_TASK_LIST: 'Back to task list',
   BACK_TO_APPLICATIONS: 'Back to applications',
   GO_TO_SUMMARY: 'Go to Application summary',
+  VIEW_APPLICATION_SUMMARY: 'View application summary',
   PROCESSING: 'Processing...',
   SUBMITTING: 'Submitting...',
 } as const;
@@ -173,3 +174,37 @@ export function isValidTransactionNumber(value: string): boolean {
   }
   return PAYMENT_VALIDATION.TRANSACTION_NUMBER_PATTERN.test(value);
 }
+
+/**
+ * Bank Transfer Success Page Content
+ * All text content for the bank transfer success/confirmation page
+ */
+export const BANK_TRANSFER_SUCCESS_PAGE = {
+  // Confirmation panel
+  PANEL_TITLE: 'Application submitted - processing payment',
+  APPLICATION_NUMBER_TEXT: 'Your application number is',
+  LOADING_TEXT: 'Loading...',
+  NOT_AVAILABLE_TEXT: 'N/A',
+
+  // Payment summary
+  PAYMENT_SUMMARY_HEADING: 'Payment Summary',
+  SUMMARY_LABELS: {
+    REFERENCE_NUMBER: 'Reference number',
+    INVOICE_NUMBER: 'Invoice number',
+    TOTAL_AMOUNT: 'Total amount',
+    APPLICATION_STATUS: 'Application status',
+  },
+  APPLICATION_STATUS_PROCESSING: 'Processing payment',
+  PROCESSING_STATUS_INFO:
+    "Your application's status will show as 'Processing payment' until we have reconciled your payment.",
+  INVOICE_INFO: 'You can find your invoice with all payment details in the application summary.',
+
+  // What happens next section
+  WHAT_HAPPENS_NEXT_HEADING: 'What happens next',
+  EMAIL_CONFIRMATION: 'You will receive an email to confirm your application has been submitted.',
+  FOLLOW_UP_INFO:
+    'The Overhead Lines (Section 37) team will contact you in due course with any follow up actions.',
+
+  // Error messages
+  ERROR_HEADING: 'Warning',
+} as const;
