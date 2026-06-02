@@ -8,6 +8,15 @@ import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import EIAFeesSummary from './EIAFeesSummary';
+import {
+    validateEiaFeesForm,
+    hasFieldError,
+    getFieldErrorMessage,
+    clearValidationErrors,
+    type ValidationError,
+    type EiaFeesFormData,
+    EIA_FEES_ERROR_MESSAGES,
+} from '../../../utils/validations';
 
 const EIAFeesForm: React.FC = () => {
     const navigate = useNavigate();
@@ -18,19 +27,15 @@ const EIAFeesForm: React.FC = () => {
     const fetchEiaFees = useEiaFeesStore((state) => state.fetchEiaFees);
     const createEiaFees = useEiaFeesStore((state) => state.createEiaFees);
     const updateEiaFees = useEiaFeesStore((state) => state.updateEiaFees);
-    type FormState = {
-        isEiaDevelopment: string;
-        screeningOnly: string;
-        eiaFeeId?: string;
-        applicationId?: string;
-    };
-    const [form, setForm] = useState<FormState>({
+
+    // Form state
+    const [form, setForm] = useState<EiaFeesFormData>({
         isEiaDevelopment: '',
         screeningOnly: '',
         eiaFeeId: undefined,
         applicationId: undefined,
     });
-    const [errors, setErrors] = useState<{ field: string; message: string }[]>([]);
+    const [errors, setErrors] = useState<ValidationError[]>([]);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
@@ -72,37 +77,22 @@ const EIAFeesForm: React.FC = () => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
-        setErrors([]);
+        // Clear errors on user input for better UX
+        setErrors(clearValidationErrors());
         setApiError(null);
         setSuccess(false);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newErrors: { field: string; message: string }[] = [];
-        // Validation logic:
-        if (!form.isEiaDevelopment) {
-            newErrors.push({
-                field: 'isEiaDevelopment',
-                message: "Select 'Yes' or 'No'",
-            });
-        } else if (form.isEiaDevelopment === 'true') {
-            if (!form.screeningOnly) {
-                newErrors.push({
-                    field: 'screeningOnly',
-                    message: 'Select yes or no to confirm the EIA fee',
-                });
-            } else if (form.screeningOnly === 'false') {
-                newErrors.push({
-                    field: 'isEiaDevelopment',
-                    message: "Select 'Yes' or 'No'",
-                });
-            }
-        }
-        setErrors(newErrors);
+
+        // Use centralized validation function
+        const validationErrors = validateEiaFeesForm(form);
+        setErrors(validationErrors);
         setApiError(null);
         setSuccess(false);
-        if (newErrors.length === 0) {
+
+        if (validationErrors.length === 0) {
             setLoading(true);
             try {
                 // Compose payload for backend
@@ -161,17 +151,11 @@ const EIAFeesForm: React.FC = () => {
                 const nextPageUrl = getNextPageUrl(TASK_NAMES.EIA_FEES, redirectId);
                 navigate(nextPageUrl);
             } catch {
-                setApiError('Failed to submit EIA Fees. Please try again.');
+                setApiError(EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED);
             } finally {
                 setLoading(false);
             }
         }
-    };
-
-    const hasError = (field: string) => errors.some((err) => err.field === field);
-    const getErrorMessage = (field: string) => {
-        const err = errors.find((e) => e.field === field);
-        return err ? err.message : '';
     };
 
     // Check if consultations have started - if so, show read-only summary
@@ -248,16 +232,24 @@ const EIAFeesForm: React.FC = () => {
                                     isEiaDevelopment={form.isEiaDevelopment}
                                     screeningOnly={form.screeningOnly}
                                     onChange={handleChange}
-                                    errorMessage={getErrorMessage('isEiaDevelopment')}
-                                    screeningErrorMessage={getErrorMessage('screeningOnly')}
+                                    errorMessage={getFieldErrorMessage('isEiaDevelopment', errors)}
+                                    screeningErrorMessage={getFieldErrorMessage('screeningOnly', errors)}
                                 />
                             </div>
                             {form.screeningOnly === 'true' && (
-                                <div className={`govuk-form-group${hasError('screeningOnly') ? ' govuk-form-group--error' : ''}`}>
-                                    <fieldset className="govuk-fieldset" aria-describedby={hasError('screeningOnly') ? 'screeningOnly-error' : undefined}>
-                                        {hasError('screeningOnly') && (
+                                <div
+                                    className={`govuk-form-group${
+                                        hasFieldError('screeningOnly', errors) ? ' govuk-form-group--error' : ''
+                                    }`}
+                                >
+                                    <fieldset
+                                        className="govuk-fieldset"
+                                        aria-describedby={hasFieldError('screeningOnly', errors) ? 'screeningOnly-error' : undefined}
+                                    >
+                                        {hasFieldError('screeningOnly', errors) && (
                                             <p id="screeningOnly-error" className="govuk-error-message">
-                                                <span className="govuk-visually-hidden">Error:</span> {getErrorMessage('screeningOnly')}
+                                                <span className="govuk-visually-hidden">Error:</span>{' '}
+                                                {getFieldErrorMessage('screeningOnly', errors)}
                                             </p>
                                         )}
                                     </fieldset>
