@@ -33,7 +33,20 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
     credentials: 'include',
     body: JSON.stringify({ files })
   });
-  if (!res.ok) throw new Error('Failed to get presigned URLs');
+  
+  if (!res.ok) {
+    // Try to get detailed error message from response
+    try {
+      const errorData = await res.json();
+      if (errorData.code === 'CREDENTIALS_EXPIRED') {
+        throw new Error(errorData.userMessage || 'File upload service is temporarily unavailable. Please try again in a few minutes or contact support.');
+      }
+      throw new Error(errorData.error || errorData.userMessage || 'Failed to get presigned URLs');
+    } catch (parseError) {
+      throw new Error('Failed to get presigned URLs', { cause: parseError instanceof Error ? parseError : undefined });
+    }
+  }
+  
   return await res.json();
 }
 

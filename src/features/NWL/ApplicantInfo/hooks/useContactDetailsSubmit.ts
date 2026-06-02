@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import { applicationApiService } from "../../../../services/applicationApiService";
 import { Application, ApplicationParty } from "../../../../types/application";
 import { ERROR_MESSAGES } from "../constants/contactDetailsConstants";
 import { nwlProgressService } from "../../services/nwlProgressService";
@@ -34,7 +34,7 @@ export function useContactDetailsSubmit({
     setError("");
 
     if (application && application.application_id) {
-      await useApplicationStore.getState().saveNetworkOperator({
+      await applicationApiService.saveNetworkOperator({
         application_id: application.application_id,
         operator_ref: application.operator_ref,
         organisation_id: party?.organisation_id,

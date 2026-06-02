@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import { useApplication } from "../../../../hooks/useApplication";
 import { applicationApiService } from "../../../../services/applicationApiService";
 import type { AuthUser } from "../../../../types/auth";
 import type { OrganizationOption } from "../hooks/useNetworkOperators";
@@ -12,8 +12,7 @@ export const useWhoIsApplyingForm = () => {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const application = useApplicationStore((state) => state.application);
-  const setApplication = useApplicationStore((state) => state.setApplication);
+  const { application, setApplication, createNewApplication } = useApplication();
 
   const handleSubmit = async (
     e: React.FormEvent,
@@ -38,7 +37,12 @@ export const useWhoIsApplyingForm = () => {
         status: "Draft",
         created_by: (user as AuthUser)?.user_id || "",
       };
-      app = await useApplicationStore.getState().startApplication(newAppData);
+      app = await createNewApplication(newAppData);
+    }
+
+    if (!app || !app.application_id) {
+      setError("Failed to create application");
+      return;
     }
 
     // Extract address information from the first user in the organization
@@ -47,6 +51,7 @@ export const useWhoIsApplyingForm = () => {
 
     const updatedApp = {
       ...app,
+      application_id: app.application_id, // Explicitly include required field
       application_party: {
         ...app?.application_party,
         party_type: app?.application_party?.party_type ?? "",
@@ -66,7 +71,7 @@ export const useWhoIsApplyingForm = () => {
     );
 
     // Update local store
-    setApplication(updatedApp);
+    setApplication(updatedApp as any); // Type assertion needed due to partial Application type
 
     navigate(`/nwl/${app.application_id}/applicant-details`, {
       state: {

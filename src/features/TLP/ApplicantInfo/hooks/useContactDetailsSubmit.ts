@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import { applicationApiService } from "../../../../services/applicationApiService";
 import { Application, ApplicationParty } from "../../../../types/application";
 import { ERROR_MESSAGES } from "../constants/contactDetailsConstants";
 
@@ -40,7 +40,7 @@ export function useContactDetailsSubmit({
       // Save the team coordinator's contact confirmation
       // party.organisation_id = DNO (e.g., National Grid)
       // party.contact_person_id = Team Coordinator (selected in previous step)
-      await useApplicationStore.getState().saveNetworkOperator({
+      await applicationApiService.saveNetworkOperator({
         application_id: application.application_id,
         operator_ref: application.operator_ref,
         organisation_id: party?.organisation_id,

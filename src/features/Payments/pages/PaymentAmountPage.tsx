@@ -4,7 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-import { useAssetStore } from '../../../store/useAssetStore';
+import { useAssets } from '../../../hooks/useAssets';
 
 const PaymentAmountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const PaymentAmountPage: React.FC = () => {
   const { user } = useAuthUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const assets = useAssetStore((state) => state.assets);
+  const { assets } = useAssets();
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 

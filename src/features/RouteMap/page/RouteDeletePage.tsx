@@ -1,7 +1,7 @@
 import React from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useRouteStore } from '../../../store/useRouteStore';
+import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 const RouteDeletePage: React.FC = () => {
@@ -11,8 +11,7 @@ const RouteDeletePage: React.FC = () => {
   const { routeName, gridPoints, route_id } = location.state || {};
 
   const applicationId = useGetApplicationId();
-  const { deleteRoute, fetchRoutes } = useRouteStore();
-  const getRouteStore = useRouteStore.getState;
+  const { routes, deleteRoute, fetchRoutes } = useRoutes();
 
   // If no route details, redirect back
   React.useEffect(() => {
@@ -33,9 +32,8 @@ const RouteDeletePage: React.FC = () => {
       await deleteRoute(applicationId, route_id);
       if (fetchRoutes) await fetchRoutes(applicationId);
     }
-    // Get the latest routes from the store after fetch
-    const latestRoutes = getRouteStore().routes;
-    const hasRoutes = Array.isArray(latestRoutes) && latestRoutes.length > 0;
+    // Check if there are any routes left after deletion
+    const hasRoutes = Array.isArray(routes) && routes.length > 1; // More than 1 because current one will be deleted
     const bannerState = { state: { routeDeletedName: routeName } };
     if (!hasRoutes) {
       navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`, bannerState);

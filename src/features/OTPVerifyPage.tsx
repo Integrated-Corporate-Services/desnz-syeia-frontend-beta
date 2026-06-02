@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuth } from '../hooks/useAuth';
 import { createLogger } from '../utils/logger';
 
 const logger = createLogger('OTPVerifyPage');
@@ -10,9 +10,9 @@ const OTPVerifyPage: React.FC = () => {
   const [error, setError] = useState('');
   const [showResend, setShowResend] = useState(false);
   const navigate = useNavigate();
-      const user = useAuthStore();
-  // Get person_id from sessionStorage (set after login/callback)
-  const personId = useAuthStore((state) => state.user?.person_id);
+  const { user, setAuth } = useAuth();
+  // Get person_id from auth user
+  const personId = user?.person_id;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +31,7 @@ const OTPVerifyPage: React.FC = () => {
       const data = await response.json();
       logger.info('OTP verify response:', data);
       if (data.user) {
-        useAuthStore.setState({ user: data.user });
+        setAuth({ authenticated: true, user: data.user });
       }
       if (data.user && data.user.otpVerified === true) {
         navigate('/workbasket');
@@ -51,8 +51,8 @@ const OTPVerifyPage: React.FC = () => {
     setError('');
     setShowResend(false);
     try {
-      // Use user email from auth store
-      const email = useAuthStore.getState().user?.email;
+      // Use user email from auth
+      const email = user?.email;
       if (!email) {
         setError('Email not found. Please login again.');
         return;

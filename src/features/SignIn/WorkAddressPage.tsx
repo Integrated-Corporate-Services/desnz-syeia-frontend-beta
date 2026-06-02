@@ -2,11 +2,11 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
-import { useAccessRequestStore } from "../../store/accessRequestStore";
+import { useAccessRequest } from "../../hooks/useAccessRequest";
 
 const WorkAddressPage: React.FC = () => {
   const navigate = useNavigate();
-  const { formData, updateFormData } = useAccessRequestStore();
+  const { formData, updateFormData } = useAccessRequest();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const [localData, setLocalData] = useState({

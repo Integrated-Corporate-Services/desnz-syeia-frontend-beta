@@ -4,7 +4,7 @@
  * Applications dashboard with optional filter sidebar.
  */
 import React, { useEffect, useState } from "react";
-import { useApplicationStore } from "../../../store/useApplicationStore";
+import { useApplication } from "../../../hooks/useApplication";
 import { useNavigate } from "react-router-dom";
 import ApplicationTable from "../components/ApplicationTable";
 import { useAuthUserContext } from "../../../context/AuthUserContext";
@@ -28,10 +28,7 @@ import "../../../styles/Workbasket.css";
 const Workbasket: React.FC = () => {
   const { user } = useAuthUserContext();
   const created_by = (user as AuthUser)?.user_id || DEMO_USER_ID;
-  const applications = useApplicationStore((state) => state.applications);
-  const loadApplications = useApplicationStore(
-    (state) => state.loadApplications,
-  );
+  const { applications, fetchApplications, setApplication } = useApplication();
   const navigate = useNavigate();
 
   const [showFilters, setShowFilters] = useState(false);
@@ -55,14 +52,14 @@ const Workbasket: React.FC = () => {
 
   useEffect(() => {
     if (created_by && typeof created_by === "string") {
-      loadApplications(created_by);
+      fetchApplications(created_by);
     }
-  }, [created_by, loadApplications]);
+  }, [created_by, fetchApplications]);
 
   const handleStart = () => {
-    // Clear any previously-loaded application from the store so the
+    // Clear any previously-loaded application so the
     // subsequent new-application flow starts with a clean slate.
-    useApplicationStore.getState().setApplication(null);
+    setApplication(null);
     navigate("/choose-application");
   };
 

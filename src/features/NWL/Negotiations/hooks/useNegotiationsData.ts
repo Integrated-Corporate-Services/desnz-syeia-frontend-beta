@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useApplicationStore } from '../../../../store/useApplicationStore';
+import { useApplication } from '../../../../hooks/useApplication';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { getNegotiationsData } from '../services';
 import { NegotiationsData } from '../types';
@@ -9,10 +9,7 @@ const logger = createLogger('useNegotiationsData');
 
 export const useNegotiationsData = () => {
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { application, fetchApplication } = useApplication();
   
   const [negotiationsData, setNegotiationsData] = useState<NegotiationsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +56,7 @@ export const useNegotiationsData = () => {
         hasFetchedOnMount: hasFetchedOnMount.current,
       });
       
-      fetchAndSetApplication(appId);
+      fetchApplication(appId);
       
       // Always fetch on first render when appId is available
       if (!hasFetchedOnMount.current) {
@@ -74,7 +71,7 @@ export const useNegotiationsData = () => {
       logger.debug('[useNegotiationsData] Component unmounting, resetting fetch flag');
       hasFetchedOnMount.current = false;
     };
-  }, [appId, fetchAndSetApplication, fetchNegotiationsData]);
+  }, [appId, fetchApplication, fetchNegotiationsData]);
 
   return {
     appId,

@@ -1,7 +1,7 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useAssetStore } from '../../../store/useAssetStore';
-import { useApplicationStore } from '../../../store/useApplicationStore';
+import { useAssets } from '../../../hooks/useAssets';
+import { useApplication } from '../../../hooks/useApplication';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
@@ -48,8 +48,8 @@ const AssetInformationForm: React.FC = () => {
     const [submitted, setSubmitted] = useState(false);
     const [originalVoltage, setOriginalVoltage] = useState<string[]>([]);
     const [currentFetchedAppId, setCurrentFetchedAppId] = useState<string>('');
-    const { assets, loading, fetchAssets, updateAsset } = useAssetStore();
-    const { application, fetchAndSetApplication } = useApplicationStore();
+    const { assets, loading, fetchAssets, updateAsset } = useAssets();
+    const { application, fetchApplication } = useApplication();
     const { user } = useAuthUserContext();
     const navigate = useNavigate();
     const location = useLocation();
@@ -123,7 +123,7 @@ const AssetInformationForm: React.FC = () => {
             fetchAssets(effectiveApplicationId).then(() => {
                 setCurrentFetchedAppId(effectiveApplicationId);
             });
-            fetchAndSetApplication(effectiveApplicationId);
+            fetchApplication(effectiveApplicationId);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [effectiveApplicationId]);

@@ -1,8 +1,7 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useProjectStore } from '../../../store/useProjectStore';
-import { useApplicationStore } from '../../../store/useApplicationStore';
+import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
 import { PROJECT_OVERVIEW_ERRORS, createErrorLink, createMaxYearError } from "../../../constants/projectOverviewError";
 import { Link } from "react-router-dom";
@@ -105,7 +104,7 @@ const ProjectOverview = () => {
 	const applicationId = useGetApplicationId();
 
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
-	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview } = useProjectStore();
+	const { projectOverview: projectData, fetchProjectOverview, saveProject } = useProjectOverview();
 	const remainingChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.projectDescription.length);
 	const getRelatedCpoDetailsString = (val: typeof formState.relatedCpoDetails) =>
 		typeof val === 'string' ? val : (val && typeof val.field === 'string' ? val.field : '');
@@ -118,12 +117,12 @@ const ProjectOverview = () => {
 		setFormState(emptyProjectOverview);
 	}, [applicationId]);
 
-	// Fetch project overview on mount
+	// Fetch project overview on mount (only if not already loaded for this application)
 	useEffect(() => {
-		if (applicationId) {
+		if (applicationId && (!projectData || projectData.applicationId !== applicationId)) {
 			fetchProjectOverview(applicationId);
 		}
-	}, [applicationId, fetchProjectOverview]);
+	}, [applicationId, fetchProjectOverview, projectData]);
 
 
 	// Bind fetched data to form fields (flat model)
@@ -544,7 +543,7 @@ const ProjectOverview = () => {
 						})),
 					};
 					
-					saveProjectOverview(payload)
+					saveProject(payload)
 						.then((response: any) => {
 							// Try to get application id from backend response, fallback to payload/params/query string
 							const redirectId =

@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import { useApplication } from "../../../../hooks/useApplication";
+import { applicationApiService } from "../../../../services/applicationApiService";
 import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import type { AuthUser } from "../../../../types/auth";
 import type { ApplicationParty } from "../../../../types/application";
@@ -33,14 +34,8 @@ const NetworkOperatorDetails: React.FC = () => {
   const stateOrgId = location.state?.organisationId;
   const stateOrgName = location.state?.organisationName;
 
-  const application = useApplicationStore((state) => state.application);
-  const applicationParty = useApplicationStore(
-    (state) => state.applicationParty
-  );
-  const setApplication = useApplicationStore((state) => state.setApplication);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { application, setApplication, fetchApplication, createNewApplication } = useApplication();
+  const applicationParty = application?.application_party;
 
   const {
     networkOperatorRef,
@@ -93,7 +88,7 @@ const NetworkOperatorDetails: React.FC = () => {
 
   useEffect(() => {
     if (appId) {
-      fetchAndSetApplication(appId).then(() => {
+      fetchApplication(appId).then(() => {
         if (stateOrgId && stateOrgName && application?.application_id) {
           setApplication({
             ...application,
@@ -157,7 +152,7 @@ const NetworkOperatorDetails: React.FC = () => {
           status: "Draft",
           created_by: created_by,
         };
-        app = await useApplicationStore.getState().startApplication(newAppData);
+        app = await createNewApplication(newAppData);
         
         if (app?.application_id) {
           navigate(
@@ -178,7 +173,7 @@ const NetworkOperatorDetails: React.FC = () => {
           additional_contact: additionalContactString,
         };
 
-        const result = await useApplicationStore.getState().saveNetworkOperator(saveData);
+        const result = await applicationApiService.saveNetworkOperator(saveData);
 
         const targetAppId = result?.application?.application_id || app.application_id;
         if (targetAppId) {

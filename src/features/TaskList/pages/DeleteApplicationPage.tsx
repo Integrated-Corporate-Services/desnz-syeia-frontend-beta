@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { useApplicationStore } from '../../../store/useApplicationStore';
+import { useApplication } from '../../../hooks/useApplication';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { ROLES } from '../../../constants/roles';
@@ -12,16 +12,15 @@ const DeleteApplicationPage: React.FC = () => {
   const { applicationId } = useParams();
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
+  const { application, fetchApplication } = useApplication();
   const { user } = useAuthUserContext();
   const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
 
   useEffect(() => {
     if (applicationId) {
-      fetchAndSetApplication(applicationId);
+      fetchApplication(applicationId);
     }
-  }, [applicationId, fetchAndSetApplication]);
+  }, [applicationId, fetchApplication]);
 
   const isSubmitted = application?.status?.toLowerCase() === 'submitted';
   const canDelete = !isSubmitted || isAdmin;

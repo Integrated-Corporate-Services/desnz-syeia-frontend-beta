@@ -6,7 +6,7 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary } from '../../../services/sensitiveAreaService';
-import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
+import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 
