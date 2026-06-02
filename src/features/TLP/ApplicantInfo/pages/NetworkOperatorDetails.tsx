@@ -130,7 +130,6 @@ const NetworkOperatorDetails: React.FC = () => {
       return;
     }
 
-    let app = application;
     const created_by = (user as AuthUser)?.user_id || "";
     const additionalContactString =
       additionalContacts
@@ -138,14 +137,14 @@ const NetworkOperatorDetails: React.FC = () => {
         .filter((email) => email.length > 0)
         .join(",") || null;
 
-    if (!app) {
+    if (!application) {
       const newAppData = {
         type: "TLP",
         operator_ref: networkOperatorRef,
         status: "Draft",
         created_by: created_by,
       };
-      app = await createNewApplication(newAppData);
+      await createNewApplication(newAppData);
     } else {
       await applicationApiService.saveNetworkOperator({
         application_id: appId,
@@ -161,7 +160,7 @@ const NetworkOperatorDetails: React.FC = () => {
       });
 
       navigate(
-        `${TLP_BASE_URL}/${app.application_id}/network-operator-contact-details`
+        `${TLP_BASE_URL}/${application.application_id}/network-operator-contact-details`
       );
     }
   };
