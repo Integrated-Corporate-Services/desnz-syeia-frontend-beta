@@ -6,6 +6,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
 
 const logger = createLogger('PaymentMethodPage');
 
@@ -21,27 +22,26 @@ const PaymentMethodPage: React.FC = () => {
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
-  const { invoiceNumber, totalAmount, consentFee, eiaScreeningFee } = location.state || {};
-
-const handlePayByCard = async () => {
-  if (!isChecked) {
-    setError('You must confirm that you understand the application will be submitted when you pay by card');
-    setTimeout(() => {
-      const errorSummary = document.querySelector('.govuk-error-summary');
-      if (errorSummary) errorSummary.scrollIntoView({  });
-    }, 0);
-    return;
+  interface LocationState {
+    invoiceNumber?: string;
+    totalAmount?: number;
+    consentFee?: number;
+    eiaScreeningFee?: number;
   }
 
+  const { invoiceNumber, totalAmount, consentFee, eiaScreeningFee } = (location.state || {}) as LocationState;
+
+const handlePayByCard = async () => {
   setLoading(true);
   setError('');
 
   try {
     // Store totalAmount in sessionStorage BEFORE navigating to GOV.UK Pay
-    sessionStorage.setItem('totalAmount', totalAmount.toString());
+    sessionStorage.setItem('totalAmount', String(totalAmount ?? 0));
 
+    const amountInPence = Math.round((totalAmount ?? 0) * 100); // Convert to pence, default 0
     const result = await createPayment(
-      Math.round(totalAmount * 100), // Convert to pence
+      amountInPence,
       applicationId, // reference
       `Section 37 Application Payment - ${applicationId}`, // description
       `${window.location.origin}/frontend/payment/callback`, // return_url
@@ -87,7 +87,7 @@ const handlePayByCard = async () => {
   };
 
   const handleBankTransfer = () => {
-    navigate(`${baseUrl}/${applicationId}/bank-transfer-success`, {
+    navigate(`${baseUrl}/${applicationId}/bank-transfer-payment`, {
       state: { invoiceNumber, totalAmount, consentFee, eiaScreeningFee }
     });
   };
@@ -117,60 +117,23 @@ const handlePayByCard = async () => {
                 </h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
-                    <li>
-                      <a href="#confirm-payment">{error}</a>
-                    </li>
+                    <li>{error}</li>
                   </ul>
                 </div>
               </div>
             )}
 
-            <h1 className="govuk-heading-xl">Choose payment method</h1>
+            <h1 className="govuk-heading-l">{PAYMENT_PAGE_TEXT.pageTitle}</h1>
 
             <p className="govuk-body">
-              You must pay <strong>£{totalAmount?.toFixed(2) || '0.00'}</strong> to submit your application.
+              {PAYMENT_PAGE_TEXT.intro((totalAmount?.toFixed(2) ?? '0.00'))}
             </p>
 
-            <p className="govuk-body">
-              You will be redirected to a secure page to pay by credit or debit card.
-            </p>
+            <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardRedirect}</p>
 
-            <p className="govuk-body">
-              This is the fastest way to pay and helps avoid any delays when processing your application.
-            </p>
+            <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardBenefits}</p>
 
-            <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
-              <fieldset className="govuk-fieldset">
-                <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                  <div className="govuk-checkboxes__item">
-                    <input
-                      className="govuk-checkboxes__input"
-                      id="confirm-payment"
-                      name="confirm-payment"
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => {
-                        setIsChecked(e.target.checked);
-                        setError(''); // Clear error when user checks the box
-                      }}
-                    />
-                    <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-payment">
-                      I understand this application will be submitted automatically when I pay by card.
-                    </label>
-                  </div>
-                </div>
-              </fieldset>
-            </div>
-
-            <button
-              type="button"
-              className="govuk-button"
-              data-module="govuk-button"
-              onClick={handlePayByCard}
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : 'Pay by card'}
-            </button>
+            {/* Confirmation checkbox intentionally removed per design (direct CTA) */}
 
             <details
               className="govuk-details govuk-!-margin-top-6"
@@ -192,7 +155,7 @@ const handlePayByCard = async () => {
                   If you choose this payment method, the date of payment will become your official submission date.
                 </p>
                 <p className="govuk-body">
-                  Your application's status will show as 'Payment pending' until we have reconciled your payment.
+                  Your application's status will show as '{PAYMENT_PAGE_TEXT.detailsStatus}' until we have reconciled your payment.
                 </p>
                 <p className="govuk-body">
                   You should pay by credit or debit card if you would like us to start processing your application more quickly.
@@ -204,19 +167,31 @@ const handlePayByCard = async () => {
                     data-module="govuk-button"
                     onClick={handleBankTransfer}
                   >
-                    Pay by bank transfer
-                  </button>
-                  <button
-                    type="button"
-                    className="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                    onClick={handleBackToTaskList}
-                  >
-                    Back to the task list
+                    {PAYMENT_PAGE_TEXT.bankTransferButton}
                   </button>
                 </div>
               </div>
             </details>
+
+            <div className="govuk-button-group govuk-!-margin-top-6">
+              <button
+                type="button"
+                className="govuk-button"
+                data-module="govuk-button"
+                onClick={handlePayByCard}
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : PAYMENT_PAGE_TEXT.payByCardButton}
+              </button>
+              <button
+                type="button"
+                className="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+                onClick={handleBackToTaskList}
+              >
+                {PAYMENT_PAGE_TEXT.backToTaskList}
+              </button>
+            </div>
           </div>
         </div>
       </main>
