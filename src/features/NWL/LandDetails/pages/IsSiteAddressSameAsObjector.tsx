@@ -43,7 +43,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
           const details = await getObjectorDetails(applicationId);
           setObjectorAddress(details);
         } catch (error) {
-          console.error('Failed to fetch objector address:', error);
+          // Error fetching objector address
         } finally {
           setIsLoading(false);
         }
@@ -79,7 +79,6 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
 
       // Handle "Yes" case - copy objector address to site address
       if (isSameAddress === "yes" && objectorAddress) {
-        console.log('User selected "Yes" - copying objector address to site address');
         try {
           await updateLandDetails({
             is_site_at_objector_address: true,
@@ -111,7 +110,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
           
           });
         } catch (error) {
-          console.error('Failed to save is_site_at_objector_address:', error);
+          // Error saving flag
         }
         goToSiteAddress();
       }

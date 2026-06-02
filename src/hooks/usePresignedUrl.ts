@@ -9,8 +9,8 @@ import { createLogger } from '../utils/logger';
 const logger = createLogger('usePresignedUrl');
 
 /**
- * React hook for presigned S3 URLs with auto-refresh
- * URLs automatically refresh every 1h 55min (5 min before 2h expiry)
+ * React hook for presigned S3 URLs with caching
+ * URLs are cached for ~28 minutes (2 min buffer before 30 min backend expiry)
  * 
  * @param filename - S3 key/filename
  * @param forceDownload - Whether to force download (optional)
@@ -37,7 +37,7 @@ export const usePresignedUrl = (filename: string | null, forceDownload = false) 
         : await getPresignedGetUrl(filename);
       
       setUrl(fetchedUrl);
-      logger.debug('Presigned URL fetched with auto-refresh', { filename, forceDownload });
+      logger.debug('Presigned URL fetched', { filename, forceDownload });
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to fetch presigned URL';
       setError(errorMsg);
@@ -52,7 +52,7 @@ export const usePresignedUrl = (filename: string | null, forceDownload = false) 
       fetchUrl();
     }
 
-    // Cleanup: clear cache and stop auto-refresh when component unmounts
+    // Cleanup: clear cache when component unmounts
     return () => {
       if (filename) {
         clearPresignedUrlCache(filename);

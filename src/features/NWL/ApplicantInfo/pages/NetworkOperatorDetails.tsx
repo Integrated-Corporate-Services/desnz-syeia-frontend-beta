@@ -12,6 +12,9 @@ import { useApplicationSync } from "../hooks/useApplicationSync";
 import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
 import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
+import { createLogger } from "../../../../utils/logger";
+
+const logger = createLogger('NetworkOperatorDetails');
 
 const NWL_BASE_URL = "/nwl";
 
@@ -193,7 +196,7 @@ const NetworkOperatorDetails: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Failed to save network operator:', error);
+      logger.error('Failed to save network operator:', error);
     }
   };
 

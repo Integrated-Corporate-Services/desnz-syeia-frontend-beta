@@ -80,15 +80,12 @@ const OtherImportantInformation: React.FC = () => {
       // Update progress for Supporting information section (backend subsection name)
       try {
         await updateProgress('Supporting information', 'Completed');
-        console.log('[OtherImportantInformation] Progress updated for Supporting information section');
       } catch (progressError) {
-        console.error('[OtherImportantInformation] Error updating progress', progressError);
         // Continue even if progress update fails
       }
 
       navigateToTaskList();
     } catch (error: unknown) {
-      console.error('Error saving other important information:', error);
       const errorMessage = error && typeof error === 'object' && 'response' in error && 
         error.response && typeof error.response === 'object' && 'data' in error.response &&
         error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data
