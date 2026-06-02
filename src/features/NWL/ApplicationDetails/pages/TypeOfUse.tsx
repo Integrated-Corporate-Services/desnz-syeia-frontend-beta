@@ -9,6 +9,9 @@ import {
 } from "../constants/typeOfUseConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 import { VALIDATION_MESSAGES } from "../services/applicationDetailsService";
+import { createLogger } from "../../../../utils/logger";
+
+const logger = createLogger('TypeOfUse');
 
 const TypeOfUse: React.FC = () => {
   const appId = useGetApplicationId();
@@ -65,7 +68,7 @@ const TypeOfUse: React.FC = () => {
       try {
         await updateProgress('Type of use', 'Completed');
       } catch (progressError) {
-        console.error('Failed to update progress:', progressError);
+        logger.error('Failed to update progress:', progressError);
       }
 
       if (typeOfUse === "new_lines") {
