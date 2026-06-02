@@ -16,7 +16,7 @@ import {
     type ValidationError,
     type EiaFeesFormData,
     EIA_FEES_ERROR_MESSAGES,
-} from '../../../utils/validations';
+} from '../validations';
 
 const EIAFeesForm: React.FC = () => {
     const navigate = useNavigate();
