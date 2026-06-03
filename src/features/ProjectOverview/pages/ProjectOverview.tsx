@@ -113,23 +113,25 @@ const ProjectOverview = () => {
 
 	// Track previous application ID to detect actual changes
 	const prevAppIdRef = useRef(applicationId);
-	const hasLoadedDataRef = useRef(false);
+	const hasFetchedRef = useRef(false);
 
 	// Clear form only when switching to a different application
 	useEffect(() => {
 		if (prevAppIdRef.current !== applicationId) {
 			setFormState(emptyProjectOverview);
 			prevAppIdRef.current = applicationId;
-			hasLoadedDataRef.current = false; // Reset loaded flag for new application
+			hasFetchedRef.current = false; // Reset fetch flag
+			hasBindDataRef.current = false; // Reset bind flag here
 		}
 	}, [applicationId]);
 
-	// Fetch project overview on mount (only if not already loaded for this application)
+	// Fetch project overview ONLY once on mount
 	useEffect(() => {
-		if (applicationId && (!projectData || projectData.applicationId !== applicationId)) {
+		if (applicationId && !hasFetchedRef.current) {
 			fetchProjectOverview(applicationId);
+			hasFetchedRef.current = true;
 		}
-	}, [applicationId, fetchProjectOverview, projectData]);
+	}, [applicationId, fetchProjectOverview]);
 
 
 	// Bind fetched data to form fields (flat model)
@@ -154,15 +156,13 @@ const ProjectOverview = () => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pendingFiles.length, formState.uploadedFiles.length]);
 
-	// Bind fetched data ONLY on initial load, not when user is editing
+	// Bind fetched data ONLY once (prevents overwriting unsaved changes)
+	const hasBindDataRef = useRef(false);
 	useEffect(() => {
-		// Skip if we've already loaded data for this application
-		if (hasLoadedDataRef.current) {
-			return;
-		}
+		if (hasBindDataRef.current || !projectData) return;
 		
 		if (projectData && applicationId && projectData.applicationId === applicationId) {
-			hasLoadedDataRef.current = true; // Mark as loaded
+			hasBindDataRef.current = true;
 			const forms = projectData.forms || {};
 			// Handle CPO details: support both string and object (with 'field')
 			let cpoField = '';
