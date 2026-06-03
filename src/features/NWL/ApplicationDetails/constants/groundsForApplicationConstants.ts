@@ -30,11 +30,11 @@ export const GROUNDS_OPTIONS = [
   {
     value: "wayleave_terminated",
     label: "The wayleave has been terminated",
-    hint: "The objector must have served a Notice to Remove, after the end of the termination period in line with a Notice to Terminate. Paragraphs 8(1)(a) and 8(2)(a) apply to this option.",
+    hint: "The objector must have served a Notice to Remove, after the end of the termination period in line with a Notice to Terminate. Paragraphs 8(1)(b) and 8(2)(b) apply to this option.",
   },
   {
     value: "no_wayleave_exists",
     label: "No wayleave exists",
-    hint: "The objector must have served a Notice to Remove following a change in ownership or occupation of the land. Paragraphs 8(1)(a) and 8(2)(a) apply to this option.",
+    hint: "The objector must have served a Notice to Remove following a change in ownership or occupation of the land. Paragraphs 8(1)(c) and 8(2)(c) apply to this option.",
   },
 ] as const;

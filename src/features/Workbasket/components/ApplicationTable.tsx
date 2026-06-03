@@ -197,9 +197,9 @@ export const ApplicationTable: React.FC<Props> = ({
             <td
               className="govuk-table__cell"
               role="cell"
-              aria-label={`Your reference: ${app.your_reference || "Not provided"}`}
+              aria-label={`Your reference: ${app.operator_ref || "Not provided"}`}
             >
-              {app.your_reference || "—"}
+              {app.operator_ref || "—"}
             </td>
 
             <td
@@ -263,7 +263,7 @@ export const ApplicationTable: React.FC<Props> = ({
             <div className="application-card__body">
               <div className="application-card__row">
                 <span className="application-card__label">Your reference: </span>
-                <span className="application-card__value">{app.your_reference || "—"}</span>
+                <span className="application-card__value">{app.operator_ref || "—"}</span>
               </div>
               <div className="application-card__row">
                 <span className="application-card__label">Case type: </span>
