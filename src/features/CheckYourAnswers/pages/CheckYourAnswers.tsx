@@ -820,7 +820,7 @@ const CheckYourAnswers: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Assets</h2>
-                {permissions?.canEdit && (
+                {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -835,7 +835,7 @@ const CheckYourAnswers: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
+                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1344,7 +1344,7 @@ const CheckYourAnswers: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   Sensitive area review
                 </h2>
-                {permissions?.canEdit && (
+                {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -1359,7 +1359,7 @@ const CheckYourAnswers: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
+                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1576,7 +1576,7 @@ const CheckYourAnswers: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">EIA fees</h2>
-                {permissions?.canEdit && (
+                {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -1588,7 +1588,7 @@ const CheckYourAnswers: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
+                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">

@@ -867,6 +867,24 @@ const ApplicationSummary: React.FC = () => {
                       </dd>
                     </div>
                   )}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      {FIELD_LABELS.RELATED_CPO}
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {projectDetails?.has_related_cpo === "true" ? "Yes" : projectDetails?.has_related_cpo === "false" ? "No" : "-"}
+                    </dd>
+                  </div>
+                  {projectDetails?.has_related_cpo === "true" && projectDetails?.related_cpo_details && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        {FIELD_LABELS.RELATED_CPO_DETAILS}
+                      </dt>
+                      <dd className="govuk-summary-list__value" style={{ whiteSpace: 'pre-wrap' }}>
+                        {projectDetails.related_cpo_details}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>
