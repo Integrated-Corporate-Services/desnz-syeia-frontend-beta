@@ -10,7 +10,7 @@ export const getNWLCheckYourAnswersCards = async (): Promise<CheckYourAnswersCar
         RepresentativeDetailsSummaryCard,
         SiteAddressSummaryCard,
         LandLocationSummaryCard,
-        AssetSummaryCard,
+        AssetsPlanSummaryCard,
         NWLAdditionalInformationSummaryCard,
     } = await import('../CheckYourAnswers/components');
 
@@ -23,7 +23,7 @@ export const getNWLCheckYourAnswersCards = async (): Promise<CheckYourAnswersCar
         RepresentativeDetails: RepresentativeDetailsSummaryCard,
         SiteAddress: SiteAddressSummaryCard,
         LandLocation: LandLocationSummaryCard,
-        Assets: AssetSummaryCard,
+        Assets: AssetsPlanSummaryCard,
         AdditionalInformation: NWLAdditionalInformationSummaryCard,
     };
 };

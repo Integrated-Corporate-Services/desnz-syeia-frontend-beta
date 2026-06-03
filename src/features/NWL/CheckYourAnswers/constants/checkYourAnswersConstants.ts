@@ -37,6 +37,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         REPRESENTATIVE_DETAILS: 'Representative details',
         SITE_ADDRESS: 'Site address',
         LAND_LOCATION: 'Land location',
+        ASSET_PLAN: 'Application plan and verification',
         ASSET: 'Asset',
         NEGOTIATIONS: 'Existing negotiations',
         ADDITIONAL_INFORMATION: 'Additional information',
@@ -125,6 +126,9 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
 
     // Field labels - Assets
     ASSET_FIELDS: {
+        APPLICATION_PLAN_DOCUMENTS: 'Uploaded application plan',
+        ASSETS_MATCH_PLAN: 'Do the assets listed match those shown on the application plan?',
+        ASSETS_MATCH_PLAN_EXPLANATION: 'Explain what does not match',
         LINE_VOLTAGE: 'Line voltage',
         LINE_TYPES: 'Line type(s)',
         COMMENTS: 'Comments',
@@ -149,6 +153,8 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         REPRESENTATIVE_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/representative-details`,
         SITE_ADDRESS: (applicationId: string) => `/frontend/nwl/${applicationId}/site-address`,
         LAND_LOCATION: (applicationId: string) => `/frontend/nwl/${applicationId}/land-country`,
+        APPLICATION_PLAN: (applicationId: string) => `/frontend/nwl/${applicationId}/application-plan`,
+        PLAN_VERIFICATION: (applicationId: string) => `/frontend/nwl/${applicationId}/plan-verification`,
         ASSET: (applicationId: string) => `/frontend/nwl/${applicationId}/assets`,
         ADDITIONAL_INFO: (applicationId: string) => `/frontend/nwl/${applicationId}/related-applications`,
         NEGOTIATIONS: (applicationId: string) => `/frontend/nwl/${applicationId}/existing-negotiations`,
