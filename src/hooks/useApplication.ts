@@ -17,7 +17,6 @@ export function useApplication() {
       return data;
     } catch (err: any) {
       setError(err.message || 'Failed to fetch application');
-      console.error('Error fetching application:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -33,7 +32,6 @@ export function useApplication() {
       return data;
     } catch (err: any) {
       setError(err.message || 'Failed to fetch applications');
-      console.error('Error fetching applications:', err);
       throw err;
     } finally {
       setLoading(false);

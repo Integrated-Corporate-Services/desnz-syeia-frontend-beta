@@ -16,7 +16,6 @@ export function useProgress() {
       return data;
     } catch (err: any) {
       setError(err.message || 'Failed to fetch progress');
-      console.error('Error fetching progress:', err);
       throw err;
     } finally {
       setLoading(false);

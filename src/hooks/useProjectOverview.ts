@@ -16,7 +16,6 @@ export function useProjectOverview() {
     } catch (err: any) {
       // Preserve existing data on error
       setError(err.message || 'Failed to fetch project overview');
-      console.error('Error fetching project overview:', err);
     } finally {
       setLoading(false);
     }
