@@ -2,7 +2,7 @@ import { registerCheckYourAnswersCards } from '../utils/checkYourAnswersCardMapp
 
 export const registerAllApplicationTypes = () => {
     registerCheckYourAnswersCards('NWL', async () => {
-        const { getNWLCheckYourAnswersCards } = await import('../../NWL/ApplicationSummary/checkYourAnswersCardsConfig');
+        const { getNWLCheckYourAnswersCards } = await import('./nwlCheckYourAnswersCards');
         return getNWLCheckYourAnswersCards();
     });
 

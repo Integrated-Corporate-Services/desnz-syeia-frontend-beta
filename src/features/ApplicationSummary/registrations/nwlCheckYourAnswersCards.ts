@@ -1,4 +1,4 @@
-import { CheckYourAnswersCardsConfig } from '../../ApplicationSummary/utils/checkYourAnswersCardMapper';
+import { CheckYourAnswersCardsConfig } from '../utils/checkYourAnswersCardMapper';
 
 export const getNWLCheckYourAnswersCards = async (): Promise<CheckYourAnswersCardsConfig> => {
     const {
@@ -13,7 +13,7 @@ export const getNWLCheckYourAnswersCards = async (): Promise<CheckYourAnswersCar
         AssetSummaryCard,
         NegotiationsSummaryCard,
         NWLAdditionalInformationSummaryCard,
-    } = await import('../CheckYourAnswers/components');
+    } = await import('../../NWL/CheckYourAnswers/components');
 
     return {
         ApplicantDetails: ApplicantDetailsSummaryCard,
