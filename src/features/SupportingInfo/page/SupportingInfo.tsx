@@ -80,7 +80,7 @@ const SupportingInfo: React.FC = () => {
     }
   }, [applicationId]);
 
-  // Fetch ONLY once per application
+  // Fetch once per application (hasFetchedRef guards against repeated fetches)
   useEffect(() => {
     if (applicationId && !hasFetchedRef.current) {
       fetchSupportingInfo(applicationId);

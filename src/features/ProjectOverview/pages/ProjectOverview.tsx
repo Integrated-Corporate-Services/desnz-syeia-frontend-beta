@@ -125,7 +125,7 @@ const ProjectOverview = () => {
 		}
 	}, [applicationId]);
 
-	// Fetch project overview ONLY once on mount
+	// Fetch project overview once per application (hasFetchedRef guards against repeated fetches)
 	useEffect(() => {
 		if (applicationId && !hasFetchedRef.current) {
 			fetchProjectOverview(applicationId);
