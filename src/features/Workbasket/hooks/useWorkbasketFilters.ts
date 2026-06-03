@@ -45,7 +45,7 @@ export const useWorkbasketFilters = (
         const matchesReference = app.desnz_ref
           ?.toLowerCase()
           .includes(searchLower);
-        const matchesYourRef = app.your_reference
+        const matchesYourRef = app.operator_ref
           ?.toLowerCase()
           .includes(searchLower);
         if (!matchesReference && !matchesYourRef) {

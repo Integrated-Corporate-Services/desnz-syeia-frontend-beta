@@ -1,5 +1,5 @@
 import { S37_BASE_URL } from '../../../constants/s37';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
@@ -19,7 +19,6 @@ import { ProjectOverviewModel } from '../../../types/projectOverview';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 // import SearchableDropdown from "../../../components/SearchableDropdown";
-import { useRef } from "react";
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
@@ -112,9 +111,15 @@ const ProjectOverview = () => {
 	const remainingCpoChars = Math.max(0, MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length);
 	const remainingRelatedAppsChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.relatedApplicationsDetails.length);
 
-	// Clear form state when applicationId changes
+	// Track previous application ID to detect actual changes
+	const prevAppIdRef = useRef(applicationId);
+
+	// Clear form only when switching to a different application
 	useEffect(() => {
-		setFormState(emptyProjectOverview);
+		if (prevAppIdRef.current !== applicationId) {
+			setFormState(emptyProjectOverview);
+			prevAppIdRef.current = applicationId;
+		}
 	}, [applicationId]);
 
 	// Fetch project overview on mount (only if not already loaded for this application)
