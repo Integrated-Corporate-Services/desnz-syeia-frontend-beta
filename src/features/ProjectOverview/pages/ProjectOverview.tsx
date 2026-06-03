@@ -114,6 +114,7 @@ const ProjectOverview = () => {
 	// Track previous application ID to detect actual changes
 	const prevAppIdRef = useRef(applicationId);
 	const hasFetchedRef = useRef(false);
+	const hasBindDataRef = useRef(false);
 
 	// Clear form only when switching to a different application
 	useEffect(() => {
@@ -157,7 +158,6 @@ const ProjectOverview = () => {
 	}, [pendingFiles.length, formState.uploadedFiles.length]);
 
 	// Bind fetched data ONLY once (prevents overwriting unsaved changes)
-	const hasBindDataRef = useRef(false);
 	useEffect(() => {
 		if (hasBindDataRef.current || !projectData) return;
 		
