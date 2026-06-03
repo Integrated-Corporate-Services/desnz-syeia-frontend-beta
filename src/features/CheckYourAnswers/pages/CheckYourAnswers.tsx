@@ -1156,6 +1156,22 @@ const CheckYourAnswers: React.FC = () => {
                     View map (Opens in new tab)
                   </a>
                 </h2>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/location`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          route
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <div
@@ -1258,7 +1274,7 @@ const CheckYourAnswers: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Parishes</h2>
-                {/* {permissions?.canEdit && (
+                {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -1270,7 +1286,7 @@ const CheckYourAnswers: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )} */}
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1297,6 +1313,22 @@ const CheckYourAnswers: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   Sensitive area check
                 </h2>
+                {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-check`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          sensitive area check
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1634,6 +1666,22 @@ const CheckYourAnswers: React.FC = () => {
                     <h2 className="govuk-summary-card__title">
                       {consultation.consulteeOrganisationName || "Consultation"}
                     </h2>
+                    {permissions?.canEdit && (
+                      <ul className="govuk-summary-card__actions">
+                        <li className="govuk-summary-card__action">
+                          <Link
+                            className="govuk-link"
+                            to={`${S37_BASE_URL}/${applicationId}/consultation/${consultation.id}/not-required`}
+                          >
+                            Change
+                            <span className="govuk-visually-hidden">
+                              {" "}
+                              consultation
+                            </span>
+                          </Link>
+                        </li>
+                      </ul>
+                    )}
                   </div>
                   <div className="govuk-summary-card__content">
                     <dl className="govuk-summary-list">
@@ -1704,6 +1752,22 @@ const CheckYourAnswers: React.FC = () => {
                       <h2 className="govuk-summary-card__title">
                         {consultation.consulteeOrganisationName || "Consultation"}
                       </h2>
+                      {permissions?.canEdit && (
+                        <ul className="govuk-summary-card__actions">
+                          <li className="govuk-summary-card__action">
+                            <Link
+                              className="govuk-link"
+                              to={`${S37_BASE_URL}/${applicationId}/consultation/${consultation.id}`}
+                            >
+                              Change
+                              <span className="govuk-visually-hidden">
+                                {" "}
+                                consultation
+                              </span>
+                            </Link>
+                          </li>
+                        </ul>
+                      )}
                     </div>
                     <div className="govuk-summary-card__content">
                       <dl className="govuk-summary-list">
