@@ -19,9 +19,8 @@ import {
     ApplicationInfoCard,
     PaymentDetailsCard,
     WithdrawalNotificationBanner,
+    NWLWithdrawButton,
 } from '../components';
-
-import { WithdrawButton } from '../../../ApplicationSummary/components';
 
 import {
     ApplicantDetailsSummaryCard,
@@ -99,11 +98,9 @@ export const NWLApplicationSummaryPage: React.FC = () => {
                         <PaymentDetailsCard payment={data.payment} />
 
                         {showWithdraw && (
-                            <WithdrawButton
-                                applicationType="NWL"
-                                applicationId={applicationId!}
-                                onWithdraw={(_, id) =>
-                                    navigate(`${NWL_BASE_URL}/${id}/withdraw`, {
+                            <NWLWithdrawButton
+                                onClick={() =>
+                                    navigate(`${NWL_BASE_URL}/${applicationId}/withdraw`, {
                                         state: {
                                             desnzRef: data.desnzRef,
                                             formType: 'NWL',

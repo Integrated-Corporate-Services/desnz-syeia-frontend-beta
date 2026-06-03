@@ -66,6 +66,7 @@ export const NWL_APPLICATION_SUMMARY_CONSTANTS = {
     },
 
     ACTIONS: {
+        WITHDRAW_APPLICATION: 'Withdraw application',
         PRINT: 'Print this page',
         BACK_TO_APPLICATIONS: 'Back to applications',
     },
