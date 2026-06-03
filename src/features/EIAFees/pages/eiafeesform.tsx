@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import RadioGroup from '../component/RadioGroup';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
+import { useEiaFees } from '../../../hooks/useEiaFees';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import EIAFeesSummary from './EIAFeesSummary';
@@ -23,13 +23,14 @@ const EIAFeesForm: React.FC = () => {
     const applicationId = useGetApplicationId();
 
     // State for fetched EIA Fees
-    const eiaFees = useEiaFeesStore((state) => state.eiaFees);
-    const fetchEiaFees = useEiaFeesStore((state) => state.fetchEiaFees);
-    const createEiaFees = useEiaFeesStore((state) => state.createEiaFees);
-    const updateEiaFees = useEiaFeesStore((state) => state.updateEiaFees);
-
-    // Form state
-    const [form, setForm] = useState<EiaFeesFormData>({
+    const { eiaFees, fetchEiaFees, createEiaFees, updateEiaFees } = useEiaFees();
+    type FormState = {
+        isEiaDevelopment: string;
+        screeningOnly: string;
+        eiaFeeId?: string;
+        applicationId?: string;
+    };
+    const [form, setForm] = useState<FormState>({
         isEiaDevelopment: '',
         screeningOnly: '',
         eiaFeeId: undefined,

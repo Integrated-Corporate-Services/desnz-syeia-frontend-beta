@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ParsedLineType } from '../types';
-import type { AssetDetails } from '../../../../store/useAssetStore';
+import type { AssetDetails } from '../../../../hooks/useAssets';
 import { LABELS } from '../constants';
 
 interface AssetSummaryCardProps {

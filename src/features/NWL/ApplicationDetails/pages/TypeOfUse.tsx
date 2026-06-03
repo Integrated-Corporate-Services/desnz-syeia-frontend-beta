@@ -96,7 +96,7 @@ const TypeOfUse: React.FC = () => {
             </a>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.APPLICATION_DETAILS}
+            {BREADCRUMBS.LINE_TYPE}
           </li>
         </ol>
       </nav>

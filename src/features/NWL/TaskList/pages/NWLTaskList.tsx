@@ -135,7 +135,7 @@ const NWLTaskList: React.FC = () => {
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
 							<Link className="govuk-link govuk-task-list__link" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.TYPE_OF_USE, appId)}>
-									<strong>Type of use</strong>
+									<strong>Type of line</strong>
 								</Link>
 								</div>
 								{renderStatusTag(NWL_SUBSECTIONS.TYPE_OF_USE)}

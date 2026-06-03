@@ -1,7 +1,7 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useSupportingInfoStore } from "../../../store/useSupportingInfoStore";
+import { useSupportingInfo } from "../../../hooks/useSupportingInfo";
 import TextArea from '../../ProjectOverview/component/TextArea';
 import { Button } from "govuk-react";
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
@@ -37,7 +37,7 @@ const SupportingInfo: React.FC = () => {
     fetchSupportingInfo,
     saveSupportingInfo,
     loading,
-  } = useSupportingInfoStore();
+  } = useSupportingInfo();
 
   const [wayleaves, setWayleaves] = useState<string>("");
   const [regulations, setRegulations] = useState<boolean>(false);

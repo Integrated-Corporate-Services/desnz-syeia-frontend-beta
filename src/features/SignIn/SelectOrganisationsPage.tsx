@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAccessRequestStore } from "../../store/accessRequestStore";
+import { useAccessRequest } from "../../hooks/useAccessRequest";
 import { usePublicOrganisations } from "../../hooks/usePublicOrganisations";
 import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
@@ -9,7 +9,7 @@ import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 const SelectOrganisationsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthUserContext();
-  const { formData, updateFormData } = useAccessRequestStore();
+  const { formData, updateFormData } = useAccessRequest();
   const { organisations, isLoading } = usePublicOrganisations();
   const { saveAccessRequest, isLoading: isSaving } = useSaveAccessRequest();
   const errorSummaryRef = useRef<HTMLDivElement>(null);

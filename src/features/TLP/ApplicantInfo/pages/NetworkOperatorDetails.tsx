@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
+import { useApplication } from "../../../../hooks/useApplication";
+import { applicationApiService } from "../../../../services/applicationApiService";
 import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import type { AuthUser } from "../../../../types/auth";
 import type { ApplicationParty } from "../../../../types/application";
@@ -33,14 +34,8 @@ const NetworkOperatorDetails: React.FC = () => {
   const stateOrgName = location.state?.organisationName;
 
   // Store
-  const application = useApplicationStore((state) => state.application);
-  const applicationParty = useApplicationStore(
-    (state) => state.applicationParty
-  );
-  const setApplication = useApplicationStore((state) => state.setApplication);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { application, setApplication, fetchApplication, createNewApplication } = useApplication();
+  const applicationParty = application?.application_party;
 
   // Custom hooks
   const {
@@ -85,7 +80,7 @@ const NetworkOperatorDetails: React.FC = () => {
   // Fetch application data on mount
   useEffect(() => {
     if (appId) {
-      fetchAndSetApplication(appId).then(() => {
+      fetchApplication(appId).then(() => {
         // If organization passed via state, update application_party
         if (stateOrgId && stateOrgName && application?.application_id) {
           setApplication({
@@ -135,7 +130,6 @@ const NetworkOperatorDetails: React.FC = () => {
       return;
     }
 
-    let app = application;
     const created_by = (user as AuthUser)?.user_id || "";
     const additionalContactString =
       additionalContacts
@@ -143,16 +137,16 @@ const NetworkOperatorDetails: React.FC = () => {
         .filter((email) => email.length > 0)
         .join(",") || null;
 
-    if (!app) {
+    if (!application) {
       const newAppData = {
         type: "TLP",
         operator_ref: networkOperatorRef,
         status: "Draft",
         created_by: created_by,
       };
-      app = await useApplicationStore.getState().startApplication(newAppData);
+      await createNewApplication(newAppData);
     } else {
-      await useApplicationStore.getState().saveNetworkOperator({
+      await applicationApiService.saveNetworkOperator({
         application_id: appId,
         operator_ref: networkOperatorRef,
         organisation_id: selectedOrganisation?.organisation_id,
@@ -166,7 +160,7 @@ const NetworkOperatorDetails: React.FC = () => {
       });
 
       navigate(
-        `${TLP_BASE_URL}/${app.application_id}/network-operator-contact-details`
+        `${TLP_BASE_URL}/${application.application_id}/network-operator-contact-details`
       );
     }
   };

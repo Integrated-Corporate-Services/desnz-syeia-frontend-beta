@@ -58,3 +58,11 @@ export interface ApplicationDeletionResult {
   success: boolean;
   applicationId: string;
 }
+
+export type NewApplication = {
+  type: string;
+  created_by: string;
+  operator_name?: string;
+  your_reference?: string;
+  application_party?: Partial<ApplicationParty>;
+};

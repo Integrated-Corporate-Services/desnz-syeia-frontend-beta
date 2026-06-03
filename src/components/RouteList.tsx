@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { useRouteStore } from '../store/useRouteStore';
+import { useRoutes } from '../hooks/useRoutes';
 
 interface RouteListProps {
   applicationId: string;
 }
 
 export const RouteList: React.FC<RouteListProps> = ({ applicationId }) => {
-  const { routes, loading, error, fetchRoutes } = useRouteStore();
+  const { routes, loading, error, fetchRoutes } = useRoutes();
 
   useEffect(() => {
     if (applicationId) fetchRoutes(applicationId);

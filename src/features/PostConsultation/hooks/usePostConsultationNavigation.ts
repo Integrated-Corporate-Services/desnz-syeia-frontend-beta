@@ -1,14 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { SaveType } from '../types';
-import { useProgressStore } from '../../../store/useProgressStore';
 import { areAllRequiredSectionsCompleted, getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 export const usePostConsultationNavigation = () => {
     const navigate = useNavigate();
     const params = useParams();
     const applicationId = params.applicationId || params.id;
-    const { progress } = useProgressStore();
 
     const getTaskListUrl = () => {
         return `${S37_BASE_URL}/${applicationId}/task-list`;

@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useApplicationStore } from "../../store/useApplicationStore";
 import { useGetApplicationId } from "../../hooks/useGetApplicationId";
+import { useApplication } from "../../hooks/useApplication";
 import { TLP_BASE_URL } from '../../constants/tlp';
 
 const TaskList: React.FC = () => {
 	const location = useLocation();
 	const params = new URLSearchParams(location.search);
 	const appId = useGetApplicationId();
-	const fetchAndSetApplication = useApplicationStore(state => state.fetchAndSetApplication);
-	const application = useApplicationStore(state => state.application);
+	const { application, fetchApplication } = useApplication();
 	const [orgName, setOrgName] = useState('');
   	const navigate = useNavigate();
   	const [submitting, setSubmitting] = useState(false);
 
 	useEffect(() => {
 		if (appId) {
-			fetchAndSetApplication(appId);
+			fetchApplication(appId);
 		}
-	}, [appId, fetchAndSetApplication]);
+	}, [appId, fetchApplication]);
 
 	useEffect(() => {
 		if (application?.application_party?.organisation_name) {

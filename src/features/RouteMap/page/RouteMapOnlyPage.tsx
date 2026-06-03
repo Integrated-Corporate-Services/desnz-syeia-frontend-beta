@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
-import { useRouteStore } from '../../../store/useRouteStore';
+import { useRoutes } from '../../../hooks/useRoutes';
 
 const RouteMapOnlyPage: React.FC = () => {
   const { applicationId } = useParams();
-  const { routes, fetchRoutes } = useRouteStore();
+  const { routes, fetchRoutes } = useRoutes();
 
   // Fetch routes on mount if applicationId is present
   useEffect(() => {

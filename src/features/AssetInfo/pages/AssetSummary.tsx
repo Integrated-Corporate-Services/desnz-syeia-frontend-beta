@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { useAssetStore } from '../../../store/useAssetStore';
+import { useAssets } from '../../../hooks/useAssets';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { useAuthUser } from '../../../hooks/useAuthUser';
@@ -14,7 +14,7 @@ import { ConsultationStatus } from '../../../constants/consultationStatus';
  */
 const AssetSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
-    const { assets, loading, fetchAssets } = useAssetStore();
+    const { assets, loading, fetchAssets } = useAssets();
     const { user } = useAuthUser();
     const { consultations, loading: consultationsLoading } = useConsultationDetails(applicationId, user?.user_id);
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAssetStore } from '../../../../store/useAssetStore';
+import { useAssets } from '../../../../hooks/useAssets';
 import { createAsset } from '../../../../services/asset-service';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
@@ -43,7 +43,7 @@ const Asset: React.FC = () => {
   const [errors, setErrors] = useState<{ lineType?: string; voltage?: string; description?: string }>({});
   const [showErrorSummary, setShowErrorSummary] = useState(false);
   const [currentFetchedAppId, setCurrentFetchedAppId] = useState<string>('');
-  const { assets: dbAssets, loading, fetchAssets } = useAssetStore();
+  const { assets: dbAssets, loading, fetchAssets } = useAssets();
   // Removed unused location variable
   const params = useParams();
   const navigate = useNavigate();

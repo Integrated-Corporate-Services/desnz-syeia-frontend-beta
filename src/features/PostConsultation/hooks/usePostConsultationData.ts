@@ -4,10 +4,10 @@ import { saveConsultationOutcome, getConsultationOutcome } from '../../../servic
 import { ConsultationOutcomeFormData, SaveType } from '../types';
 import { mapApiToFormData, mapFormDataToApi } from '../utils/mappers';
 import { POST_CONSULTATION_CONSTANTS } from '../constants';
-import { useProgressStore } from '../../../store/useProgressStore';
+import { useProgress } from '../../../hooks/useProgress';
 
 export const usePostConsultationData = (applicationId: string | undefined) => {
-    const fetchProgress = useProgressStore(state => state.fetchProgress);
+    const { fetchProgress } = useProgress();
     const [consulteesRecommendationsDetails, setConsulteesRecommendationsDetails] = useState<string>('');
     const [lpaModifications, setLpaModifications] = useState<string>('');
     const [acceptConditions, setAcceptConditions] = useState<string>('');

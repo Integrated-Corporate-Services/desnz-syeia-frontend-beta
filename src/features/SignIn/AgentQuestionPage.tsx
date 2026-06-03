@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAccessRequestStore } from "../../store/accessRequestStore";
+import { useAccessRequest } from "../../hooks/useAccessRequest";
 
 const AgentQuestionPage: React.FC = () => {
   const navigate = useNavigate();
-  const { formData, updateFormData } = useAccessRequestStore();
+  const { formData, updateFormData } = useAccessRequest();
 
   const [isAgent, setIsAgent] = useState<boolean | null>(
     formData.isAgent !== undefined ? formData.isAgent : null

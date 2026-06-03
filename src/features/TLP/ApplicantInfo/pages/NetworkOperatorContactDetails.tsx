@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useApplicationStore } from "../../../../store/useApplicationStore";
 import { Link } from "react-router-dom";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
+import { useApplication } from "../../../../hooks/useApplication";
 import { useContactConfirmation } from "../hooks/useContactConfirmation";
 
 const TLP_BASE_URL = "/tlp";
@@ -14,19 +14,16 @@ import { BREADCRUMBS, LABELS } from "../constants/contactDetailsConstants";
 const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>("");
 
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { application, fetchApplication } = useApplication();
   const appId = useGetApplicationId();
   const party = application?.application_party;
 
   // Fetch application data on mount
   useEffect(() => {
     if (appId) {
-      fetchAndSetApplication(appId);
+      fetchApplication(appId);
     }
-  }, [appId, fetchAndSetApplication]);
+  }, [appId, fetchApplication]);
 
   // Contact confirmation state
   const { contactIsConfirmed, setContactIsConfirmed } =

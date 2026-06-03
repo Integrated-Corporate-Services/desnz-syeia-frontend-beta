@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { useRouteStore } from '../../../store/useRouteStore';
+import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
 
@@ -11,7 +11,7 @@ import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
  */
 const RouteSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
-    const store = useRouteStore();
+    const store = useRoutes();
     let routes = Array.isArray(store?.routes) ? store.routes : [];
 
     // Sort routes by routeName (A, B, C, ...)

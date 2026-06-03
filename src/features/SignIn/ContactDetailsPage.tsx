@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
 import SelectInput from "../../components/commonFormFields/SelectInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
-import { useAccessRequestStore } from "../../store/accessRequestStore";
+import { useAccessRequest } from "../../hooks/useAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
@@ -13,7 +13,7 @@ const logger = createLogger('ContactDetailsPage');
 const ContactDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthUserContext();
-  const { formData, updateFormData } = useAccessRequestStore();
+  const { formData, updateFormData } = useAccessRequest();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   
   const [localData, setLocalData] = useState({
