@@ -113,12 +113,14 @@ const ProjectOverview = () => {
 
 	// Track previous application ID to detect actual changes
 	const prevAppIdRef = useRef(applicationId);
+	const hasLoadedDataRef = useRef(false);
 
 	// Clear form only when switching to a different application
 	useEffect(() => {
 		if (prevAppIdRef.current !== applicationId) {
 			setFormState(emptyProjectOverview);
 			prevAppIdRef.current = applicationId;
+			hasLoadedDataRef.current = false; // Reset loaded flag for new application
 		}
 	}, [applicationId]);
 
@@ -152,8 +154,15 @@ const ProjectOverview = () => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pendingFiles.length, formState.uploadedFiles.length]);
 
+	// Bind fetched data ONLY on initial load, not when user is editing
 	useEffect(() => {
+		// Skip if we've already loaded data for this application
+		if (hasLoadedDataRef.current) {
+			return;
+		}
+		
 		if (projectData && applicationId && projectData.applicationId === applicationId) {
+			hasLoadedDataRef.current = true; // Mark as loaded
 			const forms = projectData.forms || {};
 			// Handle CPO details: support both string and object (with 'field')
 			let cpoField = '';
