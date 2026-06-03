@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
@@ -15,10 +15,9 @@ const PaymentMethodPage: React.FC = () => {
   const location = useLocation();
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
-  const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showBankTransfer, setShowBankTransfer] = useState(false);
+  const [resolvedTotalAmount, setResolvedTotalAmount] = useState<number | null>(null);
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
@@ -31,15 +30,71 @@ const PaymentMethodPage: React.FC = () => {
 
   const { invoiceNumber, totalAmount, consentFee, eiaScreeningFee } = (location.state || {}) as LocationState;
 
+  const effectiveTotalAmount = useMemo(() => {
+    if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount) && totalAmount > 0) {
+      return totalAmount;
+    }
+
+    if (
+      typeof resolvedTotalAmount === 'number' &&
+      !Number.isNaN(resolvedTotalAmount) &&
+      resolvedTotalAmount > 0
+    ) {
+      return resolvedTotalAmount;
+    }
+
+    return null;
+  }, [totalAmount, resolvedTotalAmount]);
+
+  useEffect(() => {
+    const loadFeesIfNeeded = async () => {
+      if (!applicationId) {
+        return;
+      }
+
+      if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount) && totalAmount > 0) {
+        setResolvedTotalAmount(totalAmount);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/backend/api/invoice/${applicationId}/calculate-fees`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const result = await response.json();
+        if (typeof result.totalAmount === 'number' && result.totalAmount > 0) {
+          setResolvedTotalAmount(result.totalAmount);
+        }
+      } catch {
+        // Keep page interactive; validation blocks payment if amount stays unavailable.
+      }
+    };
+
+    loadFeesIfNeeded();
+  }, [applicationId, totalAmount]);
+
 const handlePayByCard = async () => {
+  if (!effectiveTotalAmount) {
+    setError('Payment amount is not available. Please return to pay and submit and try again.');
+    return;
+  }
+
   setLoading(true);
   setError('');
 
   try {
     // Store totalAmount in sessionStorage BEFORE navigating to GOV.UK Pay
-    sessionStorage.setItem('totalAmount', String(totalAmount ?? 0));
+    sessionStorage.setItem('totalAmount', effectiveTotalAmount.toString());
 
-    const amountInPence = Math.round((totalAmount ?? 0) * 100); // Convert to pence, default 0
+    const amountInPence = Math.round(effectiveTotalAmount * 100);
     const result = await createPayment(
       amountInPence,
       applicationId, // reference
@@ -76,8 +131,8 @@ const handlePayByCard = async () => {
       setError('No redirect URL received from payment service');
       setLoading(false);
     }
-  } catch (err: any) {
-    setError(err.message || 'Failed to initiate payment');
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : 'Failed to initiate payment');
     setLoading(false);
   }
 };
@@ -88,7 +143,7 @@ const handlePayByCard = async () => {
 
   const handleBankTransfer = () => {
     navigate(`${baseUrl}/${applicationId}/bank-transfer-payment`, {
-      state: { invoiceNumber, totalAmount, consentFee, eiaScreeningFee }
+      state: { invoiceNumber, totalAmount: effectiveTotalAmount, consentFee, eiaScreeningFee }
     });
   };
 
@@ -126,7 +181,7 @@ const handlePayByCard = async () => {
             <h1 className="govuk-heading-l">{PAYMENT_PAGE_TEXT.pageTitle}</h1>
 
             <p className="govuk-body">
-              {PAYMENT_PAGE_TEXT.intro((totalAmount?.toFixed(2) ?? '0.00'))}
+              {PAYMENT_PAGE_TEXT.intro(effectiveTotalAmount?.toFixed(2) ?? '0.00')}
             </p>
 
             <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardRedirect}</p>

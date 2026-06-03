@@ -15,6 +15,15 @@ const InvoiceGenerationPage: React.FC = () => {
   const { user } = useAuthUser();
   
   const [loading, setLoading] = useState(false);
+  const [loadingFees, setLoadingFees] = useState(false);
+  const [hasAttemptedFeeResolve, setHasAttemptedFeeResolve] = useState(false);
+  const [resolvedFees, setResolvedFees] = useState<{
+    consentFee: number;
+    screeningFee: number;
+    eiaFee: number;
+    totalAmount: number;
+    breakdown: unknown;
+  } | null>(null);
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
@@ -26,6 +35,12 @@ const InvoiceGenerationPage: React.FC = () => {
     totalAmount = 0,
     breakdown = null 
   } = location.state || {};
+
+  const effectiveConsentFee = totalAmount > 0 ? consentFee : resolvedFees?.consentFee || 0;
+  const effectiveScreeningFee = totalAmount > 0 ? screeningFee : resolvedFees?.screeningFee || 0;
+  const effectiveEiaFee = totalAmount > 0 ? eiaFee : resolvedFees?.eiaFee || 0;
+  const effectiveTotalAmount = totalAmount > 0 ? totalAmount : resolvedFees?.totalAmount || 0;
+  const effectiveBreakdown = totalAmount > 0 ? breakdown : resolvedFees?.breakdown || null;
 
   // Add ref to track if invoice has been generated
   const hasGeneratedRef = useRef(false);
@@ -46,11 +61,11 @@ const InvoiceGenerationPage: React.FC = () => {
         state: {
           errorCode: code,
           errorMessage: message,
-          consentFee,
-          screeningFee,
-          eiaFee,
-          totalAmount,
-          breakdown,
+          consentFee: effectiveConsentFee,
+          screeningFee: effectiveScreeningFee,
+          eiaFee: effectiveEiaFee,
+          totalAmount: effectiveTotalAmount,
+          breakdown: effectiveBreakdown,
         },
         replace: true,
       });
@@ -59,11 +74,11 @@ const InvoiceGenerationPage: React.FC = () => {
       applicationId,
       baseUrl,
       navigate,
-      consentFee,
-      screeningFee,
-      eiaFee,
-      totalAmount,
-      breakdown,
+      effectiveConsentFee,
+      effectiveScreeningFee,
+      effectiveEiaFee,
+      effectiveTotalAmount,
+      effectiveBreakdown,
     ]
   );
 
@@ -107,10 +122,10 @@ const InvoiceGenerationPage: React.FC = () => {
         state: {
           invoiceNumber: status.invoiceNumber,
           s3Key: status.s3Key,
-          consentFee,
-          screeningFee,
-          eiaFee,
-          totalAmount,
+          consentFee: effectiveConsentFee,
+          screeningFee: effectiveScreeningFee,
+          eiaFee: effectiveEiaFee,
+          totalAmount: effectiveTotalAmount,
         },
         replace: true,
       });
@@ -123,10 +138,10 @@ const InvoiceGenerationPage: React.FC = () => {
     baseUrl,
     navigate,
     clearGenerationGuard,
-    consentFee,
-    screeningFee,
-    eiaFee,
-    totalAmount,
+    effectiveConsentFee,
+    effectiveScreeningFee,
+    effectiveEiaFee,
+    effectiveTotalAmount,
   ]);
 
   const handleGenerateInvoice = useCallback(async () => {
@@ -159,11 +174,11 @@ const InvoiceGenerationPage: React.FC = () => {
       const invoiceData = {
         userName: user?.full_name || 'User',
         userEmail: user?.email || '',
-        consentFee: consentFee,
-        screeningFee: screeningFee,  
-        eiaFee: eiaFee,              
-        totalAmount: totalAmount,
-        breakdown: breakdown
+        consentFee: effectiveConsentFee,
+        screeningFee: effectiveScreeningFee,
+        eiaFee: effectiveEiaFee,
+        totalAmount: effectiveTotalAmount,
+        breakdown: effectiveBreakdown
       };
 
       const controller = new AbortController();
@@ -207,22 +222,23 @@ const InvoiceGenerationPage: React.FC = () => {
         state: {
           invoiceNumber: result.invoiceNumber,
           s3Key: result.s3Key,
-          consentFee,
-          screeningFee,  
-          eiaFee,        
-          totalAmount,
+          consentFee: effectiveConsentFee,
+          screeningFee: effectiveScreeningFee,
+          eiaFee: effectiveEiaFee,
+          totalAmount: effectiveTotalAmount,
         }
       });
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       hasGeneratedRef.current = false; // Reset on error to allow retry
-      if (err?.name === 'AbortError') {
+      if (err instanceof Error && err.name === 'AbortError') {
         navigateToErrorPage('INVOICE_GENERATION_TIMEOUT', getErrorMessage('INVOICE_GENERATION_TIMEOUT'));
       } else if (!navigator.onLine) {
         navigateToErrorPage('NETWORK_LOST', getErrorMessage('NETWORK_LOST'));
       } else {
-        const code = err?.name || 'INVOICE_GENERATION_FAILED';
-        navigateToErrorPage(code, getErrorMessage(code, err.message));
+        const code = err instanceof Error ? err.name : 'INVOICE_GENERATION_FAILED';
+        const message = err instanceof Error ? err.message : undefined;
+        navigateToErrorPage(code, getErrorMessage(code, message));
       }
     } finally {
       if (timeoutId) {
@@ -233,11 +249,6 @@ const InvoiceGenerationPage: React.FC = () => {
     applicationId,
     baseUrl,
     clearGenerationGuard,
-    consentFee,
-    screeningFee,
-    eiaFee,
-    totalAmount,
-    breakdown,
     user?.full_name,
     user?.email,
     navigate,
@@ -245,6 +256,11 @@ const InvoiceGenerationPage: React.FC = () => {
     navigateToInvoiceIfExists,
     getErrorMessage,
     navigateToErrorPage,
+    effectiveConsentFee,
+    effectiveScreeningFee,
+    effectiveEiaFee,
+    effectiveTotalAmount,
+    effectiveBreakdown,
   ]);
 
   useEffect(() => {
@@ -261,19 +277,69 @@ const InvoiceGenerationPage: React.FC = () => {
     };
   }, [loading, getErrorMessage, navigateToErrorPage]);
 
+  useEffect(() => {
+    const loadFeesIfNeeded = async () => {
+      if (!applicationId || totalAmount > 0) {
+        if (applicationId && totalAmount > 0) {
+          setHasAttemptedFeeResolve(true);
+        }
+        return;
+      }
+
+      try {
+        setLoadingFees(true);
+        const response = await fetch(`/backend/api/invoice/${applicationId}/calculate-fees`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const result = await response.json();
+        if (typeof result.totalAmount === 'number' && result.totalAmount > 0) {
+          setResolvedFees({
+            consentFee: result.consentFee || result.nominalFee || 0,
+            screeningFee: result.screeningFee || 0,
+            eiaFee: result.eiaFee || 0,
+            totalAmount: result.totalAmount,
+            breakdown: result.breakdown || null,
+          });
+        }
+      } catch {
+        // Allow existing error UI to handle unavailable data.
+      } finally {
+        setLoadingFees(false);
+        setHasAttemptedFeeResolve(true);
+      }
+    };
+
+    loadFeesIfNeeded();
+  }, [applicationId, totalAmount]);
+
   // Auto-generate invoice on page load
   useEffect(() => {
-    if (applicationId && totalAmount > 0 && !hasGeneratedRef.current) {
+    if (applicationId && effectiveTotalAmount > 0 && !hasGeneratedRef.current) {
       const inProgress = sessionStorage.getItem(generationGuardKey);
       if (inProgress && !hasAttemptedRef.current) {
-        navigateToErrorPage(
-          'INVOICE_GENERATION_IN_PROGRESS',
-          getErrorMessage('INVOICE_GENERATION_IN_PROGRESS')
-        );
+        const checkInProgressInvoice = async () => {
+          const hasInvoiceNow = await navigateToInvoiceIfExists();
+          if (!hasInvoiceNow) {
+            navigateToErrorPage(
+              'INVOICE_GENERATION_IN_PROGRESS',
+              getErrorMessage('INVOICE_GENERATION_IN_PROGRESS')
+            );
+          }
+        };
+
+        checkInProgressInvoice();
         return;
       }
       handleGenerateInvoice();
-    } else if (applicationId && totalAmount === 0) {
+    } else if (applicationId && effectiveTotalAmount === 0 && !loadingFees && hasAttemptedFeeResolve) {
       navigateToErrorPage(
         'INVOICE_GENERATION_FAILED',
         'Payment amount is not available. Please return to the application and try again.'
@@ -281,10 +347,11 @@ const InvoiceGenerationPage: React.FC = () => {
     } 
   }, [
     applicationId,
-    totalAmount,
+    effectiveTotalAmount, loadingFees, hasAttemptedFeeResolve,
     handleGenerateInvoice,
     generationGuardKey,
     getErrorMessage,
+    navigateToInvoiceIfExists,
     navigateToErrorPage,
   ]);
 
