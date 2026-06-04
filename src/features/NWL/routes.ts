@@ -50,8 +50,9 @@ import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
 import PaymentMethodPage from '../Payments/pages/PaymentMethodPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
 import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
-import S37WithdrawApplicationPage from '../CheckYourAnswers/pages/WithdrawApplicationPage';
-import S37WithdrawalConfirmationPage from '../CheckYourAnswers/pages/WithdrawalConfirmationPage';
+// Shared withdraw pages (multi-type: reads application type from API/URL; NWL paths below)
+import WithdrawApplicationPage from '../CheckYourAnswers/pages/WithdrawApplicationPage';
+import WithdrawalConfirmationPage from '../CheckYourAnswers/pages/WithdrawalConfirmationPage';
 
 export const nwlObjectorDetailsRoutes = [
     {
@@ -452,13 +453,13 @@ export const nwlApplicationSummaryRoutes = [
 export const nwlWithdrawalRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/withdraw`,
-        component: S37WithdrawApplicationPage,
+        component: WithdrawApplicationPage,
         auth: true,
         layout: true,
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
-        component: S37WithdrawalConfirmationPage,
+        component: WithdrawalConfirmationPage,
         auth: true,
         layout: true,
     },
