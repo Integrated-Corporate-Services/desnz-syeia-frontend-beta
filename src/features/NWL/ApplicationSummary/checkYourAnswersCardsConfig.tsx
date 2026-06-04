@@ -1,4 +1,4 @@
-import { CheckYourAnswersCardsConfig } from '../../ApplicationSummary/utils/checkYourAnswersCardMapper';
+import { CheckYourAnswersCardsConfig } from '../../ApplicationSummary/types/checkYourAnswersCards';
 
 export const getNWLCheckYourAnswersCards = async (): Promise<CheckYourAnswersCardsConfig> => {
     const {

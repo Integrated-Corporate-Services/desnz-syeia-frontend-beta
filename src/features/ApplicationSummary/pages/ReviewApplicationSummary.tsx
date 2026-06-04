@@ -5,9 +5,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
 import { fetchApplicationReviewSummary } from '../services';
-import { useCheckYourAnswersCards, useWithdrawalRequest } from '../hooks';
+import { useNWLCheckYourAnswersCards, useWithdrawalRequest } from '../hooks';
 import { ApplicationReviewSummaryData } from '../types/reviewSummary';
-import { CheckYourAnswersCardsConfig } from '../utils/checkYourAnswersCardMapper';
+import { CheckYourAnswersCardsConfig } from '../types/checkYourAnswersCards';
 import {
     TaskListSummaryBreadcrumbs,
     ReviewApplicationInfoCard,
@@ -22,7 +22,7 @@ import {
 export const ReviewApplicationSummary: React.FC = () => {
     const navigate = useNavigate();
     const { applicationId } = useParams<{ applicationId: string }>();
-    const { cards, loading: cardsLoading, error: cardsError } = useCheckYourAnswersCards('NWL');
+    const { cards, loading: cardsLoading, error: cardsError } = useNWLCheckYourAnswersCards();
     const { withdrawalRequest } = useWithdrawalRequest(applicationId);
 
     const [loading, setLoading] = useState(true);

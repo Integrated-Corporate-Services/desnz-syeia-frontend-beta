@@ -1,2 +1,2 @@
-export * from './useCheckYourAnswersCards';
+export * from './useNWLCheckYourAnswersCards';
 export * from './useWithdrawalRequest';

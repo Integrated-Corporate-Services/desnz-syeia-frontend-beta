@@ -5,9 +5,6 @@ import "./styles/govuk.scss";
 import "./App.css";
 import App from "./App";
 import React from "react";
-import { registerAllApplicationTypes } from "./features/ApplicationSummary/registrations/registerApplicationTypes";
-
-registerAllApplicationTypes();
 import axios from "axios";
 import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 
