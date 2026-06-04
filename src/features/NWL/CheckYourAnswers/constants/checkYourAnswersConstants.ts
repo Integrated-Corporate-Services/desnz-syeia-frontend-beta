@@ -146,8 +146,9 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
     // Routes for "Change" links
     ROUTES: {
         APPLICANT_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/applicant-details`,
-        APPLICATION_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/type-of-use`,
-        NOTICE_COMPLIANCE: (applicationId: string) => `/frontend/nwl/${applicationId}/notice-to-remove`,
+        APPLICATION_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/application-details/type-of-use`,
+        GROUNDS_FOR_APPLICATION: (applicationId: string) => `/frontend/nwl/${applicationId}/application-details/grounds-for-application`,
+        NOTICE_COMPLIANCE: (applicationId: string) => `/frontend/nwl/${applicationId}/application-details/notice-to-remove`,
         OCCUPIER_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/objector-details`,
         LANDOWNER_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/landowner-details`,
         REPRESENTATIVE_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/representative-details`,
