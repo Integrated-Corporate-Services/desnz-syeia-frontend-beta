@@ -12,8 +12,11 @@ COPY . .
 
 RUN npm run build
 
+# Install serve globally to host static files
+RUN npm install -g serve
+
 #  Expose the port that Vite runs on
 EXPOSE 5173
 
-# Start the Vite dev server
-CMD ["npm", "run", "dev"]
+# Start serving the production build
+CMD ["serve", "-s", "dist", "-l", "5173"]
