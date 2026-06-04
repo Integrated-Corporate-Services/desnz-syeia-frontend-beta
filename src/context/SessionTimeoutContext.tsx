@@ -5,7 +5,8 @@
  * 1. Frontend: Idle detection + warning modal + logout
  * 2. Backend: Manages its own session expiry independently
  * 
- * No backend keep-alive pinging - prevents page refresh issues when switching tabs
+ * Uses sessionStorage to track last activity across tab switches
+ * No forced logout on visibility change - only shows warning modal
  */
 
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback, useMemo } from 'react';
@@ -13,9 +14,9 @@ import { logout } from '../services/authService';
 import { useAuthUserContext } from './AuthUserContext';
 import { createLogger } from '../utils/logger';
 import { SESSION_TIMEOUT, SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
-import { useIdleTimer } from '../hooks/useIdleTimer';
 
 const logger = createLogger('SessionTimeout');
+const LAST_ACTIVITY_KEY = 'lastActivity';
 
 interface SessionTimeoutContextType {
   showModal: boolean;
@@ -34,8 +35,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   const [showModal, setShowModal] = useState(false);
   const [remaining, setRemaining] = useState(SESSION_WARNING);
   
-  // Refs - prevent race conditions and unnecessary re-renders
-  const checkIntervalRef = useRef<number | null>(null);
+  // Prevent double logout
   const isLoggingOutRef = useRef<boolean>(false);
   const warningThreshold = SESSION_TIMEOUT - SESSION_WARNING;
 
@@ -44,38 +44,53 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     logger.info(`Session timeout config: ${SESSION_TIMEOUT}s total, warning at ${warningThreshold}s`);
   }, [warningThreshold]);
 
-  // Use ref for modal state to prevent callback recreation
-  const showModalRef = useRef(showModal);
-  useEffect(() => {
-    showModalRef.current = showModal;
-  }, [showModal]);
-
-  // Stable callback for when user becomes active
-  const handleUserActive = useCallback(() => {
-    if (showModalRef.current) {
-      logger.info('User became active - hiding modal');
-      setShowModal(false);
-      setRemaining(SESSION_WARNING);
-    }
+  // Update last activity timestamp in sessionStorage
+  const updateLastActivity = useCallback(() => {
+    sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
   }, []);
 
-  //  1. IDLE DETECTION - Track user inactivity
-  const { getIdleTime, resetIdle } = useIdleTimer({
-    enabled: isAuthenticated && !isLoggingOutRef.current,
-    onActive: handleUserActive
-  });
+  // Get idle seconds from sessionStorage
+  const getIdleSeconds = useCallback(() => {
+    const last = Number(sessionStorage.getItem(LAST_ACTIVITY_KEY));
+    if (!last) return 0;
+    return Math.floor((Date.now() - last) / 1000);
+  }, []);
 
-  // 2. EXTEND SESSION - User clicks "Stay signed in"
+  // Track user activity with event listeners
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll'];
+
+    const onActivity = () => {
+      updateLastActivity();
+      // Note: Modal will NOT auto-hide on activity
+      // User must explicitly click "Stay signed in" button
+    };
+
+    events.forEach((e) => window.addEventListener(e, onActivity, { passive: true }));
+
+    // Set initial value
+    updateLastActivity();
+    logger.info('Activity tracking started');
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, onActivity));
+      logger.debug('Activity tracking stopped');
+    };
+  }, [isAuthenticated, updateLastActivity]);
+
+  // Extend session - User clicks "Stay signed in"
   const extendSession = useCallback(() => {
     logger.info('User extended session');
-    resetIdle();
+    updateLastActivity();
     setShowModal(false);
     setRemaining(SESSION_WARNING);
-  }, [resetIdle]);
+  }, [updateLastActivity]);
 
-  //  3. LOGOUT HANDLER - Clean logout
+  // Logout handler
   const handleLogout = useCallback(async () => {
-    if (isLoggingOutRef.current) return; // Ref-based guard prevents race condition
+    if (isLoggingOutRef.current) return;
     
     isLoggingOutRef.current = true;
     logger.warn('Logging out due to session timeout');
@@ -88,113 +103,67 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     }
   }, []);
 
-  //  4. IDLE CHECK TIMER - Monitor idle time and trigger modal/logout
-  // ONLY runs when tab is visible to prevent background navigation
+  // Main session checker - runs every second
   useEffect(() => {
-    if (!isAuthenticated || isLoggingOutRef.current) {
-      // Clear timer when not authenticated
-      if (checkIntervalRef.current) {
-        clearInterval(checkIntervalRef.current);
-        checkIntervalRef.current = null;
-      }
-      return;
-    }
+    if (!isAuthenticated) return;
 
-    // Function to start/stop interval based on visibility
-    const startInterval = () => {
-      // Don't start if already running
-      if (checkIntervalRef.current) return;
+    const interval = setInterval(() => {
+      const idleSeconds = getIdleSeconds();
 
-      // Only start interval if tab is visible
-      if (document.hidden) {
-        logger.debug('Tab hidden - interval not started');
-        return;
+      // Log every 30 seconds for debugging
+      if (idleSeconds > 0 && idleSeconds % 30 === 0) {
+        const minutes = Math.floor(idleSeconds / 60);
+        logger.debug(`Idle: ${minutes}m ${idleSeconds % 60}s / ${SESSION_TIMEOUT / 60}m`);
       }
 
-      checkIntervalRef.current = window.setInterval(() => {
-        const idleSeconds = getIdleTime();
+      // Full timeout - auto sign out
+      if (idleSeconds >= SESSION_TIMEOUT) {
+        logger.warn(`Timeout reached (${idleSeconds}s) - auto signing out`);
 
-        // Log every 30 seconds for debugging
-        if (idleSeconds > 0 && idleSeconds % 30 === 0) {
-          const minutes = Math.floor(idleSeconds / 60);
-          logger.debug(`Idle: ${minutes}m ${idleSeconds % 60}s / ${SESSION_TIMEOUT / 60}m`);
+ setShowModal(true);
+  setRemaining(0);
+
+  return;
+      }
+
+      // Warning phase - show modal and countdown
+      if (idleSeconds >= warningThreshold) {
+        if (!showModal) {
+          logger.warn(`Warning threshold reached (${idleSeconds}s) - showing modal`);
+          setShowModal(true);
         }
-
-        // TIMEOUT EXCEEDED - Auto logout
-        if (idleSeconds >= SESSION_TIMEOUT) {
-          logger.warn(`Timeout reached (${idleSeconds}s) - logging out`);
-          if (checkIntervalRef.current) {
-            clearInterval(checkIntervalRef.current);
-            checkIntervalRef.current = null;
-          }
-          handleLogout();
-          return;
-        }
-
-        // WARNING PERIOD - Show modal and countdown
-        if (idleSeconds >= warningThreshold) {
-          if (!showModal) {
-            logger.warn(`Warning threshold reached (${idleSeconds}s) - showing modal`);
-            setShowModal(true);
-          }
-          // Update countdown
-          const timeLeft = SESSION_TIMEOUT - idleSeconds;
-          setRemaining(timeLeft);
-        }
-      }, 1000);
-
-      logger.info('Idle monitoring started');
-    };
-
-    const stopInterval = () => {
-      if (checkIntervalRef.current) {
-        clearInterval(checkIntervalRef.current);
-        checkIntervalRef.current = null;
-        logger.debug('Idle monitoring paused (tab hidden)');
+        const timeLeft = SESSION_TIMEOUT - idleSeconds;
+        setRemaining(timeLeft);
       }
-    };
+    }, 1000);
 
-    // Handle visibility change - pause/resume interval
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopInterval();
-      } else {
-        startInterval();
-      }
-    };
-
-    // Initial start
-    startInterval();
-
-    // Listen for visibility changes
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    logger.info('Session monitoring started');
 
     return () => {
-      stopInterval();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(interval);
+      logger.debug('Session monitoring stopped');
     };
-  }, [isAuthenticated, getIdleTime, showModal, warningThreshold, handleLogout]);
+  }, [isAuthenticated, getIdleSeconds, showModal, warningThreshold, handleLogout]);
 
-  //  5. TAB VISIBILITY - Check idle time immediately when tab becomes visible
+  // Tab visibility handling - check idle time when returning to tab
   useEffect(() => {
-    if (!isAuthenticated || isLoggingOutRef.current) return;
+    if (!isAuthenticated) return;
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        const idleSeconds = getIdleTime();
+        const idleSeconds = getIdleSeconds();
         const minutes = Math.floor(idleSeconds / 60);
         
         logger.info(`Tab visible - idle for ${minutes}m ${idleSeconds % 60}s`);
 
-        // Session expired while away - immediate logout
+        // Auto sign out if session already expired
         if (idleSeconds >= SESSION_TIMEOUT) {
-          logger.warn('Session expired while on another tab - logging out');
-          handleLogout();
-          return;
-        }
+          logger.warn('Session expired while on another tab - auto signing out');
 
-        // In warning period - show modal immediately
-        if (idleSeconds >= warningThreshold && !showModal) {
+  setShowModal(true);
+  setRemaining(0);
+        } else if (idleSeconds >= warningThreshold) {
+          // Show warning modal if in warning period
           logger.warn('Warning period active - showing modal');
           setShowModal(true);
           setRemaining(SESSION_TIMEOUT - idleSeconds);
@@ -204,7 +173,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isAuthenticated, getIdleTime, showModal, warningThreshold, handleLogout]);
+  }, [isAuthenticated, getIdleSeconds, warningThreshold, handleLogout]);
 
   // Context value
   const value = useMemo(
