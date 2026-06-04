@@ -45,6 +45,31 @@ const PaymentAmountPage: React.FC = () => {
         setLoading(true);
         setError('');
 
+        // If an invoice already exists, skip generation step and go to invoice page.
+        const statusResponse = await fetch(`/backend/api/invoice/${applicationId}/status`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (statusResponse.ok) {
+          const statusResult = await statusResponse.json();
+          if (statusResult.invoiceExists) {
+            navigate(`${baseUrl}/${applicationId}/invoice-download`, {
+              state: {
+                invoiceNumber: statusResult.invoiceNumber,
+                s3Key: statusResult.s3Key,
+                consentFee: 0,
+                eiaScreeningFee: 0,
+                totalAmount: 0,
+              },
+              replace: true,
+            });
+            return;
+          }
+        }
+
         // Call backend API to calculate fees
         const response = await fetch(`/backend/api/invoice/${applicationId}/calculate-fees`, {
           method: 'GET',
@@ -75,7 +100,7 @@ const PaymentAmountPage: React.FC = () => {
     };
 
     fetchPaymentFees();
-  }, [applicationId]);
+  }, [applicationId, baseUrl, navigate]);
 
   const handleGenerateInvoice = async () => {
     navigate(`${baseUrl}/${applicationId}/generate-invoice`, {

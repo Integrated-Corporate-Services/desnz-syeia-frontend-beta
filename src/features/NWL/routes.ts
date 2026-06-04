@@ -47,6 +47,7 @@ import { CheckYourAnswersPage as NWLCheckYourAnswersPage } from './CheckYourAnsw
 import PaymentAmountPage from '../Payments/pages/PaymentAmountPage';
 import InvoiceGenerationPage from '../Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
+import InvoiceGenerationErrorPage from '../Payments/pages/InvoiceGenerationErrorPage';
 import PaymentMethodPage from '../Payments/pages/PaymentMethodPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
 import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
@@ -474,6 +475,12 @@ export const nwlPaymentRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/generate-invoice`,
         component: InvoiceGenerationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/generate-invoice-error`,
+        component: InvoiceGenerationErrorPage,
         auth: true,
         layout: true,
     },

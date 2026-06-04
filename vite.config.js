@@ -6,6 +6,11 @@ export default defineConfig(({ mode }) => {
     return {
         base: '/frontend',
         plugins: [react()],
+        test: {
+            environment: 'jsdom',
+            globals: true,
+            setupFiles: './src/test/setup.ts',
+        },
         server: {
             host: true,
             port: 5173,
