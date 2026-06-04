@@ -17,9 +17,9 @@ import {
 } from '../components';
 
 /**
- * Option A layout: S-37-style read-only summary (used for NWL).
+ * NWL application summary: read-only layout aligned with S-37 (GET /review, withdrawal support).
  */
-export const ReviewStyleApplicationSummary: React.FC = () => {
+export const ReviewApplicationSummary: React.FC = () => {
     const navigate = useNavigate();
     const { applicationId } = useParams<{ applicationId: string }>();
     const { cards, loading: cardsLoading, error: cardsError } = useCheckYourAnswersCards('NWL');
@@ -245,4 +245,4 @@ const ReviewSummarySections: React.FC<ReviewSummarySectionsProps> = ({ data, car
     );
 };
 
-export default ReviewStyleApplicationSummary;
+export default ReviewApplicationSummary;

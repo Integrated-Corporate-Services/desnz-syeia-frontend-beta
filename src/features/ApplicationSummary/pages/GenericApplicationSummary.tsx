@@ -17,8 +17,11 @@ import {
     WithdrawButton,
 } from '../components';
 
-/** Default application summary layout (payment panel, full width). Used for non-NWL types. */
-const LegacyApplicationSummary: React.FC = () => {
+/**
+ * Generic application summary layout (payment panel, full width).
+ * Used for S-37, TLP, or other types when routed through ApplicationSummaryPage.
+ */
+const GenericApplicationSummary: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const location = useLocation();
 
@@ -243,4 +246,4 @@ const LegacyApplicationSummary: React.FC = () => {
     );
 };
 
-export default LegacyApplicationSummary;
+export default GenericApplicationSummary;

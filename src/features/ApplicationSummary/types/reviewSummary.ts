@@ -18,7 +18,7 @@ export interface ReviewSummaryPermissions {
     canWithdraw: boolean;
 }
 
-/** Full /review payload shape used by NWL (Option A / S-37-style layout). */
+/** Full /review payload shape used by NWL ReviewApplicationSummary (S-37-style layout). */
 export interface ApplicationReviewSummaryData {
     applicationId: string;
     applicationType: 'NWL' | 'S37' | 'TLP';

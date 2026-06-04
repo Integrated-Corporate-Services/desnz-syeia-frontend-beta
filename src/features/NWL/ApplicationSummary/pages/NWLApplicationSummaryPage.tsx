@@ -1,4 +1,4 @@
 /**
- * NWL application summary — delegates to shared ApplicationSummary (Option A layout).
+ * NWL application summary — delegates to shared ApplicationSummary (ReviewApplicationSummary).
  */
 export { default } from '../../../ApplicationSummary/pages/ApplicationSummaryPage';

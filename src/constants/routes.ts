@@ -499,7 +499,7 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/application-summary`,
-        component: ApplicationSummaryPage,  // Shared summary (NWL uses Option A / review layout)
+        component: ApplicationSummaryPage,  // Shared summary (NWL uses ReviewApplicationSummary)
         auth: true,
         layout: true,
     },
