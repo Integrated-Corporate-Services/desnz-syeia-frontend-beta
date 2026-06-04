@@ -10,6 +10,10 @@ import { createLogger } from '../utils/logger';
 
 const logger = createLogger('useIdleTimer');
 
+// Stable default events array to prevent unnecessary re-renders
+const DEFAULT_EVENTS = ['click', 'keydown'];
+const IDLE_THRESHOLD_SECONDS = 5; // Consider user idle after 5 seconds
+
 interface UseIdleTimerOptions {
   enabled: boolean;
   onIdle?: (idleSeconds: number) => void;
@@ -32,10 +36,9 @@ interface UseIdleTimerReturn {
 export function useIdleTimer({
   enabled,
   onActive,
-  events = ['click', 'keydown']
+  events = DEFAULT_EVENTS
 }: UseIdleTimerOptions): UseIdleTimerReturn {
   const lastActivityRef = useRef<number>(Date.now());
-  const wasIdleRef = useRef<boolean>(false);
 
   // Get current idle time in seconds
   const getIdleTime = useCallback(() => {
@@ -44,11 +47,10 @@ export function useIdleTimer({
 
   // Reset idle timer (mark user as active)
   const resetIdle = useCallback(() => {
-    const wasIdle = wasIdleRef.current;
     const idleTime = getIdleTime();
+    const wasIdle = idleTime > IDLE_THRESHOLD_SECONDS;
 
     lastActivityRef.current = Date.now();
-    wasIdleRef.current = false;
 
     // Call onActive callback if transitioning from idle to active
     if (wasIdle && onActive) {
@@ -56,6 +58,14 @@ export function useIdleTimer({
       onActive();
     }
   }, [getIdleTime, onActive]);
+
+  // Reset activity baseline when enabled transitions from false to true
+  useEffect(() => {
+    if (enabled) {
+      lastActivityRef.current = Date.now();
+      logger.debug('Idle timer enabled - resetting activity baseline');
+    }
+  }, [enabled]);
 
   // Activity event tracking
   useEffect(() => {
