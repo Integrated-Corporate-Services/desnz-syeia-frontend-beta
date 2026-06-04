@@ -45,6 +45,12 @@ export function useIdleTimer({
     return Math.floor((Date.now() - lastActivityRef.current) / 1000);
   }, []);
 
+  // Store onActive callback in ref to prevent unnecessary recreations
+  const onActiveRef = useRef(onActive);
+  useEffect(() => {
+    onActiveRef.current = onActive;
+  }, [onActive]);
+
   // Reset idle timer (mark user as active)
   const resetIdle = useCallback(() => {
     const idleTime = getIdleTime();
@@ -53,17 +59,19 @@ export function useIdleTimer({
     lastActivityRef.current = Date.now();
 
     // Call onActive callback if transitioning from idle to active
-    if (wasIdle && onActive) {
+    if (wasIdle && onActiveRef.current) {
       logger.debug(`User became active after ${idleTime}s idle`);
-      onActive();
+      onActiveRef.current();
     }
-  }, [getIdleTime, onActive]);
+  }, [getIdleTime]);
 
-  // Reset activity baseline when enabled transitions from false to true
+  // Only reset activity baseline on initial mount when enabled is true
+  const hasInitializedRef = useRef(false);
   useEffect(() => {
-    if (enabled) {
+    if (enabled && !hasInitializedRef.current) {
+      hasInitializedRef.current = true;
       lastActivityRef.current = Date.now();
-      logger.debug('Idle timer enabled - resetting activity baseline');
+      logger.debug('Idle timer initialized - setting activity baseline');
     }
   }, [enabled]);
 

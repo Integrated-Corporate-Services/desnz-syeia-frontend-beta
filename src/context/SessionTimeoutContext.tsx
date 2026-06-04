@@ -44,14 +44,20 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     logger.info(`Session timeout config: ${SESSION_TIMEOUT}s total, warning at ${warningThreshold}s`);
   }, [warningThreshold]);
 
-  // Memoized callback for when user becomes active
+  // Use ref for modal state to prevent callback recreation
+  const showModalRef = useRef(showModal);
+  useEffect(() => {
+    showModalRef.current = showModal;
+  }, [showModal]);
+
+  // Stable callback for when user becomes active
   const handleUserActive = useCallback(() => {
-    if (showModal) {
+    if (showModalRef.current) {
       logger.info('User became active - hiding modal');
       setShowModal(false);
       setRemaining(SESSION_WARNING);
     }
-  }, [showModal]);
+  }, []);
 
   //  1. IDLE DETECTION - Track user inactivity
   const { getIdleTime, resetIdle } = useIdleTimer({
@@ -83,6 +89,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   }, []);
 
   //  4. IDLE CHECK TIMER - Monitor idle time and trigger modal/logout
+  // ONLY runs when tab is visible to prevent background navigation
   useEffect(() => {
     if (!isAuthenticated || isLoggingOutRef.current) {
       // Clear timer when not authenticated
@@ -93,50 +100,82 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       return;
     }
 
-    // Check idle time every second
-    checkIntervalRef.current = window.setInterval(() => {
-      const idleSeconds = getIdleTime();
+    // Function to start/stop interval based on visibility
+    const startInterval = () => {
+      // Don't start if already running
+      if (checkIntervalRef.current) return;
 
-      // Log every 30 seconds for debugging
-      if (idleSeconds > 0 && idleSeconds % 30 === 0) {
-        const minutes = Math.floor(idleSeconds / 60);
-        logger.debug(`Idle: ${minutes}m ${idleSeconds % 60}s / ${SESSION_TIMEOUT / 60}m`);
-      }
-
-      // TIMEOUT EXCEEDED - Auto logout
-      if (idleSeconds >= SESSION_TIMEOUT) {
-        logger.warn(` Timeout reached (${idleSeconds}s) - logging out`);
-        if (checkIntervalRef.current) {
-          clearInterval(checkIntervalRef.current);
-          checkIntervalRef.current = null;
-        }
-        handleLogout();
+      // Only start interval if tab is visible
+      if (document.hidden) {
+        logger.debug('Tab hidden - interval not started');
         return;
       }
 
-      // WARNING PERIOD - Show modal and countdown
-      if (idleSeconds >= warningThreshold) {
-        if (!showModal) {
-          logger.warn(` Warning threshold reached (${idleSeconds}s) - showing modal`);
-          setShowModal(true);
+      checkIntervalRef.current = window.setInterval(() => {
+        const idleSeconds = getIdleTime();
+
+        // Log every 30 seconds for debugging
+        if (idleSeconds > 0 && idleSeconds % 30 === 0) {
+          const minutes = Math.floor(idleSeconds / 60);
+          logger.debug(`Idle: ${minutes}m ${idleSeconds % 60}s / ${SESSION_TIMEOUT / 60}m`);
         }
-        // Update countdown
-        const timeLeft = SESSION_TIMEOUT - idleSeconds;
-        setRemaining(timeLeft);
-      }
-    }, 1000);
 
-    logger.info('Idle monitoring started');
+        // TIMEOUT EXCEEDED - Auto logout
+        if (idleSeconds >= SESSION_TIMEOUT) {
+          logger.warn(`Timeout reached (${idleSeconds}s) - logging out`);
+          if (checkIntervalRef.current) {
+            clearInterval(checkIntervalRef.current);
+            checkIntervalRef.current = null;
+          }
+          handleLogout();
+          return;
+        }
 
-    return () => {
+        // WARNING PERIOD - Show modal and countdown
+        if (idleSeconds >= warningThreshold) {
+          if (!showModal) {
+            logger.warn(`Warning threshold reached (${idleSeconds}s) - showing modal`);
+            setShowModal(true);
+          }
+          // Update countdown
+          const timeLeft = SESSION_TIMEOUT - idleSeconds;
+          setRemaining(timeLeft);
+        }
+      }, 1000);
+
+      logger.info('Idle monitoring started');
+    };
+
+    const stopInterval = () => {
       if (checkIntervalRef.current) {
         clearInterval(checkIntervalRef.current);
         checkIntervalRef.current = null;
+        logger.debug('Idle monitoring paused (tab hidden)');
       }
+    };
+
+    // Handle visibility change - pause/resume interval
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopInterval();
+      } else {
+        startInterval();
+      }
+    };
+
+    // Initial start
+    startInterval();
+
+    // Listen for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      stopInterval();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [isAuthenticated, getIdleTime, showModal, warningThreshold, handleLogout]);
 
-  //  5. TAB VISIBILITY - Handle browser tab switching
+  //  5. TAB VISIBILITY - Check idle time immediately when tab becomes visible
   useEffect(() => {
     if (!isAuthenticated || isLoggingOutRef.current) return;
 
@@ -145,7 +184,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
         const idleSeconds = getIdleTime();
         const minutes = Math.floor(idleSeconds / 60);
         
-        logger.info(` Tab visible - idle for ${minutes}m ${idleSeconds % 60}s`);
+        logger.info(`Tab visible - idle for ${minutes}m ${idleSeconds % 60}s`);
 
         // Session expired while away - immediate logout
         if (idleSeconds >= SESSION_TIMEOUT) {
