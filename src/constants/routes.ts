@@ -121,6 +121,7 @@ import PostConsultationConsulteesReason from '../features/PostConsultation/pages
 import PaymentAmountPage from '../features/Payments/pages/PaymentAmountPage';
 import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
+import InvoiceGenerationErrorPage from '../features/Payments/pages/InvoiceGenerationErrorPage';
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
 import BankTransferPaymentPage from '../features/Payments/pages/BankTransferPaymentPage';
 import BankTransferConfirmationPage from '../features/Payments/pages/BankTransferConfirmationPage';
@@ -284,6 +285,12 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/generate-invoice`,
         component: InvoiceGenerationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/generate-invoice-error`,
+        component: InvoiceGenerationErrorPage,
         auth: true,
         layout: true,
     },
