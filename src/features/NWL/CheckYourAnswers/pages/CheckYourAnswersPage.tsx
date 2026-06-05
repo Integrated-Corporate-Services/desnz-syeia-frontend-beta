@@ -24,7 +24,7 @@ import {
     RepresentativeDetailsSummaryCard,
     SiteAddressSummaryCard,
     LandLocationSummaryCard,
-    AssetSummaryCard,
+    AssetsPlanSummaryCard,
     NWLAdditionalInformationSummaryCard,
     NegotiationsSummaryCard,
 } from '../components';
@@ -46,6 +46,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [representativeDetails, setRepresentativeDetails] = useState<any>(null);
     const [landDetails, setLandDetails] = useState<any>(null);
     const [assets, setAssets] = useState<any[]>([]);
+    const [assetsMetadata, setAssetsMetadata] = useState<any>(null);
     const [negotiations, setNegotiations] = useState<any>(null);
     const [additionalInformation, setAdditionalInformation] = useState<any>(null);
     const [permissions, setPermissions] = useState({ canEdit: true });
@@ -70,13 +71,14 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setRepresentativeDetails(data.representativeDetails);
                 setLandDetails(data.landDetails);
                 setAssets(data.assets);
+                setAssetsMetadata(data.assetsMetadata);
 
                 setNegotiations(data.negotiations);
                 setAdditionalInformation(data.additionalInformation);
                 setPermissions(data.permissions);
 
                 setLoading(false);
-            } catch (error) {
+            } catch {
                 setLoading(false);
                 // Could set an error state here if needed
             }
@@ -142,13 +144,12 @@ export const CheckYourAnswersPage: React.FC = () => {
 
                         {/* Assets */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ASSETS}</h2>
-                        {(assets && assets.length > 0) ? (
-                            assets.map((asset, index) => (
-                                <AssetSummaryCard key={asset.asset_id || index} data={asset} index={index} applicationId={applicationId!} canEdit={permissions.canEdit} />
-                            ))
-                        ) : (
-                            <p className="govuk-body">No assets provided yet</p>
-                        )}
+                        <AssetsPlanSummaryCard
+                            data={assetsMetadata}
+                            assets={assets}
+                            applicationId={applicationId!}
+                            canEdit={permissions.canEdit}
+                        />
 
                         {/* Negotiations */}
                         {negotiations && (

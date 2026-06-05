@@ -58,9 +58,23 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ data, application
     // Phone
     rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.PHONE, formatPhone(data.phone) || CONSTANTS.DEFAULTS.EMPTY));
 
-    // Additional contacts
-    if (data.additional_contacts && data.additional_contacts.length > 0) {
-        const contactsHtml = data.additional_contacts.join('<br>');
+    // Additional contacts (supports both legacy and current payload shapes)
+    const additionalContacts = Array.isArray(data.additional_contacts)
+        ? data.additional_contacts
+        : typeof data.additional_contacts === 'string'
+            ? data.additional_contacts
+                .split(',')
+                .map((contact: string) => contact.trim())
+                .filter((contact: string) => contact.length > 0)
+            : typeof data.additional_contact === 'string'
+                ? data.additional_contact
+                    .split(',')
+                    .map((contact: string) => contact.trim())
+                    .filter((contact: string) => contact.length > 0)
+                : [];
+
+    if (additionalContacts.length > 0) {
+        const contactsHtml = additionalContacts.join('<br>');
         rows.push({
             key: { text: CONSTANTS.APPLICANT_FIELDS.ADDITIONAL_CONTACTS },
             value: { text: '', html: contactsHtml },
