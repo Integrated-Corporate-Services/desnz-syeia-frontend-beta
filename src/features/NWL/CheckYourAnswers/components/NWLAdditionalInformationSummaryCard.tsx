@@ -20,7 +20,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
     if (!data) {
         return (
             <SummaryCard
-                title={CONSTANTS.CARD_TITLES.TREES_AND_VEGETATION}
+                title={CONSTANTS.CARD_TITLES.ADDITIONAL_INFORMATION}
                 rows={[]}
                 actions={
                     canEdit
@@ -78,7 +78,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
 
     return (
         <SummaryCard
-            title={CONSTANTS.CARD_TITLES.TREES_AND_VEGETATION}
+            title={CONSTANTS.CARD_TITLES.ADDITIONAL_INFORMATION}
             rows={rows}
             actions={
                 canEdit
