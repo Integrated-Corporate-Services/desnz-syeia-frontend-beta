@@ -187,6 +187,8 @@ export interface ApplicationMetadata {
 export interface PaymentDetails {
   payment_id?: string;
   reference?: string;
+  transaction_number?: string | null;
+  provider?: string;
   amount?: number;
   total_amount?: string;
   status?: string;

@@ -57,6 +57,7 @@ export const FIELD_LABELS = {
   
   // Payment fields
   PAYMENT_REFERENCE: 'Payment reference number',
+  TRANSACTION_NUMBER: 'Transaction number',
   INVOICE: 'Invoice',
   TOTAL_AMOUNT: 'Total amount',
   
