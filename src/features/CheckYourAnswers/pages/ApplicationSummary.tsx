@@ -43,6 +43,10 @@ import {
 } from '../constants/applicationSummaryLabels';
 
 import { REQUIRED_SECTIONS } from '../constants/applicationSummaryConstants';
+import {
+  BANK_TRANSFER_SUCCESS_PAGE,
+  PAYMENT_METHOD,
+} from '../../../constants/payment';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -585,10 +589,20 @@ const ApplicationSummary: React.FC = () => {
                 <div className="govuk-summary-card__content">
                   <dl className="govuk-summary-list">
                     <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">{FIELD_LABELS.PAYMENT_REFERENCE}</dt>
+                      <dt className="govuk-summary-list__key">
+                        {paymentDetails.provider === PAYMENT_METHOD.BANK_TRANSFER ||
+                        paymentDetails.provider === PAYMENT_METHOD.BACS
+                          ? FIELD_LABELS.TRANSACTION_NUMBER
+                          : FIELD_LABELS.PAYMENT_REFERENCE}
+                      </dt>
                       <dd className="govuk-summary-list__value">
-                        {paymentDetails.reference || paymentDetails.payment_id ||
-                          '[System-generated UNIQUE NUMBER]'}
+                        {paymentDetails.provider === PAYMENT_METHOD.BANK_TRANSFER ||
+                        paymentDetails.provider === PAYMENT_METHOD.BACS
+                          ? paymentDetails.transaction_number?.trim() ||
+                            BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT
+                          : paymentDetails.reference ||
+                            paymentDetails.payment_id ||
+                            '[System-generated UNIQUE NUMBER]'}
                       </dd>
                     </div>
                     <div className="govuk-summary-list__row">
