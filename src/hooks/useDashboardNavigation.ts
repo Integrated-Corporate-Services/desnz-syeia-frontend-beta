@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+﻿import { useNavigate } from 'react-router-dom';
 
 /**
  * Custom hook for dashboard navigation actions
@@ -11,8 +11,8 @@ export const useDashboardNavigation = () => {
     navigate('/admin/user-management');
   };
 
-  const navigateToWorkbasket = () => {
-    navigate('/workbasket');
+  const navigateToApplicationDashboard = () => {
+    navigate('/application-dashboard');
   };
 
   const navigateToManageUsers = () => {
@@ -29,7 +29,7 @@ export const useDashboardNavigation = () => {
 
   return {
     navigateToPendingRequests,
-    navigateToWorkbasket,
+    navigateToApplicationDashboard,
     navigateToManageUsers,
     navigateToOrganisationSettings,
     navigateToReviewRequest

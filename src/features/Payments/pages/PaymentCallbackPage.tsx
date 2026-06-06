@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createLogger } from '../../../utils/logger';
 
@@ -109,7 +109,7 @@ const PaymentCallbackPage: React.FC = () => {
     if (applicationId) {
       navigate(`${baseUrl}/${applicationId}/payment-method`);
     } else {
-      navigate('/workbasket');
+      navigate('/application-dashboard');
     }
   };
 
@@ -118,7 +118,7 @@ const PaymentCallbackPage: React.FC = () => {
     if (applicationId) {
       navigate(`${baseUrl}/${applicationId}/task-list`);
     } else {
-      navigate('/workbasket');
+      navigate('/application-dashboard');
     }
   };
 

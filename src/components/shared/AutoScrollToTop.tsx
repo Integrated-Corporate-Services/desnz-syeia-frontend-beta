@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-const NO_SCROLL_ROUTES = ["/workbasket"];
+const NO_SCROLL_ROUTES = ["/application-dashboard"];
 
 export const AutoScrollToTop = () => {
   const { pathname } = useLocation();

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+﻿import { useNavigate } from 'react-router-dom';
 
 export const usePendingRequestsNavigation = () => {
   const navigate = useNavigate();
@@ -7,8 +7,8 @@ export const usePendingRequestsNavigation = () => {
     navigate('/admin/user-management');
   };
 
-  const navigateToWorkbasket = () => {
-    navigate('/workbasket');
+  const navigateToApplicationDashboard = () => {
+    navigate('/application-dashboard');
   };
 
   const navigateToReviewRequest = (requestId: string) => {
@@ -17,7 +17,7 @@ export const usePendingRequestsNavigation = () => {
 
   return {
     navigateToDashboard,
-    navigateToWorkbasket,
+    navigateToApplicationDashboard,
     navigateToReviewRequest
   };
 };

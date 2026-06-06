@@ -61,7 +61,7 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
     },
 
     ROUTES: {
-        APPLICATIONS: '/frontend/workbasket',
+        APPLICATIONS: '/frontend/application-dashboard',
         WITHDRAW: (applicationType: string, applicationId: string) => 
             `/frontend/${applicationType.toLowerCase()}/${applicationId}/withdraw`,
     },

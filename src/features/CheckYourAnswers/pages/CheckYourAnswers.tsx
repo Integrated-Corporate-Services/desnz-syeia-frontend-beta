@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+﻿import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { ConsultationType, isLpaJourney } from "../../../constants/consultationType";
@@ -375,8 +375,8 @@ const CheckYourAnswers: React.FC = () => {
   return (
     <div className="govuk-width-container">
       {!permissions?.canEdit && (
-        <Link to="/workbasket" className="govuk-back-link">
-          Workbasket
+        <Link to="/application-dashboard" className="govuk-back-link">
+          Application Dashboard
         </Link>
       )}
       <main className="govuk-main-wrapper" id="main-content">

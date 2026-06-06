@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+﻿import React, { useEffect } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { NWL_BASE_URL } from "../../../constants/nwl";
@@ -87,7 +87,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
             </p>
 
             <p className="govuk-body">
-              <Link to="/workbasket" className="govuk-link">
+              <Link to="/application-dashboard" className="govuk-link">
                 {WITHDRAWAL_LABELS.GO_TO_DASHBOARD}
               </Link>
             </p>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { BASE_URL } from "../../constants/routes";
 import { useLocation } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
@@ -12,8 +12,8 @@ const ServiceNavigation = () => {
     const location = useLocation();
     const { user } = useAuthUserContext();
 
-    // Handle all possible workbasket paths
-    const workbasketPaths = ["/", "/workbasket", "/workbasket/"];
+    // Handle all possible application dashboard paths
+    const applicationDashboardPaths = ["/", "/application-dashboard"];
 
     // Hide navigation on the sign-in, request-access, and sent-for-approval pages
     const hideNavPaths = [
@@ -31,9 +31,9 @@ const ServiceNavigation = () => {
     // Check if user is in registration/access request flow
     const isInRegistrationFlow = location.pathname.startsWith("/request-access");
 
-    // Check if on workbasket or any application-related page
+    // Check if on application dashboard or any application-related page
     const isOnApplicationPages =
-        workbasketPaths.includes(location.pathname) ||
+        applicationDashboardPaths.includes(location.pathname) ||
         location.pathname.includes("/s-37/") ||
         location.pathname.includes("/nwl/") ||
         location.pathname.includes("/tlp/") ||
@@ -106,7 +106,7 @@ const ServiceNavigation = () => {
                             >
                                 <a
                                     className="rcc-service-nav__link"
-                                    href={`${BASE_URL}/workbasket`}
+                                    href={`${BASE_URL}/application-dashboard`}
                                     aria-current={isOnApplicationPages ? "page" : undefined}
                                 >
                                     Applications

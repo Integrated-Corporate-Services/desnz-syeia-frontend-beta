@@ -1,14 +1,14 @@
-import React from "react";
+﻿import React from "react";
 import { TAB_OPTIONS, TabType } from "../constants/filterOptions";
 import "../../../styles/DashboardMobile.css";
 
-interface WorkbasketTabsProps {
+interface ApplicationDashboardTabsProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
   counts: Record<TabType, number>;
 }
 
-export const WorkbasketTabs: React.FC<WorkbasketTabsProps> = ({
+export const ApplicationDashboardTabs: React.FC<ApplicationDashboardTabsProps> = ({
   activeTab,
   onTabChange,
   counts,

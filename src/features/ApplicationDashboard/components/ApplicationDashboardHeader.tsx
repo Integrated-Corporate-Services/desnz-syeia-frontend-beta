@@ -1,15 +1,15 @@
-import React from "react";
+﻿import React from "react";
 import { Link } from "react-router-dom";
-import "../../../styles/Workbasket.css";
+import "../../../styles/ApplicationDashboard.css";
 import "../../../styles/DashboardMobile.css";
 
-interface WorkbasketHeaderProps {
+interface ApplicationDashboardHeaderProps {
   onToggleFilters: () => void;
   showFilters: boolean;
   onStartNewApplication: () => void;
 }
 
-export const WorkbasketHeader: React.FC<WorkbasketHeaderProps> = ({
+export const ApplicationDashboardHeader: React.FC<ApplicationDashboardHeaderProps> = ({
   onToggleFilters,
   showFilters,
   onStartNewApplication,
@@ -27,7 +27,7 @@ export const WorkbasketHeader: React.FC<WorkbasketHeaderProps> = ({
         </div>
       </div>
 
-      <div className="workbasket-header-buttons">
+      <div className="application-dashboard-header-buttons">
         <button
           className="govuk-button"
           data-module="govuk-button"
@@ -40,7 +40,7 @@ export const WorkbasketHeader: React.FC<WorkbasketHeaderProps> = ({
           data-module="govuk-button"
           onClick={onToggleFilters}
           aria-expanded={showFilters}
-          aria-controls="workbasket-filters"
+          aria-controls="application-dashboard-filters"
         >
           {showFilters ? "Hide search and filter" : "Show search and filter"}
         </button>
