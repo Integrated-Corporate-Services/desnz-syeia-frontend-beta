@@ -343,6 +343,9 @@ const ProjectOverview = () => {
 						} else if (numVal < 0) {
 							newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE));
 							newFieldErrors['tallestPoleHeight-inputValue'] = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE;
+						} else if (numVal > 9999) {
+							newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_TOO_LARGE));
+							newFieldErrors['tallestPoleHeight-inputValue'] = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_TOO_LARGE;
 						} else {
 							// Check for more than two decimal places
 							const decimalPart = val.includes('.') ? val.split('.')[1] : '';

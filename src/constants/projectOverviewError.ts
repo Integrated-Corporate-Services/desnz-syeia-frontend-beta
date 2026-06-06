@@ -7,6 +7,7 @@ export const PROJECT_OVERVIEW_ERRORS = {
   TALLEST_POLE_HEIGHT_INVALID_NUMBER: "Height must be a valid number",
   TALLEST_POLE_HEIGHT_NEGATIVE: "Height cannot be negative",
   TALLEST_POLE_HEIGHT_DECIMAL_PLACES: "Enter at most 2 decimal places for the pole height",
+  TALLEST_POLE_HEIGHT_TOO_LARGE: "Height must be 9999 metres or less",
   
   PLAN_REFERENCE_REQUIRED: "Enter the plan reference",
   
