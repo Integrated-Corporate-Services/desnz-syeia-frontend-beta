@@ -459,6 +459,7 @@ useEffect(() => {
                 addedBy={user?.user_id}
                 uploadedFiles={consultationPack?.uploadedFiles || []}
                 applicationDocuments={consultationPack?.applicationDocuments || []}
+                uploadFileImmediately={true}
                 onValidationErrors={handleFileValidationErrors}
                 onUploaded={(newUploadedFiles, newApplicationDocuments) => {
                   setConsultationPack((prev: any) => ({

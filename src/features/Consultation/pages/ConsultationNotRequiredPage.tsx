@@ -287,8 +287,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 									applicationId={applicationId}
 									category={FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}
 									uploadedFiles={uploadedFileObjs}
-								applicationDocuments={applicationDocuments}
-								onRemoveFile={idx => {
+								applicationDocuments={applicationDocuments}							uploadFileImmediately={true}								onRemoveFile={idx => {
 									setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
 									setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
 									// Clear files error when removing files (validation will re-trigger on save)

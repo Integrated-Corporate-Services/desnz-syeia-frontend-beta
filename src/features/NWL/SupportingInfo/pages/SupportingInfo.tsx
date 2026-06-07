@@ -672,7 +672,7 @@ const SupportingInfo: React.FC = () => {
 												subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE}
 												uploadedFiles={writtenTerminationFiles}
 												onUploaded={handleWrittenTerminationUploaded}
-												addedBy={userId}											onValidationErrors={(errors) => {
+												addedBy={userId}											uploadImmediately={true}											onValidationErrors={(errors) => {
 												// Handle validation errors
 												setFileValidationErrors(errors);
 											}}											/>

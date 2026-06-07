@@ -611,6 +611,7 @@ const PublicNoticesEvidence: React.FC = () => {
                   addedBy={user?.user_id || ''}
                   uploadedFiles={uploadedFileObjs}
                   applicationDocuments={applicationDocuments}
+                  uploadFileImmediately={true}
                   onRemoveFile={idx => {
                     setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
                     setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
