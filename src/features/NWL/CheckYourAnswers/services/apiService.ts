@@ -24,7 +24,10 @@ export interface NWLCheckYourAnswersResponse {
 }
 
 const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | null> => {
-    const response = await fetch(`/backend/api/nwl/${applicationId}/assets`);
+    const response = await fetch(buildBackendUrl(`/backend/api/nwl/${applicationId}/assets`),
+        {
+            credentials: 'include'
+        });
 
     if (response.status === 404) {
         return null;
@@ -69,7 +72,7 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
         representativeDetails: data.sections?.representativeDetails || null,
         landDetails: data.sections?.landDetails || null,
         assets: normalizedAssets,
-        assetsMetadata: nwlAssetsMetadata,
+        assetsMetadata: await fetchNwlAssetsMetadata(applicationId),
         negotiations: data.sections?.negotiations || null,
         additionalInformation: data.sections?.additionalInformation || null,
         permissions: data.permissions || { canEdit: true },

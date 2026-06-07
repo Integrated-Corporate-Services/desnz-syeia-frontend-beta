@@ -39,19 +39,13 @@ const CannotContinueApplication: React.FC = () => {
               {LABELS.HELPER_TEXT}
             </p>
 
-            <p className="govuk-body govuk-!-font-weight-bold">
-              {LABELS.GUIDANCE_TITLE}
-            </p>
-
-            <ul className="govuk-list govuk-list--bullet">
-              {LABELS.GUIDANCE_POINTS.map((point, index) => (
-                <li key={index}>{point}</li>
-              ))}
-            </ul>
-
             <p className="govuk-body">
-              {LABELS.CONTACT_INFO}
+              {LABELS.GUIDANCE_TEXT}
             </p>
+
+            <div className="govuk-inset-text">
+              {LABELS.INFO_TEXT}
+            </div>
 
             <div className="govuk-button-group">
               <button

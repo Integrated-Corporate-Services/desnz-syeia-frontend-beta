@@ -109,9 +109,7 @@ const NoticeToRemoveUnclear: React.FC = () => {
                   error ? "govuk-form-group--error" : ""
                 }`}
               >
-                <div className="govuk-hint" id="explanation-hint">
-                  You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
-                </div>
+               
               
                 {error && (
                   <p id="explanation-error" className="govuk-error-message">
@@ -134,7 +132,9 @@ const NoticeToRemoveUnclear: React.FC = () => {
                   maxLength={LABELS.CHAR_LIMIT}
                 />
               </div>
-
+ <div className="govuk-hint" id="explanation-hint">
+                  You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
+                </div>
               <div className="govuk-button-group">
                 <button
                   type="submit"

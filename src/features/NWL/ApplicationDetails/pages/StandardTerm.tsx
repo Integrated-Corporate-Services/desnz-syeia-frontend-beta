@@ -81,8 +81,6 @@ const StandardTerm: React.FC = () => {
     }
 
     try {
-      const hasChangedSelection = initialTermRef.current && initialTermRef.current !== isStandardTerm;
-      
       await updateFields({
         type_of_use: typeOfUse,
         is_standard_term: isStandardTerm === "yes",
@@ -207,10 +205,10 @@ const StandardTerm: React.FC = () => {
                           </p>
                         )}
                         <textarea
-                          className={`govuk-textarea ${explanationError ? "govuk-textarea--error" : ""}`}
+                          className={`govuk-textarea  ${explanationError ? "govuk-textarea--error" : ""}`}
                           id="explanation"
                           name="explanation"
-                          rows={8}
+                          rows={5}
                           aria-describedby="explanation-hint"
                           value={explanation}
                           onChange={(e) => {
