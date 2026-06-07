@@ -538,6 +538,7 @@ const SupportingInfo: React.FC = () => {
             applicationDocuments={applicationDocuments}
             showDocumentsHeading={true}
             onDeleteFile={handleDeleteFile}
+            uploadImmediately={true}
             onValidationErrors={(errors) => {
               // Handle validation errors
               // Clear existing file validation errors before setting new ones

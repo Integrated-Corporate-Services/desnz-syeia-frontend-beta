@@ -200,6 +200,7 @@ const ImportantInformationDetails: React.FC = () => {
                   addedBy={userId}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
+                  uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);

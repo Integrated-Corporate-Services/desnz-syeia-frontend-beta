@@ -390,6 +390,7 @@ const WayleaveExpiryDate: React.FC = () => {
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
+                  uploadImmediately={true}
                   onDeleteFile={(fileId) => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
