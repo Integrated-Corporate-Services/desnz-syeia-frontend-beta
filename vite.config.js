@@ -25,6 +25,10 @@ export default defineConfig(({ mode }) => {
             hmr: false,
             open: true,
             proxy: {
+                '/backend/invites': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
                 '/backend/api': {
                     target: env.API_URL,
                     changeOrigin: true,

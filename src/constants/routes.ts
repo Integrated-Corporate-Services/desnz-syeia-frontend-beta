@@ -139,8 +139,24 @@ import RemoveConsultation from '../features/Consultation/pages/RemoveConsultatio
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
 import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
+import ClosedPage from '../pages/ClosedPage';
+import StartRedirect from '../components/StartRedirect';
 
 export const ROUTE_CONFIG = [
+    // UAT Invite System Routes
+    {
+        path: '/access-denied',
+        component: ClosedPage,
+        auth: false,
+        layout: false,
+    },
+    {
+        path: '/start/:orgCode',
+        component: StartRedirect,
+        auth: false,
+        layout: false,
+    },
+    // Existing Routes
     {
         path: '/cookies',
         component: CookiesSettingsPage,
