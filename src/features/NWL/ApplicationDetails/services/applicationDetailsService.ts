@@ -6,6 +6,7 @@
 import { createLogger } from '../../../../utils/logger';
 import { generateCorrelationId } from '../../../../utils/correlationId';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
+import { buildBackendUrl } from '../../../../utils/apiConfig';
 
 const logger = createLogger('ApplicationDetailsService');
 
@@ -98,7 +99,7 @@ export const createOrUpdateApplicationDetails = async (
   };
 
   // URL without page parameter - page ID is sent in header
-  const url = `/backend/api/nwl/${applicationId}/application-details`;
+  const url = buildBackendUrl(`/backend/api/nwl/${applicationId}/application-details`);
 
   logger.info('Saving application details', { applicationId, pageId });
 
@@ -148,7 +149,7 @@ export const fetchApplicationDetails = async (
     'X-Correlation-ID': generateCorrelationId(),
   };
 
-  const response = await fetch(`/backend/api/nwl/${applicationId}/application-details`, {
+  const response = await fetch(buildBackendUrl(`/backend/api/nwl/${applicationId}/application-details`), {
     credentials: 'include',
     headers,
   });

@@ -2,6 +2,8 @@
 // Presigned URLs expire after 30 minutes (configured on backend)
 // URLs are cached in-memory to reduce backend calls
 
+import { buildBackendUrl } from '../utils/apiConfig';
+
 // Configuration
 const S3_URL_EXPIRY_SECONDS = 1800; // 30 minutes (should match backend and session timeout)
 
@@ -27,7 +29,7 @@ export function clearPresignedUrlCache(filename?: string) {
 }
 
 export async function getPresignedUrls(files: { filename: string; contentType: string }[]) {
-  const res = await fetch('/backend/api/upload/presigned-url', {
+  const res = await fetch(buildBackendUrl('/backend/api/upload/presigned-url'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -75,7 +77,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   }
 
   // Fetch new URL
-  const res = await fetch('/backend/api/file/presigned-url', {
+  const res = await fetch(buildBackendUrl('/backend/api/file/presigned-url'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -94,7 +96,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
 
 // List files for a given prefix
 export async function listFilesByPrefix(prefix: string) {
-  const res = await fetch(`/backend/api/files?prefix=${encodeURIComponent(prefix)}`, {
+  const res = await fetch(buildBackendUrl(`/backend/api/files?prefix=${encodeURIComponent(prefix)}`), {
     credentials: 'include'
   });
   if (!res.ok) throw new Error('Failed to list files');
@@ -103,7 +105,7 @@ export async function listFilesByPrefix(prefix: string) {
 
 // Delete a file from S3 by key
 export async function deleteFileFromS3(key: string) {
-  const res = await fetch('/backend/api/file/delete', {
+  const res = await fetch(buildBackendUrl('/backend/api/file/delete'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -115,7 +117,7 @@ export async function deleteFileFromS3(key: string) {
 
 // Delete a file completely (from both S3 and database)
 export async function deleteFileCompletely(fileId: string, key: string) {
-  const res = await fetch('/backend/api/file/delete', {
+  const res = await fetch(buildBackendUrl('/backend/api/file/delete'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -145,7 +147,7 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
   }
 
   // Fetch new URL
-  const res = await fetch('/backend/api/file/presigned-url/download', {
+  const res = await fetch(buildBackendUrl('/backend/api/file/presigned-url/download'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',

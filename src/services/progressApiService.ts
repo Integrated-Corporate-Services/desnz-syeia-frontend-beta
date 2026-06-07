@@ -1,10 +1,13 @@
 /// <reference types="vite/client" />
+import { buildBackendUrl } from '../utils/apiConfig';
 
 export const progressApiService = {
 
   // Fetch progress for an application
   fetchApplicationProgress: async (applicationId: string) => {
-    const response = await fetch(`/backend/api/applications/${applicationId}/progress`);
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
+      credentials: 'include'
+    });
     if (!response.ok) throw new Error('Failed to fetch application progress');
     return response.json();
   },
@@ -16,9 +19,10 @@ export const progressApiService = {
     status: string,
     application_type?: string
   ) => {
-  const response = await fetch(`/backend/api/applications/${applicationId}/progress`, {
+  const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ subsection_name, status, application_type }),
     });
     if (!response.ok) throw new Error('Failed to update application progress');

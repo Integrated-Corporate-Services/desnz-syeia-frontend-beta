@@ -1,4 +1,4 @@
-import axios from "axios";
+import { buildBackendUrl } from "../utils/apiConfig";
 import { createLogger } from "../utils/logger";
 import type { User, CreateUserData } from "../types/user";
 import type { ServiceResponse } from "../types/common";
@@ -17,12 +17,14 @@ class UserService {
       if (orgFilter) {
         params.append("organisation", orgFilter);
       }
-      const url = `/backend/api/users${
+      const url = buildBackendUrl(`/backend/api/users${
         params.toString() ? `?${params.toString()}` : ""
-      }`;
-      const response = await axios.get(url);
+      }`);
+      const response = await fetch(url, { credentials: "include" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
       // Transform backend response to match frontend User interface
-      const transformedData = response.data.map((user: any) => ({
+      const transformedData = data.map((user: any) => ({
         id: user.user_id,
         fullName:
           `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
@@ -52,10 +54,17 @@ class UserService {
    */
   async createUser(userData: CreateUserData): Promise<ServiceResponse<User>> {
     try {
-      const response = await axios.post("/backend/api/users", userData);
+      const response = await fetch(buildBackendUrl("/backend/api/users"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(userData)
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
       return {
         success: true,
-        data: response.data,
+        data,
         message: "User created successfully",
       };
     } catch (error) {
@@ -81,11 +90,25 @@ class UserService {
       if (organisationId) {
         requestBody.organisationId = organisationId;
       }
-      const response = await axios.patch(
-        `/backend/api/users/${userId}/suspend`,
-        requestBody
-      );
-      logger.debug("Suspend user response:", response.data);
+      const response = await fetch(buildBackendUrl(`/backend/api/users/${userId}/suspend`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(requestBody)
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        logger.error("Failed to suspend user:", {
+          error: errorData.error,
+          status: response.status,
+        });
+        return {
+          success: false,
+          message: errorData.error || "Failed to suspend user",
+        };
+      }
+      const data = await response.json();
+      logger.debug("Suspend user response:", data);
       return {
         success: true,
         message: "User access revoked successfully",
@@ -93,12 +116,10 @@ class UserService {
     } catch (error: any) {
       logger.error("Failed to suspend user:", {
         error: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
       });
       return {
         success: false,
-        message: error.response?.data?.error || "Failed to suspend user",
+        message: "Failed to suspend user",
       };
     }
   }
@@ -108,7 +129,11 @@ class UserService {
    */
   async reactivateUser(userId: string): Promise<ServiceResponse<void>> {
     try {
-      await axios.patch(`/backend/api/users/${userId}/reactivate`);
+      const response = await fetch(buildBackendUrl(`/backend/api/users/${userId}/reactivate`), {
+        method: "PATCH",
+        credentials: "include"
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return {
         success: true,
         message: "User reactivated successfully",

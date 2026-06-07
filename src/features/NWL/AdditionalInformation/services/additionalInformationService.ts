@@ -2,7 +2,9 @@ import axios from 'axios';
 import { AdditionalInformationData } from '../types';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
-const API_BASE_URL = '/backend/api/nwl';
+import { buildBackendUrl } from '../../../../utils/apiConfig';
+
+const API_BASE_URL = buildBackendUrl('/backend/api/nwl');
 
 // Re-export Page IDs for convenience
 export { ADDITIONAL_INFO_PAGE_IDS } from '../constants/pageNames';

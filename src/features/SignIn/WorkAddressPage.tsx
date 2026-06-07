@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
@@ -117,16 +117,12 @@ const WorkAddressPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <a
-        href="/request-access/contact-details"
+      <Link
+        to="/request-access/contact-details"
         className="govuk-back-link"
-        onClick={(e) => {
-          e.preventDefault();
-          navigate("/request-access/contact-details");
-        }}
       >
         Back
-      </a>
+      </Link>
 
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">

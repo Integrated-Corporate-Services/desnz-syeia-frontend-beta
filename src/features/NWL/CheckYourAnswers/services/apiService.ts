@@ -3,6 +3,7 @@
  * 
  * Fetches comprehensive application data for the Check Your Answers review page.
  */
+import { buildBackendUrl } from '../../../../utils/apiConfig';
 
 export interface NWLCheckYourAnswersResponse {
     applicationId: string;
@@ -28,7 +29,9 @@ export interface NWLCheckYourAnswersResponse {
  * @returns Promise with NWL application data
  */
 export const fetchCheckYourAnswersData = async (applicationId: string): Promise<NWLCheckYourAnswersResponse> => {
-    const response = await fetch(`/backend/api/applications/${applicationId}/review`);
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+        credentials: 'include'
+    });
     if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to fetch application data: ${response.status} ${errorText}`);

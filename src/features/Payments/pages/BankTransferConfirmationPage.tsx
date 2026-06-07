@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
@@ -136,7 +137,7 @@ const BankTransferConfirmationPage: React.FC = () => {
         }));
       }
 
-      const response = await fetch(`/backend/api/application/${applicationId}/save-with-bank-transfer`, {
+      const response = await fetch(buildBackendUrl(`/backend/api/application/${applicationId}/save-with-bank-transfer`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
@@ -31,9 +31,9 @@ const AccessRequestIntroPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <a href="/frontend/landingPage" className="govuk-back-link">
+      <Link to="/landingPage" className="govuk-back-link">
         Back
-      </a>
+      </Link>
 
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
