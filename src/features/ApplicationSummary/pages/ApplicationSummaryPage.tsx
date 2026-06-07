@@ -201,15 +201,12 @@ const ApplicationSummaryPage: React.FC = () => {
                         )}
 
                         {summaryData.assets && Array.isArray(summaryData.assets) && cards.Assets && (
-                            summaryData.assets.map((asset: any, index: number) => (
-                                <cards.Assets 
-                                    key={asset.asset_id || index}
-                                    data={asset} 
-                                    index={index}
-                                    applicationId={applicationId!} 
-                                    canEdit={false} 
-                                />
-                            ))
+                            <cards.Assets
+                                data={summaryData.assetsMetadata || null}
+                                assets={summaryData.assets}
+                                applicationId={applicationId!}
+                                canEdit={false}
+                            />
                         )}
 
                         {summaryData.additionalInformation && cards.AdditionalInformation && (

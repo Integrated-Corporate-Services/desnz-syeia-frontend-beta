@@ -185,11 +185,12 @@ export const BANK_TRANSFER_SUCCESS_PAGE = {
   APPLICATION_NUMBER_TEXT: 'Your application number is',
   LOADING_TEXT: 'Loading...',
   NOT_AVAILABLE_TEXT: 'N/A',
+  NOT_PROVIDED_TEXT: 'Not provided',
 
   // Payment summary
   PAYMENT_SUMMARY_HEADING: 'Payment Summary',
   SUMMARY_LABELS: {
-    REFERENCE_NUMBER: 'Reference number',
+    TRANSACTION_NUMBER: 'Transaction number',
     INVOICE_NUMBER: 'Invoice number',
     TOTAL_AMOUNT: 'Total amount',
     APPLICATION_STATUS: 'Application status',

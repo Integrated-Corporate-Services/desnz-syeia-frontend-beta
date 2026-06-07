@@ -180,17 +180,15 @@ const handlePayByCard = async () => {
               </div>
             )}
 
-            <h1 className="govuk-heading-l">{PAYMENT_PAGE_TEXT.pageTitle}</h1>
+            <h1 className="govuk-heading-xl">{PAYMENT_PAGE_TEXT.pageTitle}</h1>
 
             <p className="govuk-body">
-              {PAYMENT_PAGE_TEXT.intro(effectiveTotalAmount?.toFixed(2) ?? '0.00')}
+              You must pay <strong>£{effectiveTotalAmount?.toFixed(2) ?? '0.00'}</strong> to submit this application.
             </p>
 
             <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardRedirect}</p>
 
             <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardBenefits}</p>
-
-            {/* Confirmation checkbox intentionally removed per design (direct CTA) */}
 
             <details
               className="govuk-details govuk-!-margin-top-6"
@@ -198,35 +196,24 @@ const handlePayByCard = async () => {
             >
               <summary className="govuk-details__summary">
                 <span className="govuk-details__summary-text">
-                  I cannot pay by card and need another way to pay
+                  {PAYMENT_PAGE_TEXT.detailsSummary}
                 </span>
               </summary>
               <div className="govuk-details__text">
                 <p className="govuk-body">
-                  If you cannot pay by credit or debit card, you can pay by bank transfer (BACS).
+                  {PAYMENT_PAGE_TEXT.detailsParagraphs[0]}
                 </p>
                 <p className="govuk-body">
-                  We can only start processing your submitted application after we receive your payment.
+                  Your application&apos;s status will show as &apos;{PAYMENT_PAGE_TEXT.detailsStatus}&apos; until we have reconciled your payment.
                 </p>
-                <p className="govuk-body">
-                  If you choose this payment method, the date of payment will become your official submission date.
-                </p>
-                <p className="govuk-body">
-                  Your application's status will show as '{PAYMENT_PAGE_TEXT.detailsStatus}' until we have reconciled your payment.
-                </p>
-                <p className="govuk-body">
-                  You should pay by credit or debit card if you would like us to start processing your application more quickly.
-                </p>
-                <div className="govuk-button-group">
-                  <button
-                    type="button"
-                    className="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                    onClick={handleBankTransfer}
-                  >
-                    {PAYMENT_PAGE_TEXT.bankTransferButton}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="govuk-button govuk-button--secondary"
+                  data-module="govuk-button"
+                  onClick={handleBankTransfer}
+                >
+                  {PAYMENT_PAGE_TEXT.bankTransferButton}
+                </button>
               </div>
             </details>
 

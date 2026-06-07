@@ -22,51 +22,36 @@ const BankTransferSuccessPage: React.FC = () => {
     invoiceNumber,
     totalAmount,
     desnz_ref: passedDesnzRef,
-    referenceNumber: passedReferenceNumber,
+    transactionNumber,
   } = (location.state as BankTransferSuccessState | null) || {};
 
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
-  const referenceNumber =
-    passedReferenceNumber != null ? String(passedReferenceNumber) : undefined;
   const [loading, setLoading] = useState(!passedDesnzRef);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!applicationId) return;
+    if (!applicationId || passedDesnzRef) return;
 
     const fetchMissingData = async () => {
-      const needsDesnzRef = !passedDesnzRef;
-      const needsReference = !passedReferenceNumber;
-
-      if (!needsDesnzRef && !needsReference) return;
-
       try {
-        if (needsDesnzRef) setLoading(true);
-
-        if (needsDesnzRef) {
-          const data = await applicationApiService.fetchApplicationDetails(applicationId);
-          setDesnzRef(data.desnz_ref || applicationId);
-        }
-
-        // removed: skip fetching payment reference from backend; keep UI showing 'Not available' if missing
-
+        setLoading(true);
+        const data = await applicationApiService.fetchApplicationDetails(applicationId);
+        setDesnzRef(data.desnz_ref || applicationId);
         setError(null);
       } catch (err) {
         logger.error('Error fetching bank transfer success data:', err);
-        if (needsDesnzRef) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch application details');
-          setDesnzRef(applicationId);
-        }
+        setError(err instanceof Error ? err.message : 'Failed to fetch application details');
+        setDesnzRef(applicationId);
       } finally {
-        if (needsDesnzRef) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchMissingData();
-  }, [applicationId, passedDesnzRef, passedReferenceNumber]);
+  }, [applicationId, passedDesnzRef]);
 
-  const displayReferenceNumber =
-    referenceNumber || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT;
+  const displayTransactionNumber =
+    transactionNumber?.trim() || BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT;
 
   const handleGoToSummary = () => {
     navigate(`${S37_BASE_URL}/${applicationId}/application-summary`);
@@ -105,9 +90,9 @@ const BankTransferSuccessPage: React.FC = () => {
               <tbody className="govuk-table__body">
                 <tr className="govuk-table__row">
                   <th scope="row" className="govuk-table__header">
-                    {BANK_TRANSFER_SUCCESS_PAGE.SUMMARY_LABELS.REFERENCE_NUMBER}
+                    {BANK_TRANSFER_SUCCESS_PAGE.SUMMARY_LABELS.TRANSACTION_NUMBER}
                   </th>
-                  <td className="govuk-table__cell">{displayReferenceNumber}</td>
+                  <td className="govuk-table__cell">{displayTransactionNumber}</td>
                 </tr>
                 <tr className="govuk-table__row">
                   <th scope="row" className="govuk-table__header">
