@@ -6,6 +6,8 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
         HOME: 'Home',
         APPLICATIONS: 'My applications',
         SUMMARY: 'Application summary',
+        TASK_LIST: 'Task list',
+        APPLICATION_SUMMARY: 'Application summary',
     },
 
     PAYMENT_PANEL: {
@@ -42,6 +44,7 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
 
     ACTIONS: {
         WITHDRAW: 'Withdraw application',
+        WITHDRAW_APPLICATION: 'Withdraw application',
         PRINT: 'Print this page',
         BACK_TO_APPLICATIONS: 'Back to my applications',
     },
@@ -49,16 +52,57 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
     SECTION_HEADINGS: {
         PAYMENT_CONFIRMATION: 'Payment confirmation',
         APPLICATION_DETAILS: 'Application details',
+        APPLICANT_DETAILS: 'Applicant details',
+        OWNER_OCCUPIER_DETAILS: 'Objector details',
+        LAND_DETAILS: 'Land details',
+        ASSETS: 'Assets',
+        NEGOTIATIONS: 'Negotiations',
+        ADDITIONAL_INFORMATION: 'Additional information',
+    },
+
+    REVIEW_LAYOUT: {
+        HEADING: 'Application summary',
+        SUMMARY_CARD: {
+            TITLE: 'Summary',
+            DESNZ_REF: 'DESNZ reference',
+            CASE_TYPE: 'Case type',
+            STATUS: 'Status',
+            WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
+        },
+        CASE_TYPE_LABEL: 'Necessary Wayleave (NWL)',
+        PAYMENT: {
+            HEADING: 'Payment',
+            APPLICATION_FEE: 'Application fee',
+            PAYMENT_METHOD: 'Payment method',
+            PAYMENT_STATUS: 'Payment status',
+            PAYMENT_DATE: 'Payment date',
+            PAYMENT_REFERENCE: 'Payment reference number',
+            STATUS_PAID: 'Paid',
+            STATUS_PENDING: 'Pending',
+            METHODS: {
+                card: 'Credit or debit card',
+                bank_transfer: 'Bank transfer (BACS)',
+            } as Record<string, string>,
+        },
+        WITHDRAWAL: {
+            NOTIFICATION_BANNER:
+                'You sent a request to withdraw this application. This is being reviewed by your case officer.',
+        },
+        NO_ASSETS: 'No assets provided.',
+        DEFAULTS: {
+            NOT_AVAILABLE: 'N/A',
+        },
     },
 
     STATUS_LABELS: {
-        SUBMITTED: 'Submitted',
+        DRAFT: 'Draft',
+        SUBMITTED: 'Application submitted',
         UNDER_REVIEW: 'Under review',
         PENDING_INFORMATION: 'Pending information',
         APPROVED: 'Approved',
         REJECTED: 'Rejected',
         WITHDRAWN: 'Withdrawn',
-    },
+    } as Record<string, string>,
 
     ROUTES: {
         APPLICATIONS: '/frontend/application-dashboard',

@@ -1,1 +1,1 @@
-export { fetchApplicationSummary } from './apiService';
+export { fetchApplicationSummary, fetchApplicationReviewSummary } from './apiService';

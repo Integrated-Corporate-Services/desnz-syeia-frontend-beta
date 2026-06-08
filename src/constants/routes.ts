@@ -107,9 +107,7 @@ import S37ApplicationSummary from '../features/CheckYourAnswers/pages/Applicatio
 import S37WithdrawApplicationPage from '../features/CheckYourAnswers/pages/WithdrawApplicationPage';
 import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
 // New modular ApplicationSummary - for NWL and future types
-import ApplicationSummary from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
-import WithdrawApplicationPage from '../features/WithdrawApplication/pages/WithdrawApplicationPage';
-import WithdrawalConfirmationPage from '../features/WithdrawApplication/pages/WithdrawalConfirmationPage';
+import ApplicationSummaryPage from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
@@ -543,19 +541,7 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/application-summary`,
-        component: ApplicationSummary,  // New modular component for NWL
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/withdraw`,
-        component: S37WithdrawApplicationPage,  // Unified withdraw page for all application types
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
-        component: S37WithdrawalConfirmationPage,  // Unified confirmation page for all application types
+        component: ApplicationSummaryPage,  // Shared summary (NWL uses ReviewApplicationSummary)
         auth: true,
         layout: true,
     },

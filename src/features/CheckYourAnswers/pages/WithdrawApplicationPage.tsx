@@ -215,7 +215,7 @@ const WithdrawApplicationPage: React.FC = () => {
                         <span className="govuk-visually-hidden">Error:</span> {validationErrors.voluntaryAgreement}
                       </p>
                     )}
-                    <div className="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                    <div className="govuk-radios" data-module="govuk-radios">
                       <div className="govuk-radios__item">
                         <input
                           className="govuk-radios__input"
