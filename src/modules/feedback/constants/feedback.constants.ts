@@ -38,7 +38,7 @@ export const CONTENT = {
   // Confirmation page
   confirmationTitle: 'Feedback submitted',
   confirmationMessage: 'Thank you for helping us improve this service.',
-  confirmationReturnLink: 'Return to workbasket',
+  confirmationReturnLink: 'Return to application dashboard',
 } as const;
 
 // ── Radio Options ───────────────────────────────────────────────────────────

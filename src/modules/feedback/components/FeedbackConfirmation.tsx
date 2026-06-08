@@ -15,11 +15,11 @@ export default function FeedbackConfirmation() {
       </div>
       <p className="govuk-body govuk-!-margin-top-6">
         <a
-          href="/workbasket"
+          href="/application-dashboard"
           className="govuk-link"
           onClick={(e) => {
             e.preventDefault();
-            navigate('/workbasket');
+            navigate('/application-dashboard');
           }}
         >
           {CONTENT.confirmationReturnLink}
