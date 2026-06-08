@@ -1,11 +1,14 @@
 import { ApplicationSummaryData } from '../types';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 
 export const fetchApplicationSummary = async (
     applicationId: string,
     applicationType: 'NWL' | 'S37' | 'TLP'
 ): Promise<ApplicationSummaryData> => {
     const typeParam = applicationType.toLowerCase();
-    const response = await fetch(`/backend/api/applications/${applicationId}/${typeParam}-summary`);
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/${typeParam}-summary`), {
+        credentials: 'include'
+    });
 
     if (!response.ok) {
         const errorText = await response.text();

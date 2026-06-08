@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { BASE_URL } from "../../constants/routes";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
@@ -90,13 +89,13 @@ const ServiceNavigation = () => {
                                         isOnOrganisationPages ? " rcc-service-nav__item--active" : ""
                                     }`}
                                 >
-                                    <a
+                                    <Link
                                         className="rcc-service-nav__link"
-                                        href={`${BASE_URL}/admin/user-management`}
+                                        to="/admin/user-management"
                                         aria-current={isOnOrganisationPages ? "page" : undefined}
                                     >
                                         Organisation
-                                    </a>
+                                    </Link>
                                 </li>
                             )}
                             <li
@@ -104,13 +103,13 @@ const ServiceNavigation = () => {
                                     isOnApplicationPages ? " rcc-service-nav__item--active" : ""
                                 }`}
                             >
-                                <a
+                                <Link
                                     className="rcc-service-nav__link"
-                                    href={`${BASE_URL}/workbasket`}
+                                    to="/workbasket"
                                     aria-current={isOnApplicationPages ? "page" : undefined}
                                 >
                                     Applications
-                                </a>
+                                </Link>
                             </li>
                             <li className="rcc-service-nav__item">
                                 <a

@@ -1,6 +1,5 @@
-/// <reference types="vite/client" />
-
 import { generateCorrelationId } from "../utils/correlationId";
+import { buildBackendUrl } from "../utils/apiConfig";
 
 export const applicationApiService = {
   // Fetch applications for a user
@@ -12,7 +11,7 @@ export const applicationApiService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      `/backend/api/applications?created_by=${created_by}`,
+      buildBackendUrl(`/backend/api/applications?created_by=${created_by}`),
       { credentials: "include", headers },
     );
     return response.json();
@@ -24,7 +23,7 @@ export const applicationApiService = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
-    const response = await fetch("/backend/api/applications", {
+    const response = await fetch(buildBackendUrl("/backend/api/applications"), {
       method: "POST",
       headers,
       credentials: "include",
@@ -37,7 +36,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
-    const response = await fetch(`/backend/api/applications/${id}`, {
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${id}`), {
       credentials: "include",
       headers,
     });
@@ -50,7 +49,7 @@ export const applicationApiService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      "/backend/api/applications/network-operators",
+      buildBackendUrl("/backend/api/applications/network-operators"),
       {
         method: "POST",
         headers,
@@ -67,7 +66,7 @@ export const applicationApiService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const res = await fetch(
-      `/backend/api/applications/${applicationId}/submit`,
+      buildBackendUrl(`/backend/api/applications/${applicationId}/submit`),
       {
         method: "POST",
         headers,
@@ -91,7 +90,7 @@ export const applicationApiService = {
       "X-Correlation-ID": generateCorrelationId(),
     };
     const response = await fetch(
-      `/backend/api/applications/${applicationId}/applicant-info`,
+      buildBackendUrl(`/backend/api/applications/${applicationId}/applicant-info`),
       {
         method: "PATCH",
         headers,
@@ -117,7 +116,7 @@ export const applicationApiService = {
       "X-Correlation-ID": generateCorrelationId(),
     };
     const response = await fetch(
-      `/backend/api/applications/${applicationId}/organisation`,
+      buildBackendUrl(`/backend/api/applications/${applicationId}/organisation`),
       {
         method: "PATCH",
         headers,
@@ -141,7 +140,7 @@ export const applicationApiService = {
       "X-Correlation-ID": generateCorrelationId(),
     };
     const response = await fetch(
-      `/backend/api/applications/${applicationId}/contact-confirmation`,
+      buildBackendUrl(`/backend/api/applications/${applicationId}/contact-confirmation`),
       {
         method: "PATCH",
         headers,
@@ -166,7 +165,7 @@ export const applicationApiService = {
       "X-Correlation-ID": generateCorrelationId(),
     };
     const response = await fetch(
-      `/backend/api/applications/${applicationId}/declaration`,
+      buildBackendUrl(`/backend/api/applications/${applicationId}/declaration`),
       {
         method: "PATCH",
         headers,
@@ -190,7 +189,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
-    const response = await fetch(`/backend/api/applications/${applicationId}/deletion-preview`, {
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/deletion-preview`), {
       credentials: "include",
       headers,
     });
@@ -205,7 +204,7 @@ export const applicationApiService = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
-    const response = await fetch(`/backend/api/applications/${applicationId}`, {
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}`), {
       method: "DELETE",
       headers,
       credentials: "include",
@@ -226,7 +225,7 @@ fetchApplicationDetails: async (applicationId: string, correlationId?: string) =
     "X-Correlation-ID": correlationId || generateCorrelationId(),
   };
   
-  const response = await fetch(`/backend/api/applications/${applicationId}`, {
+  const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}`), {
     method: 'GET',
     headers,
     credentials: 'include',
@@ -248,7 +247,7 @@ getApplicationReview: async (applicationId: string, correlationId?: string) => {
   };
 
   const response = await fetch(
-    `/backend/api/applications/${applicationId}/review`,
+    buildBackendUrl(`/backend/api/applications/${applicationId}/review`),
     {
       credentials: "include",
       headers,
@@ -279,7 +278,7 @@ withdrawApplication: async (
   };
 
   const response = await fetch(
-    `/backend/api/applications/${applicationId}/withdraw`,
+    buildBackendUrl(`/backend/api/applications/${applicationId}/withdraw`),
     {
       method: "POST",
       headers,
@@ -308,7 +307,7 @@ getWithdrawalRequest: async (applicationId: string, correlationId?: string) => {
   };
 
   const response = await fetch(
-    `/backend/api/applications/${applicationId}/withdrawal-request`,
+    buildBackendUrl(`/backend/api/applications/${applicationId}/withdrawal-request`),
     {
       credentials: "include",
       headers,

@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+import { buildBackendUrl } from '../utils/apiConfig';
+
 /**
  * Network Operator API Service
  * Handles all API calls related to network operators/organizations
@@ -13,7 +15,7 @@ export const networkOperatorApiService = {
    * @throws {Error} If API call fails or user is not authenticated
    */
   getNetworkOperators: async () => {
-    const response = await fetch("/backend/api/network-operators", {
+    const response = await fetch(buildBackendUrl("/backend/api/network-operators"), {
       method: "GET",
       credentials: "include", // Include session cookie
       headers: {
@@ -39,7 +41,9 @@ export const networkOperatorApiService = {
    * @param {string} emailId - Email address to search by domain
    */
   getNetworkOperatorByEmail: async (emailId: string) => {
-    const response = await fetch(`/backend/api/network-operators/${emailId}`);
+    const response = await fetch(buildBackendUrl(`/backend/api/network-operators/${emailId}`), {
+      credentials: 'include'
+    });
     if (!response.ok)
       throw new Error("Failed to fetch network operator details");
     return response.json();

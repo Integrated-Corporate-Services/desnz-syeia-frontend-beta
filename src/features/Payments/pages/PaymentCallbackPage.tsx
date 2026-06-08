@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createLogger } from '../../../utils/logger';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 
 const logger = createLogger('PaymentCallbackPage');
 
@@ -47,9 +48,10 @@ const PaymentCallbackPage: React.FC = () => {
         }
 
         // Call backend to verify payment status
-        const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments/${paymentId}/verify`, {
+        const response = await fetch(buildBackendUrl(`/backend/api/gov-pay/applications/${applicationId}/payments/${paymentId}/verify`), {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
         });
         if (!response.ok) {
         const errorData = await response.json();

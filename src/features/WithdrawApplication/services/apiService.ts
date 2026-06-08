@@ -1,8 +1,9 @@
 import { WithdrawalRequest, WithdrawalResponse } from '../types';
 import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 
 export const submitWithdrawal = async (request: WithdrawalRequest): Promise<WithdrawalResponse> => {
-    const response = await fetch(`/backend/api/applications/${request.applicationId}/withdraw`, {
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${request.applicationId}/withdraw`), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

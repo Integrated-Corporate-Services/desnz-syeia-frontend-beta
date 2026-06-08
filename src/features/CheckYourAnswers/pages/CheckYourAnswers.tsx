@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import { ConsultationType, isLpaJourney } from "../../../constants/consultationType";
 import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
@@ -176,7 +177,9 @@ const CheckYourAnswers: React.FC = () => {
 
   useEffect(() => {
     if (!applicationId) return;
-    fetch(`/backend/api/applications/${applicationId}/review`)
+    fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+      credentials: 'include'
+    })
       .then((res) => res.json())
       .then((data) => {
         // Log the entire response to see structure

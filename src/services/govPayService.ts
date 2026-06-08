@@ -1,4 +1,5 @@
 import log from '../logger';
+import { buildBackendUrl } from '../utils/apiConfig';
 
 export const createPayment = async (
   amount: number,
@@ -28,10 +29,11 @@ export const createPayment = async (
 
     log.debug('[createPayment] Creating payment', { applicationId, amount, reference });
 
-    const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments`, {
+    const response = await fetch(buildBackendUrl(`/backend/api/gov-pay/applications/${applicationId}/payments`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      credentials: 'include', // Include credentials for session authentication
     });
 
     if (!response.ok) {
@@ -102,7 +104,7 @@ export const submitApplicationWithBankTransfer = async (
       }));
     }
 
-    const response = await fetch(`/backend/api/application/${applicationId}/save-with-bank-transfer`, {
+    const response = await fetch(buildBackendUrl(`/backend/api/application/${applicationId}/save-with-bank-transfer`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -143,9 +145,10 @@ export const submitApplicationWithBankTransfer = async (
 export const getPaymentStatus = async (applicationId: string, paymentId: string) => {
   try {
     log.debug('[getPaymentStatus] Fetching payment status', { applicationId, paymentId });
-    const response = await fetch(`/backend/api/gov-pay/applications/${applicationId}/payments/${paymentId}/status`, {
+    const response = await fetch(buildBackendUrl(`/backend/api/gov-pay/applications/${applicationId}/payments/${paymentId}/status`), {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include credentials for session authentication
     });
 
     if (!response.ok) {

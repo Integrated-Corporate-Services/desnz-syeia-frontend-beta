@@ -5,11 +5,15 @@ import {
   mapParishApiToParish,
   mapParishesToCodes,
 } from "../utils/parishMappers";
+import { buildBackendUrl } from "../../../utils/apiConfig";
 
 export const parishApiService = {
   searchParishes: async (searchTerm: string): Promise<Parish[]> => {
     const response = await fetch(
-      `${PARISH_API_ENDPOINTS.SEARCH}?q=${searchTerm}`
+      buildBackendUrl(`${PARISH_API_ENDPOINTS.SEARCH}?q=${searchTerm}`),
+      {
+        credentials: "include"
+      }
     );
 
     if (!response.ok) {
@@ -26,11 +30,12 @@ export const parishApiService = {
   ): Promise<void> => {
     const parishCodes = mapParishesToCodes(parishes);
 
-    const response = await fetch(PARISH_API_ENDPOINTS.SAVE(applicationId), {
+    const response = await fetch(buildBackendUrl(PARISH_API_ENDPOINTS.SAVE(applicationId)), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ parish_codes: parishCodes }),
     });
 

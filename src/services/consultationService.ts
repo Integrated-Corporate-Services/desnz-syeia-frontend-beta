@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ConsultationDetails } from '../types/ConsultationDetails';
+import { buildBackendUrl } from '../utils/apiConfig';
 
 // Save 'Consultation Not Required' status
 export async function saveNotRequiredStatus(consultationId: string, consultationDetails: any): Promise<any> {
@@ -32,12 +33,13 @@ export async function saveConsultationMessage(consultationId: string, message: s
 }
 
 export async function withdrawConsultationRequest({ applicationId, consultationId, updatedBy }: { applicationId: string; consultationId: string; updatedBy: string }): Promise<any> {
-    const url = `/backend/api/consultations/${applicationId}/${consultationId}/withdraw-consultation`;
+    const url = buildBackendUrl(`/backend/api/consultations/${applicationId}/${consultationId}/withdraw-consultation`);
     const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ applicationId, consultationId, updatedBy }),
     });
     if (!response.ok) {
@@ -81,7 +83,7 @@ export async function createLpaConsultations(applicationId: string, lpas: Array<
 export async function markConsultationAsRequestSent(
   consultationId: string
 ): Promise<{ success: boolean; data?: any }> {
-  const url = `/backend/api/consultations/${consultationId}/mark-request-sent`;
+  const url = buildBackendUrl(`/backend/api/consultations/${consultationId}/mark-request-sent`);
   const res = await fetch(url, {
     method: 'POST',
     headers: {

@@ -9,7 +9,7 @@ export const BREADCRUMBS = SHARED_BREADCRUMBS;
 export const LABELS = {
   PAGE_TITLE: "Are you applying for the standard term of 15 years?",
   HELPER_TEXT: "Necessary wayleaves are normally granted for 15 years, but in exceptional cases a shorter or longer term may be granted.",
-  TEXTAREA_LABEL: "Tell us what term you are requesting and explain why it is justified",
+  TEXTAREA_LABEL: "Tell us what term you require and explain why a 15 year term is not suitable.",
   ...SHARED_TEXTAREA_LIMITS,
 } as const;
 

@@ -3,6 +3,7 @@
  * 
  * Fetches comprehensive application data for the Check Your Answers review page.
  */
+import { buildBackendUrl } from '../../../../utils/apiConfig';
 
 export interface NWLCheckYourAnswersResponse {
     applicationId: string;
@@ -23,7 +24,10 @@ export interface NWLCheckYourAnswersResponse {
 }
 
 const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | null> => {
-    const response = await fetch(`/backend/api/nwl/${applicationId}/assets`);
+    const response = await fetch(buildBackendUrl(`/backend/api/nwl/${applicationId}/assets`),
+        {
+            credentials: 'include'
+        });
 
     if (response.status === 404) {
         return null;
@@ -43,11 +47,9 @@ const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | 
  * @returns Promise with NWL application data
  */
 export const fetchCheckYourAnswersData = async (applicationId: string): Promise<NWLCheckYourAnswersResponse> => {
-    const [response, nwlAssetsMetadata] = await Promise.all([
-        fetch(`/backend/api/applications/${applicationId}/review`),
-        fetchNwlAssetsMetadata(applicationId),
-    ]);
-
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+        credentials: 'include'
+    });
     if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to fetch application data: ${response.status} ${errorText}`);
@@ -70,7 +72,7 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
         representativeDetails: data.sections?.representativeDetails || null,
         landDetails: data.sections?.landDetails || null,
         assets: normalizedAssets,
-        assetsMetadata: nwlAssetsMetadata,
+        assetsMetadata: await fetchNwlAssetsMetadata(applicationId),
         negotiations: data.sections?.negotiations || null,
         additionalInformation: data.sections?.additionalInformation || null,
         permissions: data.permissions || { canEdit: true },
