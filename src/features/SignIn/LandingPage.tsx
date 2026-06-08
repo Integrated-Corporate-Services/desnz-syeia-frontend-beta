@@ -69,7 +69,7 @@ const LandingPage = () => {
                 className="govuk-button govuk-button--start"
                 data-module="govuk-button"
                 onClick={() => {
-                  window.location.href = `${import.meta.env.VITE_API_BASE_URL || ''}/backend/auth/login`;
+                  window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`;
                 }}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 aria-label="Sign in to submit your application"

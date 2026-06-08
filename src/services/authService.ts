@@ -33,7 +33,7 @@ export async function signOut(): Promise<void> {
 export async function logout(redirectTo?: string): Promise<void> {
   logger.info("Logging out user...", { redirectTo });
 
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  const baseUrl = import.meta.env.API_URL || '';
   // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 
     ? `${baseUrl}/backend/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`

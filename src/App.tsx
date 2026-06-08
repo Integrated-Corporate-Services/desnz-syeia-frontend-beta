@@ -29,7 +29,7 @@ const AppContent = () => {
     const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
 
     if (LOGIN_DISABLED && !loading && !user && error) {
-      window.location.href = `${import.meta.env.VITE_API_BASE_URL || ''}/backend/auth/login`;
+      window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`;
     }
   }, [user, loading, error]);
 

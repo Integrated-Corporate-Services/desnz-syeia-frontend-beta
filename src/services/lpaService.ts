@@ -35,7 +35,7 @@ class LpaService {
     try {
       const url = this.baseUrl;
       log.debug("Fetching all LPAs from:", url);
-      log.debug("VITE_API_BASE_URL env var:", import.meta.env.VITE_API_BASE_URL);
+      log.debug("API_URL env var:", import.meta.env.API_URL);
       const response = await fetch(url, {
         credentials: "include"
       });
