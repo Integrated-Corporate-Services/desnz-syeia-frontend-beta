@@ -128,6 +128,7 @@ import BankTransferConfirmationPage from '../features/Payments/pages/BankTransfe
 import BankTransferSuccessPage from '../features/Payments/pages/BankTransferSuccessPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
+import PaymentFailurePage from '../features/Payments/pages/PaymentFailurePage';
 import RouteMapOnlyPage from '../features/RouteMap/page/RouteMapOnlyPage';
 import ConsultationInitialQuestion from '../features/Consultation/pages/ConsultationInitialQuestion';
 import ConsultationResponseInitialQuestion from '../features/Consultation/pages/ConsultationResponseInitialQuestion';
@@ -186,6 +187,12 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/payment-success`,
         component: PaymentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/payment-failed`,
+        component: PaymentFailurePage,
         auth: true,
         layout: true,
     },
