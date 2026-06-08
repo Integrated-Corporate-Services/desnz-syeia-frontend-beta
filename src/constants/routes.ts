@@ -140,6 +140,7 @@ import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
 import ClosedPage from '../pages/ClosedPage';
 import StartRedirect from '../components/StartRedirect';
+import { FeedbackPage } from '../modules/feedback';
 
 export const ROUTE_CONFIG = [
     // UAT Invite System Routes
@@ -960,6 +961,12 @@ export const ROUTE_CONFIG = [
         component: RouteMapOnlyPage,
         auth: true,
         layout: true, // or true, depending on your layout needs
+    },
+    {
+        path: '/feedback',
+        component: FeedbackPage,
+        auth: false,
+        layout: true,
     },
 ];
 

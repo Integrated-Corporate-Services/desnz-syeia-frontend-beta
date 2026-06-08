@@ -5,7 +5,7 @@ import '../../styles/PhaseBanner.css';
 const PHASE_TAG = 'Beta';
 const PHASE_TEXT = 'This is a new service – your';
 const FEEDBACK_LINK_TEXT = 'feedback';
-const FEEDBACK_LINK_URL = '/feedback';
+const FEEDBACK_LINK_URL = '/frontend/feedback';
 const PHASE_TEXT_SUFFIX = 'will help us to improve it.';
 
 export default function PhaseBanner() {
