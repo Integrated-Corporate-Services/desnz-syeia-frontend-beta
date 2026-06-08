@@ -16,6 +16,7 @@ import {
   FORM_ERRORS,
 } from '../constants';
 import nwlAssetService, { CreateAssetsPayload } from '../services/nwlAssetService';
+import { ASSETS_PAGE_IDS } from '../constants/pageNames';
 
 const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
   ? VOLTAGE_CLASS_OPTIONS.map((opt: { label: string }) => opt.label)
@@ -95,7 +96,7 @@ const Asset: React.FC = () => {
           'stay': 'stays',
           'steel_tower': 'steel-towers',
           'underground_cable': 'underground-cable',
-          'earth_wire_apparatus': 'earth-wire-apparatus',
+          'earth_wire_apparatus': 'earth-wire',
           'other': 'other',
         };
         
@@ -117,7 +118,7 @@ const Asset: React.FC = () => {
         });
         
         setLineTypes(newLineTypes);
-      } catch (error) {
+      } catch {
         setErrors({ general: 'Failed to load asset for editing. Please try again.' });
         setShowErrorSummary(true);
       } finally {
@@ -139,6 +140,7 @@ const Asset: React.FC = () => {
     'steel-towers': 'steel_tower',
     'underground-cable': 'underground_cable',
     'earth-wire-apparatus': 'earth_wire_apparatus',
+    'earth-wire': 'earth_wire_apparatus',
     'other': 'other',
   };
 
@@ -156,13 +158,20 @@ const Asset: React.FC = () => {
       // Build line types array with backend codes
       const selectedLineTypes = Object.entries(lineTypes)
         .filter(([, value]) => value.checked)
-        .map(([key]) => lineTypeCodeMap[key] || key);
+        .map(([key]) => lineTypeCodeMap[key])
+        .filter((code): code is string => Boolean(code));
+
+      const validSelectedLineTypeSet = new Set(selectedLineTypes);
 
       // Build component descriptions with backend codes
       const componentDescriptions = Object.entries(lineTypes)
         .filter(([, value]) => value.checked)
         .reduce((acc, [key, value]) => {
-          const backendCode = lineTypeCodeMap[key] || key;
+          const backendCode = lineTypeCodeMap[key];
+          if (!backendCode || !validSelectedLineTypeSet.has(backendCode)) {
+            return acc;
+          }
+
           return {
             ...acc,
             [backendCode]: value.description,
@@ -193,7 +202,7 @@ const Asset: React.FC = () => {
         };
 
         // Call NWL asset service to save
-        await nwlAssetService.createAssets(payload);
+        await nwlAssetService.createAssets(payload, ASSETS_PAGE_IDS.ADD_ASSET);
 
         // Asset creation is logged in the service layer
       }
