@@ -139,24 +139,6 @@ const PaymentCallbackPage: React.FC = () => {
     verifyPayment();
   }, [searchParams, navigate]);
 
-  const handleTryAgain = () => {
-    const applicationId = sessionStorage.getItem('applicationId');
-    if (applicationId) {
-      navigate(`${baseUrl}/${applicationId}/payment-method`);
-    } else {
-      navigate('/application-dashboard');
-    }
-  };
-
-  const handleBackToTaskList = () => {
-    const applicationId = sessionStorage.getItem('applicationId');
-    if (applicationId) {
-      navigate(`${baseUrl}/${applicationId}/task-list`);
-    } else {
-      navigate('/application-dashboard');
-    }
-  };
-
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
