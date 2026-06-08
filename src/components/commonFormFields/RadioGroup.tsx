@@ -23,7 +23,6 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   const errorId = `${id}-error`;
   const hintId = `${id}-hint`;
   
-  // Build aria-describedby
   const describedBy = [
     hint ? hintId : null,
     hasError ? errorId : null,
@@ -74,7 +73,6 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
                   </label>
                 </div>
                 
-                {/* Conditional reveal for specific values */}
                 {children && isChecked && (
                   <div className="govuk-radios__conditional">
                     <div className="govuk-form-group">

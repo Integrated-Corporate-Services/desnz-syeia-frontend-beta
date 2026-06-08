@@ -19,7 +19,6 @@ export interface FormErrors {
   improvements?:  string;
 }
 
-/** Shape sent to POST /api/feedback */
 export interface FeedbackPayload {
   completedTask:          string;
   satisfaction:           string;
