@@ -1,4 +1,4 @@
-
+﻿
 export const CONTENT = {
   MAX_DESCRIPTION_LENGTH: 4000,
   months: [
@@ -89,7 +89,7 @@ export const CONTENT = {
     organisationHint: "The section 37 consent will be issued in the name of the person selected here",
     notListedSummary: "The contact is not listed",
     notListedText1: "The contact must have a user account on EIP and be in the \"Electricity Company: S37 Application Editor\" or \"Electricity Company: S37 Application Submitter\" roles in the network operator team.",
-    notListedText2: "The network operator team can be updated from the company contacts link on the left side menu on the workbasket. Only the team coordinator for the network operator organisation can update the team.",
+    notListedText2: "The network operator team can be updated from the company contacts link on the left side menu on the application dashboard. Only the team coordinator for the network operator organisation can update the team.",
     saveAndContinue: "Save and continue",
     continue: "Continue",
     breadcrumb: {
@@ -114,7 +114,7 @@ export const CONTENT = {
       no: "No",
       saveAndContinue: "Save and continue",
       noDetails1: "If any of the contact details are not correct or missing then the contact person must update their account details on EIP. You will not be allowed to submit the application until all details are provided and correct.",
-      noDetails2: "The contact can update their details by logging into their account on EIP and going to the 'Update My Details' link shown in the left hand menu on the workbasket page.",
+      noDetails2: "The contact can update their details by logging into their account on EIP and going to the 'Update My Details' link shown in the left hand menu on the application dashboard page.",
     },
   },
   

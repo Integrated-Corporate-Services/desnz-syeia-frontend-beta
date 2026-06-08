@@ -1,5 +1,5 @@
-/**
- * Workbasket Page Component
+﻿/**
+ * Application Dashboard Page Component
  *
  * Applications dashboard with optional filter sidebar.
  */
@@ -9,10 +9,10 @@ import { useNavigate } from "react-router-dom";
 import ApplicationTable from "../components/ApplicationTable";
 import { useAuthUserContext } from "../../../context/AuthUserContext";
 import type { AuthUser } from "../../../types/auth";
-import { useWorkbasketFilters } from "../hooks/useWorkbasketFilters";
-import { WorkbasketFilters } from "../components/WorkbasketFilters";
-import { WorkbasketHeader } from "../components/WorkbasketHeader";
-import { WorkbasketTabs } from "../components/WorkbasketTabs";
+import { useApplicationDashboardFilters } from "../hooks/useApplicationDashboardFilters";
+import { ApplicationDashboardFilters } from "../components/ApplicationDashboardFilters";
+import { ApplicationDashboardHeader } from "../components/ApplicationDashboardHeader";
+import { ApplicationDashboardTabs } from "../components/ApplicationDashboardTabs";
 import { Pagination } from "../components/Pagination";
 import { DEMO_USER_ID } from "../../../constants/demo";
 import {
@@ -23,9 +23,9 @@ import Header from "../../../layouts/component/Header";
 import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
 import Footer from "../../../layouts/component/Footer";
 import PhaseBanner from "../../../layouts/component/PhaseBanner";
-import "../../../styles/Workbasket.css";
+import "../../../styles/ApplicationDashboard.css";
 
-const Workbasket: React.FC = () => {
+const ApplicationDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
   const created_by = (user as AuthUser)?.user_id || DEMO_USER_ID;
   const { applications, fetchApplications, setApplication } = useApplication();
@@ -48,7 +48,7 @@ const Workbasket: React.FC = () => {
     toggleStatus,
     filteredApplications,
     tabCounts,
-  } = useWorkbasketFilters(applications, created_by);
+  } = useApplicationDashboardFilters(applications, created_by);
 
   useEffect(() => {
     if (created_by && typeof created_by === "string") {
@@ -85,19 +85,19 @@ const Workbasket: React.FC = () => {
   );
 
   return (
-    <div className="workbasket-shell">
+    <div className="application-dashboard-shell">
       <Header />
       <ServiceNavigation />
       <PhaseBanner />
 
-      <div className="workbasket-shell-content">
+      <div className="application-dashboard-shell-content">
 
       <div className="app-wide-container">
         <div className="app-your-applications-section">
           <div className="govuk-width-container">
             <main className="govuk-main-wrapper" id="main-content" role="main">
               {/* Hero section - Your applications header */}
-              <WorkbasketHeader
+              <ApplicationDashboardHeader
                 onToggleFilters={() => setShowFilters(!showFilters)}
                 showFilters={showFilters}
                 onStartNewApplication={handleStart}
@@ -119,7 +119,7 @@ const Workbasket: React.FC = () => {
             id="filterPanel"
           >
             <div className="app-filter-panel">
-              <WorkbasketFilters
+              <ApplicationDashboardFilters
                 showFilters={showFilters}
                 searchText={searchText}
                 submittedBy={submittedBy}
@@ -144,7 +144,7 @@ const Workbasket: React.FC = () => {
             }
             id="tabsPanel"
           >
-            <WorkbasketTabs
+            <ApplicationDashboardTabs
               activeTab={activeTab}
               onTabChange={(tab) => {
                 setActiveTab(tab);
@@ -153,9 +153,9 @@ const Workbasket: React.FC = () => {
               counts={tabCounts}
             />
 
-            <div className="workbasket-table-wrapper">
+            <div className="application-dashboard-table-wrapper">
               <span
-                className="workbasket-items-count"
+                className="application-dashboard-items-count"
                 role="status"
                 aria-live="polite"
               >
@@ -198,4 +198,4 @@ const Workbasket: React.FC = () => {
   );
 };
 
-export default Workbasket;
+export default ApplicationDashboard;

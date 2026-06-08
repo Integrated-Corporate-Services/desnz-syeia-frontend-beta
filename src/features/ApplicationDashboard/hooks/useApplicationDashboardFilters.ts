@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import type { Application } from "../../../types/application";
 import type { TabType } from "../constants/filterOptions";
 import { normalizeApplicationType } from "../../../utils/formatters";
 
 // Accept currentUserId for "Submitted by" filter
-export const useWorkbasketFilters = (
+export const useApplicationDashboardFilters = (
   applications: Application[],
   currentUserId?: string,
 ) => {

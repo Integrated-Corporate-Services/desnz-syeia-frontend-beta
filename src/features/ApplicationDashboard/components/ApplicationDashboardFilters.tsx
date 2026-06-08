@@ -1,8 +1,8 @@
-import React, { useMemo, useState, useEffect } from "react";
+﻿import React, { useMemo, useState, useEffect } from "react";
 import { CASE_TYPE_OPTIONS, STATUS_OPTIONS } from "../constants/filterOptions";
-import "../../../styles/Workbasket.css";
+import "../../../styles/ApplicationDashboard.css";
 
-interface WorkbasketFiltersProps {
+interface ApplicationDashboardFiltersProps {
   showFilters: boolean;
   searchText: string;
   submittedBy: "me" | "all";
@@ -17,7 +17,7 @@ interface WorkbasketFiltersProps {
   onClearFilters: () => void;
 }
 
-export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
+export const ApplicationDashboardFilters: React.FC<ApplicationDashboardFiltersProps> = ({
   showFilters,
   searchText,
   submittedBy,
@@ -388,4 +388,4 @@ export const WorkbasketFilters: React.FC<WorkbasketFiltersProps> = ({
 };
 
 // Display name for React DevTools
-WorkbasketFilters.displayName = "WorkbasketFilters";
+ApplicationDashboardFilters.displayName = "ApplicationDashboardFilters";

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Application Delete Success Page
  * 
  * Separate page for application deletion success confirmation
@@ -11,7 +11,7 @@ export const ApplicationDeleteSuccessPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleReturnToDashboard = () => {
-    navigate('/workbasket');
+    navigate('/application-dashboard');
   };
 
   return (

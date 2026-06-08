@@ -1,4 +1,4 @@
-import { S37_BASE_URL } from './s37';
+﻿import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
@@ -27,7 +27,7 @@ import ConsultationRequestsRequired from '../features/Consultation/pages/Consult
 import SelectOtherConsultations from '../features/Consultation/pages/SelectOtherConsultations';
 import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOperatorDetails';
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
-import Workbasket from '../features/Workbasket/pages/Workbasket';
+import ApplicationDashboard from '../features/ApplicationDashboard/pages/ApplicationDashboard';
 import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitted';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
@@ -107,9 +107,7 @@ import S37ApplicationSummary from '../features/CheckYourAnswers/pages/Applicatio
 import S37WithdrawApplicationPage from '../features/CheckYourAnswers/pages/WithdrawApplicationPage';
 import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
 // New modular ApplicationSummary - for NWL and future types
-import ApplicationSummary from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
-import WithdrawApplicationPage from '../features/WithdrawApplication/pages/WithdrawApplicationPage';
-import WithdrawalConfirmationPage from '../features/WithdrawApplication/pages/WithdrawalConfirmationPage';
+import ApplicationSummaryPage from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
@@ -128,6 +126,7 @@ import BankTransferConfirmationPage from '../features/Payments/pages/BankTransfe
 import BankTransferSuccessPage from '../features/Payments/pages/BankTransferSuccessPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
+import PaymentFailurePage from '../features/Payments/pages/PaymentFailurePage';
 import RouteMapOnlyPage from '../features/RouteMap/page/RouteMapOnlyPage';
 import ConsultationInitialQuestion from '../features/Consultation/pages/ConsultationInitialQuestion';
 import ConsultationResponseInitialQuestion from '../features/Consultation/pages/ConsultationResponseInitialQuestion';
@@ -139,8 +138,25 @@ import RemoveConsultation from '../features/Consultation/pages/RemoveConsultatio
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
 import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
+import ClosedPage from '../pages/ClosedPage';
+import StartRedirect from '../components/StartRedirect';
+import { FeedbackPage } from '../modules/feedback';
 
 export const ROUTE_CONFIG = [
+    // UAT Invite System Routes
+    {
+        path: '/access-denied',
+        component: ClosedPage,
+        auth: false,
+        layout: false,
+    },
+    {
+        path: '/start/:orgCode',
+        component: StartRedirect,
+        auth: false,
+        layout: false,
+    },
+    // Existing Routes
     {
         path: '/cookies',
         component: CookiesSettingsPage,
@@ -186,6 +202,12 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/payment-success`,
         component: PaymentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/payment-failed`,
+        component: PaymentFailurePage,
         auth: true,
         layout: true,
     },
@@ -458,8 +480,8 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-        path: '/workbasket',
-        component: Workbasket,
+        path: '/application-dashboard',
+        component: ApplicationDashboard,
         auth: true,
         layout: false,
     },
@@ -520,19 +542,7 @@ export const ROUTE_CONFIG = [
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/application-summary`,
-        component: ApplicationSummary,  // New modular component for NWL
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/withdraw`,
-        component: S37WithdrawApplicationPage,  // Unified withdraw page for all application types
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/withdrawal-confirmation`,
-        component: S37WithdrawalConfirmationPage,  // Unified confirmation page for all application types
+        component: ApplicationSummaryPage,  // Shared summary (NWL uses ReviewApplicationSummary)
         auth: true,
         layout: true,
     },
@@ -613,7 +623,7 @@ export const ROUTE_CONFIG = [
     },
     {
         path: '/',
-        component: Workbasket,
+        component: ApplicationDashboard,
         auth: true,
         layout: true,
     },
@@ -951,6 +961,12 @@ export const ROUTE_CONFIG = [
         component: RouteMapOnlyPage,
         auth: true,
         layout: true, // or true, depending on your layout needs
+    },
+    {
+        path: '/feedback',
+        component: FeedbackPage,
+        auth: false,
+        layout: true,
     },
 ];
 

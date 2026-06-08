@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const SignInPage: React.FC = () => {
@@ -6,7 +6,7 @@ const SignInPage: React.FC = () => {
   const handleSignIn = () => {
     // const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL || 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login';
     // window.location.href = loginUrl;
-    navigate('/workbasket');
+    navigate('/application-dashboard');
   };
   const handleNWLSignIn = () => {
   // const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL_NWL || 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login-nwl';

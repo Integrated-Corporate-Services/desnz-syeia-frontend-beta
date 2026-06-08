@@ -392,6 +392,7 @@ const SupportingInfo: React.FC = () => {
 												uploadedFiles={signedWayleaveFiles}
 												onUploaded={handleSignedWayleaveUploaded}
 												addedBy={userId}
+												uploadImmediately={true}
 												onValidationErrors={(errors) => {
 													// Handle validation errors
 													setFileValidationErrors(errors);
@@ -436,8 +437,7 @@ const SupportingInfo: React.FC = () => {
 																	subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_INHERITED_WAYLEAVE}
 																	uploadedFiles={inheritedWayleaveFiles}
 																	onUploaded={handleInheritedWayleaveUploaded}
-																	addedBy={userId}
-																/>
+																	addedBy={userId}															uploadImmediately={true}																/>
 															</div>
 														)}
 								<div className="govuk-radios__item">
@@ -476,8 +476,7 @@ const SupportingInfo: React.FC = () => {
 																	subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ANY_PAYMENTS}
 																	uploadedFiles={anyPaymentsFiles}
 																	onUploaded={handleAnyPaymentsUploaded}
-																	addedBy={userId}
-																/>
+																	addedBy={userId}															uploadImmediately={true}																/>
 															</div>
 														)}
 								<div className="govuk-radios__item">
@@ -673,7 +672,7 @@ const SupportingInfo: React.FC = () => {
 												subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE}
 												uploadedFiles={writtenTerminationFiles}
 												onUploaded={handleWrittenTerminationUploaded}
-												addedBy={userId}											onValidationErrors={(errors) => {
+												addedBy={userId}											uploadImmediately={true}											onValidationErrors={(errors) => {
 												// Handle validation errors
 												setFileValidationErrors(errors);
 											}}											/>
@@ -769,8 +768,7 @@ const SupportingInfo: React.FC = () => {
 											   subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_REMOVAL_NOTICE}
 											   uploadedFiles={writtenRemovalFiles}
 											   onUploaded={handleWrittenRemovalUploaded}
-											   addedBy={userId}
-											   onValidationErrors={(errors) => {
+											   addedBy={userId}												   uploadImmediately={true}											   onValidationErrors={(errors) => {
 												   // Handle validation errors
 												   setFileValidationErrors(errors);
 											   }}
@@ -830,6 +828,7 @@ const SupportingInfo: React.FC = () => {
 			uploadedFiles={titlePlanFiles}
 			onUploaded={handleTitlePlanUploaded}
 			addedBy={userId}
+			uploadImmediately={true}
 			onValidationErrors={(errors) => {
 				// Handle validation errors
 				setFileValidationErrors(errors);

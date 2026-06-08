@@ -310,7 +310,6 @@ const ReviewDocumentsPage: React.FC = () => {
                   </p>
                 ))}
 
-                {/* Page-level heading shown when documents table is present (after upload) */}
                 {applicationDocuments && applicationDocuments.length > 0 && (
                   <div className="govuk-!-margin-top-2">
                     <h3 className="govuk-heading-s">Documents uploaded</h3>
@@ -326,7 +325,6 @@ const ReviewDocumentsPage: React.FC = () => {
                   applicationId={applicationId || ''}
                   category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
                   addedBy={review?.reviewed_by || 'current-user'}
-                  showDocumentsHeading={true}
                   uploadImmediately={true} 
                   onUploaded={handleFilesUploaded}
                   onDeleteFile={handleDeleteFile}

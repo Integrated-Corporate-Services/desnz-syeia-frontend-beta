@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
@@ -26,6 +27,12 @@ const ConsultationNotRequiredPage: React.FC = () => {
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 	// Ref for file upload
 	const fileUploadRef = useRef<FileUploadHandle>(null);
+
+	// Handle file deletion
+	const handleDeleteFile = (fileId: string) => {
+		setUploadedFileObjs(prev => prev.filter(file => file.id !== fileId));
+		setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+	};
 
 	// Handle file validation errors from FileUpload component
 	const handleFileValidationErrors = (errors: string[]) => {
@@ -79,6 +86,18 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		}
 	}, [consultationId, applicationId]);
 
+	// Handle files uploaded immediately (when uploadImmediately=true)
+	const handleFilesUploaded = (newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
+		setUploadedFileObjs(prev => [...prev, ...newFiles]);
+		setApplicationDocuments(prev => [...prev, ...newDocuments]);
+		setErrors(prev => {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { files: _files, ...rest } = prev;
+			return rest;
+		});
+		setFileValidationErrors([]);
+	};
+
 	// Save and Continue handler (set status to CLOSED)
 	const navigate = useNavigate();
 	const handleSaveAndContinue = async () => {
@@ -125,7 +144,6 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			return;
 		}
 		
-		// Clear any previous errors
 		setErrors({});
 			
 			const updatedDetails = {
@@ -280,29 +298,28 @@ const ConsultationNotRequiredPage: React.FC = () => {
 									<span className="govuk-visually-hidden">Error:</span> {error}
 								</p>
 							))}
-								<FileUpload
-									ref={fileUploadRef}
-									title="Upload any supporting documents"
-									prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}/${consultationId}`}
-									applicationId={applicationId}
-									category={FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}
-									uploadedFiles={uploadedFileObjs}
+							
+							{applicationDocuments && applicationDocuments.length > 0 && (
+								<div className="govuk-!-margin-top-2">
+									<h3 className="govuk-heading-s">Documents uploaded</h3>
+								</div>
+							)}
+							
+							<FileUpload
+								ref={fileUploadRef}
+								title="Upload any supporting documents"
+								prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}/${consultationId}`}
+								applicationId={applicationId}
+								category={FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}
+								uploadedFiles={uploadedFileObjs}
 								applicationDocuments={applicationDocuments}
-								onRemoveFile={idx => {
-									setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
-									setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
-									// Clear files error when removing files (validation will re-trigger on save)
-									if (errors.files) {
-										setErrors(prev => {
-												const { files: _files, ...rest } = prev;
-												return rest;
-											});
-										}
-									}}
-									onValidationErrors={handleFileValidationErrors}
-									onPendingFilesChange={(files) => setPendingFiles(files)}
-									consultationId={consultationId}
-								/>
+								uploadImmediately={true}
+								onUploaded={handleFilesUploaded}
+								onDeleteFile={handleDeleteFile}
+								onValidationErrors={handleFileValidationErrors}
+								onPendingFilesChange={(files) => setPendingFiles(files)}
+								consultationId={consultationId}
+							/>
 							</div>
 						 <div className="govuk-button-group govuk-!-margin-top-6">
 								{/*	<button

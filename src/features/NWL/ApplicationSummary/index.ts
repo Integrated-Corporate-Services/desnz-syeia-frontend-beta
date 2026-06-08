@@ -1,0 +1,1 @@
+export { getNWLCheckYourAnswersCards } from './checkYourAnswersCardsConfig';

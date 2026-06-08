@@ -1,0 +1,20 @@
+/* PhaseBanner custom styles */
+
+.phase-banner-wrapper {
+  border: none;
+}
+
+.phase-banner-container {
+  border-bottom: 1px solid #b1b4b6;
+  padding-bottom: 8px;
+}
+
+.phase-banner-content {
+  margin: 0;
+}
+
+.phase-banner-tag {
+  background-color: #1d70b8;
+  color: #fff;
+  font-weight: 700;
+}

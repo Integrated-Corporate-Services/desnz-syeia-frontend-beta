@@ -66,7 +66,7 @@ const ConsultationResponse2: React.FC = () => {
                         setConsultationType(currentConsultation.consultationType || '');
                     }
                 } catch (err) {
-                    console.error('Error fetching consultation response:', err);
+                    // Error fetching consultation response
                 } finally {
                     setIsLoading(false);
                 }
@@ -85,6 +85,24 @@ const ConsultationResponse2: React.FC = () => {
             });
         }
     }, [pendingFiles.length, uploadedFileObjs.length]);
+
+    // Handle files uploaded immediately (when uploadImmediately=true)
+    const handleFilesUploaded = (newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
+        setUploadedFileObjs(prev => [...prev, ...newFiles]);
+        setApplicationDocuments(prev => [...prev, ...newDocuments]);
+        setErrors(prev => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { uploadedFiles: _uploadedFiles, ...rest } = prev;
+            return rest;
+        });
+        setFileValidationErrors([]);
+    };
+
+    // Handle file deletion
+    const handleDeleteFile = (fileId: string) => {
+        setUploadedFileObjs(prev => prev.filter(file => file.id !== fileId));
+        setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+    };
 
     // Handle file validation errors from FileUpload component
     const handleFileValidationErrors = (errors: string[]) => {
@@ -165,7 +183,6 @@ const ConsultationResponse2: React.FC = () => {
 
     const handleSaveAndContinue = async () => {
         try {
-            // STEP 1: Upload pending files to S3 FIRST (before validation)
             let newlyUploadedFiles: UploadedFile[] = [];
             let newlyUploadedDocuments: ApplicationDocument[] = [];
             
@@ -174,17 +191,14 @@ const ConsultationResponse2: React.FC = () => {
                 newlyUploadedFiles = result.uploadedFiles;
                 newlyUploadedDocuments = result.applicationDocuments;
                                 
-                // Update state immediately so files remain visible even if validation fails
                 setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
                 setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
             }
 
-            // STEP 2: Now validate after files are uploaded
             const totalUploadedFiles = uploadedFileObjs.length + newlyUploadedFiles.length;
             
             const newErrors: { [key: string]: string } = {};
             
-            // For PUBLIC consultations, skip date validation
             if (consultationType !== ConsultationType.PUBLIC) {
                 const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: true });
                 if (!dateValidation.isValid) {
@@ -192,7 +206,6 @@ const ConsultationResponse2: React.FC = () => {
                 }
             }
 
-            // File validation - check if we have files after upload
             if (totalUploadedFiles === 0) {
                 const errorMessage = consultationType === ConsultationType.PUBLIC
                     ? CONSULTATION_VALIDATION_MESSAGES.responseDocumentsUpload.emptyPublic
@@ -200,7 +213,6 @@ const ConsultationResponse2: React.FC = () => {
                 newErrors.uploadedFiles = errorMessage;
             }
             
-            // Check for validation errors
             if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
                 setErrors(newErrors);
                 const errorSummary = document.getElementById('error-summary');
@@ -211,14 +223,11 @@ const ConsultationResponse2: React.FC = () => {
                 return;
             }
 
-            // STEP 3: Build and save payload
-            // For PUBLIC consultations, don't set received_at date
             let receivedAt;
             if (consultationType !== ConsultationType.PUBLIC && responseDate.year && responseDate.month && responseDate.day) {
                 receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
             }
             
-            // Fetch existing data to preserve all fields
             const existingData = await getConsultationResponse(consultationId!, applicationId);
             
             const payload: Partial<ConsultationResponse> = {
@@ -241,7 +250,6 @@ const ConsultationResponse2: React.FC = () => {
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response3`);
         } catch (err) {
-            console.error('Save failed:', err);
             alert(`Failed to save consultation response: ${err instanceof Error ? err.message : 'Unknown error'}`);
         }
     };
@@ -286,7 +294,7 @@ const ConsultationResponse2: React.FC = () => {
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
         } catch (err) {
-            console.error('Error saving consultation response:', err);
+            // Error saving consultation response
         }
     };
 
@@ -432,7 +440,6 @@ const ConsultationResponse2: React.FC = () => {
                             )}
 
                             <div className={`govuk-form-group ${errors.uploadedFiles || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}>
-                                <h2 className="govuk-heading-m">Documents uploaded</h2>
                                 {errors.uploadedFiles && (
                                     <p id="uploadedFiles-error" className="govuk-error-message">
                                         <span className="govuk-visually-hidden">Error:</span> {errors.uploadedFiles}
@@ -444,23 +451,25 @@ const ConsultationResponse2: React.FC = () => {
                                     </p>
                                 ))}
                                 <div id="file-upload">
-                                    <p className="govuk-body">{consultationType === ConsultationType.PUBLIC ? 'Upload documents that show public responses' : "Upload documents that show the consultee's response"}</p>
-                                    {/* <p className="govuk-hint">
-                                        You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.
-                                    </p> */}
+                                    
+                                    {applicationDocuments && applicationDocuments.length > 0 && (
+                                        <div className="govuk-!-margin-top-2">
+                                            <h3 className="govuk-heading-s">Documents uploaded</h3>
+                                        </div>
+                                    )}
+                                    
                                     <FileUpload
                                         ref={fileUploadRef}
-                                        title=""
+                                        title={consultationType === ConsultationType.PUBLIC ? 'Upload documents that show public responses' : "Upload documents that show the consultee's response"}
                                         prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_RESPONSE}/${consultationId}`}
                                         applicationId={applicationId}
                                         category={FILE_CATEGORIES.CONSULTATION_RESPONSE}
                                         addedBy={userId}
                                         uploadedFiles={uploadedFileObjs}
                                         applicationDocuments={applicationDocuments}
-                                        onRemoveFile={idx => {
-                                            setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
-                                            setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
-                                        }}
+                                        uploadImmediately={true}
+                                        onUploaded={handleFilesUploaded}
+                                        onDeleteFile={handleDeleteFile}
                                         onValidationErrors={handleFileValidationErrors}
                                         consultationId={consultationId}
                                         onPendingFilesChange={(files) => setPendingFiles(files)}

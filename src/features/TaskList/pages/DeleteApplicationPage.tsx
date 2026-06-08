@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -35,7 +35,7 @@ const DeleteApplicationPage: React.FC = () => {
     setError(null);
     try {
       await applicationApiService.deleteApplication(applicationId);
-      navigate('/workbasket');
+      navigate('/application-dashboard');
     } catch (err) {
       setError('Failed to delete application. Please try again.');
     } finally {
