@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { createLogger } from '../utils/logger';
@@ -35,7 +35,7 @@ const OTPVerifyPage: React.FC = () => {
         setAuth({ authenticated: true, user: data.user });
       }
       if (data.user && data.user.otpVerified === true) {
-        navigate('/workbasket');
+        navigate('/application-dashboard');
       } else {
         setError(data.error || 'OTP verification failed. Please try again.');
         // Show resend link if OTP expired or any error

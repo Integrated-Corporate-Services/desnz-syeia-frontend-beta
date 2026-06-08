@@ -1,4 +1,4 @@
-// src/features/CheckYourAnswers/constants/applicationSummaryLabels.ts
+﻿// src/features/CheckYourAnswers/constants/applicationSummaryLabels.ts
 /**
  * Application Summary UI Labels
  * All user-facing text and labels
@@ -10,8 +10,8 @@ export const PAGE_LABELS = {
   BREADCRUMB_TASK_LIST: 'Task list',
   BREADCRUMB_SUBMIT: 'Submit Section 37 application',
   BACK_LINK: 'Back',
-  BACK_LINK_WORKBASKET: 'Workbasket',
-  WORKBASKET_LINK: '/workbasket'
+  BACK_LINK_APPLICATION_DASHBOARD: 'Application Dashboard',
+  APPLICATION_DASHBOARD_LINK: '/application-dashboard'
 } as const;
 
 export const SECTION_HEADINGS = {

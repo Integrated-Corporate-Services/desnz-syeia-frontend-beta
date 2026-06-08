@@ -6,6 +6,14 @@ export default defineConfig(({ mode }) => {
     return {
         base: '/frontend',
         plugins: [react()],
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    quietDeps: true, // Suppress deprecation warnings from dependencies
+                    silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'slash-div', 'mixed-decls'],
+                }
+            }
+        },
         test: {
             environment: 'jsdom',
             globals: true,
@@ -16,6 +24,10 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             open: true,
             proxy: {
+                '/backend/invites': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
                 '/backend/api': {
                     target: env.API_URL,
                     changeOrigin: true,

@@ -103,6 +103,25 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         }
     }, [pendingFiles.length, uploadedFileObjs.length]);
 
+    // Handle files uploaded immediately (when uploadImmediately=true)
+    const handleFilesUploaded = (newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
+        logger.debug('[EvidenceResponseNotReceivedPage] Files uploaded immediately', { filesCount: newFiles.length });
+        setUploadedFileObjs(prev => [...prev, ...newFiles]);
+        setApplicationDocuments(prev => [...prev, ...newDocuments]);
+        setErrors(prev => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { files: _files, ...rest } = prev;
+            return rest;
+        });
+        setFileValidationErrors([]);
+    };
+
+    // Handle file deletion
+    const handleDeleteFile = (fileId: string) => {
+        setUploadedFileObjs(prev => prev.filter(file => file.id !== fileId));
+        setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+    };
+
     useEffect(() => {
         setErrors({});
         setSubmitted(false);
@@ -185,7 +204,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         setLoading(true);
 
         try {
-            // STEP 1: Upload pending files to S3 FIRST (before validation)
             let newlyUploadedFiles: UploadedFile[] = [];
             let newlyUploadedDocuments: ApplicationDocument[] = [];
             
@@ -196,12 +214,10 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 newlyUploadedDocuments = result.applicationDocuments;
                 logger.info('[EvidenceResponseNotReceivedPage] Pending files uploaded successfully');
                 
-                // Update state immediately so files remain visible even if validation fails
                 setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
                 setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
             }
 
-            // STEP 2: Now validate after files are uploaded
             const totalUploadedFiles = uploadedFileObjs.length + newlyUploadedFiles.length;
             const newErrors: Record<string, string> = {};
 
@@ -213,7 +229,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 newErrors.declaration = CONSULTATION_VALIDATION_MESSAGES.evidenceNotReceivedDeclaration.empty;
             }
 
-            // Check for validation errors
             if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
                 setErrors(newErrors);
                 setSubmitError('');
@@ -226,8 +241,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 return;
             }
 
-            // STEP 3: Build and save payload
-            // Fetch existing data to preserve all fields
             const existingData = await getConsultationResponse(consultationId!, applicationId);
 
             const payload: Partial<ConsultationResponse> = {
@@ -364,19 +377,24 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                     </p>
                                 ))}
 
+                                {applicationDocuments && applicationDocuments.length > 0 && (
+                                    <div className="govuk-!-margin-top-2">
+                                        <h3 className="govuk-heading-s">Documents uploaded</h3>
+                                    </div>
+                                )}
+
                                 <FileUpload
                                     ref={fileUploadRef}
-                                    title=""
+                                    title="Upload evidence"
                                     prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}/${consultationId}`}
                                     applicationId={applicationId}
                                     category={FILE_CATEGORIES.CONSULTATION_RESPONSE_NOT_RECEIVED}
                                     addedBy={user?.user_id || ''}
                                     uploadedFiles={uploadedFileObjs}
                                     applicationDocuments={applicationDocuments}
-                                    onRemoveFile={(idx) => {
-                                        setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
-                                        setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
-                                    }}
+                                    uploadImmediately={true}
+                                    onUploaded={handleFilesUploaded}
+                                    onDeleteFile={handleDeleteFile}
                                     onValidationErrors={handleFileValidationErrors}
                                     consultationId={consultationId}
                                     onPendingFilesChange={(files) => setPendingFiles(files)}

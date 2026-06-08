@@ -5,6 +5,7 @@ import {
   getPresignedUrls,
   uploadFileToS3,
   deleteFileCompletely,
+  confirmUpload,
 } from "../services/s3ApiService"; 
 import { createLogger } from "../utils/logger";
 import { validateFiles,  } from "../utils/fileUploadValidation";
@@ -363,35 +364,69 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           const uploadRes = await uploadFileToS3(urlObj.url, uploadFiles[i]);
           
           if (uploadRes.ok) {
-            const now = new Date().toISOString();
             const s3Key = prefix
               ? `${prefix}/${uploadFiles[i].name}`
               : uploadFiles[i].name;
+            
+            const etag = uploadRes.headers.get('etag');
+            
+            newStatuses[i] = "Confirming upload...";
+            setStatuses([...newStatuses]);
+            
+            logger.info('S3 upload successful, calling confirm endpoint', {
+              s3Key,
+              etag,
+              fileName: uploadFiles[i].name
+            });
+            
+            const confirmResponse = await confirmUpload({
+              s3Key,
+              fileName: uploadFiles[i].name,
+              contentType: uploadFiles[i].type || 'application/octet-stream',
+              fileSize: uploadFiles[i].size,
+              etag: etag || undefined,
+              applicationId: applicationId || '',
+              category: category || '',
+              addedBy: userId,
+              subCategory: subCategory,
+              consultationId: consultationId
+            });
+            
+            logger.info('Upload confirmed by server', {
+              documentId: confirmResponse.documentId,
+              fileId: confirmResponse.fileId,
+              s3Key: confirmResponse.s3Key
+            });
+            
             const uploadedFile: UploadedFile = {
-              id: crypto.randomUUID(),
+              id: confirmResponse.fileId,
               storageProvider: "aws_s3",
-              s3Key: s3Key,
-              bucketName: urlObj.bucketName || "", // If available from backend
-              virtualFolder: s3Key.split("/").slice(0, -1).join("/"),
-              filename: uploadFiles[i].name,
-              fileContentType: uploadFiles[i].type || "application/octet-stream", // Fallback for unknown MIME types
-              fileSizeBytes: uploadFiles[i].size,
-              uploadedAtTimestamp: now,
+              s3Key: confirmResponse.s3Key,
+              bucketName: confirmResponse.bucketName,
+              virtualFolder: confirmResponse.virtualFolder,
+              filename: confirmResponse.fileName,
+              fileContentType: confirmResponse.contentType,
+              fileSizeBytes: confirmResponse.fileSizeBytes,
+              uploadedAtTimestamp: confirmResponse.uploadedAt,
             };
             uploadedFiles.push(uploadedFile);
+            
             const applicationDocument: ApplicationDocument = {
-              documentId: crypto.randomUUID(),
+              documentId: confirmResponse.documentId,
               applicationId: applicationId || "",
-              fileId: uploadedFile.id,
+              fileId: confirmResponse.fileId,
               category: category || "",
               subCategory: subCategory || "",
-              title: uploadedFile.filename,
-              virtualFolder: uploadedFile.virtualFolder,
+              title: confirmResponse.fileName,
+              virtualFolder: confirmResponse.virtualFolder,
               addedBy: userId,
-              addedAt: uploadedFile.uploadedAtTimestamp,
-              consultationId: consultationId || undefined, // Set if applicable
+              addedAt: confirmResponse.uploadedAt,
+              consultationId: consultationId || undefined,
             };
             applicationDocuments.push(applicationDocument);
+            
+            newStatuses[i] = "Upload complete";
+            setStatuses([...newStatuses]);
             
             setInternalFiles((prevFiles: File[]) => {
               const idxToRemove = prevFiles.findIndex(
@@ -422,6 +457,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           newStatuses[i] =
             "Error: " + (err instanceof Error ? err.message : String(err));
           setStatuses([...newStatuses]);
+          logger.error('Upload or confirm failed', {
+            fileName: uploadFiles[i].name,
+            error: err
+          });
         }
       }
       

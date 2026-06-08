@@ -1,4 +1,4 @@
-import { S37_BASE_URL } from './s37';
+﻿import { S37_BASE_URL } from './s37';
 import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
@@ -27,7 +27,7 @@ import ConsultationRequestsRequired from '../features/Consultation/pages/Consult
 import SelectOtherConsultations from '../features/Consultation/pages/SelectOtherConsultations';
 import NetworkOperatorDetails from '../features/ApplicantInfo/pages/NetworkOperatorDetails';
 import NetworkOperatorContactDetails from '../features/ApplicantInfo/pages/NetworkOperatorContactDetails';
-import Workbasket from '../features/Workbasket/pages/Workbasket';
+import ApplicationDashboard from '../features/ApplicationDashboard/pages/ApplicationDashboard';
 import ApplicationSubmitted from '../features/TaskList/pages/ApplicationSubmitted';
 import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
 import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
@@ -140,8 +140,24 @@ import RemoveConsultation from '../features/Consultation/pages/RemoveConsultatio
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
 import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
+import ClosedPage from '../pages/ClosedPage';
+import StartRedirect from '../components/StartRedirect';
 
 export const ROUTE_CONFIG = [
+    // UAT Invite System Routes
+    {
+        path: '/access-denied',
+        component: ClosedPage,
+        auth: false,
+        layout: false,
+    },
+    {
+        path: '/start/:orgCode',
+        component: StartRedirect,
+        auth: false,
+        layout: false,
+    },
+    // Existing Routes
     {
         path: '/cookies',
         component: CookiesSettingsPage,
@@ -465,8 +481,8 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
-        path: '/workbasket',
-        component: Workbasket,
+        path: '/application-dashboard',
+        component: ApplicationDashboard,
         auth: true,
         layout: false,
     },
@@ -620,7 +636,7 @@ export const ROUTE_CONFIG = [
     },
     {
         path: '/',
-        component: Workbasket,
+        component: ApplicationDashboard,
         auth: true,
         layout: true,
     },

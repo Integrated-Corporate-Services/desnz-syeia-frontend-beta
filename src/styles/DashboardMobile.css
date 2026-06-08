@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dashboard Mobile Responsiveness Styles
  * 
  * Implements mobile-first responsive design for:
@@ -23,8 +23,8 @@
 /* Mobile breakpoint - hide table, show cards */
 @media (max-width: 640px) {
   /* Hide the table on mobile - using !important for specificity */
-  .workbasket-table-wrapper .govuk-table,
-  .workbasket-table-wrapper table.govuk-table {
+  .application-dashboard-table-wrapper .govuk-table,
+  .application-dashboard-table-wrapper table.govuk-table {
     display: none !important;
   }
 
@@ -308,22 +308,22 @@
 
 @media (max-width: 640px) {
   /* Header section responsive - use full available width */
-  .workbasket-hero-section {
+  .application-dashboard-hero-section {
     padding: 15px 0;
     margin: 0;
     width: 100%;
     box-sizing: border-box;
   }
 
-  .workbasket-hero-section .govuk-heading-l,
-  .workbasket-hero-section .govuk-heading-xl {
+  .application-dashboard-hero-section .govuk-heading-l,
+  .application-dashboard-hero-section .govuk-heading-xl {
     font-size: 24px;
     line-height: 1.25;
     margin-bottom: 15px;
   }
 
   /* Stack buttons vertically on mobile and make full width */
-  .workbasket-header-buttons {
+  .application-dashboard-header-buttons {
     flex-direction: column !important;
     gap: 12px !important;
     width: 100% !important;
@@ -333,7 +333,7 @@
   }
 
   /* Buttons stretch to full container width */
-  .workbasket-header-buttons .govuk-button {
+  .application-dashboard-header-buttons .govuk-button {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
@@ -343,7 +343,7 @@
   }
 
   /* Description text - use full width */
-  .workbasket-hero-section .govuk-body {
+  .application-dashboard-hero-section .govuk-body {
     font-size: 16px;
     line-height: 1.5;
     width: 100%;
@@ -410,14 +410,14 @@
    ========================================================================== */
 
 @media (max-width: 640px) {
-  .workbasket-table-wrapper {
+  .application-dashboard-table-wrapper {
     padding: 15px;
     margin-top: 0;
     margin-bottom: 20px;
     border: 1px solid #b1b4b6;
   }
 
-  .workbasket-items-count {
+  .application-dashboard-items-count {
     font-size: 14px;
     margin-bottom: 15px;
   }
@@ -628,7 +628,7 @@
 
 @media (max-width: 640px) {
   /* Ensure toggle button is prominent on mobile */
-  button[aria-controls="workbasket-filters"] {
+  button[aria-controls="application-dashboard-filters"] {
     width: 100%;
     text-align: center;
   }

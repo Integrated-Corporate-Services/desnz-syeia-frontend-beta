@@ -214,6 +214,15 @@ useEffect(() => {
     setFileValidationErrors(errors);
   };
 
+  // Handle file deletion
+  const handleDeleteFile = (fileId: string) => {
+    setConsultationPack((prev: any) => ({
+      ...prev,
+      uploadedFiles: prev?.uploadedFiles?.filter((file: any) => file.id !== fileId) || [],
+      applicationDocuments: prev?.applicationDocuments?.filter((doc: any) => doc.fileId !== fileId) || []
+    }));
+  };
+
   const handleErrorClick = (event: React.MouseEvent, errorType: string) => {
     event.preventDefault();
     if (errorType.includes('file')) {
@@ -449,8 +458,14 @@ useEffect(() => {
             </div>
 
 
-            {/* Additional supporting documents upload */}
             <div id="file-upload" style={{ marginTop: '32px', marginBottom: '32px' }} tabIndex={-1}>
+              
+              {consultationPack?.applicationDocuments && consultationPack.applicationDocuments.length > 0 && (
+                <div className="govuk-!-margin-top-2">
+                  <h3 className="govuk-heading-s">Documents uploaded</h3>
+                </div>
+              )}
+              
               <FileUpload
                 title="Additional supporting documents"
                 prefix={applicationId ? `${applicationId}/${FILE_CATEGORIES.CONSULTATION_ADDITIONAL_DOCUMENTS}` : ''}
@@ -459,7 +474,9 @@ useEffect(() => {
                 addedBy={user?.user_id}
                 uploadedFiles={consultationPack?.uploadedFiles || []}
                 applicationDocuments={consultationPack?.applicationDocuments || []}
+                uploadImmediately={true}
                 onValidationErrors={handleFileValidationErrors}
+                onDeleteFile={handleDeleteFile}
                 onUploaded={(newUploadedFiles, newApplicationDocuments) => {
                   setConsultationPack((prev: any) => ({
                     ...prev,

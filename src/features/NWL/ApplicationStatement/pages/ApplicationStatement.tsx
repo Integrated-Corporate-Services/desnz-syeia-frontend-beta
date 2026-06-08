@@ -119,6 +119,7 @@ const ApplicationStatement: React.FC = () => {
 								prefix={`application-statement/evidence`}
 								onFilesChange={setFiles}
 								category="APPLICATION_STATEMENT_EVIDENCE"
+								uploadImmediately={true}
 							/>
 						</div>
 						{/* Call to action buttons */}

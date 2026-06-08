@@ -15,7 +15,9 @@ const NumberInput: React.FC<CommonInputProps> = ({ id, name, label, value, error
           className={`govuk-input${widthClass ? ' ' + widthClass : ''}${error ? ' govuk-input--error' : ''}`}
           id={id}
           name={name}
-          type="number"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={value}
           onChange={onChange}
         />
@@ -32,7 +34,9 @@ const NumberInput: React.FC<CommonInputProps> = ({ id, name, label, value, error
           className={`govuk-input${widthClass ? ' ' + widthClass : ''}${error ? ' govuk-input--error' : ''}`}
           id={id}
           name={name}
-          type="number"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={value}
           onChange={onChange}
         />

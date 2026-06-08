@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Filter Types
  * 
  * Type definitions for dashboard filtering functionality.
@@ -7,7 +7,7 @@
  * @module types/filter
  */
 
-import type { TabType } from '../features/Workbasket/constants/filterOptions';
+import type { TabType } from '../features/ApplicationDashboard/constants/filterOptions';
 
 /**
  * Submitted by filter type

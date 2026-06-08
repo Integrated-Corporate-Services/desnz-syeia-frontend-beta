@@ -135,8 +135,7 @@ const ApplicationLandDetails: React.FC = () => {
 								<FileUpload
 									title=""
 																	  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_APPLICATION_LAND_DETAILS}`}
-									uploadedFiles={uploadedFiles}
-									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {
+									uploadedFiles={uploadedFiles}									uploadImmediately={true}									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {
 										setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));
 										setApplicationDocuments(prev => ([...(prev || []), ...newDocuments]));
 									}}

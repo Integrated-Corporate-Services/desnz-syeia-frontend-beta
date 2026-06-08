@@ -51,7 +51,7 @@ export const STATUS_TAG_CLASSES: Record<string, string> = {
 };
 
 /**
- * Statuses that allow editing in workbasket
+ * Statuses that allow editing in application dashboard
  */
 export const EDITABLE_STATUSES: readonly string[] = [
   APPLICATION_STATUS.ON_HOLD,
@@ -123,7 +123,7 @@ export const isEditableStatus = (status: string): boolean => {
 export { normalizeStatusFromConfig as normalizeStatus };
 export { APPLICATION_STATUS, ConsultationStatus };
 
-// Get status tag CSS class for workbasket display (legacy function)
+// Get status tag CSS class for application dashboard display (legacy function)
 export const getStatusTagClass = (status: string): string => {
   const normalizedStatus = status.toLowerCase();
   return STATUS_TAG_CLASSES[normalizedStatus] || "govuk-tag";

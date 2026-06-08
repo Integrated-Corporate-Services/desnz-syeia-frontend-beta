@@ -212,7 +212,6 @@ const LandRegistryInformation: React.FC = () => {
                   addedBy={userId}
                   uploadedFiles={pageUploadedFiles}
                   applicationDocuments={pageApplicationDocuments}
-                  showDocumentsHeading={true}
                   uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={handlePendingFilesChange}

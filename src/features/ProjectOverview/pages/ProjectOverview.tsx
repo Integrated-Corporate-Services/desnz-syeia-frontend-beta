@@ -343,6 +343,9 @@ const ProjectOverview = () => {
 						} else if (numVal < 0) {
 							newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE));
 							newFieldErrors['tallestPoleHeight-inputValue'] = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_NEGATIVE;
+						} else if (numVal > 9999) {
+							newErrors.push(createErrorLink('tallestPoleHeight-inputValue', PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_TOO_LARGE));
+							newFieldErrors['tallestPoleHeight-inputValue'] = PROJECT_OVERVIEW_ERRORS.TALLEST_POLE_HEIGHT_TOO_LARGE;
 						} else {
 							// Check for more than two decimal places
 							const decimalPart = val.includes('.') ? val.split('.')[1] : '';
@@ -825,6 +828,13 @@ const ProjectOverview = () => {
 								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
 							</p>
 						)}
+							
+							{formState.applicationDocuments && formState.applicationDocuments.length > 0 && (
+								<div className="govuk-!-margin-top-2">
+									<h3 className="govuk-heading-s">Documents uploaded</h3>
+								</div>
+							)}
+							
 							<FileUpload
 								ref={fileUploadRef}
 								title='Upload a file'
@@ -834,7 +844,6 @@ const ProjectOverview = () => {
 								category={FILE_CATEGORIES.PLAN_INFO}
 								addedBy={userId}
 								uploadedFiles={formState.uploadedFiles}
-								showDocumentsHeading={true}
 								uploadImmediately={true} 
 								onDeleteFile={handleDeleteFile}
 								onPendingFilesChange={setPendingFiles}
