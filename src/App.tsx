@@ -24,6 +24,14 @@ const AppContent = () => {
   // Track page views for analytics
   usePageTracking();
 
+  // Track last page for feedback source fallback
+  useEffect(() => {
+    // Only track non-feedback pages to avoid self-referencing
+    if (!location.pathname.includes('/feedback')) {
+      sessionStorage.setItem('lastPage', location.pathname);
+    }
+  }, [location.pathname]);
+
   // Auto-redirect to create session when LOGIN_DISABLED is enabled
   useEffect(() => {
     const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
