@@ -1,8 +1,10 @@
 {
   "public": "dist-serve",
+  "redirects": [
+    { "source": "/", "destination": "/frontend" }
+  ],
   "rewrites": [
-    { "source": "/frontend/**", "destination": "/frontend/index.html" },
-    { "source": "/", "destination": "/frontend/index.html" }
+    { "source": "/frontend/**", "destination": "/frontend/index.html" }
   ],
   "headers": [
     {
