@@ -8,7 +8,9 @@ import { createLogger } from '../../../../utils/logger';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 
 const logger = createLogger('nwlAssetService');
-const API_BASE = '/backend/api/nwl';
+import { buildBackendUrl } from '../../../../utils/apiConfig';
+
+const API_BASE = buildBackendUrl('/backend/api/nwl');
 
 // Re-export Page IDs for convenience
 export { ASSETS_PAGE_IDS } from '../constants/pageNames';

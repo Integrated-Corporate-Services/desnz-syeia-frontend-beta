@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useApplicationStore } from '../../../../store/useApplicationStore';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import { useApplication } from '../../../../hooks/useApplication';
 import { getAdditionalInformationData } from '../services/additionalInformationService';
 import { AdditionalInformationData } from '../types';
 import { createLogger } from '../../../../utils/logger';
@@ -13,10 +13,7 @@ const logger = createLogger('useAdditionalInformationData');
  */
 export const useAdditionalInformationData = () => {
   const appId = useGetApplicationId();
-  const application = useApplicationStore((state) => state.application);
-  const fetchAndSetApplication = useApplicationStore(
-    (state) => state.fetchAndSetApplication
-  );
+  const { application, fetchApplication } = useApplication();
   
   const [additionalInformationData, setAdditionalInformationData] = useState<AdditionalInformationData | undefined>(
     application?.additional_information_data
@@ -26,9 +23,9 @@ export const useAdditionalInformationData = () => {
   // Fetch main application
   useEffect(() => {
     if (appId) {
-      fetchAndSetApplication(appId);
+      fetchApplication(appId);
     }
-  }, [appId, fetchAndSetApplication]);
+  }, [appId, fetchApplication]);
   
   // Fetch additional information data separately to ensure it's loaded
   useEffect(() => {

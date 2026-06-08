@@ -1,6 +1,8 @@
 import { UploadedFile, ApplicationDocument } from '../types/fileUpload';
 
-const API_BASE = '/backend/api/applications';
+import { buildBackendUrl } from '../utils/apiConfig';
+
+const API_BASE = buildBackendUrl('/backend/api/applications');
 
 export interface ConsultationRequest {
   applicationId: string;

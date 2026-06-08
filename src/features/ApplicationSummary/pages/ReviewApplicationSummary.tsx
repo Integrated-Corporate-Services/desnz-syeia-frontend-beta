@@ -208,16 +208,13 @@ const ReviewSummarySections: React.FC<ReviewSummarySectionsProps> = ({ data, car
             )}
 
             <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ASSETS}</h2>
-            {data.assets && data.assets.length > 0 && cards.Assets ? (
-                data.assets.map((asset: any, index: number) => (
-                    <cards.Assets
-                        key={asset.asset_id || index}
-                        data={asset}
-                        index={index}
-                        applicationId={applicationId}
-                        canEdit={false}
-                    />
-                ))
+            {cards.Assets ? (
+                <cards.Assets
+                    data={data.assetsMetadata}
+                    assets={data.assets}
+                    applicationId={applicationId}
+                    canEdit={false}
+                />
             ) : (
                 <p className="govuk-body">{L.NO_ASSETS}</p>
             )}

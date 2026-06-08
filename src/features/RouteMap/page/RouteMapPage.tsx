@@ -5,7 +5,7 @@ import SensitiveAreaCheckMap, { RoutePoint as BaseRoutePoint } from '../../../co
 import ErrorBoundary from '../../../components/ErrorBoundary';
 import RoutePointCard from '../component/RoutePointCard';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useRouteStore } from '../../../store/useRouteStore';
+import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
@@ -54,7 +54,7 @@ const RouteMapPage: React.FC = () => {
   const effectiveApplicationId = applicationId 
 
   // Store
-  const { routes, loading, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRouteStore();
+  const { routes, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRoutes();
   
   // If coming from add new route, use blank state and provided routeName
   const isNewRoute = location.state?.isNewRoute;

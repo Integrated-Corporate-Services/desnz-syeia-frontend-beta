@@ -32,6 +32,7 @@ export interface ApplicationReviewSummaryData {
     representativeDetails: any;
     landDetails: any;
     assets: any[];
+    assetsMetadata: unknown | null;
     negotiations: any;
     additionalInformation: any;
     payment: ReviewSummaryPayment | null;

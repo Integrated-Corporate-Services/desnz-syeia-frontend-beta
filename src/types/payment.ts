@@ -36,7 +36,7 @@ export interface BankTransferConfirmationState extends BankTransferState {
  */
 export interface BankTransferSuccessState extends BankTransferState {
   desnz_ref: string;
-  transactionNumber?: string;
+  transactionNumber?: string | null;
 }
 
 /**
@@ -71,7 +71,7 @@ export interface ValidationResult {
 /**
  * Payment method options
  */
-export type PaymentMethodType = 'card' | 'bank_transfer' | 'bacs_transfer';
+export type PaymentMethodType = 'card' | 'bank_transfer' | 'bacs';
 
 /**
  * Payment status types

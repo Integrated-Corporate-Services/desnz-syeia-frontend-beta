@@ -2,12 +2,16 @@ import { LandDetails } from '../types';
 import { mapBackendToFrontend, mapFrontendToBackend } from '../utils/landDetailsMapper';
 import logger from '../../../../logger';
 
-const API_BASE_URL = '/backend/api/nwl';
+import { buildBackendUrl } from '../../../../utils/apiConfig';
+
+const API_BASE_URL = buildBackendUrl('/backend/api/nwl');
 
 export const landDetailsService = {
   async getLandDetails(applicationId: string): Promise<LandDetails | null> {
     try {
-      const response = await fetch(`${API_BASE_URL}/${applicationId}/land-details`);
+      const response = await fetch(`${API_BASE_URL}/${applicationId}/land-details`, {
+        credentials: 'include'
+      });
       
       if (!response.ok) {
         if (response.status === 404) {
@@ -50,6 +54,7 @@ export const landDetailsService = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(backendData),
       });
 
@@ -94,6 +99,7 @@ export const landDetailsService = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(backendData),
       });
 

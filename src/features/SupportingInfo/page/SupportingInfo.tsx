@@ -1,7 +1,7 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useSupportingInfoStore } from "../../../store/useSupportingInfoStore";
+import { useSupportingInfo } from "../../../hooks/useSupportingInfo";
 import TextArea from '../../ProjectOverview/component/TextArea';
 import { Button } from "govuk-react";
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
@@ -37,7 +37,7 @@ const SupportingInfo: React.FC = () => {
     fetchSupportingInfo,
     saveSupportingInfo,
     loading,
-  } = useSupportingInfoStore();
+  } = useSupportingInfo();
 
   const [wayleaves, setWayleaves] = useState<string>("");
   const [regulations, setRegulations] = useState<boolean>(false);
@@ -52,31 +52,48 @@ const SupportingInfo: React.FC = () => {
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
+  // Track previous application ID and fetch/bind flags
+  const prevAppIdRef = useRef(applicationId);
+  const hasFetchedRef = useRef(false);
+  const hasBindDataRef = useRef(false);
+
   // refs for scrolling
   const wayleavesRef = useRef<HTMLInputElement>(null);
   const wayleavesReasonRef = useRef<HTMLTextAreaElement>(null);
   const regulationsRef = useRef<HTMLInputElement>(null);
   const supportingDocsRef = useRef<HTMLInputElement>(null);
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  
+  // Clear form only when switching to a different application
   useEffect(() => {
-    // Clear form state when applicationId changes
-    setWayleaves("");
-    setRegulations(false);
-    setWayleavesReason("");
-    setSupportingDocs("");
-    setComments("");
-    setUploadedFiles([]);
-    setApplicationDocuments([]);
+    if (prevAppIdRef.current !== applicationId) {
+      setWayleaves("");
+      setRegulations(false);
+      setWayleavesReason("");
+      setSupportingDocs("");
+      setComments("");
+      setUploadedFiles([]);
+      setApplicationDocuments([]);
+      prevAppIdRef.current = applicationId;
+      hasFetchedRef.current = false;
+      hasBindDataRef.current = false;
+    }
   }, [applicationId]);
 
+  // Fetch once per application (hasFetchedRef guards against repeated fetches)
   useEffect(() => {
-    if (applicationId) {
+    if (applicationId && !hasFetchedRef.current) {
       fetchSupportingInfo(applicationId);
+      hasFetchedRef.current = true;
     }
   }, [applicationId, fetchSupportingInfo]);
 
+  // Bind fetched data ONLY once (prevents overwriting unsaved changes)
   useEffect(() => {
+    if (hasBindDataRef.current || !supportingInfo) return;
+    
     if (supportingInfo && applicationId && supportingInfo.application_id === applicationId) {
+      hasBindDataRef.current = true;
       const {
         wayleaves_obtained,
         esqcr_2002_compliance_confirmed,
@@ -115,7 +132,7 @@ const SupportingInfo: React.FC = () => {
         setApplicationDocuments([]);
       }
     }
-  }, [supportingInfo]);
+  }, [supportingInfo, applicationId]);
 
   const validate = (newlyUploadedFiles: UploadedFile[] = []) => {
     const errs: { key: string; message: string }[] = [];

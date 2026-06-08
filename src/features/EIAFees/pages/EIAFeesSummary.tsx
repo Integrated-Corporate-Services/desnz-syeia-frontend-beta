@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { useEiaFeesStore } from '../../../store/useEiaFeesStore';
+import { useEiaFees } from '../../../hooks/useEiaFees';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
 /**
@@ -10,9 +10,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
  */
 const EIAFeesSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
-    const eiaFees = useEiaFeesStore((state) => state.eiaFees);
-    const fetchEiaFees = useEiaFeesStore((state) => state.fetchEiaFees);
-    const loading = useEiaFeesStore((state) => state.loading);
+    const { eiaFees, fetchEiaFees, loading } = useEiaFees();
 
     useEffect(() => {
         if (!applicationId) return;

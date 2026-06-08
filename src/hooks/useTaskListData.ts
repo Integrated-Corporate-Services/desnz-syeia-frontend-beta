@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useApplicationStore } from '../store/useApplicationStore';
-import { useProgressStore } from '../store/useProgressStore';
+import { useApplication } from './useApplication';
+import { useProgress } from './useProgress';
 import { getInitialSections, getSectionsWithProgress, updateSectionStatus } from '../utils/taskListUtils';
 import { getSensitiveAreaCheckStatus } from '../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../constants/s37';
@@ -10,11 +10,9 @@ import { createLogger } from '../utils/logger';
 const logger = createLogger('useTaskListData');
 
 export function useTaskListData() {
-    const fetchAndSetApplication = useApplicationStore((state) => state.fetchAndSetApplication);
-    const application = useApplicationStore((state) => state.application);
-    const submitApplication = useApplicationStore((state) => state.submitApplication);
+    const { application, fetchApplication, submitApplication: submitApp } = useApplication();
     const { applicationId } = useParams();
-    const { progress, loading: progressLoading, error: progressError, fetchProgress } = useProgressStore();
+    const { progress, loading: progressLoading, error: progressError, fetchProgress } = useProgress();
     const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
     const [sections, setSections] = useState(getInitialSections(applicationId || application?.application_id, assetInformationStatus));
     const [submitting, setSubmitting] = useState(false);
@@ -36,14 +34,14 @@ export function useTaskListData() {
     const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const justStartedCheckRef = useRef<boolean>(false);
 
-    // Fetch application if not present in store but available in route params
+    // Fetch application if not present but available in route params
     useEffect(() => {
         if (applicationId) {
             if (!application || application.application_id !== applicationId) {
-                fetchAndSetApplication(applicationId);
+                fetchApplication(applicationId);
             }
         }
-    }, [application, applicationId, fetchAndSetApplication]);
+    }, [application, applicationId, fetchApplication]);
 
     // Fetch progress when applicationId is available
     useEffect(() => {
@@ -144,7 +142,7 @@ export function useTaskListData() {
         setSubmitting(true);
         setSubmitError(null);
         try {
-            await submitApplication(effectiveApplicationId);
+            await submitApp(effectiveApplicationId);
             navigate(`${S37_BASE_URL}/${effectiveApplicationId}/application-submitted`);
         } catch (err) {
             setSubmitError('Failed to submit application. Please try again.');

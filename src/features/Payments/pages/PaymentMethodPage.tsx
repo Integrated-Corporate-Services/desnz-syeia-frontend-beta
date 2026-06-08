@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
 
 const logger = createLogger('PaymentMethodPage');
 
@@ -14,22 +16,76 @@ const PaymentMethodPage: React.FC = () => {
   const location = useLocation();
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
-  const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showBankTransfer, setShowBankTransfer] = useState(false);
+  const [resolvedTotalAmount, setResolvedTotalAmount] = useState<number | null>(null);
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
-  const { invoiceNumber, totalAmount, consentFee, eiaScreeningFee } = location.state || {};
+  interface LocationState {
+    invoiceNumber?: string;
+    totalAmount?: number;
+    consentFee?: number;
+    eiaScreeningFee?: number;
+  }
+
+  const { invoiceNumber, totalAmount, consentFee, eiaScreeningFee } = (location.state || {}) as LocationState;
+
+  const effectiveTotalAmount = useMemo(() => {
+    if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount) && totalAmount > 0) {
+      return totalAmount;
+    }
+
+    if (
+      typeof resolvedTotalAmount === 'number' &&
+      !Number.isNaN(resolvedTotalAmount) &&
+      resolvedTotalAmount > 0
+    ) {
+      return resolvedTotalAmount;
+    }
+
+    return null;
+  }, [totalAmount, resolvedTotalAmount]);
+
+  useEffect(() => {
+    const loadFeesIfNeeded = async () => {
+      if (!applicationId) {
+        return;
+      }
+
+      if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount) && totalAmount > 0) {
+        setResolvedTotalAmount(totalAmount);
+        return;
+      }
+
+      try {
+        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const result = await response.json();
+        if (typeof result.totalAmount === 'number' && result.totalAmount > 0) {
+          setResolvedTotalAmount(result.totalAmount);
+        }
+      } catch {
+        // Keep page interactive; validation blocks payment if amount stays unavailable.
+      }
+    };
+
+    loadFeesIfNeeded();
+  }, [applicationId, totalAmount]);
 
 const handlePayByCard = async () => {
-  if (!isChecked) {
-    setError('You must confirm that you understand the application will be submitted when you pay by card');
-    setTimeout(() => {
-      const errorSummary = document.querySelector('.govuk-error-summary');
-      if (errorSummary) errorSummary.scrollIntoView({  });
-    }, 0);
+  if (!effectiveTotalAmount) {
+    setError('Payment amount is not available. Please return to pay and submit and try again.');
     return;
   }
 
@@ -38,10 +94,11 @@ const handlePayByCard = async () => {
 
   try {
     // Store totalAmount in sessionStorage BEFORE navigating to GOV.UK Pay
-    sessionStorage.setItem('totalAmount', totalAmount.toString());
+    sessionStorage.setItem('totalAmount', effectiveTotalAmount.toString());
 
+    const amountInPence = Math.round(effectiveTotalAmount * 100);
     const result = await createPayment(
-      Math.round(totalAmount * 100), // Convert to pence
+      amountInPence,
       applicationId, // reference
       `Section 37 Application Payment - ${applicationId}`, // description
       `${window.location.origin}/frontend/payment/callback`, // return_url
@@ -76,8 +133,8 @@ const handlePayByCard = async () => {
       setError('No redirect URL received from payment service');
       setLoading(false);
     }
-  } catch (err: any) {
-    setError(err.message || 'Failed to initiate payment');
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : 'Failed to initiate payment');
     setLoading(false);
   }
 };
@@ -87,8 +144,8 @@ const handlePayByCard = async () => {
   };
 
   const handleBankTransfer = () => {
-    navigate(`${baseUrl}/${applicationId}/bank-transfer-success`, {
-      state: { invoiceNumber, totalAmount, consentFee, eiaScreeningFee }
+    navigate(`${baseUrl}/${applicationId}/bank-transfer-payment`, {
+      state: { invoiceNumber, totalAmount: effectiveTotalAmount, consentFee, eiaScreeningFee }
     });
   };
 
@@ -117,60 +174,21 @@ const handlePayByCard = async () => {
                 </h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
-                    <li>
-                      <a href="#confirm-payment">{error}</a>
-                    </li>
+                    <li>{error}</li>
                   </ul>
                 </div>
               </div>
             )}
 
-            <h1 className="govuk-heading-xl">Choose payment method</h1>
+            <h1 className="govuk-heading-xl">{PAYMENT_PAGE_TEXT.pageTitle}</h1>
 
             <p className="govuk-body">
-              You must pay <strong>£{totalAmount?.toFixed(2) || '0.00'}</strong> to submit your application.
+              You must pay <strong>£{effectiveTotalAmount?.toFixed(2) ?? '0.00'}</strong> to submit this application.
             </p>
 
-            <p className="govuk-body">
-              You will be redirected to a secure page to pay by credit or debit card.
-            </p>
+            <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardRedirect}</p>
 
-            <p className="govuk-body">
-              This is the fastest way to pay and helps avoid any delays when processing your application.
-            </p>
-
-            <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
-              <fieldset className="govuk-fieldset">
-                <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                  <div className="govuk-checkboxes__item">
-                    <input
-                      className="govuk-checkboxes__input"
-                      id="confirm-payment"
-                      name="confirm-payment"
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => {
-                        setIsChecked(e.target.checked);
-                        setError(''); // Clear error when user checks the box
-                      }}
-                    />
-                    <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-payment">
-                      I understand this application will be submitted automatically when I pay by card.
-                    </label>
-                  </div>
-                </div>
-              </fieldset>
-            </div>
-
-            <button
-              type="button"
-              className="govuk-button"
-              data-module="govuk-button"
-              onClick={handlePayByCard}
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : 'Pay by card'}
-            </button>
+            <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardBenefits}</p>
 
             <details
               className="govuk-details govuk-!-margin-top-6"
@@ -178,45 +196,46 @@ const handlePayByCard = async () => {
             >
               <summary className="govuk-details__summary">
                 <span className="govuk-details__summary-text">
-                  I cannot pay by card and need another way to pay
+                  {PAYMENT_PAGE_TEXT.detailsSummary}
                 </span>
               </summary>
               <div className="govuk-details__text">
                 <p className="govuk-body">
-                  If you cannot pay by credit or debit card, you can pay by bank transfer (BACS).
+                  {PAYMENT_PAGE_TEXT.detailsParagraphs[0]}
                 </p>
                 <p className="govuk-body">
-                  We can only start processing your submitted application after we receive your payment.
+                  Your application&apos;s status will show as &apos;{PAYMENT_PAGE_TEXT.detailsStatus}&apos; until we have reconciled your payment.
                 </p>
-                <p className="govuk-body">
-                  If you choose this payment method, the date of payment will become your official submission date.
-                </p>
-                <p className="govuk-body">
-                  Your application's status will show as 'Payment pending' until we have reconciled your payment.
-                </p>
-                <p className="govuk-body">
-                  You should pay by credit or debit card if you would like us to start processing your application more quickly.
-                </p>
-                <div className="govuk-button-group">
-                  <button
-                    type="button"
-                    className="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                    onClick={handleBankTransfer}
-                  >
-                    Pay by bank transfer
-                  </button>
-                  <button
-                    type="button"
-                    className="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                    onClick={handleBackToTaskList}
-                  >
-                    Back to the task list
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="govuk-button govuk-button--secondary"
+                  data-module="govuk-button"
+                  onClick={handleBankTransfer}
+                >
+                  {PAYMENT_PAGE_TEXT.bankTransferButton}
+                </button>
               </div>
             </details>
+
+            <div className="govuk-button-group govuk-!-margin-top-6">
+              <button
+                type="button"
+                className="govuk-button"
+                data-module="govuk-button"
+                onClick={handlePayByCard}
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : PAYMENT_PAGE_TEXT.payByCardButton}
+              </button>
+              <button
+                type="button"
+                className="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+                onClick={handleBackToTaskList}
+              >
+                {PAYMENT_PAGE_TEXT.backToTaskList}
+              </button>
+            </div>
           </div>
         </div>
       </main>

@@ -9,6 +9,7 @@
 export const SHARED_BREADCRUMBS = {
   TASK_LIST: "Task list",
   APPLICATION_DETAILS: "Application details",
+  LINE_TYPE: "Line type",
 } as const;
 
 /**

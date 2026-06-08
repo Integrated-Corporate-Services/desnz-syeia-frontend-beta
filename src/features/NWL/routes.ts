@@ -47,8 +47,10 @@ import { CheckYourAnswersPage as NWLCheckYourAnswersPage } from './CheckYourAnsw
 import PaymentAmountPage from '../Payments/pages/PaymentAmountPage';
 import InvoiceGenerationPage from '../Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
+import InvoiceGenerationErrorPage from '../Payments/pages/InvoiceGenerationErrorPage';
 import PaymentMethodPage from '../Payments/pages/PaymentMethodPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
+import PaymentFailurePage from '../Payments/pages/PaymentFailurePage';
 import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
 // Shared withdraw pages (multi-type: reads application type from API/URL; NWL paths below)
 import WithdrawApplicationPage from '../CheckYourAnswers/pages/WithdrawApplicationPage';
@@ -479,6 +481,12 @@ export const nwlPaymentRoutes = [
         layout: true,
     },
     {
+        path: `${NWL_BASE_URL}/:applicationId/generate-invoice-error`,
+        component: InvoiceGenerationErrorPage,
+        auth: true,
+        layout: true,
+    },
+    {
         path: `${NWL_BASE_URL}/:applicationId/invoice-download`,
         component: InvoiceDownloadPage,
         auth: true,
@@ -493,6 +501,12 @@ export const nwlPaymentRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/payment-success`,
         component: PaymentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/payment-failed`,
+        component: PaymentFailurePage,
         auth: true,
         layout: true,
     },

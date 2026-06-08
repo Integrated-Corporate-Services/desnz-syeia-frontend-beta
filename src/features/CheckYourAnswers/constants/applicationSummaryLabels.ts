@@ -57,6 +57,7 @@ export const FIELD_LABELS = {
   
   // Payment fields
   PAYMENT_REFERENCE: 'Payment reference number',
+  TRANSACTION_NUMBER: 'Transaction number',
   INVOICE: 'Invoice',
   TOTAL_AMOUNT: 'Total amount',
   
@@ -71,6 +72,8 @@ export const FIELD_LABELS = {
   PLAN_INFO_DOCS: 'Plan information documents',
   RELATED_APPLICATIONS: 'Related applications',
   RELATED_APPLICATIONS_DETAILS: 'Related application details',
+  RELATED_CPO: 'Related CPO',
+  RELATED_CPO_DETAILS: 'Related CPO details',
   
   // Asset fields
   STANDARD_SPEC_REF: 'Standard specification reference number',

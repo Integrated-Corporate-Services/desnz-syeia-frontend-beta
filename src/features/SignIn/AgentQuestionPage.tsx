@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAccessRequestStore } from "../../store/accessRequestStore";
+import { useNavigate, Link } from "react-router-dom";
+import { useAccessRequest } from "../../hooks/useAccessRequest";
 
 const AgentQuestionPage: React.FC = () => {
   const navigate = useNavigate();
-  const { formData, updateFormData } = useAccessRequestStore();
+  const { formData, updateFormData } = useAccessRequest();
 
   const [isAgent, setIsAgent] = useState<boolean | null>(
     formData.isAgent !== undefined ? formData.isAgent : null
@@ -37,16 +37,12 @@ const AgentQuestionPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <a
-        href="/request-access/work-address"
+      <Link
+        to="/request-access/work-address"
         className="govuk-back-link"
-        onClick={(e) => {
-          e.preventDefault();
-          navigate("/request-access/work-address");
-        }}
       >
         Back
-      </a>
+      </Link>
 
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">

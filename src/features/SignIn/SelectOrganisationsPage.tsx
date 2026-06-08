@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAccessRequestStore } from "../../store/accessRequestStore";
+import { useNavigate, Link } from "react-router-dom";
+import { useAccessRequest } from "../../hooks/useAccessRequest";
 import { usePublicOrganisations } from "../../hooks/usePublicOrganisations";
 import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
@@ -9,7 +9,7 @@ import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 const SelectOrganisationsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthUserContext();
-  const { formData, updateFormData } = useAccessRequestStore();
+  const { formData, updateFormData } = useAccessRequest();
   const { organisations, isLoading } = usePublicOrganisations();
   const { saveAccessRequest, isLoading: isSaving } = useSaveAccessRequest();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -99,20 +99,12 @@ const SelectOrganisationsPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <a
-        href={isAgent ? "/request-access/company-name" : "/request-access/agent-question"}
+      <Link
+        to={isAgent ? "/request-access/company-name" : "/request-access/agent-question"}
         className="govuk-back-link"
-        onClick={(e) => {
-          e.preventDefault();
-          navigate(
-            isAgent
-              ? "/request-access/company-name"
-              : "/request-access/agent-question"
-          );
-        }}
       >
         Back
-      </a>
+      </Link>
 
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">

@@ -19,7 +19,7 @@ const formatSeconds = (sec: number) => {
 };
 
 const SessionTimeoutModal: React.FC = () => {
-  const { showModal, remaining, resetTimer, handleLogout } = useSessionTimeout();
+  const { showModal, remaining, resetTimer } = useSessionTimeout();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const modalRef = useRef<HTMLDivElement>(null);

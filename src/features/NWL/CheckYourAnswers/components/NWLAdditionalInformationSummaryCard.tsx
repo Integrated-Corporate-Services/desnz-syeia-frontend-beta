@@ -20,7 +20,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
     if (!data) {
         return (
             <SummaryCard
-                title={CONSTANTS.CARD_TITLES.TREES_AND_VEGETATION}
+                title={CONSTANTS.CARD_TITLES.ADDITIONAL_INFORMATION}
                 rows={[]}
                 actions={
                     canEdit
@@ -38,6 +38,18 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
 
     const rows: SummaryRow[] = [];
 
+    const getOtherDocumentNames = (): string[] => {
+        if (Array.isArray(data.other_documents)) {
+            return data.other_documents.filter(Boolean);
+        }
+
+        if (typeof data.other_documents === 'string' && data.other_documents.trim()) {
+            return [data.other_documents.trim()];
+        }
+
+        return [];
+    };
+
     // Related applications
     rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_APPLICATIONS, formatBoolean(data.has_related)));
 
@@ -52,8 +64,9 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
         rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DETAILS, data.other_details || CONSTANTS.DEFAULTS.EMPTY));
 
         // Other documents
-        if (data.other_documents) {
-            const docHtml = `<a href="#" class="govuk-link">${data.other_documents}</a>`;
+        const otherDocumentNames = getOtherDocumentNames();
+        if (otherDocumentNames.length > 0) {
+            const docHtml = otherDocumentNames.join('<br>');
             rows.push({
                 key: { text: CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DOCUMENTS },
                 value: { text: '', html: docHtml },
@@ -65,7 +78,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
 
     return (
         <SummaryCard
-            title={CONSTANTS.CARD_TITLES.TREES_AND_VEGETATION}
+            title={CONSTANTS.CARD_TITLES.ADDITIONAL_INFORMATION}
             rows={rows}
             actions={
                 canEdit

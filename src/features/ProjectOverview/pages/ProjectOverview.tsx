@@ -1,8 +1,7 @@
 import { S37_BASE_URL } from '../../../constants/s37';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useProjectStore } from '../../../store/useProjectStore';
-import { useApplicationStore } from '../../../store/useApplicationStore';
+import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
 import { PROJECT_OVERVIEW_ERRORS, createErrorLink, createMaxYearError } from "../../../constants/projectOverviewError";
 import { Link } from "react-router-dom";
@@ -20,7 +19,6 @@ import { ProjectOverviewModel } from '../../../types/projectOverview';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 // import SearchableDropdown from "../../../components/SearchableDropdown";
-import { useRef } from "react";
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
@@ -105,7 +103,7 @@ const ProjectOverview = () => {
 	const applicationId = useGetApplicationId();
 
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
-	const { projectOverview: projectData, fetchProjectOverview, saveProjectOverview } = useProjectStore();
+	const { projectOverview: projectData, fetchProjectOverview, saveProject } = useProjectOverview();
 	const remainingChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.projectDescription.length);
 	const getRelatedCpoDetailsString = (val: typeof formState.relatedCpoDetails) =>
 		typeof val === 'string' ? val : (val && typeof val.field === 'string' ? val.field : '');
@@ -113,15 +111,26 @@ const ProjectOverview = () => {
 	const remainingCpoChars = Math.max(0, MAX_DESCRIPTION_LENGTH - relatedCpoDetailsStr.length);
 	const remainingRelatedAppsChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.relatedApplicationsDetails.length);
 
-	// Clear form state when applicationId changes
+	// Track previous application ID to detect actual changes
+	const prevAppIdRef = useRef(applicationId);
+	const hasFetchedRef = useRef(false);
+	const hasBindDataRef = useRef(false);
+
+	// Clear form only when switching to a different application
 	useEffect(() => {
-		setFormState(emptyProjectOverview);
+		if (prevAppIdRef.current !== applicationId) {
+			setFormState(emptyProjectOverview);
+			prevAppIdRef.current = applicationId;
+			hasFetchedRef.current = false; // Reset fetch flag
+			hasBindDataRef.current = false; // Reset bind flag here
+		}
 	}, [applicationId]);
 
-	// Fetch project overview on mount
+	// Fetch project overview once per application (hasFetchedRef guards against repeated fetches)
 	useEffect(() => {
-		if (applicationId) {
+		if (applicationId && !hasFetchedRef.current) {
 			fetchProjectOverview(applicationId);
+			hasFetchedRef.current = true;
 		}
 	}, [applicationId, fetchProjectOverview]);
 
@@ -148,8 +157,12 @@ const ProjectOverview = () => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pendingFiles.length, formState.uploadedFiles.length]);
 
+	// Bind fetched data ONLY once (prevents overwriting unsaved changes)
 	useEffect(() => {
+		if (hasBindDataRef.current || !projectData) return;
+		
 		if (projectData && applicationId && projectData.applicationId === applicationId) {
+			hasBindDataRef.current = true;
 			const forms = projectData.forms || {};
 			// Handle CPO details: support both string and object (with 'field')
 			let cpoField = '';
@@ -544,7 +557,7 @@ const ProjectOverview = () => {
 						})),
 					};
 					
-					saveProjectOverview(payload)
+					saveProject(payload)
 						.then((response: any) => {
 							// Try to get application id from backend response, fallback to payload/params/query string
 							const redirectId =

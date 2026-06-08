@@ -95,18 +95,11 @@ const EvidenceOfNegotiations: React.FC = () => {
       // CRITICAL FIX: Only update comments if form hasn't been modified by user
       // This prevents refetches from clearing user input
       if (!isFormDirty) {
-        console.log('[EvidenceOfNegotiations] Form is not dirty, updating comments state');
         setComments(newComments);
-      } else {
-        console.log('[EvidenceOfNegotiations] Form IS dirty, preserving user input. Not updating comments.');
       }
       
       setUploadedFiles(newUploadedFiles);
       setApplicationDocuments(newApplicationDocuments);
-      
-      console.log('[EvidenceOfNegotiations] State SET calls completed. State should update on next render.');
-    } else {
-      console.log('[EvidenceOfNegotiations] negotiationsData is null/undefined - not updating state');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [negotiationsData]); // CRITICAL: Do NOT include isFormDirty in dependencies - it would cause infinite loop!
@@ -133,46 +126,18 @@ const EvidenceOfNegotiations: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('[EvidenceOfNegotiations] ========== HANDLE SUBMIT CALLED ==========');
-    console.log('[EvidenceOfNegotiations] Current state at submit time:', {
-      comments_state_value: comments,
-      comments_state_length: comments.length,
-      comments_state_type: typeof comments,
-      pendingFilesCount: pendingFiles.length,
-      existingUploadedFiles: uploadedFiles.length,
-      existingDocuments: applicationDocuments.length,
-      isFormDirty,
-      hasUserInteracted,
-    });
-
     // Capture newly uploaded files (if any)
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
     // Upload pending files first and capture the result
     if (fileUploadRef.current && pendingFiles.length > 0) {
-      console.log('[EvidenceOfNegotiations] Triggering upload for pending files...');
       const uploadResult = await fileUploadRef.current.triggerUpload();
       newlyUploadedFiles = uploadResult.uploadedFiles;
       newlyUploadedDocuments = uploadResult.applicationDocuments;
-      
-      console.log('[EvidenceOfNegotiations] Upload completed:', {
-        newlyUploadedFilesCount: newlyUploadedFiles.length,
-        newlyUploadedDocumentsCount: newlyUploadedDocuments.length,
-        files: newlyUploadedFiles.map(f => ({ id: f.id, filename: f.filename })),
-        documents: newlyUploadedDocuments.map(d => ({ documentId: d.documentId, category: d.category })),
-      });
     }
 
-    console.log('[EvidenceOfNegotiations] About to validate comments:', {
-      comments_to_validate: comments,
-      comments_length: comments.length,
-      comments_trimmed: comments.trim(),
-      comments_trimmed_length: comments.trim().length,
-    });
-
     if (!validateComments(comments, true)) {
-      console.error('[EvidenceOfNegotiations] ❌ VALIDATION FAILED');
       window.scrollTo(0, 0);
       return;
     }
@@ -191,25 +156,6 @@ const EvidenceOfNegotiations: React.FC = () => {
       const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
       const allDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
 
-      console.log('[EvidenceOfNegotiations] ========== PREPARING TO SAVE ==========');
-      console.log('[EvidenceOfNegotiations] Comments value details:', {
-        comments_raw_value: comments,
-        comments_type: typeof comments,
-        comments_length: comments.length,
-        comments_is_empty_string: comments === '',
-        comments_is_null: comments === null,
-        comments_is_undefined: comments === undefined,
-        comments_trimmed: comments.trim(),
-        comments_trimmed_length: comments.trim().length,
-      });
-      console.log('[EvidenceOfNegotiations] Full payload to send:', {
-        has_negotiations: true,
-        negotiations_comments: comments,
-        no_negotiations_reason: '',
-        uploaded_files_count: allUploadedFiles.length,
-        application_documents_count: allDocuments.length,
-      });
-
       // Use PATCH to update existing record
       // If record doesn't exist (404), will fallback to POST which requires has_negotiations
       // IMPORTANT: Send uploaded files and documents so backend can save them to database
@@ -223,10 +169,7 @@ const EvidenceOfNegotiations: React.FC = () => {
         application_documents: allDocuments,
       });
 
-      console.log('[EvidenceOfNegotiations] Backend response:', result);
-
       if (!result) {
-        console.error('[EvidenceOfNegotiations] No response from backend - save may have failed');
         alert('Failed to save data. Please try again.');
         return;
       }
@@ -237,33 +180,19 @@ const EvidenceOfNegotiations: React.FC = () => {
       // Reset both dirty flags since we just saved
       setIsFormDirty(false);
       setHasUserInteracted(false);
-      console.log('[EvidenceOfNegotiations] Form dirty flags reset after successful save');
 
       // Refetch data to ensure state is updated
-      console.log('[EvidenceOfNegotiations] Refetching negotiations data...');
       await refetchNegotiationsData();
-      console.log('[EvidenceOfNegotiations] Refetch complete');
-      
-      // Verify data was actually saved by checking the refetched data
-      console.log('[EvidenceOfNegotiations] Verification - checking refetched data:', {
-        hasComments: !!negotiationsData?.negotiations_comments,
-        commentsLength: negotiationsData?.negotiations_comments?.length || 0,
-        uploadedFilesCount: negotiationsData?.uploaded_files?.length || 0,
-        applicationDocumentsCount: negotiationsData?.application_documents?.length || 0,
-      });
       
       // Update progress for Negotiations section
       try {
         await updateProgress('Negotiations', 'Completed');
-        console.log('[EvidenceOfNegotiations] Progress updated for Negotiations section');
       } catch (progressError) {
-        console.error('[EvidenceOfNegotiations] Error updating progress', progressError);
         // Continue even if progress update fails
       }
       
       navigateToTaskList();
     } catch (error) {
-      console.error('[EvidenceOfNegotiations] Error saving negotiations evidence:', error);
       alert('An error occurred while saving. Please try again.');
     } finally {
       setIsSaving(false);
@@ -294,10 +223,6 @@ const EvidenceOfNegotiations: React.FC = () => {
                 rows={8}
                 maxLength={CHARACTER_LIMITS.MAX_COMMENTS}
                 onChange={(value) => {
-                  console.log('[EvidenceOfNegotiations] Textarea onChange called with value:', {
-                    value,
-                    value_length: value.length,
-                  });
                   // Mark that user has interacted with this field
                   setHasUserInteracted(true);
                   setComments(value);

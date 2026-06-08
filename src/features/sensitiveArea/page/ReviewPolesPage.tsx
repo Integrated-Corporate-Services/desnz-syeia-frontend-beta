@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
-import { useSensitiveAreaReview } from '../../../store/sensitiveAreaReviewStore';
+import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { S37_BASE_URL } from '../../../constants/s37';
 
 const ReviewPolesPage: React.FC = () => {

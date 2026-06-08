@@ -4,9 +4,9 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import RouteDeletedBanner from '../component/RouteDeletedBanner';
-import { useRouteStore } from '../../../store/useRouteStore';
+import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import { useProgressStore } from '../../../store/useProgressStore';
+import { useProgress } from '../../../hooks/useProgress';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
@@ -19,8 +19,8 @@ export const RouteOverviewPage: React.FC = () => {
     const applicationId = useGetApplicationId();
     const navigate = useNavigate();
     const location = useLocation();
-    const store = useRouteStore();
-    const progressStore = useProgressStore();
+    const store = useRoutes();
+    const progressData = useProgress();
     let routes = Array.isArray(store?.routes) ? store.routes : [];
     // Sort routes by routeName (A, B, C, ...)
     routes = [...routes].sort((a, b) => {
@@ -234,7 +234,7 @@ export const RouteOverviewPage: React.FC = () => {
                                 } else {
                                     // Call progress update for 'no spur' before navigating
                                     try {
-                                        await progressStore.updateProgress(applicationId!, 'Route', 'Completed');
+                                        await progressData.updateProgressItem(applicationId!, 'Route', 'Completed');
                                     } catch (err) {
                                         // TODO: error handling
                                     }

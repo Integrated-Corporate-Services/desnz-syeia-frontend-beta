@@ -119,10 +119,14 @@ import PostConsultationConsulteesReason from '../features/PostConsultation/pages
 import PaymentAmountPage from '../features/Payments/pages/PaymentAmountPage';
 import InvoiceGenerationPage from '../features/Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../features/Payments/pages/InvoiceDownloadPage';
+import InvoiceGenerationErrorPage from '../features/Payments/pages/InvoiceGenerationErrorPage';
 import PaymentMethodPage from '../features/Payments/pages/PaymentMethodPage';
+import BankTransferPaymentPage from '../features/Payments/pages/BankTransferPaymentPage';
+import BankTransferConfirmationPage from '../features/Payments/pages/BankTransferConfirmationPage';
 import BankTransferSuccessPage from '../features/Payments/pages/BankTransferSuccessPage';
 import PaymentCallbackPage from '../features/Payments/pages/PaymentCallbackPage';
 import PaymentSuccessPage from '../features/Payments/pages/PaymentSuccessPage';
+import PaymentFailurePage from '../features/Payments/pages/PaymentFailurePage';
 import RouteMapOnlyPage from '../features/RouteMap/page/RouteMapOnlyPage';
 import ConsultationInitialQuestion from '../features/Consultation/pages/ConsultationInitialQuestion';
 import ConsultationResponseInitialQuestion from '../features/Consultation/pages/ConsultationResponseInitialQuestion';
@@ -181,6 +185,12 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/payment-success`,
         component: PaymentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/payment-failed`,
+        component: PaymentFailurePage,
         auth: true,
         layout: true,
     },
@@ -260,6 +270,18 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
+        path: `${S37_BASE_URL}/:applicationId/bank-transfer-payment`,
+        component: BankTransferPaymentPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/bank-transfer-confirmation`,
+        component: BankTransferConfirmationPage,
+        auth: true,
+        layout: true,
+    },
+    {
         path: `${S37_BASE_URL}/:applicationId/bank-transfer-success`,
         component: BankTransferSuccessPage,
         auth: true,
@@ -268,6 +290,12 @@ export const ROUTE_CONFIG = [
     {
         path: `${S37_BASE_URL}/:applicationId/generate-invoice`,
         component: InvoiceGenerationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/generate-invoice-error`,
+        component: InvoiceGenerationErrorPage,
         auth: true,
         layout: true,
     },

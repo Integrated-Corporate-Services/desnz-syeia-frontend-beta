@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import { createPayment } from '../../../services/govPayService';
-import { getPresignedGetUrl } from '../../../services/s3ApiService';
 
 const InvoiceDownloadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,13 +11,107 @@ const InvoiceDownloadPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resolvedTotalAmount, setResolvedTotalAmount] = useState<number | null>(null);
+  const [resolvedInvoiceNumber, setResolvedInvoiceNumber] = useState<string | null>(null);
+  const [resolvedS3Key, setResolvedS3Key] = useState<string | null>(null);
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const { invoiceNumber, s3Key, consentFee, eiaScreeningFee, totalAmount } = location.state || {};
 
+  const effectiveInvoiceNumber = invoiceNumber || resolvedInvoiceNumber;
+  const effectiveS3Key = s3Key || resolvedS3Key;
+
+  const effectiveTotalAmount = useMemo(() => {
+    if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount) && totalAmount > 0) {
+      return totalAmount;
+    }
+    if (
+      typeof resolvedTotalAmount === 'number' &&
+      !Number.isNaN(resolvedTotalAmount) &&
+      resolvedTotalAmount > 0
+    ) {
+      return resolvedTotalAmount;
+    }
+    return null;
+  }, [totalAmount, resolvedTotalAmount]);
+
+  useEffect(() => {
+    const loadFeesIfNeeded = async () => {
+      if (!applicationId) {
+        return;
+      }
+
+      if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount) && totalAmount > 0) {
+        setResolvedTotalAmount(totalAmount);
+        return;
+      }
+
+      try {
+        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const result = await response.json();
+        if (typeof result.totalAmount === 'number' && result.totalAmount > 0) {
+          setResolvedTotalAmount(result.totalAmount);
+        }
+      } catch {
+        // Keep existing UI behavior and avoid hard failure when fallback lookup fails.
+      }
+    };
+
+    loadFeesIfNeeded();
+  }, [applicationId, totalAmount]);
+
+  useEffect(() => {
+    const loadInvoiceStatusIfNeeded = async () => {
+      if (!applicationId) {
+        return;
+      }
+
+      if (invoiceNumber && s3Key) {
+        setResolvedInvoiceNumber(invoiceNumber);
+        setResolvedS3Key(s3Key);
+        return;
+      }
+
+      try {
+        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const result = await response.json();
+        if (result.invoiceExists) {
+          setResolvedInvoiceNumber(result.invoiceNumber || null);
+          setResolvedS3Key(result.s3Key || null);
+        }
+      } catch {
+        // Keep page usable even if invoice status check fails.
+      }
+    };
+
+    loadInvoiceStatusIfNeeded();
+  }, [applicationId, invoiceNumber, s3Key]);
+
   const handleDownloadInvoice = async () => {
-    if (!invoiceNumber) {
+    if (!effectiveInvoiceNumber) {
       setError('Invoice number not available');
       return;
     }
@@ -28,11 +121,11 @@ const InvoiceDownloadPage: React.FC = () => {
       setError('');
 
       // Use backend download endpoint with invoice number as query param
-      const downloadUrl = `/backend/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(invoiceNumber)}`;
+      const downloadUrl = buildBackendUrl(`/backend/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(effectiveInvoiceNumber)}`);
 
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = `Invoice_${invoiceNumber}.pdf`;
+      link.download = `Invoice_${effectiveInvoiceNumber}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -47,8 +140,8 @@ const InvoiceDownloadPage: React.FC = () => {
   const handleContinueToPayment = () => {
     navigate(`${baseUrl}/${applicationId}/payment-method`, {
       state: {
-        invoiceNumber: invoiceNumber,
-        totalAmount: totalAmount,
+        invoiceNumber: effectiveInvoiceNumber,
+        totalAmount: effectiveTotalAmount,
         consentFee: consentFee,
         eiaScreeningFee: eiaScreeningFee
       }
@@ -85,9 +178,9 @@ const InvoiceDownloadPage: React.FC = () => {
             )}
 
             <h1 className="govuk-heading-l">Your Invoice</h1>
-            {invoiceNumber && (
+            {effectiveInvoiceNumber && (
               <p className="govuk-body">
-                Your invoice number is <strong>{invoiceNumber}</strong>.
+                Your invoice number is <strong>{effectiveInvoiceNumber}</strong>.
               </p>
             )}
 
@@ -96,7 +189,7 @@ const InvoiceDownloadPage: React.FC = () => {
                 type="button"
                 className="govuk-button"
                 onClick={handleDownloadInvoice}
-                disabled={loading || !s3Key}
+                disabled={loading || !effectiveS3Key || !effectiveInvoiceNumber}
               >
                 {loading ? 'Downloading...' : 'Download Invoice'}
               </button>
@@ -106,7 +199,7 @@ const InvoiceDownloadPage: React.FC = () => {
                 type="button"
                 className="govuk-button govuk-button--secondary"
                 onClick={handleContinueToPayment}
-                disabled={loading}
+                disabled={loading || !effectiveTotalAmount || !effectiveInvoiceNumber}
               >
                 {loading ? 'Processing...' : 'Continue to payment'}
               </button>

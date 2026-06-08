@@ -1,19 +1,28 @@
-# Dockerfile for frontend
+# Dockerfile for frontend production build
 FROM public.ecr.aws/docker/library/node:18
 
 WORKDIR /app
 
-# Copy package files and install deps
+# Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
-#  Copy everything now, not just /src
+# Copy source files and serve.json config
 COPY . .
 
+# Build production files
 RUN npm run build
 
-#  Expose the port that Vite runs on
+# Install serve globally for production serving
+RUN npm install -g serve
+
+# Create /frontend path structure for production (matches test-production.ps1)
+RUN mkdir -p dist-serve/frontend && \
+    cp -r dist/* dist-serve/frontend/ && \
+    rm -rf dist node_modules src public .git
+
 EXPOSE 5173
 
-# Start the Vite dev server
-CMD ["npm", "run", "dev"]
+# Serve using serve.json config (same as test-production.ps1)
+# serve.json has "public": "dist-serve" to serve from dist-serve root
+CMD ["serve", "-l", "5173", "-c", "serve.json"]

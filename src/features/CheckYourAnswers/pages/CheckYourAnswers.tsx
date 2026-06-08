@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import { ConsultationType, isLpaJourney } from "../../../constants/consultationType";
 import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
@@ -176,7 +177,9 @@ const CheckYourAnswers: React.FC = () => {
 
   useEffect(() => {
     if (!applicationId) return;
-    fetch(`/backend/api/applications/${applicationId}/review`)
+    fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+      credentials: 'include'
+    })
       .then((res) => res.json())
       .then((data) => {
         // Log the entire response to see structure
@@ -820,7 +823,7 @@ const CheckYourAnswers: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Assets</h2>
-                {permissions?.canEdit && (
+                {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -835,7 +838,7 @@ const CheckYourAnswers: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
+                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1344,7 +1347,7 @@ const CheckYourAnswers: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   Sensitive area review
                 </h2>
-                {permissions?.canEdit && (
+                {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -1359,7 +1362,7 @@ const CheckYourAnswers: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
+                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1576,7 +1579,7 @@ const CheckYourAnswers: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">EIA fees</h2>
-                {permissions?.canEdit && (
+                {/* {permissions?.canEdit && (
                   <ul className="govuk-summary-card__actions">
                     <li className="govuk-summary-card__action">
                       <Link
@@ -1588,7 +1591,7 @@ const CheckYourAnswers: React.FC = () => {
                       </Link>
                     </li>
                   </ul>
-                )}
+                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">

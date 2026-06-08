@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { useEffect, useRef } from "react";
 import { getAuthUser, AuthUserResponse } from "../services/authService";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuth } from "./useAuth";
 import { createLogger } from "../utils/logger";
 
 const logger = createLogger('useAuthUser');
@@ -11,7 +11,7 @@ const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
 
 export function useAuthUser() {
   const { setAuth, setError, setLoading, user, loading, error, authenticated } =
-    useAuthStore();
+    useAuth();
   const hasLoadedRef = useRef(false);
 
   useEffect(() => {

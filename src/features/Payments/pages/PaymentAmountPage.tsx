@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-import { useAssetStore } from '../../../store/useAssetStore';
+import { useAssets } from '../../../hooks/useAssets';
 
 const PaymentAmountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const PaymentAmountPage: React.FC = () => {
   const { user } = useAuthUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const assets = useAssetStore((state) => state.assets);
+  const { assets } = useAssets();
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
@@ -45,12 +46,39 @@ const PaymentAmountPage: React.FC = () => {
         setLoading(true);
         setError('');
 
-        // Call backend API to calculate fees
-        const response = await fetch(`/backend/api/invoice/${applicationId}/calculate-fees`, {
+        // If an invoice already exists, skip generation step and go to invoice page.
+        const statusResponse = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
+        });
+
+        if (statusResponse.ok) {
+          const statusResult = await statusResponse.json();
+          if (statusResult.invoiceExists) {
+            navigate(`${baseUrl}/${applicationId}/invoice-download`, {
+              state: {
+                invoiceNumber: statusResult.invoiceNumber,
+                s3Key: statusResult.s3Key,
+                consentFee: 0,
+                eiaScreeningFee: 0,
+                totalAmount: 0,
+              },
+              replace: true,
+            });
+            return;
+          }
+        }
+
+        // Call backend API to calculate fees
+        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -75,7 +103,7 @@ const PaymentAmountPage: React.FC = () => {
     };
 
     fetchPaymentFees();
-  }, [applicationId]);
+  }, [applicationId, baseUrl, navigate]);
 
   const handleGenerateInvoice = async () => {
     navigate(`${baseUrl}/${applicationId}/generate-invoice`, {

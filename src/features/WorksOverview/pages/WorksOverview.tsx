@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FileUploadResponse } from '../../../types/FileUploadResponse';
-import { useApplicationStore } from '../../../store/useApplicationStore';
-import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import TextInput from '../component/TextInput';
 import NumberInput from '../component/NumberInput';
 import RadioGroup from '../component/RadioGroup';
@@ -57,25 +57,7 @@ const WorksOverview: React.FC = () => {
 
 
   // Get applicationId from URL params or query string
- 
-
-  const params = useParams();
-  const location = useLocation();
-  const application = useApplicationStore((state) => state.application);
-  // Helper to get applicationId from store, params, or query string
-  const getApplicationId = () => {
-    if (application && application.application_id)
-      return application.application_id;
-    if (params.applicationId) return params.applicationId;
-    if (params.id) return params.id;
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(location.search);
-      const idFromQuery = searchParams.get('id') || searchParams.get('applicationId');
-      if (idFromQuery) return idFromQuery;
-    }
-    return '';
-  };
-  const applicationId = getApplicationId();
+  const applicationId = useGetApplicationId();
  
  
   const effectiveApplicationId = applicationId;

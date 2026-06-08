@@ -14,6 +14,6 @@ export * from './LandownerDetailsSummaryCard';
 export * from './RepresentativeDetailsSummaryCard';
 export * from './SiteAddressSummaryCard';
 export * from './LandLocationSummaryCard';
-export * from './AssetSummaryCard';
+export * from './AssetsPlanSummaryCard';
 export * from './NWLAdditionalInformationSummaryCard';
 export * from './NegotiationsSummaryCard';

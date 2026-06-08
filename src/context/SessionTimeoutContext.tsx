@@ -3,7 +3,6 @@ import { logout } from '../services/authService';
 import { useAuthUserContext } from './AuthUserContext';
 import { createLogger } from '../utils/logger';
 import { SESSION_TIMEOUT, SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
-import { useSessionKeepAlive } from '../hooks/useSessionKeepAlive';
 
 const logger = createLogger('SessionTimeoutContext');
 
@@ -30,14 +29,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   logger.info(`Session timeout initialized: Idle timeout = ${SESSION_TIMEOUT}s (${SESSION_TIMEOUT / 60} min), Warning period = ${SESSION_WARNING}s (${SESSION_WARNING / 60} min)`);
   logger.info(`Modal will show at ${SESSION_TIMEOUT - SESSION_WARNING}s (${(SESSION_TIMEOUT - SESSION_WARNING) / 60} min of idle time)`);
 
-  // Keep session alive with periodic pings (only when user is active)
-  useSessionKeepAlive({
-    isAuthenticated,
-    lastActivityRef,
-    isLoggingOutRef,
-    pingIntervalSeconds: 45, // ALB timeout workaround
-    activityThresholdSeconds: 300 // Only ping if active within 5 minutes
-  });
+ 
 
   // Reset timer on user activity
   const resetTimer = useCallback(() => {

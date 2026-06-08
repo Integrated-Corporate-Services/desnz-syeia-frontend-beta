@@ -1,13 +1,35 @@
 import { ApplicationSummaryData, PaymentStatus } from '../types';
 import { ApplicationReviewSummaryData } from '../types/reviewSummary';
+import { buildBackendUrl } from '../../../utils/apiConfig';
+
+const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | null> => {
+    const response = await fetch(buildBackendUrl(`/backend/api/nwl/${applicationId}/assets`), {
+        credentials: 'include',
+    });
+
+    if (response.status === 404) {
+        return null;
+    }
+
+    if (!response.ok) {
+        return null;
+    }
+
+    return response.json();
+};
 
 const mapReviewResponse = (
     data: Record<string, unknown>,
     applicationId: string,
-    applicationType: 'NWL' | 'S37' | 'TLP'
+    applicationType: 'NWL' | 'S37' | 'TLP',
+    assetsMetadata: unknown | null
 ): ApplicationReviewSummaryData => {
     const sections = (data.sections as Record<string, unknown>) || {};
     const permissions = (data.permissions as Record<string, boolean>) || {};
+    const reviewAssetsSection = sections.assets;
+    const normalizedAssets = Array.isArray(reviewAssetsSection)
+        ? reviewAssetsSection
+        : (reviewAssetsSection as { assets?: unknown[] })?.assets || [];
 
     return {
         applicationId: (data.applicationId as string) || applicationId,
@@ -21,7 +43,8 @@ const mapReviewResponse = (
         landownerDetails: sections.landownerDetails || null,
         representativeDetails: sections.representativeDetails || null,
         landDetails: sections.landDetails || null,
-        assets: (sections.assets as unknown[]) || [],
+        assets: normalizedAssets,
+        assetsMetadata,
         negotiations: sections.negotiations || null,
         additionalInformation: sections.additionalInformation || null,
         payment: (sections.payment as ApplicationReviewSummaryData['payment']) || null,
@@ -36,7 +59,9 @@ export const fetchApplicationReviewSummary = async (
     applicationId: string,
     applicationType: 'NWL' | 'S37' | 'TLP'
 ): Promise<ApplicationReviewSummaryData> => {
-    const response = await fetch(`/backend/api/applications/${applicationId}/review`);
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+        credentials: 'include',
+    });
 
     if (!response.ok) {
         const errorText = await response.text();
@@ -44,7 +69,8 @@ export const fetchApplicationReviewSummary = async (
     }
 
     const data = await response.json();
-    return mapReviewResponse(data, applicationId, applicationType);
+    const assetsMetadata = await fetchNwlAssetsMetadata(applicationId);
+    return mapReviewResponse(data, applicationId, applicationType, assetsMetadata);
 };
 
 export const fetchApplicationSummary = async (
@@ -70,7 +96,9 @@ export const fetchApplicationSummary = async (
     }
 
     const typeParam = applicationType.toLowerCase();
-    const response = await fetch(`/backend/api/applications/${applicationId}/${typeParam}-summary`);
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/${typeParam}-summary`), {
+        credentials: 'include',
+    });
 
     if (!response.ok) {
         const errorText = await response.text();

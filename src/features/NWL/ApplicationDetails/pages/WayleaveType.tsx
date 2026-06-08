@@ -7,7 +7,6 @@ import {
   LABELS,
   FORM_ERRORS,
   WAYLEAVE_EXPIRED_OPTIONS,
-  WAYLEAVE_EXPIRED_DETAILS,
   WAYLEAVE_TERMINATED_OPTIONS,
   WAYLEAVE_TERMINATED_DETAILS,
 } from "../constants/wayleaveTypeConstants";
@@ -40,19 +39,13 @@ const WayleaveType: React.FC = () => {
     (location.state as any)?.grounds_for_application || 
     applicationDetails?.grounds_for_application;
 
-  // Determine which options and details to show based on grounds_for_application
-  const { options, details } = useMemo(() => {
+  // Determine which options to show based on grounds_for_application
+  const options = useMemo(() => {
     if (groundsForApplication === 'wayleave_expired') {
-      return {
-        options: WAYLEAVE_EXPIRED_OPTIONS,
-        details: WAYLEAVE_EXPIRED_DETAILS,
-      };
+      return WAYLEAVE_EXPIRED_OPTIONS;
     } else {
       // Default to wayleave_terminated options
-      return {
-        options: WAYLEAVE_TERMINATED_OPTIONS,
-        details: WAYLEAVE_TERMINATED_DETAILS,
-      };
+      return WAYLEAVE_TERMINATED_OPTIONS;
     }
   }, [groundsForApplication]);
 
@@ -201,28 +194,33 @@ const WayleaveType: React.FC = () => {
                     ))}
                   </div>
 
-                  <details className="govuk-details">
-                    <summary className="govuk-details__summary">
-                      <span className="govuk-details__summary-text">
-                        {details.SUMMARY}
-                      </span>
-                    </summary>
-                    <div className="govuk-details__text">
-                      <p className="govuk-body">{details.TEXT_1}</p>
-                      <p className="govuk-body">{details.TEXT_2}</p>
-                      <p className="govuk-body">{details.TEXT_3}</p>
-                      <p className="govuk-body">
-                        <a
-                          href={details.LINK_URL}
-                          className="govuk-link"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {details.LINK_TEXT}
-                        </a>
-                      </p>
-                    </div>
-                  </details>
+                  {/* Only show details for wayleave_terminated flow (implied wayleave) */}
+                  {groundsForApplication === 'wayleave_terminated' && (
+                    <details className="govuk-details">
+                      <summary className="govuk-details__summary">
+                        <span className="govuk-details__summary-text">
+                          {WAYLEAVE_TERMINATED_DETAILS.SUMMARY}
+                        </span>
+                      </summary>
+                      <div className="govuk-details__text">
+                        <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_1}</p>
+                        <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_2}</p>
+                        <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_3}</p>
+                        <p className="govuk-body">
+                          Read the{" "}
+                          <a
+                            href={WAYLEAVE_TERMINATED_DETAILS.LINK_URL}
+                            className="govuk-link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {WAYLEAVE_TERMINATED_DETAILS.LINK_TEXT}
+                          </a>{" "}
+                          for more information.
+                        </p>
+                      </div>
+                    </details>
+                  )}
                 </fieldset>
               </div>
 
