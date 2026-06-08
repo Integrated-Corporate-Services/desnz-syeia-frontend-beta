@@ -80,7 +80,7 @@ const NWLGuidancePage = () => {
             className="govuk-button govuk-button--start"
             data-module="govuk-button"
             type="button"
-            onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL || ''}/backend/auth/login`)}
+            onClick={() => (window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`)}
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             aria-label="Sign in to submit your application"
           >

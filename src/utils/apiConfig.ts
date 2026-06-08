@@ -10,7 +10,7 @@
  * In production: Returns full backend URL (e.g., http://localhost:3000)
  */
 export const getApiBaseUrl = (): string => {
-  return import.meta.env.VITE_API_BASE_URL || '';
+  return import.meta.env.API_URL || '';
 };
 
 /**

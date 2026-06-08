@@ -11,7 +11,7 @@ import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/coo
 // Configure axios to send cookies with requests (required for session auth)
 // Use empty string for relative paths (same-origin requests)
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || "";
+axios.defaults.baseURL = import.meta.env.API_URL || "";
 
 // TypeScript: declare GOVUKFrontend on window
 declare global {
