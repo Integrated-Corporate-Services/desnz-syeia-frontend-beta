@@ -39,6 +39,7 @@ const ServiceNavigation = () => {
         location.pathname.includes("/task-list") ||
         location.pathname.includes("/delete");
 
+
     // Check if on organisation/admin pages
     const isOnOrganisationPages =
         location.pathname.includes("/admin/") ||
@@ -110,15 +111,6 @@ const ServiceNavigation = () => {
                                 >
                                     Applications
                                 </Link>
-                            </li>
-                            <li className="rcc-service-nav__item">
-                                <a
-                                    className="rcc-service-nav__link"
-                                    href="#"
-                                    onClick={(e) => e.preventDefault()}
-                                >
-                                    Notifications <span className="moj-notification-badge"></span>
-                                </a>
                             </li>
                             <li className="rcc-service-nav__item">
                                 <a
