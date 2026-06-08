@@ -22,10 +22,9 @@ const ClosedPage: React.FC = () => {
       <Header />
       <div className="govuk-width-container">
         <main
-          className="govuk-main-wrapper"
+          className="govuk-main-wrapper govuk-!-padding-top-2 govuk-!-padding-bottom-2"
           id="main-content"
           role="main"
-          style={{ paddingTop: 16, paddingBottom: 16 }}
         >
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
@@ -33,7 +32,6 @@ const ClosedPage: React.FC = () => {
                 className="govuk-heading-l"
                 ref={contentStartRef}
                 tabIndex={-1}
-                style={{ outline: 'none' }}
               >
                 This service is currently in private beta
               </h1>
