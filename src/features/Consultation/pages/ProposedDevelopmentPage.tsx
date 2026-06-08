@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationPack } from '../../../services/consultationPackService';
@@ -55,7 +56,9 @@ const ProposedDevelopmentPage: React.FC = () => {
         } else {
           // If no saved data, pre-populate from project overview
           try {
-            const projectResponse = await fetch(`/backend/api/project/${applicationId}`);
+            const projectResponse = await fetch(buildBackendUrl(`/backend/api/project/${applicationId}`), {
+              credentials: 'include'
+            });
             if (projectResponse.ok) {
               const projectData = await projectResponse.json();
               const projectDescription = projectData?.projectDescription || projectData?.project_description || '';

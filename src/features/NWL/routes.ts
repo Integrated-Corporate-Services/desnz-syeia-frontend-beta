@@ -50,6 +50,7 @@ import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
 import InvoiceGenerationErrorPage from '../Payments/pages/InvoiceGenerationErrorPage';
 import PaymentMethodPage from '../Payments/pages/PaymentMethodPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
+import PaymentFailurePage from '../Payments/pages/PaymentFailurePage';
 import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
 import WithdrawApplicationPage from '../WithdrawApplication/pages/WithdrawApplicationPage';
 import WithdrawalConfirmationPage from '../WithdrawApplication/pages/WithdrawalConfirmationPage';
@@ -499,6 +500,12 @@ export const nwlPaymentRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/payment-success`,
         component: PaymentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/payment-failed`,
+        component: PaymentFailurePage,
         auth: true,
         layout: true,
     },

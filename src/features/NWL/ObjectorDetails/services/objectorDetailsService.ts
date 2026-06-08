@@ -1,10 +1,14 @@
 import { ObjectorDetails } from '../types';
 
-const API_BASE = '/backend/api/nwl';
+import { buildBackendUrl } from '../../../../utils/apiConfig';
+
+const API_BASE = buildBackendUrl('/backend/api/nwl');
 
 export const getObjectorDetails = async (applicationId: string): Promise<ObjectorDetails | null> => {
   try {
-    const response = await fetch(`${API_BASE}/${applicationId}/objector-details`);
+    const response = await fetch(`${API_BASE}/${applicationId}/objector-details`, {
+      credentials: 'include'
+    });
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -48,6 +52,7 @@ export const saveObjectorDetails = async (
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(details),
     });
     
@@ -75,6 +80,7 @@ export const deleteObjectorDetails = async (applicationId: string): Promise<bool
   try {
     const response = await fetch(`${API_BASE}/${applicationId}/objector-details`, {
       method: 'DELETE',
+      credentials: 'include',
     });
     
     if (!response.ok) {

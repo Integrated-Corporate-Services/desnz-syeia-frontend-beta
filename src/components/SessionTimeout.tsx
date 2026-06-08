@@ -19,15 +19,16 @@ const formatSeconds = (sec: number) => {
 };
 
 const SessionTimeoutModal: React.FC = () => {
-  const { showModal, remaining, extendSession } = useSessionTimeout();
+  const { showModal, remaining, resetTimer } = useSessionTimeout();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const modalRef = useRef<HTMLDivElement>(null);
   const staySignedInRef = useRef<HTMLButtonElement>(null);
 
+
   const handleContinueClick = useCallback(() => {
-    extendSession();
-  }, [extendSession]);
+    resetTimer();
+  }, [resetTimer]);
 
   // Always show the same warning message on all pages
   const answerWarning = useMemo(() => {

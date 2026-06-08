@@ -117,12 +117,12 @@ const ApplicationOutsideTimeframe: React.FC = () => {
                   </p>
                 )}
                 <textarea
-                  className={`govuk-textarea ${
+                  className={`govuk-textarea  ${
                     error ? "govuk-textarea--error" : ""
                   }`}
                   id="explanation"
                   name="explanation"
-                  rows={8}
+                  rows={5}
                   aria-describedby="explanation-hint"
                   value={explanation}
                   onChange={(e) => {

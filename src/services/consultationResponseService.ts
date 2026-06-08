@@ -1,6 +1,8 @@
 import { ConsultationResponse } from '../types/ConsultationResponse';
 
-const API_BASE = '/backend/api/consultation-responses';
+import { buildBackendUrl } from '../utils/apiConfig';
+
+const API_BASE = buildBackendUrl('/backend/api/consultation-responses');
 
 export async function getConsultationResponse(consultation_id: string, application_id?: string): Promise<ConsultationResponse> {
   if (!consultation_id) {

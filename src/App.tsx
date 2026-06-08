@@ -29,7 +29,7 @@ const AppContent = () => {
     const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
 
     if (LOGIN_DISABLED && !loading && !user && error) {
-      window.location.href = "/backend/auth/login";
+      window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`;
     }
   }, [user, loading, error]);
 
@@ -60,22 +60,30 @@ const AppContent = () => {
   const isNotFound =
     location.pathname &&
     !validPaths.some((path) => {
+      // Normalize paths by removing trailing slashes for comparison
+      const normalizedLocation = location.pathname.replace(/\/$/, '') || '/';
+      const normalizedPath = path.replace(/\/$/, '') || '/';
+      
       // Handle dynamic params (e.g., /route-overview/:applicationId)
-      if (path.includes(":")) {
-        const base = path.split("/:")[0];
-        return location.pathname.startsWith(base);
+      if (normalizedPath.includes(":")) {
+        const base = normalizedPath.split("/:")[0];
+        return normalizedLocation.startsWith(base);
       }
-      return location.pathname === path;
+      return normalizedLocation === normalizedPath;
     });
 
 // Find the current route configuration to check if it uses layout
   const currentRoute = useMemo(() => {
     return ROUTE_CONFIG.find((route) => {
-      if (route.path.includes(":")) {
-        const base = route.path.split("/:")[0];
-        return location.pathname.startsWith(base);
+      // Normalize paths by removing trailing slashes for comparison
+      const normalizedLocation = location.pathname.replace(/\/$/, '') || '/';
+      const normalizedPath = route.path.replace(/\/$/, '') || '/';
+      
+      if (normalizedPath.includes(":")) {
+        const base = normalizedPath.split("/:")[0];
+        return normalizedLocation.startsWith(base);
       }
-      return location.pathname === route.path;
+      return normalizedLocation === normalizedPath;
     });
   }, [location.pathname]);
 

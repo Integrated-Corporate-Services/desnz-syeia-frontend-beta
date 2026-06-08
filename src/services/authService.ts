@@ -1,5 +1,6 @@
 import type { AuthUser } from '../types/auth';
 import { createLogger } from '../utils/logger';
+import { buildBackendUrl } from '../utils/apiConfig';
 
 const logger = createLogger('authService');
 
@@ -13,7 +14,7 @@ export type AuthUserResponse = {
  * Always uses relative paths for same-origin requests
  */
 export async function getAuthUser(): Promise<AuthUserResponse> {
-  const response = await fetch("/backend/auth/user", {
+  const response = await fetch(buildBackendUrl('/backend/auth/user'), {
     credentials: "include",
   });
   if (!response.ok) {
@@ -23,7 +24,7 @@ export async function getAuthUser(): Promise<AuthUserResponse> {
 }
 
 export async function signOut(): Promise<void> {
-  await fetch("/backend/auth/logout", {
+  await fetch(buildBackendUrl('/backend/auth/logout'), {
     method: "POST",
     credentials: "include",
   });
@@ -32,10 +33,11 @@ export async function signOut(): Promise<void> {
 export async function logout(redirectTo?: string): Promise<void> {
   logger.info("Logging out user...", { redirectTo });
 
+  const baseUrl = import.meta.env.API_URL || '';
   // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 
-    ? `/backend/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
-    : `/backend/auth/logout?redirectTo=${encodeURIComponent('/frontend/landingPage')}`;
+    ? `${baseUrl}/backend/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
+    : `${baseUrl}/backend/auth/logout?redirectTo=${encodeURIComponent('/frontend/landingPage')}`;
 
   // Let the backend handle all logout logic including OIDC session destruction
   // The backend will redirect appropriately after destroying sessions

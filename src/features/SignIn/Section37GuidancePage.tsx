@@ -108,7 +108,7 @@ const Section37GuidancePage = () => {
           <button
             className="govuk-button govuk-button--start"
             type="button"
-            onClick={() => (window.location.href = '/backend/auth/login')}
+            onClick={() => (window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`)}
             style={{ display: "flex", alignItems: "center", gap: "8px" }}
             aria-describedby="start-button-description"
           >

@@ -2,7 +2,9 @@ import { NegotiationsData } from '../types';
 import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('negotiationsService');
-const API_BASE = '/backend/api/nwl';
+import { buildBackendUrl } from '../../../../utils/apiConfig';
+
+const API_BASE = buildBackendUrl('/backend/api/nwl');
 
 // Re-export Page IDs for convenience
 export { NEGOTIATIONS_PAGE_IDS } from '../constants/pageNames';
@@ -10,7 +12,9 @@ export { NEGOTIATIONS_PAGE_IDS } from '../constants/pageNames';
 export const getNegotiationsData = async (applicationId: string): Promise<NegotiationsData | null> => {
   try {
     logger.debug('[getNegotiationsData] Fetching from API:', `${API_BASE}/${applicationId}/negotiations`);
-    const response = await fetch(`${API_BASE}/${applicationId}/negotiations`);
+    const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
+      credentials: 'include'
+    });
     
     logger.debug('[getNegotiationsData] Response status:', response.status);
     
@@ -87,6 +91,7 @@ export const saveNegotiationsData = async (
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'POST',
       headers,
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     

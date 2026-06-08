@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
@@ -47,11 +48,12 @@ const InvoiceDownloadPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`/backend/api/invoice/${applicationId}/calculate-fees`, {
+        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -83,11 +85,12 @@ const InvoiceDownloadPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`/backend/api/invoice/${applicationId}/status`, {
+        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -118,7 +121,7 @@ const InvoiceDownloadPage: React.FC = () => {
       setError('');
 
       // Use backend download endpoint with invoice number as query param
-      const downloadUrl = `/backend/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(effectiveInvoiceNumber)}`;
+      const downloadUrl = buildBackendUrl(`/backend/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(effectiveInvoiceNumber)}`);
 
       const link = document.createElement('a');
       link.href = downloadUrl;

@@ -2,6 +2,7 @@
 
 import { generateCorrelationId } from "../utils/correlationId";
 import { Lpa } from "../components/LpaSelector";
+import { buildBackendUrl } from '../utils/apiConfig';
 
 export const parishService = {
   /**
@@ -17,7 +18,7 @@ export const parishService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      `/backend/api/applications/${applicationId}/parishes/lpas`,
+      buildBackendUrl(`/backend/api/applications/${applicationId}/parishes/lpas`),
       {
         credentials: "include",
         headers,
@@ -43,7 +44,7 @@ export const parishService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      `/backend/api/applications/${applicationId}/parishes`,
+      buildBackendUrl(`/backend/api/applications/${applicationId}/parishes`),
       {
         method: "POST",
         headers,
@@ -68,7 +69,7 @@ export const parishService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      `/backend/api/applications/${applicationId}/parishes`,
+      buildBackendUrl(`/backend/api/applications/${applicationId}/parishes`),
       {
         credentials: "include",
         headers,

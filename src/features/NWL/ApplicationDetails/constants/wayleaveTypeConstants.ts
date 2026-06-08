@@ -33,12 +33,12 @@ export const WAYLEAVE_EXPIRED_OPTIONS = [
 ] as const;
 
 export const WAYLEAVE_EXPIRED_DETAILS = {
-  SUMMARY: "What is an inherited wayleave?",
-  TEXT_1: "An inherited necessary wayleave is a contractual wayleave created by conduct. Whether a contractual wayleave arises from conduct will depend on the particular facts of the case.",
-  TEXT_2: "One example of where an inherited wayleave may be created is where the objector has been receiving payments (compensation) for the electric line on their property.",
-  TEXT_3: "For an inherited wayleave to be created, payments must have been made for several years, one or two payments is unlikely to constitute an inherited wayleave.",
-  LINK_TEXT: "Read the guidance (opens in a new tab)",
-  LINK_URL: "https://www.gov.uk/guidance",
+  // SUMMARY: "What is an inherited wayleave?",
+  // TEXT_1: "An inherited necessary wayleave is a contractual wayleave created by conduct. Whether a contractual wayleave arises from conduct will depend on the particular facts of the case.",
+  // TEXT_2: "One example of where an inherited wayleave may be created is where the objector has been receiving payments (compensation) for the electric line on their property.",
+  // TEXT_3: "For an inherited wayleave to be created, payments must have been made for several years, one or two payments is unlikely to constitute an inherited wayleave.",
+  // LINK_TEXT: "Read the guidance (opens in a new tab)",
+  // LINK_URL: "https://www.gov.uk/guidance",
 } as const;
 
 /**
@@ -62,9 +62,9 @@ export const WAYLEAVE_TERMINATED_DETAILS = {
   SUMMARY: "What is an implied wayleave?",
   TEXT_1: "An implied wayleave is a contractual wayleave created by conduct. Whether a contractual wayleave arises from conduct will depend on the particular facts of the case.",
   TEXT_2: "One example of where an implied wayleave may be created is where the objector has been receiving payments (compensation) for the electric line on their property.",
-  TEXT_3: "For an implied wayleave to be created, payments must have made for several years, one or two payments is unlikely to constitute an implied wayleave.",
-  LINK_TEXT: "Read the guidance (opens in a new tab)",
-  LINK_URL: "https://www.gov.uk/guidance",
+  TEXT_3: "For an implied wayleave to be created, payments must have been made for several years, one or two payments is unlikely to constitute an implied wayleave.",
+  LINK_TEXT: "guidance (opens in a new tab)",
+  LINK_URL: "https://www.gov.uk/government/publications/granting-a-necessary-compulsory-electricity-wayleave-guidance-for-applicants-and-landowner-and-or-occupiers",
 } as const;
 
 /**

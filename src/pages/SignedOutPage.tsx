@@ -2,7 +2,7 @@ import React from 'react';
 
 const SignedOutPage: React.FC = () => {
   const handleSignIn = () => {
-    window.location.href = '/backend/auth/login';
+    window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`;
   };
 
   return (

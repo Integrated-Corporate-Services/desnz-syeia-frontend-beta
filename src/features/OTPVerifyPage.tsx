@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { createLogger } from '../utils/logger';
+import { buildBackendUrl } from '../utils/apiConfig';
 
 const logger = createLogger('OTPVerifyPage');
 
@@ -22,7 +23,7 @@ const OTPVerifyPage: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch('/backend/auth/verify-otp', {
+      const response = await fetch(buildBackendUrl('/backend/auth/verify-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -57,7 +58,7 @@ const OTPVerifyPage: React.FC = () => {
         setError('Email not found. Please login again.');
         return;
       }
-      const response = await fetch('/backend/auth/create-otp', {
+      const response = await fetch(buildBackendUrl('/backend/auth/create-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
