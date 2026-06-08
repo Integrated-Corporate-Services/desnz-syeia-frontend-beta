@@ -16,14 +16,9 @@ import {
   type ErrorField,
 } from '../constants/feedback.constants';
 
-/**
- * Feedback form page that collects user feedback about the service.
- * Captures source page metadata to understand where feedback originates.
- */
 export default function FeedbackPage() {
   const navigate = useNavigate();
 
-  // Capture source page metadata on mount (only once)
   const [sourceMetadata] = useState(() => {
     const sourcePath = captureSourcePage();
     return sourcePath ? extractPageMetadata(sourcePath) : undefined;
@@ -39,7 +34,6 @@ export default function FeedbackPage() {
     handleSubmit,
   } = useFeedbackForm(sourceMetadata);
 
-  // Focus confirmation panel on submission
   useEffect(() => {
     if (submitted) {
       document.title = 'Feedback submitted - GOV.UK';
@@ -50,27 +44,21 @@ export default function FeedbackPage() {
     }
   }, [submitted]);
 
-  // Set page title on mount and when errors change
   useEffect(() => {
     const hasErrors = Object.keys(errors).length > 0;
     const prefix = hasErrors || serverError ? 'Error: ' : '';
     document.title = `${prefix}${CONTENT.pageTitle} - GOV.UK`;
   }, [errors, serverError]);
 
-  // ── Confirmation View ──────────────────────────────────────────────────────
-
   if (submitted) {
     return <FeedbackConfirmation />;
   }
-
-  // ── Form View ──────────────────────────────────────────────────────────────
 
   const errorEntries = Object.entries(errors) as [ErrorField, string][];
   const hasErrors = errorEntries.length > 0;
 
   return (
     <>
-      {/* Error Summary */}
       {hasErrors && (
         <div
           className="govuk-error-summary"
@@ -94,7 +82,6 @@ export default function FeedbackPage() {
         </div>
       )}
 
-      {/* Server Error */}
       {serverError && (
         <div
           className="govuk-error-summary"
@@ -116,7 +103,6 @@ export default function FeedbackPage() {
       <p className="govuk-body">{CONTENT.pageIntro}</p>
 
       <form onSubmit={handleSubmit} noValidate aria-label="Feedback form">
-        {/* 1. Did you complete what you came to do? */}
         <RadioGroup
           id="completedTask"
           name="completedTask"
@@ -127,7 +113,6 @@ export default function FeedbackPage() {
           onChange={(e) => handleChange('completedTask', e.target.value)}
         />
 
-        {/* 2. Overall satisfaction */}
         <RadioGroup
           id="satisfaction"
           name="satisfaction"
@@ -138,7 +123,6 @@ export default function FeedbackPage() {
           onChange={(e) => handleChange('satisfaction', e.target.value)}
         />
 
-        {/* 3. Ease of use */}
         <RadioGroup
           id="ease"
           name="ease"
@@ -149,7 +133,6 @@ export default function FeedbackPage() {
           onChange={(e) => handleChange('ease', e.target.value)}
         />
 
-        {/* 4. Likelihood to recommend */}
         <RadioGroup
           id="likelihood"
           name="likelihood"
@@ -160,7 +143,6 @@ export default function FeedbackPage() {
           onChange={(e) => handleChange('likelihood', e.target.value)}
         />
 
-        {/* 5. Improvements textarea */}
         <div
           className={`govuk-character-count${errors.improvements ? ' govuk-form-group--error' : ''}`}
           data-module="govuk-character-count"
@@ -206,7 +188,6 @@ export default function FeedbackPage() {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="govuk-button-group">
           <button
             type="submit"

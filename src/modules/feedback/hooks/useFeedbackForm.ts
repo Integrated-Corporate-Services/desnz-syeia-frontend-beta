@@ -43,7 +43,6 @@ export function useFeedbackForm(sourceMetadata?: PageMetadata) {
 
   function handleChange(field: keyof FormValues, value: string) {
     setValues((prev) => ({ ...prev, [field]: value }));
-    // Clear the error for this field as soon as the user changes it
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -56,7 +55,6 @@ export function useFeedbackForm(sourceMetadata?: PageMetadata) {
     const validationErrors = validate(values);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      // Move focus to error summary and scroll to top
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) {
@@ -67,7 +65,6 @@ export function useFeedbackForm(sourceMetadata?: PageMetadata) {
       return;
     }
 
-    // Clear validation errors when submitting (validation passed)
     setErrors({});
     setSubmitting(true);
     try {
@@ -83,13 +80,11 @@ export function useFeedbackForm(sourceMetadata?: PageMetadata) {
       };
       await submitFeedback(payload);
       setSubmitted(true);
-      // Scroll to top on success to show confirmation panel
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       setServerError(
         err instanceof Error ? err.message : 'There was a problem sending your feedback.',
       );
-      // Scroll to server error
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) {
