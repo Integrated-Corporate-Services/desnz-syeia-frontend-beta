@@ -121,7 +121,6 @@ const UploadSiteInformation: React.FC = () => {
                   addedBy={userId}
                   uploadedFiles={pageUploadedFiles}
                   applicationDocuments={pageApplicationDocuments}
-                  showDocumentsHeading={true}
                   onDeleteFile={handleDeleteFile}
                   uploadImmediately={true}
                   onPendingFilesChange={setPendingFiles}

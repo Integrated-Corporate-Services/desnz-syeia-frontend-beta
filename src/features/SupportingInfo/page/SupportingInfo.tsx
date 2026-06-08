@@ -283,10 +283,14 @@ const SupportingInfo: React.FC = () => {
 
   const hasError = (key: string) => errors.some(e => e.key === key);
 
-  // Handle file deletion
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+  };
+
+  const handleFilesUploaded = (newUploadedFiles: UploadedFile[], newApplicationDocuments: ApplicationDocument[]) => {
+    setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+    setApplicationDocuments(prev => [...prev, ...newApplicationDocuments]);
   };
 
   return (
@@ -527,6 +531,13 @@ const SupportingInfo: React.FC = () => {
               <span className="govuk-visually-hidden">Error:</span> {error}
             </p>
           ))}
+          
+          {applicationDocuments && applicationDocuments.length > 0 && (
+            <div className="govuk-!-margin-top-2">
+              <h3 className="govuk-heading-s">Documents uploaded</h3>
+            </div>
+          )}
+          
           <FileUpload
             ref={fileUploadRef}
             title="Upload a file"
@@ -536,14 +547,11 @@ const SupportingInfo: React.FC = () => {
             addedBy={userId}
             uploadedFiles={uploadedFiles}
             applicationDocuments={applicationDocuments}
-            showDocumentsHeading={true}
             onDeleteFile={handleDeleteFile}
             uploadImmediately={true}
+            onUploaded={handleFilesUploaded}
             onValidationErrors={(errors) => {
-              // Handle validation errors
-              // Clear existing file validation errors before setting new ones
               setFileValidationErrors(errors);
-              // Also clear form-level errors related to file upload
               if (errors.length === 0) {
                 setErrors(prev => prev.filter(err => err.key !== 'supportingDocsFiles'));
               }

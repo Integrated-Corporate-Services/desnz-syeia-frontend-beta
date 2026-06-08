@@ -173,7 +173,9 @@ const UnregisteredLandDetails: React.FC = () => {
                     return (
                       <>
                         {pageUploadedFiles && pageUploadedFiles.length > 0 && (
-                          <h2 className="govuk-heading-s govuk-!-margin-bottom-4">Documents uploaded</h2>
+                          <div className="govuk-!-margin-top-2">
+                            <h3 className="govuk-heading-s">Documents uploaded</h3>
+                          </div>
                         )}
                         <FileUpload
                   ref={fileUploadRef}
@@ -187,7 +189,6 @@ const UnregisteredLandDetails: React.FC = () => {
                     uploadedFiles={pageUploadedFiles}
                     applicationDocuments={pageApplicationDocuments}
                     uploadImmediately={true}
-                  showDocumentsHeading={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}

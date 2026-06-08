@@ -113,6 +113,25 @@ const ConsultationRequestPage: React.FC = () => {
     }
   }, [pendingFiles.length, uploadedFileObjs.length]);
 
+  // Handle files uploaded immediately (when uploadImmediately=true)
+  const handleFilesUploaded = (newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
+    log.debug('[ConsultationRequestPage] Files uploaded immediately', { filesCount: newFiles.length });
+    setUploadedFileObjs(prev => [...prev, ...newFiles]);
+    setApplicationDocuments(prev => [...prev, ...newDocuments]);
+    setErrors(prev => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { fileUpload: _fileUpload, ...rest } = prev;
+      return rest;
+    });
+    setFileValidationErrors([]);
+  };
+
+  // Handle file deletion
+  const handleDeleteFile = (fileId: string) => {
+    setUploadedFileObjs(prev => prev.filter(file => file.id !== fileId));
+    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+  };
+
   // Validation function
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -153,7 +172,6 @@ const ConsultationRequestPage: React.FC = () => {
     e.preventDefault();
 
     try {
-      // STEP 1: Upload pending files to S3 FIRST (before validation)
       let newlyUploadedFiles: UploadedFile[] = [];
       let newlyUploadedDocuments: ApplicationDocument[] = [];
       
@@ -164,15 +182,12 @@ const ConsultationRequestPage: React.FC = () => {
         newlyUploadedDocuments = result.applicationDocuments;
         log.info('[ConsultationRequestPage] Pending files uploaded successfully');
         
-        // Update state immediately so files remain visible even if validation fails
         setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
       }
 
-      // STEP 2: Now validate after files are uploaded
       const totalUploadedFiles = uploadedFileObjs.length + newlyUploadedFiles.length;
       
-      // Date validation
       const dateValidation = validateDateComponents(responseDate, 'consultation request', { required: true });
       const newErrors: { [key: string]: string } = {};
       
@@ -180,12 +195,10 @@ const ConsultationRequestPage: React.FC = () => {
         newErrors.responseDate = dateValidation.error!;
       }
       
-      // File validation - check if we have files after upload
       if (totalUploadedFiles === 0) {
         newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.consultationRequestUpload.empty;
       }
       
-      // Check for file validation errors
       if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
         setErrors(newErrors);
         const errorSummary = document.getElementById('error-summary');
@@ -196,7 +209,6 @@ const ConsultationRequestPage: React.FC = () => {
         return;
       }
 
-      // STEP 3: Build and save payload
       let sentDate = '';
       if (responseDate.year && responseDate.month && responseDate.day) {
         sentDate = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
@@ -396,7 +408,6 @@ const ConsultationRequestPage: React.FC = () => {
               </div>
               
               <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
-                <h2 className="govuk-heading-m">Upload evidence of the consultation request</h2>
                 {errors.fileUpload && (
                   <p id="fileUpload-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {errors.fileUpload}
@@ -407,9 +418,16 @@ const ConsultationRequestPage: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
+                
+                {applicationDocuments && applicationDocuments.length > 0 && (
+                  <div className="govuk-!-margin-top-2">
+                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                  </div>
+                )}
+                
                 <FileUpload
                   ref={fileUploadRef}
-                  title=""
+                  title="Upload evidence of the consultation request"
                   prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_REQUEST}/${consultationId}`}
                   applicationId={applicationId}
                   category={FILE_CATEGORIES.CONSULTATION_REQUEST}
@@ -417,10 +435,8 @@ const ConsultationRequestPage: React.FC = () => {
                   uploadedFiles={uploadedFileObjs}
                   applicationDocuments={applicationDocuments}
                   uploadImmediately={true}
-                  onRemoveFile={idx => {
-                    setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
-                    setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
-                  }}
+                  onUploaded={handleFilesUploaded}
+                  onDeleteFile={handleDeleteFile}
                   onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
                   onPendingFilesChange={(files) => setPendingFiles(files)}

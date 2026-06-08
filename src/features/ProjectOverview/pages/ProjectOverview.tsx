@@ -828,6 +828,13 @@ const ProjectOverview = () => {
 								<span className="govuk-visually-hidden">Error:</span> {fieldErrors.uploadedFiles}
 							</p>
 						)}
+							
+							{formState.applicationDocuments && formState.applicationDocuments.length > 0 && (
+								<div className="govuk-!-margin-top-2">
+									<h3 className="govuk-heading-s">Documents uploaded</h3>
+								</div>
+							)}
+							
 							<FileUpload
 								ref={fileUploadRef}
 								title='Upload a file'
@@ -837,7 +844,6 @@ const ProjectOverview = () => {
 								category={FILE_CATEGORIES.PLAN_INFO}
 								addedBy={userId}
 								uploadedFiles={formState.uploadedFiles}
-								showDocumentsHeading={true}
 								uploadImmediately={true} 
 								onDeleteFile={handleDeleteFile}
 								onPendingFilesChange={setPendingFiles}

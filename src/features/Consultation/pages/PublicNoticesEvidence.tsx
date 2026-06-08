@@ -40,6 +40,12 @@ const PublicNoticesEvidence: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Handle file deletion
+  const handleDeleteFile = (fileId: string) => {
+    setUploadedFileObjs(prev => prev.filter(file => file.id !== fileId));
+    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+  };
+
   // Fetch and bind consultation request data on load
   useEffect(() => {
     async function fetchData() {
@@ -188,11 +194,9 @@ const PublicNoticesEvidence: React.FC = () => {
     }
 
     try {
-      // Track newly uploaded files
       let newlyUploadedFiles: UploadedFile[] = [];
       let newlyUploadedDocuments: ApplicationDocument[] = [];
       
-      // Upload pending files to S3 before saving
       if (fileUploadRef.current && pendingFiles.length > 0) {
         log.debug('[PublicNoticesEvidence] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
         const result = await fileUploadRef.current.triggerUpload();
@@ -602,9 +606,16 @@ const PublicNoticesEvidence: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
+                
+                {applicationDocuments && applicationDocuments.length > 0 && (
+                  <div className="govuk-!-margin-top-2">
+                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                  </div>
+                )}
+                
                 <FileUpload
                   ref={fileUploadRef}
-                  title=""
+                  title="Upload evidence of the published public notices"
                   prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_REQUEST}/${consultationId}`}
                   applicationId={applicationId}
                   category={FILE_CATEGORIES.CONSULTATION_REQUEST}
@@ -612,13 +623,10 @@ const PublicNoticesEvidence: React.FC = () => {
                   uploadedFiles={uploadedFileObjs}
                   applicationDocuments={applicationDocuments}
                   uploadImmediately={true}
-                  onRemoveFile={idx => {
-                    setUploadedFileObjs(objs => objs.filter((_, i) => i !== idx));
-                    setApplicationDocuments(docs => docs.filter((_, i) => i !== idx));
-                  }}
                   onUploaded={(files, docs) => {
                     handleUploadedFiles(files, docs);
                   }}
+                  onDeleteFile={handleDeleteFile}
                   onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
                   onPendingFilesChange={(files) => setPendingFiles(files)}
