@@ -114,10 +114,11 @@ const ConsultationDetailsPage: React.FC = () => {
                     </li>
                 </ol>
             </nav>
+            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     {error && (
-                        <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1} role="alert">
+                        <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1} role="alert">
                             <h2 className="govuk-error-summary__title">There is a problem</h2>
                             <div className="govuk-error-summary__body">
                                 <ul className="govuk-list govuk-error-summary__list">
@@ -290,6 +291,7 @@ const ConsultationDetailsPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+            </main>
         </div>
     );
 };

@@ -180,7 +180,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         {/* Breadcrumbs */}
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
@@ -209,7 +209,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
         {/* Error Summary */}
         {submitted && Object.values(errors).some(Boolean) && (
           <div
-            className="govuk-error-summary"
+            className="govuk-error-summary govuk-!-width-two-thirds"
             role="alert"
             aria-labelledby="error-summary-title"
             tabIndex={-1}

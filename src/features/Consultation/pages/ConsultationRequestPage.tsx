@@ -261,10 +261,10 @@ const ConsultationRequestPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <nav className="govuk-breadcrumbs govuk-!-margin-bottom-6" aria-label="Breadcrumb">
+          <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
                 <li className="govuk-breadcrumbs__list-item">
                   <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
@@ -276,9 +276,9 @@ const ConsultationRequestPage: React.FC = () => {
             </ol>
           </nav>
           
-          <main id="main-content">
+          <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
             {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
-              <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
+              <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                 <div role="alert">
                   <h2 className="govuk-error-summary__title">There is a problem</h2>
                   <div className="govuk-error-summary__body">

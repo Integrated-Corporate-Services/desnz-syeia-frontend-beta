@@ -182,7 +182,7 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
 
   return (
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         {/* Breadcrumbs */}
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
@@ -211,7 +211,7 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
         {/* Error Summary for field errors */}
         {submitted && Object.values(errors).some(Boolean) && (
           <div
-            className="govuk-error-summary"
+            className="govuk-error-summary govuk-!-width-two-thirds"
             role="alert"
             aria-labelledby="error-summary-title"
             tabIndex={-1}
@@ -233,7 +233,7 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
 
         {/* Submit/Backend error */}
         {submitError && Object.keys(errors).length === 0 && (
-          <div className="govuk-error-summary" role="alert" tabIndex={-1}>
+          <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" tabIndex={-1}>
             <h2 className="govuk-error-summary__title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <p>{submitError}</p>

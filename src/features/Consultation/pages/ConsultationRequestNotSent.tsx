@@ -205,7 +205,7 @@ const handleSaveAndContinue = async () => {
         </ol>
       </nav>
 
-      <main id="main-content">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         <h2 className="govuk-caption-xl">
         {lpaName}
         </h2>
@@ -214,7 +214,7 @@ const handleSaveAndContinue = async () => {
         </h1>
 
         {errorMessage && (
-          <div className="govuk-error-summary">
+          <div className="govuk-error-summary govuk-!-width-two-thirds">
             <h2 className="govuk-error-summary__title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">
