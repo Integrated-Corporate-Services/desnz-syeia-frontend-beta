@@ -96,7 +96,7 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
 
     STATUS_LABELS: {
         DRAFT: 'Draft',
-        SUBMITTED: 'Submitted',
+        SUBMITTED: 'Application submitted',
         UNDER_REVIEW: 'Under review',
         PENDING_INFORMATION: 'Pending information',
         APPROVED: 'Approved',
