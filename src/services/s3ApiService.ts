@@ -59,6 +59,49 @@ export async function uploadFileToS3(url: string, file: File) {
   return res;
 }
 
+export async function confirmUpload(params: {
+  s3Key: string;
+  fileName: string;
+  contentType: string;
+  fileSize: number;
+  etag?: string;
+  applicationId: string;
+  category: string;
+  addedBy: string;
+  subCategory?: string;
+  consultationId?: string;
+}): Promise<{
+  documentId: string;
+  fileId: string;
+  fileName: string;
+  s3Key: string;
+  bucketName: string;
+  virtualFolder: string;
+  contentType: string;
+  fileSizeBytes: number;
+  uploadedAt: string;
+  status: string;
+  etag?: string;
+}> {
+  const res = await fetch('/backend/api/upload/confirm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(params)
+  });
+  
+  if (!res.ok) {
+    try {
+      const errorData = await res.json();
+      throw new Error(errorData.message || errorData.error || 'Failed to confirm file upload');
+    } catch (parseError) {
+      throw new Error('Failed to confirm file upload', { cause: parseError instanceof Error ? parseError : undefined });
+    }
+  }
+  
+  return await res.json();
+}
+
 /**
  * Get presigned GET URL for viewing/downloading files
  * URLs are cached to reduce backend calls
