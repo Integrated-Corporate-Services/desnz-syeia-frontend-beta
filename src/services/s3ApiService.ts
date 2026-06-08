@@ -85,7 +85,7 @@ export async function confirmUpload(params: {
   status: string;
   etag?: string;
 }> {
-  const res = await fetch('/backend/api/upload/confirm', {
+  const res = await fetch(buildBackendUrl('/backend/api/upload/confirm'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
