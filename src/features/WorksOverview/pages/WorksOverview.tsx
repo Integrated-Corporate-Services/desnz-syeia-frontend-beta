@@ -258,9 +258,9 @@ const WorksOverview: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="page">Works Overview</li>
         </ol>
       </nav>
-      <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         {submitted && Object.keys(errors).length > 0 && (
-          <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary" style={{ marginBottom: '2rem', maxWidth: 600 }}>
+          <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
             <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">
@@ -275,9 +275,10 @@ const WorksOverview: React.FC = () => {
             </div>
           </div>
         )}
-        <h1 className="govuk-heading-l">Works Overview</h1>
+        <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
+          <h1 className="govuk-heading-l">Works Overview</h1>
 
-        {/* Adding or replacing poles */}
+          {/* Adding or replacing poles */}
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="addingOrReplacingPoles"
@@ -530,9 +531,9 @@ const WorksOverview: React.FC = () => {
           />
         </div>
 
-        <button type="submit" className="govuk-button govuk-!-margin-top-4">Save and continue</button>
+        <button type="submit" className="govuk-button govuk-!-margin-top-6">Save and continue</button>
       </form>
-    </div>
+    </main>
   );
 };
 

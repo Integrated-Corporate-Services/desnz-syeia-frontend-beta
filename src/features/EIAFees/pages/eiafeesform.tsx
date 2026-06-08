@@ -207,7 +207,7 @@ const EIAFeesForm: React.FC = () => {
                 </ol>
             </nav>
             {errors.length > 0 && (
-                <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary" data-govuk-error-summary-init="">
+                <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary" data-govuk-error-summary-init="">
                     <h2 className="govuk-error-summary__title" id="error-summary-title">
                         There is a problem
                     </h2>
@@ -222,7 +222,7 @@ const EIAFeesForm: React.FC = () => {
                     </div>
                 </div>
             )}
-            <main className="govuk-main-wrapper" id="main-content" role="main">
+            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <h1 className="govuk-heading-xl">EIA fees</h1>
@@ -259,7 +259,7 @@ const EIAFeesForm: React.FC = () => {
                             <button
                                 type="submit"
                                 data-module="govuk-button"
-                                className="govuk-button"
+                                className="govuk-button govuk-!-margin-top-6"
                                 value="Save and continue"
                                 name="Save and continue"
                                 data-prevent-double-click="true"

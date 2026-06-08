@@ -16,7 +16,6 @@ const RouteGuidancePage: React.FC = () => {
       <nav
         className="govuk-breadcrumbs"
         aria-label="Breadcrumb"
-        style={{ marginBottom: '2rem' }}
       >
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -46,10 +45,10 @@ const RouteGuidancePage: React.FC = () => {
             borderRadius: '4px',
             background: '#fff',
             padding: '1.5rem',
-            marginBottom: '2rem',
             boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
             textAlign: 'center'
           }}
+          className="govuk-!-margin-bottom-8"
         >
           <img
             src={eipSimpleRoute}
@@ -78,10 +77,10 @@ const RouteGuidancePage: React.FC = () => {
             borderRadius: '4px',
             background: '#fff',
             padding: '1.5rem',
-            marginBottom: '2rem',
             boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
             textAlign: 'center'
           }}
+          className="govuk-!-margin-bottom-8"
         >
           <img
             src={eipMultipleRoutes}
@@ -96,10 +95,10 @@ const RouteGuidancePage: React.FC = () => {
             borderRadius: '4px',
             background: '#fff',
             padding: '1.5rem',
-            marginBottom: '2rem',
             boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
             textAlign: 'center'
           }}
+          className="govuk-!-margin-bottom-8"
         >
           <img
             src={eipRouteOverview}
@@ -110,8 +109,7 @@ const RouteGuidancePage: React.FC = () => {
         </div>
         <button
           type="button"
-          className="govuk-button govuk-button--primary"
-          style={{ marginTop: '2rem' }}
+          className="govuk-button govuk-button--primary govuk-!-margin-top-8"
           onClick={() => navigate(`${S37_BASE_URL}/${applicationId}/route-map`, { state: { isNewRoute: true } })}
         >
           Add a route

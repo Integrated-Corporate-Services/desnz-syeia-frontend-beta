@@ -57,7 +57,7 @@ const Parishes: React.FC = () => {
 
     return (
         <div className="govuk-width-container">
-            <main className="govuk-main-wrapper" id="main-content">
+            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">
                         <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -74,7 +74,7 @@ const Parishes: React.FC = () => {
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {loadError && (
-                            <div className="govuk-error-summary" data-module="govuk-error-summary">
+                            <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary">
                                 <div role="alert">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>
                                     <div className="govuk-error-summary__body">
@@ -87,7 +87,7 @@ const Parishes: React.FC = () => {
                         )}
 
                         {validationError && (
-                            <div className="govuk-error-summary" data-module="govuk-error-summary">
+                            <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary">
                                 <div role="alert">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>
                                     <div className="govuk-error-summary__body">
@@ -111,7 +111,7 @@ const Parishes: React.FC = () => {
 
                                 <ParishSearch searchTerm={searchTerm} searchResults={searchResults} isSearching={isSearching} onSearchChange={handleSearchInputChange} onAddParish={handleAddParish} error={validationError} />
 
-                                <button type="submit" data-module="govuk-button" className="govuk-button" disabled={isSubmitting}>
+                                <button type="submit" data-module="govuk-button" className="govuk-button govuk-!-margin-top-6" disabled={isSubmitting}>
                                     {isSubmitting ? 'Saving...' : 'Save and continue'}
                                 </button>
                             </form>

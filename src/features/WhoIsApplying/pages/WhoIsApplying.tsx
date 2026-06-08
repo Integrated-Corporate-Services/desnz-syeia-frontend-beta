@@ -51,10 +51,9 @@ const WhoIsApplying: React.FC = () => {
             )}
             <form onSubmit={handleContinue} noValidate>
               <div
-                className={`govuk-form-group${
+                className={`govuk-form-group govuk-!-width-full${
                   error ? " govuk-form-group--error" : ""
                 }`}
-                style={{ maxWidth: 500 }}
               >
                 <label className="govuk-label" htmlFor="location">
                   Network operator
@@ -91,9 +90,8 @@ const WhoIsApplying: React.FC = () => {
                 </select>
               </div>
               <details
-                className="govuk-details"
+                className="govuk-details govuk-!-margin-top-6"
                 open
-                style={{ maxWidth: 600, marginTop: "2rem" }}
               >
                 <summary className="govuk-details__summary">
                   <span className="govuk-details__summary-text">
@@ -118,16 +116,14 @@ const WhoIsApplying: React.FC = () => {
                   </p>
                 </div>
               </details>
-              <div className="govuk-!-static-margin-top-6">
-                <button
-                  type="submit"
-                  className="govuk-button"
-                  data-module="govuk-button"
-                  disabled={options.length === 0}
-                >
-                  Continue
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="govuk-button govuk-!-margin-top-6"
+                data-module="govuk-button"
+                disabled={options.length === 0}
+              >
+                Continue
+              </button>
             </form>
           </div>
         </div>
