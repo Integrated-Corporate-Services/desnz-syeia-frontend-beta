@@ -11,6 +11,9 @@ import { validateDateComponents } from '../../../utils/validation';
 import { ConsultationType } from '../../../constants/consultationType';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('ConsultationResponseDocuments');
 
 const ConsultationResponse2: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -66,7 +69,7 @@ const ConsultationResponse2: React.FC = () => {
                         setConsultationType(currentConsultation.consultationType || '');
                     }
                 } catch (err) {
-                    console.error('Error fetching consultation response:', err);
+                    logger.error('Error fetching consultation response:', err);
                 } finally {
                     setIsLoading(false);
                 }
@@ -88,7 +91,7 @@ const ConsultationResponse2: React.FC = () => {
 
     // Handle files uploaded immediately (when uploadImmediately=true)
     const handleFilesUploaded = (newFiles: UploadedFile[], newDocuments: ApplicationDocument[]) => {
-        console.log('[ConsultationResponseDocuments] Files uploaded immediately', newFiles.length);
+        logger.info('Files uploaded immediately', { count: newFiles.length });
         setUploadedFileObjs(prev => [...prev, ...newFiles]);
         setApplicationDocuments(prev => [...prev, ...newDocuments]);
         setErrors(prev => {
@@ -251,7 +254,7 @@ const ConsultationResponse2: React.FC = () => {
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response3`);
         } catch (err) {
-            console.error('Save failed:', err);
+            logger.error('Save failed:', err);
             alert(`Failed to save consultation response: ${err instanceof Error ? err.message : 'Unknown error'}`);
         }
     };
@@ -296,7 +299,7 @@ const ConsultationResponse2: React.FC = () => {
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
         } catch (err) {
-            console.error('Error saving consultation response:', err);
+            logger.error('Error saving consultation response:', err);
         }
     };
 
