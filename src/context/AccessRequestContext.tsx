@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('AccessRequestContext');
 
 export interface AccessRequestFormData {
   email: string;
@@ -32,10 +35,10 @@ export const AccessRequestProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const stored = sessionStorage.getItem(ACCESS_REQUEST_STORAGE_KEY);
       const parsed = stored ? JSON.parse(stored) : {};
-      console.log('[AccessRequestContext] Loaded from sessionStorage:', Object.keys(parsed).length > 0 ? 'Found data' : 'No data');
+      logger.debug('Loaded from sessionStorage:', Object.keys(parsed).length > 0 ? 'Found data' : 'No data');
       return parsed;
     } catch (error) {
-      console.error('[AccessRequestContext] Failed to load from sessionStorage:', error);
+      logger.error('Failed to load from sessionStorage:', error);
       return {};
     }
   });
@@ -45,28 +48,28 @@ export const AccessRequestProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       if (Object.keys(formData).length > 0) {
         sessionStorage.setItem(ACCESS_REQUEST_STORAGE_KEY, JSON.stringify(formData));
-        console.log('[AccessRequestContext] Saved to sessionStorage:', Object.keys(formData));
+        logger.debug('Saved to sessionStorage:', Object.keys(formData));
       } else {
         sessionStorage.removeItem(ACCESS_REQUEST_STORAGE_KEY);
-        console.log('[AccessRequestContext] Cleared sessionStorage');
+        logger.debug('Cleared sessionStorage');
       }
     } catch (error) {
-      console.error('[AccessRequestContext] Failed to save to sessionStorage:', error);
+      logger.error('Failed to save to sessionStorage:', error);
     }
   }, [formData]);
 
   const updateFormData = useCallback((data: Partial<AccessRequestFormData>) => {
-    console.log('[AccessRequestContext] Updating formData:', Object.keys(data));
+    logger.debug('Updating formData:', Object.keys(data));
     setFormData((prev) => ({ ...prev, ...data }));
   }, []);
 
   const clearFormData = useCallback(() => {
-    console.log('[AccessRequestContext] Clearing all form data');
+    logger.debug('Clearing all form data');
     setFormData({});
     try {
       sessionStorage.removeItem(ACCESS_REQUEST_STORAGE_KEY);
     } catch (error) {
-      console.error('[AccessRequestContext] Failed to clear sessionStorage:', error);
+      logger.error('Failed to clear sessionStorage:', error);
     }
   }, []);
 
