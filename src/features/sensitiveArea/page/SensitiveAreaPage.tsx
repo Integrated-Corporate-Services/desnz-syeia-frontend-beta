@@ -112,7 +112,7 @@ const SensitiveAreaPage: React.FC = () => {
         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 {error && (
-                    <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} style={{ marginBottom: '2rem', maxWidth: 600 }}>
+                    <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem
                         </h2>
@@ -136,11 +136,11 @@ const SensitiveAreaPage: React.FC = () => {
                     </li>
                 </ol>
             </nav>
-            <main className="govuk-main-wrapper" id="main-content" role="main">
+            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-full">
                         {formError && (
-                            <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+                            <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
                                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                                     There is a problem
                                 </h2>
@@ -153,7 +153,7 @@ const SensitiveAreaPage: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                        <h1 className="govuk-heading-xl">Sensitive area check</h1>
+                        <h1 className="govuk-heading-l">Sensitive area check</h1>
                         <div className="govuk-grid-row">
                             <div className="govuk-grid-column-one-half">
                                 <form
@@ -245,7 +245,7 @@ const SensitiveAreaPage: React.FC = () => {
                                             </div>
                                         </fieldset>
                                     </div>
-                                    <button type="submit" data-module="govuk-button" className="govuk-button" value="Start sensitive area checks" name="Start sensitive area checks" data-prevent-double-click="true">
+                                    <button type="submit" data-module="govuk-button" className="govuk-button govuk-!-margin-top-6" value="Start sensitive area checks" name="Start sensitive area checks" data-prevent-double-click="true">
                                         {loading ? 'Checking...' : 'Start sensitive area checks'}
                                     </button>
                                     {/* Remove duplicate error summary below the button */}

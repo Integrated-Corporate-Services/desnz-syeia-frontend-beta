@@ -64,7 +64,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
         {error && (
           <div
-            className="govuk-error-summary"
+            className="govuk-error-summary govuk-!-width-two-thirds"
             data-module="govuk-error-summary"
             tabIndex={-1}
             role="alert"
@@ -87,15 +87,13 @@ const NetworkOperatorContactDetails: React.FC = () => {
             setError={setError}
           />
 
-          <div className="govuk-!-static-margin-top-6">
-            <button
-              type="submit"
-              className="govuk-button"
-              data-module="govuk-button"
-            >
-              {LABELS.CONTINUE}
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="govuk-button"
+            data-module="govuk-button"
+          >
+            {LABELS.CONTINUE}
+          </button>
         </form>
       </div>
       </div>

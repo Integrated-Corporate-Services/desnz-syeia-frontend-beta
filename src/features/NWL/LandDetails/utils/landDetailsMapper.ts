@@ -185,11 +185,18 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
       backendData.country = frontendData.site_country;
     }
 
+    // Site at objector address (boolean for POST)
+    if (frontendData.is_site_at_objector_address !== undefined) {
+      backendData.is_site_at_objector_address = frontendData.is_site_at_objector_address;
+    }
+
     // Site address (nested object for POST)
+    // Only include if site is NOT at objector's address
     if (
-      frontendData.site_address_line1 ||
-      frontendData.site_town ||
-      frontendData.site_postcode
+      frontendData.is_site_at_objector_address === false &&
+      (frontendData.site_address_line1 ||
+       frontendData.site_town ||
+       frontendData.site_postcode)
     ) {
       backendData.site_address = {
         line1: frontendData.site_address_line1 || '',
@@ -198,11 +205,6 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
         county: frontendData.site_county || '',
         postcode: frontendData.site_postcode || '',
       };
-    }
-
-    // Site at objector address (boolean for POST)
-    if (frontendData.is_site_at_objector_address !== undefined) {
-      backendData.is_site_at_objector_address = frontendData.is_site_at_objector_address;
     }
 
     // Land registry (nested object for POST)

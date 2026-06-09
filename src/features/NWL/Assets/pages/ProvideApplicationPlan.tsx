@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { useApplicationId, useAssetsData } from '../hooks';
-import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS } from '../constants';
+import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS, MESSAGES } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
@@ -206,8 +206,6 @@ const ProvideApplicationPlan: React.FC = () => {
               </p>
 
               {/* File Upload Section */}
-              <h2 className="govuk-heading-m">{LABELS.UPLOAD_SECTION_TITLE}</h2>
-
               <div className={`govuk-form-group ${error || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`}>
                 {(error || fileValidationErrors.length > 0) && (
                   <p id="file-upload-error" className="govuk-error-message">
@@ -215,11 +213,17 @@ const ProvideApplicationPlan: React.FC = () => {
                   </p>
                 )}
                 
+                {uploadedFiles && uploadedFiles.length > 0 && (
+                  <div className="govuk-!-margin-top-2">
+                    <h3 className="govuk-heading-s">{MESSAGES.DOCUMENTS_UPLOADED}</h3>
+                  </div>
+                )}
+                
                 <FileUpload
                   key={`file-upload-${applicationId}-${assetsData?.metadata_id || 'new'}`}
                   ref={fileUploadRef}
-                  title="Upload a file"
-                  showTitle={false}
+                  title={LABELS.UPLOAD_SECTION_TITLE}
+                  showTitle={true}
                   prefix={`${applicationId}/application-plan`}
                   applicationId={applicationId}
                   category={NWL_FILE_CATEGORIES.NWL_PLAN_INFO}
@@ -227,6 +231,7 @@ const ProvideApplicationPlan: React.FC = () => {
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
+                  uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={(errors) => {

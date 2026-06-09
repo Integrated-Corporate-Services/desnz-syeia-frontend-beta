@@ -294,7 +294,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
     return (
         <div className="govuk-width-container">
-            <main className="govuk-main-wrapper" id="main-content" role="main">
+            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 {/* Breadcrumbs */}
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">

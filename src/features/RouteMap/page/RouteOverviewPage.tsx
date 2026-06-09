@@ -115,9 +115,9 @@ export const RouteOverviewPage: React.FC = () => {
                     </li>
                 </ol>
             </nav>
-            <main className="govuk-main-wrapper" id="main-content" role="main">
+            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 {showBanner && <RouteDeletedBanner routeName={showBanner.routeName} />}
-                <h1 className="govuk-heading-xl">Route overview</h1>
+                <h1 className="govuk-heading-l">Route overview</h1>
                 <p className="govuk-body" style={{ maxWidth: 700 }}>
                     Any changes to the route will require you to run the sensitive area checks again, upload new plan information, and reconsult or provide updated information to consultees if consultations are open.
                 </p>

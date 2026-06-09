@@ -14,7 +14,6 @@ import {
     getFieldErrorMessage,
     clearValidationErrors,
     type ValidationError,
-    type EiaFeesFormData,
     EIA_FEES_ERROR_MESSAGES,
 } from '../validations';
 
@@ -207,7 +206,7 @@ const EIAFeesForm: React.FC = () => {
                 </ol>
             </nav>
             {errors.length > 0 && (
-                <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary" data-govuk-error-summary-init="">
+                <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary" data-govuk-error-summary-init="">
                     <h2 className="govuk-error-summary__title" id="error-summary-title">
                         There is a problem
                     </h2>
@@ -222,10 +221,10 @@ const EIAFeesForm: React.FC = () => {
                     </div>
                 </div>
             )}
-            <main className="govuk-main-wrapper" id="main-content" role="main">
+            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
-                        <h1 className="govuk-heading-xl">EIA fees</h1>
+                        <h1 className="govuk-heading-l">EIA fees</h1>
 
                         <form method="post" data-module="fds-html-form" onSubmit={handleSubmit} noValidate>
                             <div className="govuk-form-group">

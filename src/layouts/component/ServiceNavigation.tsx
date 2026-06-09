@@ -30,14 +30,15 @@ const ServiceNavigation = () => {
     // Check if user is in registration/access request flow
     const isInRegistrationFlow = location.pathname.startsWith("/request-access");
 
-    // Check if on application dashboard or any application-related page
+    // Task list pages should not highlight Applications as active.
+    const isOnTaskListPage = location.pathname.includes("/task-list");
+
+    // Applications tab should only be active on the "Your applications" dashboard.
     const isOnApplicationPages =
-        applicationDashboardPaths.includes(location.pathname) ||
-        location.pathname.includes("/s-37/") ||
-        location.pathname.includes("/nwl/") ||
-        location.pathname.includes("/tlp/") ||
-        location.pathname.includes("/task-list") ||
-        location.pathname.includes("/delete");
+        (applicationDashboardPaths.includes(location.pathname) ||
+            location.pathname.startsWith("/application-dashboard")) &&
+        !isOnTaskListPage;
+
 
     // Check if on organisation/admin pages
     const isOnOrganisationPages =
@@ -110,15 +111,6 @@ const ServiceNavigation = () => {
                                 >
                                     Applications
                                 </Link>
-                            </li>
-                            <li className="rcc-service-nav__item">
-                                <a
-                                    className="rcc-service-nav__link"
-                                    href="#"
-                                    onClick={(e) => e.preventDefault()}
-                                >
-                                    Notifications <span className="moj-notification-badge"></span>
-                                </a>
                             </li>
                             <li className="rcc-service-nav__item">
                                 <a

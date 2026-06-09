@@ -91,6 +91,7 @@ const EmailTemplate: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -107,7 +108,7 @@ const EmailTemplate: React.FC = () => {
           <h1 className="govuk-hint govuk-!-margin-top-6">{orgname}</h1>
           <h1 className="govuk-heading-l">Create email to consultee</h1>
           <p className="govuk-body">Review the details you're about to send.</p>
-          {error && <div className="govuk-error-summary">{error}</div>}
+          {error && <div className="govuk-error-summary govuk-!-width-two-thirds">{error}</div>}
           <form>
             <div className="govuk-form-group">
               <h1 className="govuk-heading-s" >Applicant email address</h1>
@@ -162,6 +163,7 @@ const EmailTemplate: React.FC = () => {
           </form>
         </div>
       </div>
+      </main>
     </div>
   );
 };
