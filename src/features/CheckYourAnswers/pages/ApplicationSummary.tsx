@@ -474,24 +474,24 @@ const ApplicationSummary: React.FC = () => {
           Back
         </Link>
       )}
-      <main className="govuk-main-wrapper" id="main-content">        
-        {permissions?.canEdit && (
-          <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            <ol className="govuk-breadcrumbs__list">
-              <li className="govuk-breadcrumbs__list-item" aria-current="false">
-                <Link
-                  className="govuk-breadcrumbs__link"
-                  to={`${S37_BASE_URL}/${applicationId}/task-list`}
-                >
-                  Task list
-                </Link>
-              </li>
-              <li className="govuk-breadcrumbs__list-item" aria-current="true">
-                Submit Section 37 application
-              </li>
-            </ol>
-          </nav>
-        )}
+      {permissions?.canEdit && (
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+          <ol className="govuk-breadcrumbs__list">
+            <li className="govuk-breadcrumbs__list-item" aria-current="false">
+              <Link
+                className="govuk-breadcrumbs__link"
+                to={`${S37_BASE_URL}/${applicationId}/task-list`}
+              >
+                Task list
+              </Link>
+            </li>
+            <li className="govuk-breadcrumbs__list-item" aria-current="true">
+              Submit Section 37 application
+            </li>
+          </ol>
+        </nav>
+      )}
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">        
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
             
@@ -513,7 +513,7 @@ const ApplicationSummary: React.FC = () => {
             
             {validationError && (
               <div
-                className="govuk-error-summary"
+                className="govuk-error-summary govuk-!-width-two-thirds"
                 aria-labelledby="error-summary-title"
                 role="alert"
                 data-module="govuk-error-summary"

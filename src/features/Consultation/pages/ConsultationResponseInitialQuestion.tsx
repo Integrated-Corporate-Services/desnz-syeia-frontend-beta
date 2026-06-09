@@ -35,10 +35,10 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <nav className="govuk-breadcrumbs govuk-!-margin-bottom-6" aria-label="Breadcrumb">
+          <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
               <li className="govuk-breadcrumbs__list-item">
                 <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
@@ -56,9 +56,9 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
             </ol>
           </nav>
 
-          <main id="main-content">
+          <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
             {error && (
-              <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+              <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
                 </h2>

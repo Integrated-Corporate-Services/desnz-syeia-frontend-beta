@@ -120,7 +120,7 @@ const PaymentAmountPage: React.FC = () => {
   if (loading) {
     return (
       <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content">
+        <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading payment information...</p>
@@ -133,24 +133,25 @@ const PaymentAmountPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              Payment Amount
-            </li>
-          </ol>
-        </nav>
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item">
+            <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
+              Task list
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">
+            Payment Amount
+          </li>
+        </ol>
+      </nav>
+
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
-              <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
+              <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title">
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
                 </h2>

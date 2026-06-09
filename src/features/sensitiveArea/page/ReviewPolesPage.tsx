@@ -123,7 +123,7 @@ const ReviewPolesPage: React.FC = () => {
         Back
       </a>
 
-      <main className="govuk-main-wrapper">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {/* Error Summary */}

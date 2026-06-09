@@ -34,20 +34,19 @@ const ConsultationWithdrawnPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-xl" style={{ marginBottom: "24px" }}>
+            <h1 className="govuk-heading-xl govuk-!-margin-bottom-6">
               Are you sure you want to withdraw this request?
             </h1>
-            <p className="govuk-body" style={{ marginBottom: "32px" }}>
+            <p className="govuk-body govuk-!-margin-bottom-8">
               This will mark the consultation as withdrawn. The consultation pack will be deleted, but evidence of the request and any responses will be preserved for historical records.
             </p>
             <div className="govuk-button-group">
               <button
                 type="button"
                 className="govuk-button govuk-button--secondary"
-                style={{ marginRight: "16px" }}
                 onClick={() => navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`)}
               >
                 Go back to consultation request

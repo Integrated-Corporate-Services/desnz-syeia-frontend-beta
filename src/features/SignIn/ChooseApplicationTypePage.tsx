@@ -22,7 +22,7 @@ const ChooseApplicationTypePage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         <h1 className="govuk-heading-l">Choose application type</h1>
         
         <ErrorSummary errors={errors} />

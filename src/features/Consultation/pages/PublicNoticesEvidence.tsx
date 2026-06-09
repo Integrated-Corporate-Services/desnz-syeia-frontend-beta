@@ -340,11 +340,11 @@ const PublicNoticesEvidence: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
-              <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
+              <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                 <div role="alert">
                   <h2 className="govuk-error-summary__title">There is a problem</h2>
                   <div className="govuk-error-summary__body">

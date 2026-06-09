@@ -231,7 +231,7 @@ const RouteMapPage: React.FC = () => {
 
   return (
       <div className="govuk-width-container">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb" style={{ marginBottom: '2rem' }}>
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
               <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
@@ -250,17 +250,17 @@ const RouteMapPage: React.FC = () => {
         </nav>
         {/* Validation error summary */}
         {validationError && (
-          <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+          <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
             <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
             <ul className="govuk-list govuk-error-summary__list">
               <li><a href="#eip-add-route-easting" className="govuk-link govuk-error-message">{validationError}</a></li>
             </ul>
           </div>
         )}
-        <main className="govuk-main-wrapper" id="main-content" role="main">
+        <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-full">
-              <h1 className="govuk-heading-xl">{routeName}</h1>
+              <h1 className="govuk-heading-l">{routeName}</h1>
               <div className='govuk-grid-column-three-quarters'>  
               <p className="govuk-body">
                 Enter the points where your route starts, changes direction and ends by adding <b>new</b> coordinates before or after the previous point. Submit your route after you have entered all of the points.

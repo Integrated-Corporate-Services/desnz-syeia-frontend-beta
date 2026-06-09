@@ -205,16 +205,16 @@ const handleSaveAndContinue = async () => {
         </ol>
       </nav>
 
-      <main id="main-content">
-        <h2 className="govuk-caption-xl">
+      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
+        <h2 className="govuk-caption-xl govuk-!-margin-top-0">
         {lpaName}
         </h2>
-        <h1 className="govuk-heading-xl">
+        <h1 className="govuk-heading-l">
           Consultation form for electric overhead lines – Part 1
         </h1>
 
         {errorMessage && (
-          <div className="govuk-error-summary">
+          <div className="govuk-error-summary govuk-!-width-two-thirds">
             <h2 className="govuk-error-summary__title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">

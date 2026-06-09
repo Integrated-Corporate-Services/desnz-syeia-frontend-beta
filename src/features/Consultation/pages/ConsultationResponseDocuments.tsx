@@ -299,10 +299,10 @@ const ConsultationResponse2: React.FC = () => {
     };
 
     return (
-        <div className="govuk-width-container govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+        <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
-                    <nav className="govuk-breadcrumbs govuk-!-margin-bottom-6" aria-label="Breadcrumb">
+                    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                         <ol className="govuk-breadcrumbs__list">
                             <li className="govuk-breadcrumbs__list-item">
                                 <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
@@ -314,13 +314,13 @@ const ConsultationResponse2: React.FC = () => {
                         </ol>
                     </nav>
 
-                    <main id="main-content">
+                    <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                         {isLoading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : (
                             <>
                         {(Object.keys(errors).some(key => errors[key]) || fileValidationErrors.length > 0) && (
-                            <div className="govuk-error-summary" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
+                            <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>
                                     <div className="govuk-error-summary__body">
@@ -354,8 +354,8 @@ const ConsultationResponse2: React.FC = () => {
                             </div>
                         )}
 
-                        {consultationType === ConsultationType.PUBLIC && <h2 className="govuk-caption-xl">Public notices</h2>}
-                        {consultationType !== ConsultationType.PUBLIC && <h2 className="govuk-caption-xl">{consultationName}</h2>}
+                        {consultationType === ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">Public notices</h2>}
+                        {consultationType !== ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</h2>}
                         <h1 className="govuk-heading-l">{consultationType === ConsultationType.PUBLIC ? 'Upload public responses' : 'Provide consultation response'}</h1>
 
                         <form noValidate>
