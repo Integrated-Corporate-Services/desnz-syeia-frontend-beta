@@ -395,6 +395,13 @@ const WayleaveOffer: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
+                
+                {uploadedFiles && uploadedFiles.length > 0 && (
+                  <div className="govuk-!-margin-top-2">
+                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                  </div>
+                )}
+                
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
@@ -409,6 +416,10 @@ const WayleaveOffer: React.FC = () => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                     setErrors([]);
+                  }}
+                  onUploaded={(newUploadedFiles, newDocuments) => {
+                    setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
+                    setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   onValidationErrors={handleFileValidationErrors}
                   onPendingFilesChange={(files) => setPendingFiles(files)}

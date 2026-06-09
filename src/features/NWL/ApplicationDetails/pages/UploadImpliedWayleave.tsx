@@ -216,15 +216,12 @@ const UploadImpliedWayleave: React.FC = () => {
             )}
 
             <form onSubmit={handleSubmit} noValidate>
-              {applicationDocuments.length > 0 && (
-                <div className="govuk-form-group">
-                  <p className="govuk-body govuk-!-font-weight-bold">
-                    {LABELS.DOCUMENTS_UPLOADED}
-                  </p>
-                </div>
-              )}
-
               <div className={`govuk-form-group ${fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
+                {uploadedFiles && uploadedFiles.length > 0 && (
+                  <div className="govuk-!-margin-top-2">
+                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                  </div>
+                )}
                 {fileValidationErrors.length > 0 && fileValidationErrors.map((err, index) => (
                   <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {err}
@@ -244,6 +241,10 @@ const UploadImpliedWayleave: React.FC = () => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                     setError("");
+                  }}
+                  onUploaded={(newUploadedFiles, newDocuments) => {
+                    setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
+                    setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   onValidationErrors={handleFileValidationErrors}
                   onPendingFilesChange={(files) => setPendingFiles(files)}
