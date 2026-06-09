@@ -101,7 +101,7 @@ const Parishes: React.FC = () => {
                             </div>
                         )}
 
-                        <h1 className="govuk-heading-xl">Parishes</h1>
+                        <h1 className="govuk-heading-l">Parishes</h1>
 
                         {isLoading ? (
                             <p className="govuk-body">Loading saved parishes...</p>

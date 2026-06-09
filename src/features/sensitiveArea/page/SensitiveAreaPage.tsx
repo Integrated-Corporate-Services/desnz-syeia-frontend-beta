@@ -153,7 +153,7 @@ const SensitiveAreaPage: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                        <h1 className="govuk-heading-xl">Sensitive area check</h1>
+                        <h1 className="govuk-heading-l">Sensitive area check</h1>
                         <div className="govuk-grid-row">
                             <div className="govuk-grid-column-one-half">
                                 <form
