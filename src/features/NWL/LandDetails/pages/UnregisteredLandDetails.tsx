@@ -174,7 +174,7 @@ const UnregisteredLandDetails: React.FC = () => {
                       <>
                         {pageUploadedFiles && pageUploadedFiles.length > 0 && (
                           <div className="govuk-!-margin-top-2">
-                            <h3 className="govuk-heading-s">{UNREGISTERED_LAND.DOCUMENTS_UPLOADED}</h3>
+                            <h3 className="govuk-heading-s">{LAND_DETAILS_LABELS.UNREGISTERED_LAND.DOCUMENTS_UPLOADED}</h3>
                           </div>
                         )}
                         <FileUpload
