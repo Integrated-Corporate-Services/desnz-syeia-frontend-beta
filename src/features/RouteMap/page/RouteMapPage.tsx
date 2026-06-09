@@ -260,7 +260,7 @@ const RouteMapPage: React.FC = () => {
         <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-full">
-              <h1 className="govuk-heading-xl">{routeName}</h1>
+              <h1 className="govuk-heading-l">{routeName}</h1>
               <div className='govuk-grid-column-three-quarters'>  
               <p className="govuk-body">
                 Enter the points where your route starts, changes direction and ends by adding <b>new</b> coordinates before or after the previous point. Submit your route after you have entered all of the points.

@@ -228,7 +228,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 							</div>
 						</div>
 					)}
-					<h2 className="govuk-caption-xl">{consultationName}</h2>
+					<h2 className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</h2>
 						<h1 className="govuk-heading-l govuk-!-margin-bottom-6">Consultation not required</h1>
 						<div className="govuk-!-margin-bottom-6">
 							<h2 className="govuk-heading-m govuk-!-margin-bottom-2">Sites of Special Scientific Interest (SSSI) assent</h2>

@@ -128,10 +128,10 @@ const ConsultationDetailsPage: React.FC = () => {
                         </div>
                     )}
 
-                    <h1 className="govuk-heading-xl">Manage consultations</h1>
+                    <h1 className="govuk-heading-l">Manage consultations</h1>
 
                     {/* Warning about locked sections once consultations start */}
-                    <div className="govuk-warning-text">
+                    <div className="govuk-warning-text govuk-!-margin-top-0">
                         <span className="govuk-warning-text__icon" aria-hidden="true">
                             !
                         </span>

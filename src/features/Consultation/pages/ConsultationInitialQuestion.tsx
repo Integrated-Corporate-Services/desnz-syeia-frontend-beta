@@ -121,8 +121,8 @@ const ConsultationInitialQuestion: React.FC = () => {
               </div>
             )}
 
-            <span className="govuk-caption-xl">{consultationName}</span>
-            <h1 className="govuk-heading-xl">Consultation request</h1>
+            <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>
+            <h1 className="govuk-heading-l">Consultation request</h1>
 
             <form noValidate>
               <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>

@@ -89,7 +89,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
           <button
             type="submit"
-            className="govuk-button govuk-!-margin-top-6"
+            className="govuk-button"
             data-module="govuk-button"
           >
             {LABELS.CONTINUE}

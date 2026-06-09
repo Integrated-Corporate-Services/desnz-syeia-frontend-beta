@@ -531,7 +531,7 @@ const WorksOverview: React.FC = () => {
           />
         </div>
 
-        <button type="submit" className="govuk-button govuk-!-margin-top-6">Save and continue</button>
+        <button type="submit" className="govuk-button">Save and continue</button>
       </form>
     </main>
   </div>

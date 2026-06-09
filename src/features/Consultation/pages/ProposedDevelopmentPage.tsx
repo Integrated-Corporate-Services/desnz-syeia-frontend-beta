@@ -243,7 +243,7 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h2 className="govuk-caption-xl">
+            <h2 className="govuk-caption-xl govuk-!-margin-top-0">
               <strong>{lpaName}</strong>
             </h2>
 

@@ -14,7 +14,6 @@ import {
     getFieldErrorMessage,
     clearValidationErrors,
     type ValidationError,
-    type EiaFeesFormData,
     EIA_FEES_ERROR_MESSAGES,
 } from '../validations';
 
@@ -225,7 +224,7 @@ const EIAFeesForm: React.FC = () => {
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
-                        <h1 className="govuk-heading-xl">EIA fees</h1>
+                        <h1 className="govuk-heading-l">EIA fees</h1>
 
                         <form method="post" data-module="fds-html-form" onSubmit={handleSubmit} noValidate>
                             <div className="govuk-form-group">
@@ -259,7 +258,7 @@ const EIAFeesForm: React.FC = () => {
                             <button
                                 type="submit"
                                 data-module="govuk-button"
-                                className="govuk-button govuk-!-margin-top-6"
+                                className="govuk-button"
                                 value="Save and continue"
                                 name="Save and continue"
                                 data-prevent-double-click="true"
