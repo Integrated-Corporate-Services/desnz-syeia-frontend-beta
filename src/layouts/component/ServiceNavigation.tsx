@@ -33,13 +33,10 @@ const ServiceNavigation = () => {
     // Task list pages should not highlight Applications as active.
     const isOnTaskListPage = location.pathname.includes("/task-list");
 
-    // Check if on application dashboard or any application-related page
+    // Applications tab should only be active on the "Your applications" dashboard.
     const isOnApplicationPages =
         (applicationDashboardPaths.includes(location.pathname) ||
-            location.pathname.includes("/s-37/") ||
-            location.pathname.includes("/nwl/") ||
-            location.pathname.includes("/tlp/") ||
-            location.pathname.includes("/delete")) &&
+            location.pathname.startsWith("/application-dashboard")) &&
         !isOnTaskListPage;
 
 
