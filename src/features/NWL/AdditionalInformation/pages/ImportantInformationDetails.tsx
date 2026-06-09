@@ -188,7 +188,9 @@ const ImportantInformationDetails: React.FC = () => {
               {/* File Upload Section */}
               <div className="govuk-form-group">
                 {uploadedFiles && uploadedFiles.length > 0 && (
-                  <h2 className="govuk-heading-s govuk-!-margin-bottom-4">{FORM_LABELS.DOCUMENTS_UPLOADED}</h2>
+                  <div className="govuk-!-margin-top-2">
+                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                  </div>
                 )}
                 <FileUpload
                   ref={fileUploadRef}
