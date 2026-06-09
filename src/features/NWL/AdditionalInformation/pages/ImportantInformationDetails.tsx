@@ -189,7 +189,7 @@ const ImportantInformationDetails: React.FC = () => {
               <div className="govuk-form-group">
                 {uploadedFiles && uploadedFiles.length > 0 && (
                   <div className="govuk-!-margin-top-2">
-                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                    <h3 className="govuk-heading-s">{FORM_LABELS.DOCUMENTS_UPLOADED}</h3>
                   </div>
                 )}
                 <FileUpload

@@ -9,6 +9,7 @@ import {
   LABELS,
   FORM_ERRORS,
 } from "../constants/uploadWrittenWayleaveConstants";
+import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
 /**
@@ -222,7 +223,7 @@ const UploadWrittenWayleave: React.FC = () => {
                 ))}
                 {uploadedFiles && uploadedFiles.length > 0 && (
                   <div className="govuk-!-margin-top-2">
-                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                    <h3 className="govuk-heading-s">{SHARED_UPLOAD_LABELS.DOCUMENTS_UPLOADED}</h3>
                   </div>
                 )}
                 <FileUpload

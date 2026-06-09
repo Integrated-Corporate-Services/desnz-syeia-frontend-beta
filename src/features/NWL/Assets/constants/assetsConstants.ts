@@ -92,6 +92,7 @@ export const MESSAGES = {
   LOADING: "Loading assets...",
   NO_ASSETS: "No assets have been added yet.",
   CONFIRM_DELETE: "Are you sure you want to remove this asset?",
+  DOCUMENTS_UPLOADED: "Documents uploaded",
   CHARACTER_REMAINING: (remaining: number) => {
     if (remaining === 0) return 'You have 0 characters remaining';
     if (remaining < 0) return `You have ${Math.abs(remaining)} characters too many`;

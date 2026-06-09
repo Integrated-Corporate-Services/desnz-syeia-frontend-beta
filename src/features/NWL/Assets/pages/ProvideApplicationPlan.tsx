@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { useApplicationId, useAssetsData } from '../hooks';
-import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS } from '../constants';
+import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS, MESSAGES } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
@@ -215,7 +215,7 @@ const ProvideApplicationPlan: React.FC = () => {
                 
                 {uploadedFiles && uploadedFiles.length > 0 && (
                   <div className="govuk-!-margin-top-2">
-                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                    <h3 className="govuk-heading-s">{MESSAGES.DOCUMENTS_UPLOADED}</h3>
                   </div>
                 )}
                 
