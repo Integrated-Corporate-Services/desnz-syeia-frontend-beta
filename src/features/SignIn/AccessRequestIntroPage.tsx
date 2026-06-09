@@ -3,15 +3,38 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
+import { ROLES } from "../../constants/roles";
 
 const logger = createLogger('AccessRequestIntroPage');
 
+// List of active roles that indicate user already has system access
+const ACTIVE_ROLES = [
+  ROLES.APPLICANT,
+  ROLES.APPLICANT_AGENT,
+  ROLES.APPLICANT_USER,
+  ROLES.APPLICANT_TEAM_COORDINATOR,
+  ROLES.NETWORK_OPERATOR,
+  ROLES.DESNZ_ADMIN,
+  ROLES.CONTACT,
+];
+
 const AccessRequestIntroPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuthUserContext();
+  const { user, authenticated } = useAuthUserContext();
 
   useEffect(() => {
-    const checkExistingRequest = async () => {
+    const checkAccessAndRequest = async () => {
+      // If user is authenticated and has an ACTIVE role (not "pending"), redirect them
+      if (authenticated && user?.role && ACTIVE_ROLES.includes(user.role)) {
+        logger.info("User already has active access, redirecting to landingPage", { 
+          userId: user.user_id, 
+          role: user.role 
+        });
+        navigate("/landingPage", { replace: true });
+        return;
+      }
+
+      // If no authenticated session but have an email, check for pending/submitted requests
       if (!user?.email) return;
 
       try {
@@ -19,6 +42,9 @@ const AccessRequestIntroPage: React.FC = () => {
 
         // If user has a submitted request, redirect to submitted page
         if (result.hasSubmittedRequest) {
+          logger.info("User has pending access request, redirecting to submitted page", {
+            email: user.email
+          });
           navigate("/request-access/submitted", { replace: true });
         }
       } catch (error: unknown) {
@@ -26,8 +52,8 @@ const AccessRequestIntroPage: React.FC = () => {
       }
     };
 
-    checkExistingRequest();
-  }, [user?.email, navigate]);
+    checkAccessAndRequest();
+  }, [user?.email, user?.role, authenticated, navigate]);
 
   return (
     <div className="govuk-width-container">
