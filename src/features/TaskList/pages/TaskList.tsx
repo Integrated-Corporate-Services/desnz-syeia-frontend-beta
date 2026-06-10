@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTaskListData } from '../../../hooks/useTaskListData';
 import TaskListSection from '../components/TaskListSection';
@@ -56,6 +56,42 @@ const TaskList: React.FC = () => {
     const baseUrl = getBaseUrl();
     navigate(`${baseUrl}/${applicationId}/delete-confirmation`);
   };
+
+  useEffect(() => {
+    if (!application?.application_id || !user?.user_id) {
+      return;
+    }
+
+    const pathname = location.pathname;
+    const baseUrl = pathname.includes('/s-37/')
+      ? '/s-37'
+      : pathname.includes('/nwl/')
+        ? '/nwl'
+        : pathname.includes('/tlp/')
+          ? '/tlp'
+          : '/s-37';
+    const isSupportedBase = baseUrl === '/s-37' || baseUrl === '/nwl';
+
+    if (!isSupportedBase) {
+      return;
+    }
+
+    const isOtherApplicantsApplication = application.created_by !== user.user_id;
+    if (!isOtherApplicantsApplication) {
+      return;
+    }
+
+    const normalizedStatus = application.status?.toLowerCase();
+
+    if (normalizedStatus === 'draft') {
+      navigate(`${baseUrl}/${application.application_id}/check-your-answers`, { replace: true });
+      return;
+    }
+
+    if (normalizedStatus === 'submitted') {
+      navigate(`${baseUrl}/${application.application_id}/application-summary`, { replace: true });
+    }
+  }, [application, user?.user_id, location.pathname, navigate]);
 
   return (
     <div className="govuk-width-container">
