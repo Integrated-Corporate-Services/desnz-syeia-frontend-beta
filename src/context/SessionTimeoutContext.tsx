@@ -26,10 +26,22 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   // Derive auth state
   const isAuthenticated = !!user && !authLoading;
 
-  logger.info(`Session timeout initialized: Idle timeout = ${SESSION_TIMEOUT}s (${SESSION_TIMEOUT / 60} min), Warning period = ${SESSION_WARNING}s (${SESSION_WARNING / 60} min)`);
-  logger.info(`Modal will show at ${SESSION_TIMEOUT - SESSION_WARNING}s (${(SESSION_TIMEOUT - SESSION_WARNING) / 60} min of idle time)`);
+  // Log configuration on mount
+  useEffect(() => {
+    logger.info(`Session timeout initialized: Idle timeout = ${SESSION_TIMEOUT}s (${SESSION_TIMEOUT / 60} min), Warning period = ${SESSION_WARNING}s (${SESSION_WARNING / 60} min)`);
+    logger.info(`Modal will show at ${SESSION_TIMEOUT - SESSION_WARNING}s (${(SESSION_TIMEOUT - SESSION_WARNING) / 60} min of idle time)`);
+  }, []); // Empty deps - only log once on mount
 
- 
+  // Reset modal state when user becomes unauthenticated
+  // This ensures modal doesn't show on landing page or after logout
+  useEffect(() => {
+    if (!isAuthenticated) {
+      logger.debug('User not authenticated - resetting modal state');
+      setShowModal(false);
+      setRemaining(SESSION_WARNING);
+      isLoggingOutRef.current = false;
+    }
+  }, [isAuthenticated]);
 
   // Reset timer on user activity
   const resetTimer = useCallback(() => {

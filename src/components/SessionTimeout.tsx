@@ -1,33 +1,65 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useSessionTimeout } from '../context/SessionTimeoutContext';
-import { useLocation } from 'react-router-dom';
+import { useAuthUserContext } from '../context/AuthUserContext';
 import { createLogger } from '../utils/logger';
 import '../styles/SessionTimeout.css'
-import { logout } from '../services/authService';
+import { logout, keepAlive } from '../services/authService';
 import { SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
 
 const logger = createLogger('SessionTimeoutModal');
-
-const formatTime = (sec: number) => {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-};
 
 const formatSeconds = (sec: number) => {
   return `${sec} second${sec !== 1 ? 's' : ''}`;
 };
 
 const SessionTimeoutModal: React.FC = () => {
+  // Context hooks
   const { showModal, remaining, resetTimer } = useSessionTimeout();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
+  const { user, authenticated } = useAuthUserContext();
+  
+  // Component state
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasAnnounced, setHasAnnounced] = useState(false);
+  
+  // Refs for focus management
   const modalRef = useRef<HTMLDivElement>(null);
   const staySignedInRef = useRef<HTMLButtonElement>(null);
 
 
-  const handleContinueClick = useCallback(() => {
-    resetTimer();
+  /**
+   * Handles "Stay signed in" button click
+   * 1. Calls backend keep-alive endpoint to refresh server-side session
+   * 2. If successful, resets frontend timer
+   * 3. If backend session expired (401), logs out immediately
+   * 4. If error, resets frontend timer anyway (next API call will handle auth)
+   */
+  const handleContinueClick = useCallback(async () => {
+    try {
+      setIsRefreshing(true);
+      logger.info('User clicked "Stay signed in" - refreshing backend session');
+      
+      // Call backend keep-alive endpoint to refresh the session on the server
+      const sessionRefreshed = await keepAlive();
+      
+      if (!sessionRefreshed) {
+        // Backend session already expired (401) - logout user
+        logger.warn('Backend session already expired - logging out');
+        await logout(SIGNED_OUT_PAGE);
+        return;
+      }
+
+      logger.info('Backend session refreshed successfully - resetting frontend timer');
+      
+      // Reset the frontend timer (both backend and frontend now synchronized)
+      resetTimer();
+    } catch (error) {
+      logger.error('Error refreshing session', error);
+      // Still reset frontend timer even if backend call fails
+      // The next API call will handle the authentication error
+      resetTimer();
+    } finally {
+      setIsRefreshing(false);
+    }
   }, [resetTimer]);
 
   // Always show the same warning message on all pages
@@ -42,9 +74,6 @@ const SessionTimeoutModal: React.FC = () => {
     const warningText = warningMinutes === 1 ? "1 minute" : `${warningMinutes} minutes`;
     return showCountdown ? formatSeconds(remaining) : warningText;
   }, [remaining]);
-
-  // Track if we've already announced to screen readers
-  const [hasAnnounced, setHasAnnounced] = useState(false);
 
   React.useEffect(() => {
     if (showModal) {
@@ -127,7 +156,13 @@ const SessionTimeoutModal: React.FC = () => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showModal]);
+  }, [showModal, handleContinueClick]);
+
+  // Only show modal if user is authenticated
+  if (!authenticated || !user) {
+    logger.debug('Modal render check: user not authenticated, not rendering');
+    return null;
+  }
 
   if (!showModal) {
     logger.debug('Modal render check: showModal is false, not rendering');
@@ -165,7 +200,7 @@ const SessionTimeoutModal: React.FC = () => {
             className="govuk-button govuk-button--success" 
             type="button" 
             onClick={handleContinueClick}
-            disabled={isLoggingOut}
+            disabled={isRefreshing}
             data-module="govuk-button"
             aria-describedby="stay-description"
           >
@@ -179,12 +214,18 @@ const SessionTimeoutModal: React.FC = () => {
               href="#"
               className="govuk-link" 
               onClick={async (event) => {
-                                event.preventDefault();
-                                await logout(SIGNED_OUT_PAGE);
-                              }}
+                event.preventDefault();
+                if (!isRefreshing) {
+                  await logout();
+                }
+              }}
               aria-describedby="signout-description"
+              style={{ 
+                pointerEvents: isRefreshing ? 'none' : 'auto',
+                opacity: isRefreshing ? 0.5 : 1 
+              }}
             >
-              {isLoggingOut ? 'Signing out...' : 'Sign out'}
+              Sign out
             </a>
           </p>
           <span id="signout-description" className="govuk-visually-hidden">
