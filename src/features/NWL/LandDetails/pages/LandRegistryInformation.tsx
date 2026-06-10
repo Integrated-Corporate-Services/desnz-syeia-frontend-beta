@@ -212,7 +212,7 @@ const LandRegistryInformation: React.FC = () => {
                   addedBy={userId}
                   uploadedFiles={pageUploadedFiles}
                   applicationDocuments={pageApplicationDocuments}
-                  uploadImmediately={false}
+                  uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={handlePendingFilesChange}
                   onValidationErrors={setFileValidationErrors}

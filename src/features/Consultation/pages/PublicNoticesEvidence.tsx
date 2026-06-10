@@ -622,7 +622,7 @@ const PublicNoticesEvidence: React.FC = () => {
                   addedBy={user?.user_id || ''}
                   uploadedFiles={uploadedFileObjs}
                   applicationDocuments={applicationDocuments}
-                  uploadImmediately={false}
+                  uploadImmediately={true}
                   onUploaded={(files, docs) => {
                     handleUploadedFiles(files, docs);
                   }}

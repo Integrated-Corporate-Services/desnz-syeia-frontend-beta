@@ -247,7 +247,7 @@ const EvidenceOfNegotiations: React.FC = () => {
                   addedBy={userId}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
-                  uploadImmediately={false}
+                  uploadImmediately={true}
                   onPendingFilesChange={setPendingFiles}
                   onDeleteFile={handleDeleteFile}
                   onUploaded={(newUploadedFiles, newDocuments) => {

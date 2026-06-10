@@ -17,6 +17,8 @@ const BankTransferConfirmationPage: React.FC = () => {
   const [transactionNumber, setTransactionNumber] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
   
   
   const fileUploadRef = useRef<FileUploadHandle>(null);
@@ -251,12 +253,19 @@ const BankTransferConfirmationPage: React.FC = () => {
                 applicationId={applicationId}
                 category={'PAYMENT_PROOF'}
                 addedBy={user?.user_id}
-                uploadedFiles={[]}
-                applicationDocuments={[]}
+                uploadedFiles={uploadedFiles}
+                applicationDocuments={applicationDocuments}
                 onPendingFilesChange={setPendingFiles}
                 onValidationErrors={() => {}}
-                onUploaded={() => {}}
-                uploadImmediately={false}
+                onUploaded={(newUploadedFiles, newDocs) => {
+                  setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+                  setApplicationDocuments(prev => [...prev, ...newDocs]);
+                }}
+                onDeleteFile={(fileId) => {
+                  setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+                  setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+                }}
+                uploadImmediately={true}
               />
             </div>
 

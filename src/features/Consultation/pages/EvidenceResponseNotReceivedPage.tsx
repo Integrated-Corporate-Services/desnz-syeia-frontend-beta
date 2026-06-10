@@ -392,7 +392,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                     addedBy={user?.user_id || ''}
                                     uploadedFiles={uploadedFileObjs}
                                     applicationDocuments={applicationDocuments}
-                                    uploadImmediately={false}
+                                    uploadImmediately={true}
                                     onUploaded={handleFilesUploaded}
                                     onDeleteFile={handleDeleteFile}
                                     onValidationErrors={handleFileValidationErrors}

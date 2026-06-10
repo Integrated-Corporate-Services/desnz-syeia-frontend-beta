@@ -313,7 +313,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								category={FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}
 								uploadedFiles={uploadedFileObjs}
 								applicationDocuments={applicationDocuments}
-								uploadImmediately={false}
+								uploadImmediately={true}
 								onUploaded={handleFilesUploaded}
 								onDeleteFile={handleDeleteFile}
 								onValidationErrors={handleFileValidationErrors}

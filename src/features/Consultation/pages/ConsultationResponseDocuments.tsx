@@ -467,7 +467,7 @@ const ConsultationResponse2: React.FC = () => {
                                         addedBy={userId}
                                         uploadedFiles={uploadedFileObjs}
                                         applicationDocuments={applicationDocuments}
-                                        uploadImmediately={false}
+                                        uploadImmediately={true}
                                         onUploaded={handleFilesUploaded}
                                         onDeleteFile={handleDeleteFile}
                                         onValidationErrors={handleFileValidationErrors}

@@ -122,7 +122,7 @@ const UploadSiteInformation: React.FC = () => {
                   uploadedFiles={pageUploadedFiles}
                   applicationDocuments={pageApplicationDocuments}
                   onDeleteFile={handleDeleteFile}
-                  uploadImmediately={false}
+                  uploadImmediately={true}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}
                   onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {

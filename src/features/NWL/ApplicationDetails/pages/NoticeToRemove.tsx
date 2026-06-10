@@ -449,7 +449,7 @@ const NoticeToRemove: React.FC = () => {
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
-                  uploadImmediately={false}
+                  uploadImmediately={true}
                   onPendingFilesChange={setPendingFiles}
                   onDeleteFile={(fileId) => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));

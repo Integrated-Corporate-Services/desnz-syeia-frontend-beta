@@ -548,7 +548,7 @@ const SupportingInfo: React.FC = () => {
             uploadedFiles={uploadedFiles}
             applicationDocuments={applicationDocuments}
             onDeleteFile={handleDeleteFile}
-            uploadImmediately={false}
+            uploadImmediately={true}
             onUploaded={handleFilesUploaded}
             onValidationErrors={(errors) => {
               setFileValidationErrors(errors);
