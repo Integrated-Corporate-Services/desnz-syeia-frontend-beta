@@ -622,14 +622,14 @@ const PublicNoticesEvidence: React.FC = () => {
                   addedBy={user?.user_id || ''}
                   uploadedFiles={uploadedFileObjs}
                   applicationDocuments={applicationDocuments}
-                  uploadImmediately={true}
+                  uploadImmediately={false}
                   onUploaded={(files, docs) => {
                     handleUploadedFiles(files, docs);
                   }}
                   onDeleteFile={handleDeleteFile}
                   onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
-                  onPendingFilesChange={(files) => setPendingFiles(files)}
+                  onPendingFilesChange={setPendingFiles}
                 />
               </div>
 

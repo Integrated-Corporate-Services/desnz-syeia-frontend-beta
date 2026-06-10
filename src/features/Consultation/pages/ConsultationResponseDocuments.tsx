@@ -467,12 +467,12 @@ const ConsultationResponse2: React.FC = () => {
                                         addedBy={userId}
                                         uploadedFiles={uploadedFileObjs}
                                         applicationDocuments={applicationDocuments}
-                                        uploadImmediately={true}
+                                        uploadImmediately={false}
                                         onUploaded={handleFilesUploaded}
                                         onDeleteFile={handleDeleteFile}
                                         onValidationErrors={handleFileValidationErrors}
                                         consultationId={consultationId}
-                                        onPendingFilesChange={(files) => setPendingFiles(files)}
+                                        onPendingFilesChange={setPendingFiles}
                                     />
                                 </div>
                             </div>

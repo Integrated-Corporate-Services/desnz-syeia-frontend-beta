@@ -844,7 +844,7 @@ const ProjectOverview = () => {
 								category={FILE_CATEGORIES.PLAN_INFO}
 								addedBy={userId}
 								uploadedFiles={formState.uploadedFiles}
-								uploadImmediately={true} 
+								uploadImmediately={false} 
 								onDeleteFile={handleDeleteFile}
 								onPendingFilesChange={setPendingFiles}
 								onValidationErrors={(errors) => {

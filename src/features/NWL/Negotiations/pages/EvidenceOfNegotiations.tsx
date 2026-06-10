@@ -247,13 +247,13 @@ const EvidenceOfNegotiations: React.FC = () => {
                   addedBy={userId}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
-                  uploadImmediately={true}
+                  uploadImmediately={false}
+                  onPendingFilesChange={setPendingFiles}
                   onDeleteFile={handleDeleteFile}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
-                  onPendingFilesChange={(files) => setPendingFiles(files)}
                   showDocumentsHeading={true}
                 />
               </div>

@@ -188,7 +188,7 @@ const UnregisteredLandDetails: React.FC = () => {
                     addedBy={userId}
                     uploadedFiles={pageUploadedFiles}
                     applicationDocuments={pageApplicationDocuments}
-                    uploadImmediately={true}
+                    uploadImmediately={false}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}

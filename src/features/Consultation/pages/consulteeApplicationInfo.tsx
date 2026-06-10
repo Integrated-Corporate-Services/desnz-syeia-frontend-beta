@@ -474,7 +474,7 @@ useEffect(() => {
                 addedBy={user?.user_id}
                 uploadedFiles={consultationPack?.uploadedFiles || []}
                 applicationDocuments={consultationPack?.applicationDocuments || []}
-                uploadImmediately={true}
+                uploadImmediately={false}
                 onValidationErrors={handleFileValidationErrors}
                 onDeleteFile={handleDeleteFile}
                 onUploaded={(newUploadedFiles, newApplicationDocuments) => {

@@ -231,7 +231,7 @@ const ProvideApplicationPlan: React.FC = () => {
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
-                  uploadImmediately={true}
+                  uploadImmediately={false}
                   onDeleteFile={handleDeleteFile}
                   onPendingFilesChange={setPendingFiles}
                   onValidationErrors={(errors) => {

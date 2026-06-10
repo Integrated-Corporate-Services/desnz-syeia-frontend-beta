@@ -548,7 +548,7 @@ const SupportingInfo: React.FC = () => {
             uploadedFiles={uploadedFiles}
             applicationDocuments={applicationDocuments}
             onDeleteFile={handleDeleteFile}
-            uploadImmediately={true}
+            uploadImmediately={false}
             onUploaded={handleFilesUploaded}
             onValidationErrors={(errors) => {
               setFileValidationErrors(errors);
@@ -556,7 +556,7 @@ const SupportingInfo: React.FC = () => {
                 setErrors(prev => prev.filter(err => err.key !== 'supportingDocsFiles'));
               }
             }}
-            onPendingFilesChange={(files) => setPendingFiles(files)}
+            onPendingFilesChange={setPendingFiles}
           />
         </div>
     )}
