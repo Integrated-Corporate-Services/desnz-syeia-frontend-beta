@@ -143,9 +143,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       files: newFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
     });
     
-    // Filter to only include File objects for validation
-    const existingFileObjects = pendingFiles;
-    const result = await validateFiles(newFiles, existingFileObjects);
+    const allExistingFiles = [...uploadedFilesForThisCategory, ...pendingFiles];
+    const result = await validateFiles(newFiles, allExistingFiles);
     
     logger.info('File validation completed', {
       validFilesCount: result.validFiles.length,
@@ -154,13 +153,9 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     });
     
 
-    if (result.errors.length > 0 && result.validFiles.length > 0) {     
-      const errorMessages = result.errors.map(error => error.message);
-      if (onValidationErrors) {
-        onValidationErrors(errorMessages);
-      }
-    } else if (result.errors.length > 0 && result.validFiles.length === 0) {
-      
+
+
+    if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
@@ -171,7 +166,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       }
     }
     
-    if (result.validFiles.length > 0) {
+    if (result.validFiles.length > 0 && result.errors.length === 0) {
       const allFiles = [...files, ...result.validFiles];
       
       if (onFilesChange) {
@@ -221,31 +216,32 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       onValidationErrors([]);
     }
     
+    const fileIdsForThisCategory = applicationDocuments
+      ?.filter(doc => doc.category === category)
+      .map(doc => doc.fileId) || [];
+    
+    const uploadedFilesForThisCategory = uploadedFiles?.filter(
+      file => fileIdsForThisCategory.includes(file.id)
+    ) || [];
   
-    const uploadedFilesSize = uploadedFiles?.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0) || 0;
+    const uploadedFilesSize = uploadedFilesForThisCategory.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0);
     const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
     
     logger.info('Starting file validation (drop) - Per Page Limit', {
       page: prefix,
       droppedFilesCount: droppedFiles.length,
-      uploadedFilesOnThisPage: uploadedFiles?.length || 0,
+      uploadedFilesOnThisPage: uploadedFilesForThisCategory.length,
       uploadedFilesSize,
       pendingFilesSize,
       totalExistingSize: uploadedFilesSize + pendingFilesSize
     });
     
- 
-    // Filter to only include File objects for validation
-    const existingFileObjects = pendingFiles;
-    const result = await validateFiles(droppedFiles, existingFileObjects);
+    const allExistingFiles = [...uploadedFilesForThisCategory, ...pendingFiles];
+    const result = await validateFiles(droppedFiles, allExistingFiles);
     
-    if (result.errors.length > 0 && result.validFiles.length > 0) {
+    // Handle validation errors
+    if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
-      if (onValidationErrors) {
-        onValidationErrors(errorMessages);
-      }
-    } else if (result.errors.length > 0 && result.validFiles.length === 0) {
-       const errorMessages = result.errors.map(error => error.message);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
       }
@@ -255,7 +251,9 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       }
     }
     
-    if (result.validFiles.length > 0) {
+    // ONLY add files to pending if validation completely passed (no errors)
+    // This prevents files from accumulating in memory when validation fails
+    if (result.validFiles.length > 0 && result.errors.length === 0) {
       const allFiles = [...files, ...result.validFiles];
       
       if (onFilesChange) {
@@ -316,9 +314,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       );
     }
     
-    // Clear validation errors when files are removed as space constraints may be resolved
-    
-    // Also clear parent errors when files are removed
+   
     if (onValidationErrors) {
       onValidationErrors([]);
     }
@@ -484,6 +480,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       await deleteFileCompletely(fileId, s3Key);
       if (onDeleteFile) {
         onDeleteFile(fileId);
+      }
+      
+      if (onValidationErrors) {
+        onValidationErrors([]);
       }
       
     } catch (error) {
