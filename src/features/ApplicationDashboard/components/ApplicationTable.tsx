@@ -75,9 +75,23 @@ export const ApplicationTable: React.FC<Props> = ({
   applications,
   activeTab = "active",
 }) => {
-   const { navigateToApplication, getNavigationPath } = useApplicationNavigation();
+  const { navigateToApplication, getNavigationPath } = useApplicationNavigation();
   const tableId = useId();
   const captionId = `table-description-${tableId}`;
+
+  const getApplicationDestination = (app: Application): "task-list" | "check-your-answers" | "application-summary" => {
+    const isDraft = app.status?.toLowerCase() === "draft";
+
+    if (app.permissions?.canEdit) {
+      return "task-list";
+    }
+
+    if (isDraft) {
+      return "check-your-answers";
+    }
+
+    return "application-summary";
+  };
 
   const dateColumnConfig =
     DATE_COLUMN_CONFIG[activeTab] || DATE_COLUMN_CONFIG.active;
@@ -95,14 +109,9 @@ export const ApplicationTable: React.FC<Props> = ({
     app: Application,
   ) => {
     e.preventDefault();
-    
-    // Draft applications should always navigate to task-list to continue editing
-    const isDraft = app.status?.toLowerCase() === 'draft';
-    
-    if (isDraft || app.permissions?.canEdit) {
-      navigateToApplication(app.type, app.application_id, "task-list");
-    } else if (app.permissions?.canView) {
-      navigateToApplication(app.type, app.application_id, "application-summary");
+
+    if (app.permissions?.canView) {
+      navigateToApplication(app.type, app.application_id, getApplicationDestination(app));
     }
   };
 
@@ -169,9 +178,9 @@ export const ApplicationTable: React.FC<Props> = ({
             >
               <a
                 href={getNavigationPath(
-                  app.type, 
-                  app.application_id, 
-                  (app.status?.toLowerCase() === 'draft' || app.permissions?.canEdit) ? 'task-list' : 'application-summary'
+                  app.type,
+                  app.application_id,
+                  getApplicationDestination(app)
                 )}
                 className="govuk-link"
                 aria-label={`View details for application ${app.desnz_ref || "with no reference"}, ${getCaseTypeLabel(app.type)}, ${activeTab !== "draft" ? app.status + " status, " : ""}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
@@ -179,8 +188,7 @@ export const ApplicationTable: React.FC<Props> = ({
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    const isDraft = app.status?.toLowerCase() === 'draft';
-                    const destination = (isDraft || app.permissions?.canEdit) ? "task-list" : "application-summary";
+                    const destination = getApplicationDestination(app);
                     navigateToApplication(
                       app.type,
                       app.application_id,
@@ -235,8 +243,7 @@ export const ApplicationTable: React.FC<Props> = ({
     {/* Mobile card view - visible only on small screens */}
     <div className="application-card-list" role="list" aria-label="Applications list">
       {sortedApplications.map((app) => {
-        const isDraft = app.status?.toLowerCase() === 'draft';
-        const destination = (isDraft || app.permissions?.canEdit) ? "task-list" : "application-summary";
+        const destination = getApplicationDestination(app);
         
         return (
           <div 
