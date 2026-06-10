@@ -57,11 +57,12 @@ export const isDuplicateFile = (newFile: File, existingFiles: FileOrMetadata[]):
       ? (existingFile as File).name
       : (existingFile as UploadedFile).filename;
     
-    const existingSize = (existingFile as File).size !== undefined
-      ? (existingFile as File).size
-      : toSafeNumber((existingFile as UploadedFile).fileSizeBytes);
     
-    return existingName === newFile.name && existingSize === newFile.size;
+    const existingFileName = existingName.split('/').pop() || existingName;
+    const newFileName = newFile.name;
+    
+    
+    return existingFileName.toLowerCase() === newFileName.toLowerCase();
   });
 };
 

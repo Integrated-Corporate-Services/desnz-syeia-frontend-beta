@@ -325,11 +325,11 @@ const ReviewDocumentsPage: React.FC = () => {
                   applicationId={applicationId || ''}
                   category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
                   addedBy={review?.reviewed_by || 'current-user'}
-                  uploadImmediately={true} 
+                  uploadImmediately={true}
                   onUploaded={handleFilesUploaded}
                   onDeleteFile={handleDeleteFile}
                   onValidationErrors={handleFileValidationErrors}
-                  onPendingFilesChange={(files) => setPendingFiles(files)}
+                  onPendingFilesChange={setPendingFiles}
                 />
               </div>
             </div>

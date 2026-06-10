@@ -88,18 +88,23 @@ const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: FileO
     });
     
     if (wouldExceed) {
+      const currentTotal = formatFileSize(runningTotal);
+      const fileSize = formatFileSize(file.size);
+      const wouldBe = formatFileSize(runningTotal + file.size);
+      const maxLimit = formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE);
+      
       logger.error('FILE REJECTED: Would exceed 500MB per-page limit', {
         filename: file.name,
-        fileSize: formatFileSize(file.size),
-        currentTotalOnPage: formatFileSize(runningTotal),
-        wouldBeTotal: formatFileSize(runningTotal + file.size),
-        maxLimitPerPage: formatFileSize(FILE_SIZE_LIMITS.MAX_TOTAL_SIZE)
+        fileSize,
+        currentTotalOnPage: currentTotal,
+        wouldBeTotal: wouldBe,
+        maxLimitPerPage: maxLimit
       });
       
       errors.push({
         filename: file.name,
         errorType: 'TOTAL_SIZE_EXCEEDED' as const,
-        message: `${VALIDATION_ERROR_MESSAGES.TOTAL_SIZE_EXCEEDED}`
+        message: `${file.name}: ${VALIDATION_ERROR_MESSAGES.TOTAL_SIZE_EXCEEDED}`
       });
     } else {
       runningTotal += file.size;
@@ -121,9 +126,23 @@ const validateForDuplicates = (filesToCheck: File[], existingFiles: FileOrMetada
       errors.push({
         filename: file.name,
         errorType: 'DUPLICATE',
-        message: VALIDATION_ERROR_MESSAGES.DUPLICATE_FILE
+        message: `${file.name}: ${VALIDATION_ERROR_MESSAGES.DUPLICATE_FILE}`
       });
     }
+  }
+  
+  
+  const fileNames = new Map<string, number>();
+  for (const file of filesToCheck) {
+    const count = fileNames.get(file.name) || 0;
+    if (count > 0) {
+      errors.push({
+        filename: file.name,
+        errorType: 'DUPLICATE',
+        message: `${file.name}: You are trying to upload this file multiple times. Please upload it only once.`
+      });
+    }
+    fileNames.set(file.name, count + 1);
   }
   
   return errors;

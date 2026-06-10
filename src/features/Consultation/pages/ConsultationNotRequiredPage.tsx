@@ -317,7 +317,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								onUploaded={handleFilesUploaded}
 								onDeleteFile={handleDeleteFile}
 								onValidationErrors={handleFileValidationErrors}
-								onPendingFilesChange={(files) => setPendingFiles(files)}
+								onPendingFilesChange={setPendingFiles}
 								consultationId={consultationId}
 							/>
 							</div>

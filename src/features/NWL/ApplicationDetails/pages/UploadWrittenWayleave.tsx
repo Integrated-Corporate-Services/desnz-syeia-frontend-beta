@@ -229,24 +229,25 @@ const UploadWrittenWayleave: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_WRITTEN_WAYLEAVE}/`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_WRITTEN_WAYLEAVE}`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_WRITTEN_WAYLEAVE}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
                   uploadImmediately={true}
+                  onPendingFilesChange={setPendingFiles}
                   onDeleteFile={(fileId) => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                     setError("");
+                    setFileValidationErrors([]);
                   }}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   onValidationErrors={handleFileValidationErrors}
-                  onPendingFilesChange={(files) => setPendingFiles(files)}
                 />
               </div>
 

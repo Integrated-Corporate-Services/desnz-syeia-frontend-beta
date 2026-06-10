@@ -29,7 +29,7 @@ const Header = () => {
                 <div className="govuk-header__container govuk-width-container">
                     <div className="govuk-header__logo">
                         <a
-                            href="/"
+                            href="/frontend"
                             className="govuk-header__link govuk-header__link--homepage"
                             style={{ textDecoration: 'none' }}
                         >

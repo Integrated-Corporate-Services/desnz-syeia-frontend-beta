@@ -36,7 +36,7 @@ export const VALIDATION_ERROR_MESSAGES = {
   FILE_SIZE_EXCEEDED: "The selected file must be smaller than 25MB",
   PASSWORD_PROTECTED: "The selected file is password protected and cannot be uploaded",
   INVALID_FILE_TYPE: "You can only upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files",
-  DUPLICATE_FILE: "A file with the same name and size already exists",
+  DUPLICATE_FILE: "A file with the same name and size already exists.",
   TOTAL_SIZE_EXCEEDED: "Adding this file would exceed the total 500MB limit",
 } as const;
 

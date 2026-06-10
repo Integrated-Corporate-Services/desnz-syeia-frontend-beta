@@ -472,7 +472,7 @@ const ConsultationResponse2: React.FC = () => {
                                         onDeleteFile={handleDeleteFile}
                                         onValidationErrors={handleFileValidationErrors}
                                         consultationId={consultationId}
-                                        onPendingFilesChange={(files) => setPendingFiles(files)}
+                                        onPendingFilesChange={setPendingFiles}
                                     />
                                 </div>
                             </div>

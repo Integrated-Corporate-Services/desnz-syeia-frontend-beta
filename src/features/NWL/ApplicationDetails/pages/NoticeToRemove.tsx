@@ -443,24 +443,25 @@ const NoticeToRemove: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_NOTICE_TO_REMOVE}/`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_NOTICE_TO_REMOVE}`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_NOTICE_TO_REMOVE}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
                   uploadImmediately={true}
+                  onPendingFilesChange={setPendingFiles}
                   onDeleteFile={(fileId) => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                     setErrors([]);
+                    setFileValidationErrors([]);
                   }}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   onValidationErrors={handleFileValidationErrors}
-                  onPendingFilesChange={(files) => setPendingFiles(files)}
                 />
               </div>
 

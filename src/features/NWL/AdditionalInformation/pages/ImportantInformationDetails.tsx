@@ -208,7 +208,7 @@ const ImportantInformationDetails: React.FC = () => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
-                  onPendingFilesChange={(files) => setPendingFiles(files)}
+                  onPendingFilesChange={setPendingFiles}
                   showDocumentsHeading={true}
                 />
               </div>
