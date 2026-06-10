@@ -443,7 +443,7 @@ const NoticeToRemove: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_NOTICE_TO_REMOVE}/`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_NOTICE_TO_REMOVE}`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_NOTICE_TO_REMOVE}
                   uploadedFiles={uploadedFiles}

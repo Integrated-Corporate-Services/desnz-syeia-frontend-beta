@@ -392,7 +392,7 @@ const WayleaveExpiryDate: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE}/`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE}`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE}
                   uploadedFiles={uploadedFiles}

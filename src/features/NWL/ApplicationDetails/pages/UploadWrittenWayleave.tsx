@@ -229,7 +229,7 @@ const UploadWrittenWayleave: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_WRITTEN_WAYLEAVE}/`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_WRITTEN_WAYLEAVE}`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_WRITTEN_WAYLEAVE}
                   uploadedFiles={uploadedFiles}

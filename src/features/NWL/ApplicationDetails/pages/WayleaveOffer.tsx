@@ -406,7 +406,7 @@ const WayleaveOffer: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_WAYLEAVE_OFFER}/`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_WAYLEAVE_OFFER}`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_WAYLEAVE_OFFER}
                   uploadedFiles={uploadedFiles}

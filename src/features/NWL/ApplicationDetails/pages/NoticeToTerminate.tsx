@@ -394,7 +394,7 @@ const NoticeToTerminate: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_NOTICE_TO_TERMINATE}/`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_NOTICE_TO_TERMINATE}`}
                   applicationId={appId}
                   category={NWL_FILE_CATEGORIES.NWL_NOTICE_TO_TERMINATE}
                   uploadedFiles={uploadedFiles}
