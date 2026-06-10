@@ -95,6 +95,14 @@ const NWLTaskList: React.FC = () => {
 
 	return (
 		<div className="govuk-width-container">
+			<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+				<ol className="govuk-breadcrumbs__list">
+					<li className="govuk-breadcrumbs__list-item">
+						<Link className="govuk-breadcrumbs__link" to="/workbasket">Workbasket</Link>
+					</li>
+					<li className="govuk-breadcrumbs__list-item govuk-breadcrumbs__list-item--current" aria-current="true">Task list</li>
+				</ol>
+			</nav>
 			<main className="govuk-main-wrapper" id="main-content">
 				<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">
