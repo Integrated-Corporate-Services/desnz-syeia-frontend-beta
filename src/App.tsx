@@ -4,6 +4,7 @@ import { BrowserRouter, useLocation, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import NotFound from "./features/NotFound/NotFound";
 import { AuthUserProvider } from "./context/AuthUserContext";
+import { AccessRequestProvider } from "./context/AccessRequestContext";
 import { ROUTE_CONFIG } from "./constants/routes";
 import { SessionTimeoutProvider } from "./context/SessionTimeoutContext";
 import SessionTimeout from "./components/SessionTimeout";
@@ -157,9 +158,11 @@ const AppContent = () => {
 const App = () => (
   <BrowserRouter basename="/frontend">
     <AuthUserProvider>
-      <SessionTimeoutProvider>
-        <AppContent />
-      </SessionTimeoutProvider>
+      <AccessRequestProvider>
+        <SessionTimeoutProvider>
+          <AppContent />
+        </SessionTimeoutProvider>
+      </AccessRequestProvider>
     </AuthUserProvider>
   </BrowserRouter>
 );

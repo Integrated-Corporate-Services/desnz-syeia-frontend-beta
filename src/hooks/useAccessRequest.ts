@@ -1,35 +1,11 @@
-import { useState, useCallback } from 'react';
+/**
+ * @deprecated Use useAccessRequestContext from AccessRequestContext instead
+ * This hook is now a wrapper around the context for backwards compatibility
+ */
+import { useAccessRequestContext } from '../context/AccessRequestContext';
 
-export interface AccessRequestFormData {
-  email: string;
-  title?: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber?: string;
-  line1: string;
-  line2?: string;
-  town: string;
-  county?: string;
-  postCode: string;
-  isAgent?: boolean;
-  agencyName?: string;
-  organisationIds: string[];
-}
+export type { AccessRequestFormData } from '../context/AccessRequestContext';
 
 export function useAccessRequest() {
-  const [formData, setFormData] = useState<Partial<AccessRequestFormData>>({});
-
-  const updateFormData = useCallback((data: Partial<AccessRequestFormData>) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-  }, []);
-
-  const clearFormData = useCallback(() => {
-    setFormData({});
-  }, []);
-
-  return {
-    formData,
-    updateFormData,
-    clearFormData,
-  };
+  return useAccessRequestContext();
 }

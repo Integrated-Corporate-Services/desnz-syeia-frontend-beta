@@ -1,7 +1,44 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthUserContext } from "../../context/AuthUserContext";
+import { useAccessRequestContext } from "../../context/AccessRequestContext";
 import { logout } from "../../services/authService";
+import { createLogger } from "../../utils/logger";
+import { ROLES } from "../../constants/roles";
+
+const logger = createLogger('AccessRequestSubmittedPage');
+
+// List of active roles that indicate user already has system access
+const ACTIVE_ROLES = [
+  ROLES.APPLICANT,
+  ROLES.APPLICANT_AGENT,
+  ROLES.APPLICANT_USER,
+  ROLES.APPLICANT_TEAM_COORDINATOR,
+  ROLES.NETWORK_OPERATOR,
+  ROLES.DESNZ_ADMIN,
+  ROLES.CONTACT,
+];
 
 const AccessRequestSubmittedPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, authenticated } = useAuthUserContext();
+  const { clearFormData } = useAccessRequestContext();
+
+  useEffect(() => {
+    // If user is authenticated and has an ACTIVE role (not "pending"), redirect them
+    if (authenticated && user?.role && ACTIVE_ROLES.includes(user.role)) {
+      logger.info("User already has active access, redirecting to landingPage", { 
+        userId: user.user_id, 
+        role: user.role 
+      });
+      navigate("/landingPage", { replace: true });
+      return;
+    }
+
+    // Clear form data when user reaches this page (request submitted successfully)
+    console.log('[AccessRequestSubmittedPage] Clearing form data after successful submission');
+    clearFormData();
+  }, [authenticated, user?.role, navigate, clearFormData]);
 
   return (
     <div className="govuk-width-container">
