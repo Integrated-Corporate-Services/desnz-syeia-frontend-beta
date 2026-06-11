@@ -18,7 +18,12 @@ const TaskList: React.FC = () => {
   const { user } = useAuthUserContext();
   const navigate = useNavigate();
   const location = useLocation();
+<<<<<<< HEAD
   const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
+=======
+  const userRole = (user as AuthUser | null)?.role;
+  const isAdmin = userRole === ROLES.DESNZ_ADMIN;
+>>>>>>> 16572eb143b62dd4f19549ccbc59106337d73d9c
   const applicationId = useGetApplicationId();
   const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
 
