@@ -55,6 +55,10 @@ const ServiceNavigation = () => {
     return (
         <nav className="rcc-service-nav" aria-label="Service navigation">
             <div className="rcc-service-nav__container">
+                <span className="rcc-service-nav__service-name">
+                    Submit your Energy Infrastructure Application
+                </span>
+
                 {/* Mobile toggle */}
                 <button
                     type="button"
