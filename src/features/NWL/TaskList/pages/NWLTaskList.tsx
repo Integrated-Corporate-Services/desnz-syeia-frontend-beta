@@ -5,17 +5,11 @@ import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
-import { useAuthUserContext } from '../../../../context/AuthUserContext';
-import { ROLES } from '../../../../constants/roles';
-
-
 
 const NWLTaskList: React.FC = () => {
-	const { user } = useAuthUserContext();
 	const params = useParams();
 	const location = useLocation();
 	const navigate = useNavigate();
-	const userRole = user?.role;
 	const [application, setApplication] = useState<any>(null);
 	const [progress, setProgress] = useState<any>(null);
 	const [orgName, setOrgName] = useState('');
@@ -55,35 +49,6 @@ const NWLTaskList: React.FC = () => {
 		progressApiService.fetchApplicationProgress(appId)
 			.then(data => setProgress(data));
 	}, [appId]);
-
-	useEffect(() => {
-		if (!application?.application_id || !user?.user_id) {
-			return;
-		}
-
-		const isApplicantUser = userRole === ROLES.APPLICANT_USER;
-		if (!isApplicantUser) {
-			return;
-		}
-
-		const isOtherApplicantsApplication = application.created_by !== user.user_id;
-		if (!isOtherApplicantsApplication) {
-			return;
-		}
-
-		const normalizedStatus = application.status?.toLowerCase();
-
-		if (normalizedStatus === 'draft') {
-			navigate(`${NWL_BASE_URL}/${application.application_id}/check-your-answers`, { replace: true });
-			return;
-		}
-
-		if (normalizedStatus === 'submitted') {
-			navigate(`${NWL_BASE_URL}/${application.application_id}/application-summary`, { replace: true });
-		}
-	}, [application, user?.user_id, userRole, navigate]);
-
-
 
 	// Helper to get status for a subsection, always based on current progress and appId
 	const getStatus = (subsectionName: string) => {

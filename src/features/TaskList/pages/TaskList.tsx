@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTaskListData } from '../../../hooks/useTaskListData';
 import TaskListSection from '../components/TaskListSection';
@@ -7,9 +7,9 @@ import ErrorMessage from '../components/ErrorMessage';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { ROLES } from '../../../constants/roles';
-import { getInitialSections } from '../../../utils/taskListUtils';
+// import { getInitialSections } from '../../../utils/taskListUtils';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import { applicationApiService } from '../../../services/applicationApiService';
+// import { applicationApiService } from '../../../services/applicationApiService';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('TaskList');
@@ -18,8 +18,7 @@ const TaskList: React.FC = () => {
   const { user } = useAuthUserContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const userRole = (user as AuthUser | undefined)?.role;
-  const isAdmin = userRole === ROLES.DESNZ_ADMIN;
+  const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
   const applicationId = useGetApplicationId();
   const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
 
@@ -57,47 +56,6 @@ const TaskList: React.FC = () => {
     const baseUrl = getBaseUrl();
     navigate(`${baseUrl}/${applicationId}/delete-confirmation`);
   };
-
-  useEffect(() => {
-    if (!application?.application_id || !user?.user_id) {
-      return;
-    }
-
-    const pathname = location.pathname;
-    const baseUrl = pathname.includes('/s-37/')
-      ? '/s-37'
-      : pathname.includes('/nwl/')
-        ? '/nwl'
-        : pathname.includes('/tlp/')
-          ? '/tlp'
-          : '/s-37';
-    const isSupportedBase = baseUrl === '/s-37' || baseUrl === '/nwl';
-
-    if (!isSupportedBase) {
-      return;
-    }
-
-    const isApplicantUser = userRole === ROLES.APPLICANT_USER;
-    if (!isApplicantUser) {
-      return;
-    }
-
-    const isOtherApplicantsApplication = application.created_by !== user.user_id;
-    if (!isOtherApplicantsApplication) {
-      return;
-    }
-
-    const normalizedStatus = application.status?.toLowerCase();
-
-    if (normalizedStatus === 'draft') {
-      navigate(`${baseUrl}/${application.application_id}/check-your-answers`, { replace: true });
-      return;
-    }
-
-    if (normalizedStatus === 'submitted') {
-      navigate(`${baseUrl}/${application.application_id}/application-summary`, { replace: true });
-    }
-  }, [application, user?.user_id, userRole, location.pathname, navigate]);
 
   return (
     <div className="govuk-width-container">
