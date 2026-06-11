@@ -15,6 +15,15 @@
     margin: 0 auto;
 }
 
+.rcc-service-nav__service-name {
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.25;
+    font-weight: 700;
+    color: #0b0c0c;
+    white-space: nowrap;
+}
+
 .rcc-service-nav__user-name {
     padding: 15px 12px;
     font-family: "GDS Transport", arial, sans-serif;
@@ -129,6 +138,11 @@
         justify-content: space-between;
         flex-wrap: wrap;
         padding: 10px 15px;
+    }
+    .rcc-service-nav__service-name {
+        width: 100%;
+        margin-bottom: 8px;
+        font-size: 16px;
     }
     .rcc-service-nav__user-name {
         padding: 0;
