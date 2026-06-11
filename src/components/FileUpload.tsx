@@ -251,9 +251,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       }
     }
     
-    // ONLY add files to pending if validation completely passed (no errors)
-    // This prevents files from accumulating in memory when validation fails
-    if (result.validFiles.length > 0 && result.errors.length === 0) {
+     if (result.validFiles.length > 0 && result.errors.length === 0) {
       const allFiles = [...files, ...result.validFiles];
       
       if (onFilesChange) {
@@ -599,7 +597,16 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       className="govuk-link"
                       onClick={(e) => {
                         e.preventDefault();
-                        setPendingFiles((prev) => prev.filter((_, i) => i !== idx));
+                        const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
+                        setPendingFiles(updatedPendingFiles);
+                        
+                        if (onValidationErrors) {
+                          onValidationErrors([]);
+                        }
+                        
+                        if (onPendingFilesChange) {
+                          onPendingFilesChange(updatedPendingFiles);
+                        }
                       }}
                     >
                       Remove
@@ -627,7 +634,12 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         className="gds-upload-dropzone"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => {
+          if (onValidationErrors) {
+            onValidationErrors([]);
+          }
+          fileInputRef.current?.click();
+        }}
       >
         <input
           type="file"

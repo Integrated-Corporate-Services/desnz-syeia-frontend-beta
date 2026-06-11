@@ -229,7 +229,9 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 newErrors.declaration = CONSULTATION_VALIDATION_MESSAGES.evidenceNotReceivedDeclaration.empty;
             }
 
-            if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
+            const hasExistingFiles = uploadedFileObjs.length > 0;
+
+            if (Object.keys(newErrors).length > 0 || (fileValidationErrors.length > 0 && !hasExistingFiles)) {
                 setErrors(newErrors);
                 setSubmitError('');
                 const errorSummary = document.getElementById('error-summary');

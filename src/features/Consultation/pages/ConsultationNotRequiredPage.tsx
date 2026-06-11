@@ -138,7 +138,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			newErrors.files = CONSULTATION_VALIDATION_MESSAGES.consultationNotRequiredUpload.empty;
 		}
 		
-		if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
+		
+		const hasExistingFiles = uploadedFileObjs.length > 0 || applicationDocuments.length > 0;
+		
+		if (Object.keys(newErrors).length > 0 || (fileValidationErrors.length > 0 && !hasExistingFiles)) {
 			setErrors(newErrors);
 			window.scrollTo(0, 0);
 			return;

@@ -177,7 +177,10 @@ const PublicNoticesEvidence: React.FC = () => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
+    
+    const hasExistingFiles = uploadedFileObjs && uploadedFileObjs.length > 0;
+    
+    return Object.keys(newErrors).length === 0 && (fileValidationErrors.length === 0 || hasExistingFiles);
   };
 
   const handleSaveAndContinue = async (e: React.FormEvent) => {

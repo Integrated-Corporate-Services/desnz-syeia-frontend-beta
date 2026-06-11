@@ -309,12 +309,12 @@ const ProjectOverview = () => {
 					const newErrors: string[] = [];
 					const newFieldErrors: Record<string, string> = {};
 
-					// Add file validation errors
-					if (fileValidationErrors.length > 0) {
+					const hasExistingFiles = formState.uploadedFiles && formState.uploadedFiles.length > 0;
+					if (fileValidationErrors.length > 0 && !hasExistingFiles) {
 						fileValidationErrors.forEach(error => {
 							newErrors.push(`<a href="#file-upload">${error}</a>`);
 						});
-						newFieldErrors.uploadedFiles = fileValidationErrors[0]; // Show first error in field
+						newFieldErrors.uploadedFiles = fileValidationErrors[0];
 					}
 
 					// Validate Project Name

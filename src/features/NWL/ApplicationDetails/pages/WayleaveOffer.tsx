@@ -177,7 +177,8 @@ const WayleaveOffer: React.FC = () => {
       return;
     }
 
-    if (fileValidationErrors.length > 0) {
+    const hasExistingFiles = uploadedFiles.length > 0;
+    if (fileValidationErrors.length > 0 && !hasExistingFiles) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
