@@ -3,7 +3,6 @@ import { useLocation, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
-import { logout } from "../../services/authService";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
@@ -56,15 +55,6 @@ const ServiceNavigation = () => {
     return (
         <nav className="rcc-service-nav" aria-label="Service navigation">
             <div className="rcc-service-nav__container">
-                {/* User name on the left */}
-                {user && (
-                    <div className="rcc-service-nav__user-name">
-                        {`${(user as AuthUser).first_name || ""} ${
-                            (user as AuthUser).last_name || ""
-                        }`.trim() || "\u00A0"}
-                    </div>
-                )}
-
                 {/* Mobile toggle */}
                 <button
                     type="button"
@@ -123,18 +113,6 @@ const ServiceNavigation = () => {
                             </li>
                         </>
                     )}
-                    <li className="rcc-service-nav__item">
-                        <a
-                            className="rcc-service-nav__link"
-                            href="#"
-                            onClick={async (event) => {
-                                event.preventDefault();
-                                await logout();
-                            }}
-                        >
-                            Sign out
-                        </a>
-                    </li>
                 </ul>
             </div>
         </nav>

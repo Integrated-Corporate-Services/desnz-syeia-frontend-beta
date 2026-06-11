@@ -1,7 +1,15 @@
 
 import React from 'react';
+import { useAuthUserContext } from '../../context/AuthUserContext';
+import { logout } from '../../services/authService';
+import type { AuthUser } from '../../types/auth';
 
 const Header = () => {
+    const { user } = useAuthUserContext();
+    const fullName = user
+        ? `${(user as AuthUser).first_name || ''} ${(user as AuthUser).last_name || ''}`.trim()
+        : '';
+
     return (
         <>
             <style>{`
@@ -20,6 +28,80 @@ const Header = () => {
         color: #fff !important;
         fill: #fff !important;
       }
+            .govuk-header__container {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .govuk-header__content {
+                flex: 1 1 auto;
+                min-width: 240px;
+            }
+            .app-header-auth {
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-family: "GDS Transport", arial, sans-serif;
+                color: #fff;
+                padding-bottom: 10px;
+                border-left: 1px solid rgba(255, 255, 255, 0.55);
+                padding-left: 14px;
+            }
+            .app-header-auth__identity {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .app-header-auth__user {
+                font-size: 16px;
+                line-height: 1.25;
+                white-space: nowrap;
+            }
+            .app-header-auth__profile-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 28px;
+                height: 28px;
+                border: 1px solid rgba(255, 255, 255, 0.9);
+                border-radius: 50%;
+            }
+            .app-header-auth__profile-icon svg {
+                display: block;
+            }
+            .app-header-auth__signout {
+                color: #fff !important;
+                font-size: 16px;
+                line-height: 1.25;
+                text-decoration: underline;
+                border-left: 1px solid rgba(255, 255, 255, 0.55);
+                padding-left: 12px;
+            }
+            .app-header-auth__signout:hover {
+                text-decoration-thickness: 3px;
+            }
+            .app-header-auth__signout:focus {
+                outline: 3px solid transparent;
+                background-color: #ffdd00;
+                box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+                color: #0b0c0c !important;
+                text-decoration: none;
+            }
+            @media (max-width: 900px) {
+                .govuk-header__content {
+                    width: 100%;
+                    margin-top: 8px;
+                }
+                .app-header-auth {
+                    width: 100%;
+                    justify-content: flex-end;
+                    margin-top: 6px;
+                    padding-bottom: 6px;
+                    border-left: 0;
+                    padding-left: 0;
+                }
+            }
     `}</style>
             <header
                 className="govuk-header govuk-header--full-width-border"
@@ -74,6 +156,40 @@ const Header = () => {
                             Submit your Energy Infrastructure Application
                         </span>
                     </div>
+                    {user && (
+                        <div className="app-header-auth" aria-label="User menu">
+                            <span className="app-header-auth__identity">
+                                <span className="app-header-auth__user">{fullName || 'User'}</span>
+                                <span className="app-header-auth__profile-icon" aria-hidden="true">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                    >
+                                        <circle cx="12" cy="8" r="3.5" stroke="#ffffff" strokeWidth="1.8" />
+                                        <path
+                                            d="M5.5 18c1.2-3.1 3.8-4.6 6.5-4.6s5.3 1.5 6.5 4.6"
+                                            stroke="#ffffff"
+                                            strokeWidth="1.8"
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                </span>
+                            </span>
+                            <a
+                                className="app-header-auth__signout"
+                                href="#"
+                                onClick={async (event) => {
+                                    event.preventDefault();
+                                    await logout();
+                                }}
+                            >
+                                Sign out
+                            </a>
+                        </div>
+                    )}
                 </div>
             </header>
         </>
