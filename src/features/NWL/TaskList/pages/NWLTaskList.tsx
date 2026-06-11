@@ -6,6 +6,7 @@ import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } f
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
+import { ROLES } from '../../../../constants/roles';
 
 
 
@@ -14,6 +15,7 @@ const NWLTaskList: React.FC = () => {
 	const params = useParams();
 	const location = useLocation();
 	const navigate = useNavigate();
+	const userRole = user?.role;
 	const [application, setApplication] = useState<any>(null);
 	const [progress, setProgress] = useState<any>(null);
 	const [orgName, setOrgName] = useState('');
@@ -59,6 +61,11 @@ const NWLTaskList: React.FC = () => {
 			return;
 		}
 
+		const isApplicantUser = userRole === ROLES.APPLICANT_USER;
+		if (!isApplicantUser) {
+			return;
+		}
+
 		const isOtherApplicantsApplication = application.created_by !== user.user_id;
 		if (!isOtherApplicantsApplication) {
 			return;
@@ -74,7 +81,7 @@ const NWLTaskList: React.FC = () => {
 		if (normalizedStatus === 'submitted') {
 			navigate(`${NWL_BASE_URL}/${application.application_id}/application-summary`, { replace: true });
 		}
-	}, [application, user?.user_id, navigate]);
+	}, [application, user?.user_id, userRole, navigate]);
 
 
 

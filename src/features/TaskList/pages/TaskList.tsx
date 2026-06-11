@@ -18,7 +18,8 @@ const TaskList: React.FC = () => {
   const { user } = useAuthUserContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
+  const userRole = (user as AuthUser | undefined)?.role;
+  const isAdmin = userRole === ROLES.DESNZ_ADMIN;
   const applicationId = useGetApplicationId();
   const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
 
@@ -76,6 +77,11 @@ const TaskList: React.FC = () => {
       return;
     }
 
+    const isApplicantUser = userRole === ROLES.APPLICANT_USER;
+    if (!isApplicantUser) {
+      return;
+    }
+
     const isOtherApplicantsApplication = application.created_by !== user.user_id;
     if (!isOtherApplicantsApplication) {
       return;
@@ -91,7 +97,7 @@ const TaskList: React.FC = () => {
     if (normalizedStatus === 'submitted') {
       navigate(`${baseUrl}/${application.application_id}/application-summary`, { replace: true });
     }
-  }, [application, user?.user_id, location.pathname, navigate]);
+  }, [application, user?.user_id, userRole, location.pathname, navigate]);
 
   return (
     <div className="govuk-width-container">
