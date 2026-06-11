@@ -162,7 +162,10 @@ const ConsultationResponse2: React.FC = () => {
         }
 
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
+        
+        const hasExistingFiles = uploadedFileObjs && uploadedFileObjs.length > 0;
+        
+        return Object.keys(newErrors).length === 0 && (fileValidationErrors.length === 0 || hasExistingFiles);
     };
 
     const validateFormatOnly = () => {
@@ -178,7 +181,10 @@ const ConsultationResponse2: React.FC = () => {
         }
 
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
+        
+        const hasExistingFiles = uploadedFileObjs && uploadedFileObjs.length > 0;
+        
+        return Object.keys(newErrors).length === 0 && (fileValidationErrors.length === 0 || hasExistingFiles);
     };
 
     const handleSaveAndContinue = async () => {
@@ -213,7 +219,9 @@ const ConsultationResponse2: React.FC = () => {
                 newErrors.uploadedFiles = errorMessage;
             }
             
-            if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
+            const hasExistingFiles = uploadedFileObjs.length > 0;
+            
+            if (Object.keys(newErrors).length > 0 || (fileValidationErrors.length > 0 && !hasExistingFiles)) {
                 setErrors(newErrors);
                 const errorSummary = document.getElementById('error-summary');
                 if (errorSummary) {

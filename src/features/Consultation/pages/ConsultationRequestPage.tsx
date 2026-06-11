@@ -199,7 +199,9 @@ const ConsultationRequestPage: React.FC = () => {
         newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.consultationRequestUpload.empty;
       }
       
-      if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
+      const hasExistingFiles = uploadedFileObjs.length > 0;
+      
+      if (Object.keys(newErrors).length > 0 || (fileValidationErrors.length > 0 && !hasExistingFiles)) {
         setErrors(newErrors);
         const errorSummary = document.getElementById('error-summary');
         if (errorSummary) {

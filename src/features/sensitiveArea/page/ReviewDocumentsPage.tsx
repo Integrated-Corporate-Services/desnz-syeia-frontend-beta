@@ -59,7 +59,10 @@ const ReviewDocumentsPage: React.FC = () => {
   const validateForm = (newlyUploadedFiles: UploadedFile[] = []): string[] => {
     const errors: string[] = [];
 
+    // Check total files including uploaded, newly uploaded, and pending
     const totalFiles = (uploadedFiles?.length || 0) + newlyUploadedFiles.length + pendingFiles.length;
+    
+    // MANDATORY: At least one file must be uploaded
     if (totalFiles === 0) {
       errors.push('Upload at least one document');
     }
@@ -122,7 +125,9 @@ const ReviewDocumentsPage: React.FC = () => {
     // Validate only on 'continue'
     if (saveType === 'continue') {
       const errors = validateForm(newlyUploadedFiles);
-      if (errors.length > 0 || fileValidationErrors.length > 0) {
+
+      const hasExistingFiles = uploadedFiles && uploadedFiles.length > 0;
+      if (errors.length > 0 || (fileValidationErrors.length > 0 && !hasExistingFiles)) {
         setFormErrors(errors);
         // Scroll to error summary
         document.getElementById('error-summary')?.focus();
