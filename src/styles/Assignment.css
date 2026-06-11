@@ -1,0 +1,103 @@
+/**
+ * Assignment Feature Styles
+ * Includes timeline styles for assignment history
+ * Created: 2026-06-09
+ */
+
+/* Timeline styles for assignment history */
+.govuk-timeline {
+  position: relative;
+  padding: 0;
+  list-style: none;
+}
+
+.govuk-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15px;
+  width: 2px;
+  height: 100%;
+  background-color: #b1b4b6;
+}
+
+.govuk-timeline__item {
+  position: relative;
+  padding-left: 50px;
+  padding-bottom: 30px;
+}
+
+.govuk-timeline__item:last-child {
+  padding-bottom: 0;
+}
+
+.govuk-timeline__marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #1d70b8;
+  border: 4px solid #ffffff;
+  z-index: 1;
+}
+
+.govuk-timeline__content {
+  background-color: #f3f2f1;
+  padding: 20px;
+  border-left: 4px solid #1d70b8;
+}
+
+.govuk-timeline__content h2 {
+  margin-top: 0;
+}
+
+/* Loading spinner animation */
+.loading-spinner {
+  display: inline-block;
+}
+
+.loading-spinner circle {
+  animation: loading-spinner-rotate 1s linear infinite;
+}
+
+@keyframes loading-spinner-rotate {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* Assigned editor banner enhancements */
+.govuk-notification-banner__content button {
+  margin-top: 0;
+}
+
+/* Summary list enhancements for assignment */
+.govuk-summary-list--no-border .govuk-summary-list__row {
+  border-bottom: none;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.govuk-summary-list--no-border .govuk-summary-list__row:first-child {
+  padding-top: 0;
+}
+
+.govuk-summary-list--no-border .govuk-summary-list__row:last-child {
+  padding-bottom: 0;
+}
+
+/* Text secondary color utility */
+.govuk-!-text-secondary {
+  color: #505a5f !important;
+}

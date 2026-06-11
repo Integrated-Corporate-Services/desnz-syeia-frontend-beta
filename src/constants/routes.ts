@@ -98,6 +98,9 @@ import ManageUserPage from '../features/admin/pages/ManageUserPage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
+import ReassignApplicationPage from '../features/Assignment/pages/ReassignApplicationPage';
+import ReassignmentSuccessPage from '../features/Assignment/pages/ReassignmentSuccessPage';
+import AssignmentHistoryPage from '../features/Assignment/pages/AssignmentHistoryPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
@@ -546,6 +549,24 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: true,
     },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/reassign`,
+        component: ReassignApplicationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/reassigned`,
+        component: ReassignmentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/assignment-history`,
+        component: AssignmentHistoryPage,
+        auth: true,
+        layout: true,
+    },
     ...nwlObjectorDetailsRoutes,
     ...nwlLandDetailsRoutes,
     ...nwlRoutes,
@@ -858,6 +879,24 @@ export const ROUTE_CONFIG = [
         layout: true,
     },
     {
+        path: `${S37_BASE_URL}/:applicationId/reassign`,
+        component: ReassignApplicationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/reassigned`,
+        component: ReassignmentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/assignment-history`,
+        component: AssignmentHistoryPage,
+        auth: true,
+        layout: true,
+    },
+    {
         path: `${TLP_BASE_URL}/:applicationId/delete-confirmation`,
         component: ApplicationDeleteConfirmationPage,
         auth: true,
@@ -866,6 +905,24 @@ export const ROUTE_CONFIG = [
     {
         path: `${TLP_BASE_URL}/:applicationId/delete-success`,
         component: ApplicationDeleteSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${TLP_BASE_URL}/:applicationId/reassign`,
+        component: ReassignApplicationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${TLP_BASE_URL}/:applicationId/reassigned`,
+        component: ReassignmentSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${TLP_BASE_URL}/:applicationId/assignment-history`,
+        component: AssignmentHistoryPage,
         auth: true,
         layout: true,
     },

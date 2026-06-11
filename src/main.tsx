@@ -3,6 +3,7 @@ import "govuk-frontend/dist/govuk/govuk-frontend.min.css"; // GDS base styles fi
 import "./index.css";
 import "./styles/govuk.scss";
 import "./App.css";
+import "./styles/Assignment.css";
 import App from "./App";
 import React from "react";
 import axios from "axios";

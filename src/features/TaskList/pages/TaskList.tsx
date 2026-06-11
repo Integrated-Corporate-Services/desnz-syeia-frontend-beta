@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 import React, { useEffect, useState } from 'react';
+=======
+import React, { useState, useEffect } from 'react';
+>>>>>>> Stashed changes
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTaskListData } from '../../../hooks/useTaskListData';
 import TaskListSection from '../components/TaskListSection';
@@ -11,6 +15,8 @@ import { getInitialSections } from '../../../utils/taskListUtils';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { createLogger } from '../../../utils/logger';
+import AssignedEditorBanner from '../../Assignment/components/AssignedEditorBanner';
+import { assignmentApiService, type AssignedEditor } from '../../../services/assignmentApiService';
 
 const logger = createLogger('TaskList');
 
@@ -21,6 +27,8 @@ const TaskList: React.FC = () => {
   const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
   const applicationId = useGetApplicationId();
   const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
+  const [assignedEditor, setAssignedEditor] = useState<AssignedEditor | null>(null);
+  const [loadingAssignment, setLoadingAssignment] = useState(false);
 
   // Use the hook to get sections from useTaskListData
   const {
@@ -57,6 +65,7 @@ const TaskList: React.FC = () => {
     navigate(`${baseUrl}/${applicationId}/delete-confirmation`);
   };
 
+<<<<<<< Updated upstream
   useEffect(() => {
     if (!application?.application_id || !user?.user_id) {
       return;
@@ -92,6 +101,56 @@ const TaskList: React.FC = () => {
       navigate(`${baseUrl}/${application.application_id}/application-summary`, { replace: true });
     }
   }, [application, user?.user_id, location.pathname, navigate]);
+=======
+  const handleReassignClick = () => {
+    logger.info('Reassign button clicked', { applicationId });
+    const baseUrl = getBaseUrl();
+    navigate(`${baseUrl}/${applicationId}/reassign`);
+  };
+
+  // Fetch assignment data for draft applications
+  useEffect(() => {
+    const fetchAssignment = async () => {
+      console.log('[TaskList] Checking assignment fetch conditions:', {
+        applicationId,
+        applicationIdType: typeof applicationId,
+        applicationIdLength: applicationId?.length,
+        hasApplication: !!application,
+        status: application?.status,
+        userRole: (user as AuthUser)?.role,
+        expectedRole: ROLES.APPLICANT_TEAM_COORDINATOR
+      });
+
+      // Don't fetch if applicationId is empty or undefined
+      if (!applicationId || applicationId === '') {
+        console.warn('[TaskList] Skipping fetch - no applicationId');
+        return;
+      }
+      
+      if (!application) return;
+      if (application.status?.toLowerCase() !== 'draft') return;
+      
+      // Only fetch if user is TC (can reassign)
+      const userRole = (user as AuthUser)?.role;
+      if (userRole !== ROLES.APPLICANT_TEAM_COORDINATOR) return;
+
+      try {
+        setLoadingAssignment(true);
+        console.log('[TaskList] Fetching assigned editor for app:', applicationId);
+        const data = await assignmentApiService.getAssignedEditor(applicationId);
+        console.log('[TaskList] Assigned editor data:', data);
+        setAssignedEditor(data.assignedEditor);
+      } catch (error) {
+        console.error('[TaskList] Failed to fetch assigned editor:', error);
+        logger.error('Failed to fetch assigned editor', { error, applicationId });
+      } finally {
+        setLoadingAssignment(false);
+      }
+    };
+
+    fetchAssignment();
+  }, [applicationId, application, user]);
+>>>>>>> Stashed changes
 
   return (
     <div className="govuk-width-container">
@@ -113,6 +172,30 @@ const TaskList: React.FC = () => {
       )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
+          {/* Show assignment banner for draft applications when user is TC */}
+          {(() => {
+            const isDraft = application?.status?.toLowerCase() === 'draft';
+            const isTC = (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR;
+            console.log('[TaskList] Banner render check:', {
+              isDraft,
+              isTC,
+              loadingAssignment,
+              hasEditor: !!assignedEditor,
+              applicationId
+            });
+            
+            if (isDraft && isTC && !loadingAssignment) {
+              return (
+                <AssignedEditorBanner
+                  editor={assignedEditor}
+                  canReassign={true}
+                  onReassign={handleReassignClick}
+                  applicationId={applicationId || ''}
+                />
+              );
+            }
+            return null;
+          })()}
           <SensitiveAreaBanner status={sensitiveAreaStatus} checkJustStarted={showSensitiveAreaPopup} />
           {!application ? (
             <>
