@@ -96,14 +96,16 @@ export const ApplicationTable: React.FC<Props> = ({
   ) => {
     e.preventDefault();
 
-// Draft applications should always navigate to task-list to continue editing
+    // Route read-only users based on application state.
     const isDraft = app.status?.toLowerCase() === 'draft';
     
-    if (isDraft || app.permissions?.canEdit) {
+    if (app.permissions?.canEdit) {
       navigateToApplication(app.type, app.application_id, "task-list");
+    } else if (isDraft && app.permissions?.canView) {
+      navigateToApplication(app.type, app.application_id, "check-your-answers");
     } else if (app.permissions?.canView) {
       navigateToApplication(app.type, app.application_id, "application-summary");
-      }
+    }
   };
 
   return (
@@ -171,7 +173,11 @@ export const ApplicationTable: React.FC<Props> = ({
                 href={getNavigationPath(
                   app.type,
                   app.application_id,
-                  (app.status?.toLowerCase() === 'draft' || app.permissions?.canEdit) ? 'task-list' : 'application-summary'
+                  app.permissions?.canEdit
+                    ? 'task-list'
+                    : app.status?.toLowerCase() === 'draft' && app.permissions?.canView
+                      ? 'check-your-answers'
+                      : 'application-summary'
                 )}
                 className="govuk-link"
                 aria-label={`View details for application ${app.desnz_ref || "with no reference"}, ${getCaseTypeLabel(app.type)}, ${activeTab !== "draft" ? app.status + " status, " : ""}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
@@ -180,7 +186,11 @@ export const ApplicationTable: React.FC<Props> = ({
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     const isDraft = app.status?.toLowerCase() === 'draft';
-                    const destination = (isDraft || app.permissions?.canEdit) ? "task-list" : "application-summary";
+                    const destination = app.permissions?.canEdit
+                      ? "task-list"
+                      : isDraft && app.permissions?.canView
+                        ? "check-your-answers"
+                        : "application-summary";
                     navigateToApplication(
                       app.type,
                       app.application_id,
@@ -236,7 +246,11 @@ export const ApplicationTable: React.FC<Props> = ({
     <div className="application-card-list" role="list" aria-label="Applications list">
       {sortedApplications.map((app) => {
         const isDraft = app.status?.toLowerCase() === 'draft';
-        const destination = (isDraft || app.permissions?.canEdit) ? "task-list" : "application-summary";
+        const destination = app.permissions?.canEdit
+          ? "task-list"
+          : isDraft && app.permissions?.canView
+            ? "check-your-answers"
+            : "application-summary";
         
         return (
           <div 
