@@ -11,7 +11,7 @@ const ChooseApplicationTypePage: React.FC = () => {
   const { selectedType, error, handleChange, handleSubmit, errors } = useApplicationTypeSelection();
 
   // Disable form types listed in VITE_DISABLED_FORM_TYPES (comma-separated)
-  const disabledTypes = (import.meta.env.VITE_DISABLED_FORM_TYPES || "")
+  const disabledTypes = (import.meta.env.VITE_DISABLED_FORM_TYPES || "wayleaves")
     .split(',')
     .map((type: string) => type.trim())
     .filter(Boolean);
