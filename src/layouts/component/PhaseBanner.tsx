@@ -1,11 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { FEEDBACK_PATH } from '../../constants/routes';
 import '../../styles/PhaseBanner.css';
 
 // ── PhaseBanner Constants ────────────────────────────────────────────────────
 const PHASE_TAG = 'Beta';
 const PHASE_TEXT = 'This is a new service – your';
 const FEEDBACK_LINK_TEXT = 'feedback';
-const FEEDBACK_LINK_URL = '/frontend/feedback';
 const PHASE_TEXT_SUFFIX = 'will help us to improve it.';
 
 export default function PhaseBanner() {
@@ -18,9 +19,9 @@ export default function PhaseBanner() {
                 </strong>
                 <span className="govuk-phase-banner__text">
                     {PHASE_TEXT}{' '}
-                    <a href={FEEDBACK_LINK_URL} className="govuk-link">
+                    <Link to={FEEDBACK_PATH} className="govuk-link">
                         {FEEDBACK_LINK_TEXT}
-                    </a>{' '}
+                    </Link>{' '}
                     {PHASE_TEXT_SUFFIX}
                 </span>
             </p>

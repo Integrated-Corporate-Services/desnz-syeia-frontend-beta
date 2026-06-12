@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { FEEDBACK_PATH } from '../../constants/routes';
 
 const GovUKHeader: React.FC = () => (
   <>
@@ -51,7 +53,7 @@ const GovUKHeader: React.FC = () => (
       <div className="govuk-phase-banner govuk-width-container govuk-!-margin-bottom-0" style={{ marginTop: '0', marginBottom: 0, paddingTop: '8px', paddingBottom: '8px', background: 'white', border: 'none' }}>
         <p className="govuk-phase-banner__content">
           <strong className="govuk-tag govuk-phase-banner__content__tag" style={{ background: '#f3f2f1', color: '#505a5f', marginRight: '8px' }}>Beta</strong>
-          This is a new service – your <a href="#" className="govuk-link">feedback</a> will help us to improve it.
+          This is a new service – your <Link to={FEEDBACK_PATH} className="govuk-link">feedback</Link> will help us to improve it.
         </p>
       </div>
       <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: 0 }} />

@@ -1,29 +1,31 @@
-import { useNavigate } from 'react-router-dom';
-import { CONTENT } from '../constants/feedback.constants';
+import { CONTENT, DETAILED_SURVEY_URL } from '../constants/feedback.constants';
 
 /**
- * Success confirmation panel shown after feedback submission.
+ * Success confirmation shown after feedback submission.
  */
 export default function FeedbackConfirmation() {
-  const navigate = useNavigate();
-
   return (
     <>
       <div className="govuk-panel govuk-panel--confirmation" tabIndex={-1}>
         <h1 className="govuk-panel__title">{CONTENT.confirmationTitle}</h1>
-        <div className="govuk-panel__body">{CONTENT.confirmationMessage}</div>
       </div>
-      <p className="govuk-body govuk-!-margin-top-6">
-        <a
-          href="/application-dashboard"
-          className="govuk-link"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate('/application-dashboard');
-          }}
-        >
-          {CONTENT.confirmationReturnLink}
-        </a>
+
+      <h2 className="govuk-heading-m govuk-!-margin-top-6">{CONTENT.confirmationWhatHappensNext}</h2>
+      <p className="govuk-body">{CONTENT.confirmationThankYou}</p>
+      <p className="govuk-body">
+        {DETAILED_SURVEY_URL ? (
+          <a
+            href={DETAILED_SURVEY_URL}
+            className="govuk-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {CONTENT.confirmationSurveyLink}
+          </a>
+        ) : (
+          CONTENT.confirmationSurveyLink
+        )}
+        {CONTENT.confirmationSurveySuffix}
       </p>
     </>
   );

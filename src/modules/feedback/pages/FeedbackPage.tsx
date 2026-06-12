@@ -1,27 +1,29 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useFeedbackForm } from '../hooks/useFeedbackForm';
 import RadioGroup from '../../../components/commonFormFields/RadioGroup';
-import { extractPageMetadata } from '../../../lib/page-metadata';
 import { captureSourcePage } from '../utils/capture-source.util';
+import { extractFeedbackSourceMetadata } from '../utils/extract-feedback-source.util';
 import FeedbackConfirmation from '../components/FeedbackConfirmation';
 import {
   CONTENT,
+  DETAILED_SURVEY_URL,
   COMPLETED_TASK_OPTIONS,
   SATISFACTION_OPTIONS,
   EASE_OPTIONS,
-  LIKELIHOOD_OPTIONS,
+  ROLE_OPTIONS,
   IMPROVEMENTS_MAX_LENGTH,
   ERROR_ANCHORS,
   type ErrorField,
 } from '../constants/feedback.constants';
 
 export default function FeedbackPage() {
-  const navigate = useNavigate();
-
   const [sourceMetadata] = useState(() => {
     const sourcePath = captureSourcePage();
-    return sourcePath ? extractPageMetadata(sourcePath) : undefined;
+    if (!sourcePath) return undefined;
+
+    const metadata = extractFeedbackSourceMetadata(sourcePath);
+    return metadata.fullPath ? metadata : undefined;
   });
 
   const {
@@ -36,7 +38,7 @@ export default function FeedbackPage() {
 
   useEffect(() => {
     if (submitted) {
-      document.title = 'Feedback submitted - GOV.UK';
+      document.title = `${CONTENT.confirmationTitle} - GOV.UK`;
       const panel = document.querySelector('.govuk-panel');
       if (panel) {
         (panel as HTMLElement).focus();
@@ -45,10 +47,11 @@ export default function FeedbackPage() {
   }, [submitted]);
 
   useEffect(() => {
+    if (submitted) return;
     const hasErrors = Object.keys(errors).length > 0;
     const prefix = hasErrors || serverError ? 'Error: ' : '';
     document.title = `${prefix}${CONTENT.pageTitle} - GOV.UK`;
-  }, [errors, serverError]);
+  }, [errors, serverError, submitted]);
 
   if (submitted) {
     return <FeedbackConfirmation />;
@@ -59,6 +62,16 @@ export default function FeedbackPage() {
 
   return (
     <>
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item">
+            <Link className="govuk-breadcrumbs__link" to="/application-dashboard">
+              {CONTENT.breadcrumbHome}
+            </Link>
+          </li>
+        </ol>
+      </nav>
+
       {hasErrors && (
         <div
           className="govuk-error-summary"
@@ -101,18 +114,24 @@ export default function FeedbackPage() {
 
       <h1 className="govuk-heading-l">{CONTENT.pageTitle}</h1>
       <p className="govuk-body">{CONTENT.pageIntro}</p>
+      <p className="govuk-body">
+        {CONTENT.pageIntroDetailedSurveyPrefix}
+        {DETAILED_SURVEY_URL ? (
+          <a
+            href={DETAILED_SURVEY_URL}
+            className="govuk-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {CONTENT.pageIntroDetailedSurveyLink}
+          </a>
+        ) : (
+          CONTENT.pageIntroDetailedSurveyLink
+        )}
+        {CONTENT.pageIntroDetailedSurveySuffix}
+      </p>
 
       <form onSubmit={handleSubmit} noValidate aria-label="Feedback form">
-        <RadioGroup
-          id="completedTask"
-          name="completedTask"
-          label={CONTENT.questionCompletedTask}
-          options={COMPLETED_TASK_OPTIONS}
-          value={values.completedTask}
-          error={errors.completedTask}
-          onChange={(e) => handleChange('completedTask', e.target.value)}
-        />
-
         <RadioGroup
           id="satisfaction"
           name="satisfaction"
@@ -134,13 +153,23 @@ export default function FeedbackPage() {
         />
 
         <RadioGroup
-          id="likelihood"
-          name="likelihood"
-          label={CONTENT.questionLikelihood}
-          options={LIKELIHOOD_OPTIONS}
-          value={values.likelihood}
-          error={errors.likelihood}
-          onChange={(e) => handleChange('likelihood', e.target.value)}
+          id="completedTask"
+          name="completedTask"
+          label={CONTENT.questionCompletedTask}
+          options={COMPLETED_TASK_OPTIONS}
+          value={values.completedTask}
+          error={errors.completedTask}
+          onChange={(e) => handleChange('completedTask', e.target.value)}
+        />
+
+        <RadioGroup
+          id="userRole"
+          name="userRole"
+          label={CONTENT.questionRole}
+          options={ROLE_OPTIONS}
+          value={values.userRole}
+          error={errors.userRole}
+          onChange={(e) => handleChange('userRole', e.target.value)}
         />
 
         <div
@@ -188,26 +217,14 @@ export default function FeedbackPage() {
           </div>
         </div>
 
-        <div className="govuk-button-group">
-          <button
-            type="submit"
-            className="govuk-button"
-            data-module="govuk-button"
-            disabled={submitting}
-            aria-disabled={submitting}
-          >
-            {submitting ? CONTENT.buttonSubmitting : CONTENT.buttonSubmit}
-          </button>
-          <button
-            type="button"
-            className="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-            onClick={() => navigate(-1)}
-            disabled={submitting}
-          >
-            {CONTENT.buttonCancel}
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="govuk-button"
+          data-module="govuk-button"
+          disabled={submitting}
+        >
+          {submitting ? CONTENT.buttonSubmitting : CONTENT.buttonSubmit}
+        </button>
       </form>
     </>
   );

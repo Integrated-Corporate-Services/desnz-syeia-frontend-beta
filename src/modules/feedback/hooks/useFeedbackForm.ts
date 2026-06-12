@@ -1,31 +1,31 @@
 import { useState } from 'react';
 import { IMPROVEMENTS_MAX_LENGTH } from '../constants/feedback.constants';
-import { submitFeedback }           from '../services/feedback.api';
+import { submitFeedback } from '../services/feedback.api';
 import type { FormValues, FormErrors, FeedbackPayload } from '../types/feedback.types';
-import type { PageMetadata } from '../../../lib/page-metadata';
+import type { FeedbackSourceMetadata } from '../utils/extract-feedback-source.util';
 
 const INITIAL_VALUES: FormValues = {
-  completedTask: '',
   satisfaction:  '',
   ease:          '',
-  likelihood:    '',
+  completedTask: '',
+  userRole:      '',
   improvements:  '',
 };
 
 function validate(values: FormValues): FormErrors {
   const errors: FormErrors = {};
 
-  if (!values.completedTask) {
-    errors.completedTask = 'Select whether you completed what you came to do';
-  }
   if (!values.satisfaction) {
-    errors.satisfaction = 'Select your satisfaction with this service';
+    errors.satisfaction = 'Select how satisfied you were with this service today';
   }
   if (!values.ease) {
-    errors.ease = 'Select how easy or difficult the service was to use';
+    errors.ease = 'Select how easy it was to use this service';
   }
-  if (!values.likelihood) {
-    errors.likelihood = 'Select how likely you are to recommend this service';
+  if (!values.completedTask) {
+    errors.completedTask = 'Select whether you managed to do what you came here to do';
+  }
+  if (!values.userRole) {
+    errors.userRole = 'Select which best describes your role';
   }
   if (values.improvements.length > IMPROVEMENTS_MAX_LENGTH) {
     errors.improvements = `Your feedback must be ${IMPROVEMENTS_MAX_LENGTH} characters or fewer`;
@@ -34,7 +34,7 @@ function validate(values: FormValues): FormErrors {
   return errors;
 }
 
-export function useFeedbackForm(sourceMetadata?: PageMetadata) {
+export function useFeedbackForm(sourceMetadata?: FeedbackSourceMetadata) {
   const [values,      setValues]      = useState<FormValues>(INITIAL_VALUES);
   const [errors,      setErrors]      = useState<FormErrors>({});
   const [submitted,   setSubmitted]   = useState(false);
@@ -69,14 +69,14 @@ export function useFeedbackForm(sourceMetadata?: PageMetadata) {
     setSubmitting(true);
     try {
       const payload: FeedbackPayload = {
-        completedTask: values.completedTask,
         satisfaction:  values.satisfaction,
         ease:          values.ease,
-        likelihood:    values.likelihood,
+        completedTask: values.completedTask,
+        userRole:      values.userRole,
         ...(values.improvements ? { improvements: values.improvements } : {}),
-        ...(sourceMetadata?.pageName         ? { sourcePage:            sourceMetadata.pageName }         : {}),
+        ...(sourceMetadata?.fullPath         ? { sourcePage:            sourceMetadata.fullPath }         : {}),
         ...(sourceMetadata?.applicationType  ? { sourceApplicationType: sourceMetadata.applicationType }  : {}),
-        ...(sourceMetadata?.category         ? { sourceCategory:        sourceMetadata.category }         : {}),
+        ...(sourceMetadata?.pageSlug         ? { sourceCategory:        sourceMetadata.pageSlug }         : {}),
       };
       await submitFeedback(payload);
       setSubmitted(true);

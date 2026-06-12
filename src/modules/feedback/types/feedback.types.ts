@@ -4,26 +4,26 @@ export interface RadioOption {
 }
 
 export interface FormValues {
-  completedTask: string;
   satisfaction:  string;
   ease:          string;
-  likelihood:    string;
+  completedTask: string;
+  userRole:      string;
   improvements:  string;
 }
 
 export interface FormErrors {
-  completedTask?: string;
   satisfaction?:  string;
   ease?:          string;
-  likelihood?:    string;
+  completedTask?: string;
+  userRole?:      string;
   improvements?:  string;
 }
 
 export interface FeedbackPayload {
-  completedTask:          string;
   satisfaction:           string;
   ease:                   string;
-  likelihood:             string;
+  completedTask:          string;
+  userRole:               string;
   improvements?:          string;
   sourcePage?:            string;
   sourceApplicationType?: string;
