@@ -21,26 +21,38 @@ const Header = () => {
         color: #1d70b8;
         text-decoration: underline;
       }
-      .govuk-header__link.govuk-header__link--homepage {
-        color: #fff !important;
-      }
-      .govuk-header__logotype {
-        color: #fff !important;
-        fill: #fff !important;
-      }
-            .govuk-header__container {
+            .app-top-header {
+                background: #2078c5;
+                margin: 0;
+            }
+                        .app-top-header__container {
                 display: flex;
                 align-items: center;
-                gap: 20px;
-                flex-wrap: nowrap;
-                padding-top: 6px;
-                padding-bottom: 6px;
+                                justify-content: space-between;
+                            min-height: 42px;
+                            padding-top: 2px;
+                            padding-bottom: 2px;
             }
-            .govuk-header__logo {
+                        .app-top-header__left {
+                                display: flex;
+                                align-items: center;
+                        }
+                        .app-top-header__home-link {
+                                color: #fff !important;
+                                text-decoration: none;
+                                display: inline-flex;
+                                align-items: center;
+                        }
+                        .app-top-header__logotype {
+                                color: #fff !important;
+                                fill: #fff !important;
+                                display: block;
+                            width: 150px;
+                            height: 27px;
+                            transform: translateY(-1px);
+                        }
+                        .app-top-header__auth {
                 flex-shrink: 0;
-            }
-            .govuk-header__content {
-                display: none;
             }
             .app-header-auth {
                 margin-left: auto;
@@ -48,11 +60,12 @@ const Header = () => {
                 align-items: center;
                 gap: 12px;
                 font-family: "GDS Transport", arial, sans-serif;
+                font-weight: 700;
                 color: #fff;
                 padding-top: 0;
                 padding-bottom: 0;
-                border-left: 1px solid rgba(255, 255, 255, 0.55);
-                padding-left: 14px;
+                border-left: 0;
+                padding-left: 0;
                 flex-shrink: 0;
                 white-space: nowrap;
             }
@@ -64,14 +77,15 @@ const Header = () => {
             .app-header-auth__user {
                 font-size: 16px;
                 line-height: 1.25;
+                font-weight: 700;
                 white-space: nowrap;
             }
             .app-header-auth__profile-icon {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 28px;
-                height: 28px;
+                width: 24px;
+                height: 24px;
                 border: 1px solid rgba(255, 255, 255, 0.9);
                 border-radius: 50%;
                 flex-shrink: 0;
@@ -83,6 +97,7 @@ const Header = () => {
                 color: #fff !important;
                 font-size: 16px;
                 line-height: 1.25;
+                font-weight: 700;
                 text-decoration: underline;
                 border-left: 1px solid rgba(255, 255, 255, 0.55);
                 padding-left: 12px;
@@ -99,37 +114,62 @@ const Header = () => {
                 text-decoration: none;
             }
             @media (max-width: 1024px) {
-                .govuk-header__container {
+                .app-top-header__container {
                     gap: 12px;
-                }
-                .govuk-header__content {
-                    display: none;
                 }
             }
             @media (max-width: 640px) {
-                .govuk-header__container {
+                .app-top-header__container {
                     gap: 8px;
+                    min-height: 40px;
+                    padding-top: 2px;
+                    padding-bottom: 2px;
+                }
+                .app-top-header__logotype {
+                    width: 130px;
+                    height: 24px;
                 }
                 .app-header-auth {
-                    gap: 8px;
-                    padding-left: 10px;
+                    gap: 6px;
+                    padding-left: 8px;
                 }
                 .app-header-auth__user,
                 .app-header-auth__signout {
                     font-size: 14px;
                 }
             }
+            @media (max-width: 420px) {
+                .app-top-header__logotype {
+                    width: 118px;
+                    height: 22px;
+                }
+                .app-header-auth__user {
+                    display: inline-block;
+                    max-width: 72px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 13px;
+                }
+                .app-header-auth {
+                    gap: 4px;
+                    padding-left: 6px;
+                }
+                .app-header-auth__profile-icon {
+                    display: none;
+                }
+                .app-header-auth__signout {
+                    font-size: 13px;
+                    padding-left: 8px;
+                }
+            }
     `}</style>
-            <header
-                className="govuk-header govuk-header--full-width-border"
-                role="banner"
-                style={{ background: '#2078c5', paddingBottom: 0 }}
-            >
-                <div className="govuk-header__container govuk-width-container">
-                    <div className="govuk-header__logo">
+            <header className="app-top-header" role="banner">
+                <div className="app-top-header__container govuk-width-container">
+                    <div className="app-top-header__left">
                         <a
                             href="/frontend"
-                            className="govuk-header__link govuk-header__link--homepage"
+                            className="app-top-header__home-link"
                             style={{ textDecoration: 'none' }}
                         >
                             {/* <img src={DESNZLogo} alt="Department for Energy Security and Net Zero" style={{ height: '32px', width: 'auto', marginRight: '16px', background: 'transparent' }} /> */}
@@ -141,7 +181,7 @@ const Header = () => {
                                 height="30"
                                 width="162"
                                 fill="currentcolor"
-                                className="govuk-header__logotype"
+                                className="app-top-header__logotype"
                                 aria-label="GOV.UK"
                             >
                                 <title>GOV.UK</title>
@@ -162,6 +202,7 @@ const Header = () => {
                         </a>
                     </div>
                     {user && (
+                        <div className="app-top-header__auth">
                         <div className="app-header-auth" aria-label="User menu">
                             <span className="app-header-auth__identity">
                                 <span className="app-header-auth__user">{fullName || 'User'}</span>
@@ -193,6 +234,7 @@ const Header = () => {
                             >
                                 Sign out
                             </a>
+                        </div>
                         </div>
                     )}
                 </div>
