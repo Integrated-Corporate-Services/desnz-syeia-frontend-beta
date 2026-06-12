@@ -3,6 +3,7 @@ import React from 'react';
 import { useAuthUserContext } from '../../context/AuthUserContext';
 import { logout } from '../../services/authService';
 import type { AuthUser } from '../../types/auth';
+import '../../styles/Header.css';
 
 const Header = () => {
     const { user } = useAuthUserContext();
@@ -11,168 +12,13 @@ const Header = () => {
         : '';
 
     return (
-        <>
-            <style>{`
-      body {
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      .govuk-link {
-        color: #1d70b8;
-        text-decoration: underline;
-      }
-            .app-top-header {
-                background: #2078c5;
-                margin: 0;
-            }
-                        .app-top-header__container {
-                display: flex;
-                align-items: center;
-                                justify-content: space-between;
-                            min-height: 42px;
-                            padding-top: 2px;
-                            padding-bottom: 2px;
-            }
-                        .app-top-header__left {
-                                display: flex;
-                                align-items: center;
-                        }
-                        .app-top-header__home-link {
-                                color: #fff !important;
-                                text-decoration: none;
-                                display: inline-flex;
-                                align-items: center;
-                        }
-                        .app-top-header__logotype {
-                                color: #fff !important;
-                                fill: #fff !important;
-                                display: block;
-                            width: 150px;
-                            height: 27px;
-                            transform: translateY(-1px);
-                        }
-                        .app-top-header__auth {
-                flex-shrink: 0;
-            }
-            .app-header-auth {
-                margin-left: auto;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                font-family: "GDS Transport", arial, sans-serif;
-                font-weight: 700;
-                color: #fff;
-                padding-top: 0;
-                padding-bottom: 0;
-                border-left: 0;
-                padding-left: 0;
-                flex-shrink: 0;
-                white-space: nowrap;
-            }
-            .app-header-auth__identity {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .app-header-auth__user {
-                font-size: 16px;
-                line-height: 1.25;
-                font-weight: 700;
-                white-space: nowrap;
-            }
-            .app-header-auth__profile-icon {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 24px;
-                height: 24px;
-                border: 1px solid rgba(255, 255, 255, 0.9);
-                border-radius: 50%;
-                flex-shrink: 0;
-            }
-            .app-header-auth__profile-icon svg {
-                display: block;
-            }
-            .app-header-auth__signout {
-                color: #fff !important;
-                font-size: 16px;
-                line-height: 1.25;
-                font-weight: 700;
-                text-decoration: underline;
-                border-left: 1px solid rgba(255, 255, 255, 0.55);
-                padding-left: 12px;
-                white-space: nowrap;
-            }
-            .app-header-auth__signout:hover {
-                text-decoration-thickness: 3px;
-            }
-            .app-header-auth__signout:focus {
-                outline: 3px solid transparent;
-                background-color: #ffdd00;
-                box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-                color: #0b0c0c !important;
-                text-decoration: none;
-            }
-            @media (max-width: 1024px) {
-                .app-top-header__container {
-                    gap: 12px;
-                }
-            }
-            @media (max-width: 640px) {
-                .app-top-header__container {
-                    gap: 8px;
-                    min-height: 40px;
-                    padding-top: 2px;
-                    padding-bottom: 2px;
-                }
-                .app-top-header__logotype {
-                    width: 130px;
-                    height: 24px;
-                }
-                .app-header-auth {
-                    gap: 6px;
-                    padding-left: 8px;
-                }
-                .app-header-auth__user,
-                .app-header-auth__signout {
-                    font-size: 14px;
-                }
-            }
-            @media (max-width: 420px) {
-                .app-top-header__logotype {
-                    width: 118px;
-                    height: 22px;
-                }
-                .app-header-auth__user {
-                    display: inline-block;
-                    max-width: 72px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    font-size: 13px;
-                }
-                .app-header-auth {
-                    gap: 4px;
-                    padding-left: 6px;
-                }
-                .app-header-auth__profile-icon {
-                    display: none;
-                }
-                .app-header-auth__signout {
-                    font-size: 13px;
-                    padding-left: 8px;
-                }
-            }
-    `}</style>
-            <header className="app-top-header" role="banner">
-                <div className="app-top-header__container govuk-width-container">
-                    <div className="app-top-header__left">
-                        <a
-                            href="/frontend"
-                            className="app-top-header__home-link"
-                            style={{ textDecoration: 'none' }}
-                        >
-                            {/* <img src={DESNZLogo} alt="Department for Energy Security and Net Zero" style={{ height: '32px', width: 'auto', marginRight: '16px', background: 'transparent' }} /> */}
+        <header className="app-top-header" role="banner">
+            <div className="app-top-header__container govuk-width-container">
+                <div className="app-top-header__left">
+                    <a
+                        href="/frontend"
+                        className="app-top-header__home-link"
+                    >
                             <svg
                                 focusable="false"
                                 role="img"
@@ -199,47 +45,46 @@ const Header = () => {
                                 <circle className="govuk-logo-dot" cx="226" cy="36" r="7.3" />
                                 <path d="M93.94 41.25c.4 1.81 1.2 3.21 2.21 4.62 1 1.4 2.21 2.41 3.61 3.21s3.21 1.2 5.22 1.2 3.61-.4 4.82-1c1.4-.6 2.41-1.4 3.21-2.41.8-1 1.4-2.01 1.61-3.01s.4-2.01.4-3.01v.14h-10.86v-7.02h20.07v24.08h-8.03v-5.56c-.6.8-1.38 1.61-2.19 2.41-.8.8-1.81 1.2-2.81 1.81-1 .4-2.21.8-3.41 1.2s-2.41.4-3.81.4a18.56 18.56 0 0 1-14.65-6.63c-1.6-2.01-3.01-4.41-3.81-7.02s-1.4-5.62-1.4-8.83.4-6.02 1.4-8.83a20.45 20.45 0 0 1 19.46-13.65c3.21 0 4.01.2 5.82.8 1.81.4 3.61 1.2 5.02 2.01 1.61.8 2.81 2.01 4.01 3.21s2.21 2.61 2.81 4.21l-7.63 4.41c-.4-1-1-1.81-1.61-2.61-.6-.8-1.4-1.4-2.21-2.01-.8-.6-1.81-1-2.81-1.4-1-.4-2.21-.4-3.61-.4-2.01 0-3.81.4-5.22 1.2-1.4.8-2.61 1.81-3.61 3.21s-1.61 2.81-2.21 4.62c-.4 1.81-.6 3.71-.6 5.42s.8 5.22.8 5.22Zm57.8-27.9c3.21 0 6.22.6 8.63 1.81 2.41 1.2 4.82 2.81 6.62 4.82S170.2 24.39 171 27s1.4 5.62 1.4 8.83-.4 6.02-1.4 8.83-2.41 5.02-4.01 7.02-4.01 3.61-6.62 4.82-5.42 1.81-8.63 1.81-6.22-.6-8.63-1.81-4.82-2.81-6.42-4.82-3.21-4.41-4.01-7.02-1.4-5.62-1.4-8.83.4-6.02 1.4-8.83 2.41-5.02 4.01-7.02 4.01-3.61 6.42-4.82 5.42-1.81 8.63-1.81Zm0 36.73c1.81 0 3.61-.4 5.02-1s2.61-1.81 3.61-3.01 1.81-2.81 2.21-4.41c.4-1.81.8-3.61.8-5.62 0-2.21-.2-4.21-.8-6.02s-1.2-3.21-2.21-4.62c-1-1.2-2.21-2.21-3.61-3.01s-3.21-1-5.02-1-3.61.4-5.02 1c-1.4.8-2.61 1.81-3.61 3.01s-1.81 2.81-2.21 4.62c-.4 1.81-.8 3.61-.8 5.62 0 2.41.2 4.21.8 6.02.4 1.81 1.2 3.21 2.21 4.41s2.21 2.21 3.61 3.01c1.4.8 3.21 1 5.02 1Zm36.32 7.96-12.24-44.15h9.83l8.43 32.77h.4l8.23-32.77h9.83L200.3 58.04h-12.24Zm74.14-7.96c2.18 0 3.51-.6 3.51-.6 1.2-.6 2.01-1 2.81-1.81s1.4-1.81 1.81-2.81a13 13 0 0 0 .8-4.01V13.9h8.63v28.15c0 2.41-.4 4.62-1.4 6.62-.8 2.01-2.21 3.61-3.61 5.02s-3.41 2.41-5.62 3.21-4.62 1.2-7.02 1.2-5.02-.4-7.02-1.2c-2.21-.8-4.01-1.81-5.62-3.21s-2.81-3.01-3.61-5.02-1.4-4.21-1.4-6.62V13.9h8.63v26.95c0 1.61.2 3.01.8 4.01.4 1.2 1.2 2.21 2.01 2.81.8.8 1.81 1.4 2.81 1.81 0 0 1.34.6 3.51.6Zm34.22-36.18v18.92l15.65-18.92h10.82l-15.03 17.32 16.03 26.83h-10.21l-11.44-20.21-5.62 6.22v13.99h-8.83V13.9" />
                             </svg>
-                        </a>
-                    </div>
-                    {user && (
-                        <div className="app-top-header__auth">
-                        <div className="app-header-auth" aria-label="User menu">
-                            <span className="app-header-auth__identity">
-                                <span className="app-header-auth__user">{fullName || 'User'}</span>
-                                <span className="app-header-auth__profile-icon" aria-hidden="true">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                    >
-                                        <circle cx="12" cy="8" r="3.5" stroke="#ffffff" strokeWidth="1.8" />
-                                        <path
-                                            d="M5.5 18c1.2-3.1 3.8-4.6 6.5-4.6s5.3 1.5 6.5 4.6"
-                                            stroke="#ffffff"
-                                            strokeWidth="1.8"
-                                            strokeLinecap="round"
-                                        />
-                                    </svg>
-                                </span>
-                            </span>
-                            <a
-                                className="app-header-auth__signout"
-                                href="#"
-                                onClick={async (event) => {
-                                    event.preventDefault();
-                                    await logout();
-                                }}
-                            >
-                                Sign out
-                            </a>
-                        </div>
-                        </div>
-                    )}
+                    </a>
                 </div>
-            </header>
-        </>
+                {user && (
+                    <div className="app-top-header__auth">
+                        <div className="app-header-auth" aria-label="User menu">
+                                <span className="app-header-auth__identity">
+                                    <span className="app-header-auth__user">{fullName || 'User'}</span>
+                                    <span className="app-header-auth__profile-icon" aria-hidden="true">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                        >
+                                            <circle cx="12" cy="8" r="3.5" stroke="#ffffff" strokeWidth="1.8" />
+                                            <path
+                                                d="M5.5 18c1.2-3.1 3.8-4.6 6.5-4.6s5.3 1.5 6.5 4.6"
+                                                stroke="#ffffff"
+                                                strokeWidth="1.8"
+                                                strokeLinecap="round"
+                                            />
+                                        </svg>
+                                    </span>
+                                </span>
+                                <a
+                                    className="app-header-auth__signout"
+                                    href="#"
+                                    onClick={async (event) => {
+                                        event.preventDefault();
+                                        await logout();
+                                    }}
+                                >
+                                    Sign out
+                                </a>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </header>
     );
 };
 
