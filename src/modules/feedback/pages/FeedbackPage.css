@@ -1,0 +1,57 @@
+/* Figma: pageTitle frame — 630 × HUG */
+.feedback-page-title {
+  /* Use full two-thirds column width (630px) instead of padded 600px content box */
+  margin-left: -15px;
+  margin-right: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  max-width: 630px;
+}
+
+.feedback-page-title__heading {
+  margin-bottom: 0;
+}
+
+.feedback-page-title__line {
+  display: block;
+}
+
+@media (min-width: 641px) {
+  .feedback-page-title__line:first-child {
+    white-space: nowrap;
+  }
+}
+
+.feedback-page-intro {
+  margin-left: -15px;
+  margin-right: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  max-width: 630px;
+  margin-top: 20px;
+}
+
+.feedback-page-intro__line {
+  display: block;
+}
+
+@media (min-width: 641px) {
+  .feedback-page-intro__survey .feedback-page-intro__line:first-child {
+    white-space: nowrap;
+  }
+}
+
+.feedback-page-form {
+  margin-left: -15px;
+  margin-right: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  max-width: 630px;
+  margin-top: 30px;
+}
+
+@media (min-width: 641px) {
+  .feedback-satisfaction-legend .govuk-fieldset__heading {
+    white-space: nowrap;
+  }
+}

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { CommonInputProps } from '../../types/form';
 
-interface RadioGroupProps extends CommonInputProps {
+interface RadioGroupProps extends Omit<CommonInputProps, 'label'> {
+  label: ReactNode;
   hint?: string;
   inline?: boolean;
+  legendClassName?: string;
 }
 
 const RadioGroup: React.FC<RadioGroupProps> = ({
@@ -18,6 +20,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   children,
   disabled,
   inline = false,
+  legendClassName,
 }) => {
   const hasError = Boolean(error);
   const errorId = `${id}-error`;
@@ -34,7 +37,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
         className="govuk-fieldset"
         aria-describedby={describedBy}
       >
-        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+        <legend className={legendClassName ?? 'govuk-fieldset__legend govuk-fieldset__legend--m'}>
           <h2 className="govuk-fieldset__heading">{label}</h2>
         </legend>
 

@@ -2,18 +2,20 @@ import type { RadioOption } from '../types/feedback.types';
 
 export const IMPROVEMENTS_MAX_LENGTH = 1200;
 
-export const DETAILED_SURVEY_URL = import.meta.env.VITE_DETAILED_FEEDBACK_SURVEY_URL as
-  | string
-  | undefined;
+export const DETAILED_SURVEY_URL =
+  (import.meta.env.VITE_DETAILED_FEEDBACK_SURVEY_URL as string | undefined) ?? '#';
 
 export const CONTENT = {
+  pageTitleLine1: 'Give feedback for Submit your energy',
+  pageTitleLine2: 'infrastructure application',
   pageTitle: 'Give feedback for Submit your energy infrastructure application',
   pageIntro:
     'Help us improve this service for the best experience by completing this satisfaction survey.',
   pageIntroDetailedSurveyPrefix: 'You can also ',
   pageIntroDetailedSurveyLink: 'complete our detailed survey',
-  pageIntroDetailedSurveySuffix:
-    ', which would give us much more valuable information about how we can improve this service.',
+  pageIntroDetailedSurveyLine1Suffix: ', which would give us much more ',
+  pageIntroDetailedSurveyLine2:
+    'valuable information about how we can improve this service.',
 
   breadcrumbHome: 'Home',
 
