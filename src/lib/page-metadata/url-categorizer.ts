@@ -157,7 +157,7 @@ export function categorizeUrl(pathname: string): UrlMetadata {
     return { applicationType: TLP_APP_TYPE, category: 'Application' };
   }
 
-  if (path.includes('workbasket') || path === 'frontend' || path === '') {
+  if (path.includes('workbasket') || path === 'frontend' || path === '' || path.includes('application-dashboard')) {
     return { applicationType: COMMON_APP_TYPE, category: 'Dashboard' };
   }
 

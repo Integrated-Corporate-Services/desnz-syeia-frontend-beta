@@ -2,38 +2,53 @@ import type { RadioOption } from '../types/feedback.types';
 
 export const IMPROVEMENTS_MAX_LENGTH = 1200;
 
-export const CONTENT = {
-  pageTitle: 'Give feedback on this service',
-  pageIntro:
-    'This is a new service in private beta. Tell us what worked and what did not - it takes about 2 minutes and helps us improve it for all organisations.',
+export const DETAILED_SURVEY_URL =
+  (import.meta.env.VITE_DETAILED_FEEDBACK_SURVEY_URL as string | undefined) ?? '#';
 
-  questionCompletedTask: 'Did you complete what you came to do today?',
-  questionSatisfaction: 'Overall, how satisfied were you with this service?',
-  questionEase: 'How easy or difficult was it to use this service?',
-  questionLikelihood: 'How likely are you to recommend this service to other organisations?',
-  questionImprovements: 'How could we improve this service?',
+/** Keeps each Figma line on one row before <br /> without custom CSS */
+const singleLine = (text: string): string => text.replace(/ /g, '\u00A0');
+
+export const CONTENT = {
+  pageTitleLine1: singleLine('Give feedback for Submit your energy'),
+  pageTitleLine2: 'infrastructure application',
+  pageTitle: 'Give feedback for Submit your energy infrastructure application',
+  pageIntro:
+    'Help us improve this service for the best experience by completing this satisfaction survey.',
+  pageIntroDetailedSurveyPrefix: singleLine('You can also '),
+  pageIntroDetailedSurveyLink: singleLine('complete our detailed survey'),
+  pageIntroDetailedSurveyLine1Suffix: singleLine(', which would give us much more '),
+  pageIntroDetailedSurveyLine2:
+    'valuable information about how we can improve this service.',
+
+  breadcrumbHome: 'Home',
+
+  questionSatisfaction: singleLine(
+    'Overall, how satisfied were you with this service today?',
+  ),
+  questionEase: 'How easy was it to use this service?',
+  questionCompletedTask: 'Did you manage to do what you came here to do?',
+  questionRole: 'Which best describes your role?',
+  questionImprovements: 'What could we improve? (optional)',
 
   improvementsHint:
-    'Do not include personal or commercially sensitive information, such as application reference numbers, site addresses or names.',
+    'Do not add any personal or financial information. For example, names, addresses or credit card details',
 
   buttonSubmit: 'Send feedback',
   buttonSubmitting: 'Sending…',
-  buttonCancel: 'Cancel',
 
   errorSummaryTitle: 'There is a problem',
   serverErrorTitle: 'There was a problem',
 
   charactersRemaining: (count: number) => `You have ${count} characters remaining`,
 
-  confirmationTitle: 'Feedback submitted',
-  confirmationMessage: 'Thank you for helping us improve this service.',
-  confirmationReturnLink: 'Return to application dashboard',
-} as const;
+  confirmationTitle: 'Your feedback has been submitted',
 
-export const COMPLETED_TASK_OPTIONS: RadioOption[] = [
-  { value: 'yes', label: 'Yes' },
-  { value: 'no', label: 'No' },
-];
+  confirmationWhatHappensNext: 'What happens next',
+  confirmationThankYou: 'Thank you for submitting your feedback.',
+  confirmationSurveyLink: 'You can help even more by completing our survey',
+  confirmationSurveySuffix:
+    ', which will give us much more valuable and detailed information about how we can improve this service.',
+} as const;
 
 export const SATISFACTION_OPTIONS: RadioOption[] = [
   { value: 'very-satisfied', label: 'Very satisfied' },
@@ -51,19 +66,22 @@ export const EASE_OPTIONS: RadioOption[] = [
   { value: 'very-difficult', label: 'Very difficult' },
 ];
 
-export const LIKELIHOOD_OPTIONS: RadioOption[] = [
-  { value: 'very-likely', label: 'Very likely' },
-  { value: 'likely', label: 'Likely' },
-  { value: 'neither-likely', label: 'Neither likely nor unlikely' },
-  { value: 'unlikely', label: 'Unlikely' },
-  { value: 'very-unlikely', label: 'Very unlikely' },
+export const COMPLETED_TASK_OPTIONS: RadioOption[] = [
+  { value: 'yes-completely', label: 'Yes, completely' },
+  { value: 'partly', label: 'Partly' },
+  { value: 'no', label: 'No' },
+];
+
+export const ROLE_OPTIONS: RadioOption[] = [
+  { value: 'employee', label: 'Employee of an applicant organisation' },
+  { value: 'agent', label: 'Agent working on behalf of an applicant organisation' },
 ];
 
 export const ERROR_ANCHORS = {
-  completedTask: '#completedTask-yes',
   satisfaction: '#satisfaction-very-satisfied',
   ease: '#ease-very-easy',
-  likelihood: '#likelihood-very-likely',
+  completedTask: '#completedTask-yes-completely',
+  userRole: '#userRole-employee',
   improvements: '#improvements',
 } as const;
 

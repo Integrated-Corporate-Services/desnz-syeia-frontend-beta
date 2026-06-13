@@ -18,5 +18,5 @@ export {
   COMPLETED_TASK_OPTIONS,
   SATISFACTION_OPTIONS,
   EASE_OPTIONS,
-  LIKELIHOOD_OPTIONS,
+  ROLE_OPTIONS,
 } from './constants/feedback.constants';

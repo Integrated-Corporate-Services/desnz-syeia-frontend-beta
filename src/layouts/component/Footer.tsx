@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FEEDBACK_PATH } from '../../constants/routes';
 
 const Footer = () => {
     return (
@@ -61,6 +62,11 @@ const Footer = () => {
                             <li className="govuk-footer__inline-list-item">
                                 <Link className="govuk-footer__link" to="/privacy">
                                     Privacy policy
+                                </Link>
+                            </li>
+                            <li className="govuk-footer__inline-list-item">
+                                <Link className="govuk-footer__link" to={FEEDBACK_PATH}>
+                                    Feedback
                                 </Link>
                             </li>
                         </ul>

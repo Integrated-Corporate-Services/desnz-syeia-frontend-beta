@@ -972,6 +972,8 @@ export const ROUTE_CONFIG = [
 
 export const SANDBOX_ROUTE_CONFIG = [];
 
+export const FEEDBACK_PATH = '/feedback';
+
 export const ROUTES = {
     NETWORK_OPERATOR_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-details`,
     TASK_LIST: `${S37_BASE_URL}/:applicationId/task-list`,

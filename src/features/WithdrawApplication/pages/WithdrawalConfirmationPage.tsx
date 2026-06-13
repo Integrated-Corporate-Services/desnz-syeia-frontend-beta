@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
+import { FEEDBACK_PATH } from '../../../constants/routes';
 import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
 
 import { WithdrawApplicationBreadcrumbs } from '../components';
@@ -110,9 +111,9 @@ const WithdrawalConfirmationPage: React.FC = () => {
                         </h2>
                         <p className="govuk-body">{CONSTANTS.CONFIRMATION_PAGE.FEEDBACK_TEXT}</p>
                         <p className="govuk-body">
-                            <a href="#" className="govuk-link">
+                            <Link to={FEEDBACK_PATH} className="govuk-link">
                                 {CONSTANTS.CONFIRMATION_PAGE.FEEDBACK_LINK}
-                            </a>
+                            </Link>
                         </p>
                     </div>
                 </div>
