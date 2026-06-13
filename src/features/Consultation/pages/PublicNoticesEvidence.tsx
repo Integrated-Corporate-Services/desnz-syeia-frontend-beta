@@ -596,9 +596,6 @@ const PublicNoticesEvidence: React.FC = () => {
 
               {/* File upload section */}
               <div className={`govuk-form-group govuk-!-margin-bottom-6 ${errors.fileUpload || fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
-                <label htmlFor="fileUpload" className="govuk-label govuk-label--m">
-                  Upload evidence of the published public notices
-                </label>
                 {errors.fileUpload && (
                   <p id="fileUpload-error" className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {errors.fileUpload}
