@@ -5,21 +5,26 @@ export const IMPROVEMENTS_MAX_LENGTH = 1200;
 export const DETAILED_SURVEY_URL =
   (import.meta.env.VITE_DETAILED_FEEDBACK_SURVEY_URL as string | undefined) ?? '#';
 
+/** Keeps each Figma line on one row before <br /> without custom CSS */
+const singleLine = (text: string): string => text.replace(/ /g, '\u00A0');
+
 export const CONTENT = {
-  pageTitleLine1: 'Give feedback for Submit your energy',
+  pageTitleLine1: singleLine('Give feedback for Submit your energy'),
   pageTitleLine2: 'infrastructure application',
   pageTitle: 'Give feedback for Submit your energy infrastructure application',
   pageIntro:
     'Help us improve this service for the best experience by completing this satisfaction survey.',
-  pageIntroDetailedSurveyPrefix: 'You can also ',
-  pageIntroDetailedSurveyLink: 'complete our detailed survey',
-  pageIntroDetailedSurveyLine1Suffix: ', which would give us much more ',
+  pageIntroDetailedSurveyPrefix: singleLine('You can also '),
+  pageIntroDetailedSurveyLink: singleLine('complete our detailed survey'),
+  pageIntroDetailedSurveyLine1Suffix: singleLine(', which would give us much more '),
   pageIntroDetailedSurveyLine2:
     'valuable information about how we can improve this service.',
 
   breadcrumbHome: 'Home',
 
-  questionSatisfaction: 'Overall, how satisfied were you with this service today?',
+  questionSatisfaction: singleLine(
+    'Overall, how satisfied were you with this service today?',
+  ),
   questionEase: 'How easy was it to use this service?',
   questionCompletedTask: 'Did you manage to do what you came here to do?',
   questionRole: 'Which best describes your role?',

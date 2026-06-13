@@ -5,7 +5,6 @@ import RadioGroup from '../../../components/commonFormFields/RadioGroup';
 import { captureSourcePage } from '../utils/capture-source.util';
 import { extractFeedbackSourceMetadata } from '../utils/extract-feedback-source.util';
 import FeedbackConfirmation from '../components/FeedbackConfirmation';
-import './FeedbackPage.css';
 import {
   CONTENT,
   DETAILED_SURVEY_URL,
@@ -115,37 +114,31 @@ export default function FeedbackPage() {
             </div>
           )}
 
-          <div className="feedback-page-title">
-            <h1 className="govuk-heading-l feedback-page-title__heading">
-              <span className="feedback-page-title__line">{CONTENT.pageTitleLine1}</span>
-              <span className="feedback-page-title__line">{CONTENT.pageTitleLine2}</span>
-            </h1>
-          </div>
+          <h1 className="govuk-heading-l govuk-!-margin-bottom-6">
+            {CONTENT.pageTitleLine1}
+            <br />
+            {CONTENT.pageTitleLine2}
+          </h1>
 
-          <div className="feedback-page-intro">
-            <p className="govuk-body">{CONTENT.pageIntro}</p>
-            <p className="govuk-body feedback-page-intro__survey">
-              <span className="feedback-page-intro__line">
-                {CONTENT.pageIntroDetailedSurveyPrefix}
-                <a
-                  href={DETAILED_SURVEY_URL}
-                  className="govuk-link"
-                  {...(DETAILED_SURVEY_URL !== '#'
-                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                    : {})}
-                >
-                  {CONTENT.pageIntroDetailedSurveyLink}
-                </a>
-                {CONTENT.pageIntroDetailedSurveyLine1Suffix}
-              </span>
-              <span className="feedback-page-intro__line">
-                {CONTENT.pageIntroDetailedSurveyLine2}
-              </span>
-            </p>
-          </div>
+          <p className="govuk-body govuk-!-margin-bottom-4">{CONTENT.pageIntro}</p>
+          <p className="govuk-body govuk-!-margin-bottom-6">
+            {CONTENT.pageIntroDetailedSurveyPrefix}
+            <a
+              href={DETAILED_SURVEY_URL}
+              className="govuk-link"
+              {...(DETAILED_SURVEY_URL !== '#'
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {CONTENT.pageIntroDetailedSurveyLink}
+            </a>
+            {CONTENT.pageIntroDetailedSurveyLine1Suffix}
+            <br />
+            {CONTENT.pageIntroDetailedSurveyLine2}
+          </p>
 
           <form
-            className="feedback-page-form"
+            className="govuk-!-margin-top-6"
             onSubmit={handleSubmit}
             noValidate
             aria-label="Feedback form"
@@ -154,7 +147,6 @@ export default function FeedbackPage() {
               id="satisfaction"
               name="satisfaction"
               label={CONTENT.questionSatisfaction}
-              legendClassName="govuk-fieldset__legend govuk-fieldset__legend--m feedback-satisfaction-legend"
               options={SATISFACTION_OPTIONS}
               value={values.satisfaction}
               error={errors.satisfaction}
@@ -192,7 +184,7 @@ export default function FeedbackPage() {
             />
 
             <div
-              className={`feedback-page-improvements govuk-character-count${errors.improvements ? ' govuk-form-group--error' : ''}`}
+              className={`govuk-character-count${errors.improvements ? ' govuk-form-group--error' : ''}`}
               data-module="govuk-character-count"
               data-maxlength={IMPROVEMENTS_MAX_LENGTH}
             >

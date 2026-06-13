@@ -7,12 +7,12 @@ export default function FeedbackConfirmation() {
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
-        <div className="govuk-panel govuk-panel--confirmation" tabIndex={-1}>
+        <div className="govuk-panel govuk-panel--confirmation govuk-!-margin-bottom-6" tabIndex={-1}>
           <h1 className="govuk-panel__title">{CONTENT.confirmationTitle}</h1>
         </div>
 
-        <h2 className="govuk-heading-m govuk-!-margin-top-6">{CONTENT.confirmationWhatHappensNext}</h2>
-        <p className="govuk-body">{CONTENT.confirmationThankYou}</p>
+        <h2 className="govuk-heading-m govuk-!-margin-bottom-4">{CONTENT.confirmationWhatHappensNext}</h2>
+        <p className="govuk-body govuk-!-margin-bottom-4">{CONTENT.confirmationThankYou}</p>
         <p className="govuk-body">
           <a
             href={DETAILED_SURVEY_URL}
