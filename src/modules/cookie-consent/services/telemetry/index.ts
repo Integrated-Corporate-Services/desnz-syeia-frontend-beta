@@ -1,4 +1,5 @@
 import { initGa4, disableGa4 } from './ga4';
+import { initGTM, disableGTM } from './gtm';
 import { initRum, tearDownRum, recordRumPageView } from './rum';
 
 export { recordRumPageView };
@@ -10,6 +11,7 @@ export function loadAnalytics(): void {
   if (analyticsLoaded) return;
   analyticsLoaded = true;
   initGa4();
+  initGTM();
 }
 
 export function loadMonitoring(): void {
@@ -25,6 +27,7 @@ export function stopAnalytics(): void {
   if (!analyticsLoaded) return;
   analyticsLoaded = false;
   disableGa4();
+  disableGTM();
 }
 
 export function stopMonitoring(): void {

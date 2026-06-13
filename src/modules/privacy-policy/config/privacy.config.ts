@@ -68,8 +68,8 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
             'information on how you use the site, using cookies and page tagging techniques'
           ]
         },
-        'Where you provide your consent, we use Google Analytics cookies and AWS CloudWatch Real User Monitoring (RUM) to collect information about how you use this service.',
-        'Google Analytics processes information about:',
+        'Where you provide your consent, we use Google Analytics (GA4), Google Tag Manager (GTM), and AWS CloudWatch Real User Monitoring (RUM) to collect information about how you use this service.',
+        'Google Analytics and Google Tag Manager process information about:',
         {
           type: 'list',
           items: [
@@ -117,7 +117,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
             'respond to your queries and provide support'
           ]
         },
-        'We use the information we collect through Google Analytics and CloudWatch RUM to:',
+        'We use the information we collect through Google Analytics, Google Tag Manager, and CloudWatch RUM to:',
         {
           type: 'list',
           items: [
@@ -140,7 +140,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
           items: [
             'Application processing: necessary for the performance of a task carried out in the public interest (UK GDPR Article 6(1)(e))',
             'Site security: our legitimate interests and those of our users in ensuring the security and integrity of the service (UK GDPR Article 6(1)(f))',
-            'Analytics (Google Analytics and CloudWatch RUM): your consent (UK GDPR Article 6(1)(a))',
+            'Analytics (Google Analytics, Google Tag Manager, and CloudWatch RUM): your consent (UK GDPR Article 6(1)(a))',
             'Statutory consultations: compliance with legal obligations (UK GDPR Article 6(1)(c))'
           ]
         },
@@ -163,7 +163,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
           ]
         },
         'We will share your data if we are required to do so by law, for example by court order, or to prevent fraud or other crime.',
-        'The data we collect with Google Analytics cookies is transferred and stored with Google where we analyse it with Google Analytics software (GA4). We do not allow Google to use or share this data for their own purposes.',
+        'The data we collect with Google Analytics and Google Tag Manager cookies is transferred and stored with Google where we analyse it with Google Analytics software (GA4) and Google Tag Manager. We do not allow Google to use or share this data for their own purposes.',
         'CloudWatch RUM data is processed and stored by Amazon Web Services in accordance with their data processing terms.',
         'We will not:',
         {
@@ -211,7 +211,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
       content: [
         'We design, build and run our systems to make sure that your data is as safe as possible at all stages, both while it\'s processed and when it\'s stored.',
         'All personal data is stored in the United Kingdom.',
-        'Data collected by Google Analytics may be transferred outside the UK for processing. Google has certified compliance with the UK-US Data Bridge, facilitating lawful data transfers.',
+        'Data collected by Google Analytics and Google Tag Manager may be transferred outside the UK for processing. Google has certified compliance with the UK-US Data Bridge, facilitating lawful data transfers.',
         'AWS CloudWatch RUM data is stored in the EU (Ireland) region and may be processed in accordance with AWS\'s UK GDPR compliance framework.'
       ]
     },
