@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import {
+    FEEDBACK_LINK_TEXT,
+    PHASE_TAG,
+    PHASE_TEXT,
+    PHASE_TEXT_SUFFIX,
+} from '../../constants/phaseBanner.constants';
 import { FEEDBACK_PATH } from '../../constants/routes';
 import '../../styles/PhaseBanner.css';
-
-// ── PhaseBanner Constants ────────────────────────────────────────────────────
-const PHASE_TAG = 'Beta';
-const PHASE_TEXT = 'This is a new service – your';
-const FEEDBACK_LINK_TEXT = 'feedback';
-const PHASE_TEXT_SUFFIX = 'will help us to improve it.';
 
 export default function PhaseBanner() {
     return (
