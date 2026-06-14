@@ -14,7 +14,7 @@ interface ImportMetaEnv {
   [key: string]: any;
 }
 
-type Environment = 'local' | 'development' | 'sit' | 'uat' | 'staging' | 'production';
+type Environment = 'local' | 'development' | 'staging' | 'production';
 
 interface TelemetryConfig {
   ga4MeasurementId: string | null;
@@ -29,8 +29,6 @@ interface TelemetryConfig {
  * Used when environment variables are not set
  */
 const DEFAULT_GA4_MEASUREMENT_ID = 'G-7NL7XSY1LV';
-const DEFAULT_ENABLE_GA4 = true;
-const DEFAULT_ENABLE_GTM = false;
 
 /**
  * Environment-specific configuration overrides
@@ -51,25 +49,11 @@ const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
     enableGTM: false,
     debugMode: true,
   },
-  sit: {
-    ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: null,
-    enableGA4: true,
-    enableGTM: false,
-    debugMode: true,
-  },
-  uat: {
-    ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: null,
-    enableGA4: true,
-    enableGTM: false,
-    debugMode: false,
-  },
   staging: {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: null,
+    gtmId: 'GTM-P7VVP48J',
     enableGA4: true,
-    enableGTM: false,
+    enableGTM: true,
     debugMode: false,
   },
   production: {
@@ -97,12 +81,6 @@ function detectEnvironment(): Environment {
     if (mode === 'development' || mode === 'dev') {
       return 'development';
     }
-    if (mode === 'sit') {
-      return 'sit';
-    }
-    if (mode === 'uat') {
-      return 'uat';
-    }
     if (mode === 'staging') {
       return 'staging';
     }
@@ -116,12 +94,6 @@ function detectEnvironment(): Environment {
   if (hostname === 'syeia.energysecurity.gov.uk' || 
       hostname === 'www.syeia.energysecurity.gov.uk') {
     return 'production';
-  }
-
-  if (hostname.includes('uat.syeia') || 
-      hostname.includes('syeia-uat') ||
-      hostname.includes('uat-syeia')) {
-    return 'uat';
   }
 
   if (hostname.includes('staging.syeia') || 
