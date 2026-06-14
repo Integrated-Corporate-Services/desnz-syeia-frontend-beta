@@ -3,7 +3,6 @@ import { getTelemetryConfig } from './config';
 const config = getTelemetryConfig();
 const GTM_ID = config.gtmId;
 const ENABLED = config.enableGTM;
-const DEBUG_MODE = config.debugMode;
 
 export function initGTM(): void {
   if (!ENABLED || !GTM_ID) {
