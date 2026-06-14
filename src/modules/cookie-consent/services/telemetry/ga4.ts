@@ -1,18 +1,31 @@
 import { getTelemetryConfig } from './config';
 
-const config = getTelemetryConfig();
-const MEASUREMENT_ID = config.ga4MeasurementId;
-const ENABLED = config.enableGA4;
-const DEBUG_MODE = config.debugMode;
+// HOTFIX: Lazy config loading - evaluates at runtime instead of build time
+let _config: ReturnType<typeof getTelemetryConfig> | null = null;
+function getConfig() {
+  if (!_config) {
+    _config = getTelemetryConfig();
+  }
+  return _config;
+}
 
 export function initGa4(): void {
+  const config = getConfig();
+  const MEASUREMENT_ID = config.ga4MeasurementId;
+  const ENABLED = config.enableGA4;
+  const DEBUG_MODE = config.debugMode;
+
   if (!ENABLED || !MEASUREMENT_ID) {
+    console.warn('[GA4] Not initialized:', { ENABLED, MEASUREMENT_ID });
     return;
   }
-  
+
   if (document.getElementById('ga4-script')) {
+    console.log('[GA4] Already initialized');
     return;
   }
+
+  console.log('[GA4] Initializing with ID:', MEASUREMENT_ID);
 
   const script = document.createElement('script');
   script.id = 'ga4-script';
@@ -28,7 +41,10 @@ export function initGa4(): void {
 }
 
 export function disableGa4(): void {
+  const config = getConfig();
+  const MEASUREMENT_ID = config.ga4MeasurementId;
   if (!MEASUREMENT_ID) return;
   (window as unknown as Record<string, unknown>)[`ga-disable-${MEASUREMENT_ID}`] = true;
   document.getElementById('ga4-script')?.remove();
 }
+ 

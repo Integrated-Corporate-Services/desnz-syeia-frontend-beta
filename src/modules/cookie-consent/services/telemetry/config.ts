@@ -25,15 +25,15 @@ interface TelemetryConfig {
 }
 
 /**
- * Default configuration values
- * Used when environment variables are not set
- */
+* Default configuration values
+* Used when environment variables are not set
+*/
 const DEFAULT_GA4_MEASUREMENT_ID = 'G-7NL7XSY1LV';
 
 /**
- * Environment-specific configuration overrides
- * Only used when environment variables are not available
- */
+* Environment-specific configuration overrides
+* Only used when environment variables are not available
+*/
 const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
   local: {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
@@ -66,14 +66,14 @@ const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
 };
 
 /**
- * Detect current environment
- * 
- * Priority 1: Use Vite MODE (set by build command)
- * Priority 2: Fallback to hostname detection (for runtime)
- */
+* Detect current environment
+* 
+* Priority 1: Use Vite MODE (set by build command)
+* Priority 2: Fallback to hostname detection (for runtime)
+*/
 function detectEnvironment(): Environment {
   const mode = (import.meta as any).env?.MODE?.toLowerCase();
-  
+
   if (mode) {
     if (mode === 'local') {
       return 'local';
@@ -112,24 +112,50 @@ function detectEnvironment(): Environment {
 }
 
 /**
- * Get telemetry configuration for current environment
- * 
- * Priority order:
- * 1. Environment variables from SSM (VITE_GA4_MEASUREMENT_ID, VITE_ENABLE_GA4, GTM_ID, GTM_ISENABLED)
- * 2. Environment-specific config from TELEMETRY_CONFIGS
- * 3. Default values
- */
+* Get telemetry configuration for current environment
+* 
+* Priority order:
+* 1. Environment variables from SSM (VITE_GA4_MEASUREMENT_ID, VITE_ENABLE_GA4, GTM_ID, GTM_ISENABLED)
+* 2. Environment-specific config from TELEMETRY_CONFIGS
+* 3. Default values
+*/
 export function getTelemetryConfig(): TelemetryConfig {
   const env = detectEnvironment();
   const envConfig = TELEMETRY_CONFIGS[env];
 
   // Read from environment variables (populated from SSM in ECS)
   const envVars = (import.meta as any).env || {};
-  
-  const ga4MeasurementId = envVars.VITE_GA4_MEASUREMENT_ID || envConfig.ga4MeasurementId;
-  const gtmId = envVars.GTM_ID || envConfig.gtmId;
-  const enableGA4 = envVars.VITE_ENABLE_GA4 === 'true' || envConfig.enableGA4;
-  const enableGTM = envVars.GTM_ISENABLED === 'true' || envConfig.enableGTM;
+
+  // HOTFIX: More defensive fallback logic
+  // Handles undefined, empty string, and "undefined" string
+  const ga4MeasurementId = (envVars.VITE_GA4_MEASUREMENT_ID && envVars.VITE_GA4_MEASUREMENT_ID !== 'undefined') 
+    ? envVars.VITE_GA4_MEASUREMENT_ID 
+    : (envConfig.ga4MeasurementId || DEFAULT_GA4_MEASUREMENT_ID);
+
+  const gtmId = (envVars.GTM_ID && envVars.GTM_ID !== 'undefined') 
+    ? envVars.GTM_ID 
+    : envConfig.gtmId;
+
+  const enableGA4 = (envVars.VITE_ENABLE_GA4 === 'true') 
+    ? true 
+    : (envVars.VITE_ENABLE_GA4 === 'false' ? false : envConfig.enableGA4);
+
+  const enableGTM = (envVars.GTM_ISENABLED === 'true') 
+    ? true 
+    : (envVars.GTM_ISENABLED === 'false' ? false : envConfig.enableGTM);
+
+  // Debug logging in non-production
+  if (envConfig.debugMode) {
+    console.log('[Telemetry Config]', {
+      environment: env,
+      ga4MeasurementId,
+      enableGA4,
+      envVars: {
+        VITE_GA4_MEASUREMENT_ID: envVars.VITE_GA4_MEASUREMENT_ID,
+        VITE_ENABLE_GA4: envVars.VITE_ENABLE_GA4,
+      }
+    });
+  }
 
   return {
     ga4MeasurementId,
@@ -141,16 +167,16 @@ export function getTelemetryConfig(): TelemetryConfig {
 }
 
 /**
- * Get current environment (for debugging)
- */
+* Get current environment (for debugging)
+*/
 export function getCurrentEnvironment(): Environment {
   return detectEnvironment();
 }
 
 /**
- * Check if telemetry should be enabled
- * Respects environment variables for override
- */
+* Check if telemetry should be enabled
+* Respects environment variables for override
+*/
 export function shouldEnableTelemetry(): boolean {
   // Allow environment variable override
   // Type assertion needed because import.meta.env is not in standard TypeScript types
@@ -161,3 +187,4 @@ export function shouldEnableTelemetry(): boolean {
   const config = getTelemetryConfig();
   return config.enableGA4 || config.enableGTM;
 }
+ 
