@@ -1,16 +1,18 @@
-const GTM_ID = import.meta.env.VITE_GTM_ID as string | undefined;
-const ENABLED = import.meta.env.VITE_ENABLE_GTM === 'true';
-const DEBUG_MODE = import.meta.env.VITE_GTM_DEBUG !== 'false' && import.meta.env.DEV;
+import { getTelemetryConfig } from './config';
 
-const log = import.meta.env.DEV
-  ? (...args: unknown[]) => console.log('[GTM]', ...args)
-  : () => undefined;
+const config = getTelemetryConfig();
+const GTM_ID = config.gtmId;
+const ENABLED = config.enableGTM;
+const DEBUG_MODE = config.debugMode;
 
 export function initGTM(): void {
-  if (!ENABLED || !GTM_ID) return;
-  if (document.getElementById('gtm-script')) return;
-
-  log(`Initializing GTM with ID: ${GTM_ID}`);
+  if (!ENABLED || !GTM_ID) {
+    return;
+  }
+  
+  if (document.getElementById('gtm-script')) {
+    return;
+  }
 
   // Add GTM script to head
   const script = document.createElement('script');
@@ -41,30 +43,23 @@ export function initGTM(): void {
   } else {
     document.body.appendChild(noscript);
   }
-
-  log(`Initialized (debug_mode=${DEBUG_MODE})`);
 }
 
 export function disableGTM(): void {
-  if (!GTM_ID) return;
+  if (!GTM_ID) {
+    return;
+  }
   
-  // Remove GTM script
   const script = document.getElementById('gtm-script');
   if (script) {
     script.remove();
-    log('GTM script removed');
   }
 
-  // Remove GTM noscript
   const noscript = document.getElementById('gtm-noscript');
   if (noscript) {
     noscript.remove();
-    log('GTM noscript removed');
   }
 
-  // Disable GTM tracking
   const win = window as unknown as Record<string, unknown>;
   win[`ga-disable-${GTM_ID}`] = true;
-  
-  log('Disabled');
 }
