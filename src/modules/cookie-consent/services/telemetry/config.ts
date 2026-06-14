@@ -39,14 +39,14 @@ const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
     gtmId: null,
     enableGA4: true,
-    enableGTM: false,
+    enableGTM: true,
     debugMode: true,
   },
   development: {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: null,
+    gtmId: 'GTM-P7VVP48J',
     enableGA4: true,
-    enableGTM: false,
+    enableGTM: true,
     debugMode: true,
   },
   staging: {
@@ -60,7 +60,7 @@ const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
     gtmId: null,
     enableGA4: true,
-    enableGTM: false,
+    enableGTM: true,
     debugMode: false,
   },
 };
