@@ -15,7 +15,7 @@
     "@govuk-react/icon-crown": "^0.1.0",
     "@types/leaflet": "^1.9.6",
     "@types/styled-components": "^5.1.34",
-    "aws-rum-web": "^3.1.0",
+    "aws-rum-web": "^2.1.0",
     "axios": "^1.8.4",
     "govuk-frontend": "^5.13.0",
     "govuk-react": "^0.10.7",
@@ -37,7 +37,7 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/react-router-dom": "^5.3.3",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^6.0.2",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
@@ -45,7 +45,7 @@
     "jsdom": "^25.0.1",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0",
+    "vite": "^8.0.16",
     "vitest": "^4.1.8"
   }
 }
