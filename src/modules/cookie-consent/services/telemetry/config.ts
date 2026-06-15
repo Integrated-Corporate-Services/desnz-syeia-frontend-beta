@@ -37,7 +37,7 @@ const DEFAULT_GA4_MEASUREMENT_ID = 'G-7NL7XSY1LV';
 const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
   local: {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: null,
+    gtmId: 'GTM-P7VVP48J',
     enableGA4: true,
     enableGTM: true,
     debugMode: true,
@@ -149,10 +149,14 @@ export function getTelemetryConfig(): TelemetryConfig {
     console.log('[Telemetry Config]', {
       environment: env,
       ga4MeasurementId,
+      gtmId,
       enableGA4,
+      enableGTM,
       envVars: {
         VITE_GA4_MEASUREMENT_ID: envVars.VITE_GA4_MEASUREMENT_ID,
         VITE_ENABLE_GA4: envVars.VITE_ENABLE_GA4,
+        GTM_ID: envVars.GTM_ID,
+        GTM_ISENABLED: envVars.GTM_ISENABLED,
       }
     });
   }
