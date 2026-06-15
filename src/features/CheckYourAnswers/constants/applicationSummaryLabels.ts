@@ -67,7 +67,7 @@ export const FIELD_LABELS = {
   PLAN_REFERENCE: 'Plan reference',
   EARLIEST_WORK_START: 'Earliest work start date',
   LATEST_WORK_START: 'Latest work start date',
-  MAX_STRUCTURE_HEIGHT: 'Max structure height (m)',
+  MAX_STRUCTURE_HEIGHT: 'What is the height of the tallest existing pole?',
   LAST_UPDATED: 'Last updated',
   PLAN_INFO_DOCS: 'Plan information documents',
   RELATED_APPLICATIONS: 'Related applications',
@@ -157,6 +157,8 @@ export const WORKS_OVERVIEW_QUESTIONS = {
   VEGETATION_DETAILS: 'Vegetation clearance details',
   EXISTING_ACCESS_ROUTES: 'Are you using pre-existing access routes and/or storage sites?',
   ACCESS_ROUTES_DETAILS: 'Access routes details',
+  PROPOSED_ACCESS_ROUTES_DETAILS: 'Proposed access routes details',
+  TALLEST_NEW_POLE_HEIGHT: 'What is the height of the tallest new pole?',
   REMOVING_EQUIPMENT: 'Are you removing existing equipment?',
   REMOVAL_DESCRIPTION: 'Removal description',
   GENERAL_COMMENTS: 'General comments'

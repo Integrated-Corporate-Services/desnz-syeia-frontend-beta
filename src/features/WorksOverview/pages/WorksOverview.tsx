@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { FileUploadResponse } from '../../../types/FileUploadResponse';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import TextInput from '../component/TextInput';
 import NumberInput from '../component/NumberInput';
 import RadioGroup from '../component/RadioGroup';
 import TextArea from '../component/TextArea';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
@@ -18,6 +20,7 @@ const initialState = {
   chemicalTreatments: '',
   polesAdded: '',
   polesReplaced: '',
+  tallestNewPoleHeight: '',
   poleComments: '',
   addingOrReplacingLines: '',
   overheadLineDescription: '',
@@ -30,7 +33,6 @@ const initialState = {
   vegetationClearanceDetails: '',
   usingExistingAccessRoutes: '',
   accessRoutesDetails: '',
-  accessRouteFiles: [] as FileUploadResponse[], // For uploaded files
   removingExistingEquipment: '',
   removalDescription: '',
   generalComments: ''
@@ -42,7 +44,11 @@ const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false); // New state to track edit mode
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+  const [pendingAccessRouteFiles, setPendingAccessRouteFiles] = useState<File[]>([]);
+  const accessRouteFileUploadRef = useRef<FileUploadHandle>(null);
   // Remove asset store usage for works overview
   const navigate = useNavigate();
   // Ref for first error field
@@ -81,6 +87,9 @@ const WorksOverview: React.FC = () => {
               chemicalTreatments: data.chemicalTreatments || '',
               polesAdded: data.polesAdded !== undefined ? data.polesAdded.toString() : '',
               polesReplaced: data.polesReplaced !== undefined ? data.polesReplaced.toString() : '',
+              tallestNewPoleHeight: data.tallestNewPoleHeight !== undefined && data.tallestNewPoleHeight !== null
+                ? data.tallestNewPoleHeight.toString()
+                : '',
               poleComments: data.poleComments || '',
               addingOrReplacingLines: data.addingOrReplacingLines ? 'yes' : 'no',
               overheadLineDescription: data.overheadLineDescription || '',
@@ -93,11 +102,16 @@ const WorksOverview: React.FC = () => {
               vegetationClearanceDetails: data.vegetationClearanceDetails || '',
               usingExistingAccessRoutes: data.usingExistingAccessRoutes ? 'yes' : 'no',
               accessRoutesDetails: data.accessRoutesDetails || '',
-              accessRouteFiles: [],
               removingExistingEquipment: data.removingExistingEquipment ? 'yes' : 'no',
               removalDescription: data.removalDescription || '',
               generalComments: data.generalComments || ''
             });
+            if (Array.isArray(data.uploadedFiles)) {
+              setUploadedFiles(data.uploadedFiles);
+            }
+            if (Array.isArray(data.applicationDocuments)) {
+              setApplicationDocuments(data.applicationDocuments);
+            }
             setIsEditMode(true);
           } else if (data === null || data === undefined) {
             // No data found for this application - reset to initial state
@@ -150,6 +164,23 @@ const WorksOverview: React.FC = () => {
       if (!data.poleComments.trim()) {
         newErrors.poleComments = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLE_COMMENTS_REQUIRED;
       }
+
+      // Validate tallestNewPoleHeight
+      if (!data.tallestNewPoleHeight.trim()) {
+        newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_REQUIRED;
+      } else {
+        const heightVal = data.tallestNewPoleHeight.trim();
+        const num = Number(heightVal);
+        if (Number.isNaN(num)) {
+          newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_INVALID;
+        } else if (num < 0) {
+          newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_NEGATIVE;
+        } else if (num > 9999) {
+          newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_TOO_LARGE;
+        } else if (!/^\d+(\.\d{1,2})?$/.test(heightVal)) {
+          newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_DECIMAL_PLACES;
+        }
+      }
     }
     if (!data.addingOrReplacingLines) {
       newErrors.addingOrReplacingLines = WORKS_OVERVIEW_VALIDATION_MESSAGES.ADDING_OR_REPLACING_LINES_REQUIRED;
@@ -172,7 +203,13 @@ const WorksOverview: React.FC = () => {
     if (!data.usingExistingAccessRoutes) {
       newErrors.usingExistingAccessRoutes = WORKS_OVERVIEW_VALIDATION_MESSAGES.USING_EXISTING_ACCESS_ROUTES_REQUIRED;
     } else if (data.usingExistingAccessRoutes === 'yes') {
-      if (!data.accessRoutesDetails.trim()) newErrors.accessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.ACCESS_ROUTES_DETAILS_REQUIRED;
+      if (!data.accessRoutesDetails.trim()) {
+        newErrors.accessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.ACCESS_ROUTES_DETAILS_REQUIRED;
+      }
+    } else if (data.usingExistingAccessRoutes === 'no') {
+      if (!data.accessRoutesDetails.trim()) {
+        newErrors.accessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.PROPOSED_ACCESS_ROUTES_DETAILS_REQUIRED;
+      }
     }
     if (!data.removingExistingEquipment) {
       newErrors.removingExistingEquipment = WORKS_OVERVIEW_VALIDATION_MESSAGES.REMOVING_EXISTING_EQUIPMENT_REQUIRED;
@@ -190,6 +227,16 @@ const WorksOverview: React.FC = () => {
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
+
+    if (accessRouteFileUploadRef.current && pendingAccessRouteFiles.length > 0) {
+      try {
+        await accessRouteFileUploadRef.current.triggerUpload();
+      } catch {
+        setErrors({ accessRoutesDetails: 'Failed to upload access route files. Please try again.' });
+        return;
+      }
+    }
+
     // Map form data to backend expected payload: { applicationId, worksOverview: { ...fields... } }
     const worksOverviewPayload = {
       addingOrReplacingPoles: form.addingOrReplacingPoles === 'yes',
@@ -198,6 +245,9 @@ const WorksOverview: React.FC = () => {
       chemicalTreatments: form.chemicalTreatments || '',
       polesAdded: parseInt(form.polesAdded) || 0,
       polesReplaced: parseInt(form.polesReplaced) || 0,
+      tallestNewPoleHeight: form.addingOrReplacingPoles === 'yes'
+        ? parseFloat(form.tallestNewPoleHeight) || 0
+        : null,
       poleComments: form.poleComments,
       overheadLineDescription: form.overheadLineDescription || '',
       estimatedDuration: form.estimatedDuration || '',
@@ -209,11 +259,6 @@ const WorksOverview: React.FC = () => {
       vegetationClearanceDetails: form.vegetationClearanceDetails || '',
       usingExistingAccessRoutes: form.usingExistingAccessRoutes === 'yes',
       accessRoutesDetails: form.accessRoutesDetails || '',
-      // accessRouteFiles: (form.accessRouteFiles || []).map(f => ({
-      //   url: f.url,
-      //   name: f.filename || '',
-      //   size: typeof f.fileSize === 'number' ? f.fileSize : 0
-      // })),
       removingExistingEquipment: form.removingExistingEquipment === 'yes',
       removalDescription: form.removalDescription || '',
       generalComments: form.generalComments || ''
@@ -327,6 +372,18 @@ const WorksOverview: React.FC = () => {
                 value={form.polesReplaced}
                 onChange={handleChange}
                 error={errors.polesReplaced}
+              />
+            </div>
+            <div className={`govuk-form-group${errors.tallestNewPoleHeight ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+              <NumberInput
+                id="tallestNewPoleHeight"
+                name="tallestNewPoleHeight"
+                label="What is the height of the tallest new pole?"
+                hint="If none, enter 0."
+                suffix="metres"
+                value={form.tallestNewPoleHeight}
+                onChange={handleChange}
+                error={errors.tallestNewPoleHeight}
               />
             </div>
             <div className={`govuk-form-group${errors.poleComments ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
@@ -466,29 +523,93 @@ const WorksOverview: React.FC = () => {
             error={errors.usingExistingAccessRoutes}
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
-          >
-            <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <TextArea
-                id="accessRoutesDetails"
-                name="accessRoutesDetails"
-                label="Provide more details about the pre-existing access routes and/or storage sites"
-                value={form.accessRoutesDetails}
-                onChange={handleChange}
-                maxLength={4000}
-                showCount
-                error={errors.accessRoutesDetails}
-              />
+          />
+          {form.usingExistingAccessRoutes === 'yes' && (
+            <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
+              <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+                <TextArea
+                  id="accessRoutesDetails"
+                  name="accessRoutesDetails"
+                  label="Provide more details about the pre-existing access routes and storage sites"
+                  value={form.accessRoutesDetails}
+                  onChange={handleChange}
+                  maxLength={4000}
+                  showCount
+                  error={errors.accessRoutesDetails}
+                />
+              </div>
+              <div className="govuk-form-group" style={{ maxWidth: 600 }}>
+                <label className="govuk-label">
+                  Upload map and photos of pre-existing routes and storage sites
+                </label>
+                <div className="govuk-hint">
+                  You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.
+                </div>
+                <FileUpload
+                  ref={accessRouteFileUploadRef}
+                  title=""
+                  showTitle={false}
+                  prefix={`${effectiveApplicationId}/${FILE_CATEGORIES.WORKS_ACCESS_ROUTES}`}
+                  uploadedFiles={uploadedFiles}
+                  applicationDocuments={applicationDocuments}
+                  applicationId={effectiveApplicationId}
+                  category={FILE_CATEGORIES.WORKS_ACCESS_ROUTES}
+                  onUploaded={(newUploadedFiles, newDocuments) => {
+                    setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+                    setApplicationDocuments(prev => [...prev, ...newDocuments]);
+                  }}
+                  onDeleteFile={(fileId) => {
+                    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+                    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+                  }}
+                  onPendingFilesChange={setPendingAccessRouteFiles}
+                />
+              </div>
             </div>
-            {/* File upload for access route map/photos */}
-            {/* <div className="govuk-form-group" style={{ maxWidth: 600 }}>
-              <label className="govuk-label">Upload map and photos of the Access Route.</label>
-              <FileUploadBox
-                title="Upload map and photos of the Access Route."
-                prefix="access-route"
-                onUploadComplete={(files: FileUploadResponse[]) => setForm(prev => ({ ...prev, accessRouteFiles: files }))}
-              />
-            </div> */}
-          </RadioGroup>
+          )}
+          {form.usingExistingAccessRoutes === 'no' && (
+            <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
+              <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+                <TextArea
+                  id="accessRoutesDetails"
+                  name="accessRoutesDetails"
+                  label="Provide more details about the proposed access routes and storage sites"
+                  value={form.accessRoutesDetails}
+                  onChange={handleChange}
+                  maxLength={4000}
+                  showCount
+                  error={errors.accessRoutesDetails}
+                />
+              </div>
+              <div className="govuk-form-group" style={{ maxWidth: 600 }}>
+                <label className="govuk-label">
+                  Upload map and photos of proposed routes and storage sites
+                </label>
+                <div className="govuk-hint">
+                  You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.
+                </div>
+                <FileUpload
+                  ref={accessRouteFileUploadRef}
+                  title=""
+                  showTitle={false}
+                  prefix={`${effectiveApplicationId}/${FILE_CATEGORIES.WORKS_ACCESS_ROUTES}`}
+                  uploadedFiles={uploadedFiles}
+                  applicationDocuments={applicationDocuments}
+                  applicationId={effectiveApplicationId}
+                  category={FILE_CATEGORIES.WORKS_ACCESS_ROUTES}
+                  onUploaded={(newUploadedFiles, newDocuments) => {
+                    setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+                    setApplicationDocuments(prev => [...prev, ...newDocuments]);
+                  }}
+                  onDeleteFile={(fileId) => {
+                    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+                    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+                  }}
+                  onPendingFilesChange={setPendingAccessRouteFiles}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Removing existing equipment */}

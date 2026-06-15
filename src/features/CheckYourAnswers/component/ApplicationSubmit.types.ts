@@ -108,6 +108,7 @@ export interface WorksOverview {
 	chemicalTreatments?: string;
 	polesAdded?: number;
 	polesReplaced?: number;
+	tallestNewPoleHeight?: number | null;
 	poleComments?: string;
 	addingOrReplacingLines?: boolean;
 	overheadLineDescription?: string;

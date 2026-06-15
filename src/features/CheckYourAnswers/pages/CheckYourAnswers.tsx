@@ -727,7 +727,7 @@ const CheckYourAnswers: React.FC = () => {
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">
-                      Max structure height (m)
+                      What is the height of the tallest existing pole?
                     </dt>
                     <dd className="govuk-summary-list__value">
                       {projectDetails?.max_structure_height_m || "-"}
@@ -972,6 +972,17 @@ const CheckYourAnswers: React.FC = () => {
                       </div>
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
+                          What is the height of the tallest new pole?
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {worksOverview?.tallestNewPoleHeight !== undefined &&
+                          worksOverview?.tallestNewPoleHeight !== null
+                            ? `${worksOverview.tallestNewPoleHeight} metres`
+                            : "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
                           Comments on poles
                         </dt>
                         <dd className="govuk-summary-list__value">
@@ -1097,10 +1108,13 @@ const CheckYourAnswers: React.FC = () => {
                         : "-"}
                     </dd>
                   </div>
-                  {worksOverview?.usingExistingAccessRoutes && (
+                  {(worksOverview?.usingExistingAccessRoutes === true ||
+                    worksOverview?.usingExistingAccessRoutes === false) && (
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">
-                        Access routes details
+                        {worksOverview?.usingExistingAccessRoutes
+                          ? 'Pre-existing access routes details'
+                          : 'Proposed access routes details'}
                       </dt>
                       <dd className="govuk-summary-list__value">
                         {worksOverview?.accessRoutesDetails || "-"}

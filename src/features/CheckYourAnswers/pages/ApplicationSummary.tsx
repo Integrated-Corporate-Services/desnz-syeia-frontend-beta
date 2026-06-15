@@ -1028,6 +1028,17 @@ const ApplicationSummary: React.FC = () => {
                       </div>
                       <div className="govuk-summary-list__row">
                         <dt className="govuk-summary-list__key">
+                          {WORKS_OVERVIEW_QUESTIONS.TALLEST_NEW_POLE_HEIGHT}
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {worksOverview?.tallestNewPoleHeight !== undefined &&
+                          worksOverview?.tallestNewPoleHeight !== null
+                            ? `${worksOverview.tallestNewPoleHeight} metres`
+                            : "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
                           {WORKS_OVERVIEW_QUESTIONS.POLE_COMMENTS}
                         </dt>
                         <dd className="govuk-summary-list__value">
@@ -1152,10 +1163,13 @@ const ApplicationSummary: React.FC = () => {
                         : "-"}
                     </dd>
                   </div>
-                  {worksOverview?.usingExistingAccessRoutes && (
+                  {(worksOverview?.usingExistingAccessRoutes === true ||
+                    worksOverview?.usingExistingAccessRoutes === false) && (
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">
-                        {WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DETAILS}
+                        {worksOverview?.usingExistingAccessRoutes
+                          ? WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DETAILS
+                          : WORKS_OVERVIEW_QUESTIONS.PROPOSED_ACCESS_ROUTES_DETAILS}
                       </dt>
                       <dd className="govuk-summary-list__value">
                         {worksOverview?.accessRoutesDetails || "-"}

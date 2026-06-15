@@ -33,6 +33,7 @@ export interface WorksOverviewAsset {
 	chemicalTreatments: string;
 	polesAdded: number;
 	polesReplaced: number;
+	tallestNewPoleHeight?: number | null;
 	poleComments: string;
 	addingOrReplacingLines: boolean;
 	overheadLineDescription: string;
