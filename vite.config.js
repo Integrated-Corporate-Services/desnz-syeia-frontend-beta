@@ -7,9 +7,6 @@ export default defineConfig(({ mode }) => {
         base: '/frontend',
         plugins: [react()],
         css: {
-            lightningcss: {
-                errorRecovery: true 
-            },
             preprocessorOptions: {
                 scss: {
                     quietDeps: true, // Suppress deprecation warnings from dependencies
