@@ -62,15 +62,7 @@ export default function FeedbackPage() {
 
   return (
     <>
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link className="govuk-breadcrumbs__link" to="/application-dashboard">
-              {CONTENT.breadcrumbHome}
-            </Link>
-          </li>
-        </ol>
-      </nav>
+      {/* Feedback is a public page - no breadcrumb needed */}
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">

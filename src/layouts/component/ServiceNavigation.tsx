@@ -24,6 +24,7 @@ const ServiceNavigation = () => {
         "/tlp-guidance",
         "/access-revoked",
         "/signed-out",
+        "/feedback", // Hide navigation on feedback page - it's a public page
     ];
 
     // Check if user is in registration/access request flow
