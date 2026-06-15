@@ -3,7 +3,7 @@ import type { RadioOption } from '../types/feedback.types';
 export const IMPROVEMENTS_MAX_LENGTH = 1200;
 
 export const DETAILED_SURVEY_URL =
-  (import.meta.env.VITE_DETAILED_FEEDBACK_SURVEY_URL as string | undefined) ?? '#';
+  'https://forms.office.com/pages/responsepage.aspx?id=BXCsy8EC60O0l-ZJLRst2DF6lfpFkBBJrVy4SKDHmtFUREozR081TVBZQzVEUkZaMlpPS0RSNlpGOC4u&route=shorturl';
 
 /** Keeps each Figma line on one row before <br /> without custom CSS */
 const singleLine = (text: string): string => text.replace(/ /g, '\u00A0');
@@ -15,7 +15,7 @@ export const CONTENT = {
   pageIntro:
     'Help us improve this service for the best experience by completing this satisfaction survey.',
   pageIntroDetailedSurveyPrefix: singleLine('You can also '),
-  pageIntroDetailedSurveyLink: singleLine('complete our detailed survey'),
+  pageIntroDetailedSurveyLink: singleLine('complete our detailed survey (opens in a new tab)'),
   pageIntroDetailedSurveyLine1Suffix: singleLine(', which would give us much more '),
   pageIntroDetailedSurveyLine2:
     'valuable information about how we can improve this service.',
@@ -45,7 +45,7 @@ export const CONTENT = {
 
   confirmationWhatHappensNext: 'What happens next',
   confirmationThankYou: 'Thank you for submitting your feedback.',
-  confirmationSurveyLink: 'You can help even more by completing our survey',
+  confirmationSurveyLink: 'You can help even more by completing our survey (opens in a new tab)',
   confirmationSurveySuffix:
     ', which will give us much more valuable and detailed information about how we can improve this service.',
 } as const;
