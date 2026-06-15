@@ -38,6 +38,8 @@ const ServiceNavigation = () => {
             location.pathname.startsWith("/application-dashboard")) &&
         !isOnTaskListPage;
 
+    const isOnYourDetailsPages = location.pathname.startsWith('/your-details');
+
 
     // Check if on organisation/admin pages
     const isOnOrganisationPages =
@@ -106,14 +108,18 @@ const ServiceNavigation = () => {
                                     Applications
                                 </Link>
                             </li>
-                            <li className="rcc-service-nav__item">
-                                <a
+                            <li
+                                className={`rcc-service-nav__item${
+                                    isOnYourDetailsPages ? ' rcc-service-nav__item--active' : ''
+                                }`}
+                            >
+                                <Link
                                     className="rcc-service-nav__link"
-                                    href="#"
-                                    onClick={(e) => e.preventDefault()}
+                                    to="/your-details"
+                                    aria-current={isOnYourDetailsPages ? 'page' : undefined}
                                 >
-                                    Account
-                                </a>
+                                    Your details
+                                </Link>
                             </li>
                         </>
                     )}

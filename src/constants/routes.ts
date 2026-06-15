@@ -141,6 +141,8 @@ import DownloadLpaConsultationFormPage from '../features/Consultation/pages/Down
 import ClosedPage from '../pages/ClosedPage';
 import StartRedirect from '../components/StartRedirect';
 import { FeedbackPage } from '../modules/feedback';
+import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
+import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
 
 export const ROUTE_CONFIG = [
     // UAT Invite System Routes
@@ -484,6 +486,18 @@ export const ROUTE_CONFIG = [
         component: ApplicationDashboard,
         auth: true,
         layout: false,
+    },
+    {
+        path: '/your-details',
+        component: YourDetailsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/your-details/change-full-name',
+        component: ChangeFullNamePage,
+        auth: true,
+        layout: true,
     },
     {
         path: `${NWL_BASE_URL}/who-is-applying`,
