@@ -48,7 +48,7 @@ const AccessRequestSubmittedPage: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">
-                Your account activation request has been submitted
+                Your request has been submitted
               </h1>
             </div>
 
@@ -59,7 +59,7 @@ const AccessRequestSubmittedPage: React.FC = () => {
             </p>
 
             <p className="govuk-body">
-              We will email you when your request has been reviewed.
+              We will email you when you request has been reviewed.
             </p>
 
             <h2 className="govuk-heading-m">If you need help</h2>

@@ -1,28 +1,64 @@
-# Dockerfile for frontend production build
+# ---------- Stage 1: Build ----------
 FROM public.ecr.aws/docker/library/node:18
 
 WORKDIR /app
+
+# Accept build arguments (only what Vite needs)
+ARG VITE_ENABLE_GA4=true
+ARG VITE_GA4_MEASUREMENT_ID="G-7NL7XSY1LV"
+ARG GTM_ID="GTM-P7VVP48J"
+ARG GTM_ISENABLED=true
+ARG VITE_DISABLE_TELEMETRY=false
+ARG VITE_SESSION_TIMEOUT_SECONDS=1800
+ARG VITE_SESSION_WARNING_SECONDS=120
+ARG VITE_LOGIN_DISABLED=false
+ARG VITE_DUMMY_USER_TYPE=developer
+ARG VITE_DISABLED_FORM_TYPES=wayleaves
+ARG VITE_SERVICE_NAME=SYEIA
+ARG VITE_DETAILED_FEEDBACK_SURVEY_URL="#"
+ARG VITE_RUM_APP_MONITOR_ID=""
+ARG VITE_RUM_IDENTITY_POOL_ID=""
+ARG VITE_AWS_REGION=eu-west-2
+
+# Set env variables for Vite build
+ENV VITE_ENABLE_GA4=$VITE_ENABLE_GA4
+ENV VITE_GA4_MEASUREMENT_ID=$VITE_GA4_MEASUREMENT_ID
+ENV GTM_ID=$GTM_ID
+ENV GTM_ISENABLED=$GTM_ISENABLED
+ENV VITE_DISABLE_TELEMETRY=$VITE_DISABLE_TELEMETRY
+ENV VITE_SESSION_TIMEOUT_SECONDS=$VITE_SESSION_TIMEOUT_SECONDS
+ENV VITE_SESSION_WARNING_SECONDS=$VITE_SESSION_WARNING_SECONDS
+ENV VITE_LOGIN_DISABLED=$VITE_LOGIN_DISABLED
+ENV VITE_DUMMY_USER_TYPE=$VITE_DUMMY_USER_TYPE
+ENV VITE_DISABLED_FORM_TYPES=$VITE_DISABLED_FORM_TYPES
+ENV VITE_SERVICE_NAME=$VITE_SERVICE_NAME
+ENV VITE_DETAILED_FEEDBACK_SURVEY_URL=$VITE_DETAILED_FEEDBACK_SURVEY_URL
+ENV VITE_RUM_APP_MONITOR_ID=$VITE_RUM_APP_MONITOR_ID
+ENV VITE_RUM_IDENTITY_POOL_ID=$VITE_RUM_IDENTITY_POOL_ID
+ENV VITE_AWS_REGION=$VITE_AWS_REGION
 
 # Install dependencies
 COPY package*.json ./
 RUN npm ci
 
-# Copy source files and serve.json config
+# Copy app source
 COPY . .
 
-# Build production files
+# Build the app
 RUN npm run build
 
-# Install serve globally for production serving
+
+
+# Install lightweight static server
 RUN npm install -g serve
 
-# Create /frontend path structure for production (matches test-production.ps1)
+# Copy built app from builder
 RUN mkdir -p dist-serve/frontend && \
     cp -r dist/* dist-serve/frontend/ && \
     rm -rf dist node_modules src public .git
 
+# Expose port
 EXPOSE 5173
 
-# Serve using serve.json config (same as test-production.ps1)
-# serve.json has "public": "dist-serve" to serve from dist-serve root
+# Start app
 CMD ["serve", "-l", "5173", "-c", "serve.json"]
