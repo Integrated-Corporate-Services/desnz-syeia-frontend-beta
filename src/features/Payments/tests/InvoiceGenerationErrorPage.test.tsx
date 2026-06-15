@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import InvoiceGenerationErrorPage from './InvoiceGenerationErrorPage';
+import InvoiceGenerationErrorPage from '../pages/InvoiceGenerationErrorPage';
 
 const navigateMock = vi.fn();
 const mockUseLocationState: { pathname: string; state: Record<string, unknown> } = {
