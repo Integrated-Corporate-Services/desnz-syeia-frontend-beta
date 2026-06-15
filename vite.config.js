@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
         plugins: [react()],
         css: {
             lightningcss: {
-                errorRecovery: true  // Strip old IE hacks from govuk-frontend CSS
+                errorRecovery: true 
             },
             preprocessorOptions: {
                 scss: {
