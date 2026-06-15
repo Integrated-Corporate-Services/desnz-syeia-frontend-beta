@@ -1,6 +1,6 @@
 const isDev = import.meta.env.DEV;
 const mode = import.meta.env.MODE;
-const isDevelopment = isDev || mode === "local";
+const isDevelopment = true; //isDev || mode === 'local' || mode === 'development';
 
 class Logger {
   private context: string;

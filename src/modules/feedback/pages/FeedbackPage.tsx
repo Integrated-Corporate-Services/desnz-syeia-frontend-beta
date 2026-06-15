@@ -126,9 +126,8 @@ export default function FeedbackPage() {
             <a
               href={DETAILED_SURVEY_URL}
               className="govuk-link"
-              {...(DETAILED_SURVEY_URL !== '#'
-                ? { target: '_blank', rel: 'noopener noreferrer' }
-                : {})}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               {CONTENT.pageIntroDetailedSurveyLink}
             </a>
