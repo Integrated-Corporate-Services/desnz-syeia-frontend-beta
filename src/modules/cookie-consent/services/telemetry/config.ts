@@ -37,21 +37,21 @@ const DEFAULT_GA4_MEASUREMENT_ID = 'G-7NL7XSY1LV';
 const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
   local: {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: 'GTM-P7VVP48J',
+    gtmId: 'GTM-W26LH6MJ',
     enableGA4: true,
     enableGTM: true,
     debugMode: true,
   },
   development: {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: 'GTM-P7VVP48J',
+    gtmId: 'GTM-W26LH6MJ',
     enableGA4: true,
     enableGTM: true,
     debugMode: true,
   },
   staging: {
     ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: 'GTM-P7VVP48J',
+    gtmId: 'GTM-W26LH6MJ',
     enableGA4: true,
     enableGTM: true,
     debugMode: false,
