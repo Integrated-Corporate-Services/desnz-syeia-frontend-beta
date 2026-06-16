@@ -5,6 +5,7 @@ import RadioGroup from '../../../components/commonFormFields/RadioGroup';
 import { captureSourcePage } from '../utils/capture-source.util';
 import { extractFeedbackSourceMetadata } from '../utils/extract-feedback-source.util';
 import FeedbackConfirmation from '../components/FeedbackConfirmation';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
 import {
   CONTENT,
   DETAILED_SURVEY_URL,
@@ -18,6 +19,8 @@ import {
 } from '../constants/feedback.constants';
 
 export default function FeedbackPage() {
+  const { user } = useAuthUserContext();
+  
   const [sourceMetadata] = useState(() => {
     const sourcePath = captureSourcePage();
     if (!sourcePath) return undefined;
@@ -62,7 +65,18 @@ export default function FeedbackPage() {
 
   return (
     <>
-      {/* Feedback is a public page - no breadcrumb needed */}
+      {/* Show breadcrumb only for authenticated users */}
+      {user && (
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+          <ol className="govuk-breadcrumbs__list">
+            <li className="govuk-breadcrumbs__list-item">
+              <Link className="govuk-breadcrumbs__link" to="/application-dashboard">
+                {CONTENT.breadcrumbHome}
+              </Link>
+            </li>
+          </ol>
+        </nav>
+      )}
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">

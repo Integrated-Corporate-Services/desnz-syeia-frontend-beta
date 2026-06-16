@@ -24,7 +24,6 @@ const ServiceNavigation = () => {
         "/tlp-guidance",
         "/access-revoked",
         "/signed-out",
-        "/feedback", // Hide navigation on feedback page - it's a public page
     ];
 
     // Check if user is in registration/access request flow
@@ -46,6 +45,8 @@ const ServiceNavigation = () => {
         location.pathname.includes("/user-management");
 
     if (hideNavPaths.includes(location.pathname)) return null;
+
+    if (location.pathname === "/feedback" && !user) return null;
 
     // Check if user has admin role (DTC or DESNZ Admin)
     const isAdmin =
