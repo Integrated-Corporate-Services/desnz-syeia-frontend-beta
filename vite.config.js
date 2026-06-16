@@ -6,6 +6,11 @@ export default defineConfig(({ mode }) => {
     return {
         base: '/frontend',
         plugins: [react()],
+        build: {
+            target: 'esnext',
+            minify: 'esbuild',
+            cssMinify: false,
+        },
         css: {
             preprocessorOptions: {
                 scss: {
