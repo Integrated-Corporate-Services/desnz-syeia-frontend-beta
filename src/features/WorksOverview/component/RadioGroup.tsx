@@ -4,9 +4,10 @@ import { CommonInputProps } from '../../../types/form';
 
 interface RadioGroupProps extends CommonInputProps {
   hint?: string;
+  noChildren?: React.ReactNode;
 }
 
-const RadioGroup: React.FC<RadioGroupProps> = ({ id, name, label, value, error, onChange, options = [], children, hint }) => (
+const RadioGroup: React.FC<RadioGroupProps> = ({ id, name, label, value, error, onChange, options = [], children, noChildren, hint }) => (
   <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
     <fieldset className="govuk-fieldset">
       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">{label}</legend>
@@ -41,6 +42,11 @@ const RadioGroup: React.FC<RadioGroupProps> = ({ id, name, label, value, error, 
             {opt.value === 'yes' && value === 'yes' && children && (
               <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
                 {children}
+              </div>
+            )}
+            {opt.value === 'no' && value === 'no' && noChildren && (
+              <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
+                {noChildren}
               </div>
             )}
           </React.Fragment>

@@ -40,6 +40,15 @@ const initialState = {
 
 type FormErrors = Partial<Record<keyof typeof initialState, string>>;
 
+type AccessRouteBranch = 'existing' | 'proposed';
+
+const ACCESS_ROUTE_CATEGORIES: Record<AccessRouteBranch, string> = {
+  existing: FILE_CATEGORIES.WORKS_PRE_EXISTING_ACCESS_ROUTES,
+  proposed: FILE_CATEGORIES.WORKS_PROPOSED_ACCESS_ROUTES,
+};
+
+const LEGACY_ACCESS_ROUTE_CATEGORY = FILE_CATEGORIES.WORKS_ACCESS_ROUTES;
+
 const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -47,8 +56,10 @@ const WorksOverview: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
-  const [pendingAccessRouteFiles, setPendingAccessRouteFiles] = useState<File[]>([]);
-  const accessRouteFileUploadRef = useRef<FileUploadHandle>(null);
+  const [pendingPreExistingAccessRouteFiles, setPendingPreExistingAccessRouteFiles] = useState<File[]>([]);
+  const [pendingProposedAccessRouteFiles, setPendingProposedAccessRouteFiles] = useState<File[]>([]);
+  const preExistingAccessRouteUploadRef = useRef<FileUploadHandle>(null);
+  const proposedAccessRouteUploadRef = useRef<FileUploadHandle>(null);
   // Remove asset store usage for works overview
   const navigate = useNavigate();
   // Ref for first error field
@@ -228,9 +239,20 @@ const WorksOverview: React.FC = () => {
       return;
     }
 
-    if (accessRouteFileUploadRef.current && pendingAccessRouteFiles.length > 0) {
+    const activeUploadRef = form.usingExistingAccessRoutes === 'yes'
+      ? preExistingAccessRouteUploadRef
+      : proposedAccessRouteUploadRef;
+    const activePendingFiles = form.usingExistingAccessRoutes === 'yes'
+      ? pendingPreExistingAccessRouteFiles
+      : pendingProposedAccessRouteFiles;
+
+    if (activeUploadRef.current && activePendingFiles.length > 0) {
       try {
-        await accessRouteFileUploadRef.current.triggerUpload();
+        const uploadResult = await activeUploadRef.current.triggerUpload();
+        if (uploadResult.uploadedFiles.length > 0) {
+          setUploadedFiles(prev => [...prev, ...uploadResult.uploadedFiles]);
+          setApplicationDocuments(prev => [...prev, ...uploadResult.applicationDocuments]);
+        }
       } catch {
         setErrors({ accessRoutesDetails: 'Failed to upload access route files. Please try again.' });
         return;
@@ -286,6 +308,61 @@ const WorksOverview: React.FC = () => {
       }
       setErrors({ generalComments: errorMsg });
     }
+  };
+
+  const getAccessRouteFileData = (branch: AccessRouteBranch) => {
+    const branchCategories = branch === 'existing'
+      ? [ACCESS_ROUTE_CATEGORIES.existing, LEGACY_ACCESS_ROUTE_CATEGORY]
+      : [ACCESS_ROUTE_CATEGORIES.proposed];
+
+    const accessRouteDocuments = applicationDocuments.filter(
+      doc => branchCategories.includes(doc.category)
+    );
+    const accessRouteFileIds = new Set(accessRouteDocuments.map(doc => doc.fileId));
+    const accessRouteUploadedFiles = uploadedFiles.filter(file => accessRouteFileIds.has(file.id));
+    return {
+      accessRouteDocuments,
+      accessRouteUploadedFiles,
+      category: ACCESS_ROUTE_CATEGORIES[branch],
+    };
+  };
+
+  const renderAccessRouteUpload = (branch: AccessRouteBranch, uploadLabel: string) => {
+    const { accessRouteDocuments, accessRouteUploadedFiles, category } = getAccessRouteFileData(branch);
+    const hasUploadedDocuments = accessRouteUploadedFiles.length > 0;
+    const uploadRef = branch === 'existing' ? preExistingAccessRouteUploadRef : proposedAccessRouteUploadRef;
+    const onPendingFilesChange = branch === 'existing'
+      ? setPendingPreExistingAccessRouteFiles
+      : setPendingProposedAccessRouteFiles;
+
+    return (
+      <div className="govuk-form-group" style={{ maxWidth: 600 }}>
+        {hasUploadedDocuments && (
+          <h3 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h3>
+        )}
+        <FileUpload
+          ref={uploadRef}
+          title={uploadLabel}
+          showTitle={true}
+          showDocumentsHeading={false}
+          uploadImmediately={true}
+          prefix={`${effectiveApplicationId}/${category}`}
+          uploadedFiles={accessRouteUploadedFiles}
+          applicationDocuments={accessRouteDocuments}
+          applicationId={effectiveApplicationId}
+          category={category}
+          onUploaded={(newUploadedFiles, newDocuments) => {
+            setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
+            setApplicationDocuments(prev => [...prev, ...newDocuments]);
+          }}
+          onDeleteFile={(fileId) => {
+            setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+            setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+          }}
+          onPendingFilesChange={onPendingFilesChange}
+        />
+      </div>
+    );
   };
 
   return (
@@ -523,93 +600,38 @@ const WorksOverview: React.FC = () => {
             error={errors.usingExistingAccessRoutes}
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
-          />
-          {form.usingExistingAccessRoutes === 'yes' && (
-            <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
-              <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-                <TextArea
-                  id="accessRoutesDetails"
-                  name="accessRoutesDetails"
-                  label="Provide more details about the pre-existing access routes and storage sites"
-                  value={form.accessRoutesDetails}
-                  onChange={handleChange}
-                  maxLength={4000}
-                  showCount
-                  error={errors.accessRoutesDetails}
-                />
-              </div>
-              <div className="govuk-form-group" style={{ maxWidth: 600 }}>
-                <label className="govuk-label">
-                  Upload map and photos of pre-existing routes and storage sites
-                </label>
-                <div className="govuk-hint">
-                  You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.
+            noChildren={
+              <>
+                <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+                  <TextArea
+                    id="accessRoutesDetails"
+                    name="accessRoutesDetails"
+                    label="Provide more details about the proposed access routes and storage sites"
+                    value={form.accessRoutesDetails}
+                    onChange={handleChange}
+                    maxLength={4000}
+                    showCount
+                    error={errors.accessRoutesDetails}
+                  />
                 </div>
-                <FileUpload
-                  ref={accessRouteFileUploadRef}
-                  title=""
-                  showTitle={false}
-                  prefix={`${effectiveApplicationId}/${FILE_CATEGORIES.WORKS_ACCESS_ROUTES}`}
-                  uploadedFiles={uploadedFiles}
-                  applicationDocuments={applicationDocuments}
-                  applicationId={effectiveApplicationId}
-                  category={FILE_CATEGORIES.WORKS_ACCESS_ROUTES}
-                  onUploaded={(newUploadedFiles, newDocuments) => {
-                    setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
-                    setApplicationDocuments(prev => [...prev, ...newDocuments]);
-                  }}
-                  onDeleteFile={(fileId) => {
-                    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
-                    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
-                  }}
-                  onPendingFilesChange={setPendingAccessRouteFiles}
-                />
-              </div>
+                {renderAccessRouteUpload('proposed', 'Upload map and photos of proposed routes and storage sites')}
+              </>
+            }
+          >
+            <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+              <TextArea
+                id="accessRoutesDetails"
+                name="accessRoutesDetails"
+                label="Provide more details about the pre-existing access routes and storage sites"
+                value={form.accessRoutesDetails}
+                onChange={handleChange}
+                maxLength={4000}
+                showCount
+                error={errors.accessRoutesDetails}
+              />
             </div>
-          )}
-          {form.usingExistingAccessRoutes === 'no' && (
-            <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
-              <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-                <TextArea
-                  id="accessRoutesDetails"
-                  name="accessRoutesDetails"
-                  label="Provide more details about the proposed access routes and storage sites"
-                  value={form.accessRoutesDetails}
-                  onChange={handleChange}
-                  maxLength={4000}
-                  showCount
-                  error={errors.accessRoutesDetails}
-                />
-              </div>
-              <div className="govuk-form-group" style={{ maxWidth: 600 }}>
-                <label className="govuk-label">
-                  Upload map and photos of proposed routes and storage sites
-                </label>
-                <div className="govuk-hint">
-                  You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.
-                </div>
-                <FileUpload
-                  ref={accessRouteFileUploadRef}
-                  title=""
-                  showTitle={false}
-                  prefix={`${effectiveApplicationId}/${FILE_CATEGORIES.WORKS_ACCESS_ROUTES}`}
-                  uploadedFiles={uploadedFiles}
-                  applicationDocuments={applicationDocuments}
-                  applicationId={effectiveApplicationId}
-                  category={FILE_CATEGORIES.WORKS_ACCESS_ROUTES}
-                  onUploaded={(newUploadedFiles, newDocuments) => {
-                    setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
-                    setApplicationDocuments(prev => [...prev, ...newDocuments]);
-                  }}
-                  onDeleteFile={(fileId) => {
-                    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
-                    setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
-                  }}
-                  onPendingFilesChange={setPendingAccessRouteFiles}
-                />
-              </div>
-            </div>
-          )}
+            {renderAccessRouteUpload('existing', 'Upload map and photos of pre-existing routes and storage sites')}
+          </RadioGroup>
         </div>
 
         {/* Removing existing equipment */}

@@ -513,9 +513,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   return (
     <div className="gds-upload-container" tabIndex={-1}>
       {/* Documents Uploaded Section - Show uploaded files first */}
-      {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
+      {Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
-          {/* <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2> */}
+          {showDocumentsHeading && (
+            <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2>
+          )}
           <table className="govuk-table">
             <tbody className="govuk-table__body">
               {uploadedFiles.map((file: UploadedFile, idx: number) => (
