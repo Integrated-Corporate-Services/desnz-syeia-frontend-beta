@@ -269,7 +269,7 @@ const WorksOverview: React.FC = () => {
     }
 
     const uploadPendingFiles = async (
-      uploadRef: React.RefObject<FileUploadHandle>,
+      uploadRef: React.RefObject<FileUploadHandle | null>,
       pendingFiles: File[]
     ) => {
       if (uploadRef.current && pendingFiles.length > 0) {
@@ -360,7 +360,7 @@ const WorksOverview: React.FC = () => {
   const renderWorksFileUpload = (
     categories: string[],
     storageCategory: string,
-    uploadRef: React.RefObject<FileUploadHandle>,
+    uploadRef: React.RefObject<FileUploadHandle | null>,
     uploadLabel: string,
     onPendingFilesChange: (files: File[]) => void,
   ) => {
