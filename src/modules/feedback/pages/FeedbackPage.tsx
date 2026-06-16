@@ -65,8 +65,8 @@ export default function FeedbackPage() {
 
   return (
     <>
-      {/* Show breadcrumb only for authenticated users */}
-      {user && (
+      
+      {user && user.role !== "pending" && (
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">

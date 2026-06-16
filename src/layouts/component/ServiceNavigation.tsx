@@ -46,7 +46,7 @@ const ServiceNavigation = () => {
 
     if (hideNavPaths.includes(location.pathname)) return null;
 
-    if (location.pathname === "/feedback" && !user) return null;
+    if (location.pathname === "/feedback" && (!user || (user as AuthUser)?.role === "pending")) return null;
 
     // Check if user has admin role (DTC or DESNZ Admin)
     const isAdmin =
