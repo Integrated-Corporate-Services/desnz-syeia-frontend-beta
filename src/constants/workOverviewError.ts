@@ -23,6 +23,7 @@ export const WORKS_OVERVIEW_VALIDATION_MESSAGES = {
   ESTIMATED_DURATION_REQUIRED: 'Enter an estimate of the duration',
   VEHICLES_REQUIRED_REQUIRED: 'Enter a list of vehicles required on site',
   ROAD_CLOSURES_REQUIRED: "Select 'Yes' or 'No'",
+  ROAD_CLOSURES_DETAILS_REQUIRED: 'Enter details of the road closures, lane closures, temporary traffic lights, road, times, duration',
   
   // Excavation section
   EXCAVATION_REQUIRED: "Select 'Yes' or 'No'",

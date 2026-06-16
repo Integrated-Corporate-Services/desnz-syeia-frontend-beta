@@ -27,6 +27,7 @@ const initialState = {
   estimatedDuration: '',
   vehiclesRequired: '',
   roadClosuresRequired: '',
+  roadClosuresDetails: '',
   excavationRequired: '',
   excavationDetails: '',
   vegetationClearanceRequired: '',
@@ -49,6 +50,23 @@ const ACCESS_ROUTE_CATEGORIES: Record<AccessRouteBranch, string> = {
 
 const LEGACY_ACCESS_ROUTE_CATEGORY = FILE_CATEGORIES.WORKS_ACCESS_ROUTES;
 
+const ROAD_CLOSURES_DETAILS_LABEL =
+  'Please provide details of the road closures, some helpful hint text, road, times, duration ';
+
+/** Expected labels from Works Overview design screenshot (SYEIA-1891) */
+const SCREENSHOT_LABELS = {
+  chemicalCoatings: 'Are any chemical coatings proposed?',
+  polesReplacing: 'How many poles are you replacing?',
+  tallestNewPole: 'What height is the tallest new pole? If none, enter 0.',
+  excavationHint: 'For example: hedgerow removal or tree lopping',
+  vegetationHint: 'For example: hedgerow removal or tree lopping',
+  roadClosuresUpload: 'Upload any documents related to discussions with the highway authority.',
+  accessRouteExistingUpload: 'Upload map and photos of the access route.',
+  accessRouteProposedDetails: 'Provide more details about the proposed access routes and storage sites?',
+  accessRouteExistingDetails: 'Provide more details about the pre-existing access routes and storage sites?',
+  accessRouteProposedUpload: 'Upload map and photos of proposed routes and storage sites.',
+} as const;
+
 const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -58,8 +76,10 @@ const WorksOverview: React.FC = () => {
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingPreExistingAccessRouteFiles, setPendingPreExistingAccessRouteFiles] = useState<File[]>([]);
   const [pendingProposedAccessRouteFiles, setPendingProposedAccessRouteFiles] = useState<File[]>([]);
+  const [pendingRoadClosureFiles, setPendingRoadClosureFiles] = useState<File[]>([]);
   const preExistingAccessRouteUploadRef = useRef<FileUploadHandle>(null);
   const proposedAccessRouteUploadRef = useRef<FileUploadHandle>(null);
+  const roadClosuresUploadRef = useRef<FileUploadHandle>(null);
   // Remove asset store usage for works overview
   const navigate = useNavigate();
   // Ref for first error field
@@ -107,6 +127,7 @@ const WorksOverview: React.FC = () => {
               estimatedDuration: data.estimatedDuration || '',
               vehiclesRequired: data.vehiclesRequired || '',
               roadClosuresRequired: data.roadClosuresRequired ? 'yes' : 'no',
+              roadClosuresDetails: data.roadClosuresDetails || '',
               excavationRequired: data.excavationRequired ? 'yes' : 'no',
               excavationDetails: data.excavationDetails || '',
               vegetationClearanceRequired: data.vegetationClearanceRequired ? 'yes' : 'no',
@@ -171,12 +192,8 @@ const WorksOverview: React.FC = () => {
         newErrors.polesReplaced = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_REPLACED_FORMAT;
       }
       
-      // Validate poleComments
-      if (!data.poleComments.trim()) {
-        newErrors.poleComments = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLE_COMMENTS_REQUIRED;
-      }
+      // poleComments is optional
 
-      // Validate tallestNewPoleHeight
       if (!data.tallestNewPoleHeight.trim()) {
         newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_REQUIRED;
       } else {
@@ -193,13 +210,25 @@ const WorksOverview: React.FC = () => {
         }
       }
     }
+    if (!data.estimatedDuration.trim()) {
+      newErrors.estimatedDuration = WORKS_OVERVIEW_VALIDATION_MESSAGES.ESTIMATED_DURATION_REQUIRED;
+    }
+    if (!data.vehiclesRequired.trim()) {
+      newErrors.vehiclesRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEHICLES_REQUIRED_REQUIRED;
+    }
     if (!data.addingOrReplacingLines) {
       newErrors.addingOrReplacingLines = WORKS_OVERVIEW_VALIDATION_MESSAGES.ADDING_OR_REPLACING_LINES_REQUIRED;
     } else if (data.addingOrReplacingLines === 'yes') {
-      if (!data.overheadLineDescription.trim()) newErrors.overheadLineDescription = WORKS_OVERVIEW_VALIDATION_MESSAGES.OVERHEAD_LINE_DESCRIPTION_REQUIRED;
-      if (!data.estimatedDuration.trim()) newErrors.estimatedDuration = WORKS_OVERVIEW_VALIDATION_MESSAGES.ESTIMATED_DURATION_REQUIRED;
-      if (!data.vehiclesRequired.trim()) newErrors.vehiclesRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEHICLES_REQUIRED_REQUIRED;
-      if (!data.roadClosuresRequired) newErrors.roadClosuresRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.ROAD_CLOSURES_REQUIRED;
+      if (!data.overheadLineDescription.trim()) {
+        newErrors.overheadLineDescription = WORKS_OVERVIEW_VALIDATION_MESSAGES.OVERHEAD_LINE_DESCRIPTION_REQUIRED;
+      }
+    }
+    if (!data.roadClosuresRequired) {
+      newErrors.roadClosuresRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.ROAD_CLOSURES_REQUIRED;
+    } else if (data.roadClosuresRequired === 'yes') {
+      if (!data.roadClosuresDetails.trim()) {
+        newErrors.roadClosuresDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.ROAD_CLOSURES_DETAILS_REQUIRED;
+      }
     }
     if (!data.excavationRequired) {
       newErrors.excavationRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.EXCAVATION_REQUIRED;
@@ -239,24 +268,34 @@ const WorksOverview: React.FC = () => {
       return;
     }
 
-    const activeUploadRef = form.usingExistingAccessRoutes === 'yes'
-      ? preExistingAccessRouteUploadRef
-      : proposedAccessRouteUploadRef;
-    const activePendingFiles = form.usingExistingAccessRoutes === 'yes'
-      ? pendingPreExistingAccessRouteFiles
-      : pendingProposedAccessRouteFiles;
-
-    if (activeUploadRef.current && activePendingFiles.length > 0) {
-      try {
-        const uploadResult = await activeUploadRef.current.triggerUpload();
+    const uploadPendingFiles = async (
+      uploadRef: React.RefObject<FileUploadHandle>,
+      pendingFiles: File[]
+    ) => {
+      if (uploadRef.current && pendingFiles.length > 0) {
+        const uploadResult = await uploadRef.current.triggerUpload();
         if (uploadResult.uploadedFiles.length > 0) {
           setUploadedFiles(prev => [...prev, ...uploadResult.uploadedFiles]);
           setApplicationDocuments(prev => [...prev, ...uploadResult.applicationDocuments]);
         }
-      } catch {
-        setErrors({ accessRoutesDetails: 'Failed to upload access route files. Please try again.' });
-        return;
       }
+    };
+
+    try {
+      if (form.roadClosuresRequired === 'yes') {
+        await uploadPendingFiles(roadClosuresUploadRef, pendingRoadClosureFiles);
+      }
+
+      const activeUploadRef = form.usingExistingAccessRoutes === 'yes'
+        ? preExistingAccessRouteUploadRef
+        : proposedAccessRouteUploadRef;
+      const activePendingFiles = form.usingExistingAccessRoutes === 'yes'
+        ? pendingPreExistingAccessRouteFiles
+        : pendingProposedAccessRouteFiles;
+      await uploadPendingFiles(activeUploadRef, activePendingFiles);
+    } catch {
+      setErrors({ generalComments: 'Failed to upload files. Please try again.' });
+      return;
     }
 
     // Map form data to backend expected payload: { applicationId, worksOverview: { ...fields... } }
@@ -275,6 +314,7 @@ const WorksOverview: React.FC = () => {
       estimatedDuration: form.estimatedDuration || '',
       vehiclesRequired: form.vehiclesRequired || '',
       roadClosuresRequired: form.roadClosuresRequired === 'yes',
+      roadClosuresDetails: form.roadClosuresDetails || '',
       excavationRequired: form.excavationRequired === 'yes',
       excavationDetails: form.excavationDetails || '',
       vegetationClearanceRequired: form.vegetationClearanceRequired === 'yes',
@@ -310,30 +350,22 @@ const WorksOverview: React.FC = () => {
     }
   };
 
-  const getAccessRouteFileData = (branch: AccessRouteBranch) => {
-    const branchCategories = branch === 'existing'
-      ? [ACCESS_ROUTE_CATEGORIES.existing, LEGACY_ACCESS_ROUTE_CATEGORY]
-      : [ACCESS_ROUTE_CATEGORIES.proposed];
-
-    const accessRouteDocuments = applicationDocuments.filter(
-      doc => branchCategories.includes(doc.category)
-    );
-    const accessRouteFileIds = new Set(accessRouteDocuments.map(doc => doc.fileId));
-    const accessRouteUploadedFiles = uploadedFiles.filter(file => accessRouteFileIds.has(file.id));
-    return {
-      accessRouteDocuments,
-      accessRouteUploadedFiles,
-      category: ACCESS_ROUTE_CATEGORIES[branch],
-    };
+  const getFilesForCategory = (categories: string[]) => {
+    const docs = applicationDocuments.filter(doc => categories.includes(doc.category));
+    const fileIds = new Set(docs.map(doc => doc.fileId));
+    const files = uploadedFiles.filter(file => fileIds.has(file.id));
+    return { docs, files };
   };
 
-  const renderAccessRouteUpload = (branch: AccessRouteBranch, uploadLabel: string) => {
-    const { accessRouteDocuments, accessRouteUploadedFiles, category } = getAccessRouteFileData(branch);
-    const hasUploadedDocuments = accessRouteUploadedFiles.length > 0;
-    const uploadRef = branch === 'existing' ? preExistingAccessRouteUploadRef : proposedAccessRouteUploadRef;
-    const onPendingFilesChange = branch === 'existing'
-      ? setPendingPreExistingAccessRouteFiles
-      : setPendingProposedAccessRouteFiles;
+  const renderWorksFileUpload = (
+    categories: string[],
+    storageCategory: string,
+    uploadRef: React.RefObject<FileUploadHandle>,
+    uploadLabel: string,
+    onPendingFilesChange: (files: File[]) => void,
+  ) => {
+    const { docs: categoryDocuments, files: categoryUploadedFiles } = getFilesForCategory(categories);
+    const hasUploadedDocuments = categoryUploadedFiles.length > 0;
 
     return (
       <div className="govuk-form-group" style={{ maxWidth: 600 }}>
@@ -346,11 +378,11 @@ const WorksOverview: React.FC = () => {
           showTitle={true}
           showDocumentsHeading={false}
           uploadImmediately={true}
-          prefix={`${effectiveApplicationId}/${category}`}
-          uploadedFiles={accessRouteUploadedFiles}
-          applicationDocuments={accessRouteDocuments}
+          prefix={`${effectiveApplicationId}/${storageCategory}`}
+          uploadedFiles={categoryUploadedFiles}
+          applicationDocuments={categoryDocuments}
           applicationId={effectiveApplicationId}
-          category={category}
+          category={storageCategory}
           onUploaded={(newUploadedFiles, newDocuments) => {
             setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
             setApplicationDocuments(prev => [...prev, ...newDocuments]);
@@ -364,6 +396,32 @@ const WorksOverview: React.FC = () => {
       </div>
     );
   };
+
+  const renderAccessRouteUpload = (branch: AccessRouteBranch, uploadLabel: string) => {
+    const categories = branch === 'existing'
+      ? [ACCESS_ROUTE_CATEGORIES.existing, LEGACY_ACCESS_ROUTE_CATEGORY]
+      : [ACCESS_ROUTE_CATEGORIES.proposed];
+    const uploadRef = branch === 'existing' ? preExistingAccessRouteUploadRef : proposedAccessRouteUploadRef;
+    const onPendingFilesChange = branch === 'existing'
+      ? setPendingPreExistingAccessRouteFiles
+      : setPendingProposedAccessRouteFiles;
+
+    return renderWorksFileUpload(
+      categories,
+      ACCESS_ROUTE_CATEGORIES[branch],
+      uploadRef,
+      uploadLabel,
+      onPendingFilesChange,
+    );
+  };
+
+  const renderRoadClosuresUpload = () => renderWorksFileUpload(
+    [FILE_CATEGORIES.WORKS_ROAD_CLOSURES],
+    FILE_CATEGORIES.WORKS_ROAD_CLOSURES,
+    roadClosuresUploadRef,
+    SCREENSHOT_LABELS.roadClosuresUpload,
+    setPendingRoadClosureFiles,
+  );
 
   return (
   <div className="govuk-width-container">
@@ -415,7 +473,7 @@ const WorksOverview: React.FC = () => {
               <TextInput
                 id="poleMaterial"
                 name="poleMaterial"
-                label="What materials will be used for the new poles/pylons?"
+                label="What materials will be used for the new poles or pylons?"
                 value={form.poleMaterial}
                 onChange={handleChange}
                 error={errors.poleMaterial}
@@ -425,7 +483,7 @@ const WorksOverview: React.FC = () => {
               <TextInput
                 id="chemicalTreatments"
                 name="chemicalTreatments"
-                label="Are any chemical treatments proposed?"
+                label={SCREENSHOT_LABELS.chemicalCoatings}
                 value={form.chemicalTreatments}
                 onChange={handleChange}
                 error={errors.chemicalTreatments}
@@ -445,7 +503,7 @@ const WorksOverview: React.FC = () => {
               <NumberInput
                 id="polesReplaced"
                 name="polesReplaced"
-                label="How many are you replacing?"
+                label={SCREENSHOT_LABELS.polesReplacing}
                 value={form.polesReplaced}
                 onChange={handleChange}
                 error={errors.polesReplaced}
@@ -455,8 +513,7 @@ const WorksOverview: React.FC = () => {
               <NumberInput
                 id="tallestNewPoleHeight"
                 name="tallestNewPoleHeight"
-                label="What is the height of the tallest new pole?"
-                hint="If none, enter 0."
+                label={SCREENSHOT_LABELS.tallestNewPole}
                 suffix="metres"
                 value={form.tallestNewPoleHeight}
                 onChange={handleChange}
@@ -467,7 +524,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="poleComments"
                 name="poleComments"
-                label="Comments on poles being added or replaced"
+                label="Comments on poles being added or replaced (optional)"
                 value={form.poleComments}
                 onChange={handleChange}
                 maxLength={4000}
@@ -489,12 +546,11 @@ const WorksOverview: React.FC = () => {
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <h3 className="govuk-heading-s">Provide a description of the overhead lines that you are adding or replacing</h3>
             <div className={`govuk-form-group${errors.overheadLineDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
                 id="overheadLineDescription"
                 name="overheadLineDescription"
-                label="Description of the overhead lines"
+                label="Provide a description of the overhead lines that you are adding or replacing"
                 value={form.overheadLineDescription}
                 onChange={handleChange}
                 error={errors.overheadLineDescription}
@@ -502,37 +558,54 @@ const WorksOverview: React.FC = () => {
                 showCount
               />
             </div>
-            <div className={`govuk-form-group${errors.estimatedDuration ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <TextInput
-                id="estimatedDuration"
-                name="estimatedDuration"
-                label="Estimated duration of the works"
-                value={form.estimatedDuration}
+          </RadioGroup>
+        </div>
+
+        <div className={`govuk-form-group${errors.estimatedDuration ? ' govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} style={{ maxWidth: 600 }}>
+          <TextInput
+            id="estimatedDuration"
+            name="estimatedDuration"
+            label="What is the estimated duration of the works?"
+            value={form.estimatedDuration}
+            onChange={handleChange}
+            error={errors.estimatedDuration}
+          />
+        </div>
+
+        <div className={`govuk-form-group${errors.vehiclesRequired ? ' govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} style={{ maxWidth: 600 }}>
+          <TextInput
+            id="vehiclesRequired"
+            name="vehiclesRequired"
+            label="What vehicles will be required on site?"
+            value={form.vehiclesRequired}
+            onChange={handleChange}
+            error={errors.vehiclesRequired}
+          />
+        </div>
+
+        <div className="govuk-!-margin-bottom-6">
+          <RadioGroup
+            id="roadClosuresRequired"
+            label="Will any road closures or traffic calming measures be required?"
+            name="roadClosuresRequired"
+            value={form.roadClosuresRequired}
+            error={errors.roadClosuresRequired}
+            onChange={handleChange}
+            options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
+          >
+            <div style={{ maxWidth: 600 }}>
+              <TextArea
+                id="roadClosuresDetails"
+                name="roadClosuresDetails"
+                label={ROAD_CLOSURES_DETAILS_LABEL}
+                value={form.roadClosuresDetails}
                 onChange={handleChange}
-                error={errors.estimatedDuration}
+                maxLength={4000}
+                showCount
+                error={errors.roadClosuresDetails}
               />
             </div>
-            <div className={`govuk-form-group${errors.vehiclesRequired ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <TextInput
-                id="vehiclesRequired"
-                name="vehiclesRequired"
-                label="Vehicles required on site"
-                value={form.vehiclesRequired}
-                onChange={handleChange}
-                error={errors.vehiclesRequired}
-              />
-            </div>
-            <div className={`govuk-form-group${errors.roadClosuresRequired ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
-              <RadioGroup
-                id="roadClosuresRequired"
-                label="Will any road closures or traffic calming measures be required?"
-                name="roadClosuresRequired"
-                value={form.roadClosuresRequired}
-                error={errors.roadClosuresRequired}
-                onChange={handleChange}
-                options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
-              />
-            </div>
+            {renderRoadClosuresUpload()}
           </RadioGroup>
         </div>
 
@@ -543,6 +616,7 @@ const WorksOverview: React.FC = () => {
           <RadioGroup
             id="excavationRequired"
             label="Are excavation works required?"
+            hint={SCREENSHOT_LABELS.excavationHint}
             name="excavationRequired"
             value={form.excavationRequired}
             error={errors.excavationRequired}
@@ -553,7 +627,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="excavationDetails"
                 name="excavationDetails"
-                label="Provide more details about the excavation works"
+                label="Provide more details about the excavation work"
                 value={form.excavationDetails}
                 onChange={handleChange}
                 maxLength={4000}
@@ -569,6 +643,7 @@ const WorksOverview: React.FC = () => {
           <RadioGroup
             id="vegetationClearanceRequired"
             label="Is vegetation clearance required?"
+            hint={SCREENSHOT_LABELS.vegetationHint}
             name="vegetationClearanceRequired"
             value={form.vegetationClearanceRequired}
             error={errors.vegetationClearanceRequired}
@@ -606,7 +681,7 @@ const WorksOverview: React.FC = () => {
                   <TextArea
                     id="accessRoutesDetails"
                     name="accessRoutesDetails"
-                    label="Provide more details about the proposed access routes and storage sites"
+                    label={SCREENSHOT_LABELS.accessRouteProposedDetails}
                     value={form.accessRoutesDetails}
                     onChange={handleChange}
                     maxLength={4000}
@@ -614,7 +689,7 @@ const WorksOverview: React.FC = () => {
                     error={errors.accessRoutesDetails}
                   />
                 </div>
-                {renderAccessRouteUpload('proposed', 'Upload map and photos of proposed routes and storage sites')}
+                {renderAccessRouteUpload('proposed', SCREENSHOT_LABELS.accessRouteProposedUpload)}
               </>
             }
           >
@@ -622,7 +697,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="accessRoutesDetails"
                 name="accessRoutesDetails"
-                label="Provide more details about the pre-existing access routes and storage sites"
+                label={SCREENSHOT_LABELS.accessRouteExistingDetails}
                 value={form.accessRoutesDetails}
                 onChange={handleChange}
                 maxLength={4000}
@@ -630,7 +705,7 @@ const WorksOverview: React.FC = () => {
                 error={errors.accessRoutesDetails}
               />
             </div>
-            {renderAccessRouteUpload('existing', 'Upload map and photos of pre-existing routes and storage sites')}
+            {renderAccessRouteUpload('existing', SCREENSHOT_LABELS.accessRouteExistingUpload)}
           </RadioGroup>
         </div>
 
@@ -638,7 +713,7 @@ const WorksOverview: React.FC = () => {
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="removingExistingEquipment"
-            label="Are you removing existing equipment?"
+            label="Are you removing any existing equipment as part of this project?"
             name="removingExistingEquipment"
             value={form.removingExistingEquipment}
             error={errors.removingExistingEquipment}
@@ -649,7 +724,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="removalDescription"
                 name="removalDescription"
-                label="Provide more details about the equipment removal"
+                label="Provide a description of the equipment you are removing"
                 value={form.removalDescription}
                 onChange={handleChange}
                 maxLength={4000}
@@ -675,6 +750,12 @@ const WorksOverview: React.FC = () => {
         </div>
 
         <button type="submit" className="govuk-button">Save and continue</button>
+        <Link
+          to={`${S37_BASE_URL}/${applicationId}/task-list`}
+          className="govuk-button govuk-button--secondary govuk-!-margin-left-2"
+        >
+          Save for later
+        </Link>
       </form>
     </main>
   </div>
