@@ -1,4 +1,4 @@
-import { getTelemetryConfig } from './config';
+import { getTelemetryConfig, getCurrentEnvironment } from './config';
 
 // HOTFIX: Lazy config loading - evaluates at runtime instead of build time
 let _config: ReturnType<typeof getTelemetryConfig> | null = null;
@@ -26,6 +26,7 @@ export function initGa4(): void {
   }
 
   console.log('[GA4] Initializing with ID:', MEASUREMENT_ID);
+  console.log('[GA4] Detected Environment:', getCurrentEnvironment());
 
   const script = document.createElement('script');
   script.id = 'ga4-script';
