@@ -24,11 +24,14 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
+import SensitiveAreaCheckSummaryRows from "../component/SensitiveAreaCheckSummaryRows";
+import SensitiveAreaReviewSummaryRows from "../component/SensitiveAreaReviewSummaryRows";
 import { normalizeWorksOverview } from "../utils/normalizeWorksOverview";
 import { createLogger } from "../../../utils/logger";
 
 import {
   SECTION_HEADINGS,
+  FIELD_LABELS,
   POST_CONSULTATION_QUESTIONS,
 } from '../constants/applicationSummaryLabels';
 
@@ -161,20 +164,6 @@ const CheckYourAnswers: React.FC = () => {
         {index < filteredFields.length - 1 && <br />}
       </React.Fragment>
     ));
-  };
-
-  // Helper function to map asset presence option ID to text
-  const getAssetPresenceText = (optionId?: number) => {
-    switch (optionId) {
-      case 1:
-        return "There are poles within the sensitive areas";
-      case 2:
-        return "All poles are outside of the sensitive areas with only the overhead lines passing above them";
-      case 3:
-        return "No poles are within a sensitive area and no overhead lines pass above them";
-      default:
-        return "-";
-    }
   };
 
   useEffect(() => {
@@ -1044,87 +1033,20 @@ const CheckYourAnswers: React.FC = () => {
               </div>
             )}
 
-            {/* Parishes summary card */}
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">Parishes</h2>
-                {/* {permissions?.canEdit && (
-                  <ul className="govuk-summary-card__actions">
-                    <li className="govuk-summary-card__action">
-                      <Link
-                        className="govuk-link"
-                        to={`${S37_BASE_URL}/${applicationId}/parishes`}
-                      >
-                        Change
-                        <span className="govuk-visually-hidden"> parishes</span>
-                      </Link>
-                    </li>
-                  </ul>
-                )} */}
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
-                  {parishes.length > 0 ? (
-                    parishes.map((parish, idx) => (
-                      <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
-                        <dt className="govuk-summary-list__key">Parish</dt>
-                        <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">Parishes</dt>
-                      <dd className="govuk-summary-list__value">-</dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            </div>
-
             {/* Sensitive area check summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
-                  Sensitive area check
+                  {SECTION_HEADINGS.SENSITIVE_AREA_CHECK}
                 </h2>
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Tolerance required
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof sensitiveAreaChecks?.tolerance_required ===
-                        "boolean"
-                        ? sensitiveAreaChecks.tolerance_required
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Tolerance</dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof sensitiveAreaChecks?.tolerance_value === "number"
-                        ? `${sensitiveAreaChecks.tolerance_value}m`
-                        : "-"}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Sensitive areas the route passes through
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      <ul className="govuk-list govuk-list--bullet">
-                        {layers.length > 0 ? (
-                          layers.map((layer, idx) => <li key={idx}>{layer}</li>)
-                        ) : (
-                          <li>-</li>
-                        )}
-                      </ul>
-                    </dd>
-                  </div>
+                  <SensitiveAreaCheckSummaryRows
+                    toleranceRequired={sensitiveAreaChecks?.tolerance_required}
+                    toleranceValue={sensitiveAreaChecks?.tolerance_value}
+                    layers={layers}
+                  />
                 </dl>
               </div>
             </div>
@@ -1132,107 +1054,45 @@ const CheckYourAnswers: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
-                  Sensitive area review
+                  {SECTION_HEADINGS.SENSITIVE_AREA_REVIEW}
                 </h2>
-                {/* {permissions?.canEdit && (
-                  <ul className="govuk-summary-card__actions">
-                    <li className="govuk-summary-card__action">
-                      <Link
-                        className="govuk-link"
-                        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review`}
-                      >
-                        Change
-                        <span className="govuk-visually-hidden">
-                          {" "}
-                          sensitive area review
-                        </span>
-                      </Link>
-                    </li>
-                  </ul>
-                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Other areas the route passes through
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {(() => {
-                        const selectedLayers = sensitiveAreaReview?.manual?.selected || [];
-                        const customAddedLayers = sensitiveAreaReview?.manual?.customAdded || [];
-                        const allManualLayers = [...selectedLayers, ...customAddedLayers];
-
-                        if (allManualLayers.length === 0) {
-                          return "-";
-                        }
-
-                        // Get unique layer names
-                        const uniqueLayerNames = Array.from(
-                          new Set(allManualLayers.map(layer => layer.layerName).filter(Boolean))
-                        );
-
-                        return (
-                          <ul className="govuk-list govuk-list--bullet">
-                            {uniqueLayerNames.map((layerName, index) => (
-                              <li key={index}>{layerName}</li>
-                            ))}
-                          </ul>
-                        );
-                      })()}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Environmental and archaeological documents
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      <ul className="govuk-list">
-                        {sensitiveAreaReview?.application_documents &&
-                          sensitiveAreaReview.application_documents.length > 0 ? (
-                          sensitiveAreaReview.application_documents.map((doc) => (
-                            <li key={doc.document_id}>
-                              <a
-                                href="#"
-                                className="govuk-link"
-                                onClick={async (e) => {
-                                  e.preventDefault();
-                                  // Use s3_key if available, otherwise file_id
-                                  const key = doc.s3_key || doc.file_id;
-                                  if (key) {
-                                    try {
-                                      await downloadS3FileOnSameTab(key);
-                                    } catch (error) {
-                                      logger.error('Failed to download file:', { error });
-                                    }
-                                  }
-                                }}
-                              >
-                                {doc.title}
-                              </a>
-                            </li>
-                          ))
-                        ) : (
-                          <li>-</li>
-                        )}
-                      </ul>
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Poles/lines within sensitive areas
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {getAssetPresenceText(
-                        sensitiveAreaReview?.asset_presence_option_id,
-                      )}
-                    </dd>
-                  </div>
+                  <SensitiveAreaReviewSummaryRows
+                    assetPresenceOptionId={sensitiveAreaReview?.asset_presence_option_id}
+                    applicationDocuments={sensitiveAreaReview?.application_documents}
+                    manual={sensitiveAreaReview?.manual}
+                  />
                 </dl>
               </div>
             </div>
 
-            <h2 className="govuk-heading-m">Supporting information</h2>
+            {/* Parishes summary card */}
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">{FIELD_LABELS.PARISHES}</h2>
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  {parishes.length > 0 ? (
+                    parishes.map((parish, idx) => (
+                      <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
+                        <dt className="govuk-summary-list__key">{FIELD_LABELS.PARISH}</dt>
+                        <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">{FIELD_LABELS.PARISHES}</dt>
+                      <dd className="govuk-summary-list__value">-</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            </div>
+
+            <h2 className="govuk-heading-m">{SECTION_HEADINGS.SUPPORTING_INFORMATION}</h2>
             {/* Supporting information summary card - fixed to use state variables and map correct questions/answers */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">

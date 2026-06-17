@@ -16,7 +16,7 @@ export const CONTENT = {
     infoDetailsSummary: "What type of information should be provided",
     infoDetailsText: "You need to explain why this consent is needed. Include information about any wider projects it is related to, a summary of what work is being done and why.",
     tallestPoleHeight: "What is the height of the tallest existing pole?",
-    tallestPoleHeightHint: "Enter 0 metres where no existing poles are present.",
+    tallestPoleHeightHint: '"0 metres" should be entered where no existing poles are present',
     tallestPoleHeightSuffix: "metres",
     planReference: "Plan reference",
     workStartDatesKnown: "Do you know when you are intending to start work on this development?",

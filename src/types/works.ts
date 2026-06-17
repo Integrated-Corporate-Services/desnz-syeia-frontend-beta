@@ -40,6 +40,7 @@ export interface WorksOverviewAsset {
 	estimatedDuration: string;
 	vehiclesRequired: string;
 	roadClosuresRequired: boolean;
+	roadClosuresDetails: string;
 	excavationRequired: boolean;
 	excavationDetails: string;
 	vegetationClearanceRequired: boolean;

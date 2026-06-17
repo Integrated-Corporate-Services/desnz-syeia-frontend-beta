@@ -1,7 +1,7 @@
 import React from 'react';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
-import { WORKS_OVERVIEW_QUESTIONS } from '../constants/applicationSummaryLabels';
+import { WORKS_OVERVIEW_QUESTIONS } from '../../../constants/worksOverviewLabels';
 import { isNo, isYes } from '../utils/normalizeWorksOverview';
 import { WorksOverview, WorksOverviewDocument } from './ApplicationSubmit.types';
 
@@ -9,6 +9,11 @@ const yesNoValue = (value: unknown) => {
   if (isYes(value)) return 'Yes';
   if (isNo(value)) return 'No';
   return '-';
+};
+
+const formatCountValue = (value: number | string | undefined | null) => {
+  if (value === undefined || value === null || value === '') return '-';
+  return String(value);
 };
 
 const getDocumentsByCategories = (
@@ -84,15 +89,11 @@ const WorksOverviewSummaryRows: React.FC<WorksOverviewSummaryRowsProps> = ({ wor
           </div>
           <div className="govuk-summary-list__row">
             <dt className="govuk-summary-list__key">{WORKS_OVERVIEW_QUESTIONS.POLES_ADDED}</dt>
-            <dd className="govuk-summary-list__value">
-              {typeof worksOverview?.polesAdded === 'number' ? worksOverview.polesAdded : '-'}
-            </dd>
+            <dd className="govuk-summary-list__value">{formatCountValue(worksOverview?.polesAdded)}</dd>
           </div>
           <div className="govuk-summary-list__row">
             <dt className="govuk-summary-list__key">{WORKS_OVERVIEW_QUESTIONS.POLES_REPLACED}</dt>
-            <dd className="govuk-summary-list__value">
-              {typeof worksOverview?.polesReplaced === 'number' ? worksOverview.polesReplaced : '-'}
-            </dd>
+            <dd className="govuk-summary-list__value">{formatCountValue(worksOverview?.polesReplaced)}</dd>
           </div>
           <div className="govuk-summary-list__row">
             <dt className="govuk-summary-list__key">{WORKS_OVERVIEW_QUESTIONS.TALLEST_NEW_POLE_HEIGHT}</dt>

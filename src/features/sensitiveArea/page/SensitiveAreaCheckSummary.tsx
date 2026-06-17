@@ -6,6 +6,9 @@ import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary as ReviewSumm
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getRoutesWithPoints } from '../../../services/routeMapService';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
+import SensitiveAreaCheckSummaryRows from '../../CheckYourAnswers/component/SensitiveAreaCheckSummaryRows';
+import { SENSITIVE_AREA_LABELS } from '../../../constants/sensitiveAreaLabels';
+import type { ReviewSummaryForLayers } from '../../CheckYourAnswers/utils/sensitiveAreaSummaryUtils';
 
 /**
  * Read-only Sensitive Area Check Summary Page
@@ -118,52 +121,23 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                                 {/* Sensitive area check settings */}
                                 <div className="govuk-summary-card">
                                     <div className="govuk-summary-card__title-wrapper">
-                                        <h2 className="govuk-summary-card__title">Sensitive area check</h2>
+                                        <h2 className="govuk-summary-card__title">{SENSITIVE_AREA_LABELS.CHECK_SECTION_TITLE}</h2>
                                     </div>
                                     <div className="govuk-summary-card__content">
                                         <dl className="govuk-summary-list">
-                                            <div className="govuk-summary-list__row">
-                                                <dt className="govuk-summary-list__key">Is any tolerance required either side of the route marked on the plan?</dt>
-                                                <dd className="govuk-summary-list__value">{toleranceRequired === 'yes' ? 'Yes' : toleranceRequired === 'no' ? 'No' : '-'}</dd>
-                                            </div>
-                                            {toleranceRequired === 'yes' && (
-                                                <div className="govuk-summary-list__row">
-                                                    <dt className="govuk-summary-list__key">Tolerance required</dt>
-                                                    <dd className="govuk-summary-list__value">{toleranceValue ? `${toleranceValue}m` : '-'}</dd>
-                                                </div>
-                                            )}
-                                            <div className="govuk-summary-list__row">
-                                                <dt className="govuk-summary-list__key">Sensitive areas that route passes through</dt>
-                                                <dd className="govuk-summary-list__value">
-                                                    {(() => {
-                                                        const passedScreeningRequired = reviewSummary?.checks?.automated?.passed?.screeningRequired || [];
-                                                        const passedNoScreening = reviewSummary?.checks?.automated?.passed?.noScreening || [];
-                                                        
-                                                        // Combine both passed categories
-                                                        const allPassedLayers = [...passedScreeningRequired, ...passedNoScreening];
-                                                        
-                                                        // Extract layer names
-                                                        const layerNames = allPassedLayers
-                                                            .map((layer: any) => layer.layerName)
-                                                            .filter(Boolean);
-                                                        
-                                                        if (layerNames.length === 0) {
-                                                            return '-';
-                                                        }
-                                                        
-                                                        // Get unique layer names
-                                                        const uniqueLayerNames = Array.from(new Set(layerNames));
-                                                        
-                                                        return (
-                                                            <ul className="govuk-list govuk-list--bullet">
-                                                                {uniqueLayerNames.map((layerName, index) => (
-                                                                    <li key={index}>{layerName}</li>
-                                                                ))}
-                                                            </ul>
-                                                        );
-                                                    })()}
-                                                </dd>
-                                            </div>
+                                            <SensitiveAreaCheckSummaryRows
+                                                toleranceRequired={
+                                                    toleranceRequired === 'yes'
+                                                        ? true
+                                                        : toleranceRequired === 'no'
+                                                          ? false
+                                                          : null
+                                                }
+                                                toleranceValue={
+                                                    toleranceValue ? Number(toleranceValue) : null
+                                                }
+                                                reviewSummary={reviewSummary as ReviewSummaryForLayers | null}
+                                            />
                                         </dl>
                                     </div>
                                 </div>

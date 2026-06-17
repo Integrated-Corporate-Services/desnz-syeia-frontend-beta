@@ -39,6 +39,7 @@ export interface FileUploadProps {
   ) => void;
   uploadImmediately?: boolean; // New prop to control upload timing
   onPendingFilesChange?: (files: File[]) => void; // New prop to notify parent of pending files
+  inputId?: string;
 }
 
 export interface FileUploadHandle {
@@ -65,7 +66,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   onUploaded,
   uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
   onPendingFilesChange,
+  inputId,
 }, ref) => {
+  const resolvedInputId = inputId || `file-upload-${category || 'default'}`;
+  const getDocFileId = (doc: ApplicationDocument & { file_id?: string }) => doc.fileId || doc.file_id || '';
+  const [localValidationErrors, setLocalValidationErrors] = useState<string[]>([]);
+  const [uploadMessages, setUploadMessages] = useState<string[]>([]);
   // Get user from auth context
   const { user } = useAuthUserContext();
   const userId =
@@ -120,7 +126,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
-      .map(doc => doc.fileId) || [];
+      .map(getDocFileId) || [];
     
     const uploadedFilesForThisCategory = uploadedFiles?.filter(
       file => fileIdsForThisCategory.includes(file.id)
@@ -157,16 +163,20 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
+      setLocalValidationErrors(errorMessages);
+      setUploadMessages([]);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
       }
     } else {
+      setLocalValidationErrors([]);
       if (onValidationErrors) {
         onValidationErrors([]);
       }
     }
     
     if (result.validFiles.length > 0 && result.errors.length === 0) {
+      setUploadMessages([]);
       const allFiles = [...files, ...result.validFiles];
       
       if (onFilesChange) {
@@ -218,7 +228,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
-      .map(doc => doc.fileId) || [];
+      .map(getDocFileId) || [];
     
     const uploadedFilesForThisCategory = uploadedFiles?.filter(
       file => fileIdsForThisCategory.includes(file.id)
@@ -242,16 +252,20 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     // Handle validation errors
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
+      setLocalValidationErrors(errorMessages);
+      setUploadMessages([]);
       if (onValidationErrors) {
         onValidationErrors(errorMessages);
       }
     } else {
+      setLocalValidationErrors([]);
       if (onValidationErrors) {
         onValidationErrors([]);
       }
     }
     
      if (result.validFiles.length > 0 && result.errors.length === 0) {
+      setUploadMessages([]);
       const allFiles = [...files, ...result.validFiles];
       
       if (onFilesChange) {
@@ -461,8 +475,14 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
+      const failureMessages = newStatuses.filter(
+        (status) => status && status !== 'Upload complete' && !status.startsWith('Uploading') && !status.startsWith('Confirming') && !status.startsWith('Requesting'),
+      );
+      setUploadMessages(failureMessages);
       return { uploadedFiles, applicationDocuments};
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setUploadMessages([`Error: ${message}`]);
       setStatuses(
         Array(uploadFiles.length).fill(
           "Error: " + (err instanceof Error ? err.message : String(err))
@@ -632,6 +652,19 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
 
+      {(localValidationErrors.length > 0 || uploadMessages.length > 0) && (
+        <div className="govuk-error-summary govuk-!-margin-bottom-4" role="alert">
+          <h2 className="govuk-error-summary__title">There is a problem with your upload</h2>
+          <div className="govuk-error-summary__body">
+            <ul className="govuk-list govuk-error-summary__list">
+              {[...localValidationErrors, ...uploadMessages].map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       <div
         className="gds-upload-dropzone"
         onDrop={handleDrop}
@@ -647,7 +680,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           type="file"
           multiple
           ref={fileInputRef}
-          id="file-upload-input" 
+          id={resolvedInputId}
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"

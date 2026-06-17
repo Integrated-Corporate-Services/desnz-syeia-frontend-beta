@@ -12,7 +12,9 @@ import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
+import { WORKS_OVERVIEW_QUESTIONS } from '../../../constants/worksOverviewLabels';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
+import { buildWorksOverviewPayload } from '../utils/buildWorksOverviewPayload';
 
 const initialState = {
   addingOrReplacingPoles: '',
@@ -33,7 +35,8 @@ const initialState = {
   vegetationClearanceRequired: '',
   vegetationClearanceDetails: '',
   usingExistingAccessRoutes: '',
-  accessRoutesDetails: '',
+  existingAccessRoutesDetails: '',
+  proposedAccessRoutesDetails: '',
   removingExistingEquipment: '',
   removalDescription: '',
   generalComments: ''
@@ -50,22 +53,6 @@ const ACCESS_ROUTE_CATEGORIES: Record<AccessRouteBranch, string> = {
 
 const LEGACY_ACCESS_ROUTE_CATEGORY = FILE_CATEGORIES.WORKS_ACCESS_ROUTES;
 
-import { WORKS_OVERVIEW_QUESTIONS } from '../../CheckYourAnswers/constants/applicationSummaryLabels';
-
-/** Expected labels from Works Overview design screenshot (SYEIA-1891) */
-const SCREENSHOT_LABELS = {
-  chemicalCoatings: 'Are any chemical coatings proposed?',
-  polesReplacing: 'How many poles are you replacing?',
-  tallestNewPole: 'What height is the tallest new pole? If none, enter 0.',
-  excavationHint: 'For example: hedgerow removal or tree lopping',
-  vegetationHint: 'For example: hedgerow removal or tree lopping',
-  roadClosuresUpload: 'Upload any documents related to discussions with the highway authority.',
-  accessRouteExistingUpload: 'Upload map and photos of the access route.',
-  accessRouteProposedDetails: 'Provide more details about the proposed access routes and storage sites?',
-  accessRouteExistingDetails: 'Provide more details about the pre-existing access routes and storage sites?',
-  accessRouteProposedUpload: 'Upload map and photos of proposed routes and storage sites.',
-} as const;
-
 const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -81,36 +68,37 @@ const WorksOverview: React.FC = () => {
   const roadClosuresUploadRef = useRef<FileUploadHandle>(null);
   // Remove asset store usage for works overview
   const navigate = useNavigate();
-  // Ref for first error field
-  const firstErrorRef = useRef<HTMLInputElement | null>(null);
 
-  // Focus the first error field when errors change
-  useEffect(() => {
-    if (submitted && Object.keys(errors).length > 0 && firstErrorRef.current) {
-      firstErrorRef.current.focus();
-    }
-  }, [errors, submitted]);
-
-
-  // Get applicationId from URL params or query string
+  const resetFormState = () => {
+    setForm(initialState);
+    setErrors({});
+    setSubmitted(false);
+    setIsEditMode(false);
+    setUploadedFiles([]);
+    setApplicationDocuments([]);
+    setPendingPreExistingAccessRouteFiles([]);
+    setPendingProposedAccessRouteFiles([]);
+    setPendingRoadClosureFiles([]);
+  };
   const applicationId = useGetApplicationId();
  
  
   const effectiveApplicationId = applicationId;
 
-  // Clear form when applicationId changes
+  // Fetch works overview details on mount / application change
   useEffect(() => {
-    setForm(initialState);
-  }, [effectiveApplicationId]);
+    let cancelled = false;
 
-  // Fetch works overview details on mount
-  useEffect(() => {
     async function fetchWorksOverview() {
-      if (effectiveApplicationId) {
-        try {
-          const data = await getWorksOverview(effectiveApplicationId);
-          // Check if we have data and it belongs to current application (more flexible validation)
-          if (data && (data.application_id === effectiveApplicationId || data.applicationId === effectiveApplicationId)) {
+      if (!effectiveApplicationId) return;
+
+      resetFormState();
+
+      try {
+        const data = await getWorksOverview(effectiveApplicationId);
+        if (cancelled) return;
+
+        if (data && (data.application_id === effectiveApplicationId || data.applicationId === effectiveApplicationId)) {
             setForm({
               addingOrReplacingPoles: data.addingOrReplacingPoles ? 'yes' : 'no',
               poleMaterial: data.poleMaterial || '',
@@ -132,34 +120,49 @@ const WorksOverview: React.FC = () => {
               vegetationClearanceRequired: data.vegetationClearanceRequired ? 'yes' : 'no',
               vegetationClearanceDetails: data.vegetationClearanceDetails || '',
               usingExistingAccessRoutes: data.usingExistingAccessRoutes ? 'yes' : 'no',
-              accessRoutesDetails: data.accessRoutesDetails || '',
+              existingAccessRoutesDetails: data.usingExistingAccessRoutes
+                ? (data.accessRoutesDetails || '')
+                : '',
+              proposedAccessRoutesDetails: data.usingExistingAccessRoutes
+                ? ''
+                : (data.accessRoutesDetails || ''),
               removingExistingEquipment: data.removingExistingEquipment ? 'yes' : 'no',
               removalDescription: data.removalDescription || '',
               generalComments: data.generalComments || ''
             });
             if (Array.isArray(data.uploadedFiles)) {
-              setUploadedFiles(data.uploadedFiles);
+              setUploadedFiles(
+                data.uploadedFiles.map((file: UploadedFile & { file_id?: string }) => ({
+                  ...file,
+                  id: file.id || file.file_id || '',
+                })),
+              );
             }
             if (Array.isArray(data.applicationDocuments)) {
-              setApplicationDocuments(data.applicationDocuments);
+              setApplicationDocuments(
+                data.applicationDocuments.map((doc: ApplicationDocument & { file_id?: string; document_id?: string }) => ({
+                  ...doc,
+                  fileId: doc.fileId || doc.file_id || '',
+                  documentId: doc.documentId || doc.document_id || '',
+                })),
+              );
             }
             setIsEditMode(true);
-          } else if (data === null || data === undefined) {
-            // No data found for this application - reset to initial state
-            setForm(initialState);
-            setIsEditMode(false);
           } else {
-            // Data found but doesn't match current application
-            setForm(initialState);
             setIsEditMode(false);
           }
         } catch {
-          setForm(initialState);
-          setIsEditMode(false);
+          if (!cancelled) {
+            setIsEditMode(false);
+          }
         }
       }
-    }
+
     fetchWorksOverview();
+
+    return () => {
+      cancelled = true;
+    };
   }, [effectiveApplicationId]);
 
 
@@ -167,6 +170,13 @@ const WorksOverview: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev: typeof initialState) => ({ ...prev, [name]: value }));
+    if (submitted && errors[name as keyof FormErrors]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[name as keyof FormErrors];
+        return next;
+      });
+    }
   };
 
   const validate = (data: typeof initialState): FormErrors => {
@@ -242,12 +252,12 @@ const WorksOverview: React.FC = () => {
     if (!data.usingExistingAccessRoutes) {
       newErrors.usingExistingAccessRoutes = WORKS_OVERVIEW_VALIDATION_MESSAGES.USING_EXISTING_ACCESS_ROUTES_REQUIRED;
     } else if (data.usingExistingAccessRoutes === 'yes') {
-      if (!data.accessRoutesDetails.trim()) {
-        newErrors.accessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.ACCESS_ROUTES_DETAILS_REQUIRED;
+      if (!data.existingAccessRoutesDetails.trim()) {
+        newErrors.existingAccessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.ACCESS_ROUTES_DETAILS_REQUIRED;
       }
     } else if (data.usingExistingAccessRoutes === 'no') {
-      if (!data.accessRoutesDetails.trim()) {
-        newErrors.accessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.PROPOSED_ACCESS_ROUTES_DETAILS_REQUIRED;
+      if (!data.proposedAccessRoutesDetails.trim()) {
+        newErrors.proposedAccessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.PROPOSED_ACCESS_ROUTES_DETAILS_REQUIRED;
       }
     }
     if (!data.removingExistingEquipment) {
@@ -264,6 +274,7 @@ const WorksOverview: React.FC = () => {
     const validationErrors = validate(form);
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -297,38 +308,7 @@ const WorksOverview: React.FC = () => {
       return;
     }
 
-    // Map form data to backend expected payload: { applicationId, worksOverview: { ...fields... } }
-    const worksOverviewPayload = {
-      addingOrReplacingPoles: form.addingOrReplacingPoles === 'yes',
-      addingOrReplacingLines: form.addingOrReplacingLines === 'yes',
-      poleMaterial: form.poleMaterial || '',
-      chemicalTreatments: form.chemicalTreatments || '',
-      polesAdded: parseInt(form.polesAdded) || 0,
-      polesReplaced: parseInt(form.polesReplaced) || 0,
-      tallestNewPoleHeight: form.addingOrReplacingPoles === 'yes'
-        ? parseFloat(form.tallestNewPoleHeight) || 0
-        : null,
-      poleComments: form.poleComments,
-      overheadLineDescription: form.overheadLineDescription || '',
-      estimatedDuration: form.estimatedDuration || '',
-      vehiclesRequired: form.vehiclesRequired || '',
-      roadClosuresRequired: form.roadClosuresRequired === 'yes',
-      roadClosuresDetails: form.roadClosuresDetails || '',
-      excavationRequired: form.excavationRequired === 'yes',
-      excavationDetails: form.excavationDetails || '',
-      vegetationClearanceRequired: form.vegetationClearanceRequired === 'yes',
-      vegetationClearanceDetails: form.vegetationClearanceDetails || '',
-      usingExistingAccessRoutes: form.usingExistingAccessRoutes === 'yes',
-      accessRoutesDetails: form.accessRoutesDetails || '',
-      removingExistingEquipment: form.removingExistingEquipment === 'yes',
-      removalDescription: form.removalDescription || '',
-      generalComments: form.generalComments || ''
-    };
-
-    const payload = {
-      applicationId: effectiveApplicationId,
-      worksOverview: worksOverviewPayload
-    };
+    const payload = buildWorksOverviewPayload(form, effectiveApplicationId);
 
     try {
       // Always use updateWorksOverview for PUT, createWorksOverview for POST
@@ -349,10 +329,13 @@ const WorksOverview: React.FC = () => {
     }
   };
 
+  const getDocumentFileId = (doc: ApplicationDocument & { file_id?: string }) =>
+    doc.fileId || doc.file_id || '';
+
   const getFilesForCategory = (categories: string[]) => {
-    const docs = applicationDocuments.filter(doc => categories.includes(doc.category));
-    const fileIds = new Set(docs.map(doc => doc.fileId));
-    const files = uploadedFiles.filter(file => fileIds.has(file.id));
+    const docs = applicationDocuments.filter((doc) => doc.category && categories.includes(doc.category));
+    const fileIds = new Set(docs.map(getDocumentFileId).filter(Boolean));
+    const files = uploadedFiles.filter((file) => fileIds.has(file.id));
     return { docs, files };
   };
 
@@ -377,6 +360,7 @@ const WorksOverview: React.FC = () => {
           showTitle={true}
           showDocumentsHeading={false}
           uploadImmediately={true}
+          inputId={`works-overview-upload-${storageCategory}`}
           prefix={`${effectiveApplicationId}/${storageCategory}`}
           uploadedFiles={categoryUploadedFiles}
           applicationDocuments={categoryDocuments}
@@ -388,7 +372,9 @@ const WorksOverview: React.FC = () => {
           }}
           onDeleteFile={(fileId) => {
             setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
-            setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+            setApplicationDocuments(prev =>
+              prev.filter(doc => getDocumentFileId(doc) !== fileId),
+            );
           }}
           onPendingFilesChange={onPendingFilesChange}
         />
@@ -418,7 +404,7 @@ const WorksOverview: React.FC = () => {
     [FILE_CATEGORIES.WORKS_ROAD_CLOSURES],
     FILE_CATEGORIES.WORKS_ROAD_CLOSURES,
     roadClosuresUploadRef,
-    SCREENSHOT_LABELS.roadClosuresUpload,
+    WORKS_OVERVIEW_QUESTIONS.ROAD_CLOSURES_DOCUMENTS,
     setPendingRoadClosureFiles,
   );
 
@@ -461,7 +447,7 @@ const WorksOverview: React.FC = () => {
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="addingOrReplacingPoles"
-            label="Are you adding or replacing any poles?"
+            label={WORKS_OVERVIEW_QUESTIONS.ADDING_REPLACING_POLES}
             name="addingOrReplacingPoles"
             value={form.addingOrReplacingPoles}
             error={errors.addingOrReplacingPoles}
@@ -472,7 +458,7 @@ const WorksOverview: React.FC = () => {
               <TextInput
                 id="poleMaterial"
                 name="poleMaterial"
-                label="What materials will be used for the new poles or pylons?"
+                label={WORKS_OVERVIEW_QUESTIONS.POLE_MATERIAL}
                 value={form.poleMaterial}
                 onChange={handleChange}
                 error={errors.poleMaterial}
@@ -482,7 +468,7 @@ const WorksOverview: React.FC = () => {
               <TextInput
                 id="chemicalTreatments"
                 name="chemicalTreatments"
-                label={SCREENSHOT_LABELS.chemicalCoatings}
+                label={WORKS_OVERVIEW_QUESTIONS.CHEMICAL_TREATMENTS}
                 value={form.chemicalTreatments}
                 onChange={handleChange}
                 error={errors.chemicalTreatments}
@@ -492,7 +478,7 @@ const WorksOverview: React.FC = () => {
               <NumberInput
                 id="polesAdded"
                 name="polesAdded"
-                label="How many poles are you adding?"
+                label={WORKS_OVERVIEW_QUESTIONS.POLES_ADDED}
                 value={form.polesAdded}
                 onChange={handleChange}
                 error={errors.polesAdded}
@@ -502,7 +488,7 @@ const WorksOverview: React.FC = () => {
               <NumberInput
                 id="polesReplaced"
                 name="polesReplaced"
-                label={SCREENSHOT_LABELS.polesReplacing}
+                label={WORKS_OVERVIEW_QUESTIONS.POLES_REPLACED}
                 value={form.polesReplaced}
                 onChange={handleChange}
                 error={errors.polesReplaced}
@@ -512,7 +498,7 @@ const WorksOverview: React.FC = () => {
               <NumberInput
                 id="tallestNewPoleHeight"
                 name="tallestNewPoleHeight"
-                label={SCREENSHOT_LABELS.tallestNewPole}
+                label={WORKS_OVERVIEW_QUESTIONS.TALLEST_NEW_POLE_HEIGHT}
                 suffix="metres"
                 value={form.tallestNewPoleHeight}
                 onChange={handleChange}
@@ -523,7 +509,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="poleComments"
                 name="poleComments"
-                label="Comments on poles being added or replaced (optional)"
+                label={WORKS_OVERVIEW_QUESTIONS.POLE_COMMENTS}
                 value={form.poleComments}
                 onChange={handleChange}
                 maxLength={4000}
@@ -538,7 +524,7 @@ const WorksOverview: React.FC = () => {
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="addingOrReplacingLines"
-            label="Are you adding or replacing any overhead lines?"
+            label={WORKS_OVERVIEW_QUESTIONS.ADDING_REPLACING_LINES}
             name="addingOrReplacingLines"
             value={form.addingOrReplacingLines}
             error={errors.addingOrReplacingLines}
@@ -549,7 +535,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="overheadLineDescription"
                 name="overheadLineDescription"
-                label="Provide a description of the overhead lines that you are adding or replacing"
+                label={WORKS_OVERVIEW_QUESTIONS.OVERHEAD_LINE_DESC}
                 value={form.overheadLineDescription}
                 onChange={handleChange}
                 error={errors.overheadLineDescription}
@@ -564,7 +550,7 @@ const WorksOverview: React.FC = () => {
           <TextInput
             id="estimatedDuration"
             name="estimatedDuration"
-            label="What is the estimated duration of the works?"
+            label={WORKS_OVERVIEW_QUESTIONS.ESTIMATED_DURATION}
             value={form.estimatedDuration}
             onChange={handleChange}
             error={errors.estimatedDuration}
@@ -575,7 +561,7 @@ const WorksOverview: React.FC = () => {
           <TextInput
             id="vehiclesRequired"
             name="vehiclesRequired"
-            label="What vehicles will be required on site?"
+            label={WORKS_OVERVIEW_QUESTIONS.VEHICLES_REQUIRED}
             value={form.vehiclesRequired}
             onChange={handleChange}
             error={errors.vehiclesRequired}
@@ -585,7 +571,7 @@ const WorksOverview: React.FC = () => {
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="roadClosuresRequired"
-            label="Will any road closures or traffic calming measures be required?"
+            label={WORKS_OVERVIEW_QUESTIONS.ROAD_CLOSURES}
             name="roadClosuresRequired"
             value={form.roadClosuresRequired}
             error={errors.roadClosuresRequired}
@@ -614,8 +600,8 @@ const WorksOverview: React.FC = () => {
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="excavationRequired"
-            label="Are excavation works required?"
-            hint={SCREENSHOT_LABELS.excavationHint}
+            label={WORKS_OVERVIEW_QUESTIONS.EXCAVATION_REQUIRED}
+            hint={WORKS_OVERVIEW_QUESTIONS.EXCAVATION_HINT}
             name="excavationRequired"
             value={form.excavationRequired}
             error={errors.excavationRequired}
@@ -626,7 +612,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="excavationDetails"
                 name="excavationDetails"
-                label="Provide more details about the excavation work"
+                label={WORKS_OVERVIEW_QUESTIONS.EXCAVATION_DETAILS}
                 value={form.excavationDetails}
                 onChange={handleChange}
                 maxLength={4000}
@@ -641,8 +627,8 @@ const WorksOverview: React.FC = () => {
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="vegetationClearanceRequired"
-            label="Is vegetation clearance required?"
-            hint={SCREENSHOT_LABELS.vegetationHint}
+            label={WORKS_OVERVIEW_QUESTIONS.VEGETATION_CLEARANCE}
+            hint={WORKS_OVERVIEW_QUESTIONS.VEGETATION_HINT}
             name="vegetationClearanceRequired"
             value={form.vegetationClearanceRequired}
             error={errors.vegetationClearanceRequired}
@@ -653,7 +639,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="vegetationClearanceDetails"
                 name="vegetationClearanceDetails"
-                label="Provide more details about the vegetation clearance"
+                label={WORKS_OVERVIEW_QUESTIONS.VEGETATION_DETAILS}
                 value={form.vegetationClearanceDetails}
                 onChange={handleChange}
                 maxLength={4000}
@@ -668,7 +654,7 @@ const WorksOverview: React.FC = () => {
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="usingExistingAccessRoutes"
-            label="Are you using pre-existing access routes and/or storage sites?"
+            label={WORKS_OVERVIEW_QUESTIONS.EXISTING_ACCESS_ROUTES}
             name="usingExistingAccessRoutes"
             value={form.usingExistingAccessRoutes}
             error={errors.usingExistingAccessRoutes}
@@ -676,35 +662,35 @@ const WorksOverview: React.FC = () => {
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
             noChildren={
               <>
-                <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+                <div className={`govuk-form-group${errors.proposedAccessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
                   <TextArea
-                    id="accessRoutesDetails"
-                    name="accessRoutesDetails"
-                    label={SCREENSHOT_LABELS.accessRouteProposedDetails}
-                    value={form.accessRoutesDetails}
+                    id="proposedAccessRoutesDetails"
+                    name="proposedAccessRoutesDetails"
+                    label={WORKS_OVERVIEW_QUESTIONS.PROPOSED_ACCESS_ROUTES_DETAILS}
+                    value={form.proposedAccessRoutesDetails}
                     onChange={handleChange}
                     maxLength={4000}
                     showCount
-                    error={errors.accessRoutesDetails}
+                    error={errors.proposedAccessRoutesDetails}
                   />
                 </div>
-                {renderAccessRouteUpload('proposed', SCREENSHOT_LABELS.accessRouteProposedUpload)}
+                {renderAccessRouteUpload('proposed', WORKS_OVERVIEW_QUESTIONS.PROPOSED_ACCESS_ROUTES_DOCUMENTS)}
               </>
             }
           >
-            <div className={`govuk-form-group${errors.accessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group${errors.existingAccessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
               <TextArea
-                id="accessRoutesDetails"
-                name="accessRoutesDetails"
-                label={SCREENSHOT_LABELS.accessRouteExistingDetails}
-                value={form.accessRoutesDetails}
+                id="existingAccessRoutesDetails"
+                name="existingAccessRoutesDetails"
+                label={WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DETAILS}
+                value={form.existingAccessRoutesDetails}
                 onChange={handleChange}
                 maxLength={4000}
                 showCount
-                error={errors.accessRoutesDetails}
+                error={errors.existingAccessRoutesDetails}
               />
             </div>
-            {renderAccessRouteUpload('existing', SCREENSHOT_LABELS.accessRouteExistingUpload)}
+            {renderAccessRouteUpload('existing', WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DOCUMENTS)}
           </RadioGroup>
         </div>
 
@@ -712,7 +698,7 @@ const WorksOverview: React.FC = () => {
         <div className="govuk-!-margin-bottom-6">
           <RadioGroup
             id="removingExistingEquipment"
-            label="Are you removing any existing equipment as part of this project?"
+            label={WORKS_OVERVIEW_QUESTIONS.REMOVING_EQUIPMENT}
             name="removingExistingEquipment"
             value={form.removingExistingEquipment}
             error={errors.removingExistingEquipment}
@@ -723,7 +709,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="removalDescription"
                 name="removalDescription"
-                label="Provide a description of the equipment you are removing"
+                label={WORKS_OVERVIEW_QUESTIONS.REMOVAL_DESCRIPTION}
                 value={form.removalDescription}
                 onChange={handleChange}
                 maxLength={4000}
@@ -739,8 +725,8 @@ const WorksOverview: React.FC = () => {
           <TextArea
             id="generalComments"
             name="generalComments"
-            label="General comments (optional)"
-            hint="Are you carrying out any additional work to any assets on this route that is not covered above?"
+            label={WORKS_OVERVIEW_QUESTIONS.GENERAL_COMMENTS}
+            hint={WORKS_OVERVIEW_QUESTIONS.GENERAL_COMMENTS_HINT}
             value={form.generalComments}
             onChange={handleChange}
             maxLength={4000}

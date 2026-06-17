@@ -89,10 +89,11 @@ export const FIELD_LABELS = {
   NORTHING: 'Northing',
   DISCONNECTED_JUSTIFICATION: 'Disconnected route justification',
   
-  // Sensitive area fields
+  // Sensitive area fields — aligned with form labels (see sensitiveAreaLabels.ts)
+  ROUTE_TOLERANCE_QUESTION: 'Is any tolerance required either side of the route marked on the plan?',
   TOLERANCE_REQUIRED: 'Tolerance required',
-  TOLERANCE: 'Tolerance',
-  SENSITIVE_AREAS: 'Sensitive areas the route passes through',
+  TOLERANCE: 'Tolerance required',
+  SENSITIVE_AREAS: 'Sensitive areas that route passes through',
   OTHER_AREAS: 'Other areas the route passes through',
   ENV_ARCH_DOCS: 'Environmental and archaeological documents',
   POLES_LINES_SENSITIVE: 'Poles/lines within sensitive areas',
@@ -138,35 +139,8 @@ export const POST_CONSULTATION_QUESTIONS = {
   CONSULTEES_REASON: "Explain why you do not accept all the consultees' recommendations"
 } as const;
 
-// Works overview questions
-export const WORKS_OVERVIEW_QUESTIONS = {
-  ADDING_REPLACING_POLES: 'Are you adding or replacing any poles?',
-  POLE_MATERIAL: 'What materials will be used for the new poles or pylons?',
-  CHEMICAL_TREATMENTS: 'Are any chemical coatings proposed?',
-  POLES_ADDED: 'How many poles are you adding?',
-  POLES_REPLACED: 'How many poles are you replacing?',
-  POLE_COMMENTS: 'Comments on poles being added or replaced (optional)',
-  ADDING_REPLACING_LINES: 'Are you adding or replacing any overhead lines?',
-  OVERHEAD_LINE_DESC: 'Provide a description of the overhead lines that you are adding or replacing',
-  ESTIMATED_DURATION: 'What is the estimated duration of the works?',
-  VEHICLES_REQUIRED: 'What vehicles will be required on site?',
-  ROAD_CLOSURES: 'Will any road closures or traffic calming measures be required?',
-  ROAD_CLOSURES_DETAILS: 'Please provide details of the road closures, lane closures, temporary traffic lights, road, times, duration',
-  ROAD_CLOSURES_DOCUMENTS: 'Upload any documents related to discussions with the highway authority.',
-  EXCAVATION_REQUIRED: 'Are excavation works required?',
-  EXCAVATION_DETAILS: 'Provide more details about the excavation work',
-  VEGETATION_CLEARANCE: 'Is vegetation clearance required?',
-  VEGETATION_DETAILS: 'Provide more details about the vegetation clearance',
-  EXISTING_ACCESS_ROUTES: 'Are you using pre-existing access routes and/or storage sites?',
-  ACCESS_ROUTES_DETAILS: 'Provide more details about the pre-existing access routes and storage sites?',
-  PROPOSED_ACCESS_ROUTES_DETAILS: 'Provide more details about the proposed access routes and storage sites?',
-  ACCESS_ROUTES_DOCUMENTS: 'Upload map and photos of the access route.',
-  PROPOSED_ACCESS_ROUTES_DOCUMENTS: 'Upload map and photos of proposed routes and storage sites.',
-  TALLEST_NEW_POLE_HEIGHT: 'What height is the tallest new pole? If none, enter 0.',
-  REMOVING_EQUIPMENT: 'Are you removing any existing equipment as part of this project?',
-  REMOVAL_DESCRIPTION: 'Provide a description of the equipment you are removing',
-  GENERAL_COMMENTS: 'General comments (optional)'
-} as const;
+// Works overview questions — re-exported from shared constants (form + summary)
+export { WORKS_OVERVIEW_QUESTIONS } from '../../../constants/worksOverviewLabels';
 
 // Supporting information questions
 export const SUPPORTING_INFO_QUESTIONS = {

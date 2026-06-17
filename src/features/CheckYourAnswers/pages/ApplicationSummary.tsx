@@ -27,6 +27,8 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
+import SensitiveAreaCheckSummaryRows from "../component/SensitiveAreaCheckSummaryRows";
+import SensitiveAreaReviewSummaryRows from "../component/SensitiveAreaReviewSummaryRows";
 import { normalizeWorksOverview } from "../utils/normalizeWorksOverview";
 import { createLogger } from "../../../utils/logger";
 
@@ -196,20 +198,6 @@ const ApplicationSummary: React.FC = () => {
         {index < filteredFields.length - 1 && <br />}
       </React.Fragment>
     ));
-  };
-
-  // Helper function to map asset presence option ID to text
-  const getAssetPresenceText = (optionId?: number) => {
-    switch (optionId) {
-      case 1:
-        return FIELD_LABELS.POLES_WITHIN_SENSITIVE_AREAS;
-      case 2:
-        return FIELD_LABELS.POLES_OUTSIDE_SENSITIVE_AREAS;
-      case 3:
-        return FIELD_LABELS.NO_POLES_SENSITIVE_AREAS;
-      default:
-        return "-";
-    }
   };
 
   useEffect(() => {
@@ -1087,41 +1075,11 @@ const ApplicationSummary: React.FC = () => {
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {FIELD_LABELS.TOLERANCE_REQUIRED}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof sensitiveAreaChecks?.tolerance_required ===
-                        "boolean"
-                        ? sensitiveAreaChecks.tolerance_required
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Tolerance</dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof sensitiveAreaChecks?.tolerance_value === "number"
-                        ? `${sensitiveAreaChecks.tolerance_value}m`
-                        : "-"}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {FIELD_LABELS.SENSITIVE_AREAS}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      <ul className="govuk-list govuk-list--bullet">
-                        {layers.length > 0 ? (
-                          layers.map((layer, idx) => <li key={idx}>{layer}</li>)
-                        ) : (
-                          <li>-</li>
-                        )}
-                      </ul>
-                    </dd>
-                  </div>
+                  <SensitiveAreaCheckSummaryRows
+                    toleranceRequired={sensitiveAreaChecks?.tolerance_required}
+                    toleranceValue={sensitiveAreaChecks?.tolerance_value}
+                    layers={layers}
+                  />
                 </dl>
               </div>
             </div>
@@ -1131,85 +1089,14 @@ const ApplicationSummary: React.FC = () => {
                 <h2 className="govuk-summary-card__title">
                   {SECTION_HEADINGS.SENSITIVE_AREA_REVIEW}
                 </h2>
-
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {FIELD_LABELS.OTHER_AREAS}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {(() => {
-                        const selectedLayers = sensitiveAreaReview?.manual?.selected || [];
-                        const customAddedLayers = sensitiveAreaReview?.manual?.customAdded || [];
-                        const allManualLayers = [...selectedLayers, ...customAddedLayers];
-
-                        if (allManualLayers.length === 0) {
-                          return "-";
-                        }
-
-                        // Get unique layer names
-                        const uniqueLayerNames = Array.from(
-                          new Set(allManualLayers.map(layer => layer.layerName).filter(Boolean))
-                        );
-
-                        return (
-                          <ul className="govuk-list govuk-list--bullet">
-                            {uniqueLayerNames.map((layerName, index) => (
-                              <li key={index}>{layerName}</li>
-                            ))}
-                          </ul>
-                        );
-                      })()}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {FIELD_LABELS.ENV_ARCH_DOCS}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      <ul className="govuk-list">
-                        {sensitiveAreaReview?.application_documents &&
-                          sensitiveAreaReview.application_documents.length > 0 ? (
-                          sensitiveAreaReview.application_documents.map((doc) => (
-                            <li key={doc.document_id}>
-                              <a
-                                href="#"
-                                className="govuk-link"
-                                onClick={async (e) => {
-                                  e.preventDefault();
-                                  // Use s3_key if available, otherwise file_id
-                                  const key = doc.s3_key || doc.file_id;
-                                  if (key) {
-                                    try {
-                                      await downloadS3FileOnSameTab(key);
-                                    } catch (error) {
-                                      logger.error('Failed to download file:', { error });
-                                    }
-                                  }
-                                }}
-                              >
-                                {doc.title}
-                              </a>
-                            </li>
-                          ))
-                        ) : (
-                          <li>-</li>
-                        )}
-                      </ul>
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {FIELD_LABELS.POLES_LINES_SENSITIVE}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {getAssetPresenceText(
-                        sensitiveAreaReview?.asset_presence_option_id,
-                      )}
-                    </dd>
-                  </div>
+                  <SensitiveAreaReviewSummaryRows
+                    assetPresenceOptionId={sensitiveAreaReview?.asset_presence_option_id}
+                    applicationDocuments={sensitiveAreaReview?.application_documents}
+                    manual={sensitiveAreaReview?.manual}
+                  />
                 </dl>
               </div>
             </div>
