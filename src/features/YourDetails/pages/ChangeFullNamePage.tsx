@@ -129,9 +129,9 @@ const ChangeFullNamePage: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = () => {
-    navigate('/your-details');
-  };
+  // const handleSaveForLater = () => {
+  //   navigate('/your-details');
+  // };
 
   return (
     <div className="govuk-width-container">
@@ -237,13 +237,13 @@ const ChangeFullNamePage: React.FC = () => {
                 <button type="submit" className="govuk-button" disabled={saving}>
                   {saving ? 'Saving...' : 'Save and continue'}
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </>
