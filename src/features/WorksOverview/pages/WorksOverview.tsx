@@ -50,8 +50,7 @@ const ACCESS_ROUTE_CATEGORIES: Record<AccessRouteBranch, string> = {
 
 const LEGACY_ACCESS_ROUTE_CATEGORY = FILE_CATEGORIES.WORKS_ACCESS_ROUTES;
 
-const ROAD_CLOSURES_DETAILS_LABEL =
-  'Please provide details of the road closures, some helpful hint text, road, times, duration ';
+import { WORKS_OVERVIEW_QUESTIONS } from '../../CheckYourAnswers/constants/applicationSummaryLabels';
 
 /** Expected labels from Works Overview design screenshot (SYEIA-1891) */
 const SCREENSHOT_LABELS = {
@@ -597,7 +596,7 @@ const WorksOverview: React.FC = () => {
               <TextArea
                 id="roadClosuresDetails"
                 name="roadClosuresDetails"
-                label={ROAD_CLOSURES_DETAILS_LABEL}
+                label={WORKS_OVERVIEW_QUESTIONS.ROAD_CLOSURES_DETAILS}
                 value={form.roadClosuresDetails}
                 onChange={handleChange}
                 maxLength={4000}

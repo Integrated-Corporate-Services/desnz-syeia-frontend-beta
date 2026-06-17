@@ -26,6 +26,8 @@ import {
   PaymentDetails
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
+import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
+import { normalizeWorksOverview } from "../utils/normalizeWorksOverview";
 import { createLogger } from "../../../utils/logger";
 
 import {
@@ -36,7 +38,6 @@ import {
   BUTTON_LABELS,
   EMPTY_VALUE,
   POST_CONSULTATION_QUESTIONS,
-  WORKS_OVERVIEW_QUESTIONS,
   SUPPORTING_INFO_QUESTIONS,
   EIA_QUESTIONS,
   COMMON_TEXT
@@ -401,7 +402,7 @@ const ApplicationSummary: React.FC = () => {
             }))
             : []
         );
-        setWorksOverview(data.sections?.worksOverview || null);
+        setWorksOverview(normalizeWorksOverview(data.sections?.worksOverview) || null);
         setParishes(data.sections?.parishes || null);
         // Set permissions from API response
         setPermissions(data.permissions || null);
@@ -814,7 +815,11 @@ const ApplicationSummary: React.FC = () => {
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">{FIELD_LABELS.MAX_STRUCTURE_HEIGHT}</dt>
                     <dd className="govuk-summary-list__value">
-                      {projectDetails?.max_structure_height_m || "-"}
+                      {projectDetails?.max_structure_height_m !== undefined &&
+                      projectDetails?.max_structure_height_m !== null &&
+                      projectDetails?.max_structure_height_m !== ''
+                        ? `${projectDetails.max_structure_height_m} metres`
+                        : "-"}
                     </dd>
                   </div>
                   <div className="govuk-summary-list__row">
@@ -974,241 +979,7 @@ const ApplicationSummary: React.FC = () => {
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  {/* Adding or replacing poles */}
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {WORKS_OVERVIEW_QUESTIONS.ADDING_REPLACING_POLES}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof worksOverview?.addingOrReplacingPoles ===
-                        "boolean"
-                        ? worksOverview.addingOrReplacingPoles
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  {worksOverview?.addingOrReplacingPoles && (
-                    <>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.POLE_MATERIAL}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {worksOverview?.poleMaterial || "-"}
-                        </dd>
-                      </div>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.CHEMICAL_TREATMENTS}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {worksOverview?.chemicalTreatments || "-"}
-                        </dd>
-                      </div>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.POLES_ADDED}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {typeof worksOverview?.polesAdded === "number"
-                            ? worksOverview.polesAdded
-                            : "-"}
-                        </dd>
-                      </div>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.POLES_REPLACED}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {typeof worksOverview?.polesReplaced === "number"
-                            ? worksOverview.polesReplaced
-                            : "-"}
-                        </dd>
-                      </div>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.TALLEST_NEW_POLE_HEIGHT}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {worksOverview?.tallestNewPoleHeight !== undefined &&
-                          worksOverview?.tallestNewPoleHeight !== null
-                            ? `${worksOverview.tallestNewPoleHeight} metres`
-                            : "-"}
-                        </dd>
-                      </div>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.POLE_COMMENTS}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {worksOverview?.poleComments || "-"}
-                        </dd>
-                      </div>
-                    </>
-                  )}
-                  {/* Adding or replacing overhead lines */}
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {WORKS_OVERVIEW_QUESTIONS.ADDING_REPLACING_LINES}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof worksOverview?.addingOrReplacingLines ===
-                        "boolean"
-                        ? worksOverview.addingOrReplacingLines
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  {worksOverview?.addingOrReplacingLines && (
-                    <>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.OVERHEAD_LINE_DESC}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {worksOverview?.overheadLineDescription || "-"}
-                        </dd>
-                      </div>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.ESTIMATED_DURATION}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {worksOverview?.estimatedDuration || "-"}
-                        </dd>
-                      </div>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.VEHICLES_REQUIRED}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {worksOverview?.vehiclesRequired || "-"}
-                        </dd>
-                      </div>
-                      <div className="govuk-summary-list__row">
-                        <dt className="govuk-summary-list__key">
-                          {WORKS_OVERVIEW_QUESTIONS.ROAD_CLOSURES}
-                        </dt>
-                        <dd className="govuk-summary-list__value">
-                          {typeof worksOverview?.roadClosuresRequired ===
-                            "boolean"
-                            ? worksOverview.roadClosuresRequired
-                              ? "Yes"
-                              : "No"
-                            : "-"}
-                        </dd>
-                      </div>
-                    </>
-                  )}
-                  {/* Excavation works */}
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {WORKS_OVERVIEW_QUESTIONS.EXCAVATION_REQUIRED}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof worksOverview?.excavationRequired === "boolean"
-                        ? worksOverview.excavationRequired
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  {worksOverview?.excavationRequired && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        {WORKS_OVERVIEW_QUESTIONS.EXCAVATION_DETAILS}
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {worksOverview?.excavationDetails || "-"}
-                      </dd>
-                    </div>
-                  )}
-                  {/* Vegetation clearance */}
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {WORKS_OVERVIEW_QUESTIONS.VEGETATION_CLEARANCE}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof worksOverview?.vegetationClearanceRequired ===
-                        "boolean"
-                        ? worksOverview.vegetationClearanceRequired
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  {worksOverview?.vegetationClearanceRequired && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        {WORKS_OVERVIEW_QUESTIONS.VEGETATION_DETAILS}
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {worksOverview?.vegetationClearanceDetails || "-"}
-                      </dd>
-                    </div>
-                  )}
-                  {/* Pre-existing access routes */}
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {WORKS_OVERVIEW_QUESTIONS.EXISTING_ACCESS_ROUTES}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof worksOverview?.usingExistingAccessRoutes ===
-                        "boolean"
-                        ? worksOverview.usingExistingAccessRoutes
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  {(worksOverview?.usingExistingAccessRoutes === true ||
-                    worksOverview?.usingExistingAccessRoutes === false) && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        {worksOverview?.usingExistingAccessRoutes
-                          ? WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DETAILS
-                          : WORKS_OVERVIEW_QUESTIONS.PROPOSED_ACCESS_ROUTES_DETAILS}
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {worksOverview?.accessRoutesDetails || "-"}
-                      </dd>
-                    </div>
-                  )}
-                  {/* Removing existing equipment */}
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {WORKS_OVERVIEW_QUESTIONS.REMOVING_EQUIPMENT}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {typeof worksOverview?.removingExistingEquipment ===
-                        "boolean"
-                        ? worksOverview.removingExistingEquipment
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  {worksOverview?.removingExistingEquipment && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">
-                        {WORKS_OVERVIEW_QUESTIONS.REMOVAL_DESCRIPTION}
-                      </dt>
-                      <dd className="govuk-summary-list__value">
-                        {worksOverview?.removalDescription || "-"}
-                      </dd>
-                    </div>
-                  )}
-                  {/* General comments */}
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {WORKS_OVERVIEW_QUESTIONS.GENERAL_COMMENTS}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {worksOverview?.generalComments || "-"}
-                    </dd>
-                  </div>
+                  <WorksOverviewSummaryRows worksOverview={worksOverview} />
                 </dl>
               </div>
             </div>
