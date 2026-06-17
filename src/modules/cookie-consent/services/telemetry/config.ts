@@ -25,12 +25,6 @@ interface TelemetryConfig {
 }
 
 /**
-* Default configuration values
-* Used when environment variables are not set
-*/
-const DEFAULT_GA4_MEASUREMENT_ID = 'G-TMWDMMVTK7'; // Dev default
-
-/**
 * Environment-specific configuration overrides
 * Only used when environment variables are not available
 */
