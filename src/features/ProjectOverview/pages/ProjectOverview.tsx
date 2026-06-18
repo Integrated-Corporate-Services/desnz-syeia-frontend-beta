@@ -840,7 +840,6 @@ const ProjectOverview = () => {
 								ref={fileUploadRef}
 								title='Upload a file'
 								showTitle={false}
-								showDocumentsHeading={false}
 								prefix={`${applicationId}/${FILE_CATEGORIES.PLAN_INFO}`}
 								applicationId={applicationId}
 								category={FILE_CATEGORIES.PLAN_INFO}

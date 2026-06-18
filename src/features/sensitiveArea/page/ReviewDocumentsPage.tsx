@@ -324,7 +324,6 @@ const ReviewDocumentsPage: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title="Upload a file"
-                  showDocumentsHeading={false}
                   prefix={`${applicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
