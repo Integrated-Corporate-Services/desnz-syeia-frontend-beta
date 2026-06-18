@@ -5,9 +5,8 @@ import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary as ReviewSumm
 import { getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
 import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import SensitiveAreaReviewSummaryRows from '../../CheckYourAnswers/component/SensitiveAreaReviewSummaryRows';
-import { SENSITIVE_AREA_LABELS } from '../../../constants/sensitiveAreaLabels';
-import type { ReviewSummaryForLayers } from '../../CheckYourAnswers/utils/sensitiveAreaSummaryUtils';
+import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
+import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('SensitiveAreaReviewSummary');
@@ -57,7 +56,6 @@ const SensitiveAreaReviewSummary: React.FC = () => {
             <main className="govuk-main-wrapper" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
-                        {/* Warning banner */}
                         <div className="govuk-warning-text">
                             <span className="govuk-warning-text__icon" aria-hidden="true">
                                 !
@@ -73,15 +71,90 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                         ) : (
                             <div className="govuk-summary-card">
                                 <div className="govuk-summary-card__title-wrapper">
-                                    <h2 className="govuk-summary-card__title">{SENSITIVE_AREA_LABELS.REVIEW_SECTION_TITLE}</h2>
+                                    <h2 className="govuk-summary-card__title">Sensitive area review</h2>
                                 </div>
                                 <div className="govuk-summary-card__content">
                                     <dl className="govuk-summary-list">
-                                        <SensitiveAreaReviewSummaryRows
-                                            reviewSummary={reviewSummary as ReviewSummaryForLayers | null}
-                                            assetPresenceOptionId={review?.asset_presence_option_id}
-                                            applicationDocuments={review?.application_documents}
-                                        />
+                                        <div className="govuk-summary-list__row">
+                                            <dt className="govuk-summary-list__key">Other areas the route passes through</dt>
+                                            <dd className="govuk-summary-list__value">
+                                                {(() => {
+                                                    const selectedLayers = reviewSummary?.checks?.manual?.selected || [];
+                                                    const customAddedLayers = reviewSummary?.checks?.manual?.customAdded || [];
+                                                    const selectedLayerNames = selectedLayers.map((layer: any) => layer.layerName).filter(Boolean);
+                                                    const customLayerNames = customAddedLayers
+                                                        .map((layer: any) => {
+                                                            return layer.layerName || layer.layer_name || layer.name;
+                                                        })
+                                                        .filter(Boolean);
+                                                    const allLayerNames = [...selectedLayerNames, ...customLayerNames];
+
+                                                    if (allLayerNames.length === 0) {
+                                                        return '-';
+                                                    }
+
+                                                    const uniqueLayerNames = Array.from(new Set(allLayerNames));
+
+                                                    return (
+                                                        <ul className="govuk-list govuk-list--bullet">
+                                                            {uniqueLayerNames.map((layerName, index) => (
+                                                                <li key={index}>{layerName}</li>
+                                                            ))}
+                                                        </ul>
+                                                    );
+                                                })()}
+                                            </dd>
+                                        </div>
+                                        <div className="govuk-summary-list__row">
+                                            <dt className="govuk-summary-list__key">Environmental and archaeological documents</dt>
+                                            <dd className="govuk-summary-list__value">
+                                                {(() => {
+                                                    if (!review?.application_documents || review.application_documents.length === 0) {
+                                                        return '-';
+                                                    }
+
+                                                    return (
+                                                        <ul className="govuk-list">
+                                                            {review.application_documents.map((doc: any, idx: number) => (
+                                                                <li key={idx}>
+                                                                    <a
+                                                                        href="#"
+                                                                        className="govuk-link"
+                                                                        onClick={async (e) => {
+                                                                            e.preventDefault();
+                                                                            const key = doc.s3_key || doc.file_id || doc.fileId;
+                                                                            if (key) {
+                                                                                try {
+                                                                                    await downloadS3FileOnSameTab(key);
+                                                                                } catch (error) {
+                                                                                    logger.error('Failed to download file:', { error });
+                                                                                }
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {doc.title || 'Document'}
+                                                                    </a>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    );
+                                                })()}
+                                            </dd>
+                                        </div>
+                                        <div className="govuk-summary-list__row">
+                                            <dt className="govuk-summary-list__key">Poles and lines within sensitive area</dt>
+                                            <dd className="govuk-summary-list__value">
+                                                {(() => {
+                                                    if (review?.asset_presence_option_id === SensitiveAreaPoleOption.POLES_WITHIN) {
+                                                        return 'Yes, there are poles in the sensitive areas';
+                                                    } else if (review?.asset_presence_option_id === SensitiveAreaPoleOption.ONLY_OVERHEAD) {
+                                                        return 'Only overhead lines pass through (all poles are outside)';
+                                                    } else {
+                                                        return 'No, there are no poles or overhead lines in the sensitive areas';
+                                                    }
+                                                })()}
+                                            </dd>
+                                        </div>
                                     </dl>
                                 </div>
                             </div>

@@ -89,11 +89,10 @@ export const FIELD_LABELS = {
   NORTHING: 'Northing',
   DISCONNECTED_JUSTIFICATION: 'Disconnected route justification',
   
-  // Sensitive area fields — aligned with form labels (see sensitiveAreaLabels.ts)
-  ROUTE_TOLERANCE_QUESTION: 'Is any tolerance required either side of the route marked on the plan?',
+  // Sensitive area fields
   TOLERANCE_REQUIRED: 'Tolerance required',
-  TOLERANCE: 'Tolerance required',
-  SENSITIVE_AREAS: 'Sensitive areas that route passes through',
+  TOLERANCE: 'Tolerance',
+  SENSITIVE_AREAS: 'Sensitive areas the route passes through',
   OTHER_AREAS: 'Other areas the route passes through',
   ENV_ARCH_DOCS: 'Environmental and archaeological documents',
   POLES_LINES_SENSITIVE: 'Poles/lines within sensitive areas',

@@ -10,7 +10,6 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
-import { SENSITIVE_AREA_LABELS } from '../../../constants/sensitiveAreaLabels';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -169,7 +168,7 @@ const SensitiveAreaPage: React.FC = () => {
                                     <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
                                         <fieldset className="govuk-fieldset" aria-describedby="fieldset-1-hint">
                                             <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                                                <h2 className="govuk-fieldset__heading">{SENSITIVE_AREA_LABELS.ROUTE_TOLERANCE_QUESTION}</h2>
+                                                <h2 className="govuk-fieldset__heading">Is any tolerance required either side of the route marked on the plan?</h2>
                                             </legend>
                                             <div className="govuk-hint" id="fieldset-1-hint">
                                                 Your route will be buffered by the tolerance provided when checking if it passes through any sensitive areas
@@ -202,7 +201,7 @@ const SensitiveAreaPage: React.FC = () => {
                                                     <div className="govuk-radios__conditional" id="routeToleranceRequired-hidden">
                                                         <div className={`govuk-form-group${formError ? ' govuk-form-group--error' : ''}`}>
                                                             <label className="govuk-label" htmlFor="routeTolerance-inputValue">
-                                                                {SENSITIVE_AREA_LABELS.TOLERANCE_METRES}
+                                                                Tolerance required
                                                                 <span className="govuk-visually-hidden">in metres</span>
                                                             </label>
                                                             {formError && (

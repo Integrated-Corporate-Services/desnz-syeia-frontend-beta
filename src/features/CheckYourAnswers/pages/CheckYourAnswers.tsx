@@ -24,8 +24,6 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
-import SensitiveAreaCheckSummaryRows from "../component/SensitiveAreaCheckSummaryRows";
-import SensitiveAreaReviewSummaryRows from "../component/SensitiveAreaReviewSummaryRows";
 import { normalizeWorksOverview } from "../utils/normalizeWorksOverview";
 import { createLogger } from "../../../utils/logger";
 
@@ -164,6 +162,19 @@ const CheckYourAnswers: React.FC = () => {
         {index < filteredFields.length - 1 && <br />}
       </React.Fragment>
     ));
+  };
+
+  const getAssetPresenceText = (optionId?: number) => {
+    switch (optionId) {
+      case 1:
+        return "There are poles within the sensitive areas";
+      case 2:
+        return "All poles are outside of the sensitive areas with only the overhead lines passing above them";
+      case 3:
+        return "No poles are within a sensitive area and no overhead lines pass above them";
+      default:
+        return "-";
+    }
   };
 
   useEffect(() => {
@@ -1042,11 +1053,41 @@ const CheckYourAnswers: React.FC = () => {
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <SensitiveAreaCheckSummaryRows
-                    toleranceRequired={sensitiveAreaChecks?.tolerance_required}
-                    toleranceValue={sensitiveAreaChecks?.tolerance_value}
-                    layers={layers}
-                  />
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Tolerance required
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {typeof sensitiveAreaChecks?.tolerance_required ===
+                        "boolean"
+                        ? sensitiveAreaChecks.tolerance_required
+                          ? "Yes"
+                          : "No"
+                        : "-"}
+                    </dd>
+                  </div>
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">Tolerance</dt>
+                    <dd className="govuk-summary-list__value">
+                      {typeof sensitiveAreaChecks?.tolerance_value === "number"
+                        ? `${sensitiveAreaChecks.tolerance_value}m`
+                        : "-"}
+                    </dd>
+                  </div>
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Sensitive areas the route passes through
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      <ul className="govuk-list govuk-list--bullet">
+                        {layers.length > 0 ? (
+                          layers.map((layer, idx) => <li key={idx}>{layer}</li>)
+                        ) : (
+                          <li>-</li>
+                        )}
+                      </ul>
+                    </dd>
+                  </div>
                 </dl>
               </div>
             </div>
@@ -1059,11 +1100,79 @@ const CheckYourAnswers: React.FC = () => {
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <SensitiveAreaReviewSummaryRows
-                    assetPresenceOptionId={sensitiveAreaReview?.asset_presence_option_id}
-                    applicationDocuments={sensitiveAreaReview?.application_documents}
-                    manual={sensitiveAreaReview?.manual}
-                  />
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Other areas the route passes through
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {(() => {
+                        const selectedLayers = sensitiveAreaReview?.manual?.selected || [];
+                        const customAddedLayers = sensitiveAreaReview?.manual?.customAdded || [];
+                        const allManualLayers = [...selectedLayers, ...customAddedLayers];
+
+                        if (allManualLayers.length === 0) {
+                          return "-";
+                        }
+
+                        const uniqueLayerNames = Array.from(
+                          new Set(allManualLayers.map(layer => layer.layerName).filter(Boolean))
+                        );
+
+                        return (
+                          <ul className="govuk-list govuk-list--bullet">
+                            {uniqueLayerNames.map((layerName, index) => (
+                              <li key={index}>{layerName}</li>
+                            ))}
+                          </ul>
+                        );
+                      })()}
+                    </dd>
+                  </div>
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Environmental and archaeological documents
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      <ul className="govuk-list">
+                        {sensitiveAreaReview?.application_documents &&
+                          sensitiveAreaReview.application_documents.length > 0 ? (
+                          sensitiveAreaReview.application_documents.map((doc) => (
+                            <li key={doc.document_id}>
+                              <a
+                                href="#"
+                                className="govuk-link"
+                                onClick={async (e) => {
+                                  e.preventDefault();
+                                  const key = doc.s3_key || doc.file_id;
+                                  if (key) {
+                                    try {
+                                      await downloadS3FileOnSameTab(key);
+                                    } catch (error) {
+                                      logger.error('Failed to download file:', { error });
+                                    }
+                                  }
+                                }}
+                              >
+                                {doc.title}
+                              </a>
+                            </li>
+                          ))
+                        ) : (
+                          <li>-</li>
+                        )}
+                      </ul>
+                    </dd>
+                  </div>
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Poles/lines within sensitive areas
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {getAssetPresenceText(
+                        sensitiveAreaReview?.asset_presence_option_id,
+                      )}
+                    </dd>
+                  </div>
                 </dl>
               </div>
             </div>
