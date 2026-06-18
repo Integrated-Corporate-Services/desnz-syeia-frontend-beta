@@ -1,4 +1,4 @@
-const DEFAULT_DISABLED_FORM_TYPES = 'wayleaves';
+const DEFAULT_DISABLED_FORM_TYPES = '';
 
 const YOUR_DETAILS_DISABLED_KEYS = ['your-details', 'your_details', 'yourdetails'];
 

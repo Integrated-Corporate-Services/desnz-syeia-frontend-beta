@@ -24,8 +24,8 @@ export const SummaryList: React.FC<SummaryListProps> = ({ rows, classes = '' }) 
         <dl className={`govuk-summary-list ${classes}`}>
             {rows.map((row, index) => (
                 <div className="govuk-summary-list__row" key={index}>
-                    <dt className={`govuk-summary-list__key ${row.key.classes || ''}`}>{row.key.text}</dt>
-                    <dd className={`govuk-summary-list__value ${row.value.classes || ''}`}>{row.value.html ? <span dangerouslySetInnerHTML={{ __html: row.value.html }} /> : row.value.text}</dd>
+                    <dt className={`govuk-summary-list__key govuk-!-width-one-third ${row.key.classes || ''}`}>{row.key.text}</dt>
+                    <dd className={`govuk-summary-list__value govuk-!-width-two-thirds ${row.value.classes || ''}`}>{row.value.html ? <span dangerouslySetInnerHTML={{ __html: row.value.html }} /> : row.value.text}</dd>
                     {row.actions && (
                         <dd className="govuk-summary-list__actions">
                             {row.actions.items.map((action: { href: string; text: string; visuallyHiddenText?: string }, actionIndex: number) => (

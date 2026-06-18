@@ -1,8 +1,3 @@
-/**
- * Site Address Summary Card
- * Displays site address information
- */
-
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
@@ -10,7 +5,6 @@ import { createSummaryRow, formatBoolean } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
     applicationId: string;
     canEdit?: boolean;
@@ -57,6 +51,8 @@ export const SiteAddressSummaryCard: React.FC<Props> = ({ data, applicationId, c
     } else {
         rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SITE_ADDRESS, CONSTANTS.DEFAULTS.EMPTY));
     }
+
+    rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.COUNTRY, data.country || data.site_country || CONSTANTS.DEFAULTS.EMPTY));
 
     return (
         <SummaryCard
