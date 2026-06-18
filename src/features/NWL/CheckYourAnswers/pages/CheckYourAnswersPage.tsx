@@ -18,7 +18,8 @@ import {
     LandRegistrySummaryCard,
     OSGridReferenceSummaryCard,
     IdentifyingInformationSummaryCard,
-    AssetsPlanSummaryCard,
+    AssetSummaryCard,
+    ApplicationPlanSummaryCard,
     NWLAdditionalInformationSummaryCard,
     NegotiationsSummaryCard,
 } from '../components';
@@ -131,9 +132,18 @@ export const CheckYourAnswersPage: React.FC = () => {
                         <IdentifyingInformationSummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ASSETS}</h2>
-                        <AssetsPlanSummaryCard
+                        {assets.map((asset, index) => (
+                            <AssetSummaryCard
+                                key={asset.asset_id || index}
+                                asset={asset}
+                                assetNumber={index + 1}
+                                applicationId={applicationId!}
+                                canEdit={permissions.canEdit}
+                            />
+                        ))}
+
+                        <ApplicationPlanSummaryCard
                             data={assetsMetadata}
-                            assets={assets}
                             applicationId={applicationId!}
                             canEdit={permissions.canEdit}
                         />

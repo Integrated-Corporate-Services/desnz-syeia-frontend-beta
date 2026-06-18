@@ -18,5 +18,7 @@ export * from './LandRegistrySummaryCard';
 export * from './OSGridReferenceSummaryCard';
 export * from './IdentifyingInformationSummaryCard';
 export * from './AssetsPlanSummaryCard';
+export * from './AssetSummaryCard';
+export * from './ApplicationPlanSummaryCard';
 export * from './NWLAdditionalInformationSummaryCard';
 export * from './NegotiationsSummaryCard';

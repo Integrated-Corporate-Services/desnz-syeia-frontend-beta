@@ -35,7 +35,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         LAND_REGISTRY: 'Land registry',
         OS_GRID_REFERENCE: 'OS grid reference',
         IDENTIFYING_INFORMATION: 'Identifying information',
-        ASSET_PLAN: 'Application plan and verification',
+        ASSET_PLAN: 'Application plan',
         ASSET: 'Asset',
         NEGOTIATIONS: 'Existing negotiations',
         ADDITIONAL_INFORMATION: 'Additional information',
@@ -95,7 +95,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
 
     // Field labels - Representative Details
     REPRESENTATIVE_FIELDS: {
-        HAS_REPRESENTATIVE: 'Is there an objector representative?',
+        HAS_REPRESENTATIVE: 'Objector representative?',
         TITLE: 'Title',
         NAME: 'Full name',
         ORGANISATION: 'Organisation',
@@ -141,9 +141,9 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
 
     // Field labels - Assets
     ASSET_FIELDS: {
-        APPLICATION_PLAN_DOCUMENTS: 'Uploaded application plan',
+        APPLICATION_PLAN_DOCUMENTS: 'Provide an application plan',
         ASSETS_MATCH_PLAN: 'Do the assets listed match those shown on the application plan?',
-        ASSETS_MATCH_PLAN_EXPLANATION: 'Explain what does not match',
+        ASSETS_MATCH_PLAN_EXPLANATION: 'Explain why the assets listed do not match those shown on the application plan',
         LINE_VOLTAGE: 'Line voltage',
         LINE_TYPES: 'Line type(s)',
         COMMENTS: 'Comments',
