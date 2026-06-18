@@ -1,7 +1,6 @@
 import React from "react";
 import { useUserManagementDashboard } from "../../../hooks";
 import { TabNavigation } from "../components/TabNavigation";
-// import { FilterSection } from "../components/FilterSection";
 import { OrganisationsTab } from "../components/OrganisationsTab";
 import { ActiveUsersTab } from "../components/ActiveUsersTab";
 import { PendingRequestsTab } from "../components/PendingRequestsTab";
