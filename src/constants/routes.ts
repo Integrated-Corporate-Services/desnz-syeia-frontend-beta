@@ -141,8 +141,13 @@ import DownloadLpaConsultationFormPage from '../features/Consultation/pages/Down
 import ClosedPage from '../pages/ClosedPage';
 import StartRedirect from '../components/StartRedirect';
 import { FeedbackPage } from '../modules/feedback';
+import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
+import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
+import { isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
 
-export const ROUTE_CONFIG = [
+const yourDetailsFeatureDisabled = isYourDetailsFeatureDisabled();
+
+export const ROUTE_CONFIG: RouteConfig[] = [
     // UAT Invite System Routes
     {
         path: '/access-denied',
@@ -485,6 +490,22 @@ export const ROUTE_CONFIG = [
         auth: true,
         layout: false,
     },
+    ...(!yourDetailsFeatureDisabled
+        ? [
+            {
+                path: '/your-details',
+                component: YourDetailsPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/your-details/change-full-name',
+                component: ChangeFullNamePage,
+                auth: true,
+                layout: true,
+            },
+        ]
+        : []),
     {
         path: `${NWL_BASE_URL}/who-is-applying`,
         component: NWLWhoIsApplying,

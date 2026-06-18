@@ -5,16 +5,14 @@ import { RadioGroup } from './components/RadioGroup';
 import { useApplicationTypeSelection } from './hooks/useApplicationTypeSelection';
 
 import { APPLICATION_TYPE_OPTIONS } from './constants/applicationTypeOptions';
+import { getDisabledFormTypes } from '../../utils/disabledFormTypes';
 
 const ChooseApplicationTypePage: React.FC = () => {
 
   const { selectedType, error, handleChange, handleSubmit, errors } = useApplicationTypeSelection();
 
   // Disable form types listed in VITE_DISABLED_FORM_TYPES (comma-separated)
-  const disabledTypes = (import.meta.env.VITE_DISABLED_FORM_TYPES || "wayleaves")
-    .split(',')
-    .map((type: string) => type.trim())
-    .filter(Boolean);
+  const disabledTypes = getDisabledFormTypes();
 
   const filteredOptions = APPLICATION_TYPE_OPTIONS.filter(
     option => !disabledTypes.includes(option.value)
