@@ -22,9 +22,11 @@ const SensitiveAreaCheckSummary: React.FC = () => {
     useEffect(() => {
         async function fetchData() {
             try {
+                // Fetch routes
                 const routeData = await getRoutesWithPoints(applicationId);
                 setRoutes(routeData.routes || []);
 
+                // Fetch sensitive area settings
                 const settings = await getSensitiveAreaSettings(applicationId);
                 if (Array.isArray(settings) && settings.length > 0) {
                     const first = settings[0];
@@ -36,6 +38,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                     }
                 }
 
+                // Fetch review summary to get intersected layers
                 const summaryData = await getSensitiveAreaReviewSummary(applicationId);
                 setReviewSummary(summaryData);
             } catch {
@@ -47,6 +50,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
         if (applicationId) fetchData();
     }, [applicationId]);
 
+    // Transform routes for the map component (matching CYA format)
     const transformedRoutes = routes
         .filter((r) => Array.isArray(r.gridPoints) && r.gridPoints.length > 0)
         .map((r) => ({
@@ -75,6 +79,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
             <main className="govuk-main-wrapper" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
+                        {/* Warning banner */}
                         <div className="govuk-warning-text">
                             <span className="govuk-warning-text__icon" aria-hidden="true">
                                 !
@@ -89,6 +94,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                             <p className="govuk-body">Loading...</p>
                         ) : (
                             <>
+                                {/* Route map summary card */}
                                 <div className="govuk-summary-card">
                                     <div className="govuk-summary-card__title-wrapper">
                                         <h2 className="govuk-summary-card__title">Route map</h2>
@@ -109,6 +115,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                                     </div>
                                 </div>
 
+                                {/* Sensitive area check settings */}
                                 <div className="govuk-summary-card">
                                     <div className="govuk-summary-card__title-wrapper">
                                         <h2 className="govuk-summary-card__title">Sensitive area check</h2>
@@ -131,17 +138,22 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                                                     {(() => {
                                                         const passedScreeningRequired = reviewSummary?.checks?.automated?.passed?.screeningRequired || [];
                                                         const passedNoScreening = reviewSummary?.checks?.automated?.passed?.noScreening || [];
+                                                        
+                                                        // Combine both passed categories
                                                         const allPassedLayers = [...passedScreeningRequired, ...passedNoScreening];
+                                                        
+                                                        // Extract layer names
                                                         const layerNames = allPassedLayers
-                                                            .map((layer: { layerName?: string }) => layer.layerName)
+                                                            .map((layer: any) => layer.layerName)
                                                             .filter(Boolean);
-
+                                                        
                                                         if (layerNames.length === 0) {
                                                             return '-';
                                                         }
-
+                                                        
+                                                        // Get unique layer names
                                                         const uniqueLayerNames = Array.from(new Set(layerNames));
-
+                                                        
                                                         return (
                                                             <ul className="govuk-list govuk-list--bullet">
                                                                 {uniqueLayerNames.map((layerName, index) => (

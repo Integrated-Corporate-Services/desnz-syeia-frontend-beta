@@ -56,6 +56,7 @@ const SensitiveAreaReviewSummary: React.FC = () => {
             <main className="govuk-main-wrapper" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
+                        {/* Warning banner */}
                         <div className="govuk-warning-text">
                             <span className="govuk-warning-text__icon" aria-hidden="true">
                                 !
@@ -81,18 +82,24 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                                 {(() => {
                                                     const selectedLayers = reviewSummary?.checks?.manual?.selected || [];
                                                     const customAddedLayers = reviewSummary?.checks?.manual?.customAdded || [];
+
+                                                    // Extract layer names from selected layers
                                                     const selectedLayerNames = selectedLayers.map((layer: any) => layer.layerName).filter(Boolean);
+
+                                                    // Extract layer names from custom added layers
                                                     const customLayerNames = customAddedLayers
                                                         .map((layer: any) => {
                                                             return layer.layerName || layer.layer_name || layer.name;
                                                         })
                                                         .filter(Boolean);
+
                                                     const allLayerNames = [...selectedLayerNames, ...customLayerNames];
 
                                                     if (allLayerNames.length === 0) {
                                                         return '-';
                                                     }
 
+                                                    // Get unique layer names
                                                     const uniqueLayerNames = Array.from(new Set(allLayerNames));
 
                                                     return (
@@ -122,7 +129,7 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                                                         className="govuk-link"
                                                                         onClick={async (e) => {
                                                                             e.preventDefault();
-                                                                            const key = doc.s3_key || doc.file_id || doc.fileId;
+                                                                            const key = doc.s3_key || doc.file_id;
                                                                             if (key) {
                                                                                 try {
                                                                                     await downloadS3FileOnSameTab(key);

@@ -350,7 +350,7 @@ const WorksOverview: React.FC = () => {
     const hasUploadedDocuments = categoryUploadedFiles.length > 0;
 
     return (
-      <div className="govuk-form-group" style={{ maxWidth: 600 }}>
+      <div className="govuk-form-group govuk-!-width-two-thirds">
         {hasUploadedDocuments && (
           <h3 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h3>
         )}
@@ -453,7 +453,7 @@ const WorksOverview: React.FC = () => {
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.poleMaterial ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.poleMaterial ? ' govuk-form-group--error' : ''}`}>
               <TextInput
                 id="poleMaterial"
                 name="poleMaterial"
@@ -463,7 +463,7 @@ const WorksOverview: React.FC = () => {
                 error={errors.poleMaterial}
               />
             </div>
-            <div className={`govuk-form-group${errors.chemicalTreatments ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.chemicalTreatments ? ' govuk-form-group--error' : ''}`}>
               <TextInput
                 id="chemicalTreatments"
                 name="chemicalTreatments"
@@ -473,7 +473,7 @@ const WorksOverview: React.FC = () => {
                 error={errors.chemicalTreatments}
               />
             </div>
-            <div className={`govuk-form-group${errors.polesAdded ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.polesAdded ? ' govuk-form-group--error' : ''}`}>
               <NumberInput
                 id="polesAdded"
                 name="polesAdded"
@@ -483,7 +483,7 @@ const WorksOverview: React.FC = () => {
                 error={errors.polesAdded}
               />
             </div>
-            <div className={`govuk-form-group${errors.polesReplaced ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.polesReplaced ? ' govuk-form-group--error' : ''}`}>
               <NumberInput
                 id="polesReplaced"
                 name="polesReplaced"
@@ -493,7 +493,7 @@ const WorksOverview: React.FC = () => {
                 error={errors.polesReplaced}
               />
             </div>
-            <div className={`govuk-form-group${errors.tallestNewPoleHeight ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.tallestNewPoleHeight ? ' govuk-form-group--error' : ''}`}>
               <NumberInput
                 id="tallestNewPoleHeight"
                 name="tallestNewPoleHeight"
@@ -504,7 +504,7 @@ const WorksOverview: React.FC = () => {
                 error={errors.tallestNewPoleHeight}
               />
             </div>
-            <div className={`govuk-form-group${errors.poleComments ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.poleComments ? ' govuk-form-group--error' : ''}`}>
               <TextArea
                 id="poleComments"
                 name="poleComments"
@@ -530,7 +530,7 @@ const WorksOverview: React.FC = () => {
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.overheadLineDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.overheadLineDescription ? ' govuk-form-group--error' : ''}`}>
               <TextArea
                 id="overheadLineDescription"
                 name="overheadLineDescription"
@@ -545,7 +545,7 @@ const WorksOverview: React.FC = () => {
           </RadioGroup>
         </div>
 
-        <div className={`govuk-form-group${errors.estimatedDuration ? ' govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} style={{ maxWidth: 600 }}>
+        <div className={`govuk-form-group govuk-!-width-two-thirds${errors.estimatedDuration ? ' govuk-form-group--error' : ''} govuk-!-margin-bottom-6`}>
           <TextInput
             id="estimatedDuration"
             name="estimatedDuration"
@@ -556,7 +556,7 @@ const WorksOverview: React.FC = () => {
           />
         </div>
 
-        <div className={`govuk-form-group${errors.vehiclesRequired ? ' govuk-form-group--error' : ''} govuk-!-margin-bottom-6`} style={{ maxWidth: 600 }}>
+        <div className={`govuk-form-group govuk-!-width-two-thirds${errors.vehiclesRequired ? ' govuk-form-group--error' : ''} govuk-!-margin-bottom-6`}>
           <TextInput
             id="vehiclesRequired"
             name="vehiclesRequired"
@@ -577,7 +577,7 @@ const WorksOverview: React.FC = () => {
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div style={{ maxWidth: 600 }}>
+            <div className="govuk-!-width-two-thirds">
               <TextArea
                 id="roadClosuresDetails"
                 name="roadClosuresDetails"
@@ -607,7 +607,7 @@ const WorksOverview: React.FC = () => {
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.excavationDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.excavationDetails ? ' govuk-form-group--error' : ''}`}>
               <TextArea
                 id="excavationDetails"
                 name="excavationDetails"
@@ -634,7 +634,7 @@ const WorksOverview: React.FC = () => {
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.vegetationClearanceDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.vegetationClearanceDetails ? ' govuk-form-group--error' : ''}`}>
               <TextArea
                 id="vegetationClearanceDetails"
                 name="vegetationClearanceDetails"
@@ -661,7 +661,7 @@ const WorksOverview: React.FC = () => {
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
             noChildren={
               <>
-                <div className={`govuk-form-group${errors.proposedAccessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+                <div className={`govuk-form-group govuk-!-width-two-thirds${errors.proposedAccessRoutesDetails ? ' govuk-form-group--error' : ''}`}>
                   <TextArea
                     id="proposedAccessRoutesDetails"
                     name="proposedAccessRoutesDetails"
@@ -677,7 +677,7 @@ const WorksOverview: React.FC = () => {
               </>
             }
           >
-            <div className={`govuk-form-group${errors.existingAccessRoutesDetails ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.existingAccessRoutesDetails ? ' govuk-form-group--error' : ''}`}>
               <TextArea
                 id="existingAccessRoutesDetails"
                 name="existingAccessRoutesDetails"
@@ -704,7 +704,7 @@ const WorksOverview: React.FC = () => {
             onChange={handleChange}
             options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
           >
-            <div className={`govuk-form-group${errors.removalDescription ? ' govuk-form-group--error' : ''}`} style={{ maxWidth: 600 }}>
+            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.removalDescription ? ' govuk-form-group--error' : ''}`}>
               <TextArea
                 id="removalDescription"
                 name="removalDescription"
@@ -734,12 +734,12 @@ const WorksOverview: React.FC = () => {
         </div>
 
         <button type="submit" className="govuk-button">Save and continue</button>
-        <Link
+        {/* <Link
           to={`${S37_BASE_URL}/${applicationId}/task-list`}
           className="govuk-button govuk-button--secondary govuk-!-margin-left-2"
         >
           Save for later
-        </Link>
+        </Link> */}
       </form>
     </main>
   </div>
