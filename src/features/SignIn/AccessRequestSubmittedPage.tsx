@@ -36,7 +36,6 @@ const AccessRequestSubmittedPage: React.FC = () => {
     }
 
     // Clear form data when user reaches this page (request submitted successfully)
-    console.log('[AccessRequestSubmittedPage] Clearing form data after successful submission');
     clearFormData();
   }, [authenticated, user?.role, navigate, clearFormData]);
 

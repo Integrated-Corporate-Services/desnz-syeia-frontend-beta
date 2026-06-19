@@ -74,9 +74,7 @@ const SelectOrganisationsPage: React.FC = () => {
         organisationIds: selectedOrgs,
       };
 
-      console.log('[SelectOrganisationsPage] Submitting access request to DB...');
       await saveAccessRequest(completeFormData);
-      console.log('[SelectOrganisationsPage] DB save successful, navigating to submitted page');
 
       // Navigate to success page (which will clear the session data)
       navigate("/request-access/submitted");

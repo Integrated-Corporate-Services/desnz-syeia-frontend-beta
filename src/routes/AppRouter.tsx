@@ -28,7 +28,6 @@ const useAuth = () => {
 
 
 const AppRouter: React.FC = () => {
-  //const isAuthenticated = useAuth();
   const isAuthenticated = false; // DNS always leads to signin
 
   return (

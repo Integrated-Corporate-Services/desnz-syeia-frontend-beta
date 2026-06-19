@@ -7,9 +7,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { ROLES } from '../../../constants/roles';
-// import { getInitialSections } from '../../../utils/taskListUtils';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-// import { applicationApiService } from '../../../services/applicationApiService';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('TaskList');

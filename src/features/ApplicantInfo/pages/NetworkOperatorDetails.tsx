@@ -93,15 +93,9 @@ const NetworkOperatorDetails: React.FC = () => {
   // Fetch application data on mount
   useEffect(() => {
     if (appId) {
-      console.log('[NetworkOperatorDetails] Fetching application data for:', appId);
       fetchApplication(appId).then(() => {
-        console.log('[NetworkOperatorDetails] Application fetched:', application);
         // If organization passed via state, update application_party
         if (stateOrgId && stateOrgName && application?.application_id) {
-          console.log('[NetworkOperatorDetails] Updating with state org data:', {
-            stateOrgId,
-            stateOrgName
-          });
           setApplication({
             ...application,
             application_id: application.application_id,
@@ -188,16 +182,8 @@ const NetworkOperatorDetails: React.FC = () => {
           additional_contact: additionalContactString,
         };
 
-        console.log('[NetworkOperatorDetails] Saving network operator data:', {
-          saveData,
-          selectedOrganisation,
-          applicationParty,
-        });
-
         // Wait for the save operation to complete before navigating
         const result = await applicationApiService.saveNetworkOperator(saveData);
-
-        console.log('[NetworkOperatorDetails] Save result:', result);
 
         // Only navigate if the save was successful and we have an application ID
         if (result?.application?.application_id) {
@@ -206,14 +192,12 @@ const NetworkOperatorDetails: React.FC = () => {
           );
         } else {
           // Handle case where save didn't return expected data
-          console.error("Save operation did not return expected results", result);
           navigate(
             `${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`
           );
         }
       }
     } catch (error) {
-      console.error("Error saving network operator details:", error);
       // You may want to show an error message to the user here
       // For now, we'll stay on the current page to allow the user to try again
     }
