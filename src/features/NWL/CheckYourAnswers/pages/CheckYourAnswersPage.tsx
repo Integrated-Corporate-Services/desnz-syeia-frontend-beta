@@ -19,7 +19,7 @@ import {
     OSGridReferenceSummaryCard,
     IdentifyingInformationSummaryCard,
     AssetSummaryCard,
-    ApplicationPlanSummaryCard,
+    AssetsPlanSummaryCard,
     NWLAdditionalInformationSummaryCard,
     NegotiationsSummaryCard,
 } from '../components';
@@ -142,7 +142,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                             />
                         ))}
 
-                        <ApplicationPlanSummaryCard
+                        <AssetsPlanSummaryCard
                             data={assetsMetadata}
                             applicationId={applicationId!}
                             canEdit={permissions.canEdit}
