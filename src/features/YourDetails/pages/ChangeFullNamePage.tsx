@@ -129,10 +129,6 @@ const ChangeFullNamePage: React.FC = () => {
     }
   };
 
-  // const handleSaveForLater = () => {
-  //   navigate('/your-details');
-  // };
-
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">

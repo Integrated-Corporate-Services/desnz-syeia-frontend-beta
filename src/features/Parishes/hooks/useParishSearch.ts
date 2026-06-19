@@ -17,7 +17,6 @@ export const useParishSearch = () => {
         const results = await parishApiService.searchParishes(value);
         setSearchResults(results);
       } catch (error) {
-        console.error("Error searching parishes:", error);
         setSearchResults([]);
       } finally {
         setIsSearching(false);

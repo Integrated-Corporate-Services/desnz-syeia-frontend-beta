@@ -3,19 +3,16 @@ import { useNavigate } from 'react-router-dom';
 
 const SignInPage: React.FC = () => {
   const navigate = useNavigate();
+  
   const handleSignIn = () => {
-    // const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL || 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login';
-    // window.location.href = loginUrl;
     navigate('/application-dashboard');
   };
+  
   const handleNWLSignIn = () => {
-  // const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL_NWL || 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login-nwl';
-  // window.location.href = loginUrl;
-  navigate('/nwl/who-is-applying');
-  }
+    navigate('/nwl/who-is-applying');
+  };
+  
   const handleTLPSignIn = () => {
-    // const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL_TLP || 'https://eip-dev-external-1040853835.eu-west-2.elb.amazonaws.com/backend/auth/login-tlp';
-    // window.location.href = loginUrl;
     navigate('/tlp/who-is-applying');
   };
 

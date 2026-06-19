@@ -30,7 +30,6 @@ export const useParishManagement = (applicationId: string) => {
 
         setParishes(savedParishes);
       } catch (error) {
-        console.error("Failed to fetch saved parishes:", error);
         setLoadError("Failed to load saved parishes");
       } finally {
         setIsLoading(false);

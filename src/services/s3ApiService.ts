@@ -4,8 +4,9 @@
 
 import { buildBackendUrl } from '../utils/apiConfig';
 
-// Configuration
-const S3_URL_EXPIRY_SECONDS = 1800; // 30 minutes (should match backend and session timeout)
+// Configuration from environment variables
+const S3_URL_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_URL_EXPIRY_SECONDS) || 1800; // Default: 30 minutes
+const S3_REFRESH_BEFORE_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS) || 120; // Default: 2 minutes
 
 interface UrlCacheEntry {
   url: string;
@@ -114,8 +115,8 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   const cached = urlCache.get(filename);
   const now = Date.now();
 
-  // Return cached URL if still valid (with 2 minute buffer before expiry)
-  if (cached && cached.expiresAt > now + 120000) {
+  // Return cached URL if still valid (with buffer before expiry)
+  if (cached && cached.expiresAt > now + (S3_REFRESH_BEFORE_EXPIRY_SECONDS * 1000)) {
     return cached.url;
   }
 

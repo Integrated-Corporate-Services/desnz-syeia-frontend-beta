@@ -1,9 +1,14 @@
+// Default: empty string means no form types are disabled (all enabled)
 const DEFAULT_DISABLED_FORM_TYPES = '';
 
 const YOUR_DETAILS_DISABLED_KEYS = ['your-details', 'your_details', 'yourdetails'];
 
 export const getDisabledFormTypes = (): string[] => {
-  return (import.meta.env.VITE_DISABLED_FORM_TYPES || DEFAULT_DISABLED_FORM_TYPES)
+  const disabledTypes = import.meta.env.VITE_DISABLED_FORM_TYPES ?? DEFAULT_DISABLED_FORM_TYPES;
+  if (!disabledTypes || disabledTypes.trim() === '') {
+    return [];
+  }
+  return disabledTypes
     .split(',')
     .map((type: string) => type.trim().toLowerCase())
     .filter(Boolean);
