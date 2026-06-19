@@ -1,8 +1,3 @@
-/**
- * GOV.UK Summary Card Component
- * Wrapper for summary list with title and optional actions
- */
-
 import React from 'react';
 import { SummaryList } from './SummaryList';
 import { SummaryRow } from '../types';

@@ -1,8 +1,3 @@
-/**
- * Check Your Answers Constants
- * All text, labels, and routes for NWL Check Your Answers page
- */
-
 export const CHECK_YOUR_ANSWERS_CONSTANTS = {
     PAGE_TITLE: 'Check your answers before sending your application',
     HEADING: 'Check your answers before sending your application',
@@ -37,7 +32,10 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         REPRESENTATIVE_DETAILS: 'Representative details',
         SITE_ADDRESS: 'Site address',
         LAND_LOCATION: 'Land location',
-        ASSET_PLAN: 'Application plan and verification',
+        LAND_REGISTRY: 'Land registry',
+        OS_GRID_REFERENCE: 'OS grid reference',
+        IDENTIFYING_INFORMATION: 'Identifying information',
+        ASSET_PLAN: 'Application plan',
         ASSET: 'Asset',
         NEGOTIATIONS: 'Existing negotiations',
         ADDITIONAL_INFORMATION: 'Additional information',
@@ -97,7 +95,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
 
     // Field labels - Representative Details
     REPRESENTATIVE_FIELDS: {
-        HAS_REPRESENTATIVE: 'Is there an objector representative?',
+        HAS_REPRESENTATIVE: 'Objector representative?',
         TITLE: 'Title',
         NAME: 'Full name',
         ORGANISATION: 'Organisation',
@@ -110,6 +108,23 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
     SITE_ADDRESS_FIELDS: {
         SAME_AS_OCCUPIER: "Site address same as occupier's?",
         SITE_ADDRESS: 'Site address',
+        COUNTRY: 'Country',
+    },
+
+    LAND_REGISTRY_FIELDS: {
+        IS_REGISTERED: 'Registered with Land Registry?',
+        REGISTRY_REF: 'Land Registry reference',
+        REGISTRY_DOC: 'Land Registry document',
+    },
+
+    OS_GRID_REFERENCE_FIELDS: {
+        SITE_GRID_REFERENCE: 'Site grid reference',
+    },
+
+    IDENTIFYING_INFO_FIELDS: {
+        IDENTIFY_THE_LAND: 'Identify the land',
+        VISIBLE_FROM_PUBLIC_ROAD: 'Visible from public road?',
+        SITE_PHOTOGRAPHS: 'Site photographs',
     },
 
     // Field labels - Land Location
@@ -126,9 +141,9 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
 
     // Field labels - Assets
     ASSET_FIELDS: {
-        APPLICATION_PLAN_DOCUMENTS: 'Uploaded application plan',
+        APPLICATION_PLAN_DOCUMENTS: 'Provide an application plan',
         ASSETS_MATCH_PLAN: 'Do the assets listed match those shown on the application plan?',
-        ASSETS_MATCH_PLAN_EXPLANATION: 'Explain what does not match',
+        ASSETS_MATCH_PLAN_EXPLANATION: 'Explain why the assets listed do not match those shown on the application plan',
         LINE_VOLTAGE: 'Line voltage',
         LINE_TYPES: 'Line type(s)',
         COMMENTS: 'Comments',
@@ -154,6 +169,9 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         REPRESENTATIVE_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/representative-details`,
         SITE_ADDRESS: (applicationId: string) => `/frontend/nwl/${applicationId}/site-address`,
         LAND_LOCATION: (applicationId: string) => `/frontend/nwl/${applicationId}/land-country`,
+        LAND_REGISTRY: (applicationId: string) => `/frontend/nwl/${applicationId}/land-registry`,
+        OS_GRID_REFERENCE: (applicationId: string) => `/frontend/nwl/${applicationId}/os-grid-reference`,
+        IDENTIFYING_INFORMATION: (applicationId: string) => `/frontend/nwl/${applicationId}/identifying-information`,
         APPLICATION_PLAN: (applicationId: string) => `/frontend/nwl/${applicationId}/application-plan`,
         PLAN_VERIFICATION: (applicationId: string) => `/frontend/nwl/${applicationId}/plan-verification`,
         ASSET: (applicationId: string) => `/frontend/nwl/${applicationId}/assets`,

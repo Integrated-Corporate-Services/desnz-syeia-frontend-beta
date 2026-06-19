@@ -1,8 +1,3 @@
-/**
- * Asset plan and verification summary card
- * Displays uploaded application plan files and plan verification answer
- */
-
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
@@ -15,46 +10,10 @@ interface AssetPlanDocument {
 }
 
 interface Props {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    assets?: any[];
     applicationId: string;
     canEdit?: boolean;
 }
-
-const LINE_TYPE_LABELS: Record<string, string> = {
-    overhead_line: 'Overhead line',
-    overhead_line_wooden_pole: 'Overhead line (wooden pole)',
-    underground_cable: 'Underground cable',
-    stay: 'Stay',
-};
-
-const toSentenceCase = (value: string): string => {
-    return value
-        .replace(/_/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .replace(/^./, (c) => c.toUpperCase());
-};
-
-const getLineTypesText = (lineTypes: string[] = []): string => {
-    return lineTypes
-        .map((lineType) => LINE_TYPE_LABELS[lineType] || toSentenceCase(lineType))
-        .join(', ');
-};
-
-const getCommentsHtml = (lineTypes: string[] = [], componentDescriptions: Record<string, string> = {}): string => {
-    const comments = lineTypes
-        .map((lineType) => {
-            const label = LINE_TYPE_LABELS[lineType] || toSentenceCase(lineType);
-            const description = componentDescriptions[lineType];
-            return description ? `<strong>${label}:</strong> ${description}` : '';
-        })
-        .filter(Boolean);
-
-    return comments.join('<br>');
-};
 
 const getDocumentNames = (documents: AssetPlanDocument[] = []): string[] => {
     return documents
@@ -62,7 +21,7 @@ const getDocumentNames = (documents: AssetPlanDocument[] = []): string[] => {
         .filter((name) => Boolean(name));
 };
 
-export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, assets = [], applicationId, canEdit = true }) => {
+export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, canEdit = true }) => {
     const metadata = data || {};
 
     const documents = metadata.application_plan_documents || metadata.applicationDocuments || [];
@@ -72,48 +31,36 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, assets = [], appl
     const hasContent =
         documentNames.length > 0 ||
         hasAssetsMatchPlanValue ||
-        Boolean(metadata.assets_match_plan_explanation) ||
-        Boolean(metadata.metadata_id || metadata.assets_metadata_id) ||
-        assets.length > 0;
+        Boolean(metadata.assets_match_plan_explanation);
 
     if (!hasContent) {
-        return null;
+        return (
+            <SummaryCard
+                title={CONSTANTS.CARD_TITLES.ASSET_PLAN}
+                rows={[]}
+                actions={
+                    canEdit
+                        ? [
+                              {
+                                  href: CONSTANTS.ROUTES.APPLICATION_PLAN(applicationId),
+                                  text: CONSTANTS.ACTIONS.ADD,
+                              },
+                          ]
+                        : undefined
+                }
+            />
+        );
     }
 
     const rows: SummaryRow[] = [];
 
-    assets.forEach((asset, index) => {
-        const assetLabel = `Asset ${index + 1}`;
-        const lineTypes = Array.isArray(asset.line_types) ? asset.line_types : [];
-
-        rows.push(
-            createSummaryRow(
-                `${assetLabel} - ${CONSTANTS.ASSET_FIELDS.LINE_VOLTAGE}`,
-                asset.line_voltage || CONSTANTS.DEFAULTS.EMPTY
-            )
-        );
-
-        rows.push(
-            createSummaryRow(
-                `${assetLabel} - ${CONSTANTS.ASSET_FIELDS.LINE_TYPES}`,
-                lineTypes.length > 0 ? getLineTypesText(lineTypes) : CONSTANTS.DEFAULTS.EMPTY
-            )
-        );
-
-        rows.push(
-            createSummaryRow(
-                `${assetLabel} - ${CONSTANTS.ASSET_FIELDS.COMMENTS}`,
-                getCommentsHtml(lineTypes, asset.component_descriptions || {}) || CONSTANTS.DEFAULTS.EMPTY
-            )
-        );
+    rows.push({
+        key: { text: CONSTANTS.ASSET_FIELDS.APPLICATION_PLAN_DOCUMENTS },
+        value: {
+            text: '',
+            html: documentNames.length > 0 ? documentNames.join('<br>') : CONSTANTS.DEFAULTS.EMPTY,
+        },
     });
-
-    rows.push(
-        createSummaryRow(
-            CONSTANTS.ASSET_FIELDS.APPLICATION_PLAN_DOCUMENTS,
-            documentNames.length > 0 ? documentNames.join('<br>') : CONSTANTS.DEFAULTS.EMPTY
-        )
-    );
 
     rows.push(
         createSummaryRow(
@@ -135,13 +82,13 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, assets = [], appl
 
     return (
         <SummaryCard
-            title={CONSTANTS.SECTION_HEADINGS.ASSETS}
+            title={CONSTANTS.CARD_TITLES.ASSET_PLAN}
             rows={rows}
             actions={
                 canEdit
                     ? [
                           {
-                              href: CONSTANTS.ROUTES.ASSET(applicationId),
+                              href: CONSTANTS.ROUTES.APPLICATION_PLAN(applicationId),
                               text: CONSTANTS.ACTIONS.CHANGE,
                           },
                       ]

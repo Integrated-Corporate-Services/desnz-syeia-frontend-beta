@@ -1,19 +1,10 @@
-/**
- * Check Your Answers Page for NWL Applications
- * Refactored to use modular components
- */
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 
-// Import data service
 import { fetchCheckYourAnswersData } from '../services';
 
-// Import modular components
 import {
     CheckYourAnswersBreadcrumbs,
     ApplicantDetailsSummaryCard,
@@ -24,6 +15,10 @@ import {
     RepresentativeDetailsSummaryCard,
     SiteAddressSummaryCard,
     LandLocationSummaryCard,
+    LandRegistrySummaryCard,
+    OSGridReferenceSummaryCard,
+    IdentifyingInformationSummaryCard,
+    AssetSummaryCard,
     AssetsPlanSummaryCard,
     NWLAdditionalInformationSummaryCard,
     NegotiationsSummaryCard,
@@ -37,7 +32,6 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [submitting, setSubmitting] = useState(false);
     const [declarationConfirmed, setDeclarationConfirmed] = useState(false);
 
-    // State for all sections
     const [applicantDetails, setApplicantDetails] = useState<any>(null);
     const [applicationDetails, setApplicationDetails] = useState<any>(null);
     const [noticeCompliance, setNoticeCompliance] = useState<any>(null);
@@ -51,7 +45,6 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [additionalInformation, setAdditionalInformation] = useState<any>(null);
     const [permissions, setPermissions] = useState({ canEdit: true });
 
-    // Load data from API
     useEffect(() => {
         if (!applicationId) return;
 
@@ -59,10 +52,8 @@ export const CheckYourAnswersPage: React.FC = () => {
             try {
                 setLoading(true);
 
-                // Fetch data from backend API
                 const data = await fetchCheckYourAnswersData(applicationId);
 
-                // Set all state from response
                 setApplicantDetails(data.applicantDetails);
                 setApplicationDetails(data.applicationDetails);
                 setNoticeCompliance(data.noticeCompliance);
@@ -80,7 +71,6 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setLoading(false);
             } catch {
                 setLoading(false);
-                // Could set an error state here if needed
             }
         };
 
@@ -117,17 +107,14 @@ export const CheckYourAnswersPage: React.FC = () => {
                     <div className="govuk-grid-column-two-thirds">
                         <h1 className="govuk-heading-xl">{CONSTANTS.HEADING}</h1>
 
-                        {/* Applicant details */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
                         <ApplicantDetailsSummaryCard data={applicantDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        {/* Application details */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}</h2>
                         <NWLApplicationDetailsSummaryCard data={applicationDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <NoticeComplianceSummaryCard data={noticeCompliance} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        {/* Owner and/or occupier details */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.OWNER_OCCUPIER_DETAILS}</h2>
                         <OccupierDetailsSummaryCard data={occupierDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
@@ -135,23 +122,32 @@ export const CheckYourAnswersPage: React.FC = () => {
 
                         <RepresentativeDetailsSummaryCard data={representativeDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        {/* Land details */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.LAND_DETAILS}</h2>
                         <SiteAddressSummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        <LandLocationSummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
+                        <LandRegistrySummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
+                        <OSGridReferenceSummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        {/* Assets */}
+                        <IdentifyingInformationSummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
+
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ASSETS}</h2>
+                        {assets.map((asset, index) => (
+                            <AssetSummaryCard
+                                key={asset.asset_id || index}
+                                asset={asset}
+                                assetNumber={index + 1}
+                                applicationId={applicationId!}
+                                canEdit={permissions.canEdit}
+                            />
+                        ))}
+
                         <AssetsPlanSummaryCard
                             data={assetsMetadata}
-                            assets={assets}
                             applicationId={applicationId!}
                             canEdit={permissions.canEdit}
                         />
 
-                        {/* Negotiations */}
                         {negotiations && (
                             <>
                                 <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.NEGOTIATIONS || 'Negotiations'}</h2>
@@ -159,11 +155,9 @@ export const CheckYourAnswersPage: React.FC = () => {
                             </>
                         )}
 
-                        {/* Additional information */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ADDITIONAL_INFORMATION}</h2>
                         <NWLAdditionalInformationSummaryCard data={additionalInformation} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        {/* Declaration */}
                         <h2 className="govuk-heading-l">{CONSTANTS.DECLARATION.HEADING}</h2>
                         <div className="govuk-form-group">
                             <div className="govuk-checkboxes" data-module="govuk-checkboxes">
@@ -176,7 +170,6 @@ export const CheckYourAnswersPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Pay and submit */}
                         <h2 className="govuk-heading-l">{CONSTANTS.SUBMIT.HEADING}</h2>
                         <p className="govuk-body">{CONSTANTS.SUBMIT.DESCRIPTION}</p>
 
