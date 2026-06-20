@@ -1,9 +1,3 @@
-/**
- * NWL Application Details Summary Card
- * Displays application type, paragraph, dates, and documents
- */
-
-
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
@@ -15,9 +9,7 @@ import NewLineDetailsCard from './NewLineDetailsCard';
 import ExistingLineDetailsCard from './ExistingLineDetailsCard';
 
 interface Props {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     noticeComplianceData?: any;
     applicationId: string;
     canEdit?: boolean;
@@ -43,7 +35,6 @@ export const NWLApplicationDetailsSummaryCard: React.FC<Props> = ({ data, notice
         );
     }
 
-    // Route to the correct details card based on application_type
     if (data.application_type === 'New line') {
         return <NewLineDetailsCard data={data} applicationId={applicationId} canEdit={canEdit} />;
     } else if (
@@ -53,7 +44,6 @@ export const NWLApplicationDetailsSummaryCard: React.FC<Props> = ({ data, notice
     ) {
         return <ExistingLineDetailsCard data={data} noticeComplianceData={noticeComplianceData} applicationId={applicationId} canEdit={canEdit} />;
     } else {
-        // fallback: show just the type
         return (
             <SummaryCard
                 title={CONSTANTS.CARD_TITLES.APPLICATION_DETAILS}
