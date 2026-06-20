@@ -99,6 +99,34 @@ export const truncateText = (text: string, maxLength: number = 100): string => {
 };
 
 /**
+ * Map grounds_for_application code to human-readable text
+ * @param groundsForApplication - Ground code (e.g., 'wayleave_expired')
+ * @returns Human-readable text
+ */
+export const getApplicationOptionText = (groundsForApplication: string): string => {
+    const mapping: { [key: string]: string } = {
+        'wayleave_expired': 'The wayleave has expired',
+        'wayleave_terminated': 'The wayleave has been terminated',
+        'no_wayleave_exists': 'No wayleave exists',
+    };
+    return mapping[groundsForApplication] || groundsForApplication;
+};
+
+/**
+ * Map wayleave_type code to human-readable text
+ * @param wayleaveType - Wayleave type code (e.g., 'implied_wayleave')
+ * @returns Human-readable text
+ */
+export const getWayleaveTypeText = (wayleaveType: string): string => {
+    const mapping: { [key: string]: string } = {
+        'wayleave': 'Wayleave',
+        'interim_necessary_wayleave': 'Inherited necessary wayleave',
+        'implied_wayleave': 'Implied wayleave',
+    };
+    return mapping[wayleaveType] || wayleaveType;
+};
+
+/**
  * Format enum/constant value to human-readable text
  * @param value - Enum value (e.g., "new_lines")
  * @returns Human-readable text (e.g., "New lines")

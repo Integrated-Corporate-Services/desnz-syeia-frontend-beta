@@ -17,11 +17,13 @@ import ExistingLineDetailsCard from './ExistingLineDetailsCard';
 interface Props {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    noticeComplianceData?: any;
     applicationId: string;
     canEdit?: boolean;
 }
 
-export const NWLApplicationDetailsSummaryCard: React.FC<Props> = ({ data, applicationId, canEdit = true }) => {
+export const NWLApplicationDetailsSummaryCard: React.FC<Props> = ({ data, noticeComplianceData, applicationId, canEdit = true }) => {
     if (!data) {
         return (
             <SummaryCard
@@ -49,7 +51,7 @@ export const NWLApplicationDetailsSummaryCard: React.FC<Props> = ({ data, applic
         data.application_type === 'Existing lines' ||
         data.application_type === 'existing_lines'
     ) {
-        return <ExistingLineDetailsCard data={data} applicationId={applicationId} canEdit={canEdit} />;
+        return <ExistingLineDetailsCard data={data} noticeComplianceData={noticeComplianceData} applicationId={applicationId} canEdit={canEdit} />;
     } else {
         // fallback: show just the type
         return (

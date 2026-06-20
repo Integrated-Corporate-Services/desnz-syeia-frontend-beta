@@ -55,11 +55,23 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
     // Field labels - Application Details
     APPLICATION_FIELDS: {
         APPLICATION_TYPE: 'Application type',
+        TYPE_OF_LINE: 'Type of line',
         PARAGRAPH: 'Paragraph',
         OFFER_DATE: 'Date of your offer or letter to the owner or occupier',
         OFFER_DOCUMENT: 'Upload a copy of the offer or letter',
-        NOTICE_DATE: 'Date of the Notice to Remove',
+        NOTICE_DATE: 'Date of Notice to Remove',
         NOTICE_DOCUMENTS: 'Documents relating to the Notice to Remove',
+        // Grounds for application section
+        GROUNDS_HEADING: 'Grounds for application',
+        APPLICATION_OPTION: 'Application option',
+        WAYLEAVE_TYPE: 'Type of wayleave',
+        RELATED_DOCUMENTS: 'Related documents',
+        NTR_CLEARLY_REFERS: 'Notice to Remove (NTR) clearly refers to removal of electric line',
+        EXPLAIN_NTR_UNCLEAR: 'Explain why NTR is unclear',
+        WITHIN_THREE_MONTHS: 'Is application being submitted within 3 months of NTR?',
+        LATE_SUBMISSION_REASON: 'Why is application being submitted more than 3 months after NTR?',
+        DIFFERENT_TERM_REQUESTED: 'Different term requested for this necessary wayleave?',
+        TERM_LENGTH_EXPLANATION: 'Length of term and explanation',
     },
 
     // Field labels - Notice and Compliance
@@ -74,34 +86,34 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
 
     // Field labels - Occupier (Objector) Details
     OCCUPIER_FIELDS: {
-        TITLE: 'Title',
-        NAME: 'Full name',
-        ORGANISATION: 'Organisation',
-        ADDRESS: 'Address',
-        EMAIL: 'Email address',
-        PHONE: 'Phone number',
+        TITLE: 'Objector title',
+        NAME: 'Objector name',
+        ORGANISATION: 'Objector organisation',
+        ADDRESS: 'Objector address',
+        EMAIL: 'Objector email',
+        PHONE: 'Objector phone',
     },
 
     // Field labels - Landowner Details
     LANDOWNER_FIELDS: {
         IS_ALSO_LANDOWNER: 'Is the objector also the landowner?',
-        TITLE: 'Title',
-        NAME: 'Full name',
-        ORGANISATION: 'Organisation',
-        ADDRESS: 'Address',
-        EMAIL: 'Email address',
-        PHONE: 'Phone number',
+        TITLE: 'Landowner title',
+        NAME: 'Landowner name',
+        ORGANISATION: 'Landowner organisation',
+        ADDRESS: 'Landowner address',
+        EMAIL: 'Landowner email',
+        PHONE: 'Landowner phone',
     },
 
     // Field labels - Representative Details
     REPRESENTATIVE_FIELDS: {
         HAS_REPRESENTATIVE: 'Objector representative?',
-        TITLE: 'Title',
-        NAME: 'Full name',
-        ORGANISATION: 'Organisation',
-        ADDRESS: 'Address',
-        EMAIL: 'Email address',
-        PHONE: 'Phone number',
+        TITLE: 'Representative title',
+        NAME: 'Representative name',
+        ORGANISATION: 'Representative organisation',
+        ADDRESS: 'Representative address',
+        EMAIL: 'Representative email',
+        PHONE: 'Representative phone',
     },
 
     // Field labels - Site Address

@@ -9,7 +9,6 @@ import {
     CheckYourAnswersBreadcrumbs,
     ApplicantDetailsSummaryCard,
     NWLApplicationDetailsSummaryCard,
-    NoticeComplianceSummaryCard,
     OccupierDetailsSummaryCard,
     LandownerDetailsSummaryCard,
     RepresentativeDetailsSummaryCard,
@@ -111,9 +110,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                         <ApplicantDetailsSummaryCard data={applicantDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}</h2>
-                        <NWLApplicationDetailsSummaryCard data={applicationDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
-
-                        <NoticeComplianceSummaryCard data={noticeCompliance} applicationId={applicationId!} canEdit={permissions.canEdit} />
+                        <NWLApplicationDetailsSummaryCard data={applicationDetails} noticeComplianceData={noticeCompliance} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.OWNER_OCCUPIER_DETAILS}</h2>
                         <OccupierDetailsSummaryCard data={occupierDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
