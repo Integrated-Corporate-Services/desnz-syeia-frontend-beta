@@ -3,6 +3,10 @@ import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
 import { createSummaryRow, formatDate, formatBoolean, getApplicationOptionText, getWayleaveTypeText } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
+import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('ExistingLineDetailsCard');
 
 interface Props {
     data: any;
@@ -34,10 +38,31 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
     if (data.wayleave_type) {
         groundsRows.push(
             createSummaryRow(
-                CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_TYPE,
+                CONSTANTS.APPLICATION_FIELDS.EXISTING_WAYLEAVE_TYPE,
                 getWayleaveTypeText(data.wayleave_type)
             )
         );
+    }
+
+    if (data.wayleave_expiry_date) {
+        groundsRows.push(
+            createSummaryRow(
+                CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_EXPIRY_DATE,
+                formatDate(data.wayleave_expiry_date) || ''
+            )
+        );
+    }
+
+    if (data.wayleave_expiry_documents && data.wayleave_expiry_documents.length > 0) {
+        const docs = data.wayleave_expiry_documents;
+        const docLinks = docs.map((doc: any) => {
+            const fileKey = doc.fileUrl || doc.file_id;
+            return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+        }).join('<br>');
+        groundsRows.push({
+            key: { text: CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_EXPIRY_DOCUMENTS },
+            value: { text: '', html: docLinks },
+        });
     }
 
     groundsRows.push(
@@ -47,13 +72,56 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         )
     );
 
-    if (data.notice_documents) {
-        const docHtml = `<a href="${data.notice_documents_url || '#'}" class="govuk-link">${data.notice_documents}</a>`;
+    if (data.notice_documents && data.notice_documents.length > 0) {
+        const docLinks = data.notice_documents.map((doc: any) => {
+            const fileKey = doc.fileUrl || doc.file_id;
+            return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+        }).join('<br>');
         groundsRows.push({
-            key: { text: CONSTANTS.APPLICATION_FIELDS.RELATED_DOCUMENTS },
-            value: { text: '', html: docHtml },
+            key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_DOCUMENTS },
+            value: { text: '', html: docLinks },
         });
     }
+
+    if (data.notice_to_terminate_date) {
+        groundsRows.push(
+            createSummaryRow(
+                CONSTANTS.APPLICATION_FIELDS.NOTICE_TO_TERMINATE_DATE,
+                formatDate(data.notice_to_terminate_date) || ''
+            )
+        );
+    }
+
+    if (data.notice_to_terminate_documents && data.notice_to_terminate_documents.length > 0) {
+        const docLinks = data.notice_to_terminate_documents.map((doc: any) => {
+            const fileKey = doc.fileUrl || doc.file_id;
+            return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+        }).join('<br>');
+        groundsRows.push({
+            key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_TO_TERMINATE_DOCUMENTS },
+            value: { text: '', html: docLinks },
+        });
+    }
+
+    React.useEffect(() => {
+        const handleDocClick = async (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'A' && target.hasAttribute('data-file-key')) {
+                e.preventDefault();
+                const fileKey = target.getAttribute('data-file-key');
+                if (fileKey) {
+                    try {
+                        await downloadS3FileOnSameTab(fileKey);
+                    } catch (error) {
+                        logger.error('Failed to download document', { error, fileKey });
+                    }
+                }
+            }
+        };
+
+        document.addEventListener('click', handleDocClick);
+        return () => document.removeEventListener('click', handleDocClick);
+    }, []);
 
     const complianceData = noticeComplianceData || data;
 
