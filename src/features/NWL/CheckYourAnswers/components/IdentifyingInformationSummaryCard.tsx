@@ -40,8 +40,8 @@ export const IdentifyingInformationSummaryCard: React.FC<Props> = ({ data, appli
 
     rows.push(createSummaryRow(CONSTANTS.IDENTIFYING_INFO_FIELDS.VISIBLE_FROM_PUBLIC_ROAD, formatBoolean(data.visible_from_road)));
 
-    if (data.site_photos && data.site_photos.length > 0) {
-        const photosHtml = data.site_photos
+    if (data.site_identification_photographs && data.site_identification_photographs.length > 0) {
+        const photosHtml = data.site_identification_photographs
             .map((photo: any) => {
                 const fileKey = photo.fileUrl || photo.file_id;
                 return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${photo.filename}">${photo.filename}</a>`;

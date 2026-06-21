@@ -28,9 +28,9 @@ const getDocumentNames = (documents: AssetPlanDocument[] = []): string[] => {
 export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, canEdit = true }) => {
     const metadata = data || {};
 
-    const documents = metadata.application_plan_documents || metadata.applicationDocuments || [];
+    const documents = metadata.application_plan?.plan_documents || metadata.application_plan_documents || metadata.applicationDocuments || [];
     const documentNames = getDocumentNames(documents);
-    const hasAssetsMatchPlanValue = typeof metadata.assets_match_plan === 'boolean';
+    const hasAssetsMatchPlanValue = typeof metadata.assets_match_application_plan === 'boolean';
 
     const hasContent =
         documentNames.length > 0 ||
@@ -102,12 +102,12 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, ca
         createSummaryRow(
             CONSTANTS.ASSET_FIELDS.ASSETS_MATCH_PLAN,
             hasAssetsMatchPlanValue
-                ? formatBoolean(metadata.assets_match_plan)
+                ? formatBoolean(metadata.assets_match_application_plan)
                 : CONSTANTS.DEFAULTS.EMPTY
         )
     );
 
-    if (hasAssetsMatchPlanValue && metadata.assets_match_plan === false) {
+    if (hasAssetsMatchPlanValue && metadata.assets_match_application_plan === false) {
         rows.push(
             createSummaryRow(
                 CONSTANTS.ASSET_FIELDS.ASSETS_MATCH_PLAN_EXPLANATION,

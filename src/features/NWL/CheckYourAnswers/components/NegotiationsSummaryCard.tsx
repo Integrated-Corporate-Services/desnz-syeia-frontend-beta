@@ -26,7 +26,7 @@ const formatStartDate = (data: NegotiationsData): string => {
 };
 
 const getEvidenceDocumentTitles = (data: NegotiationsData): string => {
-  const evidenceDocs = Array.isArray(data.evidence_documents) ? data.evidence_documents : [];
+  const evidenceDocs = Array.isArray(data.negotiations_evidence_documents) ? data.negotiations_evidence_documents : [];
   
   if (evidenceDocs.length === 0) return 'No documents uploaded';
 
@@ -73,8 +73,8 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
     );
   }
 
-  const hasNegotiations = data.has_negotiations === true;
-  const comments = data.negotiations_comments || data.negotiations_evidence_comments || 'Not provided';
+  const hasNegotiations = data.negotiations_occurred === true;
+  const comments = data.negotiations_additional_comments || 'Not provided';
   const noNegotiationsReason = data.no_negotiations_reason || 'Not provided';
 
   return (

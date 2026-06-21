@@ -42,8 +42,8 @@ export const LandRegistrySummaryCard: React.FC<Props> = ({ data, applicationId, 
     if (data.is_registered) {
         rows.push(createSummaryRow(CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_REF, data.land_registry_ref || CONSTANTS.DEFAULTS.EMPTY));
 
-        if (data.land_registry_doc) {
-            const doc = data.land_registry_doc;
+        if (data.land_registry_reference_document) {
+            const doc = data.land_registry_reference_document;
             const fileKey = doc.fileUrl || doc.file_id;
             rows.push({
                 key: { text: CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC },

@@ -48,8 +48,8 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
     if (data.is_registered) {
         rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_REF, data.land_registry_ref || CONSTANTS.DEFAULTS.EMPTY));
 
-        if (data.land_registry_doc) {
-            const docHtml = `<a href="#" class="govuk-link">${data.land_registry_doc}</a>`;
+        if (data.land_registry_reference_document) {
+            const docHtml = `<a href="#" class="govuk-link">${data.land_registry_reference_document}</a>`;
             rows.push({
                 key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },
                 value: { text: '', html: docHtml },
@@ -69,8 +69,8 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
     rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.VISIBLE_FROM_ROAD, formatBoolean(data.visible_from_road)));
 
     // Site photographs
-    if (data.site_photos && data.site_photos.length > 0) {
-        const photosHtml = data.site_photos.join('<br>');
+    if (data.site_identification_photographs && data.site_identification_photographs.length > 0) {
+        const photosHtml = data.site_identification_photographs.join('<br>');
         rows.push({
             key: { text: CONSTANTS.LAND_LOCATION_FIELDS.SITE_PHOTOS },
             value: { text: '', html: photosHtml },

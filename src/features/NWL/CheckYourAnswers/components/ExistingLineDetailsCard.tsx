@@ -68,12 +68,12 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
     groundsRows.push(
         createSummaryRow(
             CONSTANTS.APPLICATION_FIELDS.NOTICE_DATE,
-            formatDate(data.notice_date) || ''
+            formatDate(data.notice_to_remove_date) || ''
         )
     );
 
-    if (data.notice_documents && data.notice_documents.length > 0) {
-        const docLinks = data.notice_documents.map((doc: any) => {
+    if (data.notice_to_remove_documents && data.notice_to_remove_documents.length > 0) {
+        const docLinks = data.notice_to_remove_documents.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
             return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');

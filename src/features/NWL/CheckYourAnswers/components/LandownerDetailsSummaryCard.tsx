@@ -37,17 +37,17 @@ export const LandownerDetailsSummaryCard: React.FC<Props> = ({ data, application
 
     // Only show individual fields if they are a separate landowner
     if (!data.is_objector_also_landowner) {
-        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.TITLE, data.title || CONSTANTS.DEFAULTS.EMPTY));
-        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.EMPTY));
-        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.EMPTY));
-        const addressParts = [data.address_line1, data.address_line2, data.town_city, data.postcode].filter((part) => part && part !== '-');
+        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.TITLE, data.landowner_title || CONSTANTS.DEFAULTS.EMPTY));
+        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.NAME, data.landowner_name || CONSTANTS.DEFAULTS.EMPTY));
+        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.ORGANISATION, data.landowner_organisation || CONSTANTS.DEFAULTS.EMPTY));
+        const addressParts = [data.landowner_address_line1, data.landowner_address_line2, data.town_city, data.landowner_postcode].filter((part) => part && part !== '-');
         const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
         rows.push({
             key: { text: CONSTANTS.LANDOWNER_FIELDS.ADDRESS },
             value: { text: '', html: addressHtml },
         });
-        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.EMAIL, formatEmail(data.email)));
-        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.PHONE, formatPhone(data.phone)));
+        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.EMAIL, formatEmail(data.landowner_email)));
+        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.PHONE, formatPhone(data.landowner_phone)));
     }
 
     return (

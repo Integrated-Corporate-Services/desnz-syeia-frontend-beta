@@ -32,7 +32,7 @@ export const SiteAddressSummaryCard: React.FC<Props> = ({ data, applicationId, c
 
     const rows: SummaryRow[] = [];
 
-    rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SAME_AS_OCCUPIER, formatBoolean(data.site_address_same)));
+    rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SAME_AS_OCCUPIER, formatBoolean(data.site_address_same_as_objector)));
 
     if (data.site_address) {
         const addr = data.site_address;

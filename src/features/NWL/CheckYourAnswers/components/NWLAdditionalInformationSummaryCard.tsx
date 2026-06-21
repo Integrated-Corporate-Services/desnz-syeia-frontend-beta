@@ -64,10 +64,10 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
 
     const getOtherDocumentNames = (): string => {
         let docs = [];
-        if (Array.isArray(data.other_documents)) {
-            docs = data.other_documents.filter(Boolean);
-        } else if (typeof data.other_documents === 'string' && data.other_documents.trim()) {
-            docs = [data.other_documents.trim()];
+        if (Array.isArray(data.other_information_documents)) {
+            docs = data.other_information_documents.filter(Boolean);
+        } else if (typeof data.other_information_documents === 'string' && data.other_information_documents.trim()) {
+            docs = [data.other_information_documents.trim()];
         }
 
         if (docs.length === 0) return '';
@@ -91,17 +91,17 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
     };
 
     // Related applications
-    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_APPLICATIONS, formatBoolean(data.has_related)));
+    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_APPLICATIONS, formatBoolean(data.has_related_applications)));
 
-    if (data.has_related) {
-        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_DETAILS, data.related_details || CONSTANTS.DEFAULTS.EMPTY));
+    if (data.has_related_applications) {
+        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_DETAILS, data.related_applications_details || CONSTANTS.DEFAULTS.EMPTY));
     }
 
     // Other important information
-    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_INFORMATION, formatBoolean(data.has_other)));
+    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_INFORMATION, formatBoolean(data.has_other_information)));
 
-    if (data.has_other) {
-        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DETAILS, data.other_details || CONSTANTS.DEFAULTS.EMPTY));
+    if (data.has_other_information) {
+        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DETAILS, data.other_information_details || CONSTANTS.DEFAULTS.EMPTY));
 
         const otherDocHtml = getOtherDocumentNames();
         if (otherDocHtml) {

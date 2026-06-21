@@ -34,16 +34,16 @@ export const OccupierDetailsSummaryCard: React.FC<Props> = ({ data, applicationI
     const rows: SummaryRow[] = [];
 
     // Title
-    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.TITLE, data.title || CONSTANTS.DEFAULTS.EMPTY));
+    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.TITLE, data.objector_title || CONSTANTS.DEFAULTS.EMPTY));
 
     // Name
-    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.EMPTY));
+    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.NAME, data.objector_name || CONSTANTS.DEFAULTS.EMPTY));
 
     // Organisation
-    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.EMPTY));
+    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.ORGANISATION, data.objector_organisation || CONSTANTS.DEFAULTS.EMPTY));
 
     // Address
-    const addressParts = [data.address_line1, data.address_line2, data.town_city, data.postcode].filter((part) => part && part !== '-');
+    const addressParts = [data.objector_address_line1, data.objector_address_line2, data.town_city, data.objector_postcode].filter((part) => part && part !== '-');
     const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
     rows.push({
         key: { text: CONSTANTS.OCCUPIER_FIELDS.ADDRESS },
@@ -51,10 +51,10 @@ export const OccupierDetailsSummaryCard: React.FC<Props> = ({ data, applicationI
     });
 
     // Email
-    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.EMAIL, formatEmail(data.email)));
+    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.EMAIL, formatEmail(data.objector_email)));
 
     // Phone
-    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.PHONE, formatPhone(data.phone)));
+    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.PHONE, formatPhone(data.objector_phone)));
 
     return (
         <SummaryCard
