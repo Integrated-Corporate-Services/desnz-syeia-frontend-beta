@@ -25,7 +25,7 @@ export const LandRegistrySummaryCard: React.FC<Props> = ({ data, applicationId, 
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.LAND_REGISTRY(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

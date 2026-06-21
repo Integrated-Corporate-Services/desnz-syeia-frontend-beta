@@ -27,7 +27,7 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.LAND_LOCATION(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

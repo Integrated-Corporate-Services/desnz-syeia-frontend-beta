@@ -2,6 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { NegotiationsData } from '../../Negotiations/types/negotiations';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
+import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('NegotiationsSummaryCard');
 
 interface NegotiationsSummaryCardProps {
   data: NegotiationsData;
@@ -22,39 +26,48 @@ const formatStartDate = (data: NegotiationsData): string => {
 };
 
 const getEvidenceDocumentTitles = (data: NegotiationsData): string => {
-  const documents = Array.isArray(data.application_documents) ? data.application_documents : [];
-  const fileNames = Array.isArray(data.uploaded_files)
-    ? data.uploaded_files.map((file) => file.filename).filter(Boolean)
-    : [];
+  const evidenceDocs = Array.isArray(data.evidence_documents) ? data.evidence_documents : [];
+  
+  if (evidenceDocs.length === 0) return 'No documents uploaded';
 
-  const rawTitles = documents
-    .map((doc) => doc.title || doc.fileId)
-    .filter(Boolean)
-    .concat(fileNames);
+  const docLinks = evidenceDocs
+    .filter((doc: any) => doc.filename)
+    .map((doc: any) => {
+      const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
+      const filename = doc.filename;
+      return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
+    })
+    .join('<br>');
 
-  // The same file may exist in both arrays; keep only unique display values.
-  const seen = new Set<string>();
-  const titles = rawTitles.filter((title) => {
-    const key = String(title).trim().toLowerCase();
-    if (!key || seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-
-  return titles.length > 0 ? titles.join(', ') : 'No documents uploaded';
+  return docLinks || 'No documents uploaded';
 };
 
 const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data, applicationId, canEdit }) => {
+  React.useEffect(() => {
+    const handleDocClick = async (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A' && target.hasAttribute('data-file-key')) {
+        e.preventDefault();
+        const fileKey = target.getAttribute('data-file-key');
+        if (fileKey) {
+          try {
+            await downloadS3FileOnSameTab(fileKey);
+          } catch (error) {
+            logger.error('Failed to download document', { error, fileKey });
+          }
+        }
+      }
+    };
+
+    document.addEventListener('click', handleDocClick);
+    return () => document.removeEventListener('click', handleDocClick);
+  }, []);
+
   if (!data) {
     return (
       <div className="govuk-summary-card govuk-!-margin-bottom-4">
         <div className="govuk-summary-card__title-wrapper">
           <h3 className="govuk-summary-card__title">Negotiations</h3>
-        </div>
-        <div className="govuk-summary-card__content">
-          <p className="govuk-body govuk-!-margin-bottom-0">No information provided yet</p>
         </div>
       </div>
     );
@@ -95,7 +108,7 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Evidence documents</dt>
-                <dd className="govuk-summary-list__value">{getEvidenceDocumentTitles(data)}</dd>
+                <dd className="govuk-summary-list__value" dangerouslySetInnerHTML={{ __html: getEvidenceDocumentTitles(data) }}></dd>
               </div>
             </>
           ) : (

@@ -21,7 +21,7 @@ export const LandownerDetailsSummaryCard: React.FC<Props> = ({ data, application
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.LANDOWNER_DETAILS(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

@@ -25,7 +25,7 @@ export const IdentifyingInformationSummaryCard: React.FC<Props> = ({ data, appli
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.IDENTIFYING_INFORMATION(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

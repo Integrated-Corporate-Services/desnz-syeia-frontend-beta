@@ -27,7 +27,7 @@ export const NoticeComplianceSummaryCard: React.FC<Props> = ({ data, application
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.NOTICE_COMPLIANCE(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

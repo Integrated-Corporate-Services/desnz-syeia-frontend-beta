@@ -3,6 +3,10 @@ import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
 import { createSummaryRow, formatBoolean } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
+import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('AssetsPlanSummaryCard');
 
 interface AssetPlanDocument {
     filename?: string;
@@ -33,6 +37,26 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, ca
         hasAssetsMatchPlanValue ||
         Boolean(metadata.assets_match_plan_explanation);
 
+    React.useEffect(() => {
+        const handleDocClick = async (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'A' && target.hasAttribute('data-file-key')) {
+                e.preventDefault();
+                const fileKey = target.getAttribute('data-file-key');
+                if (fileKey) {
+                    try {
+                        await downloadS3FileOnSameTab(fileKey);
+                    } catch (error) {
+                        logger.error('Failed to download document', { error, fileKey });
+                    }
+                }
+            }
+        };
+
+        document.addEventListener('click', handleDocClick);
+        return () => document.removeEventListener('click', handleDocClick);
+    }, []);
+
     if (!hasContent) {
         return (
             <SummaryCard
@@ -43,7 +67,7 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, ca
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.APPLICATION_PLAN(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined
@@ -54,13 +78,25 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, ca
 
     const rows: SummaryRow[] = [];
 
-    rows.push({
-        key: { text: CONSTANTS.ASSET_FIELDS.APPLICATION_PLAN_DOCUMENTS },
-        value: {
-            text: '',
-            html: documentNames.length > 0 ? documentNames.join('<br>') : CONSTANTS.DEFAULTS.EMPTY,
-        },
-    });
+    if (documents.length > 0) {
+        const docLinks = documents
+            .filter((doc: any) => doc.filename || doc.title)
+            .map((doc: any) => {
+                const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
+                const filename = doc.filename || doc.title;
+                return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
+            })
+            .join('<br>');
+        rows.push({
+            key: { text: CONSTANTS.ASSET_FIELDS.APPLICATION_PLAN_DOCUMENTS },
+            value: { text: '', html: docLinks || CONSTANTS.DEFAULTS.EMPTY },
+        });
+    } else {
+        rows.push({
+            key: { text: CONSTANTS.ASSET_FIELDS.APPLICATION_PLAN_DOCUMENTS },
+            value: { text: CONSTANTS.DEFAULTS.EMPTY },
+        });
+    }
 
     rows.push(
         createSummaryRow(

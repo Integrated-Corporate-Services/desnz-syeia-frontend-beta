@@ -26,7 +26,7 @@ export const NWLApplicationDetailsSummaryCard: React.FC<Props> = ({ data, notice
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.APPLICATION_DETAILS(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

@@ -60,6 +60,10 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
     const normalizedAssets = Array.isArray(reviewAssetsSection)
         ? reviewAssetsSection
         : reviewAssetsSection?.assets || [];
+    
+    const assetsMetadata = reviewAssetsSection && typeof reviewAssetsSection === 'object' && !Array.isArray(reviewAssetsSection)
+        ? reviewAssetsSection
+        : await fetchNwlAssetsMetadata(applicationId);
 
     // Transform API response to match expected structure if needed
     return {
@@ -72,7 +76,7 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
         representativeDetails: data.sections?.representativeDetails || null,
         landDetails: data.sections?.landDetails || null,
         assets: normalizedAssets,
-        assetsMetadata: await fetchNwlAssetsMetadata(applicationId),
+        assetsMetadata: assetsMetadata,
         negotiations: data.sections?.negotiations || null,
         additionalInformation: data.sections?.additionalInformation || null,
         permissions: data.permissions || { canEdit: true },

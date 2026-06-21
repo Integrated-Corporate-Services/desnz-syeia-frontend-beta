@@ -21,7 +21,7 @@ export const SiteAddressSummaryCard: React.FC<Props> = ({ data, applicationId, c
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.SITE_ADDRESS(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

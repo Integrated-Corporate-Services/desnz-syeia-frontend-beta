@@ -22,7 +22,7 @@ export const OccupierDetailsSummaryCard: React.FC<Props> = ({ data, applicationI
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.OCCUPIER_DETAILS(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined
