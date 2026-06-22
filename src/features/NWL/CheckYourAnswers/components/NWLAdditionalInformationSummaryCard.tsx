@@ -1,8 +1,3 @@
-/**
- * Additional Information Summary Card for NWL
- * Displays related applications and other important information
- */
-
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
@@ -10,7 +5,6 @@ import { createSummaryRow, formatBoolean } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
     applicationId: string;
     canEdit?: boolean;
@@ -67,14 +61,12 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
         return docLinks;
     };
 
-    // Related applications
     rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_APPLICATIONS, formatBoolean(data.has_related_applications)));
 
     if (data.has_related_applications) {
         rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_DETAILS, data.related_applications_details || CONSTANTS.DEFAULTS.EMPTY));
     }
 
-    // Other important information
     rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_INFORMATION, formatBoolean(data.has_other_information)));
 
     if (data.has_other_information) {
@@ -86,8 +78,6 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
                 key: { text: CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DOCUMENTS },
                 value: { text: '', html: otherDocHtml },
             });
-        } else {
-            rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DOCUMENTS, CONSTANTS.DEFAULTS.EMPTY));
         }
     }
 

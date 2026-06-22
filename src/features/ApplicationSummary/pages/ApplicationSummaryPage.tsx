@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../constants/nwl';
@@ -126,7 +124,6 @@ export const ApplicationSummaryPage: React.FC = () => {
 
                         <h1 className="govuk-heading-xl">{CONSTANTS.REVIEW_LAYOUT.HEADING}</h1>
 
-                        {/* Top section - Application info and payment */}
                         <ReviewApplicationInfoCard
                             desnzRef={data.desnzRef}
                             status={data.status}
@@ -148,7 +145,6 @@ export const ApplicationSummaryPage: React.FC = () => {
                             />
                         )}
 
-                        {/* Below withdraw button - Render exactly like Check Your Answers */}
                         <h2 className="govuk-heading-l">{CYA_CONSTANTS.SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
                         <ApplicantDetailsSummaryCard 
                             data={data.applicantDetails} 

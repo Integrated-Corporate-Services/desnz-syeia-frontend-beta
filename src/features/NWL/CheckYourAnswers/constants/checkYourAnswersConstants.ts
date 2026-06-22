@@ -58,7 +58,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         WAYLEAVE_NOTICE_DATE: 'Date of wayleave notice',
         WAYLEAVE_NOTICE_DOCUMENTS: 'Wayleave notice documents',
         NOTICE_DATE: 'Date of Notice to Remove',
-        NOTICE_DOCUMENTS: 'Documents relating to the Notice to Remove',
+        NOTICE_DOCUMENTS: 'Related documents',
         NOTICE_TO_TERMINATE_DATE: 'Date of Notice to Terminate',
         NOTICE_TO_TERMINATE_DOCUMENTS: 'Documents relating to the Notice to Terminate',
         GROUNDS_HEADING: 'Grounds for application',
@@ -163,6 +163,16 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         OTHER_DOCUMENTS: 'Other information documents',
     },
 
+    NEGOTIATIONS_FIELDS: {
+        HAS_NEGOTIATIONS: 'Are there any negotiations in progress?',
+        START_DATE: 'Start date of negotiations',
+        ADDITIONAL_COMMENTS: 'Additional comments',
+        EVIDENCE_DOCUMENTS: 'Evidence of negotiations',
+        NO_NEGOTIATIONS_REASON: 'Why there have not been any negotiations',
+        NOT_PROVIDED: 'Not provided',
+        NO_DOCUMENTS: 'No documents uploaded',
+    },
+
     ROUTES: {
         APPLICANT_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/applicant-details`,
         APPLICATION_DETAILS: (applicationId: string) => `/frontend/nwl/${applicationId}/application-details/type-of-use`,
@@ -211,5 +221,10 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
     ERROR_MESSAGES: {
         FETCH_FAILED: 'Failed to load application data. Please try again.',
         SUBMIT_FAILED: 'Failed to submit application. Please try again.',
+        DECLARATION_REQUIRED: 'You must confirm you have checked the information and that it is accurate',
+    },
+
+    ERROR_SUMMARY: {
+        TITLE: 'There is a problem',
     },
 };
