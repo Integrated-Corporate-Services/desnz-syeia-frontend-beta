@@ -59,7 +59,7 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
     const reviewAssetsSection = data.sections?.assets;
     const normalizedAssets = Array.isArray(reviewAssetsSection)
         ? reviewAssetsSection
-        : reviewAssetsSection?.assets || [];
+        : reviewAssetsSection?.installed_assets || reviewAssetsSection?.assets || [];
     
     const assetsMetadata = reviewAssetsSection && typeof reviewAssetsSection === 'object' && !Array.isArray(reviewAssetsSection)
         ? reviewAssetsSection

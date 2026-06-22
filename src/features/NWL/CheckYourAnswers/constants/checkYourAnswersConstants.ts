@@ -58,7 +58,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         WAYLEAVE_NOTICE_DATE: 'Date of wayleave notice',
         WAYLEAVE_NOTICE_DOCUMENTS: 'Wayleave notice documents',
         NOTICE_DATE: 'Date of Notice to Remove',
-        NOTICE_DOCUMENTS: 'Documents relating to the Notice to Remove',
+        NOTICE_DOCUMENTS: 'Related documents',
         NOTICE_TO_TERMINATE_DATE: 'Date of Notice to Terminate',
         NOTICE_TO_TERMINATE_DOCUMENTS: 'Documents relating to the Notice to Terminate',
         GROUNDS_HEADING: 'Grounds for application',

@@ -31,6 +31,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [declarationConfirmed, setDeclarationConfirmed] = useState(false);
+    const [declarationError, setDeclarationError] = useState(false);
 
     const [applicantDetails, setApplicantDetails] = useState<any>(null);
     const [applicationDetails, setApplicationDetails] = useState<any>(null);
@@ -83,9 +84,11 @@ export const CheckYourAnswersPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!declarationConfirmed) {
-            alert(CONSTANTS.SUBMIT.ALERT_CONFIRM);
+            setDeclarationError(true);
+            window.scrollTo(0, 0);
             return;
         }
+        setDeclarationError(false);
         setSubmitting(true);
         
         navigate(`${NWL_BASE_URL}/${applicationId}/pay-and-submit`);
@@ -106,6 +109,20 @@ export const CheckYourAnswersPage: React.FC = () => {
         <div className="govuk-width-container">
             <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
             <main className="govuk-main-wrapper" id="main-content" role="main">
+                {declarationError && (
+                    <div className="govuk-error-summary" data-module="govuk-error-summary">
+                        <div role="alert">
+                            <h2 className="govuk-error-summary__title">There is a problem</h2>
+                            <div className="govuk-error-summary__body">
+                                <ul className="govuk-list govuk-error-summary__list">
+                                    <li>
+                                        <a href="#declaration">You must confirm you have checked the information and that it is accurate</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <h1 className="govuk-heading-xl">{CONSTANTS.HEADING}</h1>
@@ -160,10 +177,28 @@ export const CheckYourAnswersPage: React.FC = () => {
                         <NWLAdditionalInformationSummaryCard data={additionalInformation} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <h2 className="govuk-heading-l">{CONSTANTS.DECLARATION.HEADING}</h2>
-                        <div className="govuk-form-group">
+                        <div className={`govuk-form-group ${declarationError ? 'govuk-form-group--error' : ''}`}>
+                            {declarationError && (
+                                <p className="govuk-error-message" id="declaration-error">
+                                    <span className="govuk-visually-hidden">Error:</span> You must confirm you have checked the information and that it is accurate
+                                </p>
+                            )}
                             <div className="govuk-checkboxes" data-module="govuk-checkboxes">
                                 <div className="govuk-checkboxes__item">
-                                    <input className="govuk-checkboxes__input" id="declaration" name="declaration" type="checkbox" checked={declarationConfirmed} onChange={(e) => setDeclarationConfirmed(e.target.checked)} />
+                                    <input 
+                                        className="govuk-checkboxes__input" 
+                                        id="declaration" 
+                                        name="declaration" 
+                                        type="checkbox" 
+                                        checked={declarationConfirmed} 
+                                        onChange={(e) => {
+                                            setDeclarationConfirmed(e.target.checked);
+                                            if (e.target.checked) {
+                                                setDeclarationError(false);
+                                            }
+                                        }}
+                                        aria-describedby={declarationError ? 'declaration-error' : undefined}
+                                    />
                                     <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
                                         {CONSTANTS.DECLARATION.TEXT}
                                     </label>
@@ -175,7 +210,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                         <p className="govuk-body">{CONSTANTS.SUBMIT.DESCRIPTION}</p>
 
                         <form onSubmit={handleSubmit}>
-                            <button type="submit" className="govuk-button" data-module="govuk-button" disabled={!declarationConfirmed || submitting}>
+                            <button type="submit" className="govuk-button" data-module="govuk-button" disabled={submitting}>
                                 {submitting ? CONSTANTS.SUBMIT.BUTTON_PROCESSING : CONSTANTS.SUBMIT.BUTTON_TEXT}
                             </button>
                         </form>
