@@ -56,13 +56,13 @@ const YourDetailsPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <a href="#" className="govuk-back-link" onClick={handleBack}>
-          Back
-        </a>
+      <a href="#" className="govuk-back-link" onClick={handleBack}>
+        Back
+      </a>
 
+      <main className="govuk-main-wrapper" id="main-content">
         {successFieldName && (
-          <div className="govuk-notification-banner govuk-notification-banner--success" role="alert">
+          <div className="govuk-notification-banner govuk-notification-banner--success govuk-!-margin-bottom-6" role="alert">
             <div className="govuk-notification-banner__header">
               <h2 className="govuk-notification-banner__title">Success</h2>
             </div>
@@ -74,7 +74,7 @@ const YourDetailsPage: React.FC = () => {
           </div>
         )}
 
-        <h1 className="govuk-heading-l">Your details</h1>
+        <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Your details</h1>
 
         {loading && <p className="govuk-body">Loading...</p>}
 
@@ -89,7 +89,7 @@ const YourDetailsPage: React.FC = () => {
 
         {!loading && !error && details && (
           <>
-            <dl className="govuk-summary-list">
+            <dl className="govuk-summary-list govuk-!-margin-bottom-6">
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Full name</dt>
                 <dd className="govuk-summary-list__value">{fullName}</dd>
@@ -147,12 +147,12 @@ const YourDetailsPage: React.FC = () => {
               </div>
             </dl>
 
-            <h2 className="govuk-heading-m">Your OneLogin details</h2>
-            <p className="govuk-body">
+            <h2 className="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-4">Your OneLogin details</h2>
+            <p className="govuk-body govuk-!-margin-bottom-6">
               These are your OneLogin details which can only be changed in your OneLogin account.
             </p>
 
-            <dl className="govuk-summary-list">
+            <dl className="govuk-summary-list govuk-!-margin-bottom-8">
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Email</dt>
                 <dd className="govuk-summary-list__value">{details.oneLogin.email || '-'}</dd>

@@ -131,12 +131,12 @@ const ChangeFullNamePage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <Link className="govuk-back-link" to="/your-details">
-          Back
-        </Link>
+      <Link className="govuk-back-link" to="/your-details">
+        Back
+      </Link>
 
-        <h1 className="govuk-heading-l">Change your full name</h1>
+      <main className="govuk-main-wrapper" id="main-content">
+        <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Change your full name</h1>
 
         {loading && <p className="govuk-body">Loading...</p>}
 
