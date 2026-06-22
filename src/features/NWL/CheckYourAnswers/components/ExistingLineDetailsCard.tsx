@@ -44,6 +44,19 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         );
     }
 
+    if (data.implied_wayleave_documents && data.implied_wayleave_documents.length > 0) {
+        const docs = data.implied_wayleave_documents;
+        const docLinks = docs.map((doc: any) => {
+            const fileKey = doc.fileUrl || doc.file_id;
+            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+        }).join('<br>');
+        groundsRows.push({
+            key: { text: CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_EXPIRY_DOCUMENTS || 'Documents relating to the existing wayleave' },
+            value: { text: '', html: docLinks },
+        });
+    }
+
     if (data.wayleave_expiry_date) {
         groundsRows.push(
             createSummaryRow(
@@ -62,25 +75,6 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         }).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_EXPIRY_DOCUMENTS },
-            value: { text: '', html: docLinks },
-        });
-    }
-
-    groundsRows.push(
-        createSummaryRow(
-            CONSTANTS.APPLICATION_FIELDS.NOTICE_DATE,
-            formatDate(data.notice_to_remove_date) || ''
-        )
-    );
-
-    if (data.notice_to_remove_documents && data.notice_to_remove_documents.length > 0) {
-        const docLinks = data.notice_to_remove_documents.map((doc: any) => {
-            const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
-            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
-        }).join('<br>');
-        groundsRows.push({
-            key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_DOCUMENTS },
             value: { text: '', html: docLinks },
         });
     }
@@ -106,17 +100,41 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         });
     }
 
-    const complianceData = noticeComplianceData || data;
-
     groundsRows.push(
         createSummaryRow(
-            CONSTANTS.APPLICATION_FIELDS.NTR_CLEARLY_REFERS,
-            formatBoolean(complianceData.notice_clearly_refers ?? complianceData.ntr_clearly_refers)
+            CONSTANTS.APPLICATION_FIELDS.NOTICE_DATE,
+            formatDate(data.notice_to_remove_date) || ''
         )
     );
 
-    const ntrClearlyRefers = complianceData.notice_clearly_refers ?? complianceData.ntr_clearly_refers;
-    const unclearExplanation = complianceData.unclear_explanation ?? complianceData.ntr_unclear_explanation;
+    if (data.notice_to_remove_documents && data.notice_to_remove_documents.length > 0) {
+        const docLinks = data.notice_to_remove_documents.map((doc: any) => {
+            const fileKey = doc.fileUrl || doc.file_id;
+            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+        }).join('<br>');
+        groundsRows.push({
+            key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_DOCUMENTS },
+            value: { text: '', html: docLinks },
+        });
+    }
+
+    const complianceData = noticeComplianceData || data;
+
+    const ntrClearlyRefers = complianceData.notice_clearly_refers_to_removal ?? 
+                            complianceData.notice_clearly_refers ?? 
+                            complianceData.ntr_clearly_refers;
+    
+    groundsRows.push(
+        createSummaryRow(
+            CONSTANTS.APPLICATION_FIELDS.NTR_CLEARLY_REFERS,
+            formatBoolean(ntrClearlyRefers)
+        )
+    );
+
+    const unclearExplanation = complianceData.notice_unclear_explanation ?? 
+                              complianceData.unclear_explanation ?? 
+                              complianceData.ntr_unclear_explanation;
     if (ntrClearlyRefers === false && unclearExplanation) {
         groundsRows.push(
             createSummaryRow(
@@ -126,15 +144,19 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         );
     }
 
+    const withinThreeMonths = complianceData.submitted_within_three_months ?? 
+                             complianceData.within_three_months;
+    
     groundsRows.push(
         createSummaryRow(
             CONSTANTS.APPLICATION_FIELDS.WITHIN_THREE_MONTHS,
-            formatBoolean(complianceData.within_three_months)
+            formatBoolean(withinThreeMonths)
         )
     );
 
-    const lateReason = complianceData.late_reason ?? complianceData.late_submission_reason;
-    if (complianceData.within_three_months === false && lateReason) {
+    const lateReason = complianceData.late_submission_reason ?? 
+                      complianceData.late_reason;
+    if (withinThreeMonths === false && lateReason) {
         groundsRows.push(
             createSummaryRow(
                 CONSTANTS.APPLICATION_FIELDS.LATE_SUBMISSION_REASON,
@@ -143,14 +165,18 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         );
     }
 
-    const differentTerm = complianceData.different_term ?? complianceData.different_term_requested;
+    const differentTerm = complianceData.different_term_requested ?? 
+                         complianceData.different_term;
     groundsRows.push(
         createSummaryRow(
             CONSTANTS.APPLICATION_FIELDS.DIFFERENT_TERM_REQUESTED,
             formatBoolean(differentTerm)
         )
     );
-    const termExplanation = complianceData.different_term_explanation ?? complianceData.term_length_explanation;
+    
+    const termExplanation = complianceData.different_term_length_and_explanation ?? 
+                           complianceData.different_term_explanation ?? 
+                           complianceData.term_length_explanation;
     if (differentTerm === true && termExplanation) {
         groundsRows.push(
             createSummaryRow(
