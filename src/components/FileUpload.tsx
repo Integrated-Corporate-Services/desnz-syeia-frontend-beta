@@ -8,7 +8,7 @@ import {
   confirmUpload,
 } from "../services/s3ApiService"; 
 import { createLogger } from "../utils/logger";
-import { validateFiles,  } from "../utils/fileUploadValidation";
+import { validateFiles } from "../utils/fileUploadValidation";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
 import { useAuthUserContext } from "../context/AuthUserContext";
@@ -70,7 +70,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 }, ref) => {
   const resolvedInputId = inputId || `file-upload-${category || 'default'}`;
   const getDocFileId = (doc: ApplicationDocument & { file_id?: string }) => doc.fileId || doc.file_id || '';
-  const [localValidationErrors, setLocalValidationErrors] = useState<string[]>([]);
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [uploadMessages, setUploadMessages] = useState<string[]>([]);
   // Get user from auth context
   const { user } = useAuthUserContext();
@@ -87,6 +87,19 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
  
   const files = internalFiles;
+
+  const updateValidationErrors = (errors: string[]) => {
+    if (!onValidationErrors) {
+      setFileValidationErrors(errors);
+    }
+    onValidationErrors?.(errors);
+  };
+
+  const clearValidationErrors = () => {
+    updateValidationErrors([]);
+  };
+
+  const displayedValidationErrors = onValidationErrors ? [] : fileValidationErrors;
 
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
@@ -120,9 +133,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     
     const newFiles = Array.from(e.target.files);
     
-    if (onValidationErrors) {
-      onValidationErrors([]);
-    }
+    clearValidationErrors();
     
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
@@ -163,16 +174,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
-      setLocalValidationErrors(errorMessages);
+      updateValidationErrors(errorMessages);
       setUploadMessages([]);
-      if (onValidationErrors) {
-        onValidationErrors(errorMessages);
-      }
     } else {
-      setLocalValidationErrors([]);
-      if (onValidationErrors) {
-        onValidationErrors([]);
-      }
+      updateValidationErrors([]);
     }
     
     if (result.validFiles.length > 0 && result.errors.length === 0) {
@@ -222,9 +227,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const droppedFiles = Array.from(e.dataTransfer.files);
     
     // Immediately clear parent errors when validation starts
-    if (onValidationErrors) {
-      onValidationErrors([]);
-    }
+    clearValidationErrors();
     
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
@@ -252,16 +255,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     // Handle validation errors
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
-      setLocalValidationErrors(errorMessages);
+      updateValidationErrors(errorMessages);
       setUploadMessages([]);
-      if (onValidationErrors) {
-        onValidationErrors(errorMessages);
-      }
     } else {
-      setLocalValidationErrors([]);
-      if (onValidationErrors) {
-        onValidationErrors([]);
-      }
+      updateValidationErrors([]);
     }
     
      if (result.validFiles.length > 0 && result.errors.length === 0) {
@@ -327,9 +324,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     }
     
    
-    if (onValidationErrors) {
-      onValidationErrors([]);
-    }
+    clearValidationErrors();
   };
 
   // Core upload logic, called instantly after file select/drop
@@ -500,9 +495,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         onDeleteFile(fileId);
       }
       
-      if (onValidationErrors) {
-        onValidationErrors([]);
-      }
+      clearValidationErrors();
       
     } catch (error) {
       const err = error as Error & { response?: { data?: { error?: string }, status?: number }, status?: number };
@@ -620,9 +613,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                         const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
                         setPendingFiles(updatedPendingFiles);
                         
-                        if (onValidationErrors) {
-                          onValidationErrors([]);
-                        }
+                        clearValidationErrors();
                         
                         if (onPendingFilesChange) {
                           onPendingFilesChange(updatedPendingFiles);
@@ -650,12 +641,12 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
 
-      {(localValidationErrors.length > 0 || uploadMessages.length > 0) && (
+      {(displayedValidationErrors.length > 0 || uploadMessages.length > 0) && (
         <div className="govuk-error-summary govuk-!-margin-bottom-4" role="alert">
           <h2 className="govuk-error-summary__title">There is a problem with your upload</h2>
           <div className="govuk-error-summary__body">
             <ul className="govuk-list govuk-error-summary__list">
-              {[...localValidationErrors, ...uploadMessages].map((message) => (
+              {[...displayedValidationErrors, ...uploadMessages].map((message) => (
                 <li key={message}>{message}</li>
               ))}
             </ul>
@@ -668,9 +659,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={() => {
-          if (onValidationErrors) {
-            onValidationErrors([]);
-          }
+          clearValidationErrors();
           fileInputRef.current?.click();
         }}
       >
