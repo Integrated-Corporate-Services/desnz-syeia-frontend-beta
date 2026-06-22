@@ -1,8 +1,3 @@
-/**
- * Additional Information Summary Card for NWL
- * Displays related applications and other important information
- */
-
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
@@ -10,7 +5,6 @@ import { createSummaryRow, formatBoolean } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
     applicationId: string;
     canEdit?: boolean;
@@ -20,7 +14,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
     if (!data) {
         return (
             <SummaryCard
-                title="Related applications and other information"
+                title={CONSTANTS.CARD_TITLES.ADDITIONAL_INFORMATION}
                 rows={[]}
                 actions={
                     canEdit
@@ -67,23 +61,21 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
         return docLinks;
     };
 
-    // Related applications
-    rows.push(createSummaryRow('Related applications?', formatBoolean(data.has_related_applications)));
+    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_APPLICATIONS, formatBoolean(data.has_related_applications)));
 
     if (data.has_related_applications) {
-        rows.push(createSummaryRow('Related application details', data.related_applications_details || CONSTANTS.DEFAULTS.EMPTY));
+        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_DETAILS, data.related_applications_details || CONSTANTS.DEFAULTS.EMPTY));
     }
 
-    // Other important information
-    rows.push(createSummaryRow('Other important information?', formatBoolean(data.has_other_information)));
+    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_INFORMATION, formatBoolean(data.has_other_information)));
 
     if (data.has_other_information) {
-        rows.push(createSummaryRow('Other information details', data.other_information_details || CONSTANTS.DEFAULTS.EMPTY));
+        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DETAILS, data.other_information_details || CONSTANTS.DEFAULTS.EMPTY));
 
         const otherDocHtml = getOtherDocumentNames();
         if (otherDocHtml) {
             rows.push({
-                key: { text: 'Other information documents' },
+                key: { text: CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DOCUMENTS },
                 value: { text: '', html: otherDocHtml },
             });
         }
@@ -91,7 +83,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
 
     return (
         <SummaryCard
-            title="Related applications and other information"
+            title={CONSTANTS.CARD_TITLES.ADDITIONAL_INFORMATION}
             rows={rows}
             actions={
                 canEdit

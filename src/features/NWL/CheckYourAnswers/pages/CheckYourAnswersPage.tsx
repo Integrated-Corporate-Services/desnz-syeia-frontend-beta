@@ -109,22 +109,20 @@ export const CheckYourAnswersPage: React.FC = () => {
         <div className="govuk-width-container">
             <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
             <main className="govuk-main-wrapper" id="main-content" role="main">
-                {declarationError && (
-                    <div className="govuk-error-summary" data-module="govuk-error-summary">
-                        <div role="alert">
-                            <h2 className="govuk-error-summary__title">There is a problem</h2>
-                            <div className="govuk-error-summary__body">
-                                <ul className="govuk-list govuk-error-summary__list">
-                                    <li>
-                                        <a href="#declaration">You must confirm you have checked the information and that it is accurate</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                )}
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
+                        {declarationError && (
+                            <div className="govuk-error-summary" data-module="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
+                                <h2 className="govuk-error-summary__title" id="error-summary-title">{CONSTANTS.ERROR_SUMMARY.TITLE}</h2>
+                                <div className="govuk-error-summary__body">
+                                    <ul className="govuk-list govuk-error-summary__list">
+                                        <li>
+                                            <a href="#declaration">{CONSTANTS.ERROR_MESSAGES.DECLARATION_REQUIRED}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
                         <h1 className="govuk-heading-xl">{CONSTANTS.HEADING}</h1>
 
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
@@ -180,7 +178,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                         <div className={`govuk-form-group ${declarationError ? 'govuk-form-group--error' : ''}`}>
                             {declarationError && (
                                 <p className="govuk-error-message" id="declaration-error">
-                                    <span className="govuk-visually-hidden">Error:</span> You must confirm you have checked the information and that it is accurate
+                                    <span className="govuk-visually-hidden">Error:</span> {CONSTANTS.ERROR_MESSAGES.DECLARATION_REQUIRED}
                                 </p>
                             )}
                             <div className="govuk-checkboxes" data-module="govuk-checkboxes">
