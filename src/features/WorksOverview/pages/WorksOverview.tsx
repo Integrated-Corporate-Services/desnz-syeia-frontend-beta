@@ -359,7 +359,6 @@ const WorksOverview: React.FC = () => {
           title={uploadLabel}
           showTitle={true}
           uploadImmediately={true}
-          inputId={`works-overview-upload-${storageCategory}`}
           prefix={`${effectiveApplicationId}/${storageCategory}`}
           uploadedFiles={categoryUploadedFiles}
           applicationDocuments={categoryDocuments}
