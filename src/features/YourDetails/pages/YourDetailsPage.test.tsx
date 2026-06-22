@@ -27,6 +27,16 @@ describe('YourDetailsPage', () => {
       lastName: 'Smith',
       fullName: 'Alex Smith',
       organisationName: 'SSE Networks',
+      agencyName: 'Fisher German',
+      organisations: {
+        approved: [
+          {
+            organisationId: 'org-1',
+            organisationName: 'Electricity North West',
+          },
+        ],
+        pending: [],
+      },
       workAddress: {
         line1: 'Address line 1',
         line2: 'Address line 2',
@@ -41,7 +51,7 @@ describe('YourDetailsPage', () => {
     });
   });
 
-  it('renders user details and full name change link', async () => {
+  it('renders user details with all profile change links', async () => {
     render(
       <MemoryRouter>
         <YourDetailsPage />
@@ -53,10 +63,15 @@ describe('YourDetailsPage', () => {
     });
 
     expect(screen.getByText('Ms Alex Smith')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Change' })).toHaveAttribute(
-      'href',
-      '/your-details/change-full-name'
-    );
+    const changeLinks = screen.getAllByRole('link', { name: 'Change' });
+    expect(changeLinks.map((link) => link.getAttribute('href'))).toEqual([
+      '/your-details/change-full-name',
+      '/your-details/change-work-address',
+      '/your-details/change-agency-name',
+      '/your-details/change-organisations',
+    ]);
+    expect(screen.getByText('Fisher German')).toBeInTheDocument();
+    expect(screen.getByText('Electricity North West')).toBeInTheDocument();
     expect(screen.getByText('alex.smith@example.com')).toBeInTheDocument();
   });
 
