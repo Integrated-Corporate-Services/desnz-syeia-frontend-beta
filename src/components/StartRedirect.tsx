@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { createLogger } from '../utils/logger';
+import { trackJourneyEvent } from '../utils/analytics';
 
 const logger = createLogger('StartRedirect');
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -26,6 +27,13 @@ const StartRedirect: React.FC = () => {
       window.location.replace('/access-denied');
       return;
     }
+
+    // Track sign-in via invite link
+    trackJourneyEvent('sign_in_via_invite', {
+      page_path: '/start/ICS',
+      org_code: orgCode || 'unknown',
+      has_invite: true,
+    });
 
     // Build RESTful URL: /backend/invites/:token?org=ENWL
     const orgParam = orgCode ? `?org=${encodeURIComponent(orgCode)}` : '';

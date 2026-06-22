@@ -10,6 +10,7 @@ import {
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { saveObjectorAddress } from "../services/objectorDetailsService";
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 
 /**
  * Objector Address Page
@@ -19,6 +20,7 @@ const ObjectorAddress: React.FC = () => {
   const navigate = useNavigate();
   const { appId, objectorDetails } = useObjectorDetailsData();
   const { validatePostcode } = useFormValidation();
+  const { updateProgress } = useNWLProgress(appId);
 
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -112,7 +114,13 @@ const ObjectorAddress: React.FC = () => {
         objector_postcode: postcode,
       });
 
-      navigate(`${NWL_BASE_URL}/${appId}/is-objector-landowner`);
+      try {
+        await updateProgress('Objector details', 'Completed');
+      } catch (e) {
+        // ignore progress errors
+      }
+
+      navigate(`${NWL_BASE_URL}/${appId}/task-list`);
     } catch (error: any) {
       // Handle backend validation errors
       if (error.status === 400 && error.validationErrors) {

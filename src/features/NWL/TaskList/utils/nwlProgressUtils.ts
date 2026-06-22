@@ -9,6 +9,8 @@ export const NWL_SUBSECTIONS = {
   TYPE_OF_USE: 'Type of use',
   GROUNDS_FOR_APPLICATION: 'Grounds for application',
   OBJECTOR_DETAILS: 'Objector details',
+  LANDOWNER_DETAILS: 'Landowner details',
+  REPRESENTATIVE_DETAILS: 'Representative details',
   SITE_ADDRESS: 'Site address',
   LAND_REGISTRY: 'Land registry',
   OS_GRID_REFERENCE: 'OS Grid reference',
@@ -63,24 +65,19 @@ export function checkDependencies(
     return typeOfUse?.status?.toLowerCase() === 'completed';
   }
   
-  // All other subsections after "Grounds for application" depend on it being completed
-  const afterGroundsSubsections = [
-    NWL_SUBSECTIONS.OBJECTOR_DETAILS,
-    NWL_SUBSECTIONS.SITE_ADDRESS,
-    NWL_SUBSECTIONS.LAND_REGISTRY,
-    NWL_SUBSECTIONS.OS_GRID_REFERENCE,
-    NWL_SUBSECTIONS.IDENTIFYING_INFORMATION,
-    NWL_SUBSECTIONS.ASSETS,
-    NWL_SUBSECTIONS.NEGOTIATIONS,
-    NWL_SUBSECTIONS.SUPPORTING_INFORMATION,
-  ];
-  
-  if (afterGroundsSubsections.includes(subsectionName)) {
-    const groundsForApplication = progress.find(p => p.subsection_name === NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION);
-    return groundsForApplication?.status?.toLowerCase() === 'completed';
+  // "Landowner details" depends on "Objector details" being completed
+  if (subsectionName === NWL_SUBSECTIONS.LANDOWNER_DETAILS) {
+    const objectorDetails = progress.find(p => p.subsection_name === NWL_SUBSECTIONS.OBJECTOR_DETAILS);
+    return objectorDetails?.status?.toLowerCase() === 'completed';
   }
   
-  // "Check your answers" depends on all previous sections being completed
+  // "Site address" depends on "Objector details" being completed
+  if (subsectionName === NWL_SUBSECTIONS.SITE_ADDRESS) {
+    const objectorDetails = progress.find(p => p.subsection_name === NWL_SUBSECTIONS.OBJECTOR_DETAILS);
+    return objectorDetails?.status?.toLowerCase() === 'completed';
+  }
+  
+  // "Check your answers" depends on all previous sections being completed (AC4)
   if (subsectionName === NWL_SUBSECTIONS.CHECK_YOUR_ANSWERS) {
     const requiredSections = [
       NWL_SUBSECTIONS.APPLICANT_DETAILS,
@@ -88,6 +85,8 @@ export function checkDependencies(
       NWL_SUBSECTIONS.TYPE_OF_USE,
       NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION,
       NWL_SUBSECTIONS.OBJECTOR_DETAILS,
+      NWL_SUBSECTIONS.LANDOWNER_DETAILS,
+      NWL_SUBSECTIONS.REPRESENTATIVE_DETAILS,
       NWL_SUBSECTIONS.SITE_ADDRESS,
       NWL_SUBSECTIONS.LAND_REGISTRY,
       NWL_SUBSECTIONS.OS_GRID_REFERENCE,
@@ -103,7 +102,7 @@ export function checkDependencies(
     });
   }
   
-  // "Pay and submit" depends on ALL sections being completed including "Check your answers"
+  //  "Pay and submit" depends on ALL sections being completed including "Check your answers"
   if (subsectionName === NWL_SUBSECTIONS.PAY_AND_SUBMIT) {
     const requiredSections = [
       NWL_SUBSECTIONS.APPLICANT_DETAILS,
@@ -111,6 +110,8 @@ export function checkDependencies(
       NWL_SUBSECTIONS.TYPE_OF_USE,
       NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION,
       NWL_SUBSECTIONS.OBJECTOR_DETAILS,
+      NWL_SUBSECTIONS.LANDOWNER_DETAILS,
+      NWL_SUBSECTIONS.REPRESENTATIVE_DETAILS,
       NWL_SUBSECTIONS.SITE_ADDRESS,
       NWL_SUBSECTIONS.LAND_REGISTRY,
       NWL_SUBSECTIONS.OS_GRID_REFERENCE,
@@ -127,7 +128,7 @@ export function checkDependencies(
     });
   }
   
-  return true; // No dependencies
+  return true; // No dependencies - all other sections are always enabled
 }
 
 /**

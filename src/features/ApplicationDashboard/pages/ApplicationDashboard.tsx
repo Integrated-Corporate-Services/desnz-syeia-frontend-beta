@@ -23,6 +23,7 @@ import Header from "../../../layouts/component/Header";
 import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
 import Footer from "../../../layouts/component/Footer";
 import PhaseBanner from "../../../layouts/component/PhaseBanner";
+import { trackButtonClick } from "../../../utils/analytics";
 import "../../../styles/ApplicationDashboard.css";
 
 const ApplicationDashboard: React.FC = () => {
@@ -57,6 +58,11 @@ const ApplicationDashboard: React.FC = () => {
   }, [created_by, fetchApplications]);
 
   const handleStart = () => {
+    // Track start new application button click
+    trackButtonClick('Start new application', '/application-dashboard', {
+      user_id: created_by,
+    });
+
     // Clear any previously-loaded application so the
     // subsequent new-application flow starts with a clean slate.
     setApplication(null);

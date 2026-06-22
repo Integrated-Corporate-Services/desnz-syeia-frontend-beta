@@ -116,7 +116,7 @@ const RepresentativeDetails: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
             <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>{BREADCRUMBS.TASK_LIST}</Link>
           </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">{BREADCRUMBS.OBJECTOR_DETAILS}</li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
         </ol>
       </nav>
       <main className="govuk-main-wrapper" id="main-content">

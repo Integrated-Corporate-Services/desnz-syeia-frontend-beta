@@ -91,13 +91,15 @@ const WayleaveType: React.FC = () => {
       // For terminated wayleave flow: go to upload pages based on type
       if (wayleaveType === "wayleave") {
         navigateToUploadWrittenWayleave();
-      } else if (wayleaveType === "interim_necessary_wayleave") {
+      } else if (wayleaveType === "implied_wayleave") {
         navigateToUploadImpliedWayleave();
       }
     } else {
       // Fallback: navigate based on wayleave type if grounds not recognized
       if (wayleaveType === "wayleave") {
         navigateToUploadWrittenWayleave();
+      } else if (wayleaveType === "implied_wayleave") {
+        navigateToUploadImpliedWayleave();
       } else if (wayleaveType === "interim_necessary_wayleave") {
         navigateToUploadImpliedWayleave();
       }

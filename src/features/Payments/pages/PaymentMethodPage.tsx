@@ -7,6 +7,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import { trackPaymentEvent } from '../../../utils/analytics';
 import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
 
 const logger = createLogger('PaymentMethodPage');
@@ -88,6 +89,14 @@ const handlePayByCard = async () => {
     setError('Payment amount is not available. Please return to pay and submit and try again.');
     return;
   }
+
+  // Track pay by card button click
+  trackPaymentEvent('pay_by_card_clicked', {
+    page_path: location.pathname,
+    application_id: applicationId,
+    payment_amount: effectiveTotalAmount,
+    invoice_number: invoiceNumber,
+  });
 
   setLoading(true);
   setError('');
