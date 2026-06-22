@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import ChangeFullNamePage from './ChangeFullNamePage';
+import ChangeAgencyNamePage from './ChangeAgencyNamePage';
 import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import * as yourDetailsService from '../services/yourDetailsService';
 
@@ -16,7 +16,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-describe('ChangeFullNamePage', () => {
+describe('ChangeAgencyNamePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     sessionStorage.clear();
@@ -36,8 +36,8 @@ describe('ChangeFullNamePage', () => {
         line1: 'Address line 1',
         line2: 'Address line 2',
         townCity: 'Town or city',
-        county: 'Country',
-        postcode: 'POST COD3',
+        county: 'County',
+        postcode: 'PO5T C0D3',
       },
       oneLogin: {
         email: 'alex.smith@example.com',
@@ -45,56 +45,48 @@ describe('ChangeFullNamePage', () => {
       },
     });
 
-    vi.spyOn(yourDetailsService, 'updateCurrentUserFullName').mockResolvedValue();
+    vi.spyOn(yourDetailsService, 'updateCurrentUserAgencyName').mockResolvedValue();
   });
 
-  it('shows validation errors when names are missing', async () => {
+  it('shows validation error when agency name is empty', async () => {
     render(
       <MemoryRouter>
-        <ChangeFullNamePage />
+        <ChangeAgencyNamePage />
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Change your full name' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Change your agency name' })).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText('First name'), { target: { value: '' } });
-    fireEvent.change(screen.getByLabelText('Last name'), { target: { value: '' } });
-
+    fireEvent.change(screen.getByLabelText('Agency name'), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
 
-    expect(screen.getByText('There is a problem')).toBeInTheDocument();
-    expect(screen.getByText('First name is not valid')).toBeInTheDocument();
-    expect(screen.getByText('Last name is not valid')).toBeInTheDocument();
-    expect(yourDetailsService.updateCurrentUserFullName).not.toHaveBeenCalled();
+    expect(screen.getAllByText('Enter your agency name').length).toBeGreaterThan(0);
+    expect(yourDetailsService.updateCurrentUserAgencyName).not.toHaveBeenCalled();
   });
 
   it('saves and redirects to your details with one-time banner flag', async () => {
     render(
       <MemoryRouter>
-        <ChangeFullNamePage />
+        <ChangeAgencyNamePage />
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue('Alex')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Fisher German')).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText('First name'), { target: { value: 'Alexa' } });
-    fireEvent.change(screen.getByLabelText('Last name'), { target: { value: 'Smith' } });
-
+    fireEvent.change(screen.getByLabelText('Agency name'), { target: { value: 'Fisher Garman' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
 
     await waitFor(() => {
-      expect(yourDetailsService.updateCurrentUserFullName).toHaveBeenCalledWith({
-        title: 'Ms',
-        firstName: 'Alexa',
-        lastName: 'Smith',
+      expect(yourDetailsService.updateCurrentUserAgencyName).toHaveBeenCalledWith({
+        agencyName: 'Fisher Garman',
       });
     });
 
-    expect(sessionStorage.getItem(SUCCESS_BANNER_KEY)).toBe('full name');
+    expect(sessionStorage.getItem(SUCCESS_BANNER_KEY)).toBe('agency name');
     expect(navigateMock).toHaveBeenCalledWith('/your-details');
   });
 });

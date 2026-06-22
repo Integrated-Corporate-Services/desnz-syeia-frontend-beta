@@ -109,20 +109,47 @@ const YourDetailsPage: React.FC = () => {
                   {details.workAddress.county && <div>{details.workAddress.county}</div>}
                   {details.workAddress.postcode && <div>{details.workAddress.postcode}</div>}
                 </dd>
-                <dd className="govuk-summary-list__actions" />
+                <dd className="govuk-summary-list__actions">
+                  <Link className="govuk-link" to="/your-details/change-work-address">
+                    Change
+                  </Link>
+                </dd>
               </div>
 
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Organisation</dt>
-                <dd className="govuk-summary-list__value">{details.organisationName || '-'}</dd>
-                <dd className="govuk-summary-list__actions" />
+                <dt className="govuk-summary-list__key">Agency name</dt>
+                <dd className="govuk-summary-list__value">{details.agencyName || '-'}</dd>
+                <dd className="govuk-summary-list__actions">
+                  <Link className="govuk-link" to="/your-details/change-agency-name">
+                    Change
+                  </Link>
+                </dd>
+              </div>
+
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">Organisation(s)</dt>
+                <dd className="govuk-summary-list__value">
+                  {details.organisations?.approved?.length ? (
+                    details.organisations.approved.map((org) => (
+                      <div key={org.organisationId}>{org.organisationName}</div>
+                    ))
+                  ) : details.organisationName ? (
+                    <div>{details.organisationName}</div>
+                  ) : (
+                    '-'
+                  )}
+                </dd>
+                <dd className="govuk-summary-list__actions">
+                  <Link className="govuk-link" to="/your-details/change-organisations">
+                    Change
+                  </Link>
+                </dd>
               </div>
             </dl>
 
-            <h2 className="govuk-heading-m">Change your login details</h2>
+            <h2 className="govuk-heading-m">Your OneLogin details</h2>
             <p className="govuk-body">
-              Your login details are managed by One Login, changing these will mean you can no
-              longer access your current organisation as you will have to register for approval.
+              These are your OneLogin details which can only be changed in your OneLogin account.
             </p>
 
             <dl className="govuk-summary-list">

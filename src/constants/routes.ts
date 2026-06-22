@@ -143,6 +143,10 @@ import StartRedirect from '../components/StartRedirect';
 import { FeedbackPage } from '../modules/feedback';
 import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
 import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
+import ChangeWorkAddressPage from '../features/YourDetails/pages/ChangeWorkAddressPage';
+import ChangeAgencyNamePage from '../features/YourDetails/pages/ChangeAgencyNamePage';
+import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
+import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
 import { isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
 
 const yourDetailsFeatureDisabled = isYourDetailsFeatureDisabled();
@@ -501,6 +505,30 @@ export const ROUTE_CONFIG: RouteConfig[] = [
             {
                 path: '/your-details/change-full-name',
                 component: ChangeFullNamePage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/your-details/change-work-address',
+                component: ChangeWorkAddressPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/your-details/change-agency-name',
+                component: ChangeAgencyNamePage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/your-details/change-organisations',
+                component: ChangeOrganisationsPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/your-details/change-organisations/confirmation',
+                component: ChangeOrganisationsConfirmationPage,
                 auth: true,
                 layout: true,
             },
