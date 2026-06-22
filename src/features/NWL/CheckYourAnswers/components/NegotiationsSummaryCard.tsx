@@ -2,10 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { NegotiationsData } from '../../Negotiations/types/negotiations';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
-import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
-import { createLogger } from '../../../../utils/logger';
-
-const logger = createLogger('NegotiationsSummaryCard');
 
 interface NegotiationsSummaryCardProps {
   data: NegotiationsData;
