@@ -18,23 +18,27 @@ export interface ReviewSummaryPermissions {
     canWithdraw: boolean;
 }
 
-/** Full /review payload shape used by NWL ReviewApplicationSummary (S-37-style layout). */
 export interface ApplicationReviewSummaryData {
     applicationId: string;
     applicationType: 'NWL' | 'S37' | 'TLP';
+    formType?: string;
     desnzRef: string | null;
     status: string | null;
     applicantDetails: any;
-    applicationDetails: any;
-    noticeCompliance: any;
-    occupierDetails: any;
-    landownerDetails: any;
-    representativeDetails: any;
-    landDetails: any;
-    assets: any[];
-    assetsMetadata: unknown | null;
-    negotiations: any;
-    additionalInformation: any;
     payment: ReviewSummaryPayment | null;
     permissions: ReviewSummaryPermissions;
+    applicationDetails?: any;
+    noticeCompliance?: any;
+    objectorDetails?: any;
+    landownerDetails?: any;
+    representativeDetails?: any;
+    landDetails?: any;
+    assets?: any[];
+    assetsMetadata?: unknown | null;
+    negotiations?: any;
+    additionalInformation?: any;
+    consultations?: any;
+    worksOverview?: any;
+    eiaFees?: any;
+    sensitiveAreas?: any;
 }

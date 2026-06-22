@@ -14,12 +14,6 @@ export enum ApplicationStatus {
     WITHDRAWN = 'WITHDRAWN',
 }
 
-export interface ApplicationInfo {
-    desnzReference: string;
-    caseType: string;
-    applicationStatus: string;
-}
-
 export interface SummaryRow {
     key: {
         text: string;
@@ -39,16 +33,6 @@ export interface SummaryRow {
     };
 }
 
-export interface SummaryCardConfig {
-    title: string;
-    rows: SummaryRow[];
-    actions?: Array<{
-        href: string;
-        text: string;
-    }>;
-    classes?: string;
-}
-
 export interface PaymentDetails {
     amount: number;
     status: PaymentStatus;
@@ -56,17 +40,4 @@ export interface PaymentDetails {
     paidDate?: string;
     invoiceNumber?: string;
     transactionId?: string;
-}
-
-export interface ApplicationSummaryData {
-    applicationId: string;
-    applicationType: 'NWL' | 'S37' | 'TLP';
-    desnzRef?: string;
-    status: ApplicationStatus;
-    submittedDate: string;
-    lastUpdated?: string;
-    payment: PaymentDetails;
-    sections: SummaryCardConfig[];
-    canWithdraw: boolean;
-    canEdit: boolean;
 }
