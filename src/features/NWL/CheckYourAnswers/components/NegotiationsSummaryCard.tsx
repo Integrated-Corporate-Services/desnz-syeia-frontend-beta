@@ -35,7 +35,8 @@ const getEvidenceDocumentTitles = (data: NegotiationsData): string => {
     .map((doc: any) => {
       const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
       const filename = doc.filename;
-      return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
+      const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+      return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
     })
     .join('<br>');
 
@@ -43,26 +44,6 @@ const getEvidenceDocumentTitles = (data: NegotiationsData): string => {
 };
 
 const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data, applicationId, canEdit }) => {
-  React.useEffect(() => {
-    const handleDocClick = async (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'A' && target.hasAttribute('data-file-key')) {
-        e.preventDefault();
-        const fileKey = target.getAttribute('data-file-key');
-        if (fileKey) {
-          try {
-            await downloadS3FileOnSameTab(fileKey);
-          } catch (error) {
-            logger.error('Failed to download document', { error, fileKey });
-          }
-        }
-      }
-    };
-
-    document.addEventListener('click', handleDocClick);
-    return () => document.removeEventListener('click', handleDocClick);
-  }, []);
-
   if (!data) {
     return (
       <div className="govuk-summary-card govuk-!-margin-bottom-4">

@@ -36,7 +36,7 @@ export const NWLApplicationDetailsSummaryCard: React.FC<Props> = ({ data, notice
     }
 
     if (data.application_type === 'New line') {
-        return <NewLineDetailsCard data={data} applicationId={applicationId} canEdit={canEdit} />;
+        return <NewLineDetailsCard data={data} noticeComplianceData={noticeComplianceData} applicationId={applicationId} canEdit={canEdit} />;
     } else if (
         data.application_type === 'Existing line' ||
         data.application_type === 'Existing lines' ||

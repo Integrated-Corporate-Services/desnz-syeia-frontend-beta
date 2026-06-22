@@ -55,6 +55,8 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         OFFER_DATE: 'Date of your offer or letter to the owner or occupier',
         OFFER_DOCUMENT: 'Upload a copy of the offer or letter',
         WAYLEAVE_OFFER_DOCUMENTS: 'Documents relating to the wayleave offer',
+        WAYLEAVE_NOTICE_DATE: 'Date of wayleave notice',
+        WAYLEAVE_NOTICE_DOCUMENTS: 'Wayleave notice documents',
         NOTICE_DATE: 'Date of Notice to Remove',
         NOTICE_DOCUMENTS: 'Documents relating to the Notice to Remove',
         NOTICE_TO_TERMINATE_DATE: 'Date of Notice to Terminate',

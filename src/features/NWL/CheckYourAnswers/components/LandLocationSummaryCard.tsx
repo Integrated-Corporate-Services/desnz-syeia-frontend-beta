@@ -49,11 +49,20 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
         rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_REF, data.land_registry_ref || CONSTANTS.DEFAULTS.EMPTY));
 
         if (data.land_registry_reference_document) {
-            const docHtml = `<a href="#" class="govuk-link">${data.land_registry_reference_document}</a>`;
-            rows.push({
-                key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },
-                value: { text: '', html: docHtml },
-            });
+            const doc = data.land_registry_reference_document;
+            // Handle both object format and string format for backwards compatibility
+            if (typeof doc === 'object' && doc.filename) {
+                const fileKey = doc.fileUrl || doc.file_id;
+                const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+                const docHtml = `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+                rows.push({
+                    key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },
+                    value: { text: '', html: docHtml },
+                });
+            } else {
+                // String fallback (old format)
+                rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, String(doc)));
+            }
         } else {
             rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, CONSTANTS.DEFAULTS.EMPTY));
         }

@@ -57,7 +57,8 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         const docs = data.wayleave_expiry_documents;
         const docLinks = docs.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
-            return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_EXPIRY_DOCUMENTS },
@@ -75,7 +76,8 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
     if (data.notice_to_remove_documents && data.notice_to_remove_documents.length > 0) {
         const docLinks = data.notice_to_remove_documents.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
-            return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_DOCUMENTS },
@@ -95,33 +97,14 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
     if (data.notice_to_terminate_documents && data.notice_to_terminate_documents.length > 0) {
         const docLinks = data.notice_to_terminate_documents.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
-            return `<a href="#" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_TO_TERMINATE_DOCUMENTS },
             value: { text: '', html: docLinks },
         });
     }
-
-    React.useEffect(() => {
-        const handleDocClick = async (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (target.tagName === 'A' && target.hasAttribute('data-file-key')) {
-                e.preventDefault();
-                const fileKey = target.getAttribute('data-file-key');
-                if (fileKey) {
-                    try {
-                        await downloadS3FileOnSameTab(fileKey);
-                    } catch (error) {
-                        logger.error('Failed to download document', { error, fileKey });
-                    }
-                }
-            }
-        };
-
-        document.addEventListener('click', handleDocClick);
-        return () => document.removeEventListener('click', handleDocClick);
-    }, []);
 
     const complianceData = noticeComplianceData || data;
 
