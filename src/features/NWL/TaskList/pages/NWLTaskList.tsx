@@ -223,7 +223,7 @@ const NWLTaskList: React.FC = () => {
 					<button
 						className="govuk-button govuk-button--warning"
 						type="button"
-						onClick={() => navigate(`${NWL_BASE_URL}/${appId}/delete`)}
+						onClick={() => navigate(`${NWL_BASE_URL}/${appId}/delete-confirmation`)}
 						disabled={submitting}
 						style={{ marginRight: '1rem' }}
 					>
