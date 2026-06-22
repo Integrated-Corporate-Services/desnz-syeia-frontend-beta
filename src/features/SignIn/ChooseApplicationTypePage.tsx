@@ -3,6 +3,7 @@ import React from 'react';
 import ErrorSummary from '../../components/commonFormFields/ErrorSummary';
 import { RadioGroup } from './components/RadioGroup';
 import { useApplicationTypeSelection } from './hooks/useApplicationTypeSelection';
+import { trackButtonClick } from '../../utils/analytics';
 
 import { APPLICATION_TYPE_OPTIONS } from './constants/applicationTypeOptions';
 import { getDisabledFormTypes } from '../../utils/disabledFormTypes';
@@ -10,6 +11,16 @@ import { getDisabledFormTypes } from '../../utils/disabledFormTypes';
 const ChooseApplicationTypePage: React.FC = () => {
 
   const { selectedType, error, handleChange, handleSubmit, errors } = useApplicationTypeSelection();
+
+  // Wrap handleSubmit to include tracking
+  const handleSubmitWithTracking = (e: React.FormEvent<HTMLFormElement>) => {
+    // Track continue button click with selected application type
+    trackButtonClick('Continue - Choose application type', '/choose-application', {
+      selected_application_type: selectedType,
+    });
+    
+    handleSubmit(e);
+  };
 
   // Disable form types listed in VITE_DISABLED_FORM_TYPES (comma-separated)
   const disabledTypes = getDisabledFormTypes();
@@ -25,7 +36,7 @@ const ChooseApplicationTypePage: React.FC = () => {
         
         <ErrorSummary errors={errors} />
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmitWithTracking} noValidate>
           <RadioGroup
             name="applicationType"
             options={filteredOptions}

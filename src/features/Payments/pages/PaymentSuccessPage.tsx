@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
+import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
 
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
@@ -18,6 +19,18 @@ const PaymentSuccessPage: React.FC = () => {
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
   const [loading, setLoading] = useState(!passedDesnzRef);
   const [error, setError] = useState<string | null>(null);
+
+  // Track payment success page load
+  useEffect(() => {
+    trackPaymentEvent('payment_success_page_loaded', {
+      page_path: location.pathname,
+      application_id: applicationId,
+      invoice_number: invoiceNumber,
+      payment_id: paymentId,
+      desnz_ref: passedDesnzRef,
+      total_amount: totalAmount,
+    });
+  }, []);
 
   // Fetch desnz_ref from backend if not provided in navigation state
   useEffect(() => {
@@ -105,12 +118,24 @@ const PaymentSuccessPage: React.FC = () => {
               <Link
                 to={`${baseUrl}/${applicationId}/application-summary`}
                 className="govuk-button"
+                onClick={() => {
+                  trackButtonClick('View application summary', location.pathname, {
+                    application_id: applicationId,
+                    desnz_ref: desnz_ref,
+                    payment_id: paymentId,
+                  });
+                }}
               >
                 View application summary
               </Link>
               <Link
                 to={`${baseUrl}/${applicationId}/task-list`}
                 className="govuk-button govuk-button--secondary"
+                onClick={() => {
+                  trackButtonClick('Back to applications', location.pathname, {
+                    application_id: applicationId,
+                  });
+                }}
               >
                 Back to applications
               </Link>

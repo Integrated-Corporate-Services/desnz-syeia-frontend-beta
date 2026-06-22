@@ -10,6 +10,7 @@ import {
 } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { saveObjectorLandownerStatus } from "../services/objectorDetailsService";
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 
 /**
  * Is Objector Landowner Page
@@ -18,6 +19,7 @@ import { saveObjectorLandownerStatus } from "../services/objectorDetailsService"
 const IsObjectorLandowner: React.FC = () => {
   const navigate = useNavigate();
   const { appId, objectorDetails } = useObjectorDetailsData();
+  const { updateProgress } = useNWLProgress(appId);
 
   const [isLandowner, setIsLandowner] = useState<string>("");
 
@@ -56,7 +58,14 @@ const IsObjectorLandowner: React.FC = () => {
       await saveObjectorLandownerStatus(appId, isLandowner === "yes");
 
       if (isLandowner === "yes") {
-        navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
+        // If objector is also landowner, mark Landowner details as completed
+        try {
+          await updateProgress('Landowner details', 'Completed');
+        } catch (e) {
+          // ignore progress errors
+        }
+      navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
+
       } else {
         navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
       }
@@ -81,7 +90,7 @@ const IsObjectorLandowner: React.FC = () => {
             </Link>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.OBJECTOR_DETAILS}
+            Landowner details
           </li>
         </ol>
       </nav>

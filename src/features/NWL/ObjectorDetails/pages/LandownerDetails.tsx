@@ -125,7 +125,7 @@ const LandownerDetails: React.FC = () => {
             </Link>
           </li>
           <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.OBJECTOR_DETAILS}
+            Landowner details
           </li>
         </ol>
       </nav>

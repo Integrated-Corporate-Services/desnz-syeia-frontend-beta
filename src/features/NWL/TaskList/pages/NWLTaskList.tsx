@@ -144,16 +144,28 @@ const NWLTaskList: React.FC = () => {
 								</div>
 								{renderStatusTag(NWL_SUBSECTIONS.OBJECTOR_DETAILS)}
 							</li>
-						</ul>
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink(NWL_SUBSECTIONS.LANDOWNER_DETAILS, 'Landowner details', NWL_TASK_LIST_ROUTES.LANDOWNER_DETAILS)}
+							</div>
+							{renderStatusTag(NWL_SUBSECTIONS.LANDOWNER_DETAILS)}
+						</li>
+						<li className="govuk-task-list__item govuk-task-list__item--with-link">
+							<div className="govuk-task-list__name-and-hint">
+								{renderLink(NWL_SUBSECTIONS.REPRESENTATIVE_DETAILS, 'Representative details', NWL_TASK_LIST_ROUTES.REPRESENTATIVE_DETAILS)}
+							</div>
+							{renderStatusTag(NWL_SUBSECTIONS.REPRESENTATIVE_DETAILS)}
+						</li>
+				</ul>
 
-						<h2 className="govuk-heading-m">4. Land details</h2>
-						<ul className="govuk-task-list">
-							<li className="govuk-task-list__item govuk-task-list__item--with-link">
-								<div className="govuk-task-list__name-and-hint">
-									{renderLink(NWL_SUBSECTIONS.SITE_ADDRESS, 'Site address', NWL_TASK_LIST_ROUTES.SITE_ADDRESS)}
-								</div>
-								{renderStatusTag(NWL_SUBSECTIONS.SITE_ADDRESS)}
-							</li>
+				<h2 className="govuk-heading-m">4. Land details</h2>
+				<ul className="govuk-task-list">
+					<li className="govuk-task-list__item govuk-task-list__item--with-link">
+						<div className="govuk-task-list__name-and-hint">
+							{renderLink(NWL_SUBSECTIONS.SITE_ADDRESS, 'Site address', NWL_TASK_LIST_ROUTES.SITE_ADDRESS)}
+						</div>
+						{renderStatusTag(NWL_SUBSECTIONS.SITE_ADDRESS)}
+					</li>
 							<li className="govuk-task-list__item govuk-task-list__item--with-link">
 								<div className="govuk-task-list__name-and-hint">
 									{renderLink(NWL_SUBSECTIONS.LAND_REGISTRY, 'Land registry', NWL_TASK_LIST_ROUTES.LAND_REGISTRY)}
