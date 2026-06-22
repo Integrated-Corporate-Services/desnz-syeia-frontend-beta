@@ -4,12 +4,12 @@ import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 
 import { fetchCheckYourAnswersData } from '../services';
+import { useDocumentDownload } from '../hooks';
 
 import {
     CheckYourAnswersBreadcrumbs,
     ApplicantDetailsSummaryCard,
     NWLApplicationDetailsSummaryCard,
-    NoticeComplianceSummaryCard,
     OccupierDetailsSummaryCard,
     LandownerDetailsSummaryCard,
     RepresentativeDetailsSummaryCard,
@@ -35,7 +35,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [applicantDetails, setApplicantDetails] = useState<any>(null);
     const [applicationDetails, setApplicationDetails] = useState<any>(null);
     const [noticeCompliance, setNoticeCompliance] = useState<any>(null);
-    const [occupierDetails, setOccupierDetails] = useState<any>(null);
+    const [objectorDetails, setObjectorDetails] = useState<any>(null);
     const [landownerDetails, setLandownerDetails] = useState<any>(null);
     const [representativeDetails, setRepresentativeDetails] = useState<any>(null);
     const [landDetails, setLandDetails] = useState<any>(null);
@@ -57,7 +57,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setApplicantDetails(data.applicantDetails);
                 setApplicationDetails(data.applicationDetails);
                 setNoticeCompliance(data.noticeCompliance);
-                setOccupierDetails(data.occupierDetails);
+                setObjectorDetails(data.objectorDetails);
                 setLandownerDetails(data.landownerDetails);
                 setRepresentativeDetails(data.representativeDetails);
                 setLandDetails(data.landDetails);
@@ -76,6 +76,9 @@ export const CheckYourAnswersPage: React.FC = () => {
 
         loadData();
     }, [applicationId]);
+
+    // Use custom hook for document downloads
+    useDocumentDownload();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -111,12 +114,10 @@ export const CheckYourAnswersPage: React.FC = () => {
                         <ApplicantDetailsSummaryCard data={applicantDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}</h2>
-                        <NWLApplicationDetailsSummaryCard data={applicationDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
-
-                        <NoticeComplianceSummaryCard data={noticeCompliance} applicationId={applicationId!} canEdit={permissions.canEdit} />
+                        <NWLApplicationDetailsSummaryCard data={applicationDetails} noticeComplianceData={noticeCompliance} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.OWNER_OCCUPIER_DETAILS}</h2>
-                        <OccupierDetailsSummaryCard data={occupierDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
+                        <OccupierDetailsSummaryCard data={objectorDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <LandownerDetailsSummaryCard data={landownerDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 

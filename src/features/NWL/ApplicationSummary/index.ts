@@ -1,1 +1,0 @@
-export { getNWLCheckYourAnswersCards } from './checkYourAnswersCardsConfig';

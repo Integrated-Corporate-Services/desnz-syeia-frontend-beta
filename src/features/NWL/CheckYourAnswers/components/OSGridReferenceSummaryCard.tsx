@@ -21,7 +21,7 @@ export const OSGridReferenceSummaryCard: React.FC<Props> = ({ data, applicationI
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.OS_GRID_REFERENCE(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

@@ -27,7 +27,7 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ data, application
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.APPLICANT_DETAILS(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined

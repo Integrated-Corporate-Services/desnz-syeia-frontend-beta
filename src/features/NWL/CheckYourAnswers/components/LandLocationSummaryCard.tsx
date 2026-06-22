@@ -27,7 +27,7 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.LAND_LOCATION(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined
@@ -48,12 +48,21 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
     if (data.is_registered) {
         rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_REF, data.land_registry_ref || CONSTANTS.DEFAULTS.EMPTY));
 
-        if (data.land_registry_doc) {
-            const docHtml = `<a href="#" class="govuk-link">${data.land_registry_doc}</a>`;
-            rows.push({
-                key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },
-                value: { text: '', html: docHtml },
-            });
+        if (data.land_registry_reference_document) {
+            const doc = data.land_registry_reference_document;
+            // Handle both object format and string format for backwards compatibility
+            if (typeof doc === 'object' && doc.filename) {
+                const fileKey = doc.fileUrl || doc.file_id;
+                const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+                const docHtml = `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+                rows.push({
+                    key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },
+                    value: { text: '', html: docHtml },
+                });
+            } else {
+                // String fallback (old format)
+                rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, String(doc)));
+            }
         } else {
             rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, CONSTANTS.DEFAULTS.EMPTY));
         }
@@ -69,8 +78,8 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
     rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.VISIBLE_FROM_ROAD, formatBoolean(data.visible_from_road)));
 
     // Site photographs
-    if (data.site_photos && data.site_photos.length > 0) {
-        const photosHtml = data.site_photos.join('<br>');
+    if (data.site_identification_photographs && data.site_identification_photographs.length > 0) {
+        const photosHtml = data.site_identification_photographs.join('<br>');
         rows.push({
             key: { text: CONSTANTS.LAND_LOCATION_FIELDS.SITE_PHOTOS },
             value: { text: '', html: photosHtml },

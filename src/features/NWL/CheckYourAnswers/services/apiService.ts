@@ -10,7 +10,7 @@ export interface NWLCheckYourAnswersResponse {
     applicantDetails: any;
     applicationDetails: any;
     noticeCompliance: any;
-    occupierDetails: any;
+    objectorDetails: any;
     landownerDetails: any;
     representativeDetails: any;
     landDetails: any;
@@ -60,6 +60,10 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
     const normalizedAssets = Array.isArray(reviewAssetsSection)
         ? reviewAssetsSection
         : reviewAssetsSection?.assets || [];
+    
+    const assetsMetadata = reviewAssetsSection && typeof reviewAssetsSection === 'object' && !Array.isArray(reviewAssetsSection)
+        ? reviewAssetsSection
+        : await fetchNwlAssetsMetadata(applicationId);
 
     // Transform API response to match expected structure if needed
     return {
@@ -67,12 +71,12 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
         applicantDetails: data.sections?.applicantDetails || null,
         applicationDetails: data.sections?.applicationDetails || null,
         noticeCompliance: data.sections?.noticeCompliance || null,
-        occupierDetails: data.sections?.occupierDetails || null,
+        objectorDetails: data.sections?.objectorDetails || null,
         landownerDetails: data.sections?.landownerDetails || null,
         representativeDetails: data.sections?.representativeDetails || null,
         landDetails: data.sections?.landDetails || null,
         assets: normalizedAssets,
-        assetsMetadata: await fetchNwlAssetsMetadata(applicationId),
+        assetsMetadata: assetsMetadata,
         negotiations: data.sections?.negotiations || null,
         additionalInformation: data.sections?.additionalInformation || null,
         permissions: data.permissions || { canEdit: true },

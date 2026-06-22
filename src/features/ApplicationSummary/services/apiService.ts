@@ -1,6 +1,26 @@
-import { ApplicationSummaryData, PaymentStatus } from '../types';
+import { PaymentStatus, ApplicationStatus } from '../types';
 import { ApplicationReviewSummaryData } from '../types/reviewSummary';
 import { buildBackendUrl } from '../../../utils/apiConfig';
+
+interface ApplicationSummaryData {
+    applicationId: string;
+    applicationType: 'NWL' | 'S37' | 'TLP';
+    desnzRef?: string;
+    status: ApplicationStatus;
+    submittedDate: string;
+    lastUpdated?: string;
+    payment: {
+        amount: number;
+        status: PaymentStatus;
+        paymentMethod?: 'CARD' | 'BANK_TRANSFER';
+        paidDate?: string;
+        invoiceNumber?: string;
+        transactionId?: string;
+    };
+    sections: any[];
+    canWithdraw: boolean;
+    canEdit: boolean;
+}
 
 const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | null> => {
     const response = await fetch(buildBackendUrl(`/backend/api/nwl/${applicationId}/assets`), {
@@ -34,12 +54,13 @@ const mapReviewResponse = (
     return {
         applicationId: (data.applicationId as string) || applicationId,
         applicationType: (data.formType as 'NWL' | 'S37' | 'TLP') || applicationType,
+        formType: (data.formType as string) || applicationType,
         desnzRef: (data.desnzRef as string) || null,
         status: (data.status as string) || null,
         applicantDetails: sections.applicantDetails || null,
         applicationDetails: sections.applicationDetails || null,
         noticeCompliance: sections.noticeCompliance || null,
-        occupierDetails: sections.occupierDetails || null,
+        objectorDetails: sections.objectorDetails || null,
         landownerDetails: sections.landownerDetails || null,
         representativeDetails: sections.representativeDetails || null,
         landDetails: sections.landDetails || null,

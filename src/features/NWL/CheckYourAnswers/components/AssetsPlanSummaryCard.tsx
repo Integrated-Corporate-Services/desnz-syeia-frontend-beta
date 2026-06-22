@@ -24,9 +24,9 @@ const getDocumentNames = (documents: AssetPlanDocument[] = []): string[] => {
 export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, canEdit = true }) => {
     const metadata = data || {};
 
-    const documents = metadata.application_plan_documents || metadata.applicationDocuments || [];
+    const documents = metadata.application_plan?.plan_documents || metadata.application_plan_documents || metadata.applicationDocuments || [];
     const documentNames = getDocumentNames(documents);
-    const hasAssetsMatchPlanValue = typeof metadata.assets_match_plan === 'boolean';
+    const hasAssetsMatchPlanValue = typeof metadata.assets_match_application_plan === 'boolean';
 
     const hasContent =
         documentNames.length > 0 ||
@@ -43,7 +43,7 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, ca
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.APPLICATION_PLAN(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined
@@ -54,24 +54,37 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, ca
 
     const rows: SummaryRow[] = [];
 
-    rows.push({
-        key: { text: CONSTANTS.ASSET_FIELDS.APPLICATION_PLAN_DOCUMENTS },
-        value: {
-            text: '',
-            html: documentNames.length > 0 ? documentNames.join('<br>') : CONSTANTS.DEFAULTS.EMPTY,
-        },
-    });
+    if (documents.length > 0) {
+        const docLinks = documents
+            .filter((doc: any) => doc.filename || doc.title)
+            .map((doc: any) => {
+                const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
+                const filename = doc.filename || doc.title;
+                const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+                return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
+            })
+            .join('<br>');
+        rows.push({
+            key: { text: CONSTANTS.ASSET_FIELDS.APPLICATION_PLAN_DOCUMENTS },
+            value: { text: '', html: docLinks || CONSTANTS.DEFAULTS.EMPTY },
+        });
+    } else {
+        rows.push({
+            key: { text: CONSTANTS.ASSET_FIELDS.APPLICATION_PLAN_DOCUMENTS },
+            value: { text: CONSTANTS.DEFAULTS.EMPTY },
+        });
+    }
 
     rows.push(
         createSummaryRow(
             CONSTANTS.ASSET_FIELDS.ASSETS_MATCH_PLAN,
             hasAssetsMatchPlanValue
-                ? formatBoolean(metadata.assets_match_plan)
+                ? formatBoolean(metadata.assets_match_application_plan)
                 : CONSTANTS.DEFAULTS.EMPTY
         )
     );
 
-    if (hasAssetsMatchPlanValue && metadata.assets_match_plan === false) {
+    if (hasAssetsMatchPlanValue && metadata.assets_match_application_plan === false) {
         rows.push(
             createSummaryRow(
                 CONSTANTS.ASSET_FIELDS.ASSETS_MATCH_PLAN_EXPLANATION,

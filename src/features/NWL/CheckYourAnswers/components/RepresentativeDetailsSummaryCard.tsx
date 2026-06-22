@@ -23,9 +23,9 @@ export const RepresentativeDetailsSummaryCard: React.FC<Props> = ({ data, applic
 
     const rows: SummaryRow[] = [];
 
-    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.HAS_REPRESENTATIVE, formatBoolean(data.has_representative)));
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.HAS_REPRESENTATIVE, formatBoolean(data.objector_has_representative)));
 
-    if (!data.has_representative) {
+    if (!data.objector_has_representative) {
         return (
             <SummaryCard
                 title={CONSTANTS.CARD_TITLES.REPRESENTATIVE_DETAILS}
@@ -44,13 +44,13 @@ export const RepresentativeDetailsSummaryCard: React.FC<Props> = ({ data, applic
         );
     }
 
-    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.NAME, data.name || CONSTANTS.DEFAULTS.EMPTY));
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.NAME, data.representative_name || CONSTANTS.DEFAULTS.EMPTY));
 
-    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.ORGANISATION, data.organisation || CONSTANTS.DEFAULTS.EMPTY));
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.ORGANISATION, data.representative_organisation || CONSTANTS.DEFAULTS.EMPTY));
 
-    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.EMAIL, formatEmail(data.email)));
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.EMAIL, formatEmail(data.representative_email)));
 
-    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.PHONE, formatPhone(data.phone)));
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.PHONE, formatPhone(data.representative_phone)));
 
     return (
         <SummaryCard

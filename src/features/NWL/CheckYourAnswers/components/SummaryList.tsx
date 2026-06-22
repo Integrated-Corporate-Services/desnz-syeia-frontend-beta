@@ -8,11 +8,7 @@ export interface SummaryListProps {
 
 export const SummaryList: React.FC<SummaryListProps> = ({ rows, classes = '' }) => {
     if (!rows || rows.length === 0) {
-        return (
-            <p className="govuk-body">
-                <em>No information provided yet</em>
-            </p>
-        );
+        return <dl className={`govuk-summary-list ${classes}`}></dl>;
     }
 
     return (
