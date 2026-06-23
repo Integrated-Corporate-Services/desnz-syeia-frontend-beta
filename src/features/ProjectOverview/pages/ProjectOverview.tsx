@@ -628,7 +628,8 @@ const ProjectOverview = () => {
 					</details>
 
 					{/* Tallest Pole Height Section */}
-					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">What is the height of the tallest proposed pole?</h2>
+					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">{projectOverview.tallestPoleHeight}</h2>
+					<p className="govuk-hint govuk-!-margin-bottom-2">{projectOverview.tallestPoleHeightHint}</p>
 					<div className="govuk-!-margin-bottom-6 govuk-!-width-one-third">
 						<NumberInput
 							label=""

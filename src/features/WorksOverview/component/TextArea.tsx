@@ -5,11 +5,18 @@ import { CommonInputProps } from '../../../types/form';
 
 
 
-const TextArea: React.FC<CommonInputProps> = ({ id, name, label, hint, value, error, onChange, maxLength, showCount, style }) => {
+const TextArea: React.FC<CommonInputProps & { hideLabel?: boolean }> = ({
+  id, name, label, hint, value, error, onChange, maxLength, showCount, style, hideLabel,
+}) => {
   const count = value.length;
   return (
     <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
-      <label className="govuk-label" htmlFor={id}>{label}</label>
+      <label
+        className={`govuk-label${hideLabel ? ' govuk-visually-hidden' : ''}`}
+        htmlFor={id}
+      >
+        {label}
+      </label>
       {/* Render hint if provided */}
       {typeof hint === 'string' && hint.length > 0 && (
         <div className="govuk-hint" id={`${id}-hint`}>
