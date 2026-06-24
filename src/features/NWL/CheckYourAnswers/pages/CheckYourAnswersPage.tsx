@@ -99,7 +99,7 @@ export const CheckYourAnswersPage: React.FC = () => {
             <div className="govuk-width-container">
                 <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
                 <main className="govuk-main-wrapper">
-                    <h1 className="govuk-heading-xl">{CONSTANTS.LOADING}</h1>
+                    <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
                 </main>
             </div>
         );
@@ -108,7 +108,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     return (
         <div className="govuk-width-container">
             <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
-            <main className="govuk-main-wrapper" id="main-content" role="main">
+            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {declarationError && (
@@ -123,22 +123,22 @@ export const CheckYourAnswersPage: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                        <h1 className="govuk-heading-xl">{CONSTANTS.HEADING}</h1>
+                        <h1 className="govuk-heading-l">{CONSTANTS.HEADING}</h1>
 
-                        <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
+                        <h2 className="govuk-heading-m">{CONSTANTS.SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
                         <ApplicantDetailsSummaryCard data={applicantDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}</h2>
+                        <h2 className="govuk-heading-m">{CONSTANTS.SECTION_HEADINGS.APPLICATION_DETAILS}</h2>
                         <NWLApplicationDetailsSummaryCard data={applicationDetails} noticeComplianceData={noticeCompliance} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.OWNER_OCCUPIER_DETAILS}</h2>
+                        <h2 className="govuk-heading-m">{CONSTANTS.SECTION_HEADINGS.OWNER_OCCUPIER_DETAILS}</h2>
                         <OccupierDetailsSummaryCard data={objectorDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <LandownerDetailsSummaryCard data={landownerDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <RepresentativeDetailsSummaryCard data={representativeDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.LAND_DETAILS}</h2>
+                        <h2 className="govuk-heading-m">{CONSTANTS.SECTION_HEADINGS.LAND_DETAILS}</h2>
                         <SiteAddressSummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
                         <LandRegistrySummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
@@ -147,7 +147,7 @@ export const CheckYourAnswersPage: React.FC = () => {
 
                         <IdentifyingInformationSummaryCard data={landDetails} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ASSETS}</h2>
+                        <h2 className="govuk-heading-m">{CONSTANTS.SECTION_HEADINGS.ASSETS}</h2>
                         {assets.map((asset, index) => (
                             <AssetSummaryCard
                                 key={asset.asset_id || index}
@@ -166,15 +166,15 @@ export const CheckYourAnswersPage: React.FC = () => {
 
                         {negotiations && (
                             <>
-                                <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.NEGOTIATIONS || 'Negotiations'}</h2>
+                                <h2 className="govuk-heading-m">{CONSTANTS.SECTION_HEADINGS.NEGOTIATIONS || 'Negotiations'}</h2>
                                 <NegotiationsSummaryCard data={negotiations} applicationId={applicationId!} canEdit={permissions.canEdit} />
                             </>
                         )}
 
-                        <h2 className="govuk-heading-l">{CONSTANTS.SECTION_HEADINGS.ADDITIONAL_INFORMATION}</h2>
+                        <h2 className="govuk-heading-m">{CONSTANTS.SECTION_HEADINGS.ADDITIONAL_INFORMATION}</h2>
                         <NWLAdditionalInformationSummaryCard data={additionalInformation} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        <h2 className="govuk-heading-l">{CONSTANTS.DECLARATION.HEADING}</h2>
+                        <h2 className="govuk-heading-m">{CONSTANTS.DECLARATION.HEADING}</h2>
                         <div className={`govuk-form-group ${declarationError ? 'govuk-form-group--error' : ''}`}>
                             {declarationError && (
                                 <p className="govuk-error-message" id="declaration-error">
@@ -204,7 +204,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <h2 className="govuk-heading-l">{CONSTANTS.SUBMIT.HEADING}</h2>
+                        <h2 className="govuk-heading-m">{CONSTANTS.SUBMIT.HEADING}</h2>
                         <p className="govuk-body">{CONSTANTS.SUBMIT.DESCRIPTION}</p>
 
                         <form onSubmit={handleSubmit}>

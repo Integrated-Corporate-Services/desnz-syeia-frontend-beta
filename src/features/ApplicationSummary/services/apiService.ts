@@ -22,39 +22,26 @@ interface ApplicationSummaryData {
     canEdit: boolean;
 }
 
-const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | null> => {
-    const response = await fetch(buildBackendUrl(`/backend/api/nwl/${applicationId}/assets`), {
-        credentials: 'include',
-    });
-
-    if (response.status === 404) {
-        return null;
-    }
-
-    if (!response.ok) {
-        return null;
-    }
-
-    return response.json();
-};
-
 const mapReviewResponse = (
     data: Record<string, unknown>,
-    applicationId: string,
-    applicationType: 'NWL' | 'S37' | 'TLP',
-    assetsMetadata: unknown | null
+    applicationId: string
 ): ApplicationReviewSummaryData => {
     const sections = (data.sections as Record<string, unknown>) || {};
     const permissions = (data.permissions as Record<string, boolean>) || {};
     const reviewAssetsSection = sections.assets;
+    
     const normalizedAssets = Array.isArray(reviewAssetsSection)
         ? reviewAssetsSection
-        : (reviewAssetsSection as { assets?: unknown[] })?.assets || [];
+        : (reviewAssetsSection as { installed_assets?: unknown[] })?.installed_assets || [];
+    
+    const assetsMetadata = reviewAssetsSection && typeof reviewAssetsSection === 'object' && !Array.isArray(reviewAssetsSection)
+        ? reviewAssetsSection
+        : null;
 
     return {
         applicationId: (data.applicationId as string) || applicationId,
-        applicationType: (data.formType as 'NWL' | 'S37' | 'TLP') || applicationType,
-        formType: (data.formType as string) || applicationType,
+        applicationType: (data.formType as 'NWL' | 'S37' | 'TLP') || 'NWL',
+        formType: (data.formType as string) || 'NWL',
         desnzRef: (data.desnzRef as string) || null,
         status: (data.status as string) || null,
         applicantDetails: sections.applicantDetails || null,
@@ -77,8 +64,7 @@ const mapReviewResponse = (
 };
 
 export const fetchApplicationReviewSummary = async (
-    applicationId: string,
-    applicationType: 'NWL' | 'S37' | 'TLP'
+    applicationId: string
 ): Promise<ApplicationReviewSummaryData> => {
     const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
         credentials: 'include',
@@ -90,8 +76,7 @@ export const fetchApplicationReviewSummary = async (
     }
 
     const data = await response.json();
-    const assetsMetadata = await fetchNwlAssetsMetadata(applicationId);
-    return mapReviewResponse(data, applicationId, applicationType, assetsMetadata);
+    return mapReviewResponse(data, applicationId);
 };
 
 export const fetchApplicationSummary = async (
@@ -99,7 +84,7 @@ export const fetchApplicationSummary = async (
     applicationType: 'NWL' | 'S37' | 'TLP'
 ): Promise<ApplicationSummaryData> => {
     if (applicationType === 'NWL') {
-        const review = await fetchApplicationReviewSummary(applicationId, applicationType);
+        const review = await fetchApplicationReviewSummary(applicationId);
         return {
             applicationId: review.applicationId,
             applicationType: review.applicationType,
