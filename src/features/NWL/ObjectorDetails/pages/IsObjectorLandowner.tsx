@@ -64,9 +64,14 @@ const IsObjectorLandowner: React.FC = () => {
         } catch (e) {
           // ignore progress errors
         }
-      navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
-
+        navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
       } else {
+        // If objector is NOT the landowner, mark as Not Completed since they need to provide details
+        try {
+          await updateProgress('Landowner details', 'Not Completed');
+        } catch (e) {
+          // ignore progress errors
+        }
         navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
       }
     } catch (error) {
