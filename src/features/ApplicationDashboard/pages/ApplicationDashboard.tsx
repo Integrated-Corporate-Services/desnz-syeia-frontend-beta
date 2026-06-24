@@ -23,6 +23,7 @@ import Header from "../../../layouts/component/Header";
 import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
 import Footer from "../../../layouts/component/Footer";
 import PhaseBanner from "../../../layouts/component/PhaseBanner";
+import SkipLink from "../../../components/SkipLink";
 import { trackButtonClick } from "../../../utils/analytics";
 import "../../../styles/ApplicationDashboard.css";
 
@@ -92,6 +93,7 @@ const ApplicationDashboard: React.FC = () => {
 
   return (
     <div className="application-dashboard-shell">
+      <SkipLink />
       <Header />
       <ServiceNavigation />
       <PhaseBanner />
@@ -101,7 +103,7 @@ const ApplicationDashboard: React.FC = () => {
       <div className="app-wide-container">
         <div className="app-your-applications-section">
           <div className="govuk-width-container">
-            <main className="govuk-main-wrapper" id="main-content" role="main">
+            <main className="govuk-main-wrapper" id="main-content" tabIndex={-1} role="main">
               {/* Hero section - Your applications header */}
               <ApplicationDashboardHeader
                 onToggleFilters={() => setShowFilters(!showFilters)}
