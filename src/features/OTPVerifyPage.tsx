@@ -98,8 +98,7 @@ const OTPVerifyPage: React.FC = () => {
                         {showResend && (
                           <button
                             type="button"
-                            className="govuk-link govuk-!-margin-top-2"
-                            style={{ background: 'none', border: 'none', color: '#005ea5', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                            className="govuk-button govuk-button--secondary"
                             onClick={handleResendOtp}
                           >
                             Resend OTP

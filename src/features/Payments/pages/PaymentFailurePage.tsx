@@ -260,6 +260,7 @@ const PaymentFailurePage: React.FC = () => {
                 data-module="govuk-button"
                 onClick={handleRetryPayment}
                 disabled={retryLoading}
+                aria-busy={retryLoading}
               >
                 {retryLoading ? 'Processing...' : 'Pay by card'}
               </button>

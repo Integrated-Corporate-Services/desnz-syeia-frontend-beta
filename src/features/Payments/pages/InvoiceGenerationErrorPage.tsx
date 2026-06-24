@@ -35,7 +35,7 @@ const InvoiceGenerationErrorPage: React.FC = () => {
         <p className="govuk-body">You can return to the application and try again.</p>
 
         <div className="govuk-button-group">
-          <button className="govuk-button govuk-button--secondary" onClick={handleReturnToApplication}>
+          <button type="button" className="govuk-button govuk-button--secondary" onClick={handleReturnToApplication}>
             Return to application
           </button>
         </div>

@@ -578,7 +578,7 @@ const ProjectOverview = () => {
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project name</h2>
 					<div className="govuk-form-group govuk-!-width-two-thirds">
 						<TextInput
-							label=""
+							label="Project name"
 							id="projectName-inputValue"
 							name="projectName.inputValue"
 							value={formState.projectName}
@@ -595,7 +595,7 @@ const ProjectOverview = () => {
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project description</h2>
 					<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 						<TextArea
-							label=""
+							label="Project description"
 							id="projectDescription-inputValue"
 							name="projectDescription.inputValue"
 							value={formState.projectDescription}
@@ -632,7 +632,7 @@ const ProjectOverview = () => {
 					<p className="govuk-hint govuk-!-margin-bottom-2">{projectOverview.tallestPoleHeightHint}</p>
 					<div className="govuk-!-margin-bottom-6 govuk-!-width-one-third">
 						<NumberInput
-							label=""
+							label={projectOverview.tallestPoleHeight}
 							suffix={projectOverview.tallestPoleHeightSuffix}
 							id="tallestPoleHeight-inputValue"
 							name="tallestPoleHeight.inputValue"

@@ -50,23 +50,11 @@ export const Pagination: React.FC<PaginationProps> = ({
       <nav className="govuk-pagination" role="navigation" aria-label="Pagination">
       {currentPage > 1 && (
         <div className="govuk-pagination__prev">
-          <a
+          <button
+            type="button"
             className="govuk-link govuk-pagination__link"
-            href="#"
-            rel="prev"
             aria-label={`Go to previous page, page ${currentPage - 1} of ${totalPages}`}
-            tabIndex={0}
-            onClick={(e) => {
-              e.preventDefault();
-              onPageChange(currentPage - 1);
-            }}
-            onKeyDown={(e) => {
-              // AC-12: Keyboard accessibility - Enter and Space keys
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onPageChange(currentPage - 1);
-              }
-            }}
+            onClick={() => onPageChange(currentPage - 1)}
           >
             <svg
               className="govuk-pagination__icon govuk-pagination__icon--prev"
@@ -83,7 +71,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             <span className="govuk-pagination__link-title">
               Previous<span className="govuk-visually-hidden"> page</span>
             </span>
-          </a>
+          </button>
         </div>
       )}
 
@@ -100,27 +88,19 @@ export const Pagination: React.FC<PaginationProps> = ({
                     page === currentPage ? 'govuk-pagination__item--current' : ''
                   }`}
                 >
-                  <a
+                  <button
+                    type="button"
                     className="govuk-link govuk-pagination__link"
-                    href="#"
                     aria-label={`${page === currentPage ? 'Current page, ' : 'Go to '}page ${page} of ${totalPages}`}
                     aria-current={page === currentPage ? 'page' : undefined}
-                    tabIndex={0}
-                    onClick={(e) => {
-                      e.preventDefault();
+                    onClick={() => {
                       if (page !== currentPage) {
-                        onPageChange(page as number);
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if ((e.key === 'Enter' || e.key === ' ') && page !== currentPage) {
-                        e.preventDefault();
                         onPageChange(page as number);
                       }
                     }}
                   >
                     {page}
-                  </a>
+                  </button>
                 </li>
               )
             ))}
@@ -128,23 +108,11 @@ export const Pagination: React.FC<PaginationProps> = ({
 
       {currentPage < totalPages && (
         <div className="govuk-pagination__next">
-          <a
+          <button
+            type="button"
             className="govuk-link govuk-pagination__link"
-            href="#"
-            rel="next"
             aria-label={`Go to next page, page ${currentPage + 1} of ${totalPages}`}
-            tabIndex={0}
-            onClick={(e) => {
-              e.preventDefault();
-              onPageChange(currentPage + 1);
-            }}
-            onKeyDown={(e) => {
-              // AC-12: Keyboard accessibility - Enter and Space keys
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onPageChange(currentPage + 1);
-              }
-            }}
+            onClick={() => onPageChange(currentPage + 1)}
           >
             <span className="govuk-pagination__link-title">
               Next<span className="govuk-visually-hidden"> page</span>

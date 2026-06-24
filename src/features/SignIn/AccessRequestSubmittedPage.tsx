@@ -75,16 +75,13 @@ const AccessRequestSubmittedPage: React.FC = () => {
             </p>
 
             <p className="govuk-body">
-              <a
+              <button
+                type="button"
                 className="govuk-link"
-                href="#"
-               onClick={async (event) => {
-               event.preventDefault();
-                await logout();
-                }}
+                onClick={async () => await logout()}
               >
                 Log out
-              </a>
+              </button>
             </p>
           </div>
         </div>
