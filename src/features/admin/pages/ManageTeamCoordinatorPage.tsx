@@ -38,10 +38,11 @@ const ManageTeamCoordinatorPage: React.FC = () => {
       <>
         <SkipLink />
         <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <LoadingSkeleton type="summary" />
-        </main>
-      </div>
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <LoadingSkeleton type="summary" />
+          </main>
+        </div>
+      </>
     );
   }
 
@@ -81,12 +82,15 @@ const ManageTeamCoordinatorPage: React.FC = () => {
           </div>
         </main>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <Link

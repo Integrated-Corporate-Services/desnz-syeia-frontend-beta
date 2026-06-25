@@ -94,7 +94,9 @@ const OSGridReference: React.FC = () => {
   const labels = LAND_DETAILS_LABELS.OS_GRID_REFERENCE;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <LandDetailsBreadcrumbs 
         applicationId={applicationId} 
         currentPage={labels.PAGE_TITLE}
@@ -212,7 +214,7 @@ const OSGridReference: React.FC = () => {
           </div>
         </div>
       </main>
-      </div>
+    </div>
     </>
   );
 };

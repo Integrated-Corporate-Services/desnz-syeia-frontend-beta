@@ -1023,4 +1023,7 @@ const ProjectOverview = () => {
 			</main>
 		</div>
 	</>
+	);
+}
+
 export default ProjectOverview;

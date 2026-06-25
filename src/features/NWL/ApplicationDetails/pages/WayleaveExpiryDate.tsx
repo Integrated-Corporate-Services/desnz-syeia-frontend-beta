@@ -208,7 +208,9 @@ const WayleaveExpiryDate: React.FC = () => {
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">

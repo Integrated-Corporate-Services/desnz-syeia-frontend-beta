@@ -315,4 +315,8 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
                 </div>
             </div>
         </div>
+    </>
     );
+};
+
+export default ReviewSensitiveAreaResultsPage;

@@ -37,10 +37,11 @@ const ManageUserPage: React.FC = () => {
       <>
         <SkipLink />
         <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <LoadingSkeleton type="default" />
-        </main>
-      </div>
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <LoadingSkeleton type="default" />
+          </main>
+        </div>
+      </>
     );
   }
 

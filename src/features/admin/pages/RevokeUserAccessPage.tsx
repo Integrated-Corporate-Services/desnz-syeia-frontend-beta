@@ -32,36 +32,11 @@ const RevokeUserAccessPage: React.FC = () => {
       <>
         <SkipLink />
         <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <LoadingSkeleton type="default" />
-        </main>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <>
-        <SkipLink />
-        <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              User not found
-            </h2>
-            <div className="govuk-error-summary__body">
-              <p className="govuk-body">The user you are trying to revoke access for could not be found.</p>
-            </div>
-          </div>
-          <a
-            href="#"
-            className="govuk-link"
-            onClick={handleBack}
-          >
-            Return to user management
-          </a>
-        </main>
-      </div>
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <LoadingSkeleton type="default" />
+          </main>
+        </div>
+      </>
     );
   }
 
@@ -85,6 +60,33 @@ const RevokeUserAccessPage: React.FC = () => {
     if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
     return 'Applicant';
   };
+
+  if (!user) {
+    return (
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
+              <h2 className="govuk-error-summary__title" id="error-summary-title">
+                User not found
+              </h2>
+              <div className="govuk-error-summary__body">
+                <p className="govuk-body">The user you are trying to revoke access for could not be found.</p>
+              </div>
+            </div>
+            <a
+              href="#"
+              className="govuk-link"
+              onClick={handleBack}
+            >
+              Return to user management
+            </a>
+          </main>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
