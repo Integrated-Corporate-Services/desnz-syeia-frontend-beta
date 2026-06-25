@@ -632,6 +632,7 @@ const WorksOverview: React.FC = () => {
             id="estimatedDuration"
             name="estimatedDuration"
             label={WORKS_OVERVIEW_QUESTIONS.ESTIMATED_DURATION}
+            labelClassName="govuk-!-font-weight-bold"
             value={form.estimatedDuration}
             onChange={handleChange}
             error={errors.estimatedDuration}
@@ -643,6 +644,7 @@ const WorksOverview: React.FC = () => {
             id="vehiclesRequired"
             name="vehiclesRequired"
             label={WORKS_OVERVIEW_QUESTIONS.VEHICLES_REQUIRED}
+            labelClassName="govuk-!-font-weight-bold"
             value={form.vehiclesRequired}
             onChange={handleChange}
             error={errors.vehiclesRequired}
