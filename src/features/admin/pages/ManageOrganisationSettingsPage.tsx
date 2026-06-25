@@ -34,7 +34,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
       <>
         <SkipLink />
         <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <Link to="/admin/user-management" className="govuk-back-link">Back</Link>
@@ -49,8 +49,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
             </div>
           </div>
         </main>
-      </div>
-    );
+      </div>      </>    );
   }
 
   return (

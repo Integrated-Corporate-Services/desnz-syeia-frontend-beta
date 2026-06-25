@@ -23,10 +23,11 @@ const TeamCoordinatorsPage: React.FC = () => {
       <>
         <SkipLink />
         <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <LoadingSkeleton type="table" />
-        </main>
-      </div>
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <LoadingSkeleton type="table" />
+          </main>
+        </div>
+      </>
     );
   }
 
@@ -35,7 +36,7 @@ const TeamCoordinatorsPage: React.FC = () => {
       <>
         <SkipLink />
         <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
@@ -53,6 +54,7 @@ const TeamCoordinatorsPage: React.FC = () => {
           </div>
         </main>
       </div>
+      </>
     );
   }
 
@@ -60,7 +62,7 @@ const TeamCoordinatorsPage: React.FC = () => {
     <>
       <SkipLink />
       <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+        <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">
             <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
@@ -133,6 +135,7 @@ const TeamCoordinatorsPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

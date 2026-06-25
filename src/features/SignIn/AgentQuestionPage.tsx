@@ -138,5 +138,7 @@ const AgentQuestionPage: React.FC = () => {
         </main>
       </div>
     </>
+  );
+};
 
 export default AgentQuestionPage;

@@ -49,7 +49,7 @@ const ManageUserPage: React.FC = () => {
       <>
         <SkipLink />
         <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
             <h2 className="govuk-error-summary__title" id="error-summary-title">
               User not found
@@ -63,6 +63,7 @@ const ManageUserPage: React.FC = () => {
           </Link>
         </main>
       </div>
+      </>
     );
   }
 

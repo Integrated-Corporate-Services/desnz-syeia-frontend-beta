@@ -78,26 +78,32 @@ const ReviewRequestPage: React.FC = () => {
           </div>
         </main>
       </div>
+      </>
     );
   }
 
   if (!requestData) {
     return (
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <a href="#" className="govuk-back-link" onClick={handleBackClick}>
-            Back
-          </a>
-          <h1 className="govuk-heading-l">Request not found</h1>
-          <p className="govuk-body">The requested access request could not be found.</p>
-        </main>
-      </div>
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <a href="#" className="govuk-back-link" onClick={handleBackClick}>
+              Back
+            </a>
+            <h1 className="govuk-heading-l">Request not found</h1>
+            <p className="govuk-body">The requested access request could not be found.</p>
+          </main>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content" role="main">
         <a href="#" className="govuk-back-link" onClick={handleBackClick}>
           Back
         </a>

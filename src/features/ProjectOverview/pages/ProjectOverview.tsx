@@ -1022,7 +1022,5 @@ const ProjectOverview = () => {
 				</form>
 			</main>
 		</div>
-	);
-}
-
+	</>
 export default ProjectOverview;
