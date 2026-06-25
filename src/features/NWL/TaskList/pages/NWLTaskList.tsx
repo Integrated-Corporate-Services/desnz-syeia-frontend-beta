@@ -84,7 +84,7 @@ const NWLTaskList: React.FC = () => {
 	const renderLink = (subsectionName: string, displayText: string, route: string) => {
 		const disabled = isLinkDisabled(subsectionName);
 		if (disabled) {
-			return <span className="govuk-body govuk-!-font-weight-bold" style={{ color: '#626a6e' }}>{displayText}</span>;
+			return <span className="govuk-hint govuk-!-font-weight-bold">{displayText}</span>;
 		}
 		return (
 			<Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(route, appId)}>
