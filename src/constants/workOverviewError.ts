@@ -11,11 +11,6 @@ export const WORKS_OVERVIEW_VALIDATION_MESSAGES = {
   POLES_REPLACED_REQUIRED: 'Enter the number of poles to be replaced',
   POLES_REPLACED_FORMAT: 'You can only enter letters and numbers',
   POLE_COMMENTS_REQUIRED: 'Add a comment',
-  TALLEST_NEW_POLE_HEIGHT_REQUIRED: 'Enter the height of the tallest new pole',
-  TALLEST_NEW_POLE_HEIGHT_INVALID: 'Enter a valid height in metres',
-  TALLEST_NEW_POLE_HEIGHT_NEGATIVE: 'Height must be 0 or greater',
-  TALLEST_NEW_POLE_HEIGHT_TOO_LARGE: 'Height must be 9999 metres or less',
-  TALLEST_NEW_POLE_HEIGHT_DECIMAL_PLACES: 'Enter height with no more than 2 decimal places',
   
   // Overhead lines section
   ADDING_OR_REPLACING_LINES_REQUIRED: "Select 'Yes' or 'No'",
@@ -23,7 +18,6 @@ export const WORKS_OVERVIEW_VALIDATION_MESSAGES = {
   ESTIMATED_DURATION_REQUIRED: 'Enter an estimate of the duration',
   VEHICLES_REQUIRED_REQUIRED: 'Enter a list of vehicles required on site',
   ROAD_CLOSURES_REQUIRED: "Select 'Yes' or 'No'",
-  ROAD_CLOSURES_DETAILS_REQUIRED: 'Enter details of the road closures, lane closures, temporary traffic lights, road, times, duration',
   
   // Excavation section
   EXCAVATION_REQUIRED: "Select 'Yes' or 'No'",
@@ -36,7 +30,6 @@ export const WORKS_OVERVIEW_VALIDATION_MESSAGES = {
   // Access routes section
   USING_EXISTING_ACCESS_ROUTES_REQUIRED: "Select 'Yes' or 'No'",
   ACCESS_ROUTES_DETAILS_REQUIRED: 'Enter details about access routes and storage sites',
-  PROPOSED_ACCESS_ROUTES_DETAILS_REQUIRED: 'Enter details about the proposed access routes and storage sites',
   
   // Equipment removal section
   REMOVING_EXISTING_EQUIPMENT_REQUIRED: "Select 'Yes' or 'No'",

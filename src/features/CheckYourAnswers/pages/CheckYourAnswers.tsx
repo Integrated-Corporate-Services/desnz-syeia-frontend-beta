@@ -23,13 +23,10 @@ import {
   SensitiveAreaReviewDocument,
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
-import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
-import { normalizeWorksOverview } from "../utils/normalizeWorksOverview";
 import { createLogger } from "../../../utils/logger";
 
 import {
   SECTION_HEADINGS,
-  FIELD_LABELS,
   POST_CONSULTATION_QUESTIONS,
 } from '../constants/applicationSummaryLabels';
 
@@ -164,6 +161,7 @@ const CheckYourAnswers: React.FC = () => {
     ));
   };
 
+  // Helper function to map asset presence option ID to text
   const getAssetPresenceText = (optionId?: number) => {
     switch (optionId) {
       case 1:
@@ -363,7 +361,7 @@ const CheckYourAnswers: React.FC = () => {
             }))
             : []
         );
-        setWorksOverview(normalizeWorksOverview(data.sections?.worksOverview) || null);
+        setWorksOverview(data.sections?.worksOverview || null);
         setParishes(data.sections?.parishes || null);
         // Set permissions from API response
         setPermissions(data.permissions || null);
@@ -729,14 +727,10 @@ const CheckYourAnswers: React.FC = () => {
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">
-                      What is the height of the tallest existing pole?
+                      Max structure height (m)
                     </dt>
                     <dd className="govuk-summary-list__value">
-                      {projectDetails?.max_structure_height_m !== undefined &&
-                      projectDetails?.max_structure_height_m !== null &&
-                      projectDetails?.max_structure_height_m !== ''
-                        ? `${projectDetails.max_structure_height_m} metres`
-                        : "-"}
+                      {projectDetails?.max_structure_height_m || "-"}
                     </dd>
                   </div>
                   <div className="govuk-summary-list__row">
@@ -926,7 +920,226 @@ const CheckYourAnswers: React.FC = () => {
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
-                  <WorksOverviewSummaryRows worksOverview={worksOverview} />
+                  {/* Adding or replacing poles */}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Are you adding or replacing any poles?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {typeof worksOverview?.addingOrReplacingPoles ===
+                        "boolean"
+                        ? worksOverview.addingOrReplacingPoles
+                          ? "Yes"
+                          : "No"
+                        : "-"}
+                    </dd>
+                  </div>
+                  {worksOverview?.addingOrReplacingPoles && (
+                    <>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Pole material
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {worksOverview?.poleMaterial || "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Chemical treatments
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {worksOverview?.chemicalTreatments || "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">Poles added</dt>
+                        <dd className="govuk-summary-list__value">
+                          {typeof worksOverview?.polesAdded === "number"
+                            ? worksOverview.polesAdded
+                            : "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Poles replaced
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {typeof worksOverview?.polesReplaced === "number"
+                            ? worksOverview.polesReplaced
+                            : "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Comments on poles
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {worksOverview?.poleComments || "-"}
+                        </dd>
+                      </div>
+                    </>
+                  )}
+                  {/* Adding or replacing overhead lines */}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Are you adding or replacing any overhead lines?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {typeof worksOverview?.addingOrReplacingLines ===
+                        "boolean"
+                        ? worksOverview.addingOrReplacingLines
+                          ? "Yes"
+                          : "No"
+                        : "-"}
+                    </dd>
+                  </div>
+                  {worksOverview?.addingOrReplacingLines && (
+                    <>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Overhead line description
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {worksOverview?.overheadLineDescription || "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Estimated duration
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {worksOverview?.estimatedDuration || "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Vehicles required
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {worksOverview?.vehiclesRequired || "-"}
+                        </dd>
+                      </div>
+                      <div className="govuk-summary-list__row">
+                        <dt className="govuk-summary-list__key">
+                          Road closures required
+                        </dt>
+                        <dd className="govuk-summary-list__value">
+                          {typeof worksOverview?.roadClosuresRequired ===
+                            "boolean"
+                            ? worksOverview.roadClosuresRequired
+                              ? "Yes"
+                              : "No"
+                            : "-"}
+                        </dd>
+                      </div>
+                    </>
+                  )}
+                  {/* Excavation works */}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Are excavation works required?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {typeof worksOverview?.excavationRequired === "boolean"
+                        ? worksOverview.excavationRequired
+                          ? "Yes"
+                          : "No"
+                        : "-"}
+                    </dd>
+                  </div>
+                  {worksOverview?.excavationRequired && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Excavation details
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {worksOverview?.excavationDetails || "-"}
+                      </dd>
+                    </div>
+                  )}
+                  {/* Vegetation clearance */}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Is vegetation clearance required?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {typeof worksOverview?.vegetationClearanceRequired ===
+                        "boolean"
+                        ? worksOverview.vegetationClearanceRequired
+                          ? "Yes"
+                          : "No"
+                        : "-"}
+                    </dd>
+                  </div>
+                  {worksOverview?.vegetationClearanceRequired && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Vegetation clearance details
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {worksOverview?.vegetationClearanceDetails || "-"}
+                      </dd>
+                    </div>
+                  )}
+                  {/* Pre-existing access routes */}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Are you using pre-existing access routes and/or storage
+                      sites?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {typeof worksOverview?.usingExistingAccessRoutes ===
+                        "boolean"
+                        ? worksOverview.usingExistingAccessRoutes
+                          ? "Yes"
+                          : "No"
+                        : "-"}
+                    </dd>
+                  </div>
+                  {worksOverview?.usingExistingAccessRoutes && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Access routes details
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {worksOverview?.accessRoutesDetails || "-"}
+                      </dd>
+                    </div>
+                  )}
+                  {/* Removing existing equipment */}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      Are you removing existing equipment?
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {typeof worksOverview?.removingExistingEquipment ===
+                        "boolean"
+                        ? worksOverview.removingExistingEquipment
+                          ? "Yes"
+                          : "No"
+                        : "-"}
+                    </dd>
+                  </div>
+                  {worksOverview?.removingExistingEquipment && (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">
+                        Removal description
+                      </dt>
+                      <dd className="govuk-summary-list__value">
+                        {worksOverview?.removalDescription || "-"}
+                      </dd>
+                    </div>
+                  )}
+                  {/* General comments */}
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">
+                      General comments
+                    </dt>
+                    <dd className="govuk-summary-list__value">
+                      {worksOverview?.generalComments || "-"}
+                    </dd>
+                  </div>
                 </dl>
               </div>
             </div>
@@ -1044,11 +1257,48 @@ const CheckYourAnswers: React.FC = () => {
               </div>
             )}
 
+            {/* Parishes summary card */}
+            <div className="govuk-summary-card">
+              <div className="govuk-summary-card__title-wrapper">
+                <h2 className="govuk-summary-card__title">Parishes</h2>
+                {/* {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/parishes`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden"> parishes</span>
+                      </Link>
+                    </li>
+                  </ul>
+                )} */}
+              </div>
+              <div className="govuk-summary-card__content">
+                <dl className="govuk-summary-list">
+                  {parishes.length > 0 ? (
+                    parishes.map((parish, idx) => (
+                      <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
+                        <dt className="govuk-summary-list__key">Parish</dt>
+                        <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">Parishes</dt>
+                      <dd className="govuk-summary-list__value">-</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            </div>
+
             {/* Sensitive area check summary card */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
-                  {SECTION_HEADINGS.SENSITIVE_AREA_CHECK}
+                  Sensitive area check
                 </h2>
               </div>
               <div className="govuk-summary-card__content">
@@ -1095,8 +1345,24 @@ const CheckYourAnswers: React.FC = () => {
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">
-                  {SECTION_HEADINGS.SENSITIVE_AREA_REVIEW}
+                  Sensitive area review
                 </h2>
+                {/* {permissions?.canEdit && (
+                  <ul className="govuk-summary-card__actions">
+                    <li className="govuk-summary-card__action">
+                      <Link
+                        className="govuk-link"
+                        to={`${S37_BASE_URL}/${applicationId}/sensitive-area-review`}
+                      >
+                        Change
+                        <span className="govuk-visually-hidden">
+                          {" "}
+                          sensitive area review
+                        </span>
+                      </Link>
+                    </li>
+                  </ul>
+                )} */}
               </div>
               <div className="govuk-summary-card__content">
                 <dl className="govuk-summary-list">
@@ -1114,6 +1380,7 @@ const CheckYourAnswers: React.FC = () => {
                           return "-";
                         }
 
+                        // Get unique layer names
                         const uniqueLayerNames = Array.from(
                           new Set(allManualLayers.map(layer => layer.layerName).filter(Boolean))
                         );
@@ -1143,6 +1410,7 @@ const CheckYourAnswers: React.FC = () => {
                                 className="govuk-link"
                                 onClick={async (e) => {
                                   e.preventDefault();
+                                  // Use s3_key if available, otherwise file_id
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
@@ -1177,31 +1445,7 @@ const CheckYourAnswers: React.FC = () => {
               </div>
             </div>
 
-            {/* Parishes summary card */}
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">{FIELD_LABELS.PARISHES}</h2>
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
-                  {parishes.length > 0 ? (
-                    parishes.map((parish, idx) => (
-                      <div className="govuk-summary-list__row" key={parish.parish_code || idx}>
-                        <dt className="govuk-summary-list__key">{FIELD_LABELS.PARISH}</dt>
-                        <dd className="govuk-summary-list__value">{parish.parish_name}</dd>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">{FIELD_LABELS.PARISHES}</dt>
-                      <dd className="govuk-summary-list__value">-</dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            </div>
-
-            <h2 className="govuk-heading-m">{SECTION_HEADINGS.SUPPORTING_INFORMATION}</h2>
+            <h2 className="govuk-heading-m">Supporting information</h2>
             {/* Supporting information summary card - fixed to use state variables and map correct questions/answers */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">

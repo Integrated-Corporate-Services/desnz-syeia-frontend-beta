@@ -33,14 +33,12 @@ export interface WorksOverviewAsset {
 	chemicalTreatments: string;
 	polesAdded: number;
 	polesReplaced: number;
-	tallestNewPoleHeight?: number | null;
 	poleComments: string;
 	addingOrReplacingLines: boolean;
 	overheadLineDescription: string;
 	estimatedDuration: string;
 	vehiclesRequired: string;
 	roadClosuresRequired: boolean;
-	roadClosuresDetails: string;
 	excavationRequired: boolean;
 	excavationDetails: string;
 	vegetationClearanceRequired: boolean;
