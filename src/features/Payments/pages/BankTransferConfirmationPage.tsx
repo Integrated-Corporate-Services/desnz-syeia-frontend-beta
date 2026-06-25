@@ -280,7 +280,6 @@ const BankTransferConfirmationPage: React.FC = () => {
                 data-module="govuk-button"
                 onClick={handleSubmit}
                 disabled={loading}
-                aria-busy={loading}
               >
                 {loading ? 'Submitting...' : 'Submit Application'}
               </button>

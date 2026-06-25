@@ -4,7 +4,6 @@ import Header from './component/Header';
 import ServiceNavigation from './component/ServiceNavigation';
 import PhaseBanner from './component/PhaseBanner';
 import Footer from './component/Footer';
-import SkipLink from '../components/SkipLink';
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -12,7 +11,6 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => (
     <>
-        <SkipLink />
         <Header />
         <ServiceNavigation />
         <PhaseBanner />
@@ -21,7 +19,6 @@ const MainLayout = ({ children }: MainLayoutProps) => (
             <main
                 className="govuk-main-wrapper"
                 id="main-content"
-                tabIndex={-1}
                 style={{ paddingTop: 16, paddingBottom: 16 }}
             >
                 {children}

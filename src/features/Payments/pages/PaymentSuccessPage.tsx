@@ -59,9 +59,7 @@ const PaymentSuccessPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <p className="govuk-body" style={{ marginBottom: '10px', fontSize: '16px' }}>
-              <strong>Application status</strong>
-            </p>
+            <h1 className="govuk-heading-s" style={{ marginBottom: '10px', fontSize: '24px' }}>Application status</h1>
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">Application submitted</h1>
               <div className="govuk-panel__body">

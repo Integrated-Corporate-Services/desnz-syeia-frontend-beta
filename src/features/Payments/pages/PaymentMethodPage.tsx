@@ -234,7 +234,6 @@ const handlePayByCard = async () => {
                 data-module="govuk-button"
                 onClick={handlePayByCard}
                 disabled={loading}
-                aria-busy={loading}
               >
                 {loading ? 'Processing...' : PAYMENT_PAGE_TEXT.payByCardButton}
               </button>

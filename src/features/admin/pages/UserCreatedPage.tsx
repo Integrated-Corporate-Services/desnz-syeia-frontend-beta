@@ -79,13 +79,16 @@ const UserCreatedPage: React.FC = () => {
                 View all users
               </button>
 
-              <button
-                type="button"
+              <a
                 className="govuk-link"
-                onClick={() => navigateToDashboard()}
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateToDashboard();
+                }}
               >
                 Return to dashboard
-              </button>
+              </a>
             </div>
           </div>
 
@@ -99,31 +102,40 @@ const UserCreatedPage: React.FC = () => {
               <nav role="navigation" aria-labelledby="related-content-title">
                 <ul className="govuk-list govuk-list--spaced">
                   <li>
-                    <button
-                      type="button"
+                    <a
+                      href="#"
                       className="govuk-link"
-                      onClick={() => navigateToManageUsers()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigateToManageUsers();
+                      }}
                     >
                       Manage all users
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button
-                      type="button"
+                    <a
+                      href="#"
                       className="govuk-link"
-                      onClick={() => navigateToAddUser()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigateToAddUser();
+                      }}
                     >
                       Add another user
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button
-                      type="button"
+                    <a
+                      href="#"
                       className="govuk-link"
-                      onClick={() => navigateToDashboard()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigateToDashboard();
+                      }}
                     >
                       View dashboard
-                    </button>
+                    </a>
                   </li>
                   <li><a href="#" className="govuk-link">User management guide</a></li>
                 </ul>

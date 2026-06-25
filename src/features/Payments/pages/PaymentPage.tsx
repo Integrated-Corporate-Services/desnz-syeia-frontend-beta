@@ -105,7 +105,6 @@ export default function PaymentPage() {
             data-module="govuk-button"
             data-govuk-button-init=""
             disabled={loading}
-            aria-busy={loading}
           >
             {loading ? 'Processing...' : 'Continue to payment'}
           </button>

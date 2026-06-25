@@ -77,7 +77,7 @@ const CompanyNamePage: React.FC = () => {
               <TextInput
                 id="agencyName"
                 name="agencyName"
-                label="Enter your agency name"
+                label=""
                 value={agencyName}
                 onChange={(e) => handleChange(e.target.value)}
                 error={error}

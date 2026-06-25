@@ -191,7 +191,6 @@ const InvoiceDownloadPage: React.FC = () => {
                 className="govuk-button"
                 onClick={handleDownloadInvoice}
                 disabled={loading || !effectiveS3Key || !effectiveInvoiceNumber}
-                aria-busy={loading}
               >
                 {loading ? 'Downloading...' : 'Download Invoice'}
               </button>
@@ -202,7 +201,6 @@ const InvoiceDownloadPage: React.FC = () => {
                 className="govuk-button govuk-button--secondary"
                 onClick={handleContinueToPayment}
                 disabled={loading || !effectiveTotalAmount || !effectiveInvoiceNumber}
-                aria-busy={loading}
               >
                 {loading ? 'Processing...' : 'Continue to payment'}
               </button>
