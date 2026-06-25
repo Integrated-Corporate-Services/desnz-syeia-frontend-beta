@@ -1,5 +1,5 @@
 ﻿import { S37_BASE_URL } from './s37';
-// import { TLP_BASE_URL } from './tlp'; // TLP folder deleted
+// import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
 import {
@@ -60,7 +60,7 @@ import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pa
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
 import { nwlObjectorDetailsRoutes, nwlLandDetailsRoutes } from '../features/NWL/routes';
 import { nwlRoutes } from '../features/NWL/routes';
-// TLP folder deleted - commented out imports
+
 // import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
 // import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
 // import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
@@ -599,7 +599,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     ...nwlObjectorDetailsRoutes,
     ...nwlLandDetailsRoutes,
     ...nwlRoutes,
-    // TLP routes commented out - TLP folder deleted
+  
     // {
     //     path: `${TLP_BASE_URL}/who-is-applying`,
     //     component: TLPWhoIsApplying,
@@ -908,7 +908,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    // TLP delete routes commented out - TLP folder deleted
+    
     // {
     //     path: `${TLP_BASE_URL}/:applicationId/delete-confirmation`,
     //     component: ApplicationDeleteConfirmationPage,
