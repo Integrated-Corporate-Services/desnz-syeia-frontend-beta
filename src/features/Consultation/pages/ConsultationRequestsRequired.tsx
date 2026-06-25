@@ -8,6 +8,7 @@ import { updateAllConsultations, createLpaConsultations } from '../../../service
 import { progressApiService } from '../../../services/progressApiService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
+import SkipLink from '../../../components/SkipLink';
 
 const ConsultationRequestsRequired: React.FC = () => {
     const { applicationId } = useParams();
@@ -116,7 +117,9 @@ const ConsultationRequestsRequired: React.FC = () => {
     };
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -235,6 +238,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

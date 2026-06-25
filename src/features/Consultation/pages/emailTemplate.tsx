@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { getConsultationDetailsById, saveConsultationMessage } from "../../../services/consultationService";
+import SkipLink from '../../../components/SkipLink';
 
 const EmailTemplate: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -90,7 +91,9 @@ const EmailTemplate: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
@@ -165,6 +168,7 @@ const EmailTemplate: React.FC = () => {
       </div>
       </main>
     </div>
+    </>
   );
 };
 

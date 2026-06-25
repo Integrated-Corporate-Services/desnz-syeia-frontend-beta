@@ -9,6 +9,7 @@ import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('ReviewDocumentsPage');
 
@@ -208,7 +209,9 @@ const ReviewDocumentsPage: React.FC = () => {
   }
 
   return (
-    <main className="govuk-main-wrapper govuk-!-padding-top-2">
+    <>
+      <SkipLink />
+      <main className="govuk-main-wrapper govuk-!-padding-top-2">
      {/* <div className="govuk-width-container"> */}
       <a
         href="#"
@@ -401,6 +404,7 @@ const ReviewDocumentsPage: React.FC = () => {
         </div>
     {/* </div> */}
     </main>
+    </>
   );
 };
 

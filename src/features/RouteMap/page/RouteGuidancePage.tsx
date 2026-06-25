@@ -6,13 +6,16 @@ import eipSimpleRoute from '../../../assets/eip_simple_route-1.png';
 import eipMultipleRoutes from '../../../assets/eip_multiple_routes-2.png';
 import eipRouteOverview from '../../../assets/eip_route_overview-3.png';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import SkipLink from '../../../components/SkipLink';
 
 const RouteGuidancePage: React.FC = () => {
   const navigate = useNavigate();
    const applicationId = useGetApplicationId();
   
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav
         className="govuk-breadcrumbs"
         aria-label="Breadcrumb"
@@ -118,7 +121,8 @@ const RouteGuidancePage: React.FC = () => {
         </div>
       </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -4,6 +4,7 @@ import { S37_BASE_URL } from "../../../constants/s37";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { withdrawConsultationRequest } from "../../../services/consultationService";
 import { useAuthUser } from "../../../hooks/useAuthUser";
+import SkipLink from '../../../components/SkipLink';
 
 const ConsultationWithdrawnPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +34,9 @@ const ConsultationWithdrawnPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -63,6 +66,7 @@ const ConsultationWithdrawnPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

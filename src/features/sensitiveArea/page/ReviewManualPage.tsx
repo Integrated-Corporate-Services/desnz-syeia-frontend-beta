@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem, updateManuallySelectedLayers } from '../../../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../../../constants/s37';
+import SkipLink from '../../../components/SkipLink';
 
 /**
  * ReviewManualPage Component
@@ -197,7 +198,9 @@ const ReviewManualPage: React.FC = () => {
   // ===========================
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       {/* Back Link - Always visible */}
       <Link 
         to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`} 
@@ -371,6 +374,7 @@ const ReviewManualPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
