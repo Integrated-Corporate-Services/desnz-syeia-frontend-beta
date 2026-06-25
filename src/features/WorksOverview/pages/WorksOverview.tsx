@@ -11,6 +11,7 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
+import { deleteFileCompletely } from '../../../services/s3ApiService';
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
 import { WORKS_OVERVIEW_QUESTIONS } from '../../../constants/worksOverviewLabels';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
@@ -52,6 +53,45 @@ const ACCESS_ROUTE_CATEGORIES: Record<AccessRouteBranch, string> = {
 };
 
 const LEGACY_ACCESS_ROUTE_CATEGORY = FILE_CATEGORIES.WORKS_ACCESS_ROUTES;
+
+const ALL_ACCESS_ROUTE_CATEGORIES = [
+  ACCESS_ROUTE_CATEGORIES.existing,
+  ACCESS_ROUTE_CATEGORIES.proposed,
+  LEGACY_ACCESS_ROUTE_CATEGORY,
+];
+
+const getActiveAccessRouteCategories = (usingExistingAccessRoutes: string) =>
+  usingExistingAccessRoutes === 'yes'
+    ? [ACCESS_ROUTE_CATEGORIES.existing, LEGACY_ACCESS_ROUTE_CATEGORY]
+    : usingExistingAccessRoutes === 'no'
+      ? [ACCESS_ROUTE_CATEGORIES.proposed]
+      : [];
+
+const getInactiveAccessRouteCategories = (usingExistingAccessRoutes: string) => {
+  const active = new Set(getActiveAccessRouteCategories(usingExistingAccessRoutes));
+  return ALL_ACCESS_ROUTE_CATEGORIES.filter((category) => !active.has(category));
+};
+
+const filterAccessRouteFilesForSelection = (
+  usingExistingAccessRoutes: string,
+  documents: ApplicationDocument[],
+  files: UploadedFile[],
+) => {
+  if (!usingExistingAccessRoutes) {
+    return { documents, files };
+  }
+
+  const inactiveCategories = getInactiveAccessRouteCategories(usingExistingAccessRoutes);
+  const filteredDocuments = documents.filter(
+    (doc) => !doc.category || !inactiveCategories.includes(doc.category),
+  );
+  const activeFileIds = new Set(
+    filteredDocuments.map((doc) => doc.fileId || (doc as ApplicationDocument & { file_id?: string }).file_id || '').filter(Boolean),
+  );
+  const filteredFiles = files.filter((file) => activeFileIds.has(file.id));
+
+  return { documents: filteredDocuments, files: filteredFiles };
+};
 
 const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
@@ -131,14 +171,26 @@ const WorksOverview: React.FC = () => {
               generalComments: data.generalComments || ''
             });
             if (Array.isArray(data.uploadedFiles)) {
-              setUploadedFiles(
-                data.uploadedFiles.map((file: UploadedFile & { file_id?: string }) => ({
-                  ...file,
-                  id: file.id || file.file_id || '',
-                })),
+              const mappedFiles = data.uploadedFiles.map((file: UploadedFile & { file_id?: string }) => ({
+                ...file,
+                id: file.id || file.file_id || '',
+              }));
+              const mappedDocuments = Array.isArray(data.applicationDocuments)
+                ? data.applicationDocuments.map((doc: ApplicationDocument & { file_id?: string; document_id?: string }) => ({
+                    ...doc,
+                    fileId: doc.fileId || doc.file_id || '',
+                    documentId: doc.documentId || doc.document_id || '',
+                  }))
+                : [];
+              const usingExisting = data.usingExistingAccessRoutes ? 'yes' : 'no';
+              const filtered = filterAccessRouteFilesForSelection(
+                usingExisting,
+                mappedDocuments,
+                mappedFiles,
               );
-            }
-            if (Array.isArray(data.applicationDocuments)) {
+              setUploadedFiles(filtered.files);
+              setApplicationDocuments(filtered.documents);
+            } else if (Array.isArray(data.applicationDocuments)) {
               setApplicationDocuments(
                 data.applicationDocuments.map((doc: ApplicationDocument & { file_id?: string; document_id?: string }) => ({
                   ...doc,
@@ -170,6 +222,15 @@ const WorksOverview: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev: typeof initialState) => ({ ...prev, [name]: value }));
+
+    if (name === 'usingExistingAccessRoutes') {
+      if (value === 'yes') {
+        setPendingProposedAccessRouteFiles([]);
+      } else if (value === 'no') {
+        setPendingPreExistingAccessRouteFiles([]);
+      }
+    }
+
     if (submitted && errors[name as keyof FormErrors]) {
       setErrors((prev) => {
         const next = { ...prev };
@@ -303,6 +364,28 @@ const WorksOverview: React.FC = () => {
         ? pendingPreExistingAccessRouteFiles
         : pendingProposedAccessRouteFiles;
       await uploadPendingFiles(activeUploadRef, activePendingFiles);
+
+      const inactiveCategories = getInactiveAccessRouteCategories(form.usingExistingAccessRoutes);
+      const inactiveDocs = applicationDocuments.filter(
+        (doc) => doc.category && inactiveCategories.includes(doc.category),
+      );
+
+      for (const doc of inactiveDocs) {
+        const fileId = getDocumentFileId(doc);
+        const file = uploadedFiles.find((uploadedFile) => uploadedFile.id === fileId);
+        const s3Key = file?.s3Key || (file as UploadedFile & { s3_key?: string })?.s3_key;
+        if (fileId && s3Key) {
+          await deleteFileCompletely(fileId, s3Key);
+        }
+      }
+
+      if (inactiveDocs.length > 0) {
+        const inactiveFileIds = new Set(inactiveDocs.map(getDocumentFileId).filter(Boolean));
+        setUploadedFiles((prev) => prev.filter((file) => !inactiveFileIds.has(file.id)));
+        setApplicationDocuments((prev) =>
+          prev.filter((doc) => !inactiveCategories.includes(doc.category || '')),
+        );
+      }
     } catch {
       setErrors({ generalComments: 'Failed to upload files. Please try again.' });
       return;
