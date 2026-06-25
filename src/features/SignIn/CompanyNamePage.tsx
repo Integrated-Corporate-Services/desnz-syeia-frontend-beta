@@ -68,16 +68,13 @@ const CompanyNamePage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
-            
-            <h1 className="govuk-heading-l">Enter your agency name</h1>
-
-            <p className="govuk-body">e.g. Fisher Gordon</p>
 
             <form onSubmit={handleSubmit} noValidate>
               <TextInput
                 id="agencyName"
                 name="agencyName"
-                label=""
+                label="Enter your agency name"
+                hint="e.g. Fisher Gordon"
                 value={agencyName}
                 onChange={(e) => handleChange(e.target.value)}
                 error={error}

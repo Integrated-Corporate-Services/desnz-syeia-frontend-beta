@@ -373,12 +373,11 @@ const AssetInformationForm: React.FC = () => {
                             <h1 className="govuk-heading-l">Assets</h1>
 
                             {/* Standard specification reference number */}
-                            <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Standard specification reference number</h2>
                             <div className="govuk-form-group">
                                 <TextInput
                                     id="referenceNumber"
                                     name="referenceNumber"
-                                    label=""
+                                    label="Standard specification reference number"
                                     value={form.referenceNumber}
                                     error={errors.referenceNumber}
                                     onChange={handleChange}
@@ -389,11 +388,10 @@ const AssetInformationForm: React.FC = () => {
                             </div>
 
                             {/* Type of Line */}
-                            <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Type of line</h2>
                             <div className="govuk-form-group">
                                 <RadioGroup
                                     id="lineType"
-                                    label=""
+                                    label="Type of line"
                                     name="lineType"
                                     value={form.lineType}
                                     error={errors.lineType}
@@ -413,11 +411,10 @@ const AssetInformationForm: React.FC = () => {
                             )}
 
                             {/* Line voltage */}
-                            <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Line voltage</h2>
                             <MultiSelectDropdown
                                 id="lineVoltage"
                                 name="lineVoltage"
-                                label=""
+                                label="Line voltage"
                                 options={VOLTAGE_CLASS_OPTIONS.map((opt) => ({ value: opt.code, label: opt.label }))}
                                 selected={form.lineVoltage}
                                 onChange={(selected: string[]) => setForm((prev) => ({ ...prev, lineVoltage: selected }))}
