@@ -1,8 +1,12 @@
 
+import SkipLink from '../../components/SkipLink';
+
 const LandingPage = () => {
   return (
-    <div className="govuk-width-container">
-      <style>{`
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <style>{`
         .govuk-link,
         .govuk-link:visited,
         .govuk-link:active,
@@ -109,7 +113,8 @@ const LandingPage = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

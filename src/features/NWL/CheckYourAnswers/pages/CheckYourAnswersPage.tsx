@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
+import SkipLink from '../../../../components/SkipLink';
 
 import { fetchCheckYourAnswersData } from '../services';
 import { useDocumentDownload } from '../hooks';
@@ -96,17 +97,22 @@ export const CheckYourAnswersPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="govuk-width-container">
+            <>
+                <SkipLink />
+                <div className="govuk-width-container">
                 <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
                 <main className="govuk-main-wrapper">
                     <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
                 </main>
             </div>
+            </>
         );
     }
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">
@@ -216,5 +222,6 @@ export const CheckYourAnswersPage: React.FC = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };

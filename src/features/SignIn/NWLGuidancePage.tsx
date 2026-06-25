@@ -1,9 +1,12 @@
 
+import SkipLink from '../../components/SkipLink';
+
 const NWLGuidancePage = () => {
 
   return (
-    
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
         <a
           href="/frontend/landingPage"
           className="govuk-back-link"
@@ -147,7 +150,8 @@ const NWLGuidancePage = () => {
         </div>
       </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

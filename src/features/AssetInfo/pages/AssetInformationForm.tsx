@@ -21,6 +21,7 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import AssetSummary from './AssetSummary';
+import SkipLink from '../../../components/SkipLink';
 
 interface AssetFormState {
     assetId: string;
@@ -323,7 +324,9 @@ const AssetInformationForm: React.FC = () => {
     }
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -460,7 +463,8 @@ const AssetInformationForm: React.FC = () => {
                     </div>
                 </main>
             </form>
-        </div>
+            </div>
+        </>
     );
 };
 

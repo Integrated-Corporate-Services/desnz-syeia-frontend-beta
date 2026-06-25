@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { 
   useApplicationNavigation, 
@@ -98,6 +99,8 @@ const GroundsForApplication: React.FC = () => {
   };
 
   return (
+    <>
+      <SkipLink />
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
@@ -237,6 +240,7 @@ const GroundsForApplication: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

@@ -4,6 +4,7 @@ import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
+import SkipLink from "../../components/SkipLink";
 
 const logger = createLogger('AccessRequestIntroPage');
 
@@ -56,8 +57,10 @@ const AccessRequestIntroPage: React.FC = () => {
   }, [user?.email, user?.role, authenticated, navigate]);
 
   return (
-    <div className="govuk-width-container">
-      <Link to="/landingPage" className="govuk-back-link">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <Link to="/landingPage" className="govuk-back-link">
         Back
       </Link>
 
@@ -102,7 +105,8 @@ const AccessRequestIntroPage: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

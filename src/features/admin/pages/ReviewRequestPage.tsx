@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useReviewRequest, useReviewRequestNavigation } from '../../../hooks';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
+import SkipLink from '../../../components/SkipLink';
 import {
   ApplicantDetails,
   RejectionReasonForm,
@@ -65,7 +66,9 @@ const ReviewRequestPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="govuk-width-container">
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
         <main className="govuk-main-wrapper" id="main-content" role="main">
           <a href="#" className="govuk-back-link" onClick={handleBackClick}>
             Back
@@ -139,6 +142,7 @@ const ReviewRequestPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

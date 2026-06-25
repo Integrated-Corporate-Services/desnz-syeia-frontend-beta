@@ -11,6 +11,7 @@ import {
   WAYLEAVE_TERMINATED_DETAILS,
 } from "../constants/wayleaveTypeConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Wayleave Type Page
@@ -107,7 +108,9 @@ const WayleaveType: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -241,6 +244,7 @@ const WayleaveType: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

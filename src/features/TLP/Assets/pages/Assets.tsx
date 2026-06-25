@@ -4,6 +4,7 @@ import { createAsset } from '../../../../services/asset-service';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
 import { TLP_BASE_URL } from "../../../../constants/tlp";
+import SkipLink from "../../../../components/SkipLink";
 
 const lineTypeOptions: string[] = [
   "High voltage overhead line",
@@ -168,7 +169,9 @@ const Asset: React.FC = () => {
   };
 
   return (
-    <main className="govuk-main-wrapper" id="main-content">
+    <>
+      <SkipLink />
+      <main className="govuk-main-wrapper" id="main-content">
 		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 			<ol className="govuk-breadcrumbs__list">
 				<li className="govuk-breadcrumbs__list-item">
@@ -279,7 +282,8 @@ const Asset: React.FC = () => {
           </form>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
+import SkipLink from '../../../components/SkipLink';
 
 const ManageOrganisationSettingsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -18,7 +19,9 @@ const ManageOrganisationSettingsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="govuk-width-container">
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
         <main className="govuk-main-wrapper" id="main-content" role="main">
           <LoadingSkeleton type="summary" />
         </main>
@@ -28,7 +31,9 @@ const ManageOrganisationSettingsPage: React.FC = () => {
 
   if (error || !organisation) {
     return (
-      <div className="govuk-width-container">
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
         <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
@@ -49,7 +54,9 @@ const ManageOrganisationSettingsPage: React.FC = () => {
   }
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -154,6 +161,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

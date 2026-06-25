@@ -18,6 +18,7 @@ import {
   BREADCRUMBS,
   FORM_LABELS,
 } from "../constants/networkOperatorDetails";
+import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Network Operator Details Page
@@ -166,7 +167,9 @@ const NetworkOperatorDetails: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -398,7 +401,8 @@ const NetworkOperatorDetails: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import {
   updateCurrentUserFullName,
   UpdateFullNamePayload,
 } from '../services/yourDetailsService';
+import SkipLink from '../../../components/SkipLink';
 
 type FormErrors = {
   title?: string;
@@ -130,7 +131,9 @@ const ChangeFullNamePage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <Link className="govuk-back-link" to="/your-details">
         Back
       </Link>
@@ -246,6 +249,7 @@ const ChangeFullNamePage: React.FC = () => {
         )}
       </main>
     </div>
+    </>
   );
 };
 

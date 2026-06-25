@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { PAYMENT_PAGE_TITLES } from '../../../constants/payment';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import SkipLink from '../../../components/SkipLink';
 
 const BankTransferPaymentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +35,9 @@ const BankTransferPaymentPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
@@ -130,6 +133,7 @@ const BankTransferPaymentPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

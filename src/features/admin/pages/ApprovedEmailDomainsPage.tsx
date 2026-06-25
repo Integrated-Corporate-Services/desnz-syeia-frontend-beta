@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useApprovedDomains } from '../../../hooks';
 import { Domain } from '../../../types/organisation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
+import SkipLink from '../../../components/SkipLink';
 
 const ApprovedEmailDomainsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -70,7 +71,9 @@ const ApprovedEmailDomainsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="govuk-width-container">
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
         <main className="govuk-main-wrapper" id="main-content" role="main">
           <LoadingSkeleton type="summary" />
         </main>
@@ -239,6 +242,7 @@ const ApprovedEmailDomainsPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

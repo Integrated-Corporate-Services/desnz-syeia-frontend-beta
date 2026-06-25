@@ -5,6 +5,7 @@ import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
+import SkipLink from '../../../components/SkipLink';
 
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
@@ -55,7 +56,9 @@ const PaymentSuccessPage: React.FC = () => {
   }, [applicationId, passedDesnzRef]);
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -144,6 +147,7 @@ const PaymentSuccessPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

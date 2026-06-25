@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { TLP_BASE_URL } from "../../../../constants/tlp";
 import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
+import SkipLink from "../../../../components/SkipLink";
 import { UploadedFile } from "../../../../types/fileUpload";
 
 const SupportingInfo: React.FC = () => {
@@ -125,7 +126,9 @@ const SupportingInfo: React.FC = () => {
   };
 
 return (
-  <div className="govuk-width-container">
+  <>
+    <SkipLink />
+    <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -362,8 +365,8 @@ return (
         </form>
       </div>
     </div>
-  </div>
-  );
+    </div>
+  </>
 };
 
 export default SupportingInfo;

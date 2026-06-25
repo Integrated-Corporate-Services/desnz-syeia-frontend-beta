@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import SkipLink from '../../../components/SkipLink';
 
 type ErrorState = {
   errorCode?: string;
@@ -29,7 +30,9 @@ const InvoiceGenerationErrorPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <h1 className="govuk-heading-xl">Sorry, there is a problem with the service</h1>
         <p className="govuk-body">You can return to the application and try again.</p>
@@ -45,6 +48,7 @@ const InvoiceGenerationErrorPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

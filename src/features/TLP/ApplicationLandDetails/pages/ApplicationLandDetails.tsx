@@ -4,6 +4,7 @@ import { UploadedFile } from '../../../../types/fileUpload';
 import { FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { Link, useParams } from "react-router-dom";
 import { TLP_BASE_URL } from "../../../../constants/tlp";
+import SkipLink from "../../../../components/SkipLink";
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
@@ -87,7 +88,9 @@ const ApplicationLandDetails: React.FC = () => {
 	};
 
 	return (
-		<main className="govuk-main-wrapper" id="main-content">
+		<>
+			<SkipLink />
+			<main className="govuk-main-wrapper" id="main-content">
 		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 			<ol className="govuk-breadcrumbs__list">
 				<li className="govuk-breadcrumbs__list-item">
@@ -291,7 +294,8 @@ const ApplicationLandDetails: React.FC = () => {
 					</form>
 				</div>
 			</div>
-		</main>
+			</main>
+		</>
 	);
 };
 

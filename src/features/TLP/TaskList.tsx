@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../hooks/useGetApplicationId";
 import { useApplication } from "../../hooks/useApplication";
 import { TLP_BASE_URL } from '../../constants/tlp';
+import SkipLink from "../../components/SkipLink";
 
 const TaskList: React.FC = () => {
 	const location = useLocation();
@@ -26,7 +27,9 @@ const TaskList: React.FC = () => {
 	}, [application]);
 
 	return (
-		<div className="govuk-width-container">
+		<>
+			<SkipLink />
+			<div className="govuk-width-container">
 			<main className="govuk-main-wrapper" id="main-content">
 				<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">
@@ -171,7 +174,7 @@ const TaskList: React.FC = () => {
 				</div>
 			</main>
 		</div>
-	);
+		</>
 };
 
 export default TaskList;

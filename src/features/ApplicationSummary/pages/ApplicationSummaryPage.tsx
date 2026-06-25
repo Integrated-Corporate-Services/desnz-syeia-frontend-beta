@@ -9,6 +9,7 @@ import {
     TaskListSummaryBreadcrumbs,
     ApplicationSummaryContent,
 } from '../components';
+import SkipLink from '../../../components/SkipLink';
 
 export const ApplicationSummaryPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -87,7 +88,9 @@ export const ApplicationSummaryPage: React.FC = () => {
     }
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
 
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
@@ -102,6 +105,7 @@ export const ApplicationSummaryPage: React.FC = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };
 

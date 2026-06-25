@@ -6,6 +6,7 @@ import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '..
 import nwlAssetService from '../services/nwlAssetService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('AssetsMatchPlan');
 
@@ -164,7 +165,9 @@ const AssetsMatchPlan: React.FC = () => {
   const hasErrors = Object.keys(errors).length > 0;
 
   return (
-    <main className="govuk-main-wrapper" id="main-content">
+    <>
+      <SkipLink />
+      <main className="govuk-main-wrapper" id="main-content">
       {/* Breadcrumbs */}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
@@ -344,6 +347,7 @@ const AssetsMatchPlan: React.FC = () => {
         </div>
       </div>
     </main>
+    </>
   );
 };
 

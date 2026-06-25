@@ -9,6 +9,7 @@ import { getApplicationTypeFromLocation } from '../utils';
 import { submitWithdrawal, getWithdrawalReasons } from '../services';
 
 import { WithdrawApplicationBreadcrumbs, WithdrawalWarning } from '../components';
+import SkipLink from '../../../components/SkipLink';
 
 import { validateWithdrawalForm, getRemainingCharacters } from '../utils';
 
@@ -81,7 +82,9 @@ const WithdrawApplicationPage: React.FC = () => {
     const hasErrors = Object.keys(errors).length > 0;
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <WithdrawApplicationBreadcrumbs
                 applicationType={applicationType}
                 applicationId={applicationId!}
@@ -250,6 +253,7 @@ const WithdrawApplicationPage: React.FC = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };
 

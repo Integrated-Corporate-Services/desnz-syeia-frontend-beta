@@ -7,6 +7,7 @@ import { useAccessRequest } from "../../hooks/useAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
+import SkipLink from "../../components/SkipLink";
 
 const logger = createLogger('ContactDetailsPage');
 
@@ -157,11 +158,13 @@ const ContactDetailsPage: React.FC = () => {
   }));
 
   return (
-    <div className="govuk-width-container">
-      <Link
-        to="/request-access"
-        className="govuk-back-link"
-      >
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <Link
+          to="/request-access"
+          className="govuk-back-link"
+        >
         Back
       </Link>
 
@@ -237,7 +240,8 @@ const ContactDetailsPage: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

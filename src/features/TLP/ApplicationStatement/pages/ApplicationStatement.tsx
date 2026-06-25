@@ -4,6 +4,7 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { UploadedFile } from '../../../../types/fileUpload';
 import { Link, useParams } from "react-router-dom";
 import { TLP_BASE_URL } from "../../../../constants/tlp";
+import SkipLink from "../../../../components/SkipLink";
 
 const ApplicationStatement: React.FC = () => {
 	const [details, setDetails] = useState("");
@@ -65,7 +66,9 @@ const ApplicationStatement: React.FC = () => {
 	};
 
 	return (
-		<main className="govuk-main-wrapper" id="main-content">
+		<>
+			<SkipLink />
+			<main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
                 <li className="govuk-breadcrumbs__list-item">
@@ -147,7 +150,8 @@ const ApplicationStatement: React.FC = () => {
 					</form>
 				</div>
 			</div>
-		</main>
+			</main>
+		</>
 	);
 };
 

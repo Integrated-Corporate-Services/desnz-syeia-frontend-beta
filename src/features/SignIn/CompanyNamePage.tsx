@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
+import SkipLink from "../../components/SkipLink";
 
 const CompanyNamePage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,11 +57,13 @@ const CompanyNamePage: React.FC = () => {
   const errorSummaryItems = error ? [{ fieldId: "agencyName", message: error }] : [];
 
   return (
-    <div className="govuk-width-container">
-      <Link
-        to="/request-access/agent-question"
-        className="govuk-back-link"
-      >
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <Link
+          to="/request-access/agent-question"
+          className="govuk-back-link"
+        >
         Back
       </Link>
 
@@ -92,7 +95,8 @@ const CompanyNamePage: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

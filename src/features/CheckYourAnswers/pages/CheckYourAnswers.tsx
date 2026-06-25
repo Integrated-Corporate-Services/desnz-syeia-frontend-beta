@@ -26,6 +26,7 @@ import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
 import { normalizeWorksOverview } from "../utils/normalizeWorksOverview";
 import { createLogger } from "../../../utils/logger";
+import SkipLink from "../../../components/SkipLink";
 
 import {
   SECTION_HEADINGS,
@@ -378,7 +379,9 @@ const CheckYourAnswers: React.FC = () => {
   }, [applicationId]);
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">
           Application Dashboard
@@ -1991,6 +1994,7 @@ const CheckYourAnswers: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

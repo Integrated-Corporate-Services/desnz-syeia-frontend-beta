@@ -17,6 +17,7 @@ import {
 } from '../constants';
 import nwlAssetService, { CreateAssetsPayload } from '../services/nwlAssetService';
 import { ASSETS_PAGE_IDS } from '../constants/pageNames';
+import SkipLink from '../../../../components/SkipLink';
 
 const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
   ? VOLTAGE_CLASS_OPTIONS.map((opt: { label: string }) => opt.label)
@@ -338,6 +339,7 @@ const Asset: React.FC = () => {
         </div>
       </div>
     </main>
+    </>
   );
 };
 

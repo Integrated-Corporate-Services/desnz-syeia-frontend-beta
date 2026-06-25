@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
+import SkipLink from "../../components/SkipLink";
 
 const AgentQuestionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -36,11 +37,13 @@ const AgentQuestionPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
-      <Link
-        to="/request-access/work-address"
-        className="govuk-back-link"
-      >
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <Link
+          to="/request-access/work-address"
+          className="govuk-back-link"
+        >
         Back
       </Link>
 
@@ -134,7 +137,6 @@ const AgentQuestionPage: React.FC = () => {
           </div>
         </main>
       </div>
-  );
-};
+    </>
 
 export default AgentQuestionPage;

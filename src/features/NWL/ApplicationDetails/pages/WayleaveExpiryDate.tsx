@@ -18,6 +18,7 @@ import {
 } from "../constants/wayleaveExpiryDateConstants";
 import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Wayleave Expiry Date Page
@@ -428,6 +429,7 @@ const WayleaveExpiryDate: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

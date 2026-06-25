@@ -1,5 +1,6 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect, useRef } from "react";
+import SkipLink from '../../../components/SkipLink';
 import { useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
@@ -240,7 +241,9 @@ const ProjectOverview = () => {
 	}, [projectData, applicationId]);
 
 	return (
-		<div className="govuk-width-container">
+		<>
+			<SkipLink />
+			<div className="govuk-width-container">
 			<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 				<ol className="govuk-breadcrumbs__list">
 					<li className="govuk-breadcrumbs__list-item">

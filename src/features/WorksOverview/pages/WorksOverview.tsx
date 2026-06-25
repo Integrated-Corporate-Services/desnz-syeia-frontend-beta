@@ -15,6 +15,7 @@ import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverv
 import { WORKS_OVERVIEW_QUESTIONS } from '../../../constants/worksOverviewLabels';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { buildWorksOverviewPayload } from '../utils/buildWorksOverviewPayload';
+import SkipLink from '../../../components/SkipLink';
 
 const initialState = {
   addingOrReplacingPoles: '',
@@ -407,7 +408,9 @@ const WorksOverview: React.FC = () => {
   );
 
   return (
-  <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -740,8 +743,9 @@ const WorksOverview: React.FC = () => {
           Save for later
         </Link> */}
       </form>
-    </main>
-  </div>
+      </main>
+      </div>
+    </>
   );
 };
 

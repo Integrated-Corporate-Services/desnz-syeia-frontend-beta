@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import SkipLink from '../../../components/SkipLink';
 
 const InvoiceDownloadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -149,7 +150,9 @@ const InvoiceDownloadPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -211,6 +214,7 @@ const InvoiceDownloadPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 
