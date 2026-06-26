@@ -1,8 +1,3 @@
-/**
- * Additional Information Summary Card for NWL
- * Displays related applications and other important information
- */
-
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
@@ -10,7 +5,6 @@ import { createSummaryRow, formatBoolean } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
     applicationId: string;
     canEdit?: boolean;
@@ -27,7 +21,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.ADDITIONAL_INFO(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined
@@ -38,41 +32,52 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
 
     const rows: SummaryRow[] = [];
 
-    const getOtherDocumentNames = (): string[] => {
-        if (Array.isArray(data.other_documents)) {
-            return data.other_documents.filter(Boolean);
+    const getOtherDocumentNames = (): string => {
+        let docs = [];
+        if (Array.isArray(data.other_information_documents)) {
+            docs = data.other_information_documents.filter(Boolean);
+        } else if (typeof data.other_information_documents === 'string' && data.other_information_documents.trim()) {
+            docs = [data.other_information_documents.trim()];
         }
 
-        if (typeof data.other_documents === 'string' && data.other_documents.trim()) {
-            return [data.other_documents.trim()];
-        }
+        if (docs.length === 0) return '';
 
-        return [];
+        const docLinks = docs
+            .filter((doc: any) => {
+                if (typeof doc === 'string') return true;
+                return doc.filename || doc.title;
+            })
+            .map((doc: any) => {
+                if (typeof doc === 'string') {
+                    return `<span>${doc}</span>`;
+                }
+                const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
+                const filename = doc.filename || doc.title;
+                const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+                return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
+            })
+            .join('<br>');
+
+        return docLinks;
     };
 
-    // Related applications
-    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_APPLICATIONS, formatBoolean(data.has_related)));
+    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_APPLICATIONS, formatBoolean(data.has_related_applications)));
 
-    if (data.has_related) {
-        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_DETAILS, data.related_details || CONSTANTS.DEFAULTS.EMPTY));
+    if (data.has_related_applications) {
+        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.RELATED_DETAILS, data.related_applications_details || CONSTANTS.DEFAULTS.EMPTY));
     }
 
-    // Other important information
-    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_INFORMATION, formatBoolean(data.has_other)));
+    rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_INFORMATION, formatBoolean(data.has_other_information)));
 
-    if (data.has_other) {
-        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DETAILS, data.other_details || CONSTANTS.DEFAULTS.EMPTY));
+    if (data.has_other_information) {
+        rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DETAILS, data.other_information_details || CONSTANTS.DEFAULTS.EMPTY));
 
-        // Other documents
-        const otherDocumentNames = getOtherDocumentNames();
-        if (otherDocumentNames.length > 0) {
-            const docHtml = otherDocumentNames.join('<br>');
+        const otherDocHtml = getOtherDocumentNames();
+        if (otherDocHtml) {
             rows.push({
                 key: { text: CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DOCUMENTS },
-                value: { text: '', html: docHtml },
+                value: { text: '', html: otherDocHtml },
             });
-        } else {
-            rows.push(createSummaryRow(CONSTANTS.ADDITIONAL_INFO_FIELDS.OTHER_DOCUMENTS, CONSTANTS.DEFAULTS.EMPTY));
         }
     }
 

@@ -60,7 +60,6 @@ const WithdrawApplicationPage: React.FC = () => {
           formType: data.type || "S37",
         });
       } catch (err) {
-        console.error("Failed to fetch application data:", err);
         // Use fallback values if fetch fails
         setApplicationData({
           desnzRef: locationState?.desnzRef || "S3700245",
@@ -148,7 +147,7 @@ const WithdrawApplicationPage: React.FC = () => {
         }
       });
     } catch (err: unknown) {
-      console.error("Failed to submit withdrawal request:", err);
+
       const errorMessage = err instanceof Error ? err.message : "Failed to submit withdrawal request. Please try again.";
       setError(errorMessage);
       setIsSubmitting(false);

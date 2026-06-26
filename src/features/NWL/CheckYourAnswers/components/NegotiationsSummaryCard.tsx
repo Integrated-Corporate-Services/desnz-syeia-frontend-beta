@@ -2,6 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { NegotiationsData } from '../../Negotiations/types/negotiations';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
+import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
+import { SummaryRow } from '../types';
+import { createSummaryRow } from '../utils';
 
 interface NegotiationsSummaryCardProps {
   data: NegotiationsData;
@@ -11,39 +14,42 @@ interface NegotiationsSummaryCardProps {
 
 const formatStartDate = (data: NegotiationsData): string => {
   if (data.negotiations_start_date_day && data.negotiations_start_date_month && data.negotiations_start_date_year) {
-    return `${data.negotiations_start_date_day}/${data.negotiations_start_date_month}/${data.negotiations_start_date_year}`;
+    const day = String(data.negotiations_start_date_day).padStart(2, '0');
+    const month = String(data.negotiations_start_date_month).padStart(2, '0');
+    const year = data.negotiations_start_date_year;
+    return `${day}/${month}/${year}`;
   }
 
   if (data.negotiations_start_date) {
+    const date = new Date(data.negotiations_start_date);
+    if (!isNaN(date.getTime())) {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
     return data.negotiations_start_date;
   }
 
-  return 'Not provided';
+  return CONSTANTS.NEGOTIATIONS_FIELDS.NOT_PROVIDED;
 };
 
 const getEvidenceDocumentTitles = (data: NegotiationsData): string => {
-  const documents = Array.isArray(data.application_documents) ? data.application_documents : [];
-  const fileNames = Array.isArray(data.uploaded_files)
-    ? data.uploaded_files.map((file) => file.filename).filter(Boolean)
-    : [];
+  const evidenceDocs = Array.isArray(data.evidence_documents) ? data.evidence_documents : [];
+  
+  if (evidenceDocs.length === 0) return CONSTANTS.NEGOTIATIONS_FIELDS.NO_DOCUMENTS;
 
-  const rawTitles = documents
-    .map((doc) => doc.title || doc.fileId)
-    .filter(Boolean)
-    .concat(fileNames);
+  const docLinks = evidenceDocs
+    .filter((doc: any) => doc.filename)
+    .map((doc: any) => {
+      const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
+      const filename = doc.filename;
+      const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+      return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
+    })
+    .join('<br>');
 
-  // The same file may exist in both arrays; keep only unique display values.
-  const seen = new Set<string>();
-  const titles = rawTitles.filter((title) => {
-    const key = String(title).trim().toLowerCase();
-    if (!key || seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-
-  return titles.length > 0 ? titles.join(', ') : 'No documents uploaded';
+  return docLinks || CONSTANTS.NEGOTIATIONS_FIELDS.NO_DOCUMENTS;
 };
 
 const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data, applicationId, canEdit }) => {
@@ -51,59 +57,71 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
     return (
       <div className="govuk-summary-card govuk-!-margin-bottom-4">
         <div className="govuk-summary-card__title-wrapper">
-          <h3 className="govuk-summary-card__title">Negotiations</h3>
-        </div>
-        <div className="govuk-summary-card__content">
-          <p className="govuk-body govuk-!-margin-bottom-0">No information provided yet</p>
+          <h3 className="govuk-summary-card__title">{CONSTANTS.CARD_TITLES.NEGOTIATIONS}</h3>
         </div>
       </div>
     );
   }
 
   const hasNegotiations = data.has_negotiations === true;
-  const comments = data.negotiations_comments || data.negotiations_evidence_comments || 'Not provided';
-  const noNegotiationsReason = data.no_negotiations_reason || 'Not provided';
+  const comments = data.negotiations_comments || CONSTANTS.NEGOTIATIONS_FIELDS.NOT_PROVIDED;
+  const noNegotiationsReason = data.no_negotiations_reason || CONSTANTS.NEGOTIATIONS_FIELDS.NOT_PROVIDED;
+
+  const rows: SummaryRow[] = [];
+
+  rows.push(createSummaryRow(
+    CONSTANTS.NEGOTIATIONS_FIELDS.HAS_NEGOTIATIONS,
+    hasNegotiations ? 'Yes' : 'No'
+  ));
+
+  if (hasNegotiations) {
+    rows.push(createSummaryRow(
+      CONSTANTS.NEGOTIATIONS_FIELDS.START_DATE,
+      formatStartDate(data)
+    ));
+    rows.push(createSummaryRow(
+      CONSTANTS.NEGOTIATIONS_FIELDS.ADDITIONAL_COMMENTS,
+      comments
+    ));
+    const evidenceHtml = getEvidenceDocumentTitles(data);
+    rows.push({
+      key: { text: CONSTANTS.NEGOTIATIONS_FIELDS.EVIDENCE_DOCUMENTS },
+      value: { text: '', html: evidenceHtml },
+    });
+  } else {
+    rows.push(createSummaryRow(
+      CONSTANTS.NEGOTIATIONS_FIELDS.NO_NEGOTIATIONS_REASON,
+      noNegotiationsReason
+    ));
+  }
 
   return (
     <div className="govuk-summary-card govuk-!-margin-bottom-4">
       <div className="govuk-summary-card__title-wrapper">
-        <h3 className="govuk-summary-card__title">Negotiations</h3>
+        <h3 className="govuk-summary-card__title">{CONSTANTS.CARD_TITLES.NEGOTIATIONS}</h3>
         {canEdit && (
           <Link
             className="govuk-link govuk-summary-card__actions"
             to={`${NWL_BASE_URL}/${applicationId}/existing-negotiations`}
           >
-            Change
+            {CONSTANTS.ACTIONS.CHANGE}
           </Link>
         )}
       </div>
       <div className="govuk-summary-card__content">
         <dl className="govuk-summary-list govuk-!-margin-bottom-0">
-          <div className="govuk-summary-list__row">
-            <dt className="govuk-summary-list__key">Negotiations occurred?</dt>
-            <dd className="govuk-summary-list__value">{hasNegotiations ? 'Yes' : 'No'}</dd>
-          </div>
-          {hasNegotiations ? (
-            <>
-              <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Start date</dt>
-                <dd className="govuk-summary-list__value">{formatStartDate(data)}</dd>
-              </div>
-              <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Additional comments</dt>
-                <dd className="govuk-summary-list__value">{comments}</dd>
-              </div>
-              <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Evidence documents</dt>
-                <dd className="govuk-summary-list__value">{getEvidenceDocumentTitles(data)}</dd>
-              </div>
-            </>
-          ) : (
-            <div className="govuk-summary-list__row">
-              <dt className="govuk-summary-list__key">Reason for no negotiations</dt>
-              <dd className="govuk-summary-list__value">{noNegotiationsReason}</dd>
+          {rows.map((row, index) => (
+            <div className="govuk-summary-list__row" key={index}>
+              <dt className="govuk-summary-list__key govuk-!-width-one-half">{row.key.text}</dt>
+              <dd className="govuk-summary-list__value govuk-!-width-one-half">
+                {row.value.html ? (
+                  <span dangerouslySetInnerHTML={{ __html: row.value.html }} />
+                ) : (
+                  row.value.text
+                )}
+              </dd>
             </div>
-          )}
+          ))}
         </dl>
       </div>
     </div>

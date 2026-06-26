@@ -43,8 +43,6 @@ export default defineConfig(({ mode }) => {
             },
             allowedHosts: [
                 "dev.syeia.energysecurity.gov.uk",
-                "EIP-staging-external-1323435366.eu-west-2.elb.amazonaws.com",
-                "eip-staging-external-1323435366.eu-west-2.elb.amazonaws.com",
                 "staging.syeia.energysecurity.gov.uk",
             ],
         },

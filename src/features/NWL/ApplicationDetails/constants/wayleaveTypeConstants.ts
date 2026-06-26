@@ -47,7 +47,7 @@ export const WAYLEAVE_EXPIRED_DETAILS = {
  */
 export const WAYLEAVE_TERMINATED_OPTIONS = [
   {
-    value: "interim_necessary_wayleave",
+    value: "implied_wayleave",
     label: "Implied wayleave",
     hint: "The objector has an implied wayleave with the applicant.",
   },

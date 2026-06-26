@@ -50,9 +50,9 @@ const IsThereRepresentative: React.FC = () => {
       if (hasRepresentative === "yes") {
         navigate(`${NWL_BASE_URL}/${appId}/representative-details`);
       } else {
-
+        // If no representative, mark Representative details as completed
         try {
-          await updateProgress('Objector details', 'Completed');
+          await updateProgress('Representative details', 'Completed');
         } catch (e) {
           // ignore progress errors
         }
@@ -73,7 +73,7 @@ const IsThereRepresentative: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
             <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>{BREADCRUMBS.TASK_LIST}</Link>
           </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">{BREADCRUMBS.OBJECTOR_DETAILS}</li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
         </ol>
       </nav>
       <main className="govuk-main-wrapper" id="main-content">

@@ -3,12 +3,14 @@ import { useLocation, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
+import { isYourDetailsFeatureDisabled } from "../../utils/disabledFormTypes";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const location = useLocation();
     const { user } = useAuthUserContext();
+    const yourDetailsFeatureDisabled = isYourDetailsFeatureDisabled();
 
     // Handle all possible application dashboard paths
     const applicationDashboardPaths = ["/", "/application-dashboard"];
@@ -38,6 +40,8 @@ const ServiceNavigation = () => {
             location.pathname.startsWith("/application-dashboard")) &&
         !isOnTaskListPage;
 
+    const isOnYourDetailsPages = location.pathname.startsWith('/your-details');
+
 
     // Check if on organisation/admin pages
     const isOnOrganisationPages =
@@ -45,6 +49,8 @@ const ServiceNavigation = () => {
         location.pathname.includes("/user-management");
 
     if (hideNavPaths.includes(location.pathname)) return null;
+
+    if (location.pathname === "/feedback" && (!user || (user as AuthUser)?.role === "pending")) return null;
 
     // Check if user has admin role (DTC or DESNZ Admin)
     const isAdmin =
@@ -106,15 +112,21 @@ const ServiceNavigation = () => {
                                     Applications
                                 </Link>
                             </li>
-                            <li className="rcc-service-nav__item">
-                                <a
-                                    className="rcc-service-nav__link"
-                                    href="#"
-                                    onClick={(e) => e.preventDefault()}
+                            {!yourDetailsFeatureDisabled && (
+                                <li
+                                    className={`rcc-service-nav__item${
+                                        isOnYourDetailsPages ? ' rcc-service-nav__item--active' : ''
+                                    }`}
                                 >
-                                    Account
-                                </a>
-                            </li>
+                                    <Link
+                                        className="rcc-service-nav__link"
+                                        to="/your-details"
+                                        aria-current={isOnYourDetailsPages ? 'page' : undefined}
+                                    >
+                                        Your details
+                                    </Link>
+                                </li>
+                            )}
                         </>
                     )}
                 </ul>

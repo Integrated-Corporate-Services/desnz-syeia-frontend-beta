@@ -7,6 +7,8 @@ export const NWL_TASK_LIST_ROUTES = {
   GROUNDS_FOR_APPLICATION: '/nwl/:applicationId/application-details/grounds-for-application',
   
   OBJECTOR_DETAILS: '/nwl/:applicationId/objector-details-introduction',
+  LANDOWNER_DETAILS: '/nwl/:applicationId/is-objector-landowner',
+  REPRESENTATIVE_DETAILS: '/nwl/:applicationId/is-there-representative',
   
   SITE_ADDRESS: '/nwl/:applicationId/is-site-address-same-as-objector',
   LAND_REGISTRY: '/nwl/:applicationId/land-registry',

@@ -19,48 +19,22 @@ const InvoiceGenerationErrorPage: React.FC = () => {
   const location = useLocation();
   const applicationId = useGetApplicationId();
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
-
-  const {
-    errorCode = 'INVOICE_GENERATION_FAILED',
-    errorMessage = 'You can return to the application and try again later.',
-    consentFee = 0,
-    screeningFee = 0,
-    eiaFee = 0,
-    totalAmount = 0,
-    breakdown = null,
-  } = (location.state || {}) as ErrorState;
-
-  const canRetry = errorCode === 'NETWORK_LOST' || errorCode === 'INVOICE_GENERATION_TIMEOUT';
-
-  const handleRetry = () => {
-    navigate(`${baseUrl}/${applicationId}/generate-invoice`, {
-      state: {
-        consentFee,
-        screeningFee,
-        eiaFee,
-        totalAmount,
-        breakdown,
-      },
-      replace: true,
-    });
-  };
+  const errorState = (location.state || {}) as ErrorState;
 
   const handleReturnToApplication = () => {
-    navigate(`${baseUrl}/${applicationId}/task-list`, { replace: true });
+    navigate(`${baseUrl}/${applicationId}/task-list`, {
+      state: errorState,
+      replace: true,
+    });
   };
 
   return (
     <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <h1 className="govuk-heading-xl">Sorry, there is a problem with the service</h1>
-        <p className="govuk-body">{errorMessage}</p>
+        <p className="govuk-body">You can return to the application and try again.</p>
 
         <div className="govuk-button-group">
-          {canRetry && (
-            <button className="govuk-button" onClick={handleRetry}>
-              Retry invoice generation
-            </button>
-          )}
           <button className="govuk-button govuk-button--secondary" onClick={handleReturnToApplication}>
             Return to application
           </button>

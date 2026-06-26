@@ -1,8 +1,3 @@
-/**
- * Site Address Summary Card
- * Displays site address information
- */
-
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
@@ -10,7 +5,6 @@ import { createSummaryRow, formatBoolean } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
     applicationId: string;
     canEdit?: boolean;
@@ -27,7 +21,7 @@ export const SiteAddressSummaryCard: React.FC<Props> = ({ data, applicationId, c
                         ? [
                               {
                                   href: CONSTANTS.ROUTES.SITE_ADDRESS(applicationId),
-                                  text: CONSTANTS.ACTIONS.ADD,
+                                  text: CONSTANTS.ACTIONS.CHANGE,
                               },
                           ]
                         : undefined
@@ -38,7 +32,7 @@ export const SiteAddressSummaryCard: React.FC<Props> = ({ data, applicationId, c
 
     const rows: SummaryRow[] = [];
 
-    rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SAME_AS_OCCUPIER, formatBoolean(data.site_address_same)));
+    rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SAME_AS_OCCUPIER, formatBoolean(data.site_address_same_as_objector)));
 
     if (data.site_address) {
         const addr = data.site_address;
@@ -57,6 +51,8 @@ export const SiteAddressSummaryCard: React.FC<Props> = ({ data, applicationId, c
     } else {
         rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.SITE_ADDRESS, CONSTANTS.DEFAULTS.EMPTY));
     }
+
+    rows.push(createSummaryRow(CONSTANTS.SITE_ADDRESS_FIELDS.COUNTRY, data.country || data.site_country || CONSTANTS.DEFAULTS.EMPTY));
 
     return (
         <SummaryCard

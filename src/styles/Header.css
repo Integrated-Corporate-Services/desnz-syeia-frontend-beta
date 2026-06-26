@@ -1,0 +1,175 @@
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.govuk-link {
+  color: #1d70b8;
+  text-decoration: underline;
+}
+
+.app-top-header {
+  background: #2078c5;
+  margin: 0;
+}
+
+.app-top-header__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.app-top-header__left {
+  display: flex;
+  align-items: center;
+}
+
+.app-top-header__home-link {
+  color: #fff !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-top-header__logotype {
+  color: #fff !important;
+  fill: #fff !important;
+  display: block;
+  width: 150px;
+  height: 27px;
+  transform: translateY(-1px);
+}
+
+.app-top-header__auth {
+  flex-shrink: 0;
+}
+
+.app-header-auth {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "GDS Transport", arial, sans-serif;
+  font-weight: 700;
+  color: #fff;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-left: 0;
+  padding-left: 0;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.app-header-auth__identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-header-auth__user {
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.app-header-auth__profile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.app-header-auth__profile-icon svg {
+  display: block;
+}
+
+.app-header-auth__signout {
+  color: #fff !important;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 700;
+  text-decoration: underline;
+  border-left: 1px solid rgba(255, 255, 255, 0.55);
+  padding-left: 12px;
+  white-space: nowrap;
+}
+
+.app-header-auth__signout:hover {
+  text-decoration-thickness: 3px;
+}
+
+.app-header-auth__signout:focus {
+  outline: 3px solid transparent;
+  background-color: #ffdd00;
+  box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+  color: #0b0c0c !important;
+  text-decoration: none;
+}
+
+@media (max-width: 1024px) {
+  .app-top-header__container {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-top-header__container {
+    gap: 8px;
+    min-height: 40px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+
+  .app-top-header__logotype {
+    width: 130px;
+    height: 24px;
+  }
+
+  .app-header-auth {
+    gap: 6px;
+    padding-left: 8px;
+  }
+
+  .app-header-auth__user,
+  .app-header-auth__signout {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-top-header__logotype {
+    width: 118px;
+    height: 22px;
+  }
+
+  .app-header-auth__user {
+    display: inline-block;
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .app-header-auth {
+    gap: 4px;
+    padding-left: 6px;
+  }
+
+  .app-header-auth__profile-icon {
+    display: none;
+  }
+
+  .app-header-auth__signout {
+    font-size: 13px;
+    padding-left: 8px;
+  }
+}

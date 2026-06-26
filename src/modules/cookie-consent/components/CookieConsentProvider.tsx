@@ -44,8 +44,16 @@ export type ConsentContextValue = ConsentState & ConsentActions;
 const ConsentContext = createContext<ConsentContextValue | null>(null);
 
 function syncTelemetry(prefs: ConsentPreferencesResponse): void {
-  prefs.analytics  === 'accepted' ? loadAnalytics()  : stopAnalytics();
-  prefs.monitoring === 'accepted' ? loadMonitoring() : stopMonitoring();
+  if (prefs.analytics === 'accepted') {
+    loadAnalytics();
+  } else {
+    stopAnalytics();
+  }
+  if (prefs.monitoring === 'accepted') {
+    loadMonitoring();
+  } else {
+    stopMonitoring();
+  }
 }
 
 interface CookieConsentProviderProps {
@@ -72,8 +80,8 @@ export function CookieConsentProvider({ children, onConsentChange }: CookieConse
         
         // AUTO-ACCEPT ANALYTICS FOR DEVELOPMENT (bypass consent)
         // Check if in development mode and no preference set
-        //const isDev = import.meta.env.MODE === 'local' || import.meta.env.DEV;
-        const shouldAutoAccept = true;
+        const isDev = import.meta.env.MODE === 'local' || import.meta.env.DEV;
+        const shouldAutoAccept = isDev;
         
         if (shouldAutoAccept) {
           console.log('[Cookie Consent] DEV MODE: Auto-accepting analytics cookies');

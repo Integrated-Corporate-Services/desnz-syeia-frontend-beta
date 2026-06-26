@@ -27,24 +27,19 @@ const AddUserPage: React.FC = () => {
 
   // State for organisations fetched from API
   const [organisations, setOrganisations] = useState<Array<{ value: string; label: string }>>([]);
-  const [loadingOrgs, setLoadingOrgs] = useState(true);
 
   // Fetch organisations on component mount
   useEffect(() => {
     const fetchOrganisations = async () => {
       try {
         const response = await axios.get('/backend/api/organisations');
-        const orgs = response.data.map((org: any) => ({
+        const orgs = response.data.map((org: { organisation_id: string; organisation_name: string }) => ({
           value: org.organisation_id,
           label: org.organisation_name
         }));
         setOrganisations(orgs);
-      } catch (error) {
-        console.error('Failed to fetch organisations:', error);
-        // Fallback to empty array or show error message
+      } catch {
         setOrganisations([]);
-      } finally {
-        setLoadingOrgs(false);
       }
     };
 

@@ -25,40 +25,34 @@ interface TelemetryConfig {
 }
 
 /**
-* Default configuration values
-* Used when environment variables are not set
-*/
-const DEFAULT_GA4_MEASUREMENT_ID = 'G-7NL7XSY1LV';
-
-/**
 * Environment-specific configuration overrides
 * Only used when environment variables are not available
 */
 const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
   local: {
-    ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: 'GTM-P7VVP48J',
+    ga4MeasurementId: 'G-TMWDMMVTK7', // Dev
+    gtmId: 'GTM-W26LH6MJ', // Dev
     enableGA4: true,
     enableGTM: true,
     debugMode: true,
   },
   development: {
-    ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: 'GTM-P7VVP48J',
+    ga4MeasurementId: 'G-TMWDMMVTK7', // Dev
+    gtmId: 'GTM-W26LH6MJ', // Dev
     enableGA4: true,
     enableGTM: true,
     debugMode: true,
   },
   staging: {
-    ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: 'GTM-P7VVP48J',
+    ga4MeasurementId: 'G-7NL7XSY1LV', // UAT
+    gtmId: 'GTM-P7VVP48J', // UAT
     enableGA4: true,
     enableGTM: true,
     debugMode: false,
   },
   production: {
-    ga4MeasurementId: DEFAULT_GA4_MEASUREMENT_ID,
-    gtmId: null,
+    ga4MeasurementId: 'G-7NL7XSY1LV', 
+    gtmId: 'GTM-P7VVP48J', 
     enableGA4: true,
     enableGTM: true,
     debugMode: false,
@@ -115,9 +109,10 @@ function detectEnvironment(): Environment {
 * Get telemetry configuration for current environment
 * 
 * Priority order:
-* 1. Environment variables from SSM (VITE_GA4_MEASUREMENT_ID, VITE_ENABLE_GA4, GTM_ID, GTM_ISENABLED)
-* 2. Environment-specific config from TELEMETRY_CONFIGS
-* 3. Default values
+* 1. Environment variables (if valid and not empty)
+* 2. TELEMETRY_CONFIGS based on detected environment (SINGLE SOURCE OF TRUTH)
+* 
+* Empty strings, "undefined", or missing env vars will use TELEMETRY_CONFIGS
 */
 export function getTelemetryConfig(): TelemetryConfig {
   const env = detectEnvironment();
@@ -126,13 +121,17 @@ export function getTelemetryConfig(): TelemetryConfig {
   // Read from environment variables (populated from SSM in ECS)
   const envVars = (import.meta as any).env || {};
 
-  // HOTFIX: More defensive fallback logic
-  // Handles undefined, empty string, and "undefined" string
-  const ga4MeasurementId = (envVars.VITE_GA4_MEASUREMENT_ID && envVars.VITE_GA4_MEASUREMENT_ID !== 'undefined') 
-    ? envVars.VITE_GA4_MEASUREMENT_ID 
-    : (envConfig.ga4MeasurementId || DEFAULT_GA4_MEASUREMENT_ID);
+  // Helper to check if value is valid (not undefined, not "undefined", not empty string)
+  const isValidValue = (val: any): boolean => {
+    return val && val !== 'undefined' && val.trim() !== '';
+  };
 
-  const gtmId = (envVars.GTM_ID && envVars.GTM_ID !== 'undefined') 
+  // Use TELEMETRY_CONFIGS as fallback when env vars are missing, empty, or invalid
+  const ga4MeasurementId = isValidValue(envVars.VITE_GA4_MEASUREMENT_ID)
+    ? envVars.VITE_GA4_MEASUREMENT_ID 
+    : envConfig.ga4MeasurementId;
+
+  const gtmId = isValidValue(envVars.GTM_ID)
     ? envVars.GTM_ID 
     : envConfig.gtmId;
 
@@ -148,16 +147,20 @@ export function getTelemetryConfig(): TelemetryConfig {
   if (envConfig.debugMode) {
     console.log('[Telemetry Config]', {
       environment: env,
-      ga4MeasurementId,
-      gtmId,
-      enableGA4,
-      enableGTM,
+      source: 'TELEMETRY_CONFIGS (fallback when env vars empty/invalid)',
+      finalValues: {
+        ga4MeasurementId,
+        gtmId,
+        enableGA4,
+        enableGTM,
+      },
       envVars: {
-        VITE_GA4_MEASUREMENT_ID: envVars.VITE_GA4_MEASUREMENT_ID,
-        VITE_ENABLE_GA4: envVars.VITE_ENABLE_GA4,
-        GTM_ID: envVars.GTM_ID,
-        GTM_ISENABLED: envVars.GTM_ISENABLED,
-      }
+        VITE_GA4_MEASUREMENT_ID: envVars.VITE_GA4_MEASUREMENT_ID || '(empty)',
+        VITE_ENABLE_GA4: envVars.VITE_ENABLE_GA4 || '(empty)',
+        GTM_ID: envVars.GTM_ID || '(empty)',
+        GTM_ISENABLED: envVars.GTM_ISENABLED || '(empty)',
+      },
+      configFallback: envConfig
     });
   }
 

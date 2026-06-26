@@ -5,11 +5,13 @@ import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/obje
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { saveLandownerAddress } from "../services/objectorDetailsService";
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 
 const LandownerAddress: React.FC = () => {
   const navigate = useNavigate();
   const { appId, objectorDetails } = useObjectorDetailsData();
   const { validatePostcode } = useFormValidation();
+  const { updateProgress } = useNWLProgress(appId);
 
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -92,6 +94,11 @@ const LandownerAddress: React.FC = () => {
         landowner_postcode: postcode,
       });
 
+      try {
+        await updateProgress('Landowner details', 'Completed');
+      } catch (e) {
+        // ignore progress errors
+      }
       navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
     } catch (error: any) {
       // Handle backend validation errors
@@ -136,7 +143,7 @@ const LandownerAddress: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
             <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>{BREADCRUMBS.TASK_LIST}</Link>
           </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">{BREADCRUMBS.OBJECTOR_DETAILS}</li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">Landowner details</li>
         </ol>
       </nav>
       <main className="govuk-main-wrapper" id="main-content">

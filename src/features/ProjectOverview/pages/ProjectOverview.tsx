@@ -1,6 +1,6 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
 import { PROJECT_OVERVIEW_ERRORS, createErrorLink, createMaxYearError } from "../../../constants/projectOverviewError";
@@ -18,7 +18,6 @@ import FileUpload, { FileUploadHandle } from "../../../components/FileUpload";
 import { ProjectOverviewModel } from '../../../types/projectOverview';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-// import SearchableDropdown from "../../../components/SearchableDropdown";
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
@@ -46,7 +45,6 @@ const emptyProjectOverview: ProjectOverviewModel = {
 };
 
 const ProjectOverview = () => {
-	const params = useParams();
 	const navigate = useNavigate();
 	const [formState, setFormState] = useState<ProjectOverviewModel>(emptyProjectOverview);
 	const fileUploadRef = useRef<FileUploadHandle>(null);
@@ -298,7 +296,7 @@ const ProjectOverview = () => {
 							filesWereUploaded = true; // Mark that files were uploaded
 							newlyUploadedFiles = result.uploadedFiles;
 							newlyUploadedDocuments = result.applicationDocuments;
-						} catch (error) {
+						} catch {
 							setErrors(['Failed to upload files. Please try again.']);
 							setIsSubmitting(false);
 							window.scrollTo({ top: 0 });
@@ -561,18 +559,16 @@ const ProjectOverview = () => {
 					};
 					
 					saveProject(payload)
-						.then((response: any) => {
-							// Try to get application id from backend response, fallback to payload/params/query string
+						.then((response: { project?: { application_id: string }; application_overview?: { application_id: string } }) => {
 							const redirectId =
 								response?.project?.application_id ||
 								response?.application_overview?.application_id ||
 								applicationIdForSave ||
 								'';
-							// Navigate to the next page in the task list sequence
 							const nextPageUrl = getNextPageUrl(TASK_NAMES.PROJECT_OVERVIEW, redirectId);
 							navigate(nextPageUrl);
 						})
-						.catch((err: any) => {
+						.catch((err: Error) => {
 							setErrors([err.message || 'Failed to save project overview']);
 						});
 					return;

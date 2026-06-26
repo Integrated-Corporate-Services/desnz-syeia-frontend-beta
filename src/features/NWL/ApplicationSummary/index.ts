@@ -1,1 +1,1 @@
-export { getNWLCheckYourAnswersCards } from './checkYourAnswersCardsConfig';
+export * from './components';
