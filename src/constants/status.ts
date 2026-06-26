@@ -39,13 +39,13 @@ export const APPLICATION_STATUS_CONFIG: StatusConfigMap = {
   // Submitted and review states
   'submitted': { value: 'submitted', label: 'Application submitted', color: 'blue' },
   'in review': { value: 'in review', label: 'Under review', color: 'blue' },
-  'under review': { value: 'under review', label: 'Under review', color: 'blue' },
+  'under review': { value: 'under review', label: 'Under review', color: 'light-blue' },
   'in progress': { value: 'in progress', label: 'In progress', color: 'blue' },
   'processing payment': { value: 'processing payment', label: 'Processing payment', color: 'yellow' },
   
   // Action required states
   'further information requested': { value: 'further information requested', label: 'Further information requested', color: 'red' },
-  'representation stage': { value: 'representation stage', label: 'Representation stage', color: 'purple' },
+  'representation stage': { value: 'representation stage', label: 'Representation stage', color: 'blue' },
   'in abeyance': { value: 'in abeyance', label: 'In abeyance', color: 'yellow' },
   
   // Decision states
