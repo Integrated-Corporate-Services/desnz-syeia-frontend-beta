@@ -106,6 +106,16 @@ const ConsultationRequestsRequired: React.FC = () => {
         }
     };
 
+    const handleAddOtherConsultationsChange = (value: string) => {
+        setAddOtherConsultations(value);
+        if (value && errors.addOtherConsultations) {
+            setErrors((prev) => {
+                const { addOtherConsultations: _, ...rest } = prev;
+                return rest;
+            });
+        }
+    };
+
     const handleSaveForLater = async () => {
         try {
             // TODO: Save current state to backend
@@ -193,7 +203,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                                                 type="radio"
                                                 value="yes"
                                                 checked={addOtherConsultations === 'yes'}
-                                                onChange={(e) => setAddOtherConsultations(e.target.value)}
+                                                onChange={(e) => handleAddOtherConsultationsChange(e.target.value)}
                                             />
                                             <label className="govuk-label govuk-radios__label" htmlFor="addOtherConsultations">
                                                 Yes
@@ -207,7 +217,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                                                 type="radio"
                                                 value="no"
                                                 checked={addOtherConsultations === 'no'}
-                                                onChange={(e) => setAddOtherConsultations(e.target.value)}
+                                                onChange={(e) => handleAddOtherConsultationsChange(e.target.value)}
                                             />
                                             <label className="govuk-label govuk-radios__label" htmlFor="addOtherConsultations-2">
                                                 No, I don't want to add other consultations

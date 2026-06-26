@@ -15,7 +15,7 @@ const Parishes: React.FC = () => {
 
     const { parishes, addParish, removeParish, isLoading, loadError } = useParishes(applicationId);
     const { searchTerm, searchResults, isSearching, handleSearchChange, clearSearch } = useParishSearch();
-    const { validationError, isSubmitting, handleSubmit } = useParishSubmit(applicationId);
+    const { validationError, isSubmitting, handleSubmit, clearValidationError } = useParishSubmit(applicationId);
 
     const handleRemoveParish = (e: React.MouseEvent<HTMLAnchorElement>, parishId: string) => {
         e.preventDefault();
@@ -29,6 +29,7 @@ const Parishes: React.FC = () => {
     const handleAddParish = (parish: any) => {
         addParish(parish);
         clearSearch();
+        clearValidationError();
     };
 
     const onSubmit = async (e: React.FormEvent) => {

@@ -42,9 +42,14 @@ export const useParishSubmit = (applicationId: string) => {
     [applicationId, navigate]
   );
 
+  const clearValidationError = useCallback(() => {
+    setValidationError(null);
+  }, []);
+
   return {
     validationError,
     isSubmitting,
     handleSubmit,
+    clearValidationError,
   };
 };
