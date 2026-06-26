@@ -37,9 +37,9 @@ export const APPLICATION_STATUS_CONFIG: StatusConfigMap = {
   'draft': { value: 'draft', label: 'Draft', color: 'grey' },
   
   // Submitted and review states
-  'submitted': { value: 'submitted', label: 'Application submitted', color: 'blue' },
+  'submitted': { value: 'submitted', label: 'Application submitted', color: 'light-blue' },
   'in review': { value: 'in review', label: 'Under review', color: 'blue' },
-  'under review': { value: 'under review', label: 'Under review', color: 'light-blue' },
+  'under review': { value: 'under review', label: 'Under review', color: 'blue' },
   'in progress': { value: 'in progress', label: 'In progress', color: 'blue' },
   'processing payment': { value: 'processing payment', label: 'Processing payment', color: 'yellow' },
   
@@ -49,7 +49,7 @@ export const APPLICATION_STATUS_CONFIG: StatusConfigMap = {
   'in abeyance': { value: 'in abeyance', label: 'In abeyance', color: 'yellow' },
   
   // Decision states
-  'decision issued': { value: 'decision issued', label: 'Decision issued', color: 'turquoise' },
+  'decision issued': { value: 'decision issued', label: 'Decision issued', color: 'blue' },
   'granted': { value: 'granted', label: 'Granted', color: 'green' },
   'declined': { value: 'declined', label: 'Declined', color: 'orange' },
   'approved': { value: 'approved', label: 'Approved', color: 'green' },
@@ -59,7 +59,7 @@ export const APPLICATION_STATUS_CONFIG: StatusConfigMap = {
   'completed': { value: 'completed', label: 'Completed', color: 'green' },
   'archived': { value: 'archived', label: 'Archived', color: 'grey' },
   'withdrawn': { value: 'withdrawn', label: 'Withdrawn', color: 'grey' },
-  'invalid': { value: 'invalid', label: 'Invalid', color: 'red' },
+  'invalid': { value: 'invalid', label: 'Invalid', color: 'grey' },
   
   // Legacy statuses
   'on hold': { value: 'on hold', label: 'On hold', color: 'yellow' },
