@@ -181,13 +181,10 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
       backendData.is_site_at_objector_address = frontendData.is_site_at_objector_address;
     }
 
-    // Site address (nested object for POST)
-    // Only include if site is NOT at objector's address
     if (
-      frontendData.is_site_at_objector_address === false &&
-      (frontendData.site_address_line1 ||
-       frontendData.site_town ||
-       frontendData.site_postcode)
+      frontendData.site_address_line1 ||
+      frontendData.site_town ||
+      frontendData.site_postcode
     ) {
       backendData.site_address = {
         line1: frontendData.site_address_line1 || '',

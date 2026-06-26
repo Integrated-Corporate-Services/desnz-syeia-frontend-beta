@@ -37,7 +37,7 @@ export const APPLICATION_STATUS_CONFIG: StatusConfigMap = {
   'draft': { value: 'draft', label: 'Draft', color: 'grey' },
   
   // Submitted and review states
-  'submitted': { value: 'submitted', label: 'Application submitted', color: 'light-blue' },
+  'submitted': { value: 'submitted', label: 'Application submitted', color: 'blue' },
   'in review': { value: 'in review', label: 'Under review', color: 'blue' },
   'under review': { value: 'under review', label: 'Under review', color: 'blue' },
   'in progress': { value: 'in progress', label: 'In progress', color: 'blue' },
