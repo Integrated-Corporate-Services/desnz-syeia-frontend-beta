@@ -78,43 +78,43 @@ export function CookieConsentProvider({ children, onConsentChange }: CookieConse
       .then((prefs) => {
         if (cancelled) return;
         
-        // AUTO-ACCEPT ANALYTICS FOR DEVELOPMENT (bypass consent)
-        // Check if in development mode and no preference set
-        const isDev = import.meta.env.MODE === 'local' || import.meta.env.DEV;
-        const shouldAutoAccept = isDev;
+        // // AUTO-ACCEPT ANALYTICS FOR DEVELOPMENT (bypass consent)
+        // // Check if in development mode and no preference set
+        // const isDev = import.meta.env.MODE === 'local' || import.meta.env.DEV;
+        // const shouldAutoAccept = isDev;
         
-        if (shouldAutoAccept) {
-          console.log('[Cookie Consent] DEV MODE: Auto-accepting analytics cookies');
-          // Auto-accept without showing banner
-          consentApi.setPreferences({ analytics: 'accepted', monitoring: 'accepted' })
-            .then((newPrefs) => {
-              if (cancelled) return;
-              setState({
-                loading: false,
-                hasPreference: true,
-                analytics: 'accepted',
-                monitoring: 'accepted',
-                policyVersion: newPrefs.policyVersion,
-                showBanner: false,
-                initError: null,
-              });
-              syncTelemetry(newPrefs);
-            })
-            .catch((err) => {
-              console.error('[Cookie Consent] Auto-accept failed:', err);
-              // Fall back to normal flow
-              setState({
-                loading: false,
-                hasPreference: prefs.hasPreference,
-                analytics: prefs.analytics,
-                monitoring: prefs.monitoring,
-                policyVersion: prefs.policyVersion,
-                showBanner: !prefs.hasPreference,
-                initError: null,
-              });
-            });
-          return;
-        }
+        // if (shouldAutoAccept) {
+        //   console.log('[Cookie Consent] DEV MODE: Auto-accepting analytics cookies');
+        //   // Auto-accept without showing banner
+        //   consentApi.setPreferences({ analytics: 'accepted', monitoring: 'accepted' })
+        //     .then((newPrefs) => {
+        //       if (cancelled) return;
+        //       setState({
+        //         loading: false,
+        //         hasPreference: true,
+        //         analytics: 'accepted',
+        //         monitoring: 'accepted',
+        //         policyVersion: newPrefs.policyVersion,
+        //         showBanner: false,
+        //         initError: null,
+        //       });
+        //       syncTelemetry(newPrefs);
+        //     })
+        //     .catch((err) => {
+        //       console.error('[Cookie Consent] Auto-accept failed:', err);
+        //       // Fall back to normal flow
+        //       setState({
+        //         loading: false,
+        //         hasPreference: prefs.hasPreference,
+        //         analytics: prefs.analytics,
+        //         monitoring: prefs.monitoring,
+        //         policyVersion: prefs.policyVersion,
+        //         showBanner: !prefs.hasPreference,
+        //         initError: null,
+        //       });
+        //     });
+        //   return;
+        // }
         
         setState({
           loading: false,
