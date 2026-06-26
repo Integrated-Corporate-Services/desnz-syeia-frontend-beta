@@ -28,25 +28,25 @@ export interface WorksOverviewEquipmentRemoval {
 }
 
 export interface WorksOverviewAsset {
-	addingOrReplacingPoles: boolean;
+	addingOrReplacingPoles: boolean | null;
 	poleMaterial: string;
 	chemicalTreatments: string;
 	polesAdded: number;
 	polesReplaced: number;
 	poleComments: string;
-	addingOrReplacingLines: boolean;
+	addingOrReplacingLines: boolean | null;
 	overheadLineDescription: string;
 	estimatedDuration: string;
 	vehiclesRequired: string;
-	roadClosuresRequired: boolean;
-	excavationRequired: boolean;
+	roadClosuresRequired: boolean | null;
+	excavationRequired: boolean | null;
 	excavationDetails: string;
-	vegetationClearanceRequired: boolean;
+	vegetationClearanceRequired: boolean | null;
 	vegetationClearanceDetails: string;
-	usingExistingAccessRoutes: boolean;
+	usingExistingAccessRoutes: boolean | null;
 	accessRoutesDetails: string;
 	accessRouteFiles?: FileUpload[];
-	removingExistingEquipment: boolean;
+	removingExistingEquipment: boolean | null;
 	removalDescription: string;
 	generalComments: string;
 }
