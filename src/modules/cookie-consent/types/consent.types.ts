@@ -2,8 +2,10 @@ export type ConsentDecision = 'accepted' | 'rejected';
 
 export interface ConsentPreferencesResponse {
   hasPreference: boolean;
-  analytics: ConsentDecision | null;
-  monitoring: ConsentDecision | null;
+  decisions: {
+    analytics: ConsentDecision | null;
+    monitoring: ConsentDecision | null;
+  };
   policyVersion: string;
 }
 
