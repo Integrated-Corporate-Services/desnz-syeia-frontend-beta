@@ -44,12 +44,12 @@ export type ConsentContextValue = ConsentState & ConsentActions;
 const ConsentContext = createContext<ConsentContextValue | null>(null);
 
 function syncTelemetry(prefs: ConsentPreferencesResponse): void {
-  if (prefs.analytics === 'accepted') {
+  if (prefs.decisions.analytics === 'accepted') {
     loadAnalytics();
   } else {
     stopAnalytics();
   }
-  if (prefs.monitoring === 'accepted') {
+  if (prefs.decisions.monitoring === 'accepted') {
     loadMonitoring();
   } else {
     stopMonitoring();
@@ -106,8 +106,8 @@ export function CookieConsentProvider({ children, onConsentChange }: CookieConse
         //       setState({
         //         loading: false,
         //         hasPreference: prefs.hasPreference,
-        //         analytics: prefs.analytics,
-        //         monitoring: prefs.monitoring,
+        //         analytics: prefs.decisions.analytics,
+        //         monitoring: prefs.decisions.monitoring,
         //         policyVersion: prefs.policyVersion,
         //         showBanner: !prefs.hasPreference,
         //         initError: null,
@@ -119,8 +119,8 @@ export function CookieConsentProvider({ children, onConsentChange }: CookieConse
         setState({
           loading: false,
           hasPreference: prefs.hasPreference,
-          analytics: prefs.analytics,
-          monitoring: prefs.monitoring,
+          analytics: prefs.decisions.analytics,
+          monitoring: prefs.decisions.monitoring,
           policyVersion: prefs.policyVersion,
           showBanner: !prefs.hasPreference,
           initError: null,
@@ -147,8 +147,8 @@ export function CookieConsentProvider({ children, onConsentChange }: CookieConse
     setState((s) => ({
       ...s,
       hasPreference: prefs.hasPreference,
-      analytics:     prefs.analytics,
-      monitoring:    prefs.monitoring,
+      analytics:     prefs.decisions.analytics,
+      monitoring:    prefs.decisions.monitoring,
       policyVersion: prefs.policyVersion,
       showBanner:    false,
       initError:     null,
@@ -180,8 +180,8 @@ export function CookieConsentProvider({ children, onConsentChange }: CookieConse
     setState((s) => ({
       ...s,
       hasPreference: result.hasPreference,
-      analytics:     result.analytics,
-      monitoring:    result.monitoring,
+      analytics:     result.decisions.analytics,
+      monitoring:    result.decisions.monitoring,
       policyVersion: result.policyVersion,
       showBanner:    false,
     }));
