@@ -89,8 +89,13 @@ export const formatPhone = (phone: string | null | undefined): string => {
     return phone || '';
 };
 
+/**
+ * Format email as clickable mailto link
+ * Returns HTML string with link that opens in email client (Outlook, etc.)
+ */
 export const formatEmail = (email: string | null | undefined): string => {
-    return email || '';
+    if (!email) return '';
+    return `<a href="mailto:${email}" class="govuk-link">${email}</a>`;
 };
 
 

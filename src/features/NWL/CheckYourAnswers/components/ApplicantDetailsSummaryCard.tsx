@@ -74,7 +74,10 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ data, application
                 : [];
 
     if (additionalContacts.length > 0) {
-        const contactsHtml = additionalContacts.join('<br>');
+        // Format each email as a clickable mailto link
+        const contactsHtml = additionalContacts
+            .map((email: string) => `<a href="mailto:${email}" class="govuk-link">${email}</a>`)
+            .join('<br>');
         rows.push({
             key: { text: CONSTANTS.APPLICANT_FIELDS.ADDITIONAL_CONTACTS },
             value: { text: '', html: contactsHtml },
