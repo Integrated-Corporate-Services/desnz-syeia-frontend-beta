@@ -8,6 +8,7 @@ export const BREADCRUMBS = SHARED_BREADCRUMBS;
 
 export const LABELS = {
   PAGE_TITLE: "Choose the relevant option for this application",
+  HINT_TEXT: "You will not be able to change this option after you have saved this page. You will need to create a new application if you wish to choose a different option.",
   HELPER_TEXT: "You must choose the option that applies to this application for a necessary wayleave to retain existing lines, as per ",
   LEGISLATION_LINK_TEXT: "Paragraphs 6(2) and 8 of Schedule 4 to the Electricity Act 1989 (opens in a new tab)",
   LEGISLATION_LINK_URL: "https://www.legislation.gov.uk/ukpga/1989/29/schedule/4/paragraph/8",
@@ -19,6 +20,7 @@ export const LABELS = {
 
 export const FORM_ERRORS = {
   MISSING_GROUNDS: "Select the relevant option for this application",
+  CANNOT_CHANGE_GROUNDS: "You cannot change the selected option. You must create a new application to select a different option.",
 } as const;
 
 export const GROUNDS_OPTIONS = [

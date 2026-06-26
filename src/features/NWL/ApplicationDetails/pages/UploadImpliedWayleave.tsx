@@ -32,9 +32,7 @@ const UploadImpliedWayleave: React.FC = () => {
   const handleFileValidationErrors = (errors: string[]) => {
     // Always update from FileUpload component to clear errors when new files selected
     setFileValidationErrors(errors);
-    if (errors.length === 0) {
-      setError("");
-    }
+    // Don't clear main error - it should be managed independently
   };
 
   const handleErrorClick = (errorType: string) => {

@@ -76,25 +76,25 @@ const WorksOverview: React.FC = () => {
           // Check if we have data and it belongs to current application (more flexible validation)
           if (data && (data.application_id === effectiveApplicationId || data.applicationId === effectiveApplicationId)) {
             setForm({
-              addingOrReplacingPoles: data.addingOrReplacingPoles ? 'yes' : 'no',
+              addingOrReplacingPoles: data.addingOrReplacingPoles != null ? (data.addingOrReplacingPoles ? 'yes' : 'no') : '',
               poleMaterial: data.poleMaterial || '',
               chemicalTreatments: data.chemicalTreatments || '',
               polesAdded: data.polesAdded !== undefined ? data.polesAdded.toString() : '',
               polesReplaced: data.polesReplaced !== undefined ? data.polesReplaced.toString() : '',
               poleComments: data.poleComments || '',
-              addingOrReplacingLines: data.addingOrReplacingLines ? 'yes' : 'no',
+              addingOrReplacingLines: data.addingOrReplacingLines != null ? (data.addingOrReplacingLines ? 'yes' : 'no') : '',
               overheadLineDescription: data.overheadLineDescription || '',
               estimatedDuration: data.estimatedDuration || '',
               vehiclesRequired: data.vehiclesRequired || '',
-              roadClosuresRequired: data.roadClosuresRequired ? 'yes' : 'no',
-              excavationRequired: data.excavationRequired ? 'yes' : 'no',
+              roadClosuresRequired: data.roadClosuresRequired != null ? (data.roadClosuresRequired ? 'yes' : 'no') : '',
+              excavationRequired: data.excavationRequired != null ? (data.excavationRequired ? 'yes' : 'no') : '',
               excavationDetails: data.excavationDetails || '',
-              vegetationClearanceRequired: data.vegetationClearanceRequired ? 'yes' : 'no',
+              vegetationClearanceRequired: data.vegetationClearanceRequired != null ? (data.vegetationClearanceRequired ? 'yes' : 'no') : '',
               vegetationClearanceDetails: data.vegetationClearanceDetails || '',
-              usingExistingAccessRoutes: data.usingExistingAccessRoutes ? 'yes' : 'no',
+              usingExistingAccessRoutes: data.usingExistingAccessRoutes != null ? (data.usingExistingAccessRoutes ? 'yes' : 'no') : '',
               accessRoutesDetails: data.accessRoutesDetails || '',
               accessRouteFiles: [],
-              removingExistingEquipment: data.removingExistingEquipment ? 'yes' : 'no',
+              removingExistingEquipment: data.removingExistingEquipment != null ? (data.removingExistingEquipment ? 'yes' : 'no') : '',
               removalDescription: data.removalDescription || '',
               generalComments: data.generalComments || ''
             });
@@ -190,32 +190,32 @@ const WorksOverview: React.FC = () => {
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-    // Map form data to backend expected payload: { applicationId, worksOverview: { ...fields... } }
+    // Map form data to backend expected payload - clear dependent fields based on radio selection
     const worksOverviewPayload = {
-      addingOrReplacingPoles: form.addingOrReplacingPoles === 'yes',
-      addingOrReplacingLines: form.addingOrReplacingLines === 'yes',
-      poleMaterial: form.poleMaterial || '',
-      chemicalTreatments: form.chemicalTreatments || '',
-      polesAdded: parseInt(form.polesAdded) || 0,
-      polesReplaced: parseInt(form.polesReplaced) || 0,
-      poleComments: form.poleComments,
-      overheadLineDescription: form.overheadLineDescription || '',
-      estimatedDuration: form.estimatedDuration || '',
-      vehiclesRequired: form.vehiclesRequired || '',
-      roadClosuresRequired: form.roadClosuresRequired === 'yes',
-      excavationRequired: form.excavationRequired === 'yes',
-      excavationDetails: form.excavationDetails || '',
-      vegetationClearanceRequired: form.vegetationClearanceRequired === 'yes',
-      vegetationClearanceDetails: form.vegetationClearanceDetails || '',
-      usingExistingAccessRoutes: form.usingExistingAccessRoutes === 'yes',
-      accessRoutesDetails: form.accessRoutesDetails || '',
+      addingOrReplacingPoles: form.addingOrReplacingPoles === '' ? null : form.addingOrReplacingPoles === 'yes',
+      addingOrReplacingLines: form.addingOrReplacingLines === '' ? null : form.addingOrReplacingLines === 'yes',
+      poleMaterial: form.addingOrReplacingPoles === 'yes' ? form.poleMaterial : '',
+      chemicalTreatments: form.addingOrReplacingPoles === 'yes' ? form.chemicalTreatments : '',
+      polesAdded: form.addingOrReplacingPoles === 'yes' ? (parseInt(form.polesAdded) || 0) : 0,
+      polesReplaced: form.addingOrReplacingPoles === 'yes' ? (parseInt(form.polesReplaced) || 0) : 0,
+      poleComments: form.addingOrReplacingPoles === 'yes' ? form.poleComments : '',
+      overheadLineDescription: form.addingOrReplacingLines === 'yes' ? form.overheadLineDescription : '',
+      estimatedDuration: form.addingOrReplacingLines === 'yes' ? form.estimatedDuration : '',
+      vehiclesRequired: form.addingOrReplacingLines === 'yes' ? form.vehiclesRequired : '',
+      roadClosuresRequired: form.addingOrReplacingLines === 'yes' ? (form.roadClosuresRequired === '' ? null : form.roadClosuresRequired === 'yes') : null,
+      excavationRequired: form.excavationRequired === '' ? null : form.excavationRequired === 'yes',
+      excavationDetails: form.excavationRequired === 'yes' ? form.excavationDetails : '',
+      vegetationClearanceRequired: form.vegetationClearanceRequired === '' ? null : form.vegetationClearanceRequired === 'yes',
+      vegetationClearanceDetails: form.vegetationClearanceRequired === 'yes' ? form.vegetationClearanceDetails : '',
+      usingExistingAccessRoutes: form.usingExistingAccessRoutes === '' ? null : form.usingExistingAccessRoutes === 'yes',
+      accessRoutesDetails: form.usingExistingAccessRoutes === 'yes' ? form.accessRoutesDetails : '',
       // accessRouteFiles: (form.accessRouteFiles || []).map(f => ({
       //   url: f.url,
       //   name: f.filename || '',
       //   size: typeof f.fileSize === 'number' ? f.fileSize : 0
       // })),
-      removingExistingEquipment: form.removingExistingEquipment === 'yes',
-      removalDescription: form.removalDescription || '',
+      removingExistingEquipment: form.removingExistingEquipment === '' ? null : form.removingExistingEquipment === 'yes',
+      removalDescription: form.removingExistingEquipment === 'yes' ? form.removalDescription : '',
       generalComments: form.generalComments || ''
     };
 

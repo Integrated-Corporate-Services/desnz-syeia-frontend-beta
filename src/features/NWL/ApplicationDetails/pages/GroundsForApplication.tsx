@@ -9,6 +9,7 @@ import {
   BREADCRUMBS,
   LABELS,
   GROUNDS_OPTIONS,
+  FORM_ERRORS,
 } from "../constants/groundsForApplicationConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 
@@ -70,7 +71,7 @@ const GroundsForApplication: React.FC = () => {
 
       // If selection changed, prevent the change and show error message
       if (hasChangedSelection) {
-        setError("You cannot change the Para 8 legislation type. To make this change, you must create a new application.");
+        setError(FORM_ERRORS.CANNOT_CHANGE_GROUNDS);
         return;
       }
 
@@ -151,6 +152,7 @@ const GroundsForApplication: React.FC = () => {
                       {LABELS.PAGE_TITLE}
                     </h1>
                   </legend>
+                
                   <p className="govuk-body">
                     {LABELS.HELPER_TEXT}
                     <a
@@ -163,6 +165,9 @@ const GroundsForApplication: React.FC = () => {
                     </a>
                     .
                   </p>
+                    <div className="govuk-hint">
+                    {LABELS.HINT_TEXT}
+                  </div>
                   {error && (
                     <p id="groundsForApplication-error" className="govuk-error-message">
                       <span className="govuk-visually-hidden">Error:</span>{" "}
