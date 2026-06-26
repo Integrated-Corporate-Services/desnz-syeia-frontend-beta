@@ -49,9 +49,7 @@ const NoticeToRemove: React.FC = () => {
   const handleFileValidationErrors = (errors: string[]) => {
     // Always update from FileUpload component to clear errors when new files selected
     setFileValidationErrors(errors);
-    if (errors.length === 0) {
-      setErrors([]);
-    }
+    // Don't clear main errors array - it should be managed independently
   };
 
   // Handle error click to focus file upload area
@@ -138,8 +136,8 @@ const NoticeToRemove: React.FC = () => {
       newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
     } else if (!validateDateNotInFuture(day, month, year)) {
-      newErrors.push(VALIDATION_MESSAGES.DATE_FUTURE);
-      newFieldErrors.day = VALIDATION_MESSAGES.DATE_FUTURE;
+      newErrors.push(FORM_ERRORS.FUTURE_DATE);
+      newFieldErrors.day = FORM_ERRORS.FUTURE_DATE;
     }
 
     // Validate files
@@ -205,8 +203,8 @@ const NoticeToRemove: React.FC = () => {
       newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
     } else if (!validateDateNotInFuture(day, month, year)) {
-      newErrors.push(VALIDATION_MESSAGES.DATE_FUTURE);
-      newFieldErrors.day = VALIDATION_MESSAGES.DATE_FUTURE;
+      newErrors.push(FORM_ERRORS.FUTURE_DATE);
+      newFieldErrors.day = FORM_ERRORS.FUTURE_DATE;
     }
 
     // Validate files
