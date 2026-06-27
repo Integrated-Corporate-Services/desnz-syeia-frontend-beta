@@ -11,6 +11,7 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
 import { trackButtonClick } from '../../../utils/analytics';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('BankTransferSuccessPage');
 

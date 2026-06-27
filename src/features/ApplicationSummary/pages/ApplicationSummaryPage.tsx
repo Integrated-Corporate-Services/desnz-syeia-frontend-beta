@@ -61,7 +61,9 @@ export const ApplicationSummaryPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="govuk-width-container">
+            <>
+                <SkipLink />
+                <div className="govuk-width-container">
                 {isNWL ? (
                     <ApplicationSummaryBreadcrumbs
                         applicationType="NWL"
@@ -74,12 +76,15 @@ export const ApplicationSummaryPage: React.FC = () => {
                     <h1 className="govuk-heading-xl">{CONSTANTS.LOADING}</h1>
                 </main>
             </div>
+            </>
         );
     }
 
     if (error || !data) {
         return (
-            <div className="govuk-width-container">
+            <>
+                <SkipLink />
+                <div className="govuk-width-container">
                 {isNWL ? (
                     <ApplicationSummaryBreadcrumbs
                         applicationType="NWL"
@@ -101,11 +106,14 @@ export const ApplicationSummaryPage: React.FC = () => {
                     </div>
                 </main>
             </div>
+            </>
         );
     }
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             {isNWL ? (
                 <ApplicationSummaryBreadcrumbs
                     applicationType="NWL"

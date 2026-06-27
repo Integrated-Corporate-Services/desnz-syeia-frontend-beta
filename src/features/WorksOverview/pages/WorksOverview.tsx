@@ -11,6 +11,7 @@ import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
+import SkipLink from '../../../components/SkipLink';
 
 const initialState = {
   addingOrReplacingPoles: '',
