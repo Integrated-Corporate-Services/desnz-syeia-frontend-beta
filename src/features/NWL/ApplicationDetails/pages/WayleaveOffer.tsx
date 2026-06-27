@@ -133,8 +133,8 @@ const WayleaveOffer: React.FC = () => {
       newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
     } else if (!validateDateNotInFuture(day, month, year)) {
-      newErrors.push(VALIDATION_MESSAGES.DATE_FUTURE);
-      newFieldErrors.day = VALIDATION_MESSAGES.DATE_FUTURE;
+      newErrors.push(FORM_ERRORS.FUTURE_DATE);
+      newFieldErrors.day = FORM_ERRORS.FUTURE_DATE;
     } else if (!validateDateAtLeast21DaysAgo(day, month, year)) {
       newErrors.push(VALIDATION_MESSAGES.DATE_NOT_21_DAYS_AGO);
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_NOT_21_DAYS_AGO;

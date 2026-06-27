@@ -13,7 +13,7 @@ import { AutoScrollToTop } from "./components/shared/AutoScrollToTop";
 import LandingPage from "./features/SignIn/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { createLogger } from "./utils/logger";
-import { CookieBanner } from "./modules/cookie-consent";
+import { CookieBanner, CookieConsentProvider } from "./modules/cookie-consent";
 import { usePageTracking } from "./lib/analytics";
 
 const logger = createLogger("App");
@@ -157,13 +157,15 @@ const AppContent = () => {
 
 const App = () => (
   <BrowserRouter basename="/frontend">
-    <AuthUserProvider>
-      <AccessRequestProvider>
-        <SessionTimeoutProvider>
-          <AppContent />
-        </SessionTimeoutProvider>
-      </AccessRequestProvider>
-    </AuthUserProvider>
+    <CookieConsentProvider>
+      <AuthUserProvider>
+        <AccessRequestProvider>
+          <SessionTimeoutProvider>
+            <AppContent />
+          </SessionTimeoutProvider>
+        </AccessRequestProvider>
+      </AuthUserProvider>
+    </CookieConsentProvider>
   </BrowserRouter>
 );
 

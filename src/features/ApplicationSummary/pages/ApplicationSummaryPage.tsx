@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
 import { fetchApplicationReviewSummary } from '../services';
 import { useWithdrawalRequest } from '../hooks';
@@ -7,12 +7,15 @@ import { useDocumentDownload } from '../../NWL/CheckYourAnswers/hooks';
 import { ApplicationReviewSummaryData } from '../types/reviewSummary';
 import {
     TaskListSummaryBreadcrumbs,
+    ApplicationSummaryBreadcrumbs,
     ApplicationSummaryContent,
 } from '../components';
 import SkipLink from '../../../components/SkipLink';
 
 export const ApplicationSummaryPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
+    const location = useLocation();
+    const isNWL = location.pathname.includes('/nwl/');
     const { withdrawalRequest } = useWithdrawalRequest(applicationId);
     
     useDocumentDownload();
@@ -59,7 +62,14 @@ export const ApplicationSummaryPage: React.FC = () => {
     if (loading) {
         return (
             <div className="govuk-width-container">
-                <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
+                {isNWL ? (
+                    <ApplicationSummaryBreadcrumbs
+                        applicationType="NWL"
+                        applicationId={applicationId!}
+                    />
+                ) : (
+                    <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
+                )}
                 <main className="govuk-main-wrapper" id="main-content" role="main">
                     <h1 className="govuk-heading-xl">{CONSTANTS.LOADING}</h1>
                 </main>
@@ -70,7 +80,14 @@ export const ApplicationSummaryPage: React.FC = () => {
     if (error || !data) {
         return (
             <div className="govuk-width-container">
-                <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
+                {isNWL ? (
+                    <ApplicationSummaryBreadcrumbs
+                        applicationType="NWL"
+                        applicationId={applicationId!}
+                    />
+                ) : (
+                    <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
+                )}
                 <main className="govuk-main-wrapper" id="main-content" role="main">
                     <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -88,10 +105,15 @@ export const ApplicationSummaryPage: React.FC = () => {
     }
 
     return (
-        <>
-            <SkipLink />
-            <div className="govuk-width-container">
-            <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
+        <div className="govuk-width-container">
+            {isNWL ? (
+                <ApplicationSummaryBreadcrumbs
+                    applicationType="NWL"
+                    applicationId={applicationId!}
+                />
+            ) : (
+                <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
+            )}
 
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">

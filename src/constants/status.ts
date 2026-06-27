@@ -45,11 +45,11 @@ export const APPLICATION_STATUS_CONFIG: StatusConfigMap = {
   
   // Action required states
   'further information requested': { value: 'further information requested', label: 'Further information requested', color: 'red' },
-  'representation stage': { value: 'representation stage', label: 'Representation stage', color: 'purple' },
+  'representation stage': { value: 'representation stage', label: 'Representation stage', color: 'blue' },
   'in abeyance': { value: 'in abeyance', label: 'In abeyance', color: 'yellow' },
   
   // Decision states
-  'decision issued': { value: 'decision issued', label: 'Decision issued', color: 'turquoise' },
+  'decision issued': { value: 'decision issued', label: 'Decision issued', color: 'blue' },
   'granted': { value: 'granted', label: 'Granted', color: 'green' },
   'declined': { value: 'declined', label: 'Declined', color: 'orange' },
   'approved': { value: 'approved', label: 'Approved', color: 'green' },
@@ -59,7 +59,7 @@ export const APPLICATION_STATUS_CONFIG: StatusConfigMap = {
   'completed': { value: 'completed', label: 'Completed', color: 'green' },
   'archived': { value: 'archived', label: 'Archived', color: 'grey' },
   'withdrawn': { value: 'withdrawn', label: 'Withdrawn', color: 'grey' },
-  'invalid': { value: 'invalid', label: 'Invalid', color: 'red' },
+  'invalid': { value: 'invalid', label: 'Invalid', color: 'grey' },
   
   // Legacy statuses
   'on hold': { value: 'on hold', label: 'On hold', color: 'yellow' },

@@ -197,14 +197,14 @@
 /* Column 4: Status (only if present) */
 .application-dashboard-results-column .govuk-table__cell:nth-child(4):not(:last-child),
 .application-dashboard-results-column .govuk-table__header:nth-child(4):not(:last-child) {
-  width: 25%;
-  min-width: 180px; /* Prevent badge overlap */
+  width: 28%;
+  min-width: 240px; /* Keep long statuses on one line in desktop view */
 }
 
 /* Column 5/Last: Date */
 .application-dashboard-results-column .govuk-table__cell:last-child,
 .application-dashboard-results-column .govuk-table__header:last-child {
-  width: 15%;
+  width: 12%;
   min-width: 120px;
 }
 
@@ -212,9 +212,10 @@
 .application-dashboard-results-column .govuk-tag,
 .application-dashboard-table-wrapper .govuk-tag {
   display: inline-block;
-  white-space: normal; /* allow wrapping inside the tag */
-  overflow-wrap: break-word;
-  word-wrap: break-word;
+  white-space: nowrap; /* keep status text on one line */
+  overflow-wrap: normal;
+  word-wrap: normal;
+  word-break: keep-all;
   text-align: center;
   max-width: 100%;
   box-sizing: border-box;

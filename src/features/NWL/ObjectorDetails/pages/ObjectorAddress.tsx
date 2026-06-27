@@ -121,7 +121,7 @@ const ObjectorAddress: React.FC = () => {
         // ignore progress errors
       }
 
-      navigate(`${NWL_BASE_URL}/${appId}/task-list`);
+      navigate(`${NWL_BASE_URL}/${appId}/is-objector-landowner`);
     } catch (error: any) {
       // Handle backend validation errors
       if (error.status === 400 && error.validationErrors) {

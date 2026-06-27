@@ -16,7 +16,7 @@ export const LABELS = {
 
 export const FORM_ERRORS = {
   MISSING_DATE: "Enter the date of Notice to Remove",
-  FUTURE_DATE: "Date must be in the past",
+  FUTURE_DATE: "Date the Notice to Remove was served cannot be in the future",
   MISSING_DAY: SHARED_DATE_ERRORS.MISSING_DAY,
   MISSING_MONTH: SHARED_DATE_ERRORS.MISSING_MONTH,
   MISSING_YEAR: SHARED_DATE_ERRORS.MISSING_YEAR,

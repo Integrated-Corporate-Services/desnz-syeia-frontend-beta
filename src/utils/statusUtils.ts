@@ -4,6 +4,7 @@ export type GDSTagColor =
   | 'green'     
   | 'turquoise' 
   | 'blue'      
+  | 'light-blue'
   | 'purple'    
   | 'pink'      
   | 'red'       

@@ -7,6 +7,7 @@ import {
   BREADCRUMBS,
   LABELS,
   TYPE_OF_USE_OPTIONS,
+  FORM_ERRORS,
 } from "../constants/typeOfUseConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 import { VALIDATION_MESSAGES } from "../services/applicationDetailsService";
@@ -55,7 +56,7 @@ const TypeOfUse: React.FC = () => {
       const hasChangedSelection = initialTypeRef.current && initialTypeRef.current !== typeOfUse;
 
       if (hasChangedSelection) {
-        setError("You cannot change between new lines and existing lines. To make this change, you must create a new application.");
+        setError(FORM_ERRORS.CANNOT_CHANGE_TYPE);
         return;
       }
 
@@ -139,6 +140,9 @@ const TypeOfUse: React.FC = () => {
                       {LABELS.PAGE_TITLE}
                     </h1>
                   </legend>
+                  <div className="govuk-hint">
+                    {LABELS.HINT_TEXT}
+                  </div>
                   {error && (
                     <p id="typeOfUse-error" className="govuk-error-message">
                       <span className="govuk-visually-hidden">Error:</span>{" "}

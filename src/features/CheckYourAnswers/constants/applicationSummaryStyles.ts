@@ -9,7 +9,7 @@ export const STATUS_TAG_CLASSES: Record<string, string> = {
   'processing': 'govuk-tag--yellow',
   'payment': 'govuk-tag--yellow',
   'draft': 'govuk-tag--grey',
-  'submitted': 'govuk-tag--green',
+  'submitted': 'govuk-tag--blue',
   'approved': 'govuk-tag--green',
   'under review': 'govuk-tag--blue',
   'rejected': 'govuk-tag--red',

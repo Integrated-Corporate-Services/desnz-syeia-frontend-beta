@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
-import { useNWLProgress } from '../../hooks/useNWLProgress';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
@@ -17,15 +16,10 @@ import {
 const ObjectorDetailsIntroduction: React.FC = () => {
   const navigate = useNavigate();
   const appId = useGetApplicationId();
-  const { updateProgress } = useNWLProgress(appId);
 
   const handleContinue = () => {
     (async () => {
-      try {
-        await updateProgress('Objector details', 'Not completed');
-      } catch (e) {
-        // ignore progress errors
-      }
+      
       navigate(`${NWL_BASE_URL}/${appId}/objector-details`);
     })();
   };

@@ -10,7 +10,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
+import { trackButtonClick } from '../../../utils/analytics';
 
 const logger = createLogger('BankTransferSuccessPage');
 
@@ -55,6 +55,10 @@ const BankTransferSuccessPage: React.FC = () => {
     transactionNumber?.trim() || BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT;
 
   const handleGoToSummary = () => {
+    trackButtonClick('View application summary', location.pathname, {
+      application_id: applicationId,
+      desnz_ref: desnz_ref,
+    });
     navigate(`${S37_BASE_URL}/${applicationId}/application-summary`);
   };
 

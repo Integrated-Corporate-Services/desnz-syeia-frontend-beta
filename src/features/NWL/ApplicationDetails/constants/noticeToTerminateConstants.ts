@@ -17,7 +17,7 @@ export const LABELS = {
 
 export const FORM_ERRORS = {
   MISSING_DATE: "Enter the date of the Notice to Terminate",
-  FUTURE_DATE: "Date must be in the past",
+  FUTURE_DATE: "Date the Notice to Terminate was served cannot be in the future",
   MISSING_DAY: SHARED_DATE_ERRORS.MISSING_DAY,
   MISSING_MONTH: SHARED_DATE_ERRORS.MISSING_MONTH,
   MISSING_YEAR: SHARED_DATE_ERRORS.MISSING_YEAR,

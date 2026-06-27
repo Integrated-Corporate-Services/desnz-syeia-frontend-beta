@@ -6,6 +6,7 @@ import SkipLink from '../../../../components/SkipLink';
 
 import { fetchCheckYourAnswersData } from '../services';
 import { useDocumentDownload } from '../hooks';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 
 import {
     CheckYourAnswersBreadcrumbs,
@@ -28,6 +29,7 @@ import {
 export const CheckYourAnswersPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const navigate = useNavigate();
+    const { updateProgress } = useNWLProgress(applicationId);
 
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -71,13 +73,21 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setPermissions(data.permissions);
 
                 setLoading(false);
+
+                // Mark "Check your answers" section as completed when page loads successfully
+                try {
+                    await updateProgress('Check your answers', 'Completed');
+                } catch (progressError) {
+                    console.error('Failed to update Check your answers progress:', progressError);
+                    // Don't block the user from viewing the page if progress update fails
+                }
             } catch {
                 setLoading(false);
             }
         };
 
         loadData();
-    }, [applicationId]);
+    }, [applicationId, updateProgress]);
 
     // Use custom hook for document downloads
     useDocumentDownload();

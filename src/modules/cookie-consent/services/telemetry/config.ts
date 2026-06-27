@@ -1,7 +1,3 @@
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
-
 interface ImportMetaEnv {
   readonly MODE: string;
   readonly DEV: boolean;
@@ -11,10 +7,8 @@ interface ImportMetaEnv {
   readonly GTM_ID?: string;
   readonly GTM_ISENABLED?: string;
   readonly VITE_DISABLE_TELEMETRY?: string;
-  [key: string]: any;
+  [key: string]: string | boolean | undefined;
 }
-
-type Environment = 'local' | 'development' | 'staging' | 'production';
 
 interface TelemetryConfig {
   ga4MeasurementId: string | null;
@@ -25,142 +19,27 @@ interface TelemetryConfig {
 }
 
 /**
-* Environment-specific configuration overrides
-* Only used when environment variables are not available
-*/
-const TELEMETRY_CONFIGS: Record<Environment, TelemetryConfig> = {
-  local: {
-    ga4MeasurementId: 'G-TMWDMMVTK7', // Dev
-    gtmId: 'GTM-W26LH6MJ', // Dev
-    enableGA4: true,
-    enableGTM: true,
-    debugMode: true,
-  },
-  development: {
-    ga4MeasurementId: 'G-TMWDMMVTK7', // Dev
-    gtmId: 'GTM-W26LH6MJ', // Dev
-    enableGA4: true,
-    enableGTM: true,
-    debugMode: true,
-  },
-  staging: {
-    ga4MeasurementId: 'G-7NL7XSY1LV', // UAT
-    gtmId: 'GTM-P7VVP48J', // UAT
-    enableGA4: true,
-    enableGTM: true,
-    debugMode: false,
-  },
-  production: {
-    ga4MeasurementId: 'G-7NL7XSY1LV', 
-    gtmId: 'GTM-P7VVP48J', 
-    enableGA4: true,
-    enableGTM: true,
-    debugMode: false,
-  },
-};
-
-/**
-* Detect current environment
-* 
-* Priority 1: Use Vite MODE (set by build command)
-* Priority 2: Fallback to hostname detection (for runtime)
-*/
-function detectEnvironment(): Environment {
-  const mode = (import.meta as any).env?.MODE?.toLowerCase();
-
-  if (mode) {
-    if (mode === 'local') {
-      return 'local';
-    }
-    if (mode === 'development' || mode === 'dev') {
-      return 'development';
-    }
-    if (mode === 'staging') {
-      return 'staging';
-    }
-    if (mode === 'production' || mode === 'prod') {
-      return 'production';
-    }
-  }
-
-  const hostname = window.location.hostname.toLowerCase();
-
-  if (hostname === 'syeia.energysecurity.gov.uk' || 
-      hostname === 'www.syeia.energysecurity.gov.uk') {
-    return 'production';
-  }
-
-  if (hostname.includes('staging.syeia') || 
-      hostname.includes('eip-staging')) {
-    return 'staging';
-  }
-
-  if (hostname.includes('dev.syeia') || 
-      hostname.includes('syeia-dev') ||
-      hostname.includes('dev-syeia') ||
-      hostname.includes('eip-dev')) {
-    return 'development';
-  }
-
-  return 'development';
-}
-
-/**
-* Get telemetry configuration for current environment
-* 
-* Priority order:
-* 1. Environment variables (if valid and not empty)
-* 2. TELEMETRY_CONFIGS based on detected environment (SINGLE SOURCE OF TRUTH)
-* 
-* Empty strings, "undefined", or missing env vars will use TELEMETRY_CONFIGS
-*/
+ * Get telemetry configuration directly from environment variables
+ * No fallbacks, no environment detection - purely from import.meta.env
+ */
 export function getTelemetryConfig(): TelemetryConfig {
-  const env = detectEnvironment();
-  const envConfig = TELEMETRY_CONFIGS[env];
+  const env = import.meta.env as ImportMetaEnv;
 
-  // Read from environment variables (populated from SSM in ECS)
-  const envVars = (import.meta as any).env || {};
+  // Read directly from environment variables
+  const ga4MeasurementId = env.VITE_GA4_MEASUREMENT_ID || null;
+  const gtmId = env.GTM_ID || null;
+  const enableGA4 = env.VITE_ENABLE_GA4 === 'true';
+  const enableGTM = env.GTM_ISENABLED === 'true';
+  const debugMode = env.MODE === 'development' || env.DEV === true;
 
-  // Helper to check if value is valid (not undefined, not "undefined", not empty string)
-  const isValidValue = (val: any): boolean => {
-    return val && val !== 'undefined' && val.trim() !== '';
-  };
-
-  // Use TELEMETRY_CONFIGS as fallback when env vars are missing, empty, or invalid
-  const ga4MeasurementId = isValidValue(envVars.VITE_GA4_MEASUREMENT_ID)
-    ? envVars.VITE_GA4_MEASUREMENT_ID 
-    : envConfig.ga4MeasurementId;
-
-  const gtmId = isValidValue(envVars.GTM_ID)
-    ? envVars.GTM_ID 
-    : envConfig.gtmId;
-
-  const enableGA4 = (envVars.VITE_ENABLE_GA4 === 'true') 
-    ? true 
-    : (envVars.VITE_ENABLE_GA4 === 'false' ? false : envConfig.enableGA4);
-
-  const enableGTM = (envVars.GTM_ISENABLED === 'true') 
-    ? true 
-    : (envVars.GTM_ISENABLED === 'false' ? false : envConfig.enableGTM);
-
-  // Debug logging in non-production
-  if (envConfig.debugMode) {
-    console.log('[Telemetry Config]', {
-      environment: env,
-      source: 'TELEMETRY_CONFIGS (fallback when env vars empty/invalid)',
-      finalValues: {
-        ga4MeasurementId,
-        gtmId,
-        enableGA4,
-        enableGTM,
-      },
-      envVars: {
-        VITE_GA4_MEASUREMENT_ID: envVars.VITE_GA4_MEASUREMENT_ID || '(empty)',
-        VITE_ENABLE_GA4: envVars.VITE_ENABLE_GA4 || '(empty)',
-        GTM_ID: envVars.GTM_ID || '(empty)',
-        GTM_ISENABLED: envVars.GTM_ISENABLED || '(empty)',
-      },
-      configFallback: envConfig
+  // Debug logging in development mode
+  if (debugMode) {
+    console.log('[Telemetry Config] Loaded from environment variables:', {
+      ga4MeasurementId: ga4MeasurementId || '(not set)',
+      gtmId: gtmId || '(not set)',
+      enableGA4,
+      enableGTM,
+      debugMode,
     });
   }
 
@@ -169,15 +48,15 @@ export function getTelemetryConfig(): TelemetryConfig {
     gtmId,
     enableGA4,
     enableGTM,
-    debugMode: envConfig.debugMode,
+    debugMode,
   };
 }
 
 /**
-* Get current environment (for debugging)
-*/
-export function getCurrentEnvironment(): Environment {
-  return detectEnvironment();
+ * Get current environment name from Vite MODE
+ */
+export function getCurrentEnvironment(): string {
+  return (import.meta.env as ImportMetaEnv)?.MODE || 'unknown';
 }
 
 /**
@@ -185,9 +64,9 @@ export function getCurrentEnvironment(): Environment {
 * Respects environment variables for override
 */
 export function shouldEnableTelemetry(): boolean {
-  // Allow environment variable override
-  // Type assertion needed because import.meta.env is not in standard TypeScript types
-  if ((import.meta as any).env?.VITE_DISABLE_TELEMETRY === 'true') {
+  const env = import.meta.env as ImportMetaEnv;
+  
+  if (env?.VITE_DISABLE_TELEMETRY === 'true') {
     return false;
   }
 
