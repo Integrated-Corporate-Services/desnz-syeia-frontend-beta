@@ -4,6 +4,7 @@ import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckIt
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import SensitiveAreaReviewSummaryPage from './SensitiveAreaReviewSummary';
+import SkipLink from '../../../components/SkipLink';
 
 /**
  * ReviewSensitiveAreaResultsPage Component
@@ -185,7 +186,9 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     };
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             {/* Breadcrumb Navigation - Always visible */}
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
@@ -304,7 +307,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
                 className="govuk-button govuk-button--secondary govuk-!-margin-left-3"
                 data-module="govuk-button"
                 onClick={handleSaveForLater}
-              >
+              >   
                 Save for later
               </button> */}
                         </>
@@ -312,6 +315,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
                 </div>
             </div>
         </div>
+    </>
     );
 };
 

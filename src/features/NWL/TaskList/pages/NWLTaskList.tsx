@@ -5,6 +5,7 @@ import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
+import SkipLink from '../../../../components/SkipLink';
 
 const NWLTaskList: React.FC = () => {
 	const params = useParams();
@@ -94,7 +95,9 @@ const NWLTaskList: React.FC = () => {
 	};
 
 	return (
-		<div className="govuk-width-container">
+		<>
+			<SkipLink />
+			<div className="govuk-width-container">
 			<main className="govuk-main-wrapper" id="main-content">
 				<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">
@@ -321,8 +324,7 @@ const NWLTaskList: React.FC = () => {
 					</div>
 				</div>
 			</main>
-		</div>
-	);
+		</div>	</>	);
 };
 
 export default NWLTaskList;

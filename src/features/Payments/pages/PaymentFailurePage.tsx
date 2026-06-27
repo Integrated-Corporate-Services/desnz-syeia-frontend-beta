@@ -6,6 +6,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentFailurePage');
 
@@ -149,7 +150,9 @@ const PaymentFailurePage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
@@ -275,6 +278,7 @@ const PaymentFailurePage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import React from "react";
 import { useAuthUserContext } from "../../../context/AuthUserContext";
 import { useNetworkOperators } from "../hooks/useNetworkOperators";
 import { useWhoIsApplyingForm } from "../hooks/useWhoIsApplyingForm";
+import SkipLink from "../../../components/SkipLink";
 
 const WhoIsApplying: React.FC = () => {
   const { user } = useAuthUserContext();
@@ -24,7 +25,9 @@ const WhoIsApplying: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -128,7 +131,8 @@ const WhoIsApplying: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

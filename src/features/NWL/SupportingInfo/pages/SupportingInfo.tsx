@@ -5,7 +5,8 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { nwlSupportingInfo } from "../types";
 import { getSupportingInfo, saveSupportingInfo } from "../services";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
-import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constants/fileCategoryConstants";	
+import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constants/fileCategoryConstants";
+import SkipLink from "../../../../components/SkipLink";	
 
 const SupportingInfo: React.FC = () => {
 	// ...existing state declarations...
@@ -324,7 +325,9 @@ const SupportingInfo: React.FC = () => {
 	 };
 
 	return (
-	<div className="govuk-width-container">
+	<>
+		<SkipLink />
+		<div className="govuk-width-container">
 		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 			<ol className="govuk-breadcrumbs__list">
 				<li className="govuk-breadcrumbs__list-item">
@@ -873,6 +876,7 @@ const SupportingInfo: React.FC = () => {
 			</div>
 		</div>
 	</div>
+	</>
 );
 };
 

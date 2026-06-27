@@ -1,5 +1,6 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect, useRef } from "react";
+import SkipLink from '../../../components/SkipLink';
 import { useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
@@ -240,7 +241,9 @@ const ProjectOverview = () => {
 	}, [projectData, applicationId]);
 
 	return (
-		<div className="govuk-width-container">
+		<>
+			<SkipLink />
+			<div className="govuk-width-container">
 			<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 				<ol className="govuk-breadcrumbs__list">
 					<li className="govuk-breadcrumbs__list-item">
@@ -592,10 +595,9 @@ const ProjectOverview = () => {
 					</div>
 
 					{/* Project Description Section */}
-					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project description</h2>
 					<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 						<TextArea
-							label=""
+							label="Project description"
 							id="projectDescription-inputValue"
 							name="projectDescription.inputValue"
 							value={formState.projectDescription}
@@ -631,7 +633,8 @@ const ProjectOverview = () => {
 					<h2 className="govuk-heading-s govuk-!-margin-bottom-2">What is the height of the tallest proposed pole?</h2>
 					<div className="govuk-!-margin-bottom-6 govuk-!-width-one-third">
 						<NumberInput
-							label=""
+							label={projectOverview.tallestPoleHeight}
+							hint={projectOverview.tallestPoleHeightHint}
 							suffix={projectOverview.tallestPoleHeightSuffix}
 							id="tallestPoleHeight-inputValue"
 							name="tallestPoleHeight.inputValue"
@@ -1020,6 +1023,7 @@ const ProjectOverview = () => {
 				</form>
 			</main>
 		</div>
+	</>
 	);
 }
 

@@ -24,6 +24,7 @@ import {
   BREADCRUMBS,
   FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
+import SkipLink from '../../../../components/SkipLink';
 
 const NetworkOperatorDetails: React.FC = () => {
   const { user } = useAuthUserContext();
@@ -196,7 +197,9 @@ const NetworkOperatorDetails: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -484,6 +487,7 @@ const NetworkOperatorDetails: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

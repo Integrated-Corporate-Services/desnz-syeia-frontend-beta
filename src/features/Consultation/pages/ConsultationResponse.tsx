@@ -7,6 +7,7 @@ import type { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { ConsultationType } from '../../../constants/consultationType';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
+import SkipLink from '../../../components/SkipLink';
 
 const ConsultationResponse: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -188,7 +189,9 @@ const ConsultationResponse: React.FC = () => {
     };
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -379,6 +382,7 @@ const ConsultationResponse: React.FC = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

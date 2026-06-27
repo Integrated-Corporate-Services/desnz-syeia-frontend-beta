@@ -9,6 +9,7 @@ import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary } from '../..
 import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
+import SkipLink from '../../../components/SkipLink';
 
 const SensitiveAreaReviewPage: React.FC = () => {
   // Get applicationId from URL params or query string
@@ -181,7 +182,9 @@ const SensitiveAreaReviewPage: React.FC = () => {
   const hasAnyFailedAreas = allFailedAreas.length > 0;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -452,6 +455,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
       </div>
       </div>
     </div>
+    </>
   );
 };
 

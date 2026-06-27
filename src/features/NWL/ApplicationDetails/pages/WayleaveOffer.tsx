@@ -19,6 +19,7 @@ import {
 } from "../constants/wayleaveOfferConstants";
 import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Wayleave Notice Page (New Lines)
@@ -215,7 +216,9 @@ const WayleaveOffer: React.FC = () => {
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -444,6 +447,7 @@ const WayleaveOffer: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

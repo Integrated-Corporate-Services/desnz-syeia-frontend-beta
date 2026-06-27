@@ -5,7 +5,8 @@ import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { getConsultationPack, saveConsultationPack } from "../../../services/consultationPackService";
 import { PackSection } from '../../../types/consultationPack';
-import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService"; 
+import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService";
+import SkipLink from '../../../components/SkipLink'; 
 
 const ConsultationRequestNotSent: React.FC = () => {
   const params = useParams();
@@ -186,7 +187,9 @@ const handleSaveAndContinue = async () => {
   if (error) return <div className="govuk-error-message">Error: {error}</div>;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -275,6 +278,7 @@ const handleSaveAndContinue = async () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

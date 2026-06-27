@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
@@ -209,6 +210,8 @@ const NoticeToTerminate: React.FC = () => {
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
   return (
+    <>
+      <SkipLink />
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
@@ -435,6 +438,7 @@ const NoticeToTerminate: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

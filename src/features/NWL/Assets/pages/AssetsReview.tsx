@@ -5,6 +5,7 @@ import { AssetsBreadcrumbs, AssetSummaryCard, FormActions } from '../components'
 import { useApplicationId } from '../hooks';
 import { LABELS, HINTS, MESSAGES } from '../constants';
 import nwlAssetService, { AssetOutput } from '../services/nwlAssetService';
+import SkipLink from '../../../../components/SkipLink';
 
 const AssetsReview: React.FC = () => {
   const navigate = useNavigate();
@@ -104,7 +105,9 @@ const AssetsReview: React.FC = () => {
   };
 
   return (
-    <main className="govuk-main-wrapper" id="main-content">
+    <>
+      <SkipLink />
+      <main className="govuk-main-wrapper" id="main-content">
       <AssetsBreadcrumbs applicationId={applicationId} currentPage="review" />
 
       <div className="govuk-grid-row">
@@ -158,6 +161,7 @@ const AssetsReview: React.FC = () => {
         </div>
       </div>
     </main>
+    </>
   );
 };
 

@@ -10,6 +10,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
+import SkipLink from '../../../components/SkipLink';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -109,7 +110,9 @@ const SensitiveAreaPage: React.FC = () => {
     }
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 {error && (
                     <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
@@ -274,7 +277,8 @@ const SensitiveAreaPage: React.FC = () => {
                     </div>
                 </div>
             </main>
-        </div>
+            </div>
+        </>
     );
 };
 

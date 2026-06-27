@@ -10,6 +10,7 @@ import {
 } from '../../../services/sensitiveAreaReviewService';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { createLogger } from '../../../utils/logger';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('AddOtherAreasPage');
 
@@ -249,7 +250,9 @@ const AddOtherAreasPage: React.FC = () => {
   }
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       {/* Back Link - Always visible */}
       <Link 
         to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`} 
@@ -407,7 +410,8 @@ const AddOtherAreasPage: React.FC = () => {
         </button> */}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

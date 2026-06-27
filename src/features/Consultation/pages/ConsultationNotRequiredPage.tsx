@@ -8,6 +8,7 @@ import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { isWithinCharacterLimit } from '../../../utils/validation';
+import SkipLink from '../../../components/SkipLink';
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
@@ -197,7 +198,9 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		};
 
 	return (
-		<div className="govuk-width-container">
+		<>
+			<SkipLink />
+			<div className="govuk-width-container">
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
 					<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -347,6 +350,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				</div>
 			</div>
 		</div>
+		</>
 	);
 };
 

@@ -9,6 +9,7 @@ import { formatContactDetails } from "../utils/contactDetailsFormatter";
 import { ContactDetailsSummary } from "../components/ContactDetailsSummary";
 import { ContactConfirmationRadios } from "../components/ContactConfirmationRadios";
 import { BREADCRUMBS, LABELS } from "../constants/contactDetailsConstants";
+import SkipLink from "../../../components/SkipLink";
 
 const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>("");
@@ -41,7 +42,9 @@ const NetworkOperatorContactDetails: React.FC = () => {
   const contactDetails = formatContactDetails(party);
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -98,7 +101,8 @@ const NetworkOperatorContactDetails: React.FC = () => {
       </div>
       </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

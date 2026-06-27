@@ -10,6 +10,7 @@ import { ConsultationType, isOtherConsultation } from '../../../constants/consul
 import { progressApiService } from '../../../services/progressApiService';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { createLogger } from '../../../utils/logger';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('ConsultationDetailsPage');
 
@@ -101,7 +102,9 @@ const ConsultationDetailsPage: React.FC = () => {
     };
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -293,6 +296,7 @@ const ConsultationDetailsPage: React.FC = () => {
             </div>
             </main>
         </div>
+        </>
     );
 };
 

@@ -9,6 +9,7 @@ import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCa
 import FileUpload from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 import log from '../../../logger';
+import SkipLink from '../../../components/SkipLink';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
@@ -244,7 +245,9 @@ useEffect(() => {
  
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -500,6 +503,7 @@ useEffect(() => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

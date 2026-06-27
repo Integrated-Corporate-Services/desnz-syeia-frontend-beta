@@ -1,4 +1,5 @@
 import React from 'react';
+import SkipLink from '../../../components/SkipLink';
 
 /**
  * Page shown to users whose access has been revoked (status = INACTIVE)
@@ -10,7 +11,9 @@ const UserAccessRevokedPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -67,6 +70,7 @@ const UserAccessRevokedPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

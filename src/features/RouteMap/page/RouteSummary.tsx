@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
+import SkipLink from '../../../components/SkipLink';
 
 /**
  * Read-only Route Summary Page
@@ -50,7 +51,9 @@ const RouteSummary: React.FC = () => {
         }));
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -156,6 +159,7 @@ const RouteSummary: React.FC = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };
 

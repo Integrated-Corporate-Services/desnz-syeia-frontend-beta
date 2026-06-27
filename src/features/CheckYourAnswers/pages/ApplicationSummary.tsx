@@ -27,6 +27,7 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
+import SkipLink from "../../../components/SkipLink";
 
 import {
   PAGE_LABELS,
@@ -468,7 +469,9 @@ const ApplicationSummary: React.FC = () => {
   }, [withdrawalRequest, logger]);
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">
           Back
@@ -2175,6 +2178,7 @@ const ApplicationSummary: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

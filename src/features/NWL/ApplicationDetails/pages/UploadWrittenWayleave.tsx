@@ -11,6 +11,7 @@ import {
 } from "../constants/uploadWrittenWayleaveConstants";
 import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Upload Written Wayleave Page
@@ -152,7 +153,9 @@ const UploadWrittenWayleave: React.FC = () => {
   // };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -270,6 +273,7 @@ const UploadWrittenWayleave: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

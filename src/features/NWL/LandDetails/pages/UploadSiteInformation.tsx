@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import SkipLink from '../../../../components/SkipLink';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -80,11 +81,13 @@ const UploadSiteInformation: React.FC = () => {
   const labels = LAND_DETAILS_LABELS.UPLOAD_SITE_INFORMATION;
 
   return (
-    <div className="govuk-width-container">
-      <LandDetailsBreadcrumbs 
-        applicationId={applicationId} 
-        currentPage={labels.PAGE_TITLE}
-      />
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <LandDetailsBreadcrumbs 
+          applicationId={applicationId} 
+          currentPage={labels.PAGE_TITLE}
+        />
 
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
@@ -142,7 +145,8 @@ const UploadSiteInformation: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

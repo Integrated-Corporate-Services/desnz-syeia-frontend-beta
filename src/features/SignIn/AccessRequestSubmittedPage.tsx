@@ -5,6 +5,7 @@ import { useAccessRequestContext } from "../../context/AccessRequestContext";
 import { logout } from "../../services/authService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
+import SkipLink from "../../components/SkipLink";
 
 const logger = createLogger('AccessRequestSubmittedPage');
 
@@ -40,9 +41,11 @@ const AccessRequestSubmittedPage: React.FC = () => {
   }, [authenticated, user?.role, navigate, clearFormData]);
 
   return (
-    <div className="govuk-width-container">
-    
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+      
+        <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
@@ -89,7 +92,8 @@ const AccessRequestSubmittedPage: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

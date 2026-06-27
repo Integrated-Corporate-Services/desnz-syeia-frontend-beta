@@ -18,6 +18,7 @@ import {
 } from "../constants/wayleaveExpiryDateConstants";
 import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Wayleave Expiry Date Page
@@ -207,7 +208,9 @@ const WayleaveExpiryDate: React.FC = () => {
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -428,6 +431,7 @@ const WayleaveExpiryDate: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

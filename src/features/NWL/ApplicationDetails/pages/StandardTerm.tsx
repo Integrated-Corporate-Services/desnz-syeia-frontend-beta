@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
@@ -102,6 +103,8 @@ const StandardTerm: React.FC = () => {
   const charactersRemaining = LABELS.CHAR_LIMIT - characterCount;
 
   return (
+    <>
+      <SkipLink />
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
@@ -250,6 +253,7 @@ const StandardTerm: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

@@ -17,6 +17,7 @@ import {
 } from '../constants';
 import nwlAssetService, { CreateAssetsPayload } from '../services/nwlAssetService';
 import { ASSETS_PAGE_IDS } from '../constants/pageNames';
+import SkipLink from '../../../../components/SkipLink';
 
 const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
   ? VOLTAGE_CLASS_OPTIONS.map((opt: { label: string }) => opt.label)
@@ -255,7 +256,10 @@ const Asset: React.FC = () => {
   // Show loading state while checking for existing assets or loading asset for edit
   if (checkingAssets || loadingAsset) {
     return (
-      <main className="govuk-main-wrapper" id="main-content">
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content">
         <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -264,11 +268,16 @@ const Asset: React.FC = () => {
           </div>
         </div>
       </main>
+        </div>
+      </>
     );
   }
 
   return (
-    <main className="govuk-main-wrapper" id="main-content">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content">
       <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
       
       <div className="govuk-grid-row">
@@ -338,6 +347,8 @@ const Asset: React.FC = () => {
         </div>
       </div>
     </main>
+    </div>
+    </>
   );
 };
 

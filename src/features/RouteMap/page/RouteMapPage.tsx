@@ -9,6 +9,7 @@ import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
+import SkipLink from '../../../components/SkipLink';
 
 // Validation function for a single point using centralized error messages
 function getPointError(easting: string, northing: string, routeName: string, idx: number) {
@@ -230,6 +231,8 @@ const RouteMapPage: React.FC = () => {
   };
 
   return (
+    <>
+      <SkipLink />
       <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
@@ -374,6 +377,7 @@ const RouteMapPage: React.FC = () => {
           </div>
         </main>
       </div>
+    </>
   );
 };
 

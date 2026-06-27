@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import SkipLink from '../../../../components/SkipLink';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -72,7 +73,9 @@ const IdentifyingInformation: React.FC = () => {
   const labels = LAND_DETAILS_LABELS.IDENTIFYING_INFORMATION;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <LandDetailsBreadcrumbs 
         applicationId={applicationId} 
         currentPage={labels.PAGE_TITLE}
@@ -120,7 +123,8 @@ const IdentifyingInformation: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

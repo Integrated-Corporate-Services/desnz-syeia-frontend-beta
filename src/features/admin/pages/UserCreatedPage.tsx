@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAddUserNavigation } from '../../../hooks';
+import SkipLink from '../../../components/SkipLink';
 
 const UserCreatedPage: React.FC = () => {
   const location = useLocation();
@@ -17,7 +18,9 @@ const UserCreatedPage: React.FC = () => {
   const welcomeEmailSent = state?.welcomeEmailSent;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
 
         {/* TRUE PAGE HEADING for accessibility */}
@@ -146,6 +149,7 @@ const UserCreatedPage: React.FC = () => {
 
       </main>
     </div>
+    </>
   );
 };
 
