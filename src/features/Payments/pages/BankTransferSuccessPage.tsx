@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import {
   BANK_TRANSFER_SUCCESS_PAGE,
   PAYMENT_BUTTON_LABELS,
@@ -19,6 +20,9 @@ const BankTransferSuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const applicationId = useGetApplicationId();
+
+
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const {
     invoiceNumber,
@@ -60,7 +64,7 @@ const BankTransferSuccessPage: React.FC = () => {
       application_id: applicationId,
       desnz_ref: desnz_ref,
     });
-    navigate(`${S37_BASE_URL}/${applicationId}/application-summary`);
+    navigate(`${baseUrl}/${applicationId}/application-summary`);
   };
 
   return (
