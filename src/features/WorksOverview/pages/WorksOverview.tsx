@@ -50,22 +50,13 @@ const WorksOverview: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
-  const [pendingRoadClosureFiles, setPendingRoadClosureFiles] = useState<File[]>([]);
+  const [, setPendingRoadClosureFiles] = useState<File[]>([]);
   const roadClosuresUploadRef = useRef<FileUploadHandle>(null);
   // Remove asset store usage for works overview
   const navigate = useNavigate();
   // Ref for first error field
   const firstErrorRef = useRef<HTMLInputElement | null>(null);
 
-  const resetFormState = () => {
-    setForm(initialState);
-    setErrors({});
-    setSubmitted(false);
-    setIsEditMode(false);
-    setUploadedFiles([]);
-    setApplicationDocuments([]);
-    setPendingRoadClosureFiles([]);
-  };
   const applicationId = useGetApplicationId();
  
  
