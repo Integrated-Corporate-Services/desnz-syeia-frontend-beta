@@ -138,30 +138,6 @@ export const POST_CONSULTATION_QUESTIONS = {
   CONSULTEES_REASON: "Explain why you do not accept all the consultees' recommendations"
 } as const;
 
-// Works overview questions
-export const WORKS_OVERVIEW_QUESTIONS = {
-  ADDING_REPLACING_POLES: 'Are you adding or replacing any poles?',
-  POLE_MATERIAL: 'Pole material',
-  CHEMICAL_TREATMENTS: 'Chemical treatments',
-  POLES_ADDED: 'Poles added',
-  POLES_REPLACED: 'Poles replaced',
-  POLE_COMMENTS: 'Comments on poles',
-  ADDING_REPLACING_LINES: 'Are you adding or replacing any overhead lines?',
-  OVERHEAD_LINE_DESC: 'Overhead line description',
-  ESTIMATED_DURATION: 'Estimated duration',
-  VEHICLES_REQUIRED: 'Vehicles required',
-  ROAD_CLOSURES: 'Road closures required',
-  EXCAVATION_REQUIRED: 'Are excavation works required?',
-  EXCAVATION_DETAILS: 'Excavation details',
-  VEGETATION_CLEARANCE: 'Is vegetation clearance required?',
-  VEGETATION_DETAILS: 'Vegetation clearance details',
-  EXISTING_ACCESS_ROUTES: 'Are you using pre-existing access routes and/or storage sites?',
-  ACCESS_ROUTES_DETAILS: 'Access routes details',
-  REMOVING_EQUIPMENT: 'Are you removing existing equipment?',
-  REMOVAL_DESCRIPTION: 'Removal description',
-  GENERAL_COMMENTS: 'General comments'
-} as const;
-
 // Supporting information questions
 export const SUPPORTING_INFO_QUESTIONS = {
   WAYLEAVES_OBTAINED: 'Have all wayleaves been obtained?',

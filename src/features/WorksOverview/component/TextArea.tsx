@@ -8,7 +8,7 @@ import { CommonInputProps } from '../../../types/form';
 const TextArea: React.FC<CommonInputProps> = ({ id, name, label, hint, value, error, onChange, maxLength, showCount, style }) => {
   const count = value.length;
   return (
-    <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
+    <div className={`govuk-form-group govuk-!-margin-bottom-4 govuk-character-count${error ? ' govuk-form-group--error' : ''}`} data-module="govuk-character-count" data-maxlength={maxLength}>
       <label className="govuk-label" htmlFor={id}>{label}</label>
       {/* Render hint if provided */}
       {typeof hint === 'string' && hint.length > 0 && (
@@ -22,7 +22,7 @@ const TextArea: React.FC<CommonInputProps> = ({ id, name, label, hint, value, er
         </span>
       )}
       <textarea
-        className={`govuk-textarea${error ? ' govuk-textarea--error' : ''}`}
+        className={`govuk-textarea govuk-js-character-count${error ? ' govuk-textarea--error' : ''}`}
         id={id}
         name={name}
         value={value}
