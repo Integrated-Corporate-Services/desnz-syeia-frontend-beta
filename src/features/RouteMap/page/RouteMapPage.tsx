@@ -283,7 +283,7 @@ const RouteMapPage: React.FC = () => {
                 <div className="govuk-grid-column-one-half">
                   <form method="post" data-module="fds-html-form">
                     {/* Hidden CSRF or other fields can go here if needed */}
-                    <fieldset className="govuk-fieldset" aria-describedby="route-points-hint">
+                    <fieldset className="govuk-fieldset">
                       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m" style={{ marginBottom: 0 }}>
                         <span className="govuk-visually-hidden">Route points</span>
                       </legend>
@@ -346,7 +346,7 @@ const RouteMapPage: React.FC = () => {
                 <div className="govuk-grid-column-one-half eip-sticky-column">
                   {/* Removed IE warning message */}
                   <div data-module="eip-hide-if-ie">
-                    <div className="eip-map__container">
+                    <div className="eip-map__container" role="region" aria-label="Interactive map for visualizing route points">
                       <ErrorBoundary>
                         <SensitiveAreaCheckMap
                           points={points}

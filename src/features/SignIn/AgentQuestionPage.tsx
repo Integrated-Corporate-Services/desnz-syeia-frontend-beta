@@ -56,7 +56,6 @@ const AgentQuestionPage: React.FC = () => {
               >
                 <fieldset
                   className="govuk-fieldset"
-                  aria-describedby="agent-hint"
                 >
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
                     <h1 className="govuk-fieldset__heading">

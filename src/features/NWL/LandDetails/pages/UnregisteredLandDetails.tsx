@@ -6,6 +6,7 @@ import {
   LandDetailsBreadcrumbs,
   FormActions,
   ErrorSummary,
+  TextAreaWithCounter,
 } from '../components';
 import {
   useLandDetailsData,
@@ -42,10 +43,8 @@ const UnregisteredLandDetails: React.FC = () => {
   const maxCharacters = 4000;
 
   const handleExplanationChange = (value: string) => {
-    if (value.length <= maxCharacters) {
-      setExplanation(value);
-      clearError('unregisteredLand');
-    }
+    setExplanation(value);
+    clearError('unregisteredLand');
   };
 
   const handleDeleteFile = (fileId: string) => {
@@ -137,28 +136,17 @@ const UnregisteredLandDetails: React.FC = () => {
             <h1 className="govuk-heading-l">{labels.PAGE_TITLE}</h1>
 
             <form>
-              <div className={`govuk-form-group${errors.unregisteredLand ? ' govuk-form-group--error' : ''}`}>
-                <label className="govuk-label" htmlFor="unregistered-land-explanation">
-                  {labels.DESCRIPTION}
-                </label>
-                {errors.unregisteredLand && (
-                  <p id="unregistered-land-explanation-error" className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span> {errors.unregisteredLand}
-                  </p>
-                )}
-                <textarea
-                  className={`govuk-textarea${errors.unregisteredLand ? ' govuk-textarea--error' : ''}`}
-                  id="unregistered-land-explanation"
-                  name="unregisteredLandExplanation"
-                  rows={8}
-                  value={explanation}
-                  onChange={(e) => handleExplanationChange(e.target.value)}
-                  aria-describedby={errors.unregisteredLand ? 'unregistered-land-explanation-error' : undefined}
-                />
-                <div id="unregistered-land-hint" className="govuk-hint">
-                  {labels.CHARACTER_LIMIT}
-                </div>
-              </div>
+              <TextAreaWithCounter
+                id="unregistered-land-explanation"
+                name="unregisteredLandExplanation"
+                label={labels.DESCRIPTION}
+                value={explanation}
+                error={errors.unregisteredLand}
+                rows={8}
+                maxLength={maxCharacters}
+                onChange={handleExplanationChange}
+                showLabel={true}
+              />
 
               <div className={`govuk-form-group${fileValidationErrors.length > 0 ? ' govuk-form-group--error' : ''}`}>
                 {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (

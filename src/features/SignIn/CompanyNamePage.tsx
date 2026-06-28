@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
 import SkipLink from "../../components/SkipLink";
@@ -73,16 +72,33 @@ const CompanyNamePage: React.FC = () => {
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
 
             <form onSubmit={handleSubmit} noValidate>
-              <TextInput
-                id="agencyName"
-                name="agencyName"
-                label="Enter your agency name"
-                hint="e.g. Fisher Gordon"
-                value={agencyName}
-                onChange={(e) => handleChange(e.target.value)}
-                error={error}
-                className="govuk-input--width-20"
-              />
+              <div className={`govuk-form-group ${error ? "govuk-form-group--error" : ""}`}>
+                <h1 className="govuk-label-wrapper">
+                  <label className="govuk-label govuk-label--l" htmlFor="agencyName">
+                    Enter your agency name
+                  </label>
+                </h1>
+                
+                <div id="agencyName-hint" className="govuk-hint">
+                  e.g. Fisher Gordon
+                </div>
+
+                {error && (
+                  <p id="agencyName-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                )}
+
+                <input
+                  className={`govuk-input govuk-input--width-20 ${error ? "govuk-input--error" : ""}`.trim()}
+                  id="agencyName"
+                  name="agencyName"
+                  type="text"
+                  value={agencyName}
+                  onChange={(e) => handleChange(e.target.value)}
+                  aria-describedby={`agencyName-hint${error ? " agencyName-error" : ""}`}
+                />
+              </div>
 
               <button
                 type="submit"

@@ -279,9 +279,9 @@ const ReviewDocumentsPage: React.FC = () => {
             )}
 
             {/* Page Heading */}
-            <h2 className="govuk-heading-l">
+            <h1 className="govuk-heading-l">
               Upload environmental and archaeological documents
-            </h2>
+            </h1>
 
             {/* Instructions */}
             <p className="govuk-body">

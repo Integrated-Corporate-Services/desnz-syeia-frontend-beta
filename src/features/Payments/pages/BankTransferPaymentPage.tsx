@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { PAYMENT_PAGE_TITLES } from '../../../constants/payment';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import SkipLink from '../../../components/SkipLink';
@@ -13,6 +14,8 @@ const BankTransferPaymentPage: React.FC = () => {
   const [error, setError] = useState('');
 
   const { invoiceNumber, totalAmount } = location.state || {};
+  
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const handleContinue = () => {
     if (!isChecked) {
@@ -25,13 +28,13 @@ const BankTransferPaymentPage: React.FC = () => {
     }
 
     // Navigate to confirmation page; the confirmation page will create the BACS payment
-    navigate(`${S37_BASE_URL}/${applicationId}/bank-transfer-confirmation`, {
+    navigate(`${baseUrl}/${applicationId}/bank-transfer-confirmation`, {
       state: { invoiceNumber, totalAmount }
     });
   };
 
   const handleBackToTaskList = () => {
-    navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+    navigate(`${baseUrl}/${applicationId}/task-list`);
   };
 
   return (
@@ -42,12 +45,12 @@ const BankTransferPaymentPage: React.FC = () => {
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
                 Task list
               </Link>
             </li>
             <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/payment-method`}>
+              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
                 Pay and submit
               </Link>
             </li>
