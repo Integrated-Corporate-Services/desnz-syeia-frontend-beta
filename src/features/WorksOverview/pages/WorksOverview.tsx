@@ -11,7 +11,6 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
-import { deleteFileCompletely } from '../../../services/s3ApiService';
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
 import { WORKS_OVERVIEW_QUESTIONS } from '../../../constants/worksOverviewLabels';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
@@ -35,63 +34,12 @@ const initialState = {
   excavationDetails: '',
   vegetationClearanceRequired: '',
   vegetationClearanceDetails: '',
-  usingExistingAccessRoutes: '',
-  existingAccessRoutesDetails: '',
-  proposedAccessRoutesDetails: '',
   removingExistingEquipment: '',
   removalDescription: '',
   generalComments: ''
 };
 
 type FormErrors = Partial<Record<keyof typeof initialState, string>>;
-
-type AccessRouteBranch = 'existing' | 'proposed';
-
-const ACCESS_ROUTE_CATEGORIES: Record<AccessRouteBranch, string> = {
-  existing: FILE_CATEGORIES.WORKS_PRE_EXISTING_ACCESS_ROUTES,
-  proposed: FILE_CATEGORIES.WORKS_PROPOSED_ACCESS_ROUTES,
-};
-
-const LEGACY_ACCESS_ROUTE_CATEGORY = FILE_CATEGORIES.WORKS_ACCESS_ROUTES;
-
-const ALL_ACCESS_ROUTE_CATEGORIES = [
-  ACCESS_ROUTE_CATEGORIES.existing,
-  ACCESS_ROUTE_CATEGORIES.proposed,
-  LEGACY_ACCESS_ROUTE_CATEGORY,
-];
-
-const getActiveAccessRouteCategories = (usingExistingAccessRoutes: string) =>
-  usingExistingAccessRoutes === 'yes'
-    ? [ACCESS_ROUTE_CATEGORIES.existing, LEGACY_ACCESS_ROUTE_CATEGORY]
-    : usingExistingAccessRoutes === 'no'
-      ? [ACCESS_ROUTE_CATEGORIES.proposed]
-      : [];
-
-const getInactiveAccessRouteCategories = (usingExistingAccessRoutes: string) => {
-  const active = new Set(getActiveAccessRouteCategories(usingExistingAccessRoutes));
-  return ALL_ACCESS_ROUTE_CATEGORIES.filter((category) => !active.has(category));
-};
-
-const filterAccessRouteFilesForSelection = (
-  usingExistingAccessRoutes: string,
-  documents: ApplicationDocument[],
-  files: UploadedFile[],
-) => {
-  if (!usingExistingAccessRoutes) {
-    return { documents, files };
-  }
-
-  const inactiveCategories = getInactiveAccessRouteCategories(usingExistingAccessRoutes);
-  const filteredDocuments = documents.filter(
-    (doc) => !doc.category || !inactiveCategories.includes(doc.category),
-  );
-  const activeFileIds = new Set(
-    filteredDocuments.map((doc) => doc.fileId || (doc as ApplicationDocument & { file_id?: string }).file_id || '').filter(Boolean),
-  );
-  const filteredFiles = files.filter((file) => activeFileIds.has(file.id));
-
-  return { documents: filteredDocuments, files: filteredFiles };
-};
 
 const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
@@ -100,11 +48,7 @@ const WorksOverview: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
-  const [pendingPreExistingAccessRouteFiles, setPendingPreExistingAccessRouteFiles] = useState<File[]>([]);
-  const [pendingProposedAccessRouteFiles, setPendingProposedAccessRouteFiles] = useState<File[]>([]);
   const [pendingRoadClosureFiles, setPendingRoadClosureFiles] = useState<File[]>([]);
-  const preExistingAccessRouteUploadRef = useRef<FileUploadHandle>(null);
-  const proposedAccessRouteUploadRef = useRef<FileUploadHandle>(null);
   const roadClosuresUploadRef = useRef<FileUploadHandle>(null);
   // Remove asset store usage for works overview
   const navigate = useNavigate();
@@ -116,8 +60,6 @@ const WorksOverview: React.FC = () => {
     setIsEditMode(false);
     setUploadedFiles([]);
     setApplicationDocuments([]);
-    setPendingPreExistingAccessRouteFiles([]);
-    setPendingProposedAccessRouteFiles([]);
     setPendingRoadClosureFiles([]);
   };
   const applicationId = useGetApplicationId();
@@ -159,13 +101,6 @@ const WorksOverview: React.FC = () => {
               excavationDetails: data.excavationDetails || '',
               vegetationClearanceRequired: data.vegetationClearanceRequired ? 'yes' : 'no',
               vegetationClearanceDetails: data.vegetationClearanceDetails || '',
-              usingExistingAccessRoutes: data.usingExistingAccessRoutes ? 'yes' : 'no',
-              existingAccessRoutesDetails: data.usingExistingAccessRoutes
-                ? (data.accessRoutesDetails || '')
-                : '',
-              proposedAccessRoutesDetails: data.usingExistingAccessRoutes
-                ? ''
-                : (data.accessRoutesDetails || ''),
               removingExistingEquipment: data.removingExistingEquipment ? 'yes' : 'no',
               removalDescription: data.removalDescription || '',
               generalComments: data.generalComments || ''
@@ -182,14 +117,8 @@ const WorksOverview: React.FC = () => {
                     documentId: doc.documentId || doc.document_id || '',
                   }))
                 : [];
-              const usingExisting = data.usingExistingAccessRoutes ? 'yes' : 'no';
-              const filtered = filterAccessRouteFilesForSelection(
-                usingExisting,
-                mappedDocuments,
-                mappedFiles,
-              );
-              setUploadedFiles(filtered.files);
-              setApplicationDocuments(filtered.documents);
+              setUploadedFiles(mappedFiles);
+              setApplicationDocuments(mappedDocuments);
             } else if (Array.isArray(data.applicationDocuments)) {
               setApplicationDocuments(
                 data.applicationDocuments.map((doc: ApplicationDocument & { file_id?: string; document_id?: string }) => ({
@@ -222,14 +151,6 @@ const WorksOverview: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev: typeof initialState) => ({ ...prev, [name]: value }));
-
-    if (name === 'usingExistingAccessRoutes') {
-      if (value === 'yes') {
-        setPendingProposedAccessRouteFiles([]);
-      } else if (value === 'no') {
-        setPendingPreExistingAccessRouteFiles([]);
-      }
-    }
 
     if (submitted && errors[name as keyof FormErrors]) {
       setErrors((prev) => {
@@ -310,17 +231,6 @@ const WorksOverview: React.FC = () => {
     } else if (data.vegetationClearanceRequired === 'yes') {
       if (!data.vegetationClearanceDetails.trim()) newErrors.vegetationClearanceDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEGETATION_CLEARANCE_DETAILS_REQUIRED;
     }
-    if (!data.usingExistingAccessRoutes) {
-      newErrors.usingExistingAccessRoutes = WORKS_OVERVIEW_VALIDATION_MESSAGES.USING_EXISTING_ACCESS_ROUTES_REQUIRED;
-    } else if (data.usingExistingAccessRoutes === 'yes') {
-      if (!data.existingAccessRoutesDetails.trim()) {
-        newErrors.existingAccessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.ACCESS_ROUTES_DETAILS_REQUIRED;
-      }
-    } else if (data.usingExistingAccessRoutes === 'no') {
-      if (!data.proposedAccessRoutesDetails.trim()) {
-        newErrors.proposedAccessRoutesDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.PROPOSED_ACCESS_ROUTES_DETAILS_REQUIRED;
-      }
-    }
     if (!data.removingExistingEquipment) {
       newErrors.removingExistingEquipment = WORKS_OVERVIEW_VALIDATION_MESSAGES.REMOVING_EXISTING_EQUIPMENT_REQUIRED;
     } else if (data.removingExistingEquipment === 'yes') {
@@ -355,36 +265,6 @@ const WorksOverview: React.FC = () => {
     try {
       if (form.roadClosuresRequired === 'yes') {
         await uploadPendingFiles(roadClosuresUploadRef, pendingRoadClosureFiles);
-      }
-
-      const activeUploadRef = form.usingExistingAccessRoutes === 'yes'
-        ? preExistingAccessRouteUploadRef
-        : proposedAccessRouteUploadRef;
-      const activePendingFiles = form.usingExistingAccessRoutes === 'yes'
-        ? pendingPreExistingAccessRouteFiles
-        : pendingProposedAccessRouteFiles;
-      await uploadPendingFiles(activeUploadRef, activePendingFiles);
-
-      const inactiveCategories = getInactiveAccessRouteCategories(form.usingExistingAccessRoutes);
-      const inactiveDocs = applicationDocuments.filter(
-        (doc) => doc.category && inactiveCategories.includes(doc.category),
-      );
-
-      for (const doc of inactiveDocs) {
-        const fileId = getDocumentFileId(doc);
-        const file = uploadedFiles.find((uploadedFile) => uploadedFile.id === fileId);
-        const s3Key = file?.s3Key || (file as UploadedFile & { s3_key?: string })?.s3_key;
-        if (fileId && s3Key) {
-          await deleteFileCompletely(fileId, s3Key);
-        }
-      }
-
-      if (inactiveDocs.length > 0) {
-        const inactiveFileIds = new Set(inactiveDocs.map(getDocumentFileId).filter(Boolean));
-        setUploadedFiles((prev) => prev.filter((file) => !inactiveFileIds.has(file.id)));
-        setApplicationDocuments((prev) =>
-          prev.filter((doc) => !inactiveCategories.includes(doc.category || '')),
-        );
       }
     } catch {
       setErrors({ generalComments: 'Failed to upload files. Please try again.' });
@@ -460,24 +340,6 @@ const WorksOverview: React.FC = () => {
           onPendingFilesChange={onPendingFilesChange}
         />
       </div>
-    );
-  };
-
-  const renderAccessRouteUpload = (branch: AccessRouteBranch, uploadLabel: string) => {
-    const categories = branch === 'existing'
-      ? [ACCESS_ROUTE_CATEGORIES.existing, LEGACY_ACCESS_ROUTE_CATEGORY]
-      : [ACCESS_ROUTE_CATEGORIES.proposed];
-    const uploadRef = branch === 'existing' ? preExistingAccessRouteUploadRef : proposedAccessRouteUploadRef;
-    const onPendingFilesChange = branch === 'existing'
-      ? setPendingPreExistingAccessRouteFiles
-      : setPendingProposedAccessRouteFiles;
-
-    return renderWorksFileUpload(
-      categories,
-      ACCESS_ROUTE_CATEGORIES[branch],
-      uploadRef,
-      uploadLabel,
-      onPendingFilesChange,
     );
   };
 
@@ -730,50 +592,6 @@ const WorksOverview: React.FC = () => {
                 error={errors.vegetationClearanceDetails}
               />
             </div>
-          </RadioGroup>
-        </div>
-
-        {/* Pre-existing access routes */}
-        <div className="govuk-!-margin-bottom-6">
-          <RadioGroup
-            id="usingExistingAccessRoutes"
-            label={WORKS_OVERVIEW_QUESTIONS.EXISTING_ACCESS_ROUTES}
-            name="usingExistingAccessRoutes"
-            value={form.usingExistingAccessRoutes}
-            error={errors.usingExistingAccessRoutes}
-            onChange={handleChange}
-            options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }]}
-            noChildren={
-              <>
-                <div className={`govuk-form-group govuk-!-width-two-thirds${errors.proposedAccessRoutesDetails ? ' govuk-form-group--error' : ''}`}>
-                  <TextArea
-                    id="proposedAccessRoutesDetails"
-                    name="proposedAccessRoutesDetails"
-                    label={WORKS_OVERVIEW_QUESTIONS.PROPOSED_ACCESS_ROUTES_DETAILS}
-                    value={form.proposedAccessRoutesDetails}
-                    onChange={handleChange}
-                    maxLength={4000}
-                    showCount
-                    error={errors.proposedAccessRoutesDetails}
-                  />
-                </div>
-                {renderAccessRouteUpload('proposed', WORKS_OVERVIEW_QUESTIONS.PROPOSED_ACCESS_ROUTES_DOCUMENTS)}
-              </>
-            }
-          >
-            <div className={`govuk-form-group govuk-!-width-two-thirds${errors.existingAccessRoutesDetails ? ' govuk-form-group--error' : ''}`}>
-              <TextArea
-                id="existingAccessRoutesDetails"
-                name="existingAccessRoutesDetails"
-                label={WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DETAILS}
-                value={form.existingAccessRoutesDetails}
-                onChange={handleChange}
-                maxLength={4000}
-                showCount
-                error={errors.existingAccessRoutesDetails}
-              />
-            </div>
-            {renderAccessRouteUpload('existing', WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DOCUMENTS)}
           </RadioGroup>
         </div>
 

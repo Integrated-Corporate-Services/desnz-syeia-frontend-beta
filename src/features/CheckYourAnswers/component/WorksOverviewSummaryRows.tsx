@@ -61,13 +61,6 @@ interface WorksOverviewSummaryRowsProps {
 
 const WorksOverviewSummaryRows: React.FC<WorksOverviewSummaryRowsProps> = ({ worksOverview }) => {
   const documents = worksOverview?.applicationDocuments ?? [];
-  const preExistingAccessCategories = [
-    FILE_CATEGORIES.WORKS_PRE_EXISTING_ACCESS_ROUTES,
-    FILE_CATEGORIES.WORKS_ACCESS_ROUTES,
-  ];
-  const accessRouteDocuments = isYes(worksOverview?.usingExistingAccessRoutes)
-    ? getDocumentsByCategories(documents, preExistingAccessCategories)
-    : getDocumentsByCategories(documents, [FILE_CATEGORIES.WORKS_PROPOSED_ACCESS_ROUTES]);
   const roadClosureDocuments = getDocumentsByCategories(documents, [FILE_CATEGORIES.WORKS_ROAD_CLOSURES]);
 
   return (
@@ -174,34 +167,6 @@ const WorksOverviewSummaryRows: React.FC<WorksOverviewSummaryRowsProps> = ({ wor
           <dt className="govuk-summary-list__key">{WORKS_OVERVIEW_QUESTIONS.VEGETATION_DETAILS}</dt>
           <dd className="govuk-summary-list__value">{worksOverview?.vegetationClearanceDetails || '-'}</dd>
         </div>
-      )}
-
-      {/* Access routes — details + upload for both Yes and No */}
-      <div className="govuk-summary-list__row">
-        <dt className="govuk-summary-list__key">{WORKS_OVERVIEW_QUESTIONS.EXISTING_ACCESS_ROUTES}</dt>
-        <dd className="govuk-summary-list__value">{yesNoValue(worksOverview?.usingExistingAccessRoutes)}</dd>
-      </div>
-      {(isYes(worksOverview?.usingExistingAccessRoutes) || isNo(worksOverview?.usingExistingAccessRoutes)) && (
-        <>
-          <div className="govuk-summary-list__row">
-            <dt className="govuk-summary-list__key">
-              {isYes(worksOverview?.usingExistingAccessRoutes)
-                ? WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DETAILS
-                : WORKS_OVERVIEW_QUESTIONS.PROPOSED_ACCESS_ROUTES_DETAILS}
-            </dt>
-            <dd className="govuk-summary-list__value">{worksOverview?.accessRoutesDetails || '-'}</dd>
-          </div>
-          <div className="govuk-summary-list__row">
-            <dt className="govuk-summary-list__key">
-              {isYes(worksOverview?.usingExistingAccessRoutes)
-                ? WORKS_OVERVIEW_QUESTIONS.ACCESS_ROUTES_DOCUMENTS
-                : WORKS_OVERVIEW_QUESTIONS.PROPOSED_ACCESS_ROUTES_DOCUMENTS}
-            </dt>
-            <dd className="govuk-summary-list__value">
-              <WorksOverviewDocumentList documents={accessRouteDocuments} />
-            </dd>
-          </div>
-        </>
       )}
 
       {/* Equipment removal */}

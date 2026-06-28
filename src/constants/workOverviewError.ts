@@ -5,7 +5,7 @@ export const WORKS_OVERVIEW_VALIDATION_MESSAGES = {
   // Poles section
   ADDING_OR_REPLACING_POLES_REQUIRED: "Select 'Yes' or 'No'",
   POLE_MATERIAL_REQUIRED: 'Enter a description of materials used',
-  CHEMICAL_TREATMENTS_REQUIRED: 'Enter chemical treatments.',
+  CHEMICAL_TREATMENTS_REQUIRED: 'Enter chemical treatments',
   POLES_ADDED_REQUIRED: 'Enter the number of poles to be added',
   POLES_ADDED_FORMAT: 'You can only enter letters and numbers',
   POLES_REPLACED_REQUIRED: 'Enter the number of poles to be replaced',
@@ -32,11 +32,6 @@ export const WORKS_OVERVIEW_VALIDATION_MESSAGES = {
   // Vegetation clearance section
   VEGETATION_CLEARANCE_REQUIRED: "Select 'Yes' or 'No'",
   VEGETATION_CLEARANCE_DETAILS_REQUIRED: 'Enter details about the vegetation clearance',
-  
-  // Access routes section
-  USING_EXISTING_ACCESS_ROUTES_REQUIRED: "Select 'Yes' or 'No'",
-  ACCESS_ROUTES_DETAILS_REQUIRED: 'Enter details about access routes and storage sites',
-  PROPOSED_ACCESS_ROUTES_DETAILS_REQUIRED: 'Enter details about the proposed access routes and storage sites',
   
   // Equipment removal section
   REMOVING_EXISTING_EQUIPMENT_REQUIRED: "Select 'Yes' or 'No'",

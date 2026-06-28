@@ -18,9 +18,6 @@ type WorksOverviewForm = {
   excavationDetails: string;
   vegetationClearanceRequired: string;
   vegetationClearanceDetails: string;
-  usingExistingAccessRoutes: string;
-  existingAccessRoutesDetails: string;
-  proposedAccessRoutesDetails: string;
   removingExistingEquipment: string;
   removalDescription: string;
   generalComments: string;
@@ -36,7 +33,6 @@ export function buildWorksOverviewPayload(
   const roadClosures = form.roadClosuresRequired === 'yes';
   const excavation = form.excavationRequired === 'yes';
   const vegetation = form.vegetationClearanceRequired === 'yes';
-  const usingExistingRoutes = form.usingExistingAccessRoutes === 'yes';
   const removingEquipment = form.removingExistingEquipment === 'yes';
 
   return {
@@ -59,10 +55,6 @@ export function buildWorksOverviewPayload(
       excavationDetails: excavation ? form.excavationDetails : '',
       vegetationClearanceRequired: vegetation,
       vegetationClearanceDetails: vegetation ? form.vegetationClearanceDetails : '',
-      usingExistingAccessRoutes: usingExistingRoutes,
-      accessRoutesDetails: usingExistingRoutes
-        ? form.existingAccessRoutesDetails
-        : form.proposedAccessRoutesDetails,
       removingExistingEquipment: removingEquipment,
       removalDescription: removingEquipment ? form.removalDescription : '',
       generalComments: form.generalComments || '',

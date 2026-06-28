@@ -132,8 +132,6 @@ export interface WorksOverview {
 	excavationDetails?: string;
 	vegetationClearanceRequired?: boolean;
 	vegetationClearanceDetails?: string;
-	usingExistingAccessRoutes?: boolean;
-	accessRoutesDetails?: string;
 	removingExistingEquipment?: boolean;
 	removalDescription?: string;
 	generalComments?: string;

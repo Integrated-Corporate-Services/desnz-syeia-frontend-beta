@@ -46,8 +46,6 @@ export function normalizeWorksOverview(raw: Record<string, unknown> | null | und
     excavationDetails: (source.excavationDetails ?? source.excavation_details) as string | undefined,
     vegetationClearanceRequired: coerceBoolean(source.vegetationClearanceRequired ?? source.vegetation_clearance_required),
     vegetationClearanceDetails: (source.vegetationClearanceDetails ?? source.vegetation_clearance_details) as string | undefined,
-    usingExistingAccessRoutes: coerceBoolean(source.usingExistingAccessRoutes ?? source.using_existing_access_routes),
-    accessRoutesDetails: (source.accessRoutesDetails ?? source.access_routes_details) as string | undefined,
     removingExistingEquipment: coerceBoolean(source.removingExistingEquipment ?? source.removing_existing_equipment),
     removalDescription: (source.removalDescription ?? source.removal_description) as string | undefined,
     generalComments: (source.generalComments ?? source.general_comments) as string | undefined,

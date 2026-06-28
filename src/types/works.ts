@@ -45,9 +45,6 @@ export interface WorksOverviewAsset {
 	excavationDetails: string;
 	vegetationClearanceRequired: boolean;
 	vegetationClearanceDetails: string;
-	usingExistingAccessRoutes: boolean;
-	accessRoutesDetails: string;
-	accessRouteFiles?: FileUpload[];
 	removingExistingEquipment: boolean;
 	removalDescription: string;
 	generalComments: string;
@@ -56,5 +53,4 @@ export interface WorksOverviewAsset {
 export interface WorksOverviewRequest {
 	applicationId: string;
 	worksOverview: WorksOverviewAsset;
-	accessRouteFiles?: FileUpload[];
 }
