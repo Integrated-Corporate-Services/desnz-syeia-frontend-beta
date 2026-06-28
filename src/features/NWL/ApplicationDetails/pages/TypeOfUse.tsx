@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
@@ -6,6 +7,7 @@ import {
   BREADCRUMBS,
   LABELS,
   TYPE_OF_USE_OPTIONS,
+  FORM_ERRORS,
 } from "../constants/typeOfUseConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 import { VALIDATION_MESSAGES } from "../services/applicationDetailsService";
@@ -54,7 +56,7 @@ const TypeOfUse: React.FC = () => {
       const hasChangedSelection = initialTypeRef.current && initialTypeRef.current !== typeOfUse;
 
       if (hasChangedSelection) {
-        setError("You cannot change between new lines and existing lines. To make this change, you must create a new application.");
+        setError(FORM_ERRORS.CANNOT_CHANGE_TYPE);
         return;
       }
 
@@ -83,6 +85,8 @@ const TypeOfUse: React.FC = () => {
   };
 
   return (
+    <>
+      <SkipLink />
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
@@ -136,6 +140,9 @@ const TypeOfUse: React.FC = () => {
                       {LABELS.PAGE_TITLE}
                     </h1>
                   </legend>
+                  <div className="govuk-hint">
+                    {LABELS.HINT_TEXT}
+                  </div>
                   {error && (
                     <p id="typeOfUse-error" className="govuk-error-message">
                       <span className="govuk-visually-hidden">Error:</span>{" "}
@@ -183,6 +190,7 @@ const TypeOfUse: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

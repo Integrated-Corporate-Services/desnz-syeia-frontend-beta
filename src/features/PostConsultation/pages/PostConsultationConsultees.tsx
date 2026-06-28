@@ -4,6 +4,7 @@ import { ConsulteesRecommendationsQuestion, FormButtons } from '../components';
 import { usePostConsultationData, usePostConsultationNavigation } from '../hooks';
 import { POST_CONSULTATION_CONSTANTS } from '../constants';
 import { SaveType } from '../types';
+import SkipLink from '../../../components/SkipLink';
 
 const PostConsultationConsultees: React.FC = () => {
     const { applicationId, getTaskListUrl, handleNavigationAfterSaveConsultees } = usePostConsultationNavigation();
@@ -31,16 +32,21 @@ const PostConsultationConsultees: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="govuk-width-container">
-                <main className="govuk-main-wrapper" id="main-content">
+            <>
+                <SkipLink />
+                <div className="govuk-width-container">
+                    <main className="govuk-main-wrapper" id="main-content">
                     <p className="govuk-body">{POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}</p>
                 </main>
-            </div>
+                </div>
+            </>
         );
     }
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -102,7 +108,8 @@ const PostConsultationConsultees: React.FC = () => {
                     </div>
                 </div>
             </main>
-        </div>
+            </div>
+        </>
     );
 };
 

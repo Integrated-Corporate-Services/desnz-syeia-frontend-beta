@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
+import SkipLink from "../../components/SkipLink";
 
 const CompanyNamePage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,11 +56,13 @@ const CompanyNamePage: React.FC = () => {
   const errorSummaryItems = error ? [{ fieldId: "agencyName", message: error }] : [];
 
   return (
-    <div className="govuk-width-container">
-      <Link
-        to="/request-access/agent-question"
-        className="govuk-back-link"
-      >
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <Link
+          to="/request-access/agent-question"
+          className="govuk-back-link"
+        >
         Back
       </Link>
 
@@ -68,21 +70,35 @@ const CompanyNamePage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
-            
-            <h1 className="govuk-heading-l">Enter your agency name</h1>
-
-            <p className="govuk-body">e.g. Fisher Gordon</p>
 
             <form onSubmit={handleSubmit} noValidate>
-              <TextInput
-                id="agencyName"
-                name="agencyName"
-                label=""
-                value={agencyName}
-                onChange={(e) => handleChange(e.target.value)}
-                error={error}
-                className="govuk-input--width-20"
-              />
+              <div className={`govuk-form-group ${error ? "govuk-form-group--error" : ""}`}>
+                <h1 className="govuk-label-wrapper">
+                  <label className="govuk-label govuk-label--l" htmlFor="agencyName">
+                    Enter your agency name
+                  </label>
+                </h1>
+                
+                <div id="agencyName-hint" className="govuk-hint">
+                  e.g. Fisher Gordon
+                </div>
+
+                {error && (
+                  <p id="agencyName-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                )}
+
+                <input
+                  className={`govuk-input govuk-input--width-20 ${error ? "govuk-input--error" : ""}`.trim()}
+                  id="agencyName"
+                  name="agencyName"
+                  type="text"
+                  value={agencyName}
+                  onChange={(e) => handleChange(e.target.value)}
+                  aria-describedby={`agencyName-hint${error ? " agencyName-error" : ""}`}
+                />
+              </div>
 
               <button
                 type="submit"
@@ -95,7 +111,8 @@ const CompanyNamePage: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

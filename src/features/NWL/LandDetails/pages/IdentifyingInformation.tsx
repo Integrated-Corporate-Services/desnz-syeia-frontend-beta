@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import SkipLink from '../../../../components/SkipLink';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
   ErrorSummary,
+  TextAreaWithCounter,
 } from '../components';
 import {
   useLandDetailsData,
@@ -33,10 +35,8 @@ const IdentifyingInformation: React.FC = () => {
   }, [landDetails.identifying_information]);
 
   const handleIdentifyingInfoChange = (value: string) => {
-    if (value.length <= maxCharacters) {
-      setIdentifyingInfo(value);
-      clearError('identifyingInfo');
-    }
+    setIdentifyingInfo(value);
+    clearError('identifyingInfo');
   };
 
   const handleSaveAndContinue = async () => {
@@ -72,7 +72,9 @@ const IdentifyingInformation: React.FC = () => {
   const labels = LAND_DETAILS_LABELS.IDENTIFYING_INFORMATION;
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <LandDetailsBreadcrumbs 
         applicationId={applicationId} 
         currentPage={labels.PAGE_TITLE}
@@ -86,31 +88,19 @@ const IdentifyingInformation: React.FC = () => {
             <h1 className="govuk-heading-l">{labels.PAGE_TITLE}</h1>
 
             <form>
-              <div className={`govuk-form-group${errors.identifyingInfo ? ' govuk-form-group--error' : ''}`}>
-                <label className="govuk-label govuk-visually-hidden" htmlFor="identifying-info">
-                  Identifying information
-                </label>
-                <div className="govuk-hint">
-                  {labels.DESCRIPTION}
-                </div>
-                {errors.identifyingInfo && (
-                  <p id="identifying-info-error" className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span> {errors.identifyingInfo}
-                  </p>
-                )}
-                <textarea
-                  className={`govuk-textarea${errors.identifyingInfo ? ' govuk-textarea--error' : ''}`}
-                  id="identifying-info"
-                  name="identifyingInfo"
-                  rows={8}
-                  value={identifyingInfo}
-                  onChange={(e) => handleIdentifyingInfoChange(e.target.value)}
-                  aria-describedby={errors.identifyingInfo ? 'identifying-info-error' : undefined}
-                />
-                <div className="govuk-hint">
-                  {labels.CHARACTER_LIMIT}
-                </div>
-              </div>
+              <TextAreaWithCounter
+                id="identifying-info"
+                name="identifyingInfo"
+                label="Identifying information"
+                labelClassName="govuk-label govuk-visually-hidden"
+                hint={labels.DESCRIPTION}
+                value={identifyingInfo}
+                error={errors.identifyingInfo}
+                rows={8}
+                maxLength={maxCharacters}
+                onChange={handleIdentifyingInfoChange}
+                showLabel={true}
+              />
 
               <FormActions
                 onSaveAndContinue={handleSaveAndContinue}
@@ -120,7 +110,8 @@ const IdentifyingInformation: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 

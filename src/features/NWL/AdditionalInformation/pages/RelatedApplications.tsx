@@ -20,6 +20,7 @@ import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('RelatedApplications');
 
@@ -113,8 +114,10 @@ const RelatedApplications: React.FC = () => {
   const charactersRemaining = CHARACTER_LIMIT - characterCount;
 
   return (
-    <div className="govuk-width-container">
-      <AdditionalInformationBreadcrumbs 
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <AdditionalInformationBreadcrumbs 
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.RELATED_APPLICATIONS}
       />
@@ -241,8 +244,7 @@ const RelatedApplications: React.FC = () => {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>    </>  );
 };
 
 export default RelatedApplications;

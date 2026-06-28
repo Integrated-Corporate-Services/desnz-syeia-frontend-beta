@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('BankTransferConfirmationPage');
 
@@ -25,6 +27,8 @@ const BankTransferConfirmationPage: React.FC = () => {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const { invoiceNumber, totalAmount } = location.state || {};
+  
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   // No on-mount create/upsert call — payment will be created/submitted when user clicks Submit.
 
@@ -161,7 +165,7 @@ const BankTransferConfirmationPage: React.FC = () => {
 
       const result = await response.json();
       logger.info('Application submitted successfully:', result);
-      navigate(`${S37_BASE_URL}/${applicationId}/bank-transfer-success`, {
+      navigate(`${baseUrl}/${applicationId}/bank-transfer-success`, {
         state: {
           invoiceNumber,
           totalAmount,
@@ -177,21 +181,23 @@ const BankTransferConfirmationPage: React.FC = () => {
   };
 
   const handleBackToTaskList = () => {
-    navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
+    navigate(`${baseUrl}/${applicationId}/task-list`);
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
                 Task list
               </Link>
             </li>
             <li className="govuk-breadcrumbs__list-item" aria-current="page">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/payment-method`}>
+              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
                 Pay and submit
               </Link>
             </li>
@@ -280,6 +286,7 @@ const BankTransferConfirmationPage: React.FC = () => {
                 data-module="govuk-button"
                 onClick={handleSubmit}
                 disabled={loading}
+                aria-busy={loading}
               >
                 {loading ? 'Submitting...' : 'Submit Application'}
               </button>
@@ -297,6 +304,7 @@ const BankTransferConfirmationPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

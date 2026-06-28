@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import { getCurrentUserDetails, UserDetailsResponse } from '../services/yourDetailsService';
+import SkipLink from '../../../components/SkipLink';
 
 const YourDetailsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,7 +56,9 @@ const YourDetailsPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <a href="#" className="govuk-back-link" onClick={handleBack}>
         Back
       </a>
@@ -174,6 +177,7 @@ const YourDetailsPage: React.FC = () => {
         )}
       </main>
     </div>
+    </>
   );
 };
 

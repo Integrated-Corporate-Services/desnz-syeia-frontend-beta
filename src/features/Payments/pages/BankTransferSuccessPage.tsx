@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import { NWL_BASE_URL } from '../../../constants/nwl';
 import {
   BANK_TRANSFER_SUCCESS_PAGE,
   PAYMENT_BUTTON_LABELS,
@@ -10,6 +11,8 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
+import { trackButtonClick } from '../../../utils/analytics';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('BankTransferSuccessPage');
 
@@ -17,6 +20,9 @@ const BankTransferSuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const applicationId = useGetApplicationId();
+
+
+  const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const {
     invoiceNumber,
@@ -54,11 +60,17 @@ const BankTransferSuccessPage: React.FC = () => {
     transactionNumber?.trim() || BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT;
 
   const handleGoToSummary = () => {
-    navigate(`${S37_BASE_URL}/${applicationId}/application-summary`);
+    trackButtonClick('View application summary', location.pathname, {
+      application_id: applicationId,
+      desnz_ref: desnz_ref,
+    });
+    navigate(`${baseUrl}/${applicationId}/application-summary`);
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -142,6 +154,7 @@ const BankTransferSuccessPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

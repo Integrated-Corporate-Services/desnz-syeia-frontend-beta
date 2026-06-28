@@ -19,6 +19,7 @@ import {
 import { updateNegotiationsData } from '../services';
 import { NegotiationsData } from '../types/negotiations';
 import { createLogger } from '../../../../utils/logger';
+import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('TellUsAboutExistingNegotiations');
 
@@ -168,7 +169,9 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 
       <main className="govuk-main-wrapper" id="main-content">
@@ -257,6 +260,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

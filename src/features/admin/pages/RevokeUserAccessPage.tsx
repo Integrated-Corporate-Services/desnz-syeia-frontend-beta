@@ -4,6 +4,7 @@ import { useManageUsers } from '../../../hooks/useManageUsers';
 import { useManageUsersNavigation } from '../../../hooks/useManageUsersNavigation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
+import SkipLink from '../../../components/SkipLink';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -28,35 +29,14 @@ const RevokeUserAccessPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <LoadingSkeleton type="default" />
-        </main>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              User not found
-            </h2>
-            <div className="govuk-error-summary__body">
-              <p className="govuk-body">The user you are trying to revoke access for could not be found.</p>
-            </div>
-          </div>
-          <a
-            href="#"
-            className="govuk-link"
-            onClick={handleBack}
-          >
-            Return to user management
-          </a>
-        </main>
-      </div>
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <LoadingSkeleton type="default" />
+          </main>
+        </div>
+      </>
     );
   }
 
@@ -81,8 +61,37 @@ const RevokeUserAccessPage: React.FC = () => {
     return 'Applicant';
   };
 
+  if (!user) {
+    return (
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
+              <h2 className="govuk-error-summary__title" id="error-summary-title">
+                User not found
+              </h2>
+              <div className="govuk-error-summary__body">
+                <p className="govuk-body">The user you are trying to revoke access for could not be found.</p>
+              </div>
+            </div>
+            <a
+              href="#"
+              className="govuk-link"
+              onClick={handleBack}
+            >
+              Return to user management
+            </a>
+          </main>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <a
           href="#"
@@ -166,6 +175,7 @@ const RevokeUserAccessPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

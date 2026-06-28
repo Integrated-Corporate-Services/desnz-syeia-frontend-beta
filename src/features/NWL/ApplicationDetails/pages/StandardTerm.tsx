@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
@@ -98,7 +99,12 @@ const StandardTerm: React.FC = () => {
     }
   };
 
+  const characterCount = explanation.length;
+  const charactersRemaining = LABELS.CHAR_LIMIT - characterCount;
+
   return (
+    <>
+      <SkipLink />
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
@@ -209,7 +215,7 @@ const StandardTerm: React.FC = () => {
                           id="explanation"
                           name="explanation"
                           rows={5}
-                          aria-describedby="explanation-hint"
+                          aria-describedby={explanationError ? "explanation-error explanation-hint" : "explanation-hint"}
                           value={explanation}
                           onChange={(e) => {
                             setExplanation(e.target.value);
@@ -217,8 +223,14 @@ const StandardTerm: React.FC = () => {
                           }}
                           maxLength={LABELS.CHAR_LIMIT}
                         />
-                        <div className="govuk-hint" id="explanation-hint">
-                          You can enter up to {LABELS.CHAR_LIMIT.toLocaleString()} characters
+                        <div
+                          id="explanation-hint"
+                          className="govuk-hint govuk-character-count__message"
+                          aria-live="polite"
+                        >
+                          {charactersRemaining >= 0
+                            ? `You have ${charactersRemaining.toLocaleString()} characters remaining`
+                            : `You have ${Math.abs(charactersRemaining).toLocaleString()} characters too many`}
                         </div>
                       </div>
                     </div>
@@ -241,6 +253,7 @@ const StandardTerm: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

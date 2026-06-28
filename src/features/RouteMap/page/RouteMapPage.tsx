@@ -9,6 +9,7 @@ import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
+import SkipLink from '../../../components/SkipLink';
 
 // Validation function for a single point using centralized error messages
 function getPointError(easting: string, northing: string, routeName: string, idx: number) {
@@ -230,6 +231,8 @@ const RouteMapPage: React.FC = () => {
   };
 
   return (
+    <>
+      <SkipLink />
       <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
@@ -280,7 +283,7 @@ const RouteMapPage: React.FC = () => {
                 <div className="govuk-grid-column-one-half">
                   <form method="post" data-module="fds-html-form">
                     {/* Hidden CSRF or other fields can go here if needed */}
-                    <fieldset className="govuk-fieldset" aria-describedby="route-points-hint">
+                    <fieldset className="govuk-fieldset">
                       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m" style={{ marginBottom: 0 }}>
                         <span className="govuk-visually-hidden">Route points</span>
                       </legend>
@@ -343,7 +346,7 @@ const RouteMapPage: React.FC = () => {
                 <div className="govuk-grid-column-one-half eip-sticky-column">
                   {/* Removed IE warning message */}
                   <div data-module="eip-hide-if-ie">
-                    <div className="eip-map__container">
+                    <div className="eip-map__container" role="region" aria-label="Interactive map for visualizing route points">
                       <ErrorBoundary>
                         <SensitiveAreaCheckMap
                           points={points}
@@ -374,6 +377,7 @@ const RouteMapPage: React.FC = () => {
           </div>
         </main>
       </div>
+    </>
   );
 };
 

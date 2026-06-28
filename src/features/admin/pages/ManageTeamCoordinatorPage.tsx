@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTeamCoordinator } from "../../../hooks";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
+import SkipLink from '../../../components/SkipLink';
 
 const ManageTeamCoordinatorPage: React.FC = () => {
   const { organisationId, coordinatorId } = useParams<{
@@ -34,18 +35,23 @@ const ManageTeamCoordinatorPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <LoadingSkeleton type="summary" />
-        </main>
-      </div>
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <LoadingSkeleton type="summary" />
+          </main>
+        </div>
+      </>
     );
   }
 
   if (error || !coordinator) {
     return (
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <Link
@@ -76,12 +82,15 @@ const ManageTeamCoordinatorPage: React.FC = () => {
           </div>
         </main>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <Link
@@ -205,6 +214,7 @@ const ManageTeamCoordinatorPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

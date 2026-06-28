@@ -1,5 +1,5 @@
 ﻿import { S37_BASE_URL } from './s37';
-import { TLP_BASE_URL } from './tlp';
+// import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
 import TaskList from '../features/TaskList/pages/TaskList';
 import {
@@ -60,16 +60,17 @@ import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pa
 import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
 import { nwlObjectorDetailsRoutes, nwlLandDetailsRoutes } from '../features/NWL/routes';
 import { nwlRoutes } from '../features/NWL/routes';
-import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
-import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
-import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
-import TLPTaskList from '../features/TLP/TaskList';
-import TLPAssets from '../features/TLP/Assets/pages/Assets';
-import TLPLandownerOccupantDetails from '../features/TLP/LandownerOccupantDetails/pages/LandownerOccupantDetails';
-import TLPApplicationLandDetails from '../features/TLP/ApplicationLandDetails/pages/ApplicationLandDetails';
-import TLPSupportingInfo from '../features/TLP/SupportingInfo/pages/SupportingInfo';
-import TLPNegotiations from '../features/TLP/Negotiations/pages/Negotiations';
-import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/ApplicationStatement';
+
+// import TLPWhoIsApplying from '../features/TLP/WhoIsApplying/pages/WhoIsApplying';
+// import TLPNetworkOperatorDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorDetails';
+// import TLPNetworkOperatorContactDetails from '../features/TLP/ApplicantInfo/pages/NetworkOperatorContactDetails';
+// import TLPTaskList from '../features/TLP/TaskList';
+// import TLPAssets from '../features/TLP/Assets/pages/Assets';
+// import TLPLandownerOccupantDetails from '../features/TLP/LandownerOccupantDetails/pages/LandownerOccupantDetails';
+// import TLPApplicationLandDetails from '../features/TLP/ApplicationLandDetails/pages/ApplicationLandDetails';
+// import TLPSupportingInfo from '../features/TLP/SupportingInfo/pages/SupportingInfo';
+// import TLPNegotiations from '../features/TLP/Negotiations/pages/Negotiations';
+// import TLPApplicationStatement from '../features/TLP/ApplicationStatement/pages/ApplicationStatement';
 import EmailTemplate from '../features/Consultation/pages/emailTemplate';
 import ConsultationWithdrawnPage from '../features/Consultation/pages/ConsultationWithdrawnPage';
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
@@ -598,78 +599,79 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     ...nwlObjectorDetailsRoutes,
     ...nwlLandDetailsRoutes,
     ...nwlRoutes,
-    {
-        path: `${TLP_BASE_URL}/who-is-applying`,
-        component: TLPWhoIsApplying,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/applicant-details`,
-        component: TLPNetworkOperatorDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/network-operator-contact-details`,
-        component: TLPNetworkOperatorContactDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/assets`,
-        component: TLPAssets,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/task-list`,
-        component: TLPTaskList,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/landowner-occupant-details`,
-        component: TLPLandownerOccupantDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/application-and-land-details`,
-        component: TLPApplicationLandDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/supporting-information`,
-        component: TLPSupportingInfo,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/negotiations`,
-        component: TLPNegotiations,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/application-statement`,
-        component: TLPApplicationStatement,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/withdraw`,
-        component: S37WithdrawApplicationPage,  // Unified withdraw page for all application types
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/withdrawal-confirmation`,
-        component: S37WithdrawalConfirmationPage,  // Unified confirmation page for all application types
-        auth: true,
-        layout: true,
-    },
+  
+    // {
+    //     path: `${TLP_BASE_URL}/who-is-applying`,
+    //     component: TLPWhoIsApplying,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/applicant-details`,
+    //     component: TLPNetworkOperatorDetails,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/network-operator-contact-details`,
+    //     component: TLPNetworkOperatorContactDetails,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/assets`,
+    //     component: TLPAssets,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/task-list`,
+    //     component: TLPTaskList,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/landowner-occupant-details`,
+    //     component: TLPLandownerOccupantDetails,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/application-and-land-details`,
+    //     component: TLPApplicationLandDetails,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/supporting-information`,
+    //     component: TLPSupportingInfo,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/negotiations`,
+    //     component: TLPNegotiations,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/application-statement`,
+    //     component: TLPApplicationStatement,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/withdraw`,
+    //     component: S37WithdrawApplicationPage,  // Unified withdraw page for all application types
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/withdrawal-confirmation`,
+    //     component: S37WithdrawalConfirmationPage,  // Unified confirmation page for all application types
+    //     auth: true,
+    //     layout: true,
+    // },
     {
         path: '/',
         component: ApplicationDashboard,
@@ -906,18 +908,19 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/delete-confirmation`,
-        component: ApplicationDeleteConfirmationPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${TLP_BASE_URL}/:applicationId/delete-success`,
-        component: ApplicationDeleteSuccessPage,
-        auth: true,
-        layout: true,
-    },
+    
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/delete-confirmation`,
+    //     component: ApplicationDeleteConfirmationPage,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: `${TLP_BASE_URL}/:applicationId/delete-success`,
+    //     component: ApplicationDeleteSuccessPage,
+    //     auth: true,
+    //     layout: true,
+    // },
 
     {
         path: `${S37_BASE_URL}/:applicationId/check-your-answers`,

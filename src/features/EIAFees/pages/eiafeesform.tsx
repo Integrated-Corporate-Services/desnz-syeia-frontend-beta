@@ -16,6 +16,7 @@ import {
     type ValidationError,
     EIA_FEES_ERROR_MESSAGES,
 } from '../validations';
+import SkipLink from '../../../components/SkipLink';
 
 const EIAFeesForm: React.FC = () => {
     const navigate = useNavigate();
@@ -178,7 +179,9 @@ const EIAFeesForm: React.FC = () => {
     }
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             {success && (
                 <div className="govuk-notification-banner govuk-notification-banner--success" role="alert">
                     <div className="govuk-notification-banner__header">
@@ -273,6 +276,7 @@ const EIAFeesForm: React.FC = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };
 

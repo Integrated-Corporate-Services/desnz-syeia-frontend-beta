@@ -8,6 +8,7 @@ import { useParishes } from '../hooks/useParishes';
 import { useParishSubmit } from '../hooks/useParishSubmit';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import ParishesSummary from './ParishesSummary';
+import SkipLink from '../../../components/SkipLink';
 
 const Parishes: React.FC = () => {
     const params = useParams();
@@ -15,7 +16,7 @@ const Parishes: React.FC = () => {
 
     const { parishes, addParish, removeParish, isLoading, loadError } = useParishes(applicationId);
     const { searchTerm, searchResults, isSearching, handleSearchChange, clearSearch } = useParishSearch();
-    const { validationError, isSubmitting, handleSubmit } = useParishSubmit(applicationId);
+    const { validationError, isSubmitting, handleSubmit, clearValidationError } = useParishSubmit(applicationId);
 
     const handleRemoveParish = (e: React.MouseEvent<HTMLAnchorElement>, parishId: string) => {
         e.preventDefault();
@@ -29,6 +30,7 @@ const Parishes: React.FC = () => {
     const handleAddParish = (parish: any) => {
         addParish(parish);
         clearSearch();
+        clearValidationError();
     };
 
     const onSubmit = async (e: React.FormEvent) => {
@@ -42,11 +44,14 @@ const Parishes: React.FC = () => {
     // While checking consultation status, show loading to prevent flash
     if (consultationsLoading) {
         return (
-            <div className="govuk-width-container">
+            <>
+                <SkipLink />
+                <div className="govuk-width-container">
                 <div className="govuk-main-wrapper">
                     <p className="govuk-body">Loading...</p>
                 </div>
             </div>
+            </>
         );
     }
 
@@ -56,7 +61,9 @@ const Parishes: React.FC = () => {
     }
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">
@@ -120,6 +127,7 @@ const Parishes: React.FC = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };
 

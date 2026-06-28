@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../layouts/component/Header";
 import Footer from "../../layouts/component/Footer";
+import SkipLink from "../../components/SkipLink";
 
 const NotFound: React.FC = () => {
   const contentStartRef = useRef<HTMLHeadingElement>(null);
@@ -16,9 +17,7 @@ const NotFound: React.FC = () => {
 
   return (
     <>
-      <a href="#main-content" className="govuk-skip-link">
-        Skip to main content
-      </a>
+      <SkipLink />
       <Header />
       <div className="govuk-width-container">
         <main

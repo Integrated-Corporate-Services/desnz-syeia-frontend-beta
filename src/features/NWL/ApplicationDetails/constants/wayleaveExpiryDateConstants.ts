@@ -20,7 +20,7 @@ export const FORM_ERRORS = {
   MISSING_MONTH: "Expiry date must include a month",
   MISSING_YEAR: "Expiry date must include a year",
   INVALID_DATE: "Expiry date must be a real date",
-  FUTURE_DATE: "Expiry date must be in the past",
+  FUTURE_DATE: "Expiry date cannot be in the future",
   INVALID_DAY: SHARED_DATE_ERRORS.INVALID_DAY,
   INVALID_MONTH: SHARED_DATE_ERRORS.INVALID_MONTH,
   INVALID_YEAR: SHARED_DATE_ERRORS.INVALID_YEAR,

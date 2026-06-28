@@ -6,6 +6,7 @@ import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary as ReviewSumm
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getRoutesWithPoints } from '../../../services/routeMapService';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
+import SkipLink from '../../../components/SkipLink';
 
 /**
  * Read-only Sensitive Area Check Summary Page
@@ -62,7 +63,9 @@ const SensitiveAreaCheckSummary: React.FC = () => {
         }));
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -177,6 +180,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };
 

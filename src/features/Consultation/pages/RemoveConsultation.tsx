@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { getConsultationDetailsById, removeConsultation } from '../../../services/consultationService';
 import { ConsultationDetails } from '../../../types/ConsultationDetails';
+import SkipLink from '../../../components/SkipLink';
 
 const RemoveConsultation: React.FC = () => {
   const { applicationId, consultationId } = useParams();
@@ -64,7 +65,9 @@ const RemoveConsultation: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -202,6 +205,7 @@ const RemoveConsultation: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

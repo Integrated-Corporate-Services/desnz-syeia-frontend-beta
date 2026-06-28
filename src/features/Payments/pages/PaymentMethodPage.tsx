@@ -9,6 +9,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { trackPaymentEvent } from '../../../utils/analytics';
 import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentMethodPage');
 
@@ -159,7 +160,9 @@ const handlePayByCard = async () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -234,6 +237,7 @@ const handlePayByCard = async () => {
                 data-module="govuk-button"
                 onClick={handlePayByCard}
                 disabled={loading}
+                aria-busy={loading}
               >
                 {loading ? 'Processing...' : PAYMENT_PAGE_TEXT.payByCardButton}
               </button>
@@ -250,6 +254,7 @@ const handlePayByCard = async () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

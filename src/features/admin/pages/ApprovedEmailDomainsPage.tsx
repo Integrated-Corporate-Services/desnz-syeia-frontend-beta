@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useApprovedDomains } from '../../../hooks';
 import { Domain } from '../../../types/organisation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
+import SkipLink from '../../../components/SkipLink';
 
 const ApprovedEmailDomainsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -70,41 +71,49 @@ const ApprovedEmailDomainsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <LoadingSkeleton type="summary" />
-        </main>
-      </div>
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <LoadingSkeleton type="summary" />
+          </main>
+        </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-two-thirds">
-              <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
-                Back
-              </Link>
-              <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
-                <h2 className="govuk-error-summary__title" id="error-summary-title">
-                  There is a problem
-                </h2>
-                <div className="govuk-error-summary__body">
-                  <p className="govuk-body">{error}</p>
+      <>
+        <SkipLink />
+        <div className="govuk-width-container">
+          <main className="govuk-main-wrapper" id="main-content" role="main">
+            <div className="govuk-grid-row">
+              <div className="govuk-grid-column-two-thirds">
+                <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
+                  Back
+                </Link>
+                <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
+                  <h2 className="govuk-error-summary__title" id="error-summary-title">
+                    There is a problem
+                  </h2>
+                  <div className="govuk-error-summary__body">
+                    <p className="govuk-body">{error}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </main>
-      </div>
+          </main>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
@@ -239,6 +248,7 @@ const ApprovedEmailDomainsPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
@@ -49,9 +50,7 @@ const NoticeToTerminate: React.FC = () => {
   const handleFileValidationErrors = (errors: string[]) => {
     // Always update from FileUpload component to clear errors when new files selected
     setFileValidationErrors(errors);
-    if (errors.length === 0) {
-      setErrors([]);
-    }
+    // Don't clear main errors array - it should be managed independently
   };
 
   // Handle error click to focus file upload area
@@ -135,8 +134,8 @@ const NoticeToTerminate: React.FC = () => {
       newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
     } else if (!validateDateNotInFuture(day, month, year)) {
-      newErrors.push(VALIDATION_MESSAGES.DATE_FUTURE);
-      newFieldErrors.day = VALIDATION_MESSAGES.DATE_FUTURE;
+      newErrors.push(FORM_ERRORS.FUTURE_DATE);
+      newFieldErrors.day = FORM_ERRORS.FUTURE_DATE;
     }
 
     // File upload validation
@@ -211,6 +210,8 @@ const NoticeToTerminate: React.FC = () => {
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
   return (
+    <>
+      <SkipLink />
     <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
@@ -437,6 +438,7 @@ const NoticeToTerminate: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

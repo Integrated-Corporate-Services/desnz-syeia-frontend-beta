@@ -2,6 +2,7 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createLogger } from '../../../utils/logger';
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentCallbackPage');
 
@@ -140,7 +141,9 @@ const PaymentCallbackPage: React.FC = () => {
   }, [searchParams, navigate]);
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -191,6 +194,7 @@ const PaymentCallbackPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

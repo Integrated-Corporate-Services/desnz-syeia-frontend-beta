@@ -9,6 +9,7 @@ import type { AuthUser } from '../../../types/auth';
 import { ROLES } from '../../../constants/roles';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createLogger } from '../../../utils/logger';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('TaskList');
 
@@ -56,7 +57,9 @@ const TaskList: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       {application?.status?.toLowerCase() === 'submitted' && (
         <div className="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
           <div className="govuk-notification-banner__header">
@@ -124,6 +127,7 @@ const TaskList: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

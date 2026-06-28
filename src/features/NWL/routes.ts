@@ -49,6 +49,9 @@ import InvoiceGenerationPage from '../Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
 import InvoiceGenerationErrorPage from '../Payments/pages/InvoiceGenerationErrorPage';
 import PaymentMethodPage from '../Payments/pages/PaymentMethodPage';
+import BankTransferPaymentPage from '../Payments/pages/BankTransferPaymentPage';
+import BankTransferConfirmationPage from '../Payments/pages/BankTransferConfirmationPage';
+import BankTransferSuccessPage from '../Payments/pages/BankTransferSuccessPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
 import PaymentFailurePage from '../Payments/pages/PaymentFailurePage';
 import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
@@ -495,6 +498,24 @@ export const nwlPaymentRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/payment-method`,
         component: PaymentMethodPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/bank-transfer-payment`,
+        component: BankTransferPaymentPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/bank-transfer-confirmation`,
+        component: BankTransferConfirmationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/bank-transfer-success`,
+        component: BankTransferSuccessPage,
         auth: true,
         layout: true,
     },

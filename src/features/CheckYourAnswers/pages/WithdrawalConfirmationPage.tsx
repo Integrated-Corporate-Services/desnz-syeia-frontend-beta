@@ -4,6 +4,7 @@ import { S37_BASE_URL } from "../../../constants/s37";
 import { NWL_BASE_URL } from "../../../constants/nwl";
 import { TLP_BASE_URL } from "../../../constants/tlp";
 import { WITHDRAWAL_LABELS } from "../constants/applicationSummaryLabels";
+import SkipLink from "../../../components/SkipLink";
 
 interface ConfirmationLocationState {
   desnzRef?: string;
@@ -49,7 +50,9 @@ const WithdrawalConfirmationPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -95,6 +98,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

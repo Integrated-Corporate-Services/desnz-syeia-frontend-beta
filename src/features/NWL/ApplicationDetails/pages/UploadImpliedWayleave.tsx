@@ -11,6 +11,7 @@ import {
 } from "../constants/uploadImpliedWayleaveConstants";
 import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Upload Implied Wayleave Page
@@ -32,9 +33,7 @@ const UploadImpliedWayleave: React.FC = () => {
   const handleFileValidationErrors = (errors: string[]) => {
     // Always update from FileUpload component to clear errors when new files selected
     setFileValidationErrors(errors);
-    if (errors.length === 0) {
-      setError("");
-    }
+    // Don't clear main error - it should be managed independently
   };
 
   const handleErrorClick = (errorType: string) => {
@@ -157,7 +156,9 @@ const UploadImpliedWayleave: React.FC = () => {
   // };
 
   return (
-    <div className="govuk-width-container">
+    <>
+      <SkipLink />
+      <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -277,6 +278,7 @@ const UploadImpliedWayleave: React.FC = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

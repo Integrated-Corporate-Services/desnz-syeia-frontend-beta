@@ -66,6 +66,35 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
       mapInstance.current = map;
+      
+      // Fix accessibility: Add alt text and aria-hidden to map tiles
+      setTimeout(() => {
+        const mapContainer = mapRef.current;
+        if (mapContainer) {
+          const tileImages = mapContainer.querySelectorAll('.leaflet-tile-pane img');
+          tileImages.forEach((img: Element) => {
+            if (img instanceof HTMLImageElement) {
+              img.setAttribute('alt', 'Map tile');
+              img.setAttribute('role', 'presentation');
+            }
+          });
+        }
+      }, 100);
+      
+      // Continue fixing tiles as they load
+      map.on('tileload', () => {
+        const mapContainer = mapRef.current;
+        if (mapContainer) {
+          const tileImages = mapContainer.querySelectorAll('.leaflet-tile-pane img:not([alt])');
+          tileImages.forEach((img: Element) => {
+            if (img instanceof HTMLImageElement) {
+              img.setAttribute('alt', 'Map tile');
+              img.setAttribute('role', 'presentation');
+            }
+          });
+        }
+      });
+      
       map.on('click', function (e: L.LeafletMouseEvent) {
         if (selectedIdx !== null) {
           const lat = e.latlng.lat;
@@ -253,7 +282,16 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
     }
   }, [points, routes, mode, routeName, selectedIdx]);
 
-  return <div style={{ height: 500, width: '100%' }} ref={mapRef} id="map" />;
+  return (
+    <div 
+      style={{ height: 500, width: '100%' }} 
+      ref={mapRef} 
+      id="map"
+      role="application"
+      aria-label="Interactive map for viewing and selecting route points. Click on the map to set coordinates for the selected point."
+      tabIndex={-1}
+    />
+  );
 };
 
 export default SensitiveAreaCheckMap;

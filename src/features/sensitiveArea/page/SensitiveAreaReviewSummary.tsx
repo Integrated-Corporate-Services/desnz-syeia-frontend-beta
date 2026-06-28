@@ -8,6 +8,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../utils/logger';
+import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('SensitiveAreaReviewSummary');
 
@@ -39,7 +40,9 @@ const SensitiveAreaReviewSummary: React.FC = () => {
     }, [applicationId]);
 
     return (
-        <div className="govuk-width-container">
+        <>
+            <SkipLink />
+            <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -174,6 +177,7 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };
 
