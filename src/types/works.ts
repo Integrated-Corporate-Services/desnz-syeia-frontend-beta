@@ -43,6 +43,8 @@ export interface WorksOverviewAsset {
 	excavationDetails: string;
 	vegetationClearanceRequired: boolean | null;
 	vegetationClearanceDetails: string;
+	tallestNewPoleHeight?: number | null;
+	roadClosuresDetails?: string;
 	removingExistingEquipment: boolean;
 	removalDescription: string;
 	generalComments: string;

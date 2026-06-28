@@ -12,6 +12,11 @@ import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../.
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import SkipLink from '../../../components/SkipLink';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import { buildWorksOverviewPayload } from '../utils/buildWorksOverviewPayload';
+import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
+import { WORKS_OVERVIEW_QUESTIONS } from '../../../constants/worksOverviewLabels';
 
 const initialState = {
   addingOrReplacingPoles: '',
@@ -25,6 +30,8 @@ const initialState = {
   estimatedDuration: '',
   vehiclesRequired: '',
   roadClosuresRequired: '',
+  roadClosuresDetails: '',
+  tallestNewPoleHeight: '',
   excavationRequired: '',
   excavationDetails: '',
   vegetationClearanceRequired: '',
@@ -89,6 +96,8 @@ const WorksOverview: React.FC = () => {
               estimatedDuration: data.estimatedDuration || '',
               vehiclesRequired: data.vehiclesRequired || '',
               roadClosuresRequired: data.roadClosuresRequired != null ? (data.roadClosuresRequired ? 'yes' : 'no') : '',
+              roadClosuresDetails: data.roadClosuresDetails || '',
+              tallestNewPoleHeight: data.tallestNewPoleHeight !== undefined && data.tallestNewPoleHeight !== null ? data.tallestNewPoleHeight.toString() : '',
               excavationRequired: data.excavationRequired != null ? (data.excavationRequired ? 'yes' : 'no') : '',
               excavationDetails: data.excavationDetails || '',
               vegetationClearanceRequired: data.vegetationClearanceRequired != null ? (data.vegetationClearanceRequired ? 'yes' : 'no') : '',
@@ -233,8 +242,6 @@ const WorksOverview: React.FC = () => {
       excavationDetails: form.excavationRequired === 'yes' ? form.excavationDetails : '',
       vegetationClearanceRequired: form.vegetationClearanceRequired === '' ? null : form.vegetationClearanceRequired === 'yes',
       vegetationClearanceDetails: form.vegetationClearanceRequired === 'yes' ? form.vegetationClearanceDetails : '',
-      usingExistingAccessRoutes: form.usingExistingAccessRoutes === '' ? null : form.usingExistingAccessRoutes === 'yes',
-      accessRoutesDetails: form.usingExistingAccessRoutes === 'yes' ? form.accessRoutesDetails : '',
       // accessRouteFiles: (form.accessRouteFiles || []).map(f => ({
       //   url: f.url,
       //   name: f.filename || '',
@@ -247,7 +254,7 @@ const WorksOverview: React.FC = () => {
 
     try {
       if (form.roadClosuresRequired === 'yes') {
-        await uploadPendingFiles(roadClosuresUploadRef, pendingRoadClosureFiles);
+        await roadClosuresUploadRef.current?.triggerUpload();
       }
     } catch {
       setErrors({ generalComments: 'Failed to upload files. Please try again.' });

@@ -102,25 +102,42 @@ export interface EIAFees {
 	screening_only?: boolean;
 }
 
+export interface WorksOverviewDocument {
+	document_id?: string;
+	documentId?: string;
+	file_id?: string;
+	fileId?: string;
+	category?: string;
+	title?: string;
+	filename?: string;
+	s3_key?: string;
+	s3Key?: string;
+}
+
 export interface WorksOverview {
 	addingOrReplacingPoles?: boolean;
 	poleMaterial?: string;
 	chemicalTreatments?: string;
 	polesAdded?: number;
 	polesReplaced?: number;
+	tallestNewPoleHeight?: number | null;
 	poleComments?: string;
 	addingOrReplacingLines?: boolean;
 	overheadLineDescription?: string;
 	estimatedDuration?: string;
 	vehiclesRequired?: string;
 	roadClosuresRequired?: boolean;
+	roadClosuresDetails?: string;
 	excavationRequired?: boolean;
 	excavationDetails?: string;
 	vegetationClearanceRequired?: boolean;
 	vegetationClearanceDetails?: string;
+	usingExistingAccessRoutes?: boolean | null;
+	accessRoutesDetails?: string;
 	removingExistingEquipment?: boolean;
 	removalDescription?: string;
 	generalComments?: string;
+	applicationDocuments?: WorksOverviewDocument[];
 }
 
 export interface ResponseDocument {
