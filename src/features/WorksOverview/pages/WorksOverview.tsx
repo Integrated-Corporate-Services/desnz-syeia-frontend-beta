@@ -8,11 +8,16 @@ import TextInput from '../component/TextInput';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
-import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
 import { WORKS_OVERVIEW_LABELS } from '../../../constants/worksOverviewLabels';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import SkipLink from '../../../components/SkipLink';
+import {
+  validateWorksOverviewForm,
+  getFieldErrorMessage,
+  clearFieldValidationErrors,
+  type ValidationError,
+} from '../validations';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 
@@ -37,8 +42,6 @@ const initialState = {
   removingExistingEquipment: '',
   removalDescription: '',
 };
-
-type FormErrors = Partial<Record<keyof typeof initialState | 'generalComments', string>>;
 
 const yesNoOptions = [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }];
 
@@ -80,8 +83,7 @@ const mapApplicationDocuments = (documents: unknown[]): ApplicationDocument[] =>
 
 const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState<ValidationError[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [roadClosureFiles, setRoadClosureFiles] = useState<UploadedFile[]>([]);
   const [roadClosureDocuments, setRoadClosureDocuments] = useState<ApplicationDocument[]>([]);
@@ -148,76 +150,26 @@ const WorksOverview: React.FC = () => {
     fetchWorksOverview();
   }, [effectiveApplicationId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+  const conditionalFieldsByRadio: Partial<Record<keyof typeof initialState, (keyof typeof initialState)[]>> = {
+    addingOrReplacingPoles: ['poleMaterial', 'chemicalTreatments', 'polesAdded', 'polesReplaced', 'tallestNewPoleHeight', 'poleComments'],
+    addingOrReplacingLines: ['overheadLineDescription'],
+    roadClosuresRequired: ['roadClosuresDetails'],
+    excavationRequired: ['excavationDetails'],
+    vegetationClearanceRequired: ['vegetationClearanceDetails'],
+    removingExistingEquipment: ['removalDescription'],
   };
 
-  const validate = (data: typeof initialState): FormErrors => {
-    const newErrors: FormErrors = {};
-    const isWholeNumber = (value: string) => /^\d+$/.test(value.trim());
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const fieldName = name as keyof typeof initialState;
 
-    if (!data.addingOrReplacingPoles) {
-      newErrors.addingOrReplacingPoles = WORKS_OVERVIEW_VALIDATION_MESSAGES.ADDING_OR_REPLACING_POLES_REQUIRED;
-    } else if (data.addingOrReplacingPoles === 'yes') {
-      if (!data.poleMaterial.trim()) newErrors.poleMaterial = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLE_MATERIAL_REQUIRED;
-      if (!data.chemicalTreatments.trim()) newErrors.chemicalTreatments = WORKS_OVERVIEW_VALIDATION_MESSAGES.CHEMICAL_TREATMENTS_REQUIRED;
-      if (!data.polesAdded.trim()) {
-        newErrors.polesAdded = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_ADDED_REQUIRED;
-      } else if (!isWholeNumber(data.polesAdded)) {
-        newErrors.polesAdded = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_ADDED_FORMAT;
-      }
-      if (!data.polesReplaced.trim()) {
-        newErrors.polesReplaced = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_REPLACED_REQUIRED;
-      } else if (!isWholeNumber(data.polesReplaced)) {
-        newErrors.polesReplaced = WORKS_OVERVIEW_VALIDATION_MESSAGES.POLES_REPLACED_FORMAT;
-      }
-      if (!data.tallestNewPoleHeight.trim()) {
-        newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_REQUIRED;
-      } else {
-        const height = Number(data.tallestNewPoleHeight.trim());
-        if (Number.isNaN(height)) {
-          newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_INVALID;
-        } else if (height < 0) {
-          newErrors.tallestNewPoleHeight = WORKS_OVERVIEW_VALIDATION_MESSAGES.TALLEST_NEW_POLE_HEIGHT_NEGATIVE;
-        }
-      }
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    const fieldsToClear: string[] = [fieldName];
+    if (type === 'radio' && value === 'no' && conditionalFieldsByRadio[fieldName]) {
+      fieldsToClear.push(...conditionalFieldsByRadio[fieldName]!);
     }
-
-    if (!data.addingOrReplacingLines) {
-      newErrors.addingOrReplacingLines = WORKS_OVERVIEW_VALIDATION_MESSAGES.ADDING_OR_REPLACING_LINES_REQUIRED;
-    } else if (data.addingOrReplacingLines === 'yes' && !data.overheadLineDescription.trim()) {
-      newErrors.overheadLineDescription = WORKS_OVERVIEW_VALIDATION_MESSAGES.OVERHEAD_LINE_DESCRIPTION_REQUIRED;
-    }
-
-    if (!data.estimatedDuration.trim()) newErrors.estimatedDuration = WORKS_OVERVIEW_VALIDATION_MESSAGES.ESTIMATED_DURATION_REQUIRED;
-    if (!data.vehiclesRequired.trim()) newErrors.vehiclesRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEHICLES_REQUIRED_REQUIRED;
-
-    if (!data.roadClosuresRequired) {
-      newErrors.roadClosuresRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.ROAD_CLOSURES_REQUIRED;
-    } else if (data.roadClosuresRequired === 'yes' && !data.roadClosuresDetails.trim()) {
-      newErrors.roadClosuresDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.ROAD_CLOSURES_DETAILS_REQUIRED;
-    }
-
-    if (!data.excavationRequired) {
-      newErrors.excavationRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.EXCAVATION_REQUIRED;
-    } else if (data.excavationRequired === 'yes' && !data.excavationDetails.trim()) {
-      newErrors.excavationDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.EXCAVATION_DETAILS_REQUIRED;
-    }
-
-    if (!data.vegetationClearanceRequired) {
-      newErrors.vegetationClearanceRequired = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEGETATION_CLEARANCE_REQUIRED;
-    } else if (data.vegetationClearanceRequired === 'yes' && !data.vegetationClearanceDetails.trim()) {
-      newErrors.vegetationClearanceDetails = WORKS_OVERVIEW_VALIDATION_MESSAGES.VEGETATION_CLEARANCE_DETAILS_REQUIRED;
-    }
-
-    if (!data.removingExistingEquipment) {
-      newErrors.removingExistingEquipment = WORKS_OVERVIEW_VALIDATION_MESSAGES.REMOVING_EXISTING_EQUIPMENT_REQUIRED;
-    } else if (data.removingExistingEquipment === 'yes' && !data.removalDescription.trim()) {
-      newErrors.removalDescription = WORKS_OVERVIEW_VALIDATION_MESSAGES.REMOVAL_DESCRIPTION_REQUIRED;
-    }
-
-    return newErrors;
+    setErrors((prev) => clearFieldValidationErrors(prev, fieldsToClear));
   };
 
   const buildPayload = () => ({
@@ -264,47 +216,32 @@ const WorksOverview: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    const validationErrors = validate(form);
+    const validationErrors = validateWorksOverviewForm(form);
     setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
+    if (validationErrors.length > 0) return;
 
     try {
       await persistForm();
       navigate(getNextPageUrl(TASK_NAMES.WORKS_OVERVIEW, effectiveApplicationId));
-    } catch (err: unknown) {
-      setErrors({ generalComments: ASSET_ERROR_MESSAGES.generalCommentsFailed });
-    }
-  };
-
-  const handleSaveForLater = async () => {
-    setSubmitted(true);
-    const validationErrors = validate(form);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
-
-    try {
-      await persistForm();
-      navigate(taskListUrl);
     } catch {
-      setErrors({ generalComments: ASSET_ERROR_MESSAGES.generalCommentsFailed });
+      setErrors([{ field: 'generalComments', message: ASSET_ERROR_MESSAGES.generalCommentsFailed }]);
     }
   };
 
   const polesYesFields = (
     <>
-      <TextInput id="poleMaterial" name="poleMaterial" label={WORKS_OVERVIEW_LABELS.POLE_MATERIAL} value={form.poleMaterial} onChange={handleChange} error={errors.poleMaterial} />
-      <TextInput id="chemicalTreatments" name="chemicalTreatments" label={WORKS_OVERVIEW_LABELS.CHEMICAL_TREATMENTS} value={form.chemicalTreatments} onChange={handleChange} error={errors.chemicalTreatments} />
-      <TextInput id="polesAdded" name="polesAdded" label={WORKS_OVERVIEW_LABELS.POLES_ADDED} value={form.polesAdded} onChange={handleChange} error={errors.polesAdded} inputMode="numeric" />
-      <TextInput id="polesReplaced" name="polesReplaced" label={WORKS_OVERVIEW_LABELS.POLES_REPLACED} value={form.polesReplaced} onChange={handleChange} error={errors.polesReplaced} inputMode="numeric" />
-      <TextInput id="tallestNewPoleHeight" name="tallestNewPoleHeight" label={WORKS_OVERVIEW_LABELS.TALLEST_NEW_POLE_HEIGHT} hint={WORKS_OVERVIEW_LABELS.TALLEST_NEW_POLE_HEIGHT_HINT} value={form.tallestNewPoleHeight} onChange={handleChange} error={errors.tallestNewPoleHeight} inputMode="decimal" suffix="metres" widthClass="govuk-input--width-4" />
-      <TextArea id="poleComments" name="poleComments" label={WORKS_OVERVIEW_LABELS.POLE_COMMENTS} value={form.poleComments} onChange={handleChange} maxLength={4000} showCount error={errors.poleComments} />
+      <TextInput id="poleMaterial" name="poleMaterial" label={WORKS_OVERVIEW_LABELS.POLE_MATERIAL} value={form.poleMaterial} onChange={handleChange} error={getFieldErrorMessage('poleMaterial', errors)} />
+      <TextInput id="chemicalTreatments" name="chemicalTreatments" label={WORKS_OVERVIEW_LABELS.CHEMICAL_TREATMENTS} value={form.chemicalTreatments} onChange={handleChange} error={getFieldErrorMessage('chemicalTreatments', errors)} />
+      <TextInput id="polesAdded" name="polesAdded" label={WORKS_OVERVIEW_LABELS.POLES_ADDED} value={form.polesAdded} onChange={handleChange} error={getFieldErrorMessage('polesAdded', errors)} inputMode="numeric" />
+      <TextInput id="polesReplaced" name="polesReplaced" label={WORKS_OVERVIEW_LABELS.POLES_REPLACED} value={form.polesReplaced} onChange={handleChange} error={getFieldErrorMessage('polesReplaced', errors)} inputMode="numeric" />
+      <TextInput id="tallestNewPoleHeight" name="tallestNewPoleHeight" label={WORKS_OVERVIEW_LABELS.TALLEST_NEW_POLE_HEIGHT} hint={WORKS_OVERVIEW_LABELS.TALLEST_NEW_POLE_HEIGHT_HINT} value={form.tallestNewPoleHeight} onChange={handleChange} error={getFieldErrorMessage('tallestNewPoleHeight', errors)} inputMode="decimal" suffix="metres" widthClass="govuk-input--width-4" />
+      <TextArea id="poleComments" name="poleComments" label={WORKS_OVERVIEW_LABELS.POLE_COMMENTS} value={form.poleComments} onChange={handleChange} maxLength={4000} showCount error={getFieldErrorMessage('poleComments', errors)} />
     </>
   );
 
   const roadClosuresYesFields = (
     <>
-      <TextArea id="roadClosuresDetails" name="roadClosuresDetails" label={WORKS_OVERVIEW_LABELS.ROAD_CLOSURES_DETAILS} value={form.roadClosuresDetails} onChange={handleChange} error={errors.roadClosuresDetails} maxLength={4000} showCount />
+      <TextArea id="roadClosuresDetails" name="roadClosuresDetails" label={WORKS_OVERVIEW_LABELS.ROAD_CLOSURES_DETAILS} value={form.roadClosuresDetails} onChange={handleChange} error={getFieldErrorMessage('roadClosuresDetails', errors)} maxLength={4000} showCount />
       <div className="govuk-form-group govuk-!-margin-top-2">
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">{WORKS_OVERVIEW_LABELS.ROAD_CLOSURES_DOCUMENTS}</legend>
@@ -348,16 +285,14 @@ const WorksOverview: React.FC = () => {
         </nav>
 
         <main className="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content" role="main">
-          {submitted && Object.keys(errors).length > 0 && (
+          {errors.length > 0 && (
             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
               <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
               <div className="govuk-error-summary__body">
                 <ul className="govuk-list govuk-error-summary__list">
-                  {Object.entries(errors).map(([field, message]) =>
-                    typeof message === 'string' && message ? (
-                      <li key={field}><a href={`#${field}`}>{message}</a></li>
-                    ) : null
-                  )}
+                  {errors.map((err, idx) => (
+                    <li key={idx}><a href={`#${err.field}`}>{err.message}</a></li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -372,7 +307,7 @@ const WorksOverview: React.FC = () => {
                 label={WORKS_OVERVIEW_LABELS.ADDING_REPLACING_POLES}
                 name="addingOrReplacingPoles"
                 value={form.addingOrReplacingPoles}
-                error={errors.addingOrReplacingPoles}
+                error={getFieldErrorMessage('addingOrReplacingPoles', errors)}
                 onChange={handleChange}
                 options={yesNoOptions.map((opt) => opt.value === 'yes' ? { ...opt, conditional: polesYesFields } : opt)}
               />
@@ -384,23 +319,23 @@ const WorksOverview: React.FC = () => {
                 label={WORKS_OVERVIEW_LABELS.ADDING_REPLACING_LINES}
                 name="addingOrReplacingLines"
                 value={form.addingOrReplacingLines}
-                error={errors.addingOrReplacingLines}
+                error={getFieldErrorMessage('addingOrReplacingLines', errors)}
                 onChange={handleChange}
                 options={yesNoOptions.map((opt) => opt.value === 'yes' ? {
                   ...opt,
                   conditional: (
-                    <TextArea id="overheadLineDescription" name="overheadLineDescription" label={WORKS_OVERVIEW_LABELS.OVERHEAD_LINE_DESCRIPTION} value={form.overheadLineDescription} onChange={handleChange} error={errors.overheadLineDescription} maxLength={4000} showCount />
+                    <TextArea id="overheadLineDescription" name="overheadLineDescription" label={WORKS_OVERVIEW_LABELS.OVERHEAD_LINE_DESCRIPTION} value={form.overheadLineDescription} onChange={handleChange} error={getFieldErrorMessage('overheadLineDescription', errors)} maxLength={4000} showCount />
                   ),
                 } : opt)}
               />
             </div>
 
             <div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
-              <TextInput id="estimatedDuration" name="estimatedDuration" label={WORKS_OVERVIEW_LABELS.ESTIMATED_DURATION} value={form.estimatedDuration} onChange={handleChange} error={errors.estimatedDuration} labelClassName="govuk-label--m" />
+              <TextInput id="estimatedDuration" name="estimatedDuration" label={WORKS_OVERVIEW_LABELS.ESTIMATED_DURATION} value={form.estimatedDuration} onChange={handleChange} error={getFieldErrorMessage('estimatedDuration', errors)} labelClassName="govuk-label--m" />
             </div>
 
             <div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
-              <TextInput id="vehiclesRequired" name="vehiclesRequired" label={WORKS_OVERVIEW_LABELS.VEHICLES_REQUIRED} value={form.vehiclesRequired} onChange={handleChange} error={errors.vehiclesRequired} labelClassName="govuk-label--m" />
+              <TextInput id="vehiclesRequired" name="vehiclesRequired" label={WORKS_OVERVIEW_LABELS.VEHICLES_REQUIRED} value={form.vehiclesRequired} onChange={handleChange} error={getFieldErrorMessage('vehiclesRequired', errors)} labelClassName="govuk-label--m" />
             </div>
 
             <div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
@@ -409,7 +344,7 @@ const WorksOverview: React.FC = () => {
                 label={WORKS_OVERVIEW_LABELS.ROAD_CLOSURES}
                 name="roadClosuresRequired"
                 value={form.roadClosuresRequired}
-                error={errors.roadClosuresRequired}
+                error={getFieldErrorMessage('roadClosuresRequired', errors)}
                 onChange={handleChange}
                 options={yesNoOptions.map((opt) => opt.value === 'yes' ? { ...opt, conditional: roadClosuresYesFields } : opt)}
               />
@@ -422,12 +357,12 @@ const WorksOverview: React.FC = () => {
                 hint={WORKS_OVERVIEW_LABELS.EXCAVATION_HINT}
                 name="excavationRequired"
                 value={form.excavationRequired}
-                error={errors.excavationRequired}
+                error={getFieldErrorMessage('excavationRequired', errors)}
                 onChange={handleChange}
                 options={yesNoOptions.map((opt) => opt.value === 'yes' ? {
                   ...opt,
                   conditional: (
-                    <TextArea id="excavationDetails" name="excavationDetails" label={WORKS_OVERVIEW_LABELS.EXCAVATION_DETAILS} value={form.excavationDetails} onChange={handleChange} maxLength={4000} showCount error={errors.excavationDetails} />
+                    <TextArea id="excavationDetails" name="excavationDetails" label={WORKS_OVERVIEW_LABELS.EXCAVATION_DETAILS} value={form.excavationDetails} onChange={handleChange} maxLength={4000} showCount error={getFieldErrorMessage('excavationDetails', errors)} />
                   ),
                 } : opt)}
               />
@@ -440,12 +375,12 @@ const WorksOverview: React.FC = () => {
                 hint={WORKS_OVERVIEW_LABELS.VEGETATION_HINT}
                 name="vegetationClearanceRequired"
                 value={form.vegetationClearanceRequired}
-                error={errors.vegetationClearanceRequired}
+                error={getFieldErrorMessage('vegetationClearanceRequired', errors)}
                 onChange={handleChange}
                 options={yesNoOptions.map((opt) => opt.value === 'yes' ? {
                   ...opt,
                   conditional: (
-                    <TextArea id="vegetationClearanceDetails" name="vegetationClearanceDetails" label={WORKS_OVERVIEW_LABELS.VEGETATION_DETAILS} value={form.vegetationClearanceDetails} onChange={handleChange} maxLength={4000} showCount error={errors.vegetationClearanceDetails} />
+                    <TextArea id="vegetationClearanceDetails" name="vegetationClearanceDetails" label={WORKS_OVERVIEW_LABELS.VEGETATION_DETAILS} value={form.vegetationClearanceDetails} onChange={handleChange} maxLength={4000} showCount error={getFieldErrorMessage('vegetationClearanceDetails', errors)} />
                   ),
                 } : opt)}
               />
@@ -457,12 +392,12 @@ const WorksOverview: React.FC = () => {
                 label={WORKS_OVERVIEW_LABELS.REMOVING_EQUIPMENT}
                 name="removingExistingEquipment"
                 value={form.removingExistingEquipment}
-                error={errors.removingExistingEquipment}
+                error={getFieldErrorMessage('removingExistingEquipment', errors)}
                 onChange={handleChange}
                 options={yesNoOptions.map((opt) => opt.value === 'yes' ? {
                   ...opt,
                   conditional: (
-                    <TextArea id="removalDescription" name="removalDescription" label={WORKS_OVERVIEW_LABELS.REMOVAL_DESCRIPTION} value={form.removalDescription} onChange={handleChange} maxLength={4000} showCount error={errors.removalDescription} />
+                    <TextArea id="removalDescription" name="removalDescription" label={WORKS_OVERVIEW_LABELS.REMOVAL_DESCRIPTION} value={form.removalDescription} onChange={handleChange} maxLength={4000} showCount error={getFieldErrorMessage('removalDescription', errors)} />
                   ),
                 } : opt)}
               />
@@ -470,7 +405,6 @@ const WorksOverview: React.FC = () => {
 
             <div className="govuk-button-group">
               <button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
-              <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button" onClick={handleSaveForLater}>Save for later</button>
             </div>
           </form>
         </main>
