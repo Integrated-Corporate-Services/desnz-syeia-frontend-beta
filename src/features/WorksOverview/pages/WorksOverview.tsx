@@ -15,7 +15,7 @@ import SkipLink from '../../../components/SkipLink';
 import {
   validateWorksOverviewForm,
   getFieldErrorMessage,
-  clearValidationErrors,
+  clearFieldValidationErrors,
   type ValidationError,
 } from '../validations';
 import { useAuthUser } from '../../../hooks/useAuthUser';
@@ -150,10 +150,26 @@ const WorksOverview: React.FC = () => {
     fetchWorksOverview();
   }, [effectiveApplicationId]);
 
+  const conditionalFieldsByRadio: Partial<Record<keyof typeof initialState, (keyof typeof initialState)[]>> = {
+    addingOrReplacingPoles: ['poleMaterial', 'chemicalTreatments', 'polesAdded', 'polesReplaced', 'tallestNewPoleHeight', 'poleComments'],
+    addingOrReplacingLines: ['overheadLineDescription'],
+    roadClosuresRequired: ['roadClosuresDetails'],
+    excavationRequired: ['excavationDetails'],
+    vegetationClearanceRequired: ['vegetationClearanceDetails'],
+    removingExistingEquipment: ['removalDescription'],
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const fieldName = name as keyof typeof initialState;
+
     setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors(clearValidationErrors());
+
+    const fieldsToClear: string[] = [fieldName];
+    if (type === 'radio' && value === 'no' && conditionalFieldsByRadio[fieldName]) {
+      fieldsToClear.push(...conditionalFieldsByRadio[fieldName]!);
+    }
+    setErrors((prev) => clearFieldValidationErrors(prev, fieldsToClear));
   };
 
   const buildPayload = () => ({

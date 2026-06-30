@@ -83,4 +83,21 @@ describe('WorksOverview validation clearing', () => {
     expect(document.getElementById('poleMaterial-error')).not.toBeInTheDocument();
     expect(document.querySelector('a[href="#poleMaterial"]')).not.toBeInTheDocument();
   });
+
+  it('keeps other field errors when clearing one yes/no field', async () => {
+    renderPage();
+
+    expect(await screen.findByRole('heading', { name: 'Works Overview' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+
+    expect(document.getElementById('addingOrReplacingPoles-error')).toBeInTheDocument();
+    expect(document.getElementById('addingOrReplacingLines-error')).toBeInTheDocument();
+
+    fireEvent.click(document.getElementById('addingOrReplacingPoles-no')!);
+
+    expect(document.getElementById('addingOrReplacingPoles-error')).not.toBeInTheDocument();
+    expect(document.getElementById('addingOrReplacingLines-error')).toBeInTheDocument();
+    expect(document.querySelector('a[href="#addingOrReplacingLines"]')).toBeInTheDocument();
+  });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateWorksOverviewForm } from './worksOverviewValidation';
+import { validateWorksOverviewForm, clearFieldValidationErrors } from './worksOverviewValidation';
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from './worksOverviewErrors';
 
 const emptyForm = {
@@ -37,5 +37,17 @@ describe('worksOverviewValidation', () => {
             addingOrReplacingPoles: 'yes',
         });
         expect(errors.some((err) => err.field === 'poleMaterial')).toBe(true);
+    });
+
+    it('clears only specified field errors', () => {
+        const errors = [
+            { field: 'addingOrReplacingPoles', message: 'Select yes or no' },
+            { field: 'addingOrReplacingLines', message: 'Select yes or no' },
+        ];
+
+        const cleared = clearFieldValidationErrors(errors, ['addingOrReplacingPoles']);
+
+        expect(cleared).toHaveLength(1);
+        expect(cleared[0].field).toBe('addingOrReplacingLines');
     });
 });

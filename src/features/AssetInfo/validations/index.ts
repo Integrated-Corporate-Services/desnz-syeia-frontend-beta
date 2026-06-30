@@ -1,1 +1,1 @@
-export { clearValidationErrors } from './assetInfoValidation';
+export { clearValidationErrors, clearFieldError } from './assetInfoValidation';

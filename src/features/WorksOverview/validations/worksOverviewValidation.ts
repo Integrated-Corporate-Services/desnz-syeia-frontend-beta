@@ -153,3 +153,14 @@ export const getFieldErrorMessage = (field: string, errors: ValidationError[]): 
 export const clearValidationErrors = (): ValidationError[] => {
     return [];
 };
+
+export const clearFieldValidationErrors = (
+    errors: ValidationError[],
+    fields: string[]
+): ValidationError[] => {
+    const fieldSet = new Set(fields);
+    if (!errors.some((err) => fieldSet.has(err.field))) {
+        return errors;
+    }
+    return errors.filter((err) => !fieldSet.has(err.field));
+};
