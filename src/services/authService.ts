@@ -74,6 +74,24 @@ export async function keepAlive(): Promise<boolean> {
 export async function logout(redirectTo?: string): Promise<void> {
   logger.info("Logging out user...", { redirectTo });
 
+  const parsedReason = (() => {
+    if (!redirectTo) {
+      return 'SESSION_GLOBAL_LOGOUT';
+    }
+
+    const reasonMatch = redirectTo.match(/[?&]reason=([^&]+)/);
+    return reasonMatch ? decodeURIComponent(reasonMatch[1]) : 'SESSION_GLOBAL_LOGOUT';
+  })();
+
+  try {
+    localStorage.setItem(
+      'syeia.session.termination',
+      JSON.stringify({ reason: parsedReason, at: Date.now() })
+    );
+  } catch (error) {
+    logger.warn('Unable to broadcast logout event across tabs', error);
+  }
+
   const baseUrl = import.meta.env.API_URL || '';
   // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 

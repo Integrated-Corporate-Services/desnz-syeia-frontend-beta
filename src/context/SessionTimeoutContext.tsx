@@ -5,6 +5,14 @@ import { createLogger } from '../utils/logger';
 import { SESSION_TIMEOUT, SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
 
 const logger = createLogger('SessionTimeoutContext');
+const SESSION_TERMINATION_STORAGE_KEY = 'syeia.session.termination';
+
+type SessionTerminationReason =
+  | 'SESSION_TIMEOUT'
+  | 'SESSION_ABSOLUTE_TIMEOUT'
+  | 'SESSION_EVICTED'
+  | 'SESSION_GLOBAL_LOGOUT'
+  | 'SESSION_BACKCHANNEL_LOGOUT';
 
 interface SessionTimeoutContextType {
   showModal: boolean;
@@ -25,6 +33,21 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
 
   // Derive auth state
   const isAuthenticated = !!user && !authLoading;
+
+  const broadcastTermination = useCallback((reason: SessionTerminationReason) => {
+    try {
+      localStorage.setItem(
+        SESSION_TERMINATION_STORAGE_KEY,
+        JSON.stringify({ reason, at: Date.now() })
+      );
+    } catch (error) {
+      logger.warn('Unable to broadcast cross-tab termination event', error);
+    }
+  }, []);
+
+  const redirectToSignedOut = useCallback((reason: SessionTerminationReason) => {
+    window.location.assign(`/frontend/signed-out?reason=${encodeURIComponent(reason)}`);
+  }, []);
 
   // Log configuration on mount
   useEffect(() => {
@@ -69,14 +92,36 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     
     isLoggingOutRef.current = true;
     logger.warn('Session timeout - Logging out user');
+    broadcastTermination('SESSION_TIMEOUT');
     
     try {
-      await logout(SIGNED_OUT_PAGE);
+      await logout(`${SIGNED_OUT_PAGE}?reason=SESSION_TIMEOUT`);
     } catch (err) {
       logger.error('Logout error:', err);
-      window.location.href = SIGNED_OUT_PAGE;
+      window.location.href = `${SIGNED_OUT_PAGE}?reason=SESSION_TIMEOUT`;
     }
-  }, []);
+  }, [broadcastTermination]);
+
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== SESSION_TERMINATION_STORAGE_KEY || !event.newValue) {
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(event.newValue) as { reason?: SessionTerminationReason };
+        if (payload.reason) {
+          logger.warn('Cross-tab session termination detected', { reason: payload.reason });
+          redirectToSignedOut(payload.reason);
+        }
+      } catch (error) {
+        logger.error('Failed to parse cross-tab termination payload', error);
+      }
+    };
+
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [redirectToSignedOut]);
 
   // Activity tracking - only track meaningful user interactions (not mousemove/scroll)
   useEffect(() => {
