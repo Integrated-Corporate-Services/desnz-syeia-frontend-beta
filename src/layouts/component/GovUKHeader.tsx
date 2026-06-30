@@ -52,7 +52,7 @@ const GovUKHeader: React.FC = () => (
     </header>
       <div className="govuk-phase-banner govuk-width-container govuk-!-margin-bottom-0" style={{ marginTop: '0', marginBottom: 0, paddingTop: '8px', paddingBottom: '8px', background: 'white', border: 'none' }}>
         <p className="govuk-phase-banner__content">
-          <strong className="govuk-tag govuk-phase-banner__content__tag" style={{ background: '#f3f2f1', color: '#505a5f', marginRight: '8px' }}>Beta</strong>
+          <strong className="govuk-tag govuk-tag--grey govuk-phase-banner__content__tag govuk-!-margin-right-2">Beta</strong>
           This is a new service – your <Link to={FEEDBACK_PATH} className="govuk-link">feedback</Link> will help us to improve it.
         </p>
       </div>

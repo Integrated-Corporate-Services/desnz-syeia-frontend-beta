@@ -49,7 +49,7 @@ describe('InvoiceGenerationErrorPage', () => {
       })
     ).toBeInTheDocument();
 
-    expect(screen.getByText('You can return to the application and try again.')).toBeInTheDocument();
+    expect(screen.getByText('You can return to the application and try again later.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Retry invoice generation' })).not.toBeInTheDocument();
 
     const buttons = screen.getAllByRole('button');
