@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export interface ReviewSummaryPayment {
     payment_id?: string | null;
     amount?: number | null;
@@ -16,6 +14,7 @@ export interface ReviewSummaryPayment {
 export interface ReviewSummaryPermissions {
     canEdit: boolean;
     canWithdraw: boolean;
+    canDownload?: boolean;
 }
 
 export interface ApplicationReviewSummaryData {
