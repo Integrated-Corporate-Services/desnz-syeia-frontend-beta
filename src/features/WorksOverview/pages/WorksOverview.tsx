@@ -299,20 +299,6 @@ const WorksOverview: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = async () => {
-    setSubmitted(true);
-    const validationErrors = validate(form);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
-
-    try {
-      await persistForm();
-      navigate(taskListUrl);
-    } catch {
-      setErrors({ generalComments: ASSET_ERROR_MESSAGES.generalCommentsFailed });
-    }
-  };
-
   const polesYesFields = (
     <>
       <TextInput id="poleMaterial" name="poleMaterial" label={WORKS_OVERVIEW_LABELS.POLE_MATERIAL} value={form.poleMaterial} onChange={handleChange} error={errors.poleMaterial} />
@@ -492,7 +478,6 @@ const WorksOverview: React.FC = () => {
 
             <div className="govuk-button-group">
               <button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
-              <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button" onClick={handleSaveForLater}>Save for later</button>
             </div>
           </form>
         </main>
