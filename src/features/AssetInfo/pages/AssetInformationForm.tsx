@@ -8,7 +8,7 @@ import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import RadioGroup from '../component/RadioGroup';
-import { clearRecordFieldErrors } from '../../../utils/formValidationHelpers';
+import { clearValidationErrors } from '../validations';
 import TextArea from '../component/TextArea';
 import MultiSelectDropdown from '../component/MultiSelect';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
@@ -165,7 +165,7 @@ const AssetInformationForm: React.FC = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev) => clearRecordFieldErrors(prev, [name as keyof FormErrors]));
+        setErrors(clearValidationErrors());
     };
 
     const validate = (data: AssetFormState): FormErrors => {
@@ -424,7 +424,7 @@ const AssetInformationForm: React.FC = () => {
                                 selected={form.lineVoltage}
                                 onChange={(selected: string[]) => {
                                     setForm((prev) => ({ ...prev, lineVoltage: selected }));
-                                    setErrors((prev) => clearRecordFieldErrors(prev, ['lineVoltage']));
+                                    setErrors(clearValidationErrors());
                                 }}
                                 error={errors.lineVoltage}
                                 disabled={consultationsStarted}

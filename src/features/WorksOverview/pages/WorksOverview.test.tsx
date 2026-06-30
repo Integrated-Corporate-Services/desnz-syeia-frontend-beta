@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import WorksOverview from './WorksOverview';
-import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../../../constants/workOverviewError';
+import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../validations';
 import * as worksOverviewApiService from '../../../services/worksOverviewApiService';
 
 vi.mock('../../../hooks/useGetApplicationId', () => ({

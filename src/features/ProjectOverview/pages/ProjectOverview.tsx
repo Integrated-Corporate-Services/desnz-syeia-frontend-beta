@@ -16,7 +16,7 @@ import RadioGroup from "../component/RadioGroup";
 import FileUpload, { FileUploadHandle } from "../../../components/FileUpload";
 
 
-import { getRelatedFieldAnchorIds, filterErrorLinksByAnchors } from '../../../utils/formValidationHelpers';
+import { getRelatedFieldAnchorIds, filterErrorLinksByAnchors } from '../validations';
 import { ProjectOverviewModel } from '../../../types/projectOverview';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';

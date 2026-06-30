@@ -7,7 +7,7 @@ import { getSupportingInfo, saveSupportingInfo } from "../services";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
 import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constants/fileCategoryConstants";
 import SkipLink from "../../../../components/SkipLink";
-import { filterErrorLinksByAnchors } from "../../../../utils/formValidationHelpers";
+import { filterErrorLinksByAnchors } from "../validations";
 
 const SupportingInfo: React.FC = () => {
 	// ...existing state declarations...

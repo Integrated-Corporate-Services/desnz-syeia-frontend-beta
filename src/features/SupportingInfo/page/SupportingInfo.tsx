@@ -12,7 +12,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
-import { clearKeyedErrors } from '../../../utils/formValidationHelpers';
+import { clearValidationErrors } from '../validations';
 
 const logger = createLogger('SupportingInfo');
 
@@ -135,8 +135,8 @@ const SupportingInfo: React.FC = () => {
     }
   }, [supportingInfo, applicationId]);
 
-  const clearError = (...keys: string[]) => {
-    setErrors((prev) => clearKeyedErrors(prev, keys));
+  const clearError = (..._keys: string[]) => {
+    setErrors(clearValidationErrors());
   };
 
   const validate = (newlyUploadedFiles: UploadedFile[] = []) => {

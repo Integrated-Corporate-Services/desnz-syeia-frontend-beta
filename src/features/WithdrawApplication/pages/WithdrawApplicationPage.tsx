@@ -12,7 +12,7 @@ import { WithdrawApplicationBreadcrumbs, WithdrawalWarning } from '../components
 import SkipLink from '../../../components/SkipLink';
 
 import { validateWithdrawalForm, getRemainingCharacters } from '../utils';
-import { clearObjectFieldErrors } from '../../../utils/formValidationHelpers';
+import { clearFieldError as removeFieldError } from '../validations';
 
 const WithdrawApplicationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -31,7 +31,7 @@ const WithdrawApplicationPage: React.FC = () => {
     const remainingChars = getRemainingCharacters(additionalComments, CONSTANTS.WITHDRAW_PAGE.COMMENTS_MAXLENGTH);
 
     const clearFieldError = (field: keyof typeof errors) => {
-        setErrors((prev) => clearObjectFieldErrors(prev, field));
+        setErrors((prev) => removeFieldError(prev, field));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
