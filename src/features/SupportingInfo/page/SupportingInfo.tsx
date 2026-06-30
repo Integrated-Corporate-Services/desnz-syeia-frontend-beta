@@ -12,6 +12,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
+import { clearKeyedErrors } from '../../../utils/formValidationHelpers';
 
 const logger = createLogger('SupportingInfo');
 
@@ -133,6 +134,10 @@ const SupportingInfo: React.FC = () => {
       }
     }
   }, [supportingInfo, applicationId]);
+
+  const clearError = (...keys: string[]) => {
+    setErrors((prev) => clearKeyedErrors(prev, keys));
+  };
 
   const validate = (newlyUploadedFiles: UploadedFile[] = []) => {
     const errs: { key: string; message: string }[] = [];
@@ -376,7 +381,10 @@ const SupportingInfo: React.FC = () => {
                 type="radio"
                 value="yes"
                 checked={wayleaves === "yes"}
-                onChange={() => setWayleaves("yes")}
+                onChange={() => {
+                  setWayleaves("yes");
+                  clearError("wayleaves");
+                }}
                 ref={wayleavesRef}
                 aria-describedby={hasError("wayleaves") ? "wayleaves-error" : undefined}
               />
@@ -392,7 +400,10 @@ const SupportingInfo: React.FC = () => {
                 type="radio"
                 value="no"
                 checked={wayleaves === "no"}
-                onChange={() => setWayleaves("no")}
+                onChange={() => {
+                  setWayleaves("no");
+                  clearError("wayleaves", "wayleavesReason");
+                }}
                 aria-describedby={hasError("wayleaves") ? "wayleaves-error" : undefined}
               />
               <label className="govuk-label govuk-radios__label" htmlFor="wayleaves-no">
@@ -417,7 +428,10 @@ const SupportingInfo: React.FC = () => {
                     rows={5}
                     ref={wayleavesReasonRef}
                     value={wayleavesReason}
-                    onChange={e => setWayleavesReason(e.target.value)}
+                    onChange={(e) => {
+                      setWayleavesReason(e.target.value);
+                      clearError("wayleavesReason");
+                    }}
                     aria-describedby={hasError("wayleavesReason") ? "wayleavesNotObtainedComments-inputValue-error" : undefined}
                   />
                 </div>
@@ -454,7 +468,10 @@ const SupportingInfo: React.FC = () => {
                 name="regulations"
                 type="checkbox"
                 checked={regulations}
-                onChange={() => setRegulations(!regulations)}
+                onChange={() => {
+                  setRegulations(!regulations);
+                  clearError("regulations");
+                }}
                 ref={regulationsRef}
               />
               <label className="govuk-label govuk-checkboxes__label" htmlFor="regulations-yes">
@@ -508,7 +525,10 @@ const SupportingInfo: React.FC = () => {
         aria-controls="hasSupportingDocuments-hidden"
         aria-expanded="true"
         checked={supportingDocs === "yes"}
-        onChange={() => setSupportingDocs("yes")}
+        onChange={() => {
+          setSupportingDocs("yes");
+          clearError("supportingDocs");
+        }}
       />
       <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments">
         Yes
@@ -569,7 +589,10 @@ const SupportingInfo: React.FC = () => {
         type="radio"
         value="false"
         checked={supportingDocs === "no"}
-        onChange={() => setSupportingDocs("no")}
+        onChange={() => {
+          setSupportingDocs("no");
+          clearError("supportingDocs", "supportingDocsFiles");
+        }}
         ref={supportingDocsRef}
       />
       <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments-no">

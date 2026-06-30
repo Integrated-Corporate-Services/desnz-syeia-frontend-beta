@@ -13,6 +13,7 @@ import { WORKS_OVERVIEW_LABELS } from '../../../constants/worksOverviewLabels';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import SkipLink from '../../../components/SkipLink';
+import { clearRecordFieldErrors } from '../../../utils/formValidationHelpers';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 
@@ -148,9 +149,30 @@ const WorksOverview: React.FC = () => {
     fetchWorksOverview();
   }, [effectiveApplicationId]);
 
+  const clearFieldErrors = (...fields: (keyof FormErrors)[]) => {
+    setErrors((prev) => clearRecordFieldErrors(prev, fields));
+  };
+
+  const conditionalFieldsByRadio: Partial<Record<keyof typeof initialState, (keyof FormErrors)[]>> = {
+    addingOrReplacingPoles: ['poleMaterial', 'chemicalTreatments', 'polesAdded', 'polesReplaced', 'tallestNewPoleHeight', 'poleComments'],
+    addingOrReplacingLines: ['overheadLineDescription'],
+    roadClosuresRequired: ['roadClosuresDetails'],
+    excavationRequired: ['excavationDetails'],
+    vegetationClearanceRequired: ['vegetationClearanceDetails'],
+    removingExistingEquipment: ['removalDescription'],
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const fieldName = name as keyof typeof initialState;
+
     setForm((prev) => ({ ...prev, [name]: value }));
+
+    const fieldsToClear: (keyof FormErrors)[] = [fieldName];
+    if (type === 'radio' && value === 'no' && conditionalFieldsByRadio[fieldName]) {
+      fieldsToClear.push(...conditionalFieldsByRadio[fieldName]!);
+    }
+    clearFieldErrors(...fieldsToClear);
   };
 
   const validate = (data: typeof initialState): FormErrors => {

@@ -16,6 +16,7 @@ import RadioGroup from "../component/RadioGroup";
 import FileUpload, { FileUploadHandle } from "../../../components/FileUpload";
 
 
+import { getRelatedFieldAnchorIds, filterErrorLinksByAnchors } from '../../../utils/formValidationHelpers';
 import { ProjectOverviewModel } from '../../../types/projectOverview';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
@@ -81,21 +82,16 @@ const ProjectOverview = () => {
 		prevFileValidationErrorsRef.current = fileValidationErrors.length;
 	}, [errors, fileValidationErrors]);
 
-	// Helper function to clear field-specific errors (always use *-inputValue keys)
+	// Helper function to clear field-specific errors (handles both *-inputValue and base field ids)
 	const clearFieldError = (fieldName: string) => {
-		// Always clear both the *-inputValue and legacy keys for robustness
+		const anchorIds = getRelatedFieldAnchorIds(fieldName);
+
 		setFieldErrors(prev => {
 			const newErrors = { ...prev };
-			delete newErrors[fieldName];
-			// Also try deleting legacy keys for migration safety
-			if (fieldName.endsWith('-inputValue')) {
-				const legacyKey = fieldName.replace('-inputValue', '');
-				delete newErrors[legacyKey];
-			}
+			anchorIds.forEach(id => delete newErrors[id]);
 			return newErrors;
 		});
-		// Clear from errors array (error summary links)
-		setErrors(prev => prev.filter(error => !error.includes(`#${fieldName}`)));
+		setErrors(prev => filterErrorLinksByAnchors(prev, anchorIds));
 	};
 	// Helper to get applicationId from store, params, or query string
 
@@ -905,7 +901,10 @@ const ProjectOverview = () => {
 										type="radio" 
 										value="true" 
 										checked={formState.hasRelatedApplications === "true"} 
-										onChange={() => setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }))} 
+										onChange={() => {
+											setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
+											clearFieldError('hasRelatedApplications-inputValue');
+										}} 
 										aria-controls="hasRelatedApplications-hidden" 
 										aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"} 
 									/>

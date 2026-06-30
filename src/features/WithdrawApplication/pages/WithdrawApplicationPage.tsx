@@ -12,6 +12,7 @@ import { WithdrawApplicationBreadcrumbs, WithdrawalWarning } from '../components
 import SkipLink from '../../../components/SkipLink';
 
 import { validateWithdrawalForm, getRemainingCharacters } from '../utils';
+import { clearObjectFieldErrors } from '../../../utils/formValidationHelpers';
 
 const WithdrawApplicationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -28,6 +29,10 @@ const WithdrawApplicationPage: React.FC = () => {
 
     const reasons = getWithdrawalReasons(applicationType);
     const remainingChars = getRemainingCharacters(additionalComments, CONSTANTS.WITHDRAW_PAGE.COMMENTS_MAXLENGTH);
+
+    const clearFieldError = (field: keyof typeof errors) => {
+        setErrors((prev) => clearObjectFieldErrors(prev, field));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -158,7 +163,10 @@ const WithdrawApplicationPage: React.FC = () => {
                                                     type="radio"
                                                     value={reason.value}
                                                     checked={selectedReason === reason.value}
-                                                    onChange={(e) => setSelectedReason(e.target.value)}
+                                                    onChange={(e) => {
+                                                        setSelectedReason(e.target.value);
+                                                        clearFieldError('reason');
+                                                    }}
                                                     aria-describedby="reason-hint"
                                                 />
                                                 <label
@@ -192,7 +200,10 @@ const WithdrawApplicationPage: React.FC = () => {
                                     rows={5}
                                     maxLength={CONSTANTS.WITHDRAW_PAGE.COMMENTS_MAXLENGTH}
                                     value={additionalComments}
-                                    onChange={(e) => setAdditionalComments(e.target.value)}
+                                    onChange={(e) => {
+                                        setAdditionalComments(e.target.value);
+                                        clearFieldError('comments');
+                                    }}
                                     aria-describedby="additional-comments-hint"
                                 />
                                 <div className="govuk-hint govuk-character-count__message">
@@ -217,7 +228,10 @@ const WithdrawApplicationPage: React.FC = () => {
                                             name="confirmation"
                                             type="checkbox"
                                             checked={confirmed}
-                                            onChange={(e) => setConfirmed(e.target.checked)}
+                                            onChange={(e) => {
+                                                setConfirmed(e.target.checked);
+                                                clearFieldError('confirmation');
+                                            }}
                                         />
                                         <label className="govuk-label govuk-checkboxes__label" htmlFor="confirmation">
                                             {CONSTANTS.WITHDRAW_PAGE.CONFIRMATION_LABEL}
