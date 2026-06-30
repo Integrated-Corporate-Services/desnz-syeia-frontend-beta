@@ -33,19 +33,21 @@ export interface WorksOverviewAsset {
 	chemicalTreatments: string;
 	polesAdded: number;
 	polesReplaced: number;
+	tallestNewPoleHeight: number;
 	poleComments: string;
 	addingOrReplacingLines: boolean | null;
 	overheadLineDescription: string;
 	estimatedDuration: string;
 	vehiclesRequired: string;
 	roadClosuresRequired: boolean | null;
+	roadClosuresDetails: string;
 	excavationRequired: boolean | null;
 	excavationDetails: string;
 	vegetationClearanceRequired: boolean | null;
 	vegetationClearanceDetails: string;
-	usingExistingAccessRoutes: boolean | null;
-	accessRoutesDetails: string;
-	accessRouteFiles?: FileUpload[];
+	usingExistingAccessRoutes?: boolean | null;
+	existingAccessRoutesDetails?: string;
+	proposedAccessRoutesDetails?: string;
 	removingExistingEquipment: boolean | null;
 	removalDescription: string;
 	generalComments: string;
@@ -54,5 +56,4 @@ export interface WorksOverviewAsset {
 export interface WorksOverviewRequest {
 	applicationId: string;
 	worksOverview: WorksOverviewAsset;
-	accessRouteFiles?: FileUpload[];
 }
