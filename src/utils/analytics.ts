@@ -37,13 +37,15 @@ const ensureDataLayer = (): void => {
 
 /**
  * Push an event to the GTM dataLayer
- * ONLY fires if analytics cookies are accepted
  * 
  * @param event - Event name (e.g., 'button_click', 'page_view')
  * @param data - Additional event data
  */
 export const pushDataLayer = (event: string, data?: Record<string, unknown>): void => {
   
+  if (!analyticsAccepted()) {
+    return;
+  }
 
   ensureDataLayer();
   

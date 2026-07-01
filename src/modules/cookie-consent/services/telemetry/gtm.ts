@@ -6,16 +6,12 @@ const ENABLED = config.enableGTM;
 
 export function initGTM(): void {
   if (!ENABLED || !GTM_ID) {
-    console.warn('[GTM] Not initialized:', { ENABLED, GTM_ID });
     return;
   }
   
   if (document.getElementById('gtm-script')) {
-    console.log('[GTM] Already initialized');
     return;
   }
-
-  console.log('[GTM] Initializing with container ID:', GTM_ID);
 
   // Add GTM script to head
   const script = document.createElement('script');
@@ -28,8 +24,6 @@ export function initGTM(): void {
     })(window,document,'script','dataLayer','${GTM_ID}');
   `;
   document.head.appendChild(script);
-
-  console.log('[GTM] Script added to head');
 
   // Add GTM noscript iframe to body
   const noscript = document.createElement('noscript');
@@ -48,8 +42,6 @@ export function initGTM(): void {
   } else {
     document.body.appendChild(noscript);
   }
-
-  console.log('[GTM] ✓ Initialization complete');
 }
 
 export function disableGTM(): void {
