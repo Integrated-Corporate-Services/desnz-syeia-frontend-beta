@@ -27,7 +27,7 @@ export function getTelemetryConfig(): TelemetryConfig {
 
   // Read directly from environment variables
   const ga4MeasurementId = env.VITE_GA4_MEASUREMENT_ID || null;
-  const gtmId = env.VITE_GTM_ID || null;
+  const gtmId = env.GTM_ID || null;
   const enableGA4 = env.VITE_ENABLE_GA4 === 'true';
   const enableGTM = env.VITE_ENABLE_GTM === 'true';
   const debugMode = env.MODE === 'development' || env.DEV === true;
