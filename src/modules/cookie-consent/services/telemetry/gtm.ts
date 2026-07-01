@@ -1,4 +1,4 @@
-import { getTelemetryConfig } from './config';
+import { getTelemetryConfig, getCurrentEnvironment } from './config';
 
 const config = getTelemetryConfig();
 const GTM_ID = config.gtmId;
@@ -6,12 +6,17 @@ const ENABLED = config.enableGTM;
 
 export function initGTM(): void {
   if (!ENABLED || !GTM_ID) {
+    console.warn('[GTM] Not initialized:', { ENABLED, GTM_ID });
     return;
   }
   
   if (document.getElementById('gtm-script')) {
+    console.log('[GTM] Already initialized');
     return;
   }
+
+  console.log('[GTM] Initializing with ID:', GTM_ID);
+  console.log('[GTM] Detected Environment:', getCurrentEnvironment());
 
   // Add GTM script to head
   const script = document.createElement('script');
@@ -24,6 +29,7 @@ export function initGTM(): void {
     })(window,document,'script','dataLayer','${GTM_ID}');
   `;
   document.head.appendChild(script);
+  console.log('[GTM] Script added to head');
 
   // Add GTM noscript iframe to body
   const noscript = document.createElement('noscript');
@@ -42,23 +48,30 @@ export function initGTM(): void {
   } else {
     document.body.appendChild(noscript);
   }
+  
+  console.log('[GTM] Noscript iframe added to body');
+  console.log('[GTM] Initialization complete');
 }
 
 export function disableGTM(): void {
   if (!GTM_ID) {
+    console.warn('[GTM] Cannot disable - No GTM ID configured');
     return;
   }
+  
+  console.log('[GTM] Disabling GTM');
   
   const script = document.getElementById('gtm-script');
   if (script) {
     script.remove();
+    console.log('[GTM] Script removed');
   }
 
   const noscript = document.getElementById('gtm-noscript');
   if (noscript) {
     noscript.remove();
+    console.log('[GTM] Noscript iframe removed');
   }
-
-  const win = window as unknown as Record<string, unknown>;
-  win[`ga-disable-${GTM_ID}`] = true;
+  
+  console.log('[GTM] GTM disabled');
 }

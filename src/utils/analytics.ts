@@ -15,13 +15,25 @@ declare global {
 
 
 
-const analyticsAccepted = (): boolean => {
+const isCookieConsentAccepted = (): boolean => {
   const raw = readCookie('consent_preference');
-  if (!raw) return false;
+  console.log('[GTM] Reading consent_preference cookie:', raw);
+  
+  if (!raw) {
+    console.log('[GTM] No consent cookie found');
+    return false;
+  }
+  
   try {
     const parsed = JSON.parse(decodeURIComponent(raw)) as Record<string, unknown>;
-    return parsed.analytics === 'accepted';
-  } catch {
+    console.log('[GTM] Parsed consent data:', parsed);
+    
+    const analyticsAccepted = parsed.analytics === 'accepted';
+    console.log('[GTM] Analytics consent status:', analyticsAccepted);
+    
+    return analyticsAccepted;
+  } catch (error) {
+    console.error('[GTM] Error parsing consent cookie:', error);
     return false;
   }
 };
@@ -42,8 +54,11 @@ const ensureDataLayer = (): void => {
  * @param data - Additional event data
  */
 export const pushDataLayer = (event: string, data?: Record<string, unknown>): void => {
+  const consentAccepted = isCookieConsentAccepted();
+  console.log('[GTM] pushDataLayer called - Consent accepted:', consentAccepted, 'Event:', event);
   
-  if (!analyticsAccepted()) {
+  if (!consentAccepted) {
+    console.log('[GTM] Analytics not accepted, skipping dataLayer push');
     return;
   }
 
