@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { ApplicationReviewSummaryData } from '../../../ApplicationSummary/types/reviewSummary';
 import { WithdrawalRequest } from '../../../ApplicationSummary/types';
+import { usePdfDownload } from '../../../ApplicationSummary/hooks';
 import {
     ReviewApplicationInfoCard,
     ReviewPaymentDetailsCard,
     WithdrawalNotificationBanner,
     SummaryWithdrawButton,
+    DownloadPdfButton,
 } from '../../../ApplicationSummary/components';
 import {
     ApplicantDetailsSummaryCard,
@@ -39,9 +41,14 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     withdrawalRequest,
 }) => {
     const navigate = useNavigate();
+    const { isDownloading, error: pdfError, downloadPdf, clearError } = usePdfDownload();
 
     const showWithdraw =
         data.permissions?.canWithdraw && !data.permissions?.canEdit && !withdrawalRequest;
+
+    const handleDownloadPdf = async () => {
+        await downloadPdf(applicationId);
+    };
 
     return (
         <>
@@ -51,6 +58,28 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
 
             <h1 className="govuk-heading-l">{CONSTANTS.REVIEW_LAYOUT.HEADING}</h1>
 
+            {pdfError && (
+                <div 
+                    className="govuk-error-summary" 
+                    role="alert" 
+                    aria-labelledby="pdf-error-summary-title"
+                >
+                    <h2 className="govuk-error-summary__title" id="pdf-error-summary-title">
+                        There is a problem
+                    </h2>
+                    <div className="govuk-error-summary__body">
+                        <p className="govuk-body">{pdfError}</p>
+                    </div>
+                    <button
+                        type="button"
+                        className="govuk-button govuk-button--secondary govuk-!-margin-top-2"
+                        onClick={clearError}
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            )}
+
             <ReviewApplicationInfoCard
                 desnzRef={data.desnzRef}
                 status={data.status}
@@ -59,18 +88,26 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
 
             <ReviewPaymentDetailsCard payment={data.payment} />
 
-            {showWithdraw && (
-                <SummaryWithdrawButton
-                    onClick={() =>
-                        navigate(`${NWL_BASE_URL}/${applicationId}/withdraw`, {
-                            state: {
-                                desnzRef: data.desnzRef,
-                                formType: 'NWL',
-                            },
-                        })
-                    }
+            <div className="govuk-button-group">
+                {showWithdraw && (
+                    <SummaryWithdrawButton
+                        onClick={() =>
+                            navigate(`${NWL_BASE_URL}/${applicationId}/withdraw`, {
+                                state: {
+                                    desnzRef: data.desnzRef,
+                                    formType: 'NWL',
+                                },
+                            })
+                        }
+                    />
+                )}
+                
+                <DownloadPdfButton 
+                    onClick={handleDownloadPdf} 
+                    isDownloading={isDownloading}
+                    disabled={data.permissions?.canDownload === false}
                 />
-            )}
+            </div>
 
             <h2 className="govuk-heading-m">{CYA_CONSTANTS.SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
             <ApplicantDetailsSummaryCard 
