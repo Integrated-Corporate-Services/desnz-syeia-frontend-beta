@@ -75,7 +75,3 @@ export function disableGTM(): void {
   
   console.log('[GTM] GTM disabled');
 }
-
-  const win = window as unknown as Record<string, unknown>;
-  win[`ga-disable-${GTM_ID}`] = true;
-}
