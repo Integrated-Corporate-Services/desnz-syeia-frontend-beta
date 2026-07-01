@@ -1,10 +1,18 @@
 import { getTelemetryConfig, getCurrentEnvironment } from './config';
 
-const config = getTelemetryConfig();
-const GTM_ID = config.gtmId;
-const ENABLED = config.enableGTM;
+let _config: ReturnType<typeof getTelemetryConfig> | null = null;
+function getConfig() {
+  if (!_config) {
+    _config = getTelemetryConfig();
+  }
+  return _config;
+}
 
 export function initGTM(): void {
+  const config = getConfig();
+  const GTM_ID = config.gtmId;
+  const ENABLED = config.enableGTM;
+  
   if (!ENABLED || !GTM_ID) {
     console.warn('[GTM] Not initialized:', { ENABLED, GTM_ID });
     return;
@@ -54,6 +62,9 @@ export function initGTM(): void {
 }
 
 export function disableGTM(): void {
+  const config = getConfig();
+  const GTM_ID = config.gtmId;
+  
   if (!GTM_ID) {
     console.warn('[GTM] Cannot disable - No GTM ID configured');
     return;
