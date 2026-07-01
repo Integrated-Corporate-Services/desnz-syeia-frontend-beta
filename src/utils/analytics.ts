@@ -3,9 +3,7 @@
  * 
  * Provides helper functions to push events to the GTM dataLayer
  * for tracking user interactions and page views.
- * 
- * IMPORTANT: Respects cookie consent - events only fire if analytics accepted
- */
+  */
 
 import { readCookie } from '../modules/cookie-consent/utils';
 
@@ -14,6 +12,7 @@ declare global {
     dataLayer: Array<Record<string, unknown>>;
   }
 }
+
 
 
 const analyticsAccepted = (): boolean => {
@@ -44,13 +43,7 @@ const ensureDataLayer = (): void => {
  * @param data - Additional event data
  */
 export const pushDataLayer = (event: string, data?: Record<string, unknown>): void => {
-  // CONSENT CHECK - Don't track if analytics not accepted
-  if (!analyticsAccepted()) {
-    if (import.meta.env.DEV) {
-      console.log('[Analytics] Event blocked - analytics cookies not accepted:', event);
-    }
-    return;
-  }
+  
 
   ensureDataLayer();
   
@@ -63,10 +56,7 @@ export const pushDataLayer = (event: string, data?: Record<string, unknown>): vo
     
     window.dataLayer.push(eventData);
     
-    // Log in development mode for debugging
-    if (import.meta.env.DEV) {
-      console.log('[Analytics] dataLayer.push:', eventData);
-    }
+
   }
 };
 
