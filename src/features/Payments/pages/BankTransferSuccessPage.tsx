@@ -138,7 +138,11 @@ const BankTransferSuccessPage: React.FC = () => {
 
             <h2 className="govuk-heading-m">{BANK_TRANSFER_SUCCESS_PAGE.WHAT_HAPPENS_NEXT_HEADING}</h2>
             <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.EMAIL_CONFIRMATION}</p>
-            <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO}</p>
+            <p className="govuk-body">
+              {baseUrl === NWL_BASE_URL
+                ? BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_NWL
+                : BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_S37}
+            </p>
 
             <div className="govuk-!-margin-top-6">
               <button
