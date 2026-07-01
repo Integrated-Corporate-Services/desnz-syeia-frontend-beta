@@ -203,8 +203,10 @@ export const BANK_TRANSFER_SUCCESS_PAGE = {
   // What happens next section
   WHAT_HAPPENS_NEXT_HEADING: 'What happens next',
   EMAIL_CONFIRMATION: 'You will receive an email to confirm your application has been submitted.',
-  FOLLOW_UP_INFO:
+  FOLLOW_UP_INFO_S37:
     'The Overhead Lines (Section 37) team will contact you in due course with any follow up actions.',
+  FOLLOW_UP_INFO_NWL:
+    'The Necessary Wayleaves team will contact you in due course with any follow up actions.',
 
   // Error messages
   ERROR_HEADING: 'Warning',
