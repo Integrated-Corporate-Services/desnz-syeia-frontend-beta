@@ -9,7 +9,6 @@ import {
     ReviewPaymentDetailsCard,
     WithdrawalNotificationBanner,
     SummaryWithdrawButton,
-    DownloadPdfButton,
 } from '../../../ApplicationSummary/components';
 import {
     ApplicantDetailsSummaryCard,
@@ -88,8 +87,39 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
 
             <ReviewPaymentDetailsCard payment={data.payment} />
 
-            <div className="govuk-button-group">
-                {showWithdraw && (
+            {/* Download and share section */}
+            <h2 className="govuk-heading-m govuk-!-margin-top-6">
+                Download and share a copy of your application
+            </h2>
+            
+            <p className="govuk-body">
+                You need to share a copy of this application with the objector or their 
+                representative within 7 days of submitting it.
+            </p>
+
+            <p className="govuk-body">
+                <a
+                    href="#"
+                    className="govuk-link"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        if (!isDownloading && data.permissions?.canDownload !== false) {
+                            handleDownloadPdf();
+                        }
+                    }}
+                    aria-disabled={isDownloading || data.permissions?.canDownload === false}
+                    style={{
+                        pointerEvents: isDownloading || data.permissions?.canDownload === false ? 'none' : 'auto',
+                        opacity: isDownloading || data.permissions?.canDownload === false ? 0.5 : 1
+                    }}
+                >
+                    {isDownloading ? 'Downloading...' : 'Download the application summary only (PDF)'}
+                </a>
+            </p>
+
+            {/* Withdraw application button */}
+            {showWithdraw && (
+                <div className="govuk-button-group govuk-!-margin-top-6">
                     <SummaryWithdrawButton
                         onClick={() =>
                             navigate(`${NWL_BASE_URL}/${applicationId}/withdraw`, {
@@ -100,14 +130,8 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                             })
                         }
                     />
-                )}
-                
-                <DownloadPdfButton 
-                    onClick={handleDownloadPdf} 
-                    isDownloading={isDownloading}
-                    disabled={data.permissions?.canDownload === false}
-                />
-            </div>
+                </div>
+            )}
 
             <h2 className="govuk-heading-m">{CYA_CONSTANTS.SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
             <ApplicantDetailsSummaryCard 
