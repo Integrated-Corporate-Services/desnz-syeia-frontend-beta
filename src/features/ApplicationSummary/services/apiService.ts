@@ -4,7 +4,7 @@ import { buildBackendUrl } from '../../../utils/apiConfig';
 
 interface ApplicationSummaryData {
     applicationId: string;
-    applicationType: 'NWL' | 'S37' | 'TLP';
+    applicationType: 'NWL' | 'S37';
     desnzRef?: string;
     status: ApplicationStatus;
     submittedDate: string;
@@ -40,7 +40,7 @@ const mapReviewResponse = (
 
     return {
         applicationId: (data.applicationId as string) || applicationId,
-        applicationType: (data.formType as 'NWL' | 'S37' | 'TLP') || 'NWL',
+        applicationType: (data.formType as 'NWL' | 'S37') || 'NWL',
         formType: (data.formType as string) || 'NWL',
         desnzRef: (data.desnzRef as string) || null,
         status: (data.status as string) || null,
@@ -81,7 +81,7 @@ export const fetchApplicationReviewSummary = async (
 
 export const fetchApplicationSummary = async (
     applicationId: string,
-    applicationType: 'NWL' | 'S37' | 'TLP'
+    applicationType: 'NWL' | 'S37'
 ): Promise<ApplicationSummaryData> => {
     if (applicationType === 'NWL') {
         const review = await fetchApplicationReviewSummary(applicationId);

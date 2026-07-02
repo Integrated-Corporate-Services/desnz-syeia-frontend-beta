@@ -6,6 +6,7 @@ export interface ReviewSummaryPayment {
     kind?: string | null;
     reference?: string | null;
     transaction_number?: string | null;
+    invoice_number?: string | null;
     created_at?: string | null;
     is_successful?: boolean;
     is_complete?: boolean;
@@ -19,7 +20,7 @@ export interface ReviewSummaryPermissions {
 
 export interface ApplicationReviewSummaryData {
     applicationId: string;
-    applicationType: 'NWL' | 'S37' | 'TLP';
+    applicationType: 'NWL' | 'S37';
     formType?: string;
     desnzRef: string | null;
     status: string | null;

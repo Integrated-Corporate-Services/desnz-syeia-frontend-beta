@@ -5,7 +5,7 @@ import { formatDate, formatCurrency, getCaseTypeLabel, getPaymentMethodLabel } f
 
 export interface PaymentConfirmationPanelProps {
     desnzRef?: string;
-    applicationType: 'NWL' | 'S37' | 'TLP';
+    applicationType: 'NWL' | 'S37';
     payment: PaymentDetails;
 }
 
@@ -39,7 +39,7 @@ export const PaymentConfirmationPanel: React.FC<PaymentConfirmationPanelProps> =
 
 export interface PaymentDetailsSummaryProps {
     desnzRef?: string;
-    applicationType: 'NWL' | 'S37' | 'TLP';
+    applicationType: 'NWL' | 'S37';
     payment: PaymentDetails;
 }
 
