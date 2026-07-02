@@ -85,9 +85,14 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 withdrawalRequest={withdrawalRequest}
             />
 
-            <ReviewPaymentDetailsCard payment={data.payment} />
+            <ReviewPaymentDetailsCard 
+                payment={data.payment}
+                applicationId={applicationId}
+                applicationType={data.applicationType}
+                desnzRef={data.desnzRef}
+                applicationStatus={data.status}
+            />
 
-            {/* Download and share section */}
             <h2 className="govuk-heading-m govuk-!-margin-top-6">
                 Download and share a copy of your application
             </h2>
@@ -117,7 +122,6 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 </a>
             </p>
 
-            {/* Withdraw application button */}
             {showWithdraw && (
                 <div className="govuk-button-group govuk-!-margin-top-6">
                     <SummaryWithdrawButton
