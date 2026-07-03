@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
 import { PROJECT_OVERVIEW_ERRORS, createErrorLink, createMaxYearError } from "../../../constants/projectOverviewError";
+import { ERROR_MESSAGES } from "../../../constants/error";
 import { Link } from "react-router-dom";
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
@@ -44,6 +45,8 @@ const emptyProjectOverview: ProjectOverviewModel = {
 	projectId: "",
 	applicationId: "",
 	createdBy: "",
+	projectVersion: 1,
+	overviewVersion: 1,
 };
 
 const ProjectOverview = () => {
@@ -231,7 +234,10 @@ const ProjectOverview = () => {
 						addedAt: d.addedAt || '',
 						description: d.description || ''
 					}))
-					: []
+					: [],
+				// Store version fields for optimistic locking
+				projectVersion: projectData.projectVersion ?? 1,
+				overviewVersion: projectData.overviewVersion ?? 1,
 			});
 		}
 	}, [projectData, applicationId]);
@@ -263,15 +269,23 @@ const ProjectOverview = () => {
 						   <div className="govuk-error-summary__body">
 							   <ul className="govuk-list govuk-error-summary__list">
 							   {errors.map((err, idx) => {
-								   // Parse error link: errors are in format '<a href="#id">message</a>'
-								   const match = err.match(/<a href="#([^"]+)">([^<]+)<\/a>/);
+								   // Parse error link: errors can be in format '<a href="#id">message</a>' or '<a href="url" class="...">message</a>'
+								   const match = err.match(/<a\s+[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/);
 								   if (match) {
 									   const [, href, message] = match;
-									   return (
-										   <li key={idx}>
-											   <a href={`#${href}`}>{message}</a>
-										   </li>
-									   );
+									   // If href starts with #, it's a field anchor
+									   if (href.startsWith('#')) {
+										   return (
+											   <li key={idx}>
+												   <a href={`#${href}`}>{message}</a>
+											   </li>
+										   );
+									   } else {
+										   // For action links (like refresh), render the full HTML
+										   return (
+											   <li key={idx} dangerouslySetInnerHTML={{ __html: err }} />
+										   );
+									   }
 								   }
 								   return <li key={idx}>{err}</li>;
 							   })}
@@ -567,8 +581,14 @@ const ProjectOverview = () => {
 							const nextPageUrl = getNextPageUrl(TASK_NAMES.PROJECT_OVERVIEW, redirectId);
 							navigate(nextPageUrl);
 						})
-						.catch((err: Error) => {
-							setErrors([err.message || 'Failed to save project overview']);
+						.catch((err: Error & { isVersionConflict?: boolean; statusCode?: number }) => {
+							// Handle version conflict specially
+							if (err.isVersionConflict || err.statusCode === 409) {
+								setErrors([ERROR_MESSAGES.VERSION_CONFLICT]);
+							} else {
+								setErrors([err.message || 'Failed to save project overview']);
+							}
+							window.scrollTo({ top: 0 });
 						});
 					return;
 				}}>
