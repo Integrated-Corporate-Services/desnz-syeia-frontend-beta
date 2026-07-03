@@ -498,7 +498,7 @@ const ApplicationSummary: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
             
-            {/* Withdrawal request notification banner */}
+            {/* Withdrawal request notification banners */}
             {withdrawalRequest && withdrawalRequest.request_status === 'Requested' && (
               <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                 <div className="govuk-notification-banner__header" style={{ backgroundColor: '#1d70b8' }}>
@@ -509,6 +509,38 @@ const ApplicationSummary: React.FC = () => {
                 <div className="govuk-notification-banner__content">
                   <p className="govuk-notification-banner__heading">
                     {FIELD_LABELS.WITHDRAWAL_NOTIFICATION_BANNER}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Withdrawal request approved banner */}
+            {withdrawalRequest && withdrawalRequest.request_status === 'Approved' && (
+              <div className="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title-approved" data-module="govuk-notification-banner">
+                <div className="govuk-notification-banner__header">
+                  <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title-approved">
+                    Success
+                  </h2>
+                </div>
+                <div className="govuk-notification-banner__content">
+                  <p className="govuk-notification-banner__heading">
+                    Your request to withdraw this application has been approved.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Withdrawal request rejected banner */}
+            {withdrawalRequest && withdrawalRequest.request_status === 'Rejected' && (
+              <div className="govuk-notification-banner" role="alert" aria-labelledby="govuk-notification-banner-title-rejected" data-module="govuk-notification-banner" style={{ borderColor: '#d4351c' }}>
+                <div className="govuk-notification-banner__header" style={{ backgroundColor: '#d4351c' }}>
+                  <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title-rejected" style={{ color: 'white' }}>
+                    Important
+                  </h2>
+                </div>
+                <div className="govuk-notification-banner__content">
+                  <p className="govuk-notification-banner__heading">
+                    Your request to withdraw this application was rejected. Your application's status has not changed.
                   </p>
                 </div>
               </div>
