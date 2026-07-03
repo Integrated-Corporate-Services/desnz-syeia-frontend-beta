@@ -142,17 +142,24 @@ const YourDetailsPage: React.FC = () => {
                     '-'
                   )}
                 </dd>
-                <dd className="govuk-summary-list__actions">
-                  <Link className="govuk-link" to="/your-details/change-organisations">
-                    Change
-                  </Link>
-                </dd>
+                <dd className="govuk-summary-list__actions" />
               </div>
             </dl>
 
             <h2 className="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-4">Your OneLogin details</h2>
+            <p className="govuk-body govuk-!-margin-bottom-2">
+              These are your OneLogin details which can only be changed in your{' '}
+              <a 
+                href="https://www.gov.uk/using-your-gov-uk-one-login" 
+                className="govuk-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                OneLogin account (opens in a new tab)
+              </a>.
+            </p>
             <p className="govuk-body govuk-!-margin-bottom-6">
-              These are your OneLogin details which can only be changed in your OneLogin account.
+              If your email or phone number has changed and you cannot access OneLogin, you will need to contact them to delete your old account and create a new one. You may then need to register for a new SYEIA account.
             </p>
 
             <dl className="govuk-summary-list govuk-!-margin-bottom-8">
