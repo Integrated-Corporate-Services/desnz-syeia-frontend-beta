@@ -1,17 +1,12 @@
 import { nwlSupportingInfo } from '../types';
+import axios from 'axios';
 
-import { buildBackendUrl } from '../../../../utils/apiConfig';
-import { getCsrfHeaders } from '../../../../utils/csrf';
-
-const API_BASE = buildBackendUrl('/backend/api/nwl');
+const API_BASE = '/backend/api/nwl';
 
 export const getSupportingInfo = async (applicationId: string): Promise<nwlSupportingInfo | null> => {
   try {
-    const response = await fetch(`${API_BASE}/${applicationId}/nwl-supporting-info`, {
-      credentials: 'include'
-    });
-    if (!response.ok) return null;
-    return await response.json();
+    const response = await axios.get(`${API_BASE}/${applicationId}/nwl-supporting-info`);
+    return response.data;
   } catch {
     return null;
   }
@@ -19,17 +14,8 @@ export const getSupportingInfo = async (applicationId: string): Promise<nwlSuppo
 
 export const saveSupportingInfo = async (info: nwlSupportingInfo): Promise<nwlSupportingInfo | null> => {
   try {
-    const response = await fetch(`${API_BASE}/nwl-supporting-info`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        ...getCsrfHeaders(),
-      },
-      credentials: 'include',
-      body: JSON.stringify(info),
-    });
-    if (!response.ok) return null;
-    return await response.json();
+    const response = await axios.post(`${API_BASE}/nwl-supporting-info`, info);
+    return response.data;
   } catch {
     return null;
   }
