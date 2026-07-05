@@ -16,6 +16,31 @@ const logger = createLogger('axios-interceptor');
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.API_URL || "";
 
+axios.interceptors.request.use(
+  (config) => {
+
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('_csrf='))
+      ?.split('=')[1];
+    
+    if (csrfToken && ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
+      config.headers['X-CSRF-Token'] = csrfToken;
+      logger.debug('CSRF token added to request', { 
+        method: config.method, 
+        url: config.url,
+        hasToken: !!csrfToken 
+      });
+    }
+    
+    return config;
+  },
+  (error) => {
+    logger.error('Request interceptor error', { error });
+    return Promise.reject(error);
+  }
+);
+
 // Add axios interceptor to handle session expiration globally
 axios.interceptors.response.use(
   (response) => response,

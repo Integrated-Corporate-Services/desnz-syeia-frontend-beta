@@ -14,3 +14,9 @@ export function getCsrfToken(): string | null {
   const match = document.cookie.match(/(?:^|; )_csrf=([^;]*)/);
   return match ? decodeURIComponent(match[1]) : null;
 }
+
+
+export function getCsrfHeaders(): Record<string, string> {
+  const token = getCsrfToken();
+  return token ? { 'X-CSRF-Token': token } : {};
+}
