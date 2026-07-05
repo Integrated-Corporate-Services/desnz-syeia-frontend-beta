@@ -1,4 +1,5 @@
 import type { FeedbackPayload } from '../types/feedback.types';
+import { getCsrfHeaders } from '../../../utils/csrf';
 
 const ENDPOINT = '/backend/api/feedback';
 
@@ -25,7 +26,10 @@ function parseErrorMessage(body: Record<string, unknown>, status: number): strin
 export async function submitFeedback(payload: FeedbackPayload): Promise<{ id: string }> {
   const response = await fetch(ENDPOINT, {
     method:      'POST',
-    headers:     { 'Content-Type': 'application/json' },
+    headers:     { 
+      'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
+    },
     credentials: 'include',
     body:        JSON.stringify(payload),
   });

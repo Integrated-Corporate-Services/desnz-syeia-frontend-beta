@@ -6,6 +6,7 @@ import {
   mapParishesToCodes,
 } from "../utils/parishMappers";
 import { buildBackendUrl } from "../../../utils/apiConfig";
+import { getCsrfHeaders } from "../../../utils/csrf";
 
 export const parishApiService = {
   searchParishes: async (searchTerm: string): Promise<Parish[]> => {
@@ -34,6 +35,7 @@ export const parishApiService = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...getCsrfHeaders(),
       },
       credentials: "include",
       body: JSON.stringify({ parish_codes: parishCodes }),

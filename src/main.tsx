@@ -18,7 +18,7 @@ axios.defaults.baseURL = import.meta.env.API_URL || "";
 
 axios.interceptors.request.use(
   (config) => {
-
+    
     const csrfToken = document.cookie
       .split('; ')
       .find(row => row.startsWith('_csrf='))
@@ -41,7 +41,6 @@ axios.interceptors.request.use(
   }
 );
 
-// Add axios interceptor to handle session expiration globally
 axios.interceptors.response.use(
   (response) => response,
   (error) => {

@@ -3,6 +3,7 @@
  * Handles progress tracking for NWL subsections
  */
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../utils/csrf';
 
 export const nwlProgressService = {
   /**
@@ -28,7 +29,10 @@ export const nwlProgressService = {
   ) => {
     const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getCsrfHeaders(),
+      },
       credentials: 'include',
       body: JSON.stringify({ 
         subsection_name: subsectionName, 

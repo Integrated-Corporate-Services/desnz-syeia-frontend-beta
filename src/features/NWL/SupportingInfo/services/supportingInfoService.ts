@@ -1,6 +1,7 @@
 import { nwlSupportingInfo } from '../types';
 
 import { buildBackendUrl } from '../../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../../utils/csrf';
 
 const API_BASE = buildBackendUrl('/backend/api/nwl');
 
@@ -20,7 +21,10 @@ export const saveSupportingInfo = async (info: nwlSupportingInfo): Promise<nwlSu
   try {
     const response = await fetch(`${API_BASE}/nwl-supporting-info`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getCsrfHeaders(),
+      },
       credentials: 'include',
       body: JSON.stringify(info),
     });
