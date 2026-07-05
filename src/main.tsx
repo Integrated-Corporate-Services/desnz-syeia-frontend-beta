@@ -8,6 +8,7 @@ import React from "react";
 import axios from "axios";
 import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 import { createLogger } from "./utils/logger";
+import { fetchCsrfToken, getCsrfToken } from "./utils/csrf";
 
 const logger = createLogger('axios-interceptor');
 
@@ -16,14 +17,24 @@ const logger = createLogger('axios-interceptor');
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.API_URL || "";
 
+// Fetch CSRF token on app startup
+fetchCsrfToken().then(token => {
+  console.log('[CSRF] Initial token fetched on app startup:', token);
+});
+
+// Add axios request interceptor to inject CSRF token
 axios.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    // Get cached token
+    let csrfToken = getCsrfToken();
     
-    const csrfToken = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('_csrf='))
-      ?.split('=')[1];
+    // If no token cached, fetch it now
+    if (!csrfToken && ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
+      console.log('[CSRF] No cached token, fetching new one...');
+      csrfToken = await fetchCsrfToken();
+    }
     
+    // Add CSRF token to headers for state-changing requests
     if (csrfToken && ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
       config.headers['X-CSRF-Token'] = csrfToken;
       logger.debug('CSRF token added to request', { 
@@ -43,9 +54,16 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response) {
       const { status } = error.response;
+      
+      // Handle 403 CSRF errors - fetch new token and retry
+      if (status === 403 && error.response.data?.message?.includes('csrf')) {
+        console.log('[CSRF] Token invalid, fetching new token and retrying...');
+        await fetchCsrfToken();
+        return axios.request(error.config);
+      }
       
       // Handle 401 Unauthorized (session expired)
       if (status === 401) {
