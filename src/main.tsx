@@ -78,6 +78,16 @@ axios.interceptors.response.use(
         window.location.href = '/frontend/landingPage';
         return Promise.reject(error);
       }
+            
+      // Handle 429 Too Many Requests (rate limiting)
+      if (status === 429) {
+        const message = error.response?.data?.message || 'Too many requests. Please try again later.';
+        logger.warn('Rate limit exceeded', { message, url: error.config?.url });
+        // Let individual components handle the error message
+        // but ensure consistent error structure
+        error.rateLimitExceeded = true;
+        return Promise.reject(error);
+      }
     }
     
     return Promise.reject(error);

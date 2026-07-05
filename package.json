@@ -22,6 +22,7 @@
     "leaflet": "^1.9.4",
     "loglevel": "^1.9.2",
     "proj4": "^2.19.10",
+    "rate-limit-redis": "^4.3.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
