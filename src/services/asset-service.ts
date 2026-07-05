@@ -51,7 +51,25 @@ export const createAsset = async (payload: AssetRequest) => {
 // Service to update asset(s) via PUT
 export const updateAsset = async (payload: AssetRequest) => {
   log.debug('[updateAsset] Updating asset', { applicationId: payload.applicationId });
-  const response = await axios.put('/backend/api/applications/assets', payload);
-  log.info('[updateAsset] Asset updated successfully');
-  return response.data;
+  
+  try {
+    const response = await axios.put('/backend/api/applications/assets', payload);
+    log.info('[updateAsset] Asset updated successfully');
+    return response.data;
+  } catch (error: any) {
+    // Handle version conflict error
+    if (error.response?.status === 409 || error.response?.data?.error === 'VERSION_CONFLICT') {
+      log.warn('[updateAsset] Version conflict detected');
+      const conflictError: any = new Error(
+        error.response?.data?.message || 
+        'This page has been updated by another user. Please refresh the page to get the latest changes.'
+      );
+      conflictError.statusCode = 409;
+      conflictError.isVersionConflict = true;
+      throw conflictError;
+    }
+    
+    log.error('[updateAsset] Error updating asset:', error);
+    throw error;
+  }
 };

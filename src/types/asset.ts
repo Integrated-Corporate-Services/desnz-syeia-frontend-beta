@@ -33,6 +33,8 @@ export interface Asset {
   equipmentRemoval?: AssetEquipmentRemoval;
   isExistingAsset?: boolean;
   generalComments?: string;
+  // Version field for optimistic locking
+  version?: number;
 }
  
 export interface AssetRequest {

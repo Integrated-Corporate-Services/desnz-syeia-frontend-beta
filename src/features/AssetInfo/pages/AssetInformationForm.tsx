@@ -5,13 +5,14 @@ import { useApplication } from '../../../hooks/useApplication';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
-import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import RadioGroup from '../component/RadioGroup';
 import { clearFieldError } from '../validations';
 import TextArea from '../component/TextArea';
 import MultiSelectDropdown from '../component/MultiSelect';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
 import { managePublicConsultationByVoltage } from '../../../services/consultationService';
@@ -31,6 +32,7 @@ interface AssetFormState {
     tori_noi: string;
     lineVoltage: string[];
     lineLength: string;
+    version: number;
 }
 
 const initialState: AssetFormState = {
@@ -40,6 +42,7 @@ const initialState: AssetFormState = {
     tori_noi: '',
     lineVoltage: [],
     lineLength: '',
+    version: 1,
 };
 
 type FormErrors = Partial<Record<keyof typeof initialState, string>>;
@@ -155,6 +158,7 @@ const AssetInformationForm: React.FC = () => {
                 lineType: typeof asset.typeOfLine === 'object' && asset.typeOfLine !== null ? (asset.typeOfLine as { code?: string }).code || '' : asset.typeOfLine || '',
                 lineVoltage: voltageArr,
                 lineLength: asset.lineLength?.toString() || '',
+                version: asset.version || 1,
             });
             // Store original voltage for comparison on submit
             setOriginalVoltage(voltageArr);
@@ -265,6 +269,7 @@ const AssetInformationForm: React.FC = () => {
                     overheadLines: { hasAddOrReplace: false, description: '' },
                     equipmentRemoval: { isRemoving: false, description: '' },
                     isExistingAsset: false,
+                    version: form.version,
                 },
             ],
         };
@@ -280,7 +285,13 @@ const AssetInformationForm: React.FC = () => {
                     const nextPageUrl = getNextPageUrl(TASK_NAMES.ASSETS, effectiveApplicationId);
                     navigate(nextPageUrl);
                 })
-                .catch((error) => {
+                .catch((error: Error & { isVersionConflict?: boolean; statusCode?: number }) => {
+                    // Handle version conflict specially
+                    if (error.isVersionConflict || error.statusCode === 409) {
+                        setErrors({ assetId: ERROR_MESSAGES.VERSION_CONFLICT });
+                        window.scrollTo({ top: 0 });
+                        return;
+                    }
                     log.error('[AssetInformationForm] Failed to update asset:', error);
                     setErrors({ assetId: '', referenceNumber: ASSET_ERROR_MESSAGES.referenceNumber, lineType: ASSET_ERROR_MESSAGES.lineType, tori_noi: '', lineVoltage: ASSET_ERROR_MESSAGES.lineVoltage, lineLength: ASSET_ERROR_MESSAGES.lineLength });
                 });
@@ -364,7 +375,11 @@ const AssetInformationForm: React.FC = () => {
                                 {Object.entries(errors).map(([field, message]) =>
                                     typeof message === 'string' && message ? (
                                         <li key={field}>
-                                            <a href={`#${field}`}>{message}</a>
+                                            {field === 'assetId' && message === ERROR_MESSAGES.VERSION_CONFLICT ? (
+                                                <span dangerouslySetInnerHTML={{ __html: message }} />
+                                            ) : (
+                                                <a href={`#${field}`}>{message}</a>
+                                            )}
                                         </li>
                                     ) : null
                                 )}
