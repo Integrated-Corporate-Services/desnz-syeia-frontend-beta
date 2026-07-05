@@ -7,6 +7,7 @@ import TextArea from '../component/TextArea';
 import TextInput from '../component/TextInput';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 import { WORKS_OVERVIEW_LABELS } from '../../../constants/worksOverviewLabels';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -232,7 +233,7 @@ const WorksOverview: React.FC = () => {
     } catch (err: any) {
       // Handle version conflict error
       if (err.isVersionConflict || err.statusCode === 409) {
-        setErrors([{ field: 'generalComments', message: 'This page has been updated. Please <a href="javascript:window.location.reload()" class="govuk-link">refresh the page</a> to get the latest data before saving your changes.' }]);
+        setErrors([{ field: 'generalComments', message: ERROR_MESSAGES.VERSION_CONFLICT }]);
       } else {
         setErrors([{ field: 'generalComments', message: ASSET_ERROR_MESSAGES.generalCommentsFailed }]);
       }
@@ -301,9 +302,24 @@ const WorksOverview: React.FC = () => {
               <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
               <div className="govuk-error-summary__body">
                 <ul className="govuk-list govuk-error-summary__list">
-                  {errors.map((err, idx) => (
-                    <li key={idx}><a href={`#${err.field}`}>{err.message}</a></li>
-                  ))}
+                  {errors.map((err, idx) => {
+                    // Check if error message contains HTML (like the refresh link for version conflicts)
+                    const containsHtml = /<a\s+[^>]*href="[^"]+"/i.test(err.message);
+                    
+                    if (containsHtml) {
+                      // Render HTML content (like clickable refresh link)
+                      return (
+                        <li key={idx} dangerouslySetInnerHTML={{ __html: err.message }} />
+                      );
+                    } else {
+                      // Standard field error with anchor link
+                      return (
+                        <li key={idx}>
+                          <a href={`#${err.field}`}>{err.message}</a>
+                        </li>
+                      );
+                    }
+                  })}
                 </ul>
               </div>
             </div>
