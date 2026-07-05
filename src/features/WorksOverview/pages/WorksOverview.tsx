@@ -85,6 +85,7 @@ const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [version, setVersion] = useState<number>(1);
   const [roadClosureFiles, setRoadClosureFiles] = useState<UploadedFile[]>([]);
   const [roadClosureDocuments, setRoadClosureDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingRoadClosureFiles, setPendingRoadClosureFiles] = useState<File[]>([]);
@@ -99,6 +100,7 @@ const WorksOverview: React.FC = () => {
 
   useEffect(() => {
     setForm(initialState);
+    setVersion(1);
     setRoadClosureFiles([]);
     setRoadClosureDocuments([]);
     setPendingRoadClosureFiles([]);
@@ -135,14 +137,17 @@ const WorksOverview: React.FC = () => {
             removalDescription: data.removalDescription || '',
           });
           setIsEditMode(true);
+          setVersion(data.version || 1);
           setRoadClosureFiles(mapUploadedFiles(data.roadClosureUploadedFiles));
           setRoadClosureDocuments(mapApplicationDocuments(data.roadClosureApplicationDocuments));
         } else {
           setForm(initialState);
+          setVersion(1);
           setIsEditMode(false);
         }
       } catch {
         setForm(initialState);
+        setVersion(1);
         setIsEditMode(false);
       }
     }
@@ -196,6 +201,7 @@ const WorksOverview: React.FC = () => {
     removingExistingEquipment: form.removingExistingEquipment === '' ? null : form.removingExistingEquipment === 'yes',
     removalDescription: form.removingExistingEquipment === 'yes' ? form.removalDescription : '',
     generalComments: '',
+    version: isEditMode ? version : undefined,
   });
 
   const uploadPendingFiles = async () => {
@@ -223,8 +229,13 @@ const WorksOverview: React.FC = () => {
     try {
       await persistForm();
       navigate(getNextPageUrl(TASK_NAMES.WORKS_OVERVIEW, effectiveApplicationId));
-    } catch {
-      setErrors([{ field: 'generalComments', message: ASSET_ERROR_MESSAGES.generalCommentsFailed }]);
+    } catch (err: any) {
+      // Handle version conflict error
+      if (err.isVersionConflict || err.statusCode === 409) {
+        setErrors([{ field: 'generalComments', message: 'This page has been updated. Please <a href="javascript:window.location.reload()" class="govuk-link">refresh the page</a> to get the latest data before saving your changes.' }]);
+      } else {
+        setErrors([{ field: 'generalComments', message: ASSET_ERROR_MESSAGES.generalCommentsFailed }]);
+      }
     }
   };
 

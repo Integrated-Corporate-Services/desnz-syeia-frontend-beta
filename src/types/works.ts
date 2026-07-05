@@ -51,6 +51,7 @@ export interface WorksOverviewAsset {
 	removingExistingEquipment: boolean | null;
 	removalDescription: string;
 	generalComments: string;
+	version?: number;
 }
 
 export interface WorksOverviewRequest {
