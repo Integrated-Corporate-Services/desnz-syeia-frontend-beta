@@ -18,8 +18,8 @@ const GovUKHeader: React.FC = () => (
     `}</style>
       <header className="govuk-header" role="banner" style={{ background: '#2078c5', paddingBottom: 0 }}>
       <div className="govuk-width-container" style={{ display: 'flex', alignItems: 'center', height: '50px', position: 'relative' }}>
-        <a href="/" className="govuk-header__link govuk-header__link--homepage" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          {/* <img src={DESNZLogo} alt="Department for Energy Security and Net Zero" style={{ height: '32px', width: 'auto', marginRight: '16px', background: 'transparent' }} /> */}
+        <a href="https://www.gov.uk" className="govuk-header__link govuk-header__link--homepage" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          {/* <img src={DESNZLogo} alt="Department for Energy Security and Net Zero" style={{ height: '32px', width: 'auto', marginRight: '16px', background: 'transparent' }} />*/}
           <svg focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 324 60" height="30" width="162" fill="currentColor" className="govuk-header__logotype" aria-label="GOV.UK">
             <title>GOV.UK</title>
             <g>

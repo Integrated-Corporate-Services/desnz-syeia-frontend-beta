@@ -95,7 +95,7 @@ const WayleaveExpiryDate: React.FC = () => {
         documentId: doc.document_id,
         applicationId: appId || '',
         fileId: doc.file_id,
-        category: NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE,
+        category: NWL_FILE_CATEGORIES.NWL_INHERITED_NECESSARY_WAYLEAVE,
         title: doc.filename,
         filename: doc.filename,
         addedBy: '',
@@ -395,9 +395,9 @@ const WayleaveExpiryDate: React.FC = () => {
                 <FileUpload
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_LABEL}
-                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE}`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_INHERITED_NECESSARY_WAYLEAVE}`}
                   applicationId={appId}
-                  category={NWL_FILE_CATEGORIES.NWL_IMPLIED_WAYLEAVE}
+                  category={NWL_FILE_CATEGORIES.NWL_INHERITED_NECESSARY_WAYLEAVE}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
