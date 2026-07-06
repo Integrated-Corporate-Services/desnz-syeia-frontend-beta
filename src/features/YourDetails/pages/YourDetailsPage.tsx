@@ -2,14 +2,20 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import { getCurrentUserDetails, UserDetailsResponse } from '../services/yourDetailsService';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { ROLES } from '../../../constants/roles';
 import SkipLink from '../../../components/SkipLink';
 
 const YourDetailsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthUserContext();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [details, setDetails] = useState<UserDetailsResponse | null>(null);
   const [successFieldName, setSuccessFieldName] = useState<string>('');
+
+  // Determine if user is an agent (should see "Change" link for Agency name)
+  const isAgent = user?.is_agent === true || user?.role === ROLES.APPLICANT_AGENT;
 
   useEffect(() => {
     const storedBanner = sessionStorage.getItem(SUCCESS_BANNER_KEY);
@@ -119,15 +125,17 @@ const YourDetailsPage: React.FC = () => {
                 </dd>
               </div>
 
-              <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Agency name</dt>
-                <dd className="govuk-summary-list__value">{details.agencyName || '-'}</dd>
-                <dd className="govuk-summary-list__actions">
-                  <Link className="govuk-link" to="/your-details/change-agency-name">
-                    Change
-                  </Link>
-                </dd>
-              </div>
+              {isAgent && (
+                <div className="govuk-summary-list__row">
+                  <dt className="govuk-summary-list__key">Agency name</dt>
+                  <dd className="govuk-summary-list__value">{details.agencyName || '-'}</dd>
+                  <dd className="govuk-summary-list__actions">
+                    <Link className="govuk-link" to="/your-details/change-agency-name">
+                      Change
+                    </Link>
+                  </dd>
+                </div>
+              )}
 
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Organisation(s)</dt>
