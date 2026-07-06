@@ -64,7 +64,8 @@ const ChangeOrganisationsPage: React.FC = () => {
   const validateForm = (): FormErrors => {
     const nextErrors: FormErrors = {};
 
-    if (selectedOrganisationIds.length === 0) {
+    // Only require selection if there are organisations available to select
+    if (availableOrganisations.length > 0 && selectedOrganisationIds.length === 0) {
       nextErrors.organisationIds = 'Select at least one organisation';
     }
 
@@ -89,6 +90,12 @@ const ChangeOrganisationsPage: React.FC = () => {
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      return;
+    }
+
+    // If no organisations available to select, proceed directly to confirmation
+    if (availableOrganisations.length === 0) {
+      navigate('/your-details/change-organisations/confirmation');
       return;
     }
 

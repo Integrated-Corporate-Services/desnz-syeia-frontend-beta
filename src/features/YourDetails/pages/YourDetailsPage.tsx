@@ -150,7 +150,13 @@ const YourDetailsPage: React.FC = () => {
                     '-'
                   )}
                 </dd>
-                <dd className="govuk-summary-list__actions" />
+                <dd className="govuk-summary-list__actions">
+                  {isAgent && (
+                    <Link className="govuk-link" to="/your-details/change-organisations">
+                      Change
+                    </Link>
+                  )}
+                </dd>
               </div>
             </dl>
 
