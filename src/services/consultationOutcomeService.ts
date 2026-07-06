@@ -15,11 +15,24 @@ export async function saveConsultationOutcome(
   applicationId: string,
   data: ConsultationOutcomeData
 ): Promise<{ success: boolean; data: ConsultationOutcomeResponse }> {
-  const response = await axios.post(
-    `/backend/api/applications/${applicationId}/consultation-outcome`,
-    data
-  );
-  return response.data;
+  try {
+    const response = await axios.post(
+      `/backend/api/applications/${applicationId}/consultation-outcome`,
+      data
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 409 || error.response?.data?.error === 'VERSION_CONFLICT') {
+      const conflictError: any = new Error(
+        error.response?.data?.message || 
+        'This page has been updated by another user. Please refresh the page to get the latest changes.'
+      );
+      conflictError.statusCode = 409;
+      conflictError.isVersionConflict = true;
+      throw conflictError;
+    }
+    throw error;
+  }
 }
 
 /**

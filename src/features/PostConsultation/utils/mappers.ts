@@ -2,6 +2,7 @@ import { ConsultationOutcomeFormData, ConsultationOutcomeApiData, ConsultationOu
 
 /**
  * Maps backend API response to UI form data
+ * Note: Version is not included in form data - it's managed separately in the hook state
  */
 export const mapApiToFormData = (outcome: ConsultationOutcomeResponse | null): Partial<ConsultationOutcomeFormData> => {
     if (!outcome) {
@@ -41,6 +42,7 @@ export const mapApiToFormData = (outcome: ConsultationOutcomeResponse | null): P
  * Maps UI form data to backend API format
  * Only includes fields with actual values (sparse update pattern)
  * Explicitly sends null to clear dependent fields when parent changes
+ * Note: Version is added separately in usePostConsultationData hook after mapping
  */
 export const mapFormDataToApi = (formData: ConsultationOutcomeFormData): ConsultationOutcomeApiData => {
     const apiData: Partial<ConsultationOutcomeApiData> = {};

@@ -12,6 +12,7 @@ export interface SupportingInfo {
   application_documents?: any[];
   created_at?: string;
   updated_at?: string;
+  version?: number;
 }
 
 export interface SupportingInfoResponse {
@@ -27,4 +28,5 @@ export interface SupportingInfoRequest {
   applicant_supporting_comments?: string;
   uploaded_files?: UploadedFile[];
   application_documents?: ApplicationDocument[];
+  version?: number;
 }

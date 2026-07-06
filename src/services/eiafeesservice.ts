@@ -16,6 +16,7 @@ export interface CreateEiaFeePayload {
   updatedAt: string;
   createdBy: string;
   updatedBy: string;
+  version?: number;
 }
 
 // Payload for updating EIA Fee
@@ -26,6 +27,7 @@ export interface UpdateEiaFeePayload {
   screeningOnly: boolean;
   updatedAt: string;
   updatedBy: string;
+  version?: number;
 }
 
 // Service to fetch EIA Fees details from the backend
@@ -61,6 +63,14 @@ export const createEiaFee = async (payload: CreateEiaFeePayload): Promise<EiaFee
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
+    if (response.status === 409 || error.error === 'VERSION_CONFLICT') {
+      const conflictError: any = new Error(
+        error.message || 'This page has been updated by another user. Please refresh the page to get the latest changes.'
+      );
+      conflictError.statusCode = 409;
+      conflictError.isVersionConflict = true;
+      throw conflictError;
+    }
     throw new Error(error.message || 'Failed to create EIA Fee');
   }
   return response.json();
@@ -78,6 +88,14 @@ export const updateEiaFee = async (payload: UpdateEiaFeePayload): Promise<EiaFee
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
+    if (response.status === 409 || error.error === 'VERSION_CONFLICT') {
+      const conflictError: any = new Error(
+        error.message || 'This page has been updated by another user. Please refresh the page to get the latest changes.'
+      );
+      conflictError.statusCode = 409;
+      conflictError.isVersionConflict = true;
+      throw conflictError;
+    }
     throw new Error(error.message || 'Failed to update EIA Fee');
   }
   return response.json();

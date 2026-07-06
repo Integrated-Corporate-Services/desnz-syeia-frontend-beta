@@ -15,6 +15,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
     const [consulteesRecommendations, setConsulteesRecommendations] = useState<string>('');
     const [acceptConsulteesRecommendations, setAcceptConsulteesRecommendations] = useState<string>('');
     const [consulteesExplanation, setConsulteesExplanation] = useState<string>('');
+    const [version, setVersion] = useState<number>(1);
     const [loading, setLoading] = useState<boolean>(true);
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
@@ -44,6 +45,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
                 if (formData.consulteesRecommendations) setConsulteesRecommendations(formData.consulteesRecommendations);
                 if (formData.acceptConsulteesRecommendations) setAcceptConsulteesRecommendations(formData.acceptConsulteesRecommendations);
                 if (formData.consulteesExplanation) setConsulteesExplanation(formData.consulteesExplanation);
+                if (outcome?.version) setVersion(outcome.version);
             } catch (err) {
                 const error = err as AxiosError<{ error?: string }>;
                 console.error('Error loading consultation outcome:', error);
@@ -134,6 +136,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
             };
 
             const apiData = mapFormDataToApi(formData);
+            apiData.version = version;
             await saveConsultationOutcome(applicationId, apiData);
 
             // Refresh progress after backend update
@@ -146,11 +149,16 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
             }
 
             return true;
-        } catch (err) {
-            const error = err as AxiosError<{ error?: string }>;
-            console.error('Error saving consultation outcome:', error);
-            const errorMessage = error.response?.data?.error || POST_CONSULTATION_CONSTANTS.ERROR_SAVE_FAILED;
-            setError(errorMessage);
+        } catch (err: any) {
+            console.error('Error saving consultation outcome:', err);
+            if (err.isVersionConflict || err.statusCode === 409) {
+                setError(err.message || 'This page has been updated. Please refresh the page to get the latest data before saving your changes.');
+            } else {
+                const error = err as AxiosError<{ error?: string }>;
+                const errorMessage = error.response?.data?.error || POST_CONSULTATION_CONSTANTS.ERROR_SAVE_FAILED;
+                setError(errorMessage);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return false;
         } finally {
             setSaving(false);
