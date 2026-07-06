@@ -16,6 +16,7 @@ import {
     type ValidationError,
     EIA_FEES_ERROR_MESSAGES,
 } from '../validations';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import SkipLink from '../../../components/SkipLink';
 
 const EIAFeesForm: React.FC = () => {
@@ -162,7 +163,7 @@ const EIAFeesForm: React.FC = () => {
                 navigate(nextPageUrl);
             } catch (err: any) {
                 if (err.isVersionConflict || err.statusCode === 409) {
-                    setApiError(err.message || 'This page has been updated. Please refresh the page to get the latest data before saving your changes.');
+                    setApiError(ERROR_MESSAGES.VERSION_CONFLICT);
                 } else {
                     setApiError(EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED);
                 }

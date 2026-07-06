@@ -232,7 +232,7 @@ const SupportingInfo: React.FC = () => {
     } catch (err: any) {
       logger.error('Save failed:', err);
       if (err.isVersionConflict || err.statusCode === 409) {
-        setErrors([{ key: 'save', message: err.message || ERROR_MESSAGES.VERSION_CONFLICT }]);
+        setErrors([{ key: 'save', message: ERROR_MESSAGES.VERSION_CONFLICT }]);
       } else {
         setErrors([{ 
           key: 'save', 
