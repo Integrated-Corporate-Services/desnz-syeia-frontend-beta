@@ -70,7 +70,7 @@ export const getApplicationOptionText = (groundsForApplication: string): string 
 export const getWayleaveTypeText = (wayleaveType: string): string => {
     const mapping: { [key: string]: string } = {
         'wayleave': 'Wayleave',
-        'interim_necessary_wayleave': 'Interim necessary wayleave',
+        'inherited_necessary_wayleave': 'Inherited necessary wayleave',
         'implied_wayleave': 'Implied wayleave',
     };
     return mapping[wayleaveType] || wayleaveType;
