@@ -1,5 +1,6 @@
 import axios from "axios";
 import { SupportingInfoResponse, SupportingInfoRequest } from "../types/SupportingInfo";
+import { ERROR_MESSAGES } from "../constants/error";
 
 class SupportingInfoService {
   static async getSupportingInfo(applicationId: string): Promise<SupportingInfoResponse> {
@@ -15,7 +16,7 @@ class SupportingInfoService {
       if (error.response?.status === 409 || error.response?.data?.error === 'VERSION_CONFLICT') {
         const conflictError: any = new Error(
           error.response?.data?.message || 
-          'This page has been updated by another user. Please refresh the page to get the latest changes.'
+          ERROR_MESSAGES.VERSION_CONFLICT
         );
         conflictError.statusCode = 409;
         conflictError.isVersionConflict = true;
@@ -33,7 +34,7 @@ class SupportingInfoService {
       if (error.response?.status === 409 || error.response?.data?.error === 'VERSION_CONFLICT') {
         const conflictError: any = new Error(
           error.response?.data?.message || 
-          'This page has been updated by another user. Please refresh the page to get the latest changes.'
+          ERROR_MESSAGES.VERSION_CONFLICT
         );
         conflictError.statusCode = 409;
         conflictError.isVersionConflict = true;

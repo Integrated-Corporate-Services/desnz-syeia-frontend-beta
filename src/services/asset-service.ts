@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AssetRequest } from '../types/asset';
+import { ERROR_MESSAGES } from '../constants/error';
 import log from '../logger';
 
 // Service to fetch a single asset by applicationId and assetId
@@ -62,7 +63,7 @@ export const updateAsset = async (payload: AssetRequest) => {
       log.warn('[updateAsset] Version conflict detected');
       const conflictError: any = new Error(
         error.response?.data?.message || 
-        'This page has been updated by another user. Please refresh the page to get the latest changes.'
+        ERROR_MESSAGES.VERSION_CONFLICT
       );
       conflictError.statusCode = 409;
       conflictError.isVersionConflict = true;

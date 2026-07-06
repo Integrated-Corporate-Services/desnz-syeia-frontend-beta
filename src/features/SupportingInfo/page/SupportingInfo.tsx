@@ -12,6 +12,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import { clearKeyedErrors } from '../validations';
 
 const logger = createLogger('SupportingInfo');
@@ -231,7 +232,7 @@ const SupportingInfo: React.FC = () => {
     } catch (err: any) {
       logger.error('Save failed:', err);
       if (err.isVersionConflict || err.statusCode === 409) {
-        setErrors([{ key: 'save', message: err.message || 'This page has been updated. Please refresh the page to get the latest data before saving your changes.' }]);
+        setErrors([{ key: 'save', message: err.message || ERROR_MESSAGES.VERSION_CONFLICT }]);
       } else {
         setErrors([{ 
           key: 'save', 

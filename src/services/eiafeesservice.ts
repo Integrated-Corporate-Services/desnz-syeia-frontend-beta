@@ -1,6 +1,7 @@
 // src/services/eiafeesservice.ts
 
 import { buildBackendUrl } from '../utils/apiConfig';
+import { ERROR_MESSAGES } from '../constants/error';
 
 // EIA Fees type
 import { EiaFees } from '../types/eiaFees';
@@ -65,7 +66,7 @@ export const createEiaFee = async (payload: CreateEiaFeePayload): Promise<EiaFee
     const error = await response.json().catch(() => ({}));
     if (response.status === 409 || error.error === 'VERSION_CONFLICT') {
       const conflictError: any = new Error(
-        error.message || 'This page has been updated by another user. Please refresh the page to get the latest changes.'
+        error.message || ERROR_MESSAGES.VERSION_CONFLICT
       );
       conflictError.statusCode = 409;
       conflictError.isVersionConflict = true;
@@ -90,7 +91,7 @@ export const updateEiaFee = async (payload: UpdateEiaFeePayload): Promise<EiaFee
     const error = await response.json().catch(() => ({}));
     if (response.status === 409 || error.error === 'VERSION_CONFLICT') {
       const conflictError: any = new Error(
-        error.message || 'This page has been updated by another user. Please refresh the page to get the latest changes.'
+        error.message || ERROR_MESSAGES.VERSION_CONFLICT
       );
       conflictError.statusCode = 409;
       conflictError.isVersionConflict = true;
