@@ -60,6 +60,21 @@ const BankTransferPaymentPage: React.FC = () => {
           </ol>
         </nav>
 
+        {error && (
+          <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+            <h2 className="govuk-error-summary__title" id="error-summary-title">
+              There is a problem
+            </h2>
+            <div className="govuk-error-summary__body">
+              <ul className="govuk-list govuk-error-summary__list">
+                <li>
+                  <a href="#confirm-bank-transfer">{error}</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
+
         <h1 className="govuk-heading-xl">{PAYMENT_PAGE_TITLES.BANK_TRANSFER_PAYMENT}</h1>
 
         <div className="govuk-grid-row">
@@ -93,6 +108,11 @@ const BankTransferPaymentPage: React.FC = () => {
 
             <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
               <fieldset className="govuk-fieldset">
+                {error && (
+                  <p id="confirm-bank-transfer-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {error}
+                  </p>
+                )}
                 <div className="govuk-checkboxes" data-module="govuk-checkboxes">
                   <div className="govuk-checkboxes__item">
                     <input
@@ -105,6 +125,7 @@ const BankTransferPaymentPage: React.FC = () => {
                         setIsChecked(e.target.checked);
                         setError('');
                       }}
+                      aria-describedby={error ? 'confirm-bank-transfer-error' : undefined}
                     />
                     <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-bank-transfer">
                       I confirm I want to pay by bank transfer
