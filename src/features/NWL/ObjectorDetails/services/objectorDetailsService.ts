@@ -1,7 +1,9 @@
 import { ObjectorDetails } from '../types';
 
 import { buildBackendUrl } from '../../../../utils/apiConfig';
+import { createLogger } from '../../../../utils/logger';
 
+const logger = createLogger('ObjectorDetailsService');
 const API_BASE = buildBackendUrl('/backend/api/nwl');
 
 export const getObjectorDetails = async (applicationId: string): Promise<ObjectorDetails | null> => {
@@ -21,7 +23,7 @@ export const getObjectorDetails = async (applicationId: string): Promise<Objecto
     }
     return await response.json();
   } catch (error) {
-    console.error('[Frontend Service] Error fetching objector details:', error);
+    logger.error('Error fetching objector details:', error);
     // Return null for 404, throw for other errors
     if ((error as any).status === 404) {
       return null;
@@ -39,12 +41,9 @@ export const saveObjectorDetails = async (
   details: Partial<ObjectorDetails>
 ): Promise<ObjectorDetails | null> => {
   try {
-    console.log('[Frontend Service] About to send PATCH request', {
+    logger.debug('About to send PATCH request', {
       applicationId,
-      details,
       detailsKeys: Object.keys(details),
-      objector_organisation: details.objector_organisation,
-      detailsStringified: JSON.stringify(details)
     });
 
     const response = await fetch(`${API_BASE}/${applicationId}/objector-details`, {
@@ -56,7 +55,7 @@ export const saveObjectorDetails = async (
       body: JSON.stringify(details),
     });
     
-    console.log('[Frontend Service] Response status:', response.status);
+    logger.debug('Response status:', response.status);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -67,11 +66,11 @@ export const saveObjectorDetails = async (
     }
     
     const result = await response.json();
-    console.log('[Frontend Service] Response data:', result);
+    logger.debug('Response data received');
     
     return result;
   } catch (error) {
-    console.error('[Frontend Service] Error saving objector details:', error);
+    logger.error('Error saving objector details:', error);
     throw error;
   }
 };
@@ -93,7 +92,7 @@ export const deleteObjectorDetails = async (applicationId: string): Promise<bool
 
     return true;
   } catch (error) {
-    console.error('[Frontend Service] Error deleting objector details:', error);
+    logger.error('Error deleting objector details:', error);
     throw error;
   }
 };

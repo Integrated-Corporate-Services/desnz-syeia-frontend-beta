@@ -1,4 +1,7 @@
 import { getTelemetryConfig, getCurrentEnvironment } from './config';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('GTM');
 
 let _config: ReturnType<typeof getTelemetryConfig> | null = null;
 function getConfig() {
@@ -14,17 +17,17 @@ export function initGTM(): void {
   const ENABLED = config.enableGTM;
   
   if (!ENABLED || !GTM_ID) {
-    console.warn('[GTM] Not initialized:', { ENABLED, GTM_ID });
+    logger.warn('Not initialized:', { ENABLED, GTM_ID });
     return;
   }
   
   if (document.getElementById('gtm-script')) {
-    console.log('[GTM] Already initialized');
+    logger.debug('Already initialized');
     return;
   }
 
-  console.log('[GTM] Initializing with ID:', GTM_ID);
-  console.log('[GTM] Detected Environment:', getCurrentEnvironment());
+  logger.debug('Initializing with ID:', GTM_ID);
+  logger.debug('Detected Environment:', getCurrentEnvironment());
 
   // Initialize dataLayer
   (window as any).dataLayer = (window as any).dataLayer || [];
@@ -45,7 +48,7 @@ export function initGTM(): void {
   } else {
     document.head.appendChild(script);
   }
-  console.log('[GTM] Script added to head');
+  logger.debug('Script added to head');
 
   // Add GTM noscript iframe to body
   const noscript = document.createElement('noscript');
@@ -65,8 +68,8 @@ export function initGTM(): void {
     document.body.appendChild(noscript);
   }
   
-  console.log('[GTM] Noscript iframe added to body');
-  console.log('[GTM] Initialization complete');
+  logger.debug('Noscript iframe added to body');
+  logger.debug('Initialization complete');
 }
 
 export function disableGTM(): void {
@@ -74,23 +77,23 @@ export function disableGTM(): void {
   const GTM_ID = config.gtmId;
   
   if (!GTM_ID) {
-    console.warn('[GTM] Cannot disable - No GTM ID configured');
+    logger.warn('Cannot disable - No GTM ID configured');
     return;
   }
   
-  console.log('[GTM] Disabling GTM');
+  logger.debug('Disabling GTM');
   
   const script = document.getElementById('gtm-script');
   if (script) {
     script.remove();
-    console.log('[GTM] Script removed');
+    logger.debug('Script removed');
   }
 
   const noscript = document.getElementById('gtm-noscript');
   if (noscript) {
     noscript.remove();
-    console.log('[GTM] Noscript iframe removed');
+    logger.debug('Noscript iframe removed');
   }
   
-  console.log('[GTM] GTM disabled');
+  logger.debug('GTM disabled');
 }

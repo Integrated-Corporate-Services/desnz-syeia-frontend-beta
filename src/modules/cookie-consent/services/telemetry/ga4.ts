@@ -1,4 +1,7 @@
 import { getTelemetryConfig, getCurrentEnvironment } from './config';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('GA4');
 
 // HOTFIX: Lazy config loading - evaluates at runtime instead of build time
 let _config: ReturnType<typeof getTelemetryConfig> | null = null;
@@ -16,17 +19,17 @@ export function initGa4(): void {
   const DEBUG_MODE = config.debugMode;
 
   if (!ENABLED || !MEASUREMENT_ID) {
-    console.warn('[GA4] Not initialized:', { ENABLED, MEASUREMENT_ID });
+    logger.warn('Not initialized:', { ENABLED, MEASUREMENT_ID });
     return;
   }
 
   if (document.getElementById('ga4-script')) {
-    console.log('[GA4] Already initialized');
+    logger.debug('Already initialized');
     return;
   }
 
-  console.log('[GA4] Initializing with ID:', MEASUREMENT_ID);
-  console.log('[GA4] Detected Environment:', getCurrentEnvironment());
+  logger.debug('Initializing with ID:', MEASUREMENT_ID);
+  logger.debug('Detected Environment:', getCurrentEnvironment());
 
   const script = document.createElement('script');
   script.id = 'ga4-script';

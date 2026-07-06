@@ -1,7 +1,6 @@
-/**
- * CSRF Token Management (Cookie-based)
- * Backend generates secret in cookie, frontend must fetch token from endpoint
- */
+import { createLogger } from './logger';
+
+const logger = createLogger('csrf');
 
 let cachedToken: string | null = null;
 
@@ -18,10 +17,10 @@ export async function fetchCsrfToken(): Promise<string | null> {
     if (!response.ok) return null;
     const data = await response.json();
     cachedToken = data.csrfToken;
-    console.log('[CSRF] Fetched new token from server:', cachedToken);
+    logger.debug('Fetched new CSRF token from server');
     return cachedToken;
   } catch (error) {
-    console.error('[CSRF] Failed to fetch token:', error);
+    logger.error('Failed to fetch CSRF token', error);
     return null;
   }
 }
@@ -34,9 +33,6 @@ export function getCsrfToken(): string | null {
 
 export function getCsrfHeaders(): { 'X-CSRF-Token'?: string } {
   const token = getCsrfToken();
-  console.log('[CSRF] getCsrfHeaders called');
-  console.log('[CSRF] Token from cache:', token);
-  const headers = token ? { 'X-CSRF-Token': token } : {};
-  console.log('[CSRF] Returning headers:', headers);
-  return headers;
+  logger.debug('Getting CSRF headers', { hasToken: !!token });
+  return token ? { 'X-CSRF-Token': token } : {};
 }

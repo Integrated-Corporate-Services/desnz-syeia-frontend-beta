@@ -34,7 +34,7 @@ export const useNWLProgress = (applicationId?: string) => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch progress';
       setError(errorMessage);
-      console.error('[useNWLProgress] Error fetching progress:', err);
+      logger.error('Error fetching progress:', err);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +59,7 @@ export const useNWLProgress = (applicationId?: string) => {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to update progress';
         setError(errorMessage);
-        console.error('[useNWLProgress] Error updating progress:', err);
+        logger.error('Error updating progress:', err);
         throw err;
       } finally {
         setIsLoading(false);

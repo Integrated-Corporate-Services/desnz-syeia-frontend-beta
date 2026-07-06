@@ -1,6 +1,9 @@
 import { generateCorrelationId } from "../utils/correlationId";
 import { buildBackendUrl } from "../utils/apiConfig";
 import { fetchCsrfToken, getCsrfHeaders } from "../utils/csrf";
+import { createLogger } from "../utils/logger";
+
+const logger = createLogger('application-api');
 
 export const applicationApiService = {
   // Fetch applications for a user
@@ -20,21 +23,16 @@ export const applicationApiService = {
 
   // Create a new application
   createApplication: async (applicationData: any, correlationId?: string) => {
-    // Ensure we have a CSRF token before making the request
     await fetchCsrfToken();
     
     const csrfHeaders = getCsrfHeaders();
-    console.log('[APPLICATION API] Creating application');
-    console.log('[APPLICATION API] CSRF headers:', csrfHeaders);
+    logger.debug('Creating application', { hasToken: !!csrfHeaders['X-CSRF-Token'] });
     
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
       ...csrfHeaders,
     };
-    
-    console.log('[APPLICATION API] Final headers:', headers);
-    console.log('[APPLICATION API] X-CSRF-Token in headers:', headers['X-CSRF-Token']);
     
     const response = await fetch(buildBackendUrl("/backend/api/applications"), {
       method: "POST",

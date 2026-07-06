@@ -211,7 +211,7 @@ export const deleteNegotiationsData = async (applicationId: string): Promise<boo
     
     return true;
   } catch (error: unknown) {
-    console.error('[deleteNegotiationsData] Error:', error);
+    logger.error('Error deleting negotiations data:', error);
     return false;
   }
 };

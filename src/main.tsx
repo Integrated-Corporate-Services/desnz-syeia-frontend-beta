@@ -11,6 +11,7 @@ import { createLogger } from "./utils/logger";
 import { fetchCsrfToken, getCsrfToken } from "./utils/csrf";
 
 const logger = createLogger('axios-interceptor');
+const csrfLogger = createLogger('csrf');
 
 // Configure axios to send cookies with requests (required for session auth)
 // Use empty string for relative paths (same-origin requests)
@@ -19,7 +20,7 @@ axios.defaults.baseURL = import.meta.env.API_URL || "";
 
 // Fetch CSRF token on app startup
 fetchCsrfToken().then(token => {
-  console.log('[CSRF] Initial token fetched on app startup:', token);
+  csrfLogger.debug('Initial CSRF token fetched on app startup');
 });
 
 // Add axios request interceptor to inject CSRF token
@@ -30,7 +31,7 @@ axios.interceptors.request.use(
     
     // If no token cached, fetch it now
     if (!csrfToken && ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
-      console.log('[CSRF] No cached token, fetching new one...');
+      csrfLogger.debug('No cached token, fetching new one');
       csrfToken = await fetchCsrfToken();
     }
     
@@ -60,7 +61,7 @@ axios.interceptors.response.use(
       
       // Handle 403 CSRF errors - fetch new token and retry
       if (status === 403 && error.response.data?.message?.includes('csrf')) {
-        console.log('[CSRF] Token invalid, fetching new token and retrying...');
+        csrfLogger.debug('Token invalid, fetching new token and retrying');
         await fetchCsrfToken();
         return axios.request(error.config);
       }
@@ -103,8 +104,10 @@ declare global {
   }
 }
 
+const consentLogger = createLogger('consent');
+
 const handleConsentChange: ConsentChangeCallback = (prefs, source) => {
-  console.log('[Consent]', source, prefs);
+  consentLogger.info('Consent changed', { source, analytics: prefs.analytics });
 };
 
 createRoot(document.getElementById("root")!).render(
