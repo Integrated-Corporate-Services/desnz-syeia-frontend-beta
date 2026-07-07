@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
+    "build:production": "NODE_ENV=production tsc -b && vite build --mode production",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "verify:no-console": "node -e \"const fs=require('fs');const glob=require('glob');const files=glob.sync('src/**/*.{ts,tsx}',{ignore:['**/*.test.ts','**/*.spec.ts','**/node_modules/**']});let found=false;files.forEach(f=>{const content=fs.readFileSync(f,'utf8');const matches=content.match(/console\\.(log|info|debug)/g);if(matches&&!content.includes('src/utils/logger.ts')){console.log(f+': '+matches.length+' console statements');found=true}});if(found){console.log('❌ Found console statements');process.exit(1)}else{console.log('✅ No problematic console statements found')}\""
   },
   "dependencies": {
     "@govuk-react/icon-crown": "^0.1.0",

@@ -5,6 +5,9 @@
 
 import { useState, useCallback } from 'react';
 import { nwlProgressService } from '../services/nwlProgressService';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('nwl-progress');
 
 export interface ProgressItem {
   subsection_name: string;

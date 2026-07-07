@@ -9,10 +9,35 @@ export default defineConfig(({ mode }) => {
         css: {
             preprocessorOptions: {
                 scss: {
-                    quietDeps: true, // Suppress deprecation warnings from dependencies
+                    quietDeps: true,
                     silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'slash-div', 'mixed-decls'],
                 }
             }
+        },
+        build: {
+            minify: 'terser',
+            terserOptions: {
+                compress: {
+                    drop_console: mode === 'production',
+                    drop_debugger: true,
+                    pure_funcs: mode === 'production' ? [
+                        'console.log',
+                        'console.info',
+                        'console.debug',
+                        'console.trace',
+                    ] : [],
+                    dead_code: true,
+                    unused: true,
+                },
+                mangle: {
+                    reserved: [],
+                },
+                format: {
+                    comments: false,
+                },
+            },
+            sourcemap: mode === 'production' ? 'hidden' : true,
+            chunkSizeWarningLimit: 1000,
         },
         test: {
             environment: 'jsdom',
