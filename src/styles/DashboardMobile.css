@@ -1,0 +1,635 @@
+﻿/**
+ * Dashboard Mobile Responsiveness Styles
+ * 
+ * Implements mobile-first responsive design for:
+ * - Applicant Dashboard ("Your applications")
+ * - User Management Dashboard
+ * 
+ * Following GDS Design System guidelines.
+ * 
+ * NOTE: Global scrolling fixes are in src/index.css
+ */
+
+/* ==========================================================================
+   MOBILE APPLICATION CARDS
+   Converts table rows to stacked cards on mobile devices
+   ========================================================================== */
+
+/* Hide mobile cards on desktop, show table */
+.application-card-list {
+  display: none;
+}
+
+/* Mobile breakpoint - hide table, show cards */
+@media (max-width: 640px) {
+  /* Hide the table on mobile - using !important for specificity */
+  .application-dashboard-table-wrapper .govuk-table,
+  .application-dashboard-table-wrapper table.govuk-table {
+    display: none !important;
+  }
+
+  /* Show mobile card list */
+  .application-card-list {
+    display: block !important;
+  }
+
+  /* Application card container */
+  .application-card {
+    border: 1px solid #b1b4b6;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #ffffff;
+  }
+
+  .application-card:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Card header with reference and status */
+  .application-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .application-card__reference {
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .application-card__reference a {
+    color: #1d70b8;
+    text-decoration: underline;
+  }
+
+  .application-card__reference a:hover {
+    color: #003078;
+  }
+
+  .application-card__reference a:focus {
+    outline: 3px solid #ffdd00;
+    outline-offset: 0;
+    background-color: #ffdd00;
+    color: #0b0c0c;
+    text-decoration: none;
+  }
+
+  .application-card__status {
+    flex-shrink: 0;
+  }
+
+  /* Card body with metadata */
+  .application-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .application-card__row {
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.25;
+    color: #0b0c0c;
+  }
+
+  .application-card__label {
+    font-weight: 700;
+  }
+
+  .application-card__value {
+    font-weight: 400;
+  }
+}
+
+/* ==========================================================================
+   USER MANAGEMENT MOBILE CARDS
+   ========================================================================== */
+
+/* Hide user cards on desktop */
+.user-card-list {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  /* Hide user table on mobile */
+  .user-management-table {
+    display: none !important;
+  }
+
+  /* Show user card list */
+  .user-card-list {
+    display: block !important;
+  }
+
+  /* User card container */
+  .user-card {
+    border: 1px solid #b1b4b6;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #ffffff;
+  }
+
+  .user-card:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Card header with name and status */
+  .user-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .user-card__name {
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #0b0c0c;
+  }
+
+  .user-card__status {
+    flex-shrink: 0;
+  }
+
+  /* Card body with metadata */
+  .user-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .user-card__row {
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.25;
+    color: #0b0c0c;
+  }
+
+  .user-card__label {
+    font-weight: 700;
+  }
+
+  .user-card__value {
+    font-weight: 400;
+  }
+
+  /* Manage link */
+  .user-card__action {
+    margin-top: 10px;
+  }
+
+  .user-card__action a {
+    color: #1d70b8;
+    text-decoration: underline;
+    font-size: 16px;
+  }
+
+  .user-card__action a:hover {
+    color: #003078;
+  }
+
+  .user-card__action a:focus {
+    outline: 3px solid #ffdd00;
+    outline-offset: 0;
+    background-color: #ffdd00;
+    color: #0b0c0c;
+    text-decoration: none;
+  }
+}
+
+/* ==========================================================================
+   HORIZONTALLY SCROLLABLE TABS
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Make tabs container scrollable */
+  .govuk-tabs {
+    margin-bottom: 0 !important;
+  }
+
+  /* Hide the default GOV.UK tabs title on mobile */
+  .govuk-tabs__title {
+    display: none !important;
+  }
+
+  .govuk-tabs__list {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #b1b4b6 transparent;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-bottom: 1px solid #b1b4b6 !important;
+    list-style: none !important;
+  }
+
+  .govuk-tabs__list::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .govuk-tabs__list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .govuk-tabs__list::-webkit-scrollbar-thumb {
+    background-color: #b1b4b6;
+    border-radius: 2px;
+  }
+
+  /* Tab list items - grey background for inactive */
+  .govuk-tabs__list-item,
+  .govuk-tabs .govuk-tabs__list .govuk-tabs__list-item {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid #b1b4b6 !important;
+    border-bottom: 1px solid #b1b4b6 !important;
+    background-color: #f3f2f1 !important; /* Light grey for inactive tabs */
+    display: inline-block !important;
+  }
+
+  /* Selected tab - white background */
+  .govuk-tabs__list-item--selected,
+  .govuk-tabs .govuk-tabs__list .govuk-tabs__list-item--selected {
+    background-color: #ffffff !important; /* White for selected tab */
+    border: 1px solid #b1b4b6 !important;
+    border-bottom: 1px solid #ffffff !important;
+    position: relative;
+    z-index: 2;
+    margin-bottom: -1px !important;
+  }
+
+  /* Tab links - ensure they fill the tab and display properly */
+  .govuk-tabs__tab,
+  .govuk-tabs .govuk-tabs__list .govuk-tabs__list-item .govuk-tabs__tab {
+    display: block !important;
+    padding: 10px 20px !important;
+    font-size: 16px !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
+    color: #1d70b8 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  /* Selected tab link */
+  .govuk-tabs__list-item--selected .govuk-tabs__tab,
+  .govuk-tabs .govuk-tabs__list .govuk-tabs__list-item--selected .govuk-tabs__tab {
+    color: #0b0c0c !important;
+    font-weight: 700 !important;
+  }
+
+  /* Tab hover state */
+  .govuk-tabs__tab:hover {
+    color: #003078 !important;
+  }
+
+  /* Ensure tab panels display correctly */
+  .govuk-tabs__panel {
+    padding: 15px 0 !important;
+    border: none !important;
+  }
+}
+
+/* ==========================================================================
+   MOBILE HEADER & BUTTONS
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Header section responsive - use full available width */
+  .application-dashboard-hero-section {
+    padding: 15px 0;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .application-dashboard-hero-section .govuk-heading-l,
+  .application-dashboard-hero-section .govuk-heading-xl {
+    font-size: 24px;
+    line-height: 1.25;
+    margin-bottom: 15px;
+  }
+
+  /* Stack buttons vertically on mobile and make full width */
+  .application-dashboard-header-buttons {
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    margin: 15px 0 20px 0 !important;
+  }
+
+  /* Buttons stretch to full container width */
+  .application-dashboard-header-buttons .govuk-button {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    text-align: center;
+    box-sizing: border-box !important;
+  }
+
+  /* Description text - use full width */
+  .application-dashboard-hero-section .govuk-body {
+    font-size: 16px;
+    line-height: 1.5;
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   MOBILE FILTER PANEL
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Filter panel full width on mobile */
+  .filter-panel {
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none;
+    margin-bottom: 20px;
+  }
+
+  .filter-panel .govuk-heading-m {
+    font-size: 18px;
+    padding: 15px;
+    height: auto;
+  }
+
+  /* Filter sections */
+  .filter-section {
+    margin-bottom: 20px;
+  }
+
+  /* Filter actions */
+  .filter-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0 15px;
+  }
+
+  .filter-actions .govuk-button {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  /* Selected filters */
+  .selected-filters-container {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+  }
+
+  .filter-pills {
+    gap: 5px;
+  }
+
+  .filter-pill {
+    font-size: 14px;
+    padding: 5px 8px;
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
+   MOBILE TABLE WRAPPER
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .application-dashboard-table-wrapper {
+    padding: 15px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border: 1px solid #b1b4b6;
+  }
+
+  .application-dashboard-items-count {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+}
+
+/* ==========================================================================
+   MOBILE PAGINATION
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .govuk-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .govuk-pagination__list {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .govuk-pagination__item {
+    margin: 2px;
+  }
+
+  .govuk-pagination__link {
+    padding: 10px 15px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ==========================================================================
+   MOBILE USER MANAGEMENT DASHBOARD
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Keep dashboard content within viewport on small screens */
+  .user-management-dashboard {
+    margin: 0 5px;
+    max-width: calc(100% - 10px);
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .user-management-dashboard .govuk-grid-row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .user-management-dashboard .govuk-grid-column-full {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Dashboard header */
+  .govuk-heading-l {
+    font-size: 24px;
+    line-height: 1.25;
+  }
+
+  /* Search section */
+  .user-search-section {
+    margin-bottom: 20px;
+  }
+
+  .user-search-section .govuk-form-group {
+    margin-bottom: 10px;
+  }
+
+  .user-search-section .govuk-input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .user-search-section .govuk-button {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* Tab panels */
+  .govuk-tabs__panel {
+    padding: 15px 0;
+  }
+
+  .govuk-tabs__panel .govuk-heading-m {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .govuk-tabs__panel .govuk-body-s {
+    margin-bottom: 15px;
+  }
+}
+
+/* ==========================================================================
+   WIDE CONTAINER MOBILE OVERRIDES
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .app-wide-container {
+    padding: 0 15px;
+  }
+
+  .app-your-applications-section {
+    padding: 15px;
+    margin: 0;
+  }
+
+  .app-wide-container .govuk-grid-row {
+    margin: 0;
+  }
+
+  /* Stack filter and results on tablet/mobile */
+  .govuk-grid-column-one-quarter,
+  .govuk-grid-column-three-quarters,
+  .govuk-grid-column-full {
+    width: 100%;
+    padding: 0;
+  }
+
+  #filterTabsWrapper.filter-hidden {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  /* Remove left padding from tabs panel on mobile */
+  .app-wide-container .govuk-grid-row #tabsPanel {
+    padding-left: 0;
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-wide-container {
+    padding: 0 5px;
+  }
+
+  .app-your-applications-section {
+    padding: 10px 0;
+    margin: 0;
+  }
+
+  /* Ensure full width on smallest screens - minimal margins for maximum content width */
+  .govuk-width-container {
+    margin: 0 5px;
+    max-width: calc(100% - 10px);
+    padding: 0;
+  }
+
+  /* Override any nested padding */
+  .govuk-width-container > * {
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
+   STATUS BADGE MOBILE ADJUSTMENTS
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .govuk-tag {
+    font-size: 14px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  /* Ensure badges don't get too wide */
+  .application-card__status .govuk-tag,
+  .user-card__status .govuk-tag {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY - TOUCH TARGETS
+   Ensure minimum 44x44px touch targets per WCAG 2.1
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Links and buttons */
+  .application-card__reference a,
+  .user-card__action a,
+  .govuk-link {
+    display: inline-block;
+    min-height: 44px;
+    line-height: 44px;
+    padding: 0 5px;
+    margin: -5px;
+  }
+
+  /* Checkbox and radio inputs */
+  .govuk-checkboxes__input,
+  .govuk-radios__input {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ==========================================================================
+   FILTER TOGGLE BUTTON - MOBILE SPECIFIC
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Ensure toggle button is prominent on mobile */
+  button[aria-controls="application-dashboard-filters"] {
+    width: 100%;
+    text-align: center;
+  }
+}

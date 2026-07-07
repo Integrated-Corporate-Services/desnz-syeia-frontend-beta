@@ -1,0 +1,59 @@
+// Types for WorksOverview asset payload
+export interface WorksOverviewPoles {
+	hasAddOrReplace: boolean;
+	poleMaterial: string;
+	chemicalTreatments: string;
+	add: number;
+	replace: number;
+	description: string;
+}
+
+export interface FileUpload {
+	url: string;
+	name: string;
+	size: number;
+}
+
+export interface WorksOverviewOverheadLines {
+	hasAddOrReplace: boolean;
+	description: string;
+    estimatedDuration: string;
+    vehiclesRequired: string;
+    roadClosuresRequired: string;
+}
+
+export interface WorksOverviewEquipmentRemoval {
+	isRemoving: boolean;
+	description: string;
+}
+
+export interface WorksOverviewAsset {
+	addingOrReplacingPoles: boolean | null;
+	poleMaterial: string;
+	chemicalTreatments: string;
+	polesAdded: number;
+	polesReplaced: number;
+	tallestNewPoleHeight: number;
+	poleComments: string;
+	addingOrReplacingLines: boolean | null;
+	overheadLineDescription: string;
+	estimatedDuration: string;
+	vehiclesRequired: string;
+	roadClosuresRequired: boolean | null;
+	roadClosuresDetails: string;
+	excavationRequired: boolean | null;
+	excavationDetails: string;
+	vegetationClearanceRequired: boolean | null;
+	vegetationClearanceDetails: string;
+	usingExistingAccessRoutes?: boolean | null;
+	existingAccessRoutesDetails?: string;
+	proposedAccessRoutesDetails?: string;
+	removingExistingEquipment: boolean | null;
+	removalDescription: string;
+	generalComments: string;
+}
+
+export interface WorksOverviewRequest {
+	applicationId: string;
+	worksOverview: WorksOverviewAsset;
+}

@@ -1,0 +1,53 @@
+.govuk-custom-button{
+    width: auto;
+    display: inline-block;
+  }
+  .select-input:focus {
+    outline: 3px solid #fd0;
+    outline-offset: 0;
+    box-shadow: inset 0 0 0 2px;
+  }
+  textarea:focus {
+    outline: 3px solid #fd0;
+    outline-offset: 0;
+    box-shadow: inset 0 0 0 2px;
+  }
+
+  .file-upload-input input:focus {
+    outline: 3px solid #fd0;
+    box-shadow: inset 0 0 0 4px #0b0c0c;
+
+  }
+
+  /* Task list link styling - bold and purple when visited */
+  .govuk-link:visited {
+    color: #4c2c92;
+  }
+  
+  .govuk-link:visited:hover {
+    color: #2e1a57;
+  }
+
+  
+  /* GDS tag component - only override wrapping behavior, not typography */
+  .govuk-tag {
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 100%;
+    display: inline-block;
+    vertical-align: baseline;
+  }
+
+  /* GDS optional text styling - grey color for secondary information */
+  .govuk-secondary-colour {
+    color: #626a6b; /* GDS secondary text color */
+  }
+
+  /* Map container styling - GDS compliant */
+  .map-container {
+    width: 100%;
+    height: 500px;
+    border: 1px solid #b1b4b6; /* GDS border color */
+    overflow: hidden;
+    background: #ffffff;
+  }

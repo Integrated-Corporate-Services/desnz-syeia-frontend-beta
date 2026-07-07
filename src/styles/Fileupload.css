@@ -1,0 +1,140 @@
+.gds-upload-container {
+  max-width: 600px;
+  margin: 0 0 1rem 0;
+  font-family: inherit;
+}
+.gds-upload-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.gds-upload-description {
+  color: #505a5f;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+.gds-upload-list {
+  margin-bottom: 1.5rem;
+}
+.gds-upload-file-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #b1b4b6;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+}
+.gds-upload-file-link {
+  color: #1d70b8;
+  text-decoration: underline;
+  margin-right: 1rem;
+  font-size: 1rem;
+}
+.gds-upload-file-size {
+  color: #505a5f;
+  margin-right: 1rem;
+  font-size: 1rem;
+}
+.gds-upload-remove {
+  background: none;
+  border: none;
+  color: #1d70b8;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-left: auto;
+}
+.gds-upload-dropzone {
+  border: 2px dashed #b1b4b6;
+  background: #fafafa;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #0b0c0c;
+  box-sizing: border-box;
+  min-height: 80px;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+.gds-upload-dropzone:hover, .gds-upload-dropzone:focus {
+  border-color: #1d70b8;
+  background: #e8f1fa;
+}
+.gds-upload-dropzone-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #cce2f5;
+  padding: 0.75rem 1rem;
+  border-radius: 2px;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+.gds-upload-choose {
+  background: #f3f2f1;
+  border: 2px solid #b1b4b6;
+  color: #0b0c0c;
+  font-size: 1rem;
+  padding: 0.25rem 1.25rem;
+  margin: 0 0.5rem 0 0;
+  cursor: pointer;
+  border-radius: 2px;
+  font-weight: 400;
+  transition: border-color 0.2s, background 0.2s;
+}
+.gds-upload-choose:hover, .gds-upload-choose:focus {
+  border-color: #1d70b8;
+  background: #e8f1fa;
+}
+.gds-upload-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.gds-upload-save-later {
+  background: #f3f2f1;
+  color: #0b0c0c;
+  border: 2px solid #b1b4b6;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  border-radius: 2px;
+  font-weight: 400;
+  transition: border-color 0.2s, background 0.2s;
+}
+.gds-upload-save-later:hover, .gds-upload-save-later:focus {
+  border-color: #1d70b8;
+  background: #e8f1fa;
+}
+.gds-upload-save-continue {
+  background: #00703c;
+  color: #fff;
+  border: 2px solid #00703c;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  border-radius: 2px;
+  font-weight: 700;
+  transition: border-color 0.2s, background 0.2s;
+}
+.gds-upload-save-continue:hover, .gds-upload-save-continue:focus {
+  border-color: #004e2a;
+  background: #004e2a;
+}
+
+/* Error state for file upload container - matching GDS form patterns */
+.gds-upload-container--error {
+  border-left: 5px solid #d4351c;
+  padding: 15px 0 15px 15px;
+  margin-left: -20px;
+  margin-bottom: 15px;
+}
+
+/* Reset any error styling on dropzone itself */
+.gds-upload-dropzone--error {
+  border-color: inherit;
+  background: inherit;
+}
+
+ 

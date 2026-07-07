@@ -6,6 +6,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Local development scripts (use .example as template)
+run-frontend.ps1
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -66,8 +69,6 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
-.env.*
 !.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -81,6 +82,7 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+dist-serve
 
 # Gatsby files
 .cache/
@@ -137,3 +139,6 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# ps1 files
+*.ps1

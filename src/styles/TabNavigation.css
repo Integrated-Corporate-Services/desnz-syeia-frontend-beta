@@ -1,0 +1,109 @@
+.govuk-tabs {
+  margin-bottom: 0 !important;
+}
+
+/* Prevent tabs row from wrapping - keep all tabs on one line */
+.govuk-tabs__list {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+  border-bottom: none; /* No bottom border on list */
+  margin-bottom: 0;
+}
+
+/* Inactive tabs - no borders, just background */
+.govuk-tabs__list-item {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  border: none; /* No borders on inactive tabs */
+  background: transparent;
+  margin-right: 4px; /* Small gap between tabs */
+}
+
+/* Active/selected tab - has border */
+.govuk-tabs__list-item--selected {
+  background: #ffffff;
+  border: 1px solid #b1b4b6; /* Border only on active tab */
+  border-bottom: 1px solid #b1b4b6; /* Keep bottom border */
+  position: relative;
+  z-index: 2;
+  margin-right: 4px;
+}
+
+.govuk-tabs__tab {
+  white-space: nowrap !important;
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #0b0c0c;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.govuk-tabs__tab:hover {
+  color: #0b0c0c;
+  background: #f3f2f1;
+}
+
+.govuk-tabs__tab:focus {
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+  background-color: #ffdd00;
+}
+
+/* ==========================================================================
+   MOBILE - HORIZONTALLY SCROLLABLE TABS
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Make tabs container scrollable horizontally */
+  .govuk-tabs__list {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #b1b4b6 transparent;
+    padding-bottom: 2px;
+    margin-bottom: 0;
+    border-bottom: 1px solid #b1b4b6;
+    gap: 0 !important;
+  }
+
+  .govuk-tabs__list::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .govuk-tabs__list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .govuk-tabs__list::-webkit-scrollbar-thumb {
+    background-color: #b1b4b6;
+    border-radius: 2px;
+  }
+
+  .govuk-tabs__list-item {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    margin-right: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .govuk-tabs__list-item--selected {
+    background: #ffffff !important;
+    border: 1px solid #b1b4b6 !important;
+    border-bottom: 1px solid #ffffff !important;
+    position: relative;
+    z-index: 2;
+    margin-bottom: -1px;
+  }
+
+  .govuk-tabs__tab {
+    padding: 10px 15px;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+}

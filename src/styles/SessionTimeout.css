@@ -1,0 +1,69 @@
+.govuk-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.govuk-modal {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+  min-width: 320px;
+  max-width: 90vw;
+  text-align: left;
+}
+
+/* Accessibility support for screen readers */
+.govuk-visually-hidden {
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Prevent button flickering in modal */
+.govuk-modal .govuk-button {
+  transition: none !important;
+  animation: none !important;
+}
+
+.govuk-modal .govuk-button:hover {
+  transition: none !important;
+}
+
+.govuk-modal .govuk-button:focus {
+  transition: none !important;
+}
+
+/* Custom styling for session timeout button - green initially, yellow on hover */
+.govuk-modal .govuk-button.govuk-button--success {
+  background-color: #00703c !important;
+  border-color: #00703c !important;
+  color: #ffffff !important;
+}
+
+.govuk-modal .govuk-button.govuk-button--success:hover,
+.govuk-modal .govuk-button.govuk-button--success:active,
+.govuk-modal .govuk-button.govuk-button--success:focus {
+  background-color: #ffdd00 !important;
+  border-color: #ffdd00 !important;
+  color: #0b0c0c !important;
+}
+
+/* .govuk-button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+} */
