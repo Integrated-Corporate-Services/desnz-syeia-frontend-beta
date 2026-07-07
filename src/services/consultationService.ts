@@ -163,17 +163,11 @@ export async function createPublicConsultation(
   }
 }
 
-/**
- * Remove a consultation by setting its status to INACTIVE
- * @param consultationId - The consultation ID
- * @returns {Promise<any>}
- */
 export async function removeConsultation(consultationId: string): Promise<any> {
   const url = `/backend/api/consultations/${consultationId}/remove`;
-  const payload = { userId: localStorage.getItem('user_id') };
 
   try {
-    const response = await axios.post(url, payload, { withCredentials: true });
+    const response = await axios.post(url, {}, { withCredentials: true });
     return response.data;
   } catch (error: any) {
     const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
