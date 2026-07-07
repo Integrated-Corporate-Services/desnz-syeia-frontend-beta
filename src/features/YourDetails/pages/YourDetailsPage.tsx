@@ -173,7 +173,7 @@ const YourDetailsPage: React.FC = () => {
               </a>.
             </p>
             <p className="govuk-body govuk-!-margin-bottom-6">
-              If your email or phone number has changed and you cannot access OneLogin, you will need to contact them to delete your old account and create a new one. You may then need to register for a new SYEIA account.
+              If your email or phone number has changed and you cannot access OneLogin, you will need to contact them to delete your old account and create a new one. You may then need to reregister for your SYEIA account.
             </p>
 
             <dl className="govuk-summary-list govuk-!-margin-bottom-8">
