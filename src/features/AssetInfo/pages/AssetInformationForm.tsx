@@ -45,12 +45,11 @@ const initialState: AssetFormState = {
     version: 1,
 };
 
-type FormErrors = Partial<Record<keyof typeof initialState, string>>;
+type FormErrors = Partial<Record<keyof typeof initialState, string>> & { versionConflict?: string };
 
 const AssetInformationForm: React.FC = () => {
     const [form, setForm] = useState<AssetFormState>(initialState);
     const [errors, setErrors] = useState<FormErrors>({});
-    const [submitted, setSubmitted] = useState(false);
     const [originalVoltage, setOriginalVoltage] = useState<string[]>([]);
     const [currentFetchedAppId, setCurrentFetchedAppId] = useState<string>('');
     const { assets, loading, fetchAssets, updateAsset } = useAssets();
@@ -62,6 +61,8 @@ const AssetInformationForm: React.FC = () => {
     const fromSummary = location.state?.fromSummary === true;
     // Ref for first error field
     const firstErrorRef = useRef<HTMLInputElement | null>(null);
+    // Ref for error summary (for focus management)
+    const errorSummaryRef = useRef<HTMLDivElement>(null);
 
     // Determine if form should be read-only
     const isReadOnly = useApplicationReadOnly(application, user as AuthUser);
@@ -106,19 +107,19 @@ const AssetInformationForm: React.FC = () => {
         return publicNoticeStarted || allConsultationsClosed;
     }, [consultations]);
 
-    // Focus the first error field when errors change
+    // Focus and scroll to error summary when errors appear (especially for version conflicts)
     useEffect(() => {
-        if (submitted && Object.keys(errors).length > 0 && firstErrorRef.current) {
-            firstErrorRef.current.focus();
+        if (Object.keys(errors).length > 0 && errorSummaryRef.current) {
+            errorSummaryRef.current.focus();
+            errorSummaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-    }, [errors, submitted]);
+    }, [errors]);
 
     // Clear form state when applicationId changes
     useEffect(() => {
         setForm(initialState);
         setOriginalVoltage([]);
         setErrors({});
-        setSubmitted(false);
         setCurrentFetchedAppId(''); // Clear tracked app ID
     }, [effectiveApplicationId]);
 
@@ -245,7 +246,6 @@ const AssetInformationForm: React.FC = () => {
         if (isReadOnly) {
             return; // Prevent submission if read-only
         }
-        setSubmitted(true);
         const validationErrors = validate(form);
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length > 0) {
@@ -288,8 +288,8 @@ const AssetInformationForm: React.FC = () => {
                 .catch((error: Error & { isVersionConflict?: boolean; statusCode?: number }) => {
                     // Handle version conflict specially
                     if (error.isVersionConflict || error.statusCode === 409) {
-                        setErrors({ assetId: ERROR_MESSAGES.VERSION_CONFLICT });
-                        window.scrollTo({ top: 0 });
+                        setErrors({ versionConflict: ERROR_MESSAGES.VERSION_CONFLICT });
+                        // Scroll handled by useEffect
                         return;
                     }
                     log.error('[AssetInformationForm] Failed to update asset:', error);
@@ -365,8 +365,8 @@ const AssetInformationForm: React.FC = () => {
                 </div>
             )}
             <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
-                {submitted && Object.keys(errors).length > 0 && (
-                    <div className="govuk-error-summary govuk-!-margin-bottom-6 govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
+                {Object.keys(errors).length > 0 && (
+                    <div ref={errorSummaryRef} className="govuk-error-summary govuk-!-margin-bottom-6 govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem
                         </h2>
@@ -375,7 +375,7 @@ const AssetInformationForm: React.FC = () => {
                                 {Object.entries(errors).map(([field, message]) =>
                                     typeof message === 'string' && message ? (
                                         <li key={field}>
-                                            {field === 'assetId' && message === ERROR_MESSAGES.VERSION_CONFLICT ? (
+                                            {field === 'versionConflict' ? (
                                                 <span dangerouslySetInnerHTML={{ __html: message }} />
                                             ) : (
                                                 <a href={`#${field}`}>{message}</a>
