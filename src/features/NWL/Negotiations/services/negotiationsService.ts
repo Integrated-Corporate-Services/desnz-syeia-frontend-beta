@@ -1,5 +1,6 @@
 import { NegotiationsData } from '../types';
 import { createLogger } from '../../../../utils/logger';
+import { getCsrfHeaders } from '../../../../utils/csrf';
 
 const logger = createLogger('negotiationsService');
 import { buildBackendUrl } from '../../../../utils/apiConfig';
@@ -90,7 +91,10 @@ export const saveNegotiationsData = async (
 
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'POST',
-      headers,
+      headers: {
+        ...headers,
+        ...getCsrfHeaders(),
+      },
       credentials: 'include',
       body: JSON.stringify(data),
     });
@@ -154,7 +158,10 @@ export const patchNegotiationsData = async (
     
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'PATCH',
-      headers,
+      headers: {
+        ...headers,
+        ...getCsrfHeaders(),
+      },
       body: JSON.stringify(data),
     });
     
@@ -203,6 +210,9 @@ export const deleteNegotiationsData = async (applicationId: string): Promise<boo
   try {
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'DELETE',
+      headers: {
+        ...getCsrfHeaders(),
+      },
     });
     
     if (!response.ok) {

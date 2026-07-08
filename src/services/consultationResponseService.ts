@@ -1,6 +1,7 @@
 import { ConsultationResponse } from '../types/ConsultationResponse';
 
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 const API_BASE = buildBackendUrl('/backend/api/consultation-responses');
 
@@ -28,7 +29,8 @@ export async function saveConsultationResponse(data: Partial<ConsultationRespons
   const res = await fetch(API_BASE, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload)

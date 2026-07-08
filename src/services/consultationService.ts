@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ConsultationDetails } from '../types/ConsultationDetails';
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 // Save 'Consultation Not Required' status
 export async function saveNotRequiredStatus(consultationId: string, consultationDetails: any): Promise<any> {
@@ -38,6 +39,7 @@ export async function withdrawConsultationRequest({ applicationId, consultationI
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            ...getCsrfHeaders(),
         },
         credentials: 'include',
         body: JSON.stringify({ applicationId, consultationId, updatedBy }),
@@ -87,7 +89,8 @@ export async function markConsultationAsRequestSent(
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include'
   });

@@ -1,5 +1,6 @@
 // src/services/projectApiService.ts
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 export const getProjectOverview = async (applicationId: string) => {
   const response = await fetch(buildBackendUrl(`/backend/api/project/${applicationId}`), {
@@ -12,7 +13,10 @@ export const getProjectOverview = async (applicationId: string) => {
 export const saveProjectOverview = async (data: any) => {
   const response = await fetch(buildBackendUrl('/backend/api/project/'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
+    },
     credentials: 'include',
     body: JSON.stringify(data),
   });

@@ -49,6 +49,10 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             open: true,
             proxy: {
+                '/backend/csrf-token': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
                 '/backend/invites': {
                     target: env.API_URL,
                     changeOrigin: true,

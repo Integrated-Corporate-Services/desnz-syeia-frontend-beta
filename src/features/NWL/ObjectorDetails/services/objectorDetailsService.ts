@@ -1,6 +1,7 @@
 import { ObjectorDetails } from '../types';
 
 import { buildBackendUrl } from '../../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../../utils/csrf';
 import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('ObjectorDetailsService');
@@ -50,6 +51,7 @@ export const saveObjectorDetails = async (
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        ...getCsrfHeaders(),
       },
       credentials: 'include',
       body: JSON.stringify(details),
@@ -79,6 +81,9 @@ export const deleteObjectorDetails = async (applicationId: string): Promise<bool
   try {
     const response = await fetch(`${API_BASE}/${applicationId}/objector-details`, {
       method: 'DELETE',
+      headers: {
+        ...getCsrfHeaders(),
+      },
       credentials: 'include',
     });
     
