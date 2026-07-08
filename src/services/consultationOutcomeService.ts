@@ -25,7 +25,6 @@ export async function saveConsultationOutcome(
   } catch (error: any) {
     if (error.response?.status === 409 || error.response?.data?.error === 'VERSION_CONFLICT') {
       const conflictError: any = new Error(
-        error.response?.data?.message || 
         ERROR_MESSAGES.VERSION_CONFLICT
       );
       conflictError.statusCode = 409;
