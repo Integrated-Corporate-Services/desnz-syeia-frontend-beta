@@ -21,7 +21,7 @@ export const PROJECT_OVERVIEW_ERRORS = {
   LATEST_DATE_INVALID_YEAR: "Enter the year of the latest expected start date",
   LATEST_DATE_COMPARE_ERROR: "Latest expected start date must not be before the earliest expected start date",
 
-  FILE_UPLOAD_REQUIRED: "Upload a plan information documents",
+  FILE_UPLOAD_REQUIRED: "Upload plan information documents",
   
   RELATED_APPLICATIONS_REQUIRED: "Select 'Yes' or 'No'",
   RELATED_APPLICATIONS_ADD: "Select all associated DNO references",

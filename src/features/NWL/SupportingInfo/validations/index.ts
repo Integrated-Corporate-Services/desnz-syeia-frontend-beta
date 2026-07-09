@@ -1,0 +1,1 @@
+export { filterErrorLinksByAnchors } from './supportingInfoValidation';

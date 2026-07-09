@@ -3,13 +3,40 @@
  * 
  * Provides helper functions to push events to the GTM dataLayer
  * for tracking user interactions and page views.
- */
+  */
+
+import { readCookie } from '../modules/cookie-consent/utils';
 
 declare global {
   interface Window {
     dataLayer: Array<Record<string, unknown>>;
   }
 }
+
+
+
+const isCookieConsentAccepted = (): boolean => {
+  const raw = readCookie('consent_preference');
+  console.log('[GTM] Reading consent_preference cookie:', raw);
+  
+  if (!raw) {
+    console.log('[GTM] No consent cookie found');
+    return false;
+  }
+  
+  try {
+    const parsed = JSON.parse(decodeURIComponent(raw)) as Record<string, unknown>;
+    console.log('[GTM] Parsed consent data:', parsed);
+    
+    const analyticsAccepted = parsed.analytics === 'accepted';
+    console.log('[GTM] Analytics consent status:', analyticsAccepted);
+    
+    return analyticsAccepted;
+  } catch (error) {
+    console.error('[GTM] Error parsing consent cookie:', error);
+    return false;
+  }
+};
 
 /**
  * Initialize dataLayer if it doesn't exist
@@ -27,6 +54,14 @@ const ensureDataLayer = (): void => {
  * @param data - Additional event data
  */
 export const pushDataLayer = (event: string, data?: Record<string, unknown>): void => {
+  const consentAccepted = isCookieConsentAccepted();
+  console.log('[GTM] pushDataLayer called - Consent accepted:', consentAccepted, 'Event:', event);
+  
+  if (!consentAccepted) {
+    console.log('[GTM] Analytics not accepted, skipping dataLayer push');
+    return;
+  }
+
   ensureDataLayer();
   
   if (typeof window !== 'undefined' && window.dataLayer) {
@@ -38,10 +73,7 @@ export const pushDataLayer = (event: string, data?: Record<string, unknown>): vo
     
     window.dataLayer.push(eventData);
     
-    // Log in development mode for debugging
-    if (import.meta.env.DEV) {
-      console.log('[Analytics] dataLayer.push:', eventData);
-    }
+
   }
 };
 

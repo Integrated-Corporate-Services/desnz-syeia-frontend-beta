@@ -16,7 +16,7 @@ const Header = () => {
             <div className="app-top-header__container govuk-width-container">
                 <div className="app-top-header__left">
                     <a
-                        href="/frontend"
+                        href="https://www.gov.uk"
                         className="app-top-header__home-link"
                     >
                             <svg

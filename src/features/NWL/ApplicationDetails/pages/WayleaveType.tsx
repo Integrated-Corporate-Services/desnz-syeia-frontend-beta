@@ -101,7 +101,7 @@ const WayleaveType: React.FC = () => {
         navigateToUploadWrittenWayleave();
       } else if (wayleaveType === "implied_wayleave") {
         navigateToUploadImpliedWayleave();
-      } else if (wayleaveType === "interim_necessary_wayleave") {
+      } else if (wayleaveType === "inherited_necessary_wayleave") {
         navigateToUploadImpliedWayleave();
       }
     }

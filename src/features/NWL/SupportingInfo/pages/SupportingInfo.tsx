@@ -6,7 +6,8 @@ import { nwlSupportingInfo } from "../types";
 import { getSupportingInfo, saveSupportingInfo } from "../services";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
 import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constants/fileCategoryConstants";
-import SkipLink from "../../../../components/SkipLink";	
+import SkipLink from "../../../../components/SkipLink";
+import { filterErrorLinksByAnchors } from "../validations";
 
 const SupportingInfo: React.FC = () => {
 	// ...existing state declarations...
@@ -87,6 +88,25 @@ const SupportingInfo: React.FC = () => {
 		return '';
 	};
 	const applicationId = getApplicationId();
+
+	const clearErrorsByAnchors = (...anchors: string[]) => {
+		const filteredAnchors = anchors.filter(Boolean);
+		if (filteredAnchors.length === 0) return;
+		setErrors((prev) => filterErrorLinksByAnchors(prev, filteredAnchors));
+	};
+
+	const handleYesNoSelection = (
+		setter: (value: string) => void,
+		value: string,
+		errorAnchor: string,
+		uploadErrorAnchor?: string
+	) => {
+		setter(value);
+		const anchors = uploadErrorAnchor && value === "No"
+			? [errorAnchor, uploadErrorAnchor]
+			: [errorAnchor];
+		clearErrorsByAnchors(...anchors);
+	};
 
 	useEffect(() => {
 		if (!applicationId) return;
@@ -376,7 +396,7 @@ const SupportingInfo: React.FC = () => {
 							</div>
 							<div className="govuk-radios" data-module="govuk-radios">
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="signedWayleave" name="signedWayleave" type="radio" value="Yes" checked={signedWayleave === "Yes"} onChange={e => setSignedWayleave(e.target.value)} />
+									<input className="govuk-radios__input" id="signedWayleave" name="signedWayleave" type="radio" value="Yes" checked={signedWayleave === "Yes"} onChange={e => handleYesNoSelection(setSignedWayleave, e.target.value, 'signedWayleave-error', 'signedWayleave-upload-1-error')} />
 									<label className="govuk-label govuk-radios__label" htmlFor="signedWayleave">Yes</label>
 								</div>
 								<div className="govuk-radios__conditional" id="conditional-signedWayleave">
@@ -405,7 +425,7 @@ const SupportingInfo: React.FC = () => {
 									)}
 								</div>
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="signedWayleave-2" name="signedWayleave" type="radio" value="No" checked={signedWayleave === "No"} onChange={e => setSignedWayleave(e.target.value)} />
+									<input className="govuk-radios__input" id="signedWayleave-2" name="signedWayleave" type="radio" value="No" checked={signedWayleave === "No"} onChange={e => handleYesNoSelection(setSignedWayleave, e.target.value, 'signedWayleave-error', 'signedWayleave-upload-1-error')} />
 									<label className="govuk-label govuk-radios__label" htmlFor="signedWayleave-2">No</label>
 								</div>
 							</div>
@@ -424,7 +444,7 @@ const SupportingInfo: React.FC = () => {
 							</div>
 							<div className="govuk-radios" data-module="govuk-radios">
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="inheritedWayleave" name="inheritedWayleave" type="radio" value="Yes" checked={inheritedWayleave === "Yes"} onChange={e => setInheritedWayleave(e.target.value)} />
+									<input className="govuk-radios__input" id="inheritedWayleave" name="inheritedWayleave" type="radio" value="Yes" checked={inheritedWayleave === "Yes"} onChange={e => handleYesNoSelection(setInheritedWayleave, e.target.value, 'inheritedWayleave-error', 'inheritedWayleave-upload-1-error')} />
 									<label className="govuk-label govuk-radios__label" htmlFor="inheritedWayleave">Yes</label>
 								</div>
 														{inheritedWayleave === "Yes" && (
@@ -444,7 +464,7 @@ const SupportingInfo: React.FC = () => {
 															</div>
 														)}
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="inheritedWayleave-2" name="inheritedWayleave" type="radio" value="No" checked={inheritedWayleave === "No"} onChange={e => setInheritedWayleave(e.target.value)} />
+									<input className="govuk-radios__input" id="inheritedWayleave-2" name="inheritedWayleave" type="radio" value="No" checked={inheritedWayleave === "No"} onChange={e => handleYesNoSelection(setInheritedWayleave, e.target.value, 'inheritedWayleave-error', 'inheritedWayleave-upload-1-error')} />
 									<label className="govuk-label govuk-radios__label" htmlFor="inheritedWayleave-2">No</label>
 								</div>
 							</div>
@@ -463,7 +483,7 @@ const SupportingInfo: React.FC = () => {
 							</div>
 							<div className="govuk-radios" data-module="govuk-radios">
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="anyPayments" name="anyPayments" type="radio" value="Yes" checked={anyPayments === "Yes"} onChange={e => setAnyPayments(e.target.value)} />
+									<input className="govuk-radios__input" id="anyPayments" name="anyPayments" type="radio" value="Yes" checked={anyPayments === "Yes"} onChange={e => handleYesNoSelection(setAnyPayments, e.target.value, 'anyPayments-error', 'anyPayments-upload-1-error')} />
 									<label className="govuk-label govuk-radios__label" htmlFor="anyPayments">Yes</label>
 								</div>
 														{anyPayments === "Yes" && (
@@ -483,7 +503,7 @@ const SupportingInfo: React.FC = () => {
 															</div>
 														)}
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="anyPayments-2" name="anyPayments" type="radio" value="No" checked={anyPayments === "No"} onChange={e => setAnyPayments(e.target.value)} />
+									<input className="govuk-radios__input" id="anyPayments-2" name="anyPayments" type="radio" value="No" checked={anyPayments === "No"} onChange={e => handleYesNoSelection(setAnyPayments, e.target.value, 'anyPayments-error', 'anyPayments-upload-1-error')} />
 									<label className="govuk-label govuk-radios__label" htmlFor="anyPayments-2">No</label>
 								</div>
 							</div>
@@ -502,7 +522,7 @@ const SupportingInfo: React.FC = () => {
 							</div>
 							<div className="govuk-radios" data-module="govuk-radios">
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="acceptedPayments" name="acceptedPayments" type="radio" value="Yes" checked={acceptedPayments === "Yes"} onChange={e => setAcceptedPayments(e.target.value)} />
+									<input className="govuk-radios__input" id="acceptedPayments" name="acceptedPayments" type="radio" value="Yes" checked={acceptedPayments === "Yes"} onChange={e => handleYesNoSelection(setAcceptedPayments, e.target.value, 'acceptedPayments-error', 'acceptedPayments-upload-1-error')} />
 									<label className="govuk-label govuk-radios__label" htmlFor="acceptedPayments">Yes</label>
 								</div>
 														{acceptedPayments === "Yes" && (
@@ -530,7 +550,7 @@ const SupportingInfo: React.FC = () => {
 															</div>
 														)}
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="acceptedPayments-2" name="acceptedPayments" type="radio" value="No" checked={acceptedPayments === "No"} onChange={e => setAcceptedPayments(e.target.value)} />
+									<input className="govuk-radios__input" id="acceptedPayments-2" name="acceptedPayments" type="radio" value="No" checked={acceptedPayments === "No"} onChange={e => handleYesNoSelection(setAcceptedPayments, e.target.value, 'acceptedPayments-error', 'acceptedPayments-upload-1-error')} />
 									<label className="govuk-label govuk-radios__label" htmlFor="acceptedPayments-2">No</label>
 								</div>
 							</div>
@@ -558,7 +578,10 @@ const SupportingInfo: React.FC = () => {
 										type="radio"
 										value="email"
 										checked={contact === "email"}
-										onChange={e => setContact(e.target.value)}
+										onChange={e => {
+											setContact(e.target.value);
+											clearErrorsByAnchors('contact-error', e.target.value !== 'email' ? 'contact-by-email' : '');
+										}}
 										aria-controls="conditional-contact"
 										aria-expanded={contact === "email"}
 									/>
@@ -578,7 +601,10 @@ const SupportingInfo: React.FC = () => {
 												spellCheck={true}
 												rows={1}
 												value={contactByEmail}
-												onChange={e => setContactByEmail(e.target.value)}
+												onChange={e => {
+													setContactByEmail(e.target.value);
+													clearErrorsByAnchors('contact-by-email');
+												}}
 											/>
 										</div>
 									</div>
@@ -591,7 +617,10 @@ const SupportingInfo: React.FC = () => {
 										type="radio"
 										value="phone"
 										checked={contact === "phone"}
-										onChange={e => setContact(e.target.value)}
+										onChange={e => {
+											setContact(e.target.value);
+											clearErrorsByAnchors('contact-error', e.target.value !== 'email' ? 'contact-by-email' : '');
+										}}
 										aria-controls="conditional-contact-2"
 										aria-expanded={contact === "phone"}
 									/>
@@ -622,7 +651,7 @@ const SupportingInfo: React.FC = () => {
 										type="radio"
 										value="Yes"
 										checked={writtenTermination === "Yes"}
-										onChange={e => setWrittenTermination(e.target.value)}
+										onChange={e => handleYesNoSelection(setWrittenTermination, e.target.value, 'writtenTermination-error', 'writtenTermination-upload-1-error')}
 										aria-controls="conditional-writtenTermination"
 										aria-expanded={writtenTermination === "Yes"}
 									/>
@@ -641,19 +670,28 @@ const SupportingInfo: React.FC = () => {
 													<div className="govuk-date-input__item">
 														<div className="govuk-form-group">
 															<label className="govuk-label govuk-date-input__label" htmlFor="writtenTerminationDate-day">Day</label>
-															<input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenTerminationDate-day" name="writtenTerminationDate-day" type="text" inputMode="numeric" value={writtenTerminationDate.day} onChange={e => setWrittenTerminationDate({ ...writtenTerminationDate, day: e.target.value })} />
+															<input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenTerminationDate-day" name="writtenTerminationDate-day" type="text" inputMode="numeric" value={writtenTerminationDate.day} onChange={e => {
+																setWrittenTerminationDate({ ...writtenTerminationDate, day: e.target.value });
+																clearErrorsByAnchors('writtenTerminationDate-day');
+															}} />
 														</div>
 													</div>
 													<div className="govuk-date-input__item">
 														<div className="govuk-form-group">
 															<label className="govuk-label govuk-date-input__label" htmlFor="writtenTerminationDate-month">Month</label>
-															<input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenTerminationDate-month" name="writtenTerminationDate-month" type="text" inputMode="numeric" value={writtenTerminationDate.month} onChange={e => setWrittenTerminationDate({ ...writtenTerminationDate, month: e.target.value })} />
+															<input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenTerminationDate-month" name="writtenTerminationDate-month" type="text" inputMode="numeric" value={writtenTerminationDate.month} onChange={e => {
+																setWrittenTerminationDate({ ...writtenTerminationDate, month: e.target.value });
+																clearErrorsByAnchors('writtenTerminationDate-day');
+															}} />
 														</div>
 													</div>
 													<div className="govuk-date-input__item">
 														<div className="govuk-form-group">
 															<label className="govuk-label govuk-date-input__label" htmlFor="writtenTerminationDate-year">Year</label>
-															<input className="govuk-input govuk-date-input__input govuk-input--width-4" id="writtenTerminationDate-year" name="writtenTerminationDate-year" type="text" inputMode="numeric" value={writtenTerminationDate.year} onChange={e => setWrittenTerminationDate({ ...writtenTerminationDate, year: e.target.value })} />
+															<input className="govuk-input govuk-date-input__input govuk-input--width-4" id="writtenTerminationDate-year" name="writtenTerminationDate-year" type="text" inputMode="numeric" value={writtenTerminationDate.year} onChange={e => {
+																setWrittenTerminationDate({ ...writtenTerminationDate, year: e.target.value });
+																clearErrorsByAnchors('writtenTerminationDate-day');
+															}} />
 														</div>
 													</div>
 												</div>
@@ -690,7 +728,7 @@ const SupportingInfo: React.FC = () => {
 										type="radio"
 										value="No"
 										checked={writtenTermination === "No"}
-										onChange={e => setWrittenTermination(e.target.value)}
+										onChange={e => handleYesNoSelection(setWrittenTermination, e.target.value, 'writtenTermination-error', 'writtenTermination-upload-1-error')}
 										aria-controls="conditional-writtenTermination-2"
 										aria-expanded={writtenTermination === "No"}
 									/>
@@ -720,7 +758,7 @@ const SupportingInfo: React.FC = () => {
 										type="radio"
 										value="Yes"
 										checked={writtenRemoval === "Yes"}
-										onChange={e => setWrittenRemoval(e.target.value)}
+										onChange={e => handleYesNoSelection(setWrittenRemoval, e.target.value, 'writtenRemoval-error', 'writtenRemoval-upload-1-error')}
 										aria-controls="conditional-writtenRemoval"
 										aria-expanded={writtenRemoval === "Yes"}
 									/>
@@ -739,19 +777,28 @@ const SupportingInfo: React.FC = () => {
 													   <div className="govuk-date-input__item">
 														   <div className="govuk-form-group">
 															   <label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-day">Day</label>
-															   <input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenRemovalDate-day" name="writtenRemovalDate-day" type="text" inputMode="numeric" value={writtenRemovalDate.day} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, day: e.target.value })} />
+															   <input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenRemovalDate-day" name="writtenRemovalDate-day" type="text" inputMode="numeric" value={writtenRemovalDate.day} onChange={e => {
+																   setWrittenRemovalDate({ ...writtenRemovalDate, day: e.target.value });
+																   clearErrorsByAnchors('writtenRemovalDate-day');
+															   }} />
 														   </div>
 													   </div>
 													   <div className="govuk-date-input__item">
 														   <div className="govuk-form-group">
 															   <label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-month">Month</label>
-															   <input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenRemovalDate-month" name="writtenRemovalDate-month" type="text" inputMode="numeric" value={writtenRemovalDate.month} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, month: e.target.value })} />
+															   <input className="govuk-input govuk-date-input__input govuk-input--width-2" id="writtenRemovalDate-month" name="writtenRemovalDate-month" type="text" inputMode="numeric" value={writtenRemovalDate.month} onChange={e => {
+																   setWrittenRemovalDate({ ...writtenRemovalDate, month: e.target.value });
+																   clearErrorsByAnchors('writtenRemovalDate-day');
+															   }} />
 														   </div>
 													   </div>
 													   <div className="govuk-date-input__item">
 														   <div className="govuk-form-group">
 															   <label className="govuk-label govuk-date-input__label" htmlFor="writtenRemovalDate-year">Year</label>
-															   <input className="govuk-input govuk-date-input__input govuk-input--width-4" id="writtenRemovalDate-year" name="writtenRemovalDate-year" type="text" inputMode="numeric" value={writtenRemovalDate.year} onChange={e => setWrittenRemovalDate({ ...writtenRemovalDate, year: e.target.value })} />
+															   <input className="govuk-input govuk-date-input__input govuk-input--width-4" id="writtenRemovalDate-year" name="writtenRemovalDate-year" type="text" inputMode="numeric" value={writtenRemovalDate.year} onChange={e => {
+																   setWrittenRemovalDate({ ...writtenRemovalDate, year: e.target.value });
+																   clearErrorsByAnchors('writtenRemovalDate-day');
+															   }} />
 														   </div>
 													   </div>
 												   </div>
@@ -786,7 +833,7 @@ const SupportingInfo: React.FC = () => {
 										type="radio"
 										value="No"
 										checked={writtenRemoval === "No"}
-										onChange={e => setWrittenRemoval(e.target.value)}
+										onChange={e => handleYesNoSelection(setWrittenRemoval, e.target.value, 'writtenRemoval-error', 'writtenRemoval-upload-1-error')}
 										aria-controls="conditional-writtenRemoval-2"
 										aria-expanded={writtenRemoval === "No"}
 									/>
@@ -809,7 +856,7 @@ const SupportingInfo: React.FC = () => {
 							</div>
 							<div className="govuk-radios" data-module="govuk-radios">
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="titlePlan" name="titlePlan" type="radio" value="Yes" checked={titlePlan === "Yes"} onChange={e => setTitlePlan(e.target.value)} aria-controls="conditional-titlePlan" aria-expanded={titlePlan === "Yes"} />
+									<input className="govuk-radios__input" id="titlePlan" name="titlePlan" type="radio" value="Yes" checked={titlePlan === "Yes"} onChange={e => handleYesNoSelection(setTitlePlan, e.target.value, 'titlePlan-error', 'titlePlan-upload-1-error')} aria-controls="conditional-titlePlan" aria-expanded={titlePlan === "Yes"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="titlePlan">Yes</label>
 								</div>
 								{titlePlan === "Yes" && (
@@ -840,7 +887,7 @@ const SupportingInfo: React.FC = () => {
 	</div>
 )}
 								<div className="govuk-radios__item">
-									<input className="govuk-radios__input" id="titlePlan-2" name="titlePlan" type="radio" value="No" checked={titlePlan === "No"} onChange={e => setTitlePlan(e.target.value)} aria-controls="conditional-titlePlan-2" aria-expanded={titlePlan === "No"} />
+									<input className="govuk-radios__input" id="titlePlan-2" name="titlePlan" type="radio" value="No" checked={titlePlan === "No"} onChange={e => handleYesNoSelection(setTitlePlan, e.target.value, 'titlePlan-error', 'titlePlan-upload-1-error')} aria-controls="conditional-titlePlan-2" aria-expanded={titlePlan === "No"} />
 									<label className="govuk-label govuk-radios__label" htmlFor="titlePlan-2">No</label>
 								</div>
 								{titlePlan === "No" && (

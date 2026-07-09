@@ -5,6 +5,7 @@ import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
+import { BANK_TRANSFER_SUCCESS_PAGE } from '../../../constants/payment';
 import SkipLink from '../../../components/SkipLink';
 
 const PaymentSuccessPage: React.FC = () => {
@@ -112,9 +113,9 @@ const PaymentSuccessPage: React.FC = () => {
               You will receive an email to confirm your application has been submitted.
             </p>
             <p className="govuk-body">
-              {baseUrl === NWL_BASE_URL 
-                ? 'The wayleave team will contact you in due course with any follow up actions.'
-                : 'The Overhead Lines (Section 37) team will contact you in due course with any follow up actions.'}
+              {baseUrl === NWL_BASE_URL
+                ? BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_NWL
+                : BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_S37}
             </p>
 
             <div className="govuk-button-group">

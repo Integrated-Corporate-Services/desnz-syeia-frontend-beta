@@ -71,7 +71,7 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
         },
         CASE_TYPE_LABEL: 'Necessary Wayleave (NWL)',
         PAYMENT: {
-            HEADING: 'Payment',
+            HEADING: 'Payment details',
             APPLICATION_FEE: 'Application fee',
             PAYMENT_METHOD: 'Payment method',
             PAYMENT_STATUS: 'Payment status',

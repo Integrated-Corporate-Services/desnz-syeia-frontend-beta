@@ -31,10 +31,12 @@ const NumberInput: React.FC<NumberInputProps> = ({
 
 	return (
 		<div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}> 
-			<label className="govuk-label" htmlFor={id}>
-				{label}
-				{suffix && <span className="govuk-visually-hidden">{suffix}</span>}
-			</label>
+			{label && (
+				<label className="govuk-label" htmlFor={id}>
+					{label}
+					{suffix && <span className="govuk-visually-hidden">{suffix}</span>}
+				</label>
+			)}
 			{hint && (
 				<div id={`${id}-hint`} className="govuk-hint">
 					{hint}

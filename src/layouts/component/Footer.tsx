@@ -64,11 +64,6 @@ const Footer = () => {
                                     Privacy policy
                                 </Link>
                             </li>
-                            <li className="govuk-footer__inline-list-item">
-                                <Link className="govuk-footer__link" to={FEEDBACK_PATH}>
-                                    Feedback
-                                </Link>
-                            </li>
                         </ul>
 
                         <svg

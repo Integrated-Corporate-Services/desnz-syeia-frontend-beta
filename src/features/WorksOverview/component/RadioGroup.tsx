@@ -2,49 +2,71 @@
 import React from 'react';
 import { CommonInputProps } from '../../../types/form';
 
-interface RadioGroupProps extends CommonInputProps {
-  hint?: string;
+export interface RadioOption {
+  value: string;
+  label: string;
+  conditional?: React.ReactNode;
 }
 
-const RadioGroup: React.FC<RadioGroupProps> = ({ id, name, label, value, error, onChange, options = [], children, hint }) => (
+interface RadioGroupProps extends Omit<CommonInputProps, 'options'> {
+  hint?: string;
+  options?: RadioOption[];
+}
+
+const RadioGroup: React.FC<RadioGroupProps> = ({
+  id,
+  name,
+  label,
+  value,
+  error,
+  onChange,
+  options = [],
+  hint,
+}) => (
   <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
-    <fieldset className="govuk-fieldset">
+    <fieldset className="govuk-fieldset" aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}>
       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">{label}</legend>
-      {/* Render hint below legend and before radio buttons */}
       {typeof hint === 'string' && hint.length > 0 && (
         <div className="govuk-hint" id={`${id}-hint`}>
           {hint}
         </div>
       )}
       {error && (
-        <span className="govuk-error-message">
+        <p id={`${id}-error`} className="govuk-error-message">
           <span className="govuk-visually-hidden">Error:</span> {error}
-        </span>
+        </p>
       )}
-      <div className="govuk-radios">
-        {options.map((opt, idx) => (
-          <React.Fragment key={opt.value}>
-            <div className="govuk-radios__item">
-              <input
-                className="govuk-radios__input"
-                id={`${id}-${opt.value}`}
-                name={name}
-                type="radio"
-                value={opt.value}
-                checked={value === opt.value}
-                onChange={onChange}
-              />
-              <label className="govuk-label govuk-radios__label" htmlFor={`${id}-${opt.value}`}>
-                {opt.label}
-              </label>
-            </div>
-            {opt.value === 'yes' && value === 'yes' && children && (
-              <div style={{ borderLeft: '4px solid #b1b4b6', marginLeft: 32, paddingLeft: 24, marginTop: 8 }}>
-                {children}
+      <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
+        {options.map((opt) => {
+          const conditionalId = `${id}-${opt.value}-conditional`;
+          const isSelected = value === opt.value;
+
+          return (
+            <React.Fragment key={opt.value}>
+              <div className="govuk-radios__item">
+                <input
+                  className="govuk-radios__input"
+                  id={`${id}-${opt.value}`}
+                  name={name}
+                  type="radio"
+                  value={opt.value}
+                  checked={isSelected}
+                  onChange={onChange}
+                  aria-controls={opt.conditional ? conditionalId : undefined}
+                  aria-expanded={opt.conditional && isSelected ? 'true' : 'false'}
+                />
+                <label className="govuk-label govuk-radios__label" htmlFor={`${id}-${opt.value}`}>
+                  {opt.label}
+                </label>
               </div>
-            )}
-          </React.Fragment>
-        ))}
+              {opt.conditional && isSelected && (
+                <div className="govuk-radios__conditional" id={conditionalId}>
+                  {opt.conditional}
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
     </fieldset>
   </div>

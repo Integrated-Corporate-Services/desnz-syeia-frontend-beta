@@ -35,7 +35,7 @@ const InvoiceGenerationErrorPage: React.FC = () => {
       <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <h1 className="govuk-heading-xl">Sorry, there is a problem with the service</h1>
-        <p className="govuk-body">You can return to the application and try again.</p>
+        <p className="govuk-body">You can return to the application and try again later.</p>
 
         <div className="govuk-button-group">
           <button 

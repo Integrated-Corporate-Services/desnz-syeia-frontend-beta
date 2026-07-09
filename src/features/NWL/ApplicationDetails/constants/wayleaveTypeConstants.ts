@@ -21,7 +21,7 @@ export const FORM_ERRORS = {
  */
 export const WAYLEAVE_EXPIRED_OPTIONS = [
   {
-    value: "interim_necessary_wayleave",
+    value: "inherited_necessary_wayleave",
     label: "Inherited necessary wayleave",
     hint: "The objector inherited a necessary wayleave over the relevant land, as granted by the Secretary of State.",
   },
