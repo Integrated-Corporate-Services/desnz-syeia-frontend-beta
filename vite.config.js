@@ -3,9 +3,20 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
+    const isProduction = mode === 'production';
+    
     return {
         base: '/frontend',
         plugins: [react()],
+        
+        // SECURITY FIX (HIGH-018): Disable React DevTools in Production
+        define: {
+            ...(isProduction && {
+                '__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({ isDisabled: true }),
+                'process.env.NODE_ENV': JSON.stringify('production')
+            })
+        },
+        
         css: {
             preprocessorOptions: {
                 scss: {
@@ -18,9 +29,9 @@ export default defineConfig(({ mode }) => {
             minify: 'terser',
             terserOptions: {
                 compress: {
-                    drop_console: mode === 'production',
+                    drop_console: isProduction,
                     drop_debugger: true,
-                    pure_funcs: mode === 'production' ? [
+                    pure_funcs: isProduction ? [
                         'console.log',
                         'console.info',
                         'console.debug',
@@ -36,7 +47,8 @@ export default defineConfig(({ mode }) => {
                     comments: false,
                 },
             },
-            sourcemap: mode === 'production' ? 'hidden' : true,
+            // SECURITY FIX: Disable source maps in production (was 'hidden')
+            sourcemap: isProduction ? false : true,
             chunkSizeWarningLimit: 1000,
         },
         test: {
