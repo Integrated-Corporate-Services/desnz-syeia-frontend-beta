@@ -29,7 +29,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
     const [consulteesRecommendationsReasonError, setConsulteesRecommendationsReasonError] = useState<string>('');
     const [dataLoadTimestamp, setDataLoadTimestamp] = useState<number>(0);
 
-    // Load existing data on mount AND whenever dataLoadTimestamp changes (for forced refresh)
+    // Load existing data on mount or when applicationId changes
     useEffect(() => {
         const loadExistingData = async () => {
             if (!applicationId) {
@@ -37,7 +37,6 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
                 return;
             }
 
-            // CRITICAL: Clear error and set loading when reload triggers
             setLoading(true);
             setError('');
             
@@ -170,8 +169,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
         } catch (err) {
             const error = err as Error & { isVersionConflict?: boolean; statusCode?: number };
             if (error.isVersionConflict || error.statusCode === 409) {
-                // Version conflict detected - force reload fresh data from server
-                setDataLoadTimestamp(Date.now());
+                // Version conflict detected - user must manually refresh to get latest data
                 setError(error.message || ERROR_MESSAGES.VERSION_CONFLICT);
             } else {
                 const axiosError = error as AxiosError<{ error?: string }>;
