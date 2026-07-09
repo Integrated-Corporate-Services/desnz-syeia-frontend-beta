@@ -114,7 +114,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
     },
 
     SITE_ADDRESS_FIELDS: {
-        SAME_AS_OCCUPIER: "Site address same as occupier's?",
+        SAME_AS_OCCUPIER: "Site address same as objector's?",
         SITE_ADDRESS: 'Site address',
         COUNTRY: 'Country',
     },
