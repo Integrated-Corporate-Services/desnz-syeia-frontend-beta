@@ -9,7 +9,6 @@ export default defineConfig(({ mode }) => {
         base: '/frontend',
         plugins: [react()],
         
-        // SECURITY FIX (HIGH-018): Disable React DevTools in Production
         define: {
             ...(isProduction && {
                 '__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({ isDisabled: true }),
@@ -47,7 +46,6 @@ export default defineConfig(({ mode }) => {
                     comments: false,
                 },
             },
-            // SECURITY FIX: Disable source maps in production (was 'hidden')
             sourcemap: isProduction ? false : true,
             chunkSizeWarningLimit: 1000,
         },
