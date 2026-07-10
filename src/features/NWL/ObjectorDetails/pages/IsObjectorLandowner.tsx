@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SkipLink from '../../../../components/SkipLink';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
@@ -26,11 +27,16 @@ const IsObjectorLandowner: React.FC = () => {
 
   const [error, setError] = useState<string>("");  const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
   // Only populate radio button if value is explicitly defined (not undefined)
   // This prevents defaulting to "no" on first visit
   useEffect(() => {
     if (objectorDetails && objectorDetails.is_objector_also_landowner !== undefined && objectorDetails.is_objector_also_landowner !== null) {
       setIsLandowner(objectorDetails.is_objector_also_landowner ? "yes" : "no");
+    }
+    if (objectorDetails) {
+      versionRef.current = objectorDetails.version;
     }
   }, [objectorDetails]);
 
@@ -45,6 +51,7 @@ const IsObjectorLandowner: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setVersionError('');
 
     if (!validateForm()) {
       window.scrollTo(0, 0);
@@ -56,7 +63,7 @@ const IsObjectorLandowner: React.FC = () => {
 
     try {
       // Save to backend
-      await saveObjectorLandownerStatus(appId, isLandowner === "yes");
+      await saveObjectorLandownerStatus(appId, isLandowner === "yes", versionRef.current);
 
       if (isLandowner === "yes") {
         // If objector is also landowner, mark Landowner details as completed
@@ -75,8 +82,13 @@ const IsObjectorLandowner: React.FC = () => {
         }
         navigate(`${NWL_BASE_URL}/${appId}/landowner-details`);
       }
-    } catch (error) {
-      setSaveError("Failed to save landowner status. Please try again.");
+    } catch (error: any) {
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else {
+        setSaveError("Failed to save landowner status. Please try again.");
+      }
       window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
@@ -106,6 +118,21 @@ const IsObjectorLandowner: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {saveError && (
               <div
                 className="govuk-error-summary"

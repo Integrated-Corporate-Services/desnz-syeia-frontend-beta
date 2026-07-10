@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SkipLink from '../../../../components/SkipLink';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS, TITLE_OPTIONS } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
@@ -20,6 +21,8 @@ const RepresentativeDetails: React.FC = () => {
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (objectorDetails) {
@@ -28,6 +31,7 @@ const RepresentativeDetails: React.FC = () => {
       setOrganisation(objectorDetails.representative_organisation || "");
       setEmail(objectorDetails.representative_email || "");
       setPhone(objectorDetails.representative_phone || "");
+      versionRef.current = objectorDetails.version;
     }
   }, [objectorDetails]);
 
@@ -71,6 +75,7 @@ const RepresentativeDetails: React.FC = () => {
     e.preventDefault();
     setFormErrors({});
     setSaveError("");
+    setVersionError('');
 
     // Client-side validation (includes optional field format validation)
     if (!validatePersonDetails(fullName, email, phone)) {
@@ -92,12 +97,15 @@ const RepresentativeDetails: React.FC = () => {
         representative_organisation: organisation,
         representative_email: email,
         representative_phone: phone,
+        version: versionRef.current,
       });
 
       navigate(`${NWL_BASE_URL}/${appId}/representative-address`);
     } catch (error: any) {
-      // Handle backend validation errors
-      if (error.status === 400 && error.validationErrors) {
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else if (error.status === 400 && error.validationErrors) {
         const backendErrors = mapBackendErrorFields(error.validationErrors);
         setFormErrors(backendErrors);
       } else {
@@ -126,6 +134,14 @@ const RepresentativeDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.REPRESENTATIVE_DETAILS_TITLE}</h1>
+            {versionError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {saveError && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>

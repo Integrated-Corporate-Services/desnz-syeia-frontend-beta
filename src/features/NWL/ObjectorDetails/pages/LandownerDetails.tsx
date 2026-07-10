@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SkipLink from '../../../../components/SkipLink';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
@@ -26,6 +27,8 @@ const LandownerDetails: React.FC = () => {
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (objectorDetails) {
@@ -34,6 +37,7 @@ const LandownerDetails: React.FC = () => {
       setOrganisation(objectorDetails.landowner_organisation || "");
       setEmail(objectorDetails.landowner_email || "");
       setPhone(objectorDetails.landowner_phone || "");
+      versionRef.current = objectorDetails.version;
     }
   }, [objectorDetails]);
 
@@ -77,6 +81,7 @@ const LandownerDetails: React.FC = () => {
     e.preventDefault();
     setFormErrors({});
     setSaveError("");
+    setVersionError('');
 
     // Client-side validation (includes optional field format validation)
     if (!validatePersonDetails(fullName, email, phone)) {
@@ -98,12 +103,15 @@ const LandownerDetails: React.FC = () => {
         landowner_organisation: organisation,
         landowner_email: email,
         landowner_phone: phone,
+        version: versionRef.current,
       });
 
       navigate(`${NWL_BASE_URL}/${appId}/landowner-address`);
     } catch (error: any) {
-      // Handle backend validation errors
-      if (error.status === 400 && error.validationErrors) {
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else if (error.status === 400 && error.validationErrors) {
         const backendErrors = mapBackendErrorFields(error.validationErrors);
         setFormErrors(backendErrors);
       } else {
@@ -136,6 +144,15 @@ const LandownerDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.LANDOWNER_DETAILS_TITLE}</h1>
+            
+            {versionError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             
             {saveError && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">

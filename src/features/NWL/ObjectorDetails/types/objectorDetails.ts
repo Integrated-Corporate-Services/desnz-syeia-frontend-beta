@@ -33,6 +33,8 @@ export type ObjectorDetails = {
   representative_town?: string;
   representative_county?: string;
   representative_postcode?: string;
+
+  version?: number;
 };
 
 export type PersonFormData = {

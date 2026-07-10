@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SkipLink from '../../../../components/SkipLink';
 import { LABELS } from '../constants/objectorDetailsConstants';
 import { useObjectorDetailsData, useFormValidation, useObjectorNavigation } from '../hooks';
 import { ObjectorDetailsBreadcrumbs, ErrorSummary, PersonDetailsForm, FormActions } from '../components';
 import { saveObjectorPersonalInfo } from '../services';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const ObjectorDetails: React.FC = () => {
   const { appId, objectorDetails } = useObjectorDetailsData();
@@ -17,6 +18,8 @@ const ObjectorDetails: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (objectorDetails) {
@@ -25,6 +28,8 @@ const ObjectorDetails: React.FC = () => {
       setOrganisation(objectorDetails.objector_organisation || '');
       setEmail(objectorDetails.objector_email || '');
       setPhone(objectorDetails.objector_phone || '');
+      // Track version for optimistic locking
+      versionRef.current = objectorDetails.version;
     }
   }, [objectorDetails]);
 
@@ -69,6 +74,7 @@ const ObjectorDetails: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
+    setVersionError('');
 
     // Client-side validation (includes optional field format validation)
     if (!validatePersonDetails(fullName, email, phone)) {
@@ -89,12 +95,16 @@ const ObjectorDetails: React.FC = () => {
         objector_organisation: organisation,
         objector_email: email,
         objector_phone: phone,
+        version: versionRef.current,
       });
 
       navigateToObjectorAddress();
     } catch (error: any) {
-      // Handle backend validation errors
-      if (error.status === 400 && error.validationErrors) {
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else if (error.status === 400 && error.validationErrors) {
+        // Handle backend validation errors
         const backendErrors = mapBackendErrorFields(error.validationErrors);
         setFormErrors(backendErrors);
       } else {
@@ -120,6 +130,22 @@ const ObjectorDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.OBJECTOR_DETAILS_TITLE}</h1>
+
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
 
             {formErrors.submit && (
               <div

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SkipLink from '../../../../components/SkipLink';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
@@ -16,12 +17,17 @@ const IsThereRepresentative: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   // Only populate radio button if value is explicitly defined (not undefined or null)
   // This prevents defaulting to "no" on first visit
   useEffect(() => {
     if (objectorDetails && objectorDetails.has_representative !== undefined && objectorDetails.has_representative !== null) {
       setHasRepresentative(objectorDetails.has_representative ? "yes" : "no");
+    }
+    if (objectorDetails) {
+      versionRef.current = objectorDetails.version;
     }
   }, [objectorDetails]);
 
@@ -36,6 +42,7 @@ const IsThereRepresentative: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setVersionError('');
     if (!validateForm()) {
       window.scrollTo(0, 0);
       return;
@@ -46,7 +53,7 @@ const IsThereRepresentative: React.FC = () => {
 
     try {
       // Save to backend
-      await saveRepresentativeStatus(appId, hasRepresentative === "yes");
+      await saveRepresentativeStatus(appId, hasRepresentative === "yes", versionRef.current);
 
       if (hasRepresentative === "yes") {
         navigate(`${NWL_BASE_URL}/${appId}/representative-details`);
@@ -59,8 +66,13 @@ const IsThereRepresentative: React.FC = () => {
         }
         navigate(`${NWL_BASE_URL}/${appId}/task-list`);
       }
-    } catch (error) {
-      setSaveError("Failed to save representative status. Please try again.");
+    } catch (error: any) {
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else {
+        setSaveError("Failed to save representative status. Please try again.");
+      }
       window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
@@ -82,6 +94,14 @@ const IsThereRepresentative: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {saveError && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>

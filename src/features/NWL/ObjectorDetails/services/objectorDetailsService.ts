@@ -60,6 +60,15 @@ export const saveObjectorDetails = async (
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      
+      // Handle version conflict (409)
+      if (response.status === 409 || errorData.error === 'VERSION_CONFLICT') {
+        const conflictError: any = new Error(errorData.message);
+        conflictError.statusCode = 409;
+        conflictError.isVersionConflict = true;
+        throw conflictError;
+      }
+      
       const error: any = new Error(`Failed to save objector details: ${response.statusText}`);
       error.status = response.status;
       error.validationErrors = errorData.details || errorData.message || errorData;
@@ -106,6 +115,7 @@ export const saveObjectorPersonalInfo = async (
     objector_organisation?: string;
     objector_email?: string;
     objector_phone?: string;
+    version?: number;
   }
 ): Promise<ObjectorDetails | null> => {
   return saveObjectorDetails(applicationId, data);
@@ -119,6 +129,7 @@ export const saveObjectorAddress = async (
     objector_town?: string;
     objector_county?: string;
     objector_postcode?: string;
+    version?: number;
   }
 ): Promise<ObjectorDetails | null> => {
   return saveObjectorDetails(applicationId, data);
@@ -126,9 +137,10 @@ export const saveObjectorAddress = async (
 
 export const saveObjectorLandownerStatus = async (
   applicationId: string,
-  isLandowner: boolean
+  isLandowner: boolean,
+  version?: number
 ): Promise<ObjectorDetails | null> => {
-  return saveObjectorDetails(applicationId, { is_objector_also_landowner: isLandowner });
+  return saveObjectorDetails(applicationId, { is_objector_also_landowner: isLandowner, version });
 };
 
 export const saveLandownerDetails = async (
@@ -139,6 +151,7 @@ export const saveLandownerDetails = async (
     landowner_organisation?: string;
     landowner_email?: string;
     landowner_phone?: string;
+    version?: number;
   }
 ): Promise<ObjectorDetails | null> => {
   return saveObjectorDetails(applicationId, data);
@@ -152,6 +165,7 @@ export const saveLandownerAddress = async (
     landowner_town?: string;
     landowner_county?: string;
     landowner_postcode?: string;
+    version?: number;
   }
 ): Promise<ObjectorDetails | null> => {
   return saveObjectorDetails(applicationId, data);
@@ -159,9 +173,10 @@ export const saveLandownerAddress = async (
 
 export const saveRepresentativeStatus = async (
   applicationId: string,
-  hasRepresentative: boolean
+  hasRepresentative: boolean,
+  version?: number
 ): Promise<ObjectorDetails | null> => {
-  return saveObjectorDetails(applicationId, { has_representative: hasRepresentative });
+  return saveObjectorDetails(applicationId, { has_representative: hasRepresentative, version });
 };
 
 export const saveRepresentativeDetails = async (
@@ -172,6 +187,7 @@ export const saveRepresentativeDetails = async (
     representative_organisation?: string;
     representative_email?: string;
     representative_phone?: string;
+    version?: number;
   }
 ): Promise<ObjectorDetails | null> => {
   return saveObjectorDetails(applicationId, data);
@@ -185,6 +201,7 @@ export const saveRepresentativeAddress = async (
     representative_town?: string;
     representative_county?: string;
     representative_postcode?: string;
+    version?: number;
   }
 ): Promise<ObjectorDetails | null> => {
   return saveObjectorDetails(applicationId, data);

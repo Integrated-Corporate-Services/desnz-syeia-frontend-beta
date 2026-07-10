@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SkipLink from '../../../../components/SkipLink';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
@@ -22,6 +23,8 @@ const LandownerAddress: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (objectorDetails) {
@@ -30,6 +33,7 @@ const LandownerAddress: React.FC = () => {
       setTown(objectorDetails.landowner_town || "");
       setCounty(objectorDetails.landowner_county || "");
       setPostcode(objectorDetails.landowner_postcode || "");
+      versionRef.current = objectorDetails.version;
     }
   }, [objectorDetails]);
 
@@ -77,6 +81,7 @@ const LandownerAddress: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaveError("");
+    setVersionError('');
 
     if (!validateForm()) {
       window.scrollTo(0, 0);
@@ -93,6 +98,7 @@ const LandownerAddress: React.FC = () => {
         landowner_town: town,
         landowner_county: county,
         landowner_postcode: postcode,
+        version: versionRef.current,
       });
 
       try {
@@ -102,8 +108,10 @@ const LandownerAddress: React.FC = () => {
       }
       navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);
     } catch (error: any) {
-      // Handle backend validation errors
-      if (error.status === 400 && error.validationErrors) {
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else if (error.status === 400 && error.validationErrors) {
         const mappedErrors = mapBackendErrorFields(error.validationErrors);
         setErrors(mappedErrors);
       } else if (error.message && error.message.includes('landowner_')) {
@@ -153,6 +161,14 @@ const LandownerAddress: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.LANDOWNER_ADDRESS_TITLE}</h1>
+            {versionError && (
+              <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {saveError && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
