@@ -13,6 +13,7 @@ export interface AssetsData {
   uploadedFiles: UploadedFile[];
   applicationDocuments: ApplicationDocument[];
   assets: AssetOutput[];
+  metadata_version?: number;
 }
 
 /**
@@ -59,6 +60,7 @@ export const useAssetsData = (applicationId: string | undefined) => {
         uploadedFiles: data.uploadedFiles || [],
         applicationDocuments: data.applicationDocuments || [],
         assets: data.assets || [],
+        metadata_version: data.metadata_version || 1,
       };
 
       setAssetsData(normalizedData);

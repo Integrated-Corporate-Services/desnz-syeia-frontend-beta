@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { useApplicationId, useAssetsData } from '../hooks';
 import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS, MESSAGES } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
@@ -29,6 +30,8 @@ const ProvideApplicationPlan: React.FC = () => {
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [showErrorSummary, setShowErrorSummary] = useState(false);
+  const [versionError, setVersionError] = useState<string>('');
+  const metadataVersionRef = useRef<number | undefined>(undefined);
 
   // Load existing files when assetsData is available
   useEffect(() => {
@@ -36,7 +39,11 @@ const ProvideApplicationPlan: React.FC = () => {
       logger.debug('[ProvideApplicationPlan] Loading existing files', {
         uploadedFilesCount: assetsData.uploadedFiles?.length || 0,
         documentsCount: assetsData.applicationDocuments?.length || 0,
+        metadata_version: assetsData.metadata_version,
       });
+
+      // Track metadata version for potential updates
+      metadataVersionRef.current = assetsData.metadata_version;
 
       if (assetsData.uploadedFiles && assetsData.uploadedFiles.length > 0) {
         setUploadedFiles(assetsData.uploadedFiles);
@@ -125,10 +132,18 @@ const ProvideApplicationPlan: React.FC = () => {
       // Clear errors
       setError('');
       setShowErrorSummary(false);
+      setVersionError('');
 
       // Navigate to assets match plan page
       navigate(`${NWL_BASE_URL}/${applicationId}/plan-verification`);
     } catch (saveError) {
+      // Handle version conflict (in case document saving triggers metadata update)
+      if ((saveError as any).statusCode === 409 || (saveError as any).isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+        return;
+      }
+      
       logger.error('[handleSubmit] Error saving file metadata to database', {
         error: saveError instanceof Error ? saveError.message : 'Unknown error',
       });
@@ -166,6 +181,23 @@ const ProvideApplicationPlan: React.FC = () => {
           {/* Loading State */}
           {loading && (
             <p className="govuk-body">Loading existing files...</p>
+          )}
+
+          {/* Version Error Summary */}
+          {!loading && versionError && (
+            <div
+              className="govuk-error-summary"
+              data-module="govuk-error-summary"
+              tabIndex={-1}
+              role="alert"
+            >
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <div dangerouslySetInnerHTML={{ __html: versionError }} />
+              </div>
+            </div>
           )}
 
           {/* Error Summary */}

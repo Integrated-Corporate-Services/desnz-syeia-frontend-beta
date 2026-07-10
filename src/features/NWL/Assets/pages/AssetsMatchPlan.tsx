@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { useApplicationId, useAssetsData } from '../hooks';
 import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '../constants';
 import nwlAssetService from '../services/nwlAssetService';
@@ -23,12 +24,18 @@ const AssetsMatchPlan: React.FC = () => {
   const [errors, setErrors] = useState<{ assetsMatch?: string; explanation?: string; general?: string }>({});
   const [showErrorSummary, setShowErrorSummary] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   // Load existing metadata when assetsData is available
   useEffect(() => {
     if (assetsData && !loading) {
       logger.debug('[AssetsMatchPlan] Loading existing metadata', {
-        assetsMatchPlan: assetsData.assets_match_plan,
+        metadata_version: assetsData.metadata_version,
+      });
+
+      // Track version for optimistic locking
+      versionRef.current = assetsData.metadata_versionassetsMatchPlan: assetsData.assets_match_plan,
         hasExplanation: !!assetsData.assets_match_plan_explanation,
       });
 
@@ -86,10 +93,7 @@ const AssetsMatchPlan: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-
-    // Clear errors
-    setErrors({});
-    setShowErrorSummary(false);
+VersionError('');
     setSaving(true);
 
     try {
@@ -97,13 +101,15 @@ const AssetsMatchPlan: React.FC = () => {
         applicationId,
         assetsMatch,
         hasExplanation: !!explanation,
+        version: versionRef.current,
       });
 
-      // Save data to backend
+      // Save data to backend with version
       await nwlAssetService.updateMetadata(
         applicationId,
         assetsMatch === 'yes',
-        assetsMatch === 'no' ? explanation : undefined
+        assetsMatch === 'no' ? explanation : undefined,
+        versionRef.current
       );
 
       logger.info('[handleSubmit] Metadata updated successfully');
@@ -116,6 +122,18 @@ const AssetsMatchPlan: React.FC = () => {
         logger.error('[handleSubmit] Error updating progress', { error: progressError });
         // Continue even if progress update fails
       }
+
+      // Navigate to task list
+      navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
+    } catch (error: unknown) {
+      // Handle version conflict
+      if ((error as any).statusCode === 409 || (error as any).isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+        setSaving(false);
+        return;
+      }
+      
 
       // Navigate to task list
       navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
@@ -184,7 +202,24 @@ const AssetsMatchPlan: React.FC = () => {
           </li>
         </ol>
       </nav>
+Version Error Summary */}
+          {versionError && (
+            <div
+              className="govuk-error-summary"
+              data-module="govuk-error-summary"
+              tabIndex={-1}
+              role="alert"
+            >
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <div dangerouslySetInnerHTML={{ __html: versionError }} />
+              </div>
+            </div>
+          )}
 
+          {/* 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           

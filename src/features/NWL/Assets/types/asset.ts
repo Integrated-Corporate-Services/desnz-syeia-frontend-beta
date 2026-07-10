@@ -29,6 +29,7 @@ export interface Asset {
   isExistingAsset: boolean;
   createdAt?: string;
   updatedAt?: string;
+  version?: number;
 }
 
 export interface LineTypeOption {

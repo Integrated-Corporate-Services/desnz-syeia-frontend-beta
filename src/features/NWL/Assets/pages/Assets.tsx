@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { 
   AssetsBreadcrumbs, 
   ErrorSummary, 
@@ -50,6 +51,8 @@ const Asset: React.FC = () => {
   const [saving, setSaving] = React.useState(false);
   const [checkingAssets, setCheckingAssets] = React.useState(true);
   const [loadingAsset, setLoadingAsset] = React.useState(false);
+  const [versionError, setVersionError] = React.useState<string>('');
+  const versionRef = React.useRef<number | undefined>(undefined);
 
   // Check if assets already exist - redirect to review if they do (unless explicitly adding another or editing)
   React.useEffect(() => {
@@ -83,6 +86,9 @@ const Asset: React.FC = () => {
       setLoadingAsset(true);
       try {
         const asset = await nwlAssetService.getAssetById(editAssetId);
+        
+        // Track version for optimistic locking
+        versionRef.current = asset.version;
         
         // Set voltage
         setVoltage(asset.line_voltage);
@@ -154,6 +160,7 @@ const Asset: React.FC = () => {
     setSaving(true);
     setErrors({});
     setShowErrorSummary(false);
+    setVersionError('');
 
     try {
       // Build line types array with backend codes
@@ -180,11 +187,12 @@ const Asset: React.FC = () => {
         }, {});
 
       if (isEditMode && editAssetId) {
-        // Update existing asset
+        // Update existing asset with version
         await nwlAssetService.updateAsset(editAssetId, {
           line_voltage: voltage,
           line_types: selectedLineTypes,
           component_descriptions: componentDescriptions,
+          version: versionRef.current,
         });
 
         // Asset update is logged in the service layer
@@ -214,6 +222,14 @@ const Asset: React.FC = () => {
       // Navigate to review page
       navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`);
     } catch (error: unknown) {
+      // Handle version conflict
+      if ((error as any).statusCode === 409 || (error as any).isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+        setSaving(false);
+        return;
+      }
+      
       // Error logging is handled in the service layer
       
       // Type guard for axios error
@@ -285,6 +301,22 @@ const Asset: React.FC = () => {
           <h1 className="govuk-heading-xl">{isEditMode ? LABELS.EDIT_ASSET_TITLE : LABELS.ADD_ASSET_TITLE}</h1>
           
           <p className="govuk-body">{isEditMode ? HINTS.EDIT_ASSET_INTRO : HINTS.ADD_ASSET_INTRO}</p>
+
+          {versionError && (
+            <div
+              className="govuk-error-summary"
+              data-module="govuk-error-summary"
+              tabIndex={-1}
+              role="alert"
+            >
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <div dangerouslySetInnerHTML={{ __html: versionError }} />
+              </div>
+            </div>
+          )}
 
           {showErrorSummary && <ErrorSummary errors={errors} />}
 

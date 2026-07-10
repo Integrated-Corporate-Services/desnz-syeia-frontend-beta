@@ -37,6 +37,7 @@ export interface AssetOutput {
   line_types: string[];
   component_descriptions: Record<string, string>;
   created_at: string;
+  version?: number;
 }
 
 export interface AssetsResponse {
@@ -52,6 +53,7 @@ export interface AssetsResponse {
   created_at: string;
   updated_at: string;
   metadata_id?: string;
+  metadata_version?: number;
 }
 
 /**
@@ -187,7 +189,7 @@ export const nwlAssetService = {
    */
   updateAsset: async (
     assetId: string,
-    payload: Partial<AssetInput>
+    payload: Partial<AssetInput> & { version?: number }
   ): Promise<AssetOutput> => {
     try {
       logger.debug('[updateAsset] Updating asset', { assetId, payload });
@@ -198,6 +200,15 @@ export const nwlAssetService = {
       
       return response.data;
     } catch (error: any) {
+      // Handle version conflict (409)
+      if (error.response?.status === 409 || error.response?.data?.error === 'VERSION_CONFLICT') {
+        logger.warn('[updateAsset] Version conflict detected', { assetId });
+        const conflictError: any = new Error(error.response?.data?.message || 'Version conflict');
+        conflictError.statusCode = 409;
+        conflictError.isVersionConflict = true;
+        throw conflictError;
+      }
+      
       logger.error('[updateAsset] Error updating asset', {
         error: error.message,
         assetId
@@ -231,21 +242,33 @@ export const nwlAssetService = {
   updateMetadata: async (
     applicationId: string,
     assetsMatchPlan: boolean,
-    explanation?: string
+    explanation?: string,
+    version?: number
   ): Promise<void> => {
     try {
       logger.debug('[updateMetadata] Updating metadata', {
         applicationId,
-        assetsMatchPlan
+        assetsMatchPlan,
+        version
       });
       
       await axios.patch(`${API_BASE}/${applicationId}/assets/metadata`, {
         assets_match_plan: assetsMatchPlan,
         assets_match_plan_explanation: explanation,
+        version: version,
       });
       
       logger.info('[updateMetadata] Metadata updated successfully');
     } catch (error: any) {
+      // Handle version conflict (409)
+      if (error.response?.status === 409 || error.response?.data?.error === 'VERSION_CONFLICT') {
+        logger.warn('[updateMetadata] Version conflict detected', { applicationId });
+        const conflictError: any = new Error(error.response?.data?.message || 'Version conflict');
+        conflictError.statusCode = 409;
+        conflictError.isVersionConflict = true;
+        throw conflictError;
+      }
+      
       logger.error('[updateMetadata] Error updating metadata', {
         error: error.message,
         applicationId

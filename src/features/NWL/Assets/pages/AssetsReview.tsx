@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import { AssetsBreadcrumbs, AssetSummaryCard, FormActions } from '../components';
 import { useApplicationId } from '../hooks';
 import { LABELS, HINTS, MESSAGES } from '../constants';
@@ -14,6 +15,7 @@ const AssetsReview: React.FC = () => {
   const [assets, setAssets] = useState<AssetOutput[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [versionError, setVersionError] = useState<string>('');
 
   // Fetch assets on mount
   useEffect(() => {
@@ -47,8 +49,19 @@ const AssetsReview: React.FC = () => {
       // Remove from local state immediately for responsive UI
       setAssets(prev => prev.filter(asset => asset.asset_id !== assetId));
       
+      // Clear any errors
+      setError(null);
+      setVersionError('');
+      
       // Asset deletion is logged in the service layer
-    } catch {
+    } catch (deleteError) {
+      // Handle version conflict (unlikely for delete, but defensive)
+      if ((deleteError as any).statusCode === 409 || (deleteError as any).isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+        return;
+      }
+      
       // Error logging is handled in the service layer
       setError('Failed to delete asset. Please try again.');
       
@@ -117,6 +130,22 @@ const AssetsReview: React.FC = () => {
           </h1>
 
           <p className="govuk-body">{HINTS.REVIEW_INTRO}</p>
+
+          {versionError && (
+            <div
+              className="govuk-error-summary"
+              data-module="govuk-error-summary"
+              tabIndex={-1}
+              role="alert"
+            >
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <div dangerouslySetInnerHTML={{ __html: versionError }} />
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="govuk-error-summary" data-module="govuk-error-summary">
