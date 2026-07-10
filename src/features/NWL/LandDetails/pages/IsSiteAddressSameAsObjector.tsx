@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import SkipLink from '../../../../components/SkipLink';
 import { 
@@ -14,6 +14,7 @@ import {
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import { getObjectorDetails } from '../../ObjectorDetails/services/objectorDetailsService';
 import { ObjectorDetails } from '../../ObjectorDetails/types';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const IsSiteAddressSameAsObjector: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -27,13 +28,18 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   // Initialize radio button from backend data
   useEffect(() => {
     if (landDetails?.is_site_at_objector_address !== undefined) {
       setIsSameAddress(landDetails.is_site_at_objector_address ? "yes" : "no");
     }
-  }, [landDetails?.is_site_at_objector_address]);
+    if (landDetails) {
+      versionRef.current = landDetails.version;
+    }
+  }, [landDetails?.is_site_at_objector_address, landDetails]);
 
   // Fetch objector details on component mount
   useEffect(() => {
@@ -67,7 +73,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
       return;
     }
 
-    setSaveError("");
+    setVersionError('');
     setIsSaving(true);
 
     try {
@@ -88,6 +94,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
             site_town: objectorAddress.objector_town || '',
             site_county: objectorAddress.objector_county || '',
             site_postcode: objectorAddress.objector_postcode || '',
+            version: versionRef.current,
           });
           
           // Update progress to completed
@@ -99,8 +106,12 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
           
           // Navigate to country selection (skip address entry)
           goToCountrySelection();
-        } catch (error) {
-          setSaveError("Failed to save site address. Please try again.");
+        } catch (error: any) {
+          if (error.statusCode === 409 || error.isVersionConflict) {
+            setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+          } else {
+            setSaveError("Failed to save site address. Please try again.");
+          }
           window.scrollTo(0, 0);
         }
       } else {
@@ -108,12 +119,15 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
         try {
           await updateLandDetails({
             is_site_at_objector_address: false,
-          
+            version: versionRef.current,
           });
-        } catch (error) {
-          // Error saving flag
+          goToSiteAddress();
+        } catch (error: any) {
+          if (error.statusCode === 409 || error.isVersionConflict) {
+            setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+            window.scrollTo(0, 0);
+          }
         }
-        goToSiteAddress();
       }
     } catch (error) {
       setSaveError("Failed to process selection. Please try again.");
@@ -157,6 +171,21 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {saveError && (
               <div
                 className="govuk-error-summary"

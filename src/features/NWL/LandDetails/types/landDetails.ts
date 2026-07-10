@@ -25,6 +25,8 @@ export type LandDetails = {
   
   uploadedFiles?: UploadedFile[];
   applicationDocuments?: ApplicationDocument[];
+
+  version?: number;
 };
 
 export type SiteAddressFormData = {

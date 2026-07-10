@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import SkipLink from '../../../../components/SkipLink';
 import {
@@ -14,6 +14,7 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const UploadSiteInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -25,6 +26,16 @@ const UploadSiteInformation: React.FC = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
+
+  // Track version for optimistic locking
+  useEffect(() => {
+    if (landDetails) {
+      versionRef.current = landDetails.version;
+    }
+  }, [landDetails]);
+
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 
   const handleDeleteFile = (fileId: string) => {
@@ -48,13 +59,9 @@ const UploadSiteInformation: React.FC = () => {
     });
   };
 
-  // Files/documents only for this page's subCategory
-  const pageSubCategory = 'SITE_INFORMATION';
-  const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase()) === pageSubCategory);
-  const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
-
   const handleSaveAndContinue = async () => {
     setIsSaving(true);
+    setVersionError('');
 
     try {
       // Trigger file upload if there are pending files
@@ -65,18 +72,42 @@ const UploadSiteInformation: React.FC = () => {
         if (newUploadedFiles.length > 0) {
           await updateLandDetails({
             uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
+            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs],
+            version: versionRef.current,
+          });
+        } else {
+          // Even if no files are uploaded, we still need to send version
+          await updateLandDetails({
+            version: versionRef.current,
           });
         }
+      } else {
+        // No pending files, but still send version
+        await updateLandDetails({
+          version: versionRef.current,
+        });
       }
 
       goToEquipmentVisibility();
-    } catch (error) {
-      // Error is handled by updateLandDetails or file upload
+    } catch (error: any) {
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      }
+      window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
     }
   };
+
+  // Filter uploaded files and documents for SITE_INFORMATION only
+  const targetSub = 'SITE_INFORMATION';
+  const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => {
+    const sub = (doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase();
+    return sub === targetSub;
+  });
+  const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => {
+    return pageApplicationDocuments.some(doc => doc.fileId === file.id);
+  });
 
   const labels = LAND_DETAILS_LABELS.UPLOAD_SITE_INFORMATION;
 
@@ -92,6 +123,22 @@ const UploadSiteInformation: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
+
             <h1 className="govuk-heading-l">{labels.PAGE_TITLE}</h1>
 
             <p className="govuk-body">

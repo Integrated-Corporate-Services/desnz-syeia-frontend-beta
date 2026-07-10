@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import SkipLink from '../../../../components/SkipLink';
 import {
@@ -12,6 +12,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const LandRegistry: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -21,6 +22,8 @@ const LandRegistry: React.FC = () => {
 
   const [hasLandRegistry, setHasLandRegistry] = useState<'yes' | 'no' | ''>('');
   const [isSaving, setIsSaving] = useState(false);
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     // Only set state if the value has been explicitly saved (not null/undefined)
@@ -30,7 +33,11 @@ const LandRegistry: React.FC = () => {
       setHasLandRegistry('no');
     }
     // If null or undefined, leave as empty string (no selection)
-  }, [landDetails.has_land_registry]);
+    
+    if (landDetails) {
+      versionRef.current = landDetails.version;
+    }
+  }, [landDetails.has_land_registry, landDetails]);
 
   const handleRadioChange = (value: 'yes' | 'no') => {
     setHasLandRegistry(value);
@@ -44,12 +51,14 @@ const LandRegistry: React.FC = () => {
       return;
     }
 
+    setVersionError('');
     setIsSaving(true);
 
     try {
       const hasRegistry = hasLandRegistry === 'yes';
       await updateLandDetails({
         has_land_registry: hasRegistry,
+        version: versionRef.current,
       });
 
       if (hasRegistry) {
@@ -57,9 +66,11 @@ const LandRegistry: React.FC = () => {
       } else {
         goToUnregisteredLandDetails();
       }
-    } catch (error) {
-      // Error is handled by updateLandDetails
-    } finally {
+    } catch (error: any) {
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+      }
       setIsSaving(false);
     }
   };
@@ -79,10 +90,26 @@ const LandRegistry: React.FC = () => {
           currentPage={labels.QUESTION_PAGE_TITLE}
         />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
-            <ErrorSummary errors={errors} errorFields={errorFields} />
+        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              {versionError && (
+                <div
+                  className="govuk-error-summary"
+                  data-module="govuk-error-summary"
+                  tabIndex={-1}
+                  role="alert"
+                >
+                  <h2 className="govuk-error-summary__title">
+                    There is a problem
+                  </h2>
+                  <div className="govuk-error-summary__body">
+                    <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                  </div>
+                </div>
+              )}
+
+              <ErrorSummary errors={errors} errorFields={errorFields} />
 
             <form>
               <div className={`govuk-form-group${errors.hasLandRegistry ? ' govuk-form-group--error' : ''}`}>

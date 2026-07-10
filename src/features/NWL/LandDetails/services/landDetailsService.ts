@@ -104,7 +104,16 @@ export const landDetailsService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Handle version conflict (409)
+        if (response.status === 409 || errorData.error === 'VERSION_CONFLICT') {
+          const conflictError: any = new Error(errorData.message);
+          conflictError.statusCode = 409;
+          conflictError.isVersionConflict = true;
+          throw conflictError;
+        }
+        
         logger.error('Error updating land details:', errorData);
         throw new Error(`HTTP error! status: ${response.status}`);
       }

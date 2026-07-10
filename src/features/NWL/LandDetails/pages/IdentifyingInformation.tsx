@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import SkipLink from '../../../../components/SkipLink';
@@ -14,6 +14,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const IdentifyingInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -24,6 +25,8 @@ const IdentifyingInformation: React.FC = () => {
 
   const [identifyingInfo, setIdentifyingInfo] = useState(landDetails.identifying_information || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   const maxCharacters = 4000;
 
@@ -32,7 +35,10 @@ const IdentifyingInformation: React.FC = () => {
     if (landDetails.identifying_information !== undefined) {
       setIdentifyingInfo(landDetails.identifying_information);
     }
-  }, [landDetails.identifying_information]);
+    if (landDetails) {
+      versionRef.current = landDetails.version;
+    }
+  }, [landDetails.identifying_information, landDetails]);
 
   const handleIdentifyingInfoChange = (value: string) => {
     setIdentifyingInfo(value);
@@ -47,20 +53,27 @@ const IdentifyingInformation: React.FC = () => {
       return;
     }
 
+    setVersionError('');
     setIsSaving(true);
 
     try {
       await updateLandDetails({
         identifying_information: identifyingInfo,
+        version: versionRef.current,
       });
 
       try {
         await updateProgress('Identifying information', 'Completed');
       } catch (err) {
+        // Progress update failed, but continue anyway
       }
 
       goToUploadSiteInformation();
-    } catch (error) {
+    } catch (error: any) {
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+      }
       setIsSaving(false);
     }
   };
@@ -75,15 +88,31 @@ const IdentifyingInformation: React.FC = () => {
     <>
       <SkipLink />
       <div className="govuk-width-container">
-      <LandDetailsBreadcrumbs 
-        applicationId={applicationId} 
-        currentPage={labels.PAGE_TITLE}
-      />
+        <LandDetailsBreadcrumbs 
+          applicationId={applicationId} 
+          currentPage={labels.PAGE_TITLE}
+        />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
-            <ErrorSummary errors={errors} errorFields={errorFields} />
+        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              {versionError && (
+                <div
+                  className="govuk-error-summary"
+                  data-module="govuk-error-summary"
+                  tabIndex={-1}
+                  role="alert"
+                >
+                  <h2 className="govuk-error-summary__title">
+                    There is a problem
+                  </h2>
+                  <div className="govuk-error-summary__body">
+                    <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                  </div>
+                </div>
+              )}
+
+              <ErrorSummary errors={errors} errorFields={errorFields} />
 
             <h1 className="govuk-heading-l">{labels.PAGE_TITLE}</h1>
 

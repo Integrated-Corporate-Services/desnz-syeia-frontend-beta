@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import SkipLink from '../../../../components/SkipLink';
 import {
@@ -12,6 +12,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const CountrySelection: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -22,13 +23,18 @@ const CountrySelection: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   // Sync state when landDetails is fetched
   useEffect(() => {
     if (landDetails.site_country) {
       setSelectedCountry(landDetails.site_country);
     }
-  }, [landDetails.site_country]);
+    if (landDetails) {
+      versionRef.current = landDetails.version;
+    }
+  }, [landDetails.site_country, landDetails]);
 
   const handleCountryChange = (country: 'England' | 'Wales') => {
     setSelectedCountry(country);
@@ -44,15 +50,21 @@ const CountrySelection: React.FC = () => {
 
     setIsSaving(true);
     setSaveError("");
+    setVersionError('');
 
     try {
       await updateLandDetails({
         site_country: selectedCountry,
+        version: versionRef.current,
       });
 
       goToLandRegistry();
-    } catch (error) {
-      setSaveError("Failed to save country selection. Please try again.");
+    } catch (error: any) {
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else {
+        setSaveError("Failed to save country selection. Please try again.");
+      }
       window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
@@ -77,6 +89,21 @@ const CountrySelection: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {saveError && (
               <div
                 className="govuk-error-summary"

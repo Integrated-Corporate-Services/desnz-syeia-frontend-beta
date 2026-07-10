@@ -18,6 +18,7 @@ import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants
 import { LAND_DETAILS_SUBCATEGORIES } from '../constants';
 import { useAuthUser } from '../../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const LandRegistryInformation: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -39,6 +40,15 @@ const LandRegistryInformation: React.FC = () => {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [fileUploadError, setFileUploadError] = useState<string>('');
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
+
+  // Track version for optimistic locking
+  useEffect(() => {
+    if (landDetails) {
+      versionRef.current = landDetails.version;
+    }
+  }, [landDetails]);
 
   const handleTitleNumberChange = (value: string) => {
     setTitleNumber(value);
@@ -102,6 +112,7 @@ const LandRegistryInformation: React.FC = () => {
     }
 
     setIsSaving(true);
+    setVersionError('');
 
     try {
       // Trigger file upload if there are pending files
@@ -113,16 +124,19 @@ const LandRegistryInformation: React.FC = () => {
           await updateLandDetails({
             land_registry_title_number: titleNumber,
             uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
+            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs],
+            version: versionRef.current,
           });
         } else {
           await updateLandDetails({
             land_registry_title_number: titleNumber,
+            version: versionRef.current,
           });
         }
       } else {
         await updateLandDetails({
           land_registry_title_number: titleNumber,
+          version: versionRef.current,
         });
       }
 
@@ -132,8 +146,11 @@ const LandRegistryInformation: React.FC = () => {
       }
 
       goToOSGridReference();
-    } catch (error) {
-      // Error is handled by updateLandDetails or file upload
+    } catch (error: any) {
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      }
+      window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
     }
@@ -158,6 +175,21 @@ const LandRegistryInformation: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             <ErrorSummary 
               errors={{ ...errors, ...(fileUploadError ? { fileUpload: fileUploadError } : {}) }} 
               errorFields={errorFields} 

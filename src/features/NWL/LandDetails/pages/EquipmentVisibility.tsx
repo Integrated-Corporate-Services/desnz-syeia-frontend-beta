@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import SkipLink from '../../../../components/SkipLink';
@@ -13,6 +13,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const EquipmentVisibility: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -23,6 +24,8 @@ const EquipmentVisibility: React.FC = () => {
 
   const [isVisible, setIsVisible] = useState<'yes' | 'no' | ''>('');
   const [isSaving, setIsSaving] = useState(false);
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     // Only set state if the value has been explicitly saved (not null/undefined)
@@ -31,8 +34,11 @@ const EquipmentVisibility: React.FC = () => {
     } else if (landDetails.equipment_visible_from_public_road === false) {
       setIsVisible('no');
     }
+    if (landDetails) {
+      versionRef.current = landDetails.version;
+    }
     // If null or undefined, leave as empty string (no selection)
-  }, [landDetails.equipment_visible_from_public_road]);
+  }, [landDetails.equipment_visible_from_public_road, landDetails]);
 
   const handleRadioChange = (value: 'yes' | 'no') => {
     setIsVisible(value);
@@ -48,11 +54,13 @@ const EquipmentVisibility: React.FC = () => {
     }
 
     setIsSaving(true);
+    setVersionError('');
 
     try {
       const visibleFromRoad = isVisible === 'yes';
       await updateLandDetails({
         equipment_visible_from_public_road: visibleFromRoad,
+        version: versionRef.current,
       });
 
 
@@ -63,8 +71,11 @@ const EquipmentVisibility: React.FC = () => {
       }
 
       goToTaskList();
-    } catch (error) {
-      // Error is handled by updateLandDetails
+    } catch (error: any) {
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      }
+      window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
     }
@@ -83,7 +94,22 @@ const EquipmentVisibility: React.FC = () => {
       <LandDetailsBreadcrumbs 
         applicationId={applicationId} 
         currentPage={labels.PAGE_TITLE}
-      />
+      />{versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
+            
 
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">

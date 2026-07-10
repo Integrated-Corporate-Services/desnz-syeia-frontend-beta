@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import SkipLink from '../../../../components/SkipLink';
 import {
@@ -12,6 +12,7 @@ import {
 } from '../hooks';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import { LAND_DETAILS_LABELS } from '../constants';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 
 const OSGridReference: React.FC = () => {
   const applicationId = useGetApplicationId();
@@ -32,6 +33,15 @@ const OSGridReference: React.FC = () => {
   const [errors, setErrors] = useState<{ gridLetter?: string; easting?: string; northing?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>('');
+  const versionRef = useRef<number | undefined>(undefined);
+
+  // Track version for optimistic locking
+  useEffect(() => {
+    if (landDetails) {
+      versionRef.current = landDetails.version;
+    }
+  }, [landDetails]);
 
   const validateForm = () => {
     const newErrors: { gridLetter?: string; easting?: string; northing?: string } = {};
@@ -66,6 +76,7 @@ const OSGridReference: React.FC = () => {
 
     setIsSaving(true);
     setSaveError("");
+    setVersionError('');
 
     try {
       // Always save - send actual values or empty strings (backend will handle)
@@ -74,6 +85,7 @@ const OSGridReference: React.FC = () => {
         os_grid_reference_letter: gridLetter.trim() || '',
         os_grid_reference_easting: easting.trim() || '',
         os_grid_reference_northing: northing.trim() || '',
+        version: versionRef.current,
       });
 
       try {
@@ -83,8 +95,12 @@ const OSGridReference: React.FC = () => {
       }
 
       goToIdentifyingInformation();
-    } catch (error) {
-      setSaveError("Failed to save OS grid reference. Please try again.");
+    } catch (error: any) {
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else {
+        setSaveError("Failed to save OS grid reference. Please try again.");
+      }
       window.scrollTo(0, 0);
     } finally {
       setIsSaving(false);
@@ -105,6 +121,21 @@ const OSGridReference: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {saveError && (
               <div
                 className="govuk-error-summary"
