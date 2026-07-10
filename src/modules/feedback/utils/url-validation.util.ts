@@ -11,7 +11,7 @@ const ALLOWED_DOMAIN = 'forms.office.com';
 export function validateFeedbackUrl(
   url: string | null | undefined
 ): ValidationResult {
-  if (!url) {
+  if (url === null || url === undefined) {
     return {
       isValid: false,
       sanitizedUrl: DETAILED_SURVEY_URL,
@@ -67,6 +67,14 @@ export function validateFeedbackUrl(
     };
   }
 
+  if (!/^[\x00-\x7F]*$/.test(sanitized)) {
+    return {
+      isValid: false,
+      sanitizedUrl: DETAILED_SURVEY_URL,
+      reason: 'Non-ASCII characters in hostname',
+    };
+  }
+
   if (urlObj.hostname !== ALLOWED_DOMAIN) {
     if (isDevelopment && urlObj.hostname === 'localhost') {
       return {
@@ -79,14 +87,6 @@ export function validateFeedbackUrl(
       isValid: false,
       sanitizedUrl: DETAILED_SURVEY_URL,
       reason: `Domain not allowed: ${urlObj.hostname}`,
-    };
-  }
-
-  if (!/^[\x00-\x7F]*$/.test(urlObj.hostname)) {
-    return {
-      isValid: false,
-      sanitizedUrl: DETAILED_SURVEY_URL,
-      reason: 'Non-ASCII characters in hostname',
     };
   }
 
