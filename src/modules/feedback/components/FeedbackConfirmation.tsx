@@ -1,9 +1,9 @@
-import { CONTENT, DETAILED_SURVEY_URL } from '../constants/feedback.constants';
+import { CONTENT } from '../constants/feedback.constants';
+import { useFeedbackSurveyUrl } from '../hooks/useFeedbackSurveyUrl';
 
-/**
- * Success confirmation shown after feedback submission.
- */
 export default function FeedbackConfirmation() {
+  const { url } = useFeedbackSurveyUrl();
+
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
@@ -15,10 +15,11 @@ export default function FeedbackConfirmation() {
         <p className="govuk-body govuk-!-margin-bottom-4">{CONTENT.confirmationThankYou}</p>
         <p className="govuk-body">
           <a
-            href={DETAILED_SURVEY_URL}
+            href={url}
             className="govuk-link"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Complete our detailed survey (opens in a new tab)"
           >
             {CONTENT.confirmationSurveyLink}
           </a>
