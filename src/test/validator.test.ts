@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { UrlValidator } from './validator';
+import { UrlValidator } from '../validators/url/validator';
 
 describe('UrlValidator - Layer 1: Protocol Attack Prevention', () => {
   let validator: UrlValidator;

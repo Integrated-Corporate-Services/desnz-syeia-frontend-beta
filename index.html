@@ -8,12 +8,23 @@
     <link rel="apple-touch-icon" sizes="192x192" href="/assets/images/govuk-icon-192.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="/assets/images/govuk-icon-512.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com data:;
+      img-src 'self' data: https: blob:;
+      connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com;
+      frame-src https://www.googletagmanager.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      upgrade-insecure-requests;
+    " />
     <title>DESNZ</title>
-    <!-- CSP set via HTTP header (backend middleware) - not meta tag -->
-    <!-- Google Tag Manager - Loaded dynamically via consent system -->
   </head>
   <body class="govuk-frontend-supported">
-    <!-- Google Tag Manager (noscript) - Loaded dynamically via consent system -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

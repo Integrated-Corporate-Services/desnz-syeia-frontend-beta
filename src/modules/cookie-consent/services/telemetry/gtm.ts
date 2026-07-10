@@ -3,12 +3,33 @@ import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('GTM');
 
+const TRUSTED_GTM_DOMAIN = 'www.googletagmanager.com';
+const TRUSTED_GTM_PROTOCOL = 'https:';
+
 let _config: ReturnType<typeof getTelemetryConfig> | null = null;
 function getConfig() {
   if (!_config) {
     _config = getTelemetryConfig();
   }
   return _config;
+}
+
+function validateGTMUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    if (urlObj.protocol !== TRUSTED_GTM_PROTOCOL) {
+      logger.error('Invalid GTM protocol', { protocol: urlObj.protocol });
+      return false;
+    }
+    if (urlObj.hostname !== TRUSTED_GTM_DOMAIN) {
+      logger.error('Invalid GTM domain', { domain: urlObj.hostname });
+      return false;
+    }
+    return true;
+  } catch (error) {
+    logger.error('Invalid GTM URL', { url, error });
+    return false;
+  }
 }
 
 export function initGTM(): void {
@@ -29,18 +50,32 @@ export function initGTM(): void {
   logger.debug('Initializing with ID:', GTM_ID);
   logger.debug('Detected Environment:', getCurrentEnvironment());
 
-  // Initialize dataLayer
   (window as any).dataLayer = (window as any).dataLayer || [];
   (window as any).dataLayer.push({
     'gtm.start': new Date().getTime(),
     event: 'gtm.js'
   });
 
-  // Add GTM script to head
+  const scriptSrc = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
+  
+  if (!validateGTMUrl(scriptSrc)) {
+    logger.error('GTM URL validation failed - aborting initialization');
+    return;
+  }
+
   const script = document.createElement('script');
   script.id = 'gtm-script';
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
+  script.src = scriptSrc;
+  script.setAttribute('crossorigin', 'anonymous');
+  
+  script.addEventListener('error', () => {
+    logger.error('Failed to load GTM script', { src: scriptSrc });
+  });
+  
+  script.addEventListener('load', () => {
+    logger.debug('GTM script loaded successfully');
+  });
   
   const firstScript = document.getElementsByTagName('script')[0];
   if (firstScript && firstScript.parentNode) {
@@ -50,18 +85,24 @@ export function initGTM(): void {
   }
   logger.debug('Script added to head');
 
-  // Add GTM noscript iframe to body
+  const iframeSrc = `https://www.googletagmanager.com/ns.html?id=${GTM_ID}`;
+  
+  if (!validateGTMUrl(iframeSrc)) {
+    logger.error('GTM iframe URL validation failed - skipping noscript');
+    return;
+  }
+
   const noscript = document.createElement('noscript');
   noscript.id = 'gtm-noscript';
   const iframe = document.createElement('iframe');
-  iframe.src = `https://www.googletagmanager.com/ns.html?id=${GTM_ID}`;
+  iframe.src = iframeSrc;
   iframe.height = '0';
   iframe.width = '0';
   iframe.style.display = 'none';
   iframe.style.visibility = 'hidden';
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
   noscript.appendChild(iframe);
   
-  // Insert at the beginning of body
   if (document.body.firstChild) {
     document.body.insertBefore(noscript, document.body.firstChild);
   } else {
