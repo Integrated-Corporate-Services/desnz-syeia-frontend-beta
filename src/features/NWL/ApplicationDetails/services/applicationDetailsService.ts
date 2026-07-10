@@ -44,6 +44,7 @@ export interface ApplicationDetailsData {
   standard_term_explanation?: string;
   created_at?: string;
   updated_at?: string;
+  version?: number;
 }
 
 export interface CreateApplicationDetailsPayload {
@@ -74,6 +75,9 @@ export interface CreateApplicationDetailsPayload {
   application_outside_timeframe_explanation?: string | null;
   is_standard_term?: boolean | null;
   standard_term_explanation?: string | null;
+  
+  // Version for optimistic locking
+  version?: number;
 }
 
 /**
@@ -111,9 +115,29 @@ export const createOrUpdateApplicationDetails = async (
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    logger.error('Failed to save application details', { error });
-    throw new Error(error.message || 'Failed to save application details');
+    let errorMessage = 'Failed to save application details';
+    
+    try {
+      const error = await response.json();
+      
+      // Handle version conflict (409)
+      if (response.status === 409 || error.error === 'VERSION_CONFLICT') {
+        const conflictError: any = new Error(error.message);
+        conflictError.statusCode = 409;
+        conflictError.isVersionConflict = true;
+        throw conflictError;
+      }
+      
+      logger.error('Failed to save application details', { error });
+      throw new Error(error.message || errorMessage);
+    } catch (parseError: any) {
+      // If it's already our conflict error, re-throw it
+      if (parseError.isVersionConflict) {
+        throw parseError;
+      }
+      // If JSON parsing fails or other error, use default
+      throw parseError;
+    }
   }
 
   const result = await response.json();

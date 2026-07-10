@@ -11,6 +11,7 @@ import {
 } from "../constants/typeOfUseConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 import { VALIDATION_MESSAGES } from "../services/applicationDetailsService";
+import { ERROR_MESSAGES } from "../../../../constants/error";
 import { createLogger } from "../../../../utils/logger";
 
 const logger = createLogger('TypeOfUse');
@@ -28,7 +29,9 @@ const TypeOfUse: React.FC = () => {
 
   const [typeOfUse, setTypeOfUse] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>("");
   const initialTypeRef = useRef<string | null>(null);
+  const versionRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (applicationDetails?.type_of_use) {
@@ -37,11 +40,16 @@ const TypeOfUse: React.FC = () => {
         initialTypeRef.current = applicationDetails.type_of_use;
       }
     }
+    // Track version for optimistic locking
+    if (applicationDetails?.version !== undefined) {
+      versionRef.current = applicationDetails.version;
+    }
   }, [applicationDetails]);
 
   const handleTypeChange = (newValue: string) => {
     setTypeOfUse(newValue);
     setError("");
+    setVersionError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +71,7 @@ const TypeOfUse: React.FC = () => {
       await saveDetails({
         application_id: appId!,
         type_of_use: typeOfUse,
+        version: versionRef.current,
       }, APPLICATION_DETAILS_PAGE_IDS.TYPE_OF_USE);
 
       initialTypeRef.current = typeOfUse;
@@ -79,8 +88,13 @@ const TypeOfUse: React.FC = () => {
         navigateToGroundsForApplication();
       }
     } catch (err: unknown) {
-      const error = err as Error;
-      setError(error.message || 'Failed to save');
+      const error = err as any;
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else {
+        setError(error.message || 'Failed to save');
+      }
     }
   };
 
@@ -108,6 +122,21 @@ const TypeOfUse: React.FC = () => {
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {error && (
               <div
                 className="govuk-error-summary"

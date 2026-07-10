@@ -41,6 +41,9 @@ export type NWLApplicationDetails = {
   // Standard term
   is_standard_term?: boolean;
   standard_term_explanation?: string;
+  
+  // Version for optimistic locking
+  version?: number;
 };
 
 /**

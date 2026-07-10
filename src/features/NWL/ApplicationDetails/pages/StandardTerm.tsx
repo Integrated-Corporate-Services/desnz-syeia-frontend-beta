@@ -10,6 +10,7 @@ import {
   OPTIONS,
 } from "../constants/standardTermConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import { ERROR_MESSAGES } from "../../../../constants/error";
 
 const StandardTerm: React.FC = () => {
   const appId = useGetApplicationId();
@@ -20,8 +21,10 @@ const StandardTerm: React.FC = () => {
   const [isStandardTerm, setIsStandardTerm] = useState<string>("");
   const [explanation, setExplanation] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>("");
   const [explanationError, setExplanationError] = useState<string>("");
   const initialTermRef = useRef<string | null>(null);
+  const versionRef = useRef<number | undefined>(undefined);
 
   const typeOfUse = applicationDetails?.type_of_use || 'existing_lines';
 
@@ -39,11 +42,16 @@ const StandardTerm: React.FC = () => {
       // Explicitly clear local state if explanation was set to null or empty string
       setExplanation("");
     }
+    // Track version for optimistic locking
+    if (applicationDetails?.version !== undefined) {
+      versionRef.current = applicationDetails.version;
+    }
   }, [applicationDetails]);
 
   const handleTermChange = (newValue: string) => {
     setIsStandardTerm(newValue);
     setError("");
+    setVersionError("");
     
     if (newValue === "yes") {
       setExplanation("");
@@ -86,6 +94,7 @@ const StandardTerm: React.FC = () => {
         type_of_use: typeOfUse,
         is_standard_term: isStandardTerm === "yes",
         standard_term_explanation: isStandardTerm === "yes" ? null : explanation,
+        version: versionRef.current,
       }, APPLICATION_DETAILS_PAGE_IDS.STANDARD_TERM);
 
       initialTermRef.current = isStandardTerm;
@@ -94,8 +103,13 @@ const StandardTerm: React.FC = () => {
 
       navigateToTaskList();
     } catch (err: unknown) {
-      const error = err as Error;
-      setError(error.message || 'Failed to save');
+      const error = err as any;
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else {
+        setError(error.message || 'Failed to save');
+      }
     }
   };
 
@@ -126,6 +140,21 @@ const StandardTerm: React.FC = () => {
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {(error || explanationError) && (
               <div
                 className="govuk-error-summary"

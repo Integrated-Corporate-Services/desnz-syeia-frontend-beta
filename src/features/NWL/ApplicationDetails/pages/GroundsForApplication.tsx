@@ -13,6 +13,7 @@ import {
   FORM_ERRORS,
 } from "../constants/groundsForApplicationConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import { ERROR_MESSAGES } from "../../../../constants/error";
 
 /**
  * Grounds For Application Page
@@ -30,7 +31,9 @@ const GroundsForApplication: React.FC = () => {
 
   const [groundsForApplication, setGroundsForApplication] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>("");
   const initialGroundsRef = useRef<string | null>(null);
+  const versionRef = useRef<number | undefined>(undefined);
 
   // Check type_of_use and redirect if new_lines
   useEffect(() => {
@@ -49,11 +52,16 @@ const GroundsForApplication: React.FC = () => {
         initialGroundsRef.current = applicationDetails.grounds_for_application;
       }
     }
+    // Track version for optimistic locking
+    if (applicationDetails?.version !== undefined) {
+      versionRef.current = applicationDetails.version;
+    }
   }, [applicationDetails]);
 
   const handleGroundsChange = (newValue: string) => {
     setGroundsForApplication(newValue);
     setError("");
+    setVersionError("");
     // Note: Backend call happens only on "Save and continue" button click
   };
 
@@ -79,7 +87,8 @@ const GroundsForApplication: React.FC = () => {
       // Save the current selection
       await updateFields({ 
         type_of_use: 'existing_lines',
-        grounds_for_application: groundsForApplication 
+        grounds_for_application: groundsForApplication,
+        version: versionRef.current,
       }, APPLICATION_DETAILS_PAGE_IDS.GROUNDS_FOR_APPLICATION);
 
       // Update the initial ref after successful save
@@ -94,8 +103,13 @@ const GroundsForApplication: React.FC = () => {
         navigateToNoticeToRemove();
       }
     } catch (err: unknown) {
-      const error = err as Error;
-      setError(error.message || 'Failed to save');
+      const error = err as any;
+      // Handle version conflict
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else {
+        setError(error.message || 'Failed to save');
+      }
     }
   };
 
@@ -123,6 +137,21 @@ const GroundsForApplication: React.FC = () => {
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             {error && (
               <div
                 className="govuk-error-summary"
