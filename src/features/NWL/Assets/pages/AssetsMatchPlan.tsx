@@ -32,12 +32,12 @@ const AssetsMatchPlan: React.FC = () => {
     if (assetsData && !loading) {
       logger.debug('[AssetsMatchPlan] Loading existing metadata', {
         metadata_version: assetsData.metadata_version,
+        assetsMatchPlan: assetsData.assets_match_plan,
+        hasExplanation: !!assetsData.assets_match_plan_explanation,
       });
 
       // Track version for optimistic locking
-      versionRef.current = assetsData.metadata_versionassetsMatchPlan: assetsData.assets_match_plan,
-        hasExplanation: !!assetsData.assets_match_plan_explanation,
-      });
+      versionRef.current = assetsData.metadata_version;
 
       // Only set the value if metadata exists (not default false)
       if (assetsData.metadata_id) {
@@ -93,7 +93,8 @@ const AssetsMatchPlan: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-VersionError('');
+
+    setVersionError('');
     setSaving(true);
 
     try {
@@ -133,30 +134,20 @@ VersionError('');
         setSaving(false);
         return;
       }
-      
 
-      // Navigate to task list
-      navigate(`${NWL_BASE_URL}/${applicationId}/task-list`);
-    } catch (error: unknown) {
+      // Handle other errors
       logger.error('[handleSubmit] Error updating metadata', { error });
 
       // Type guard for axios error
-      interface ValidationDetail {
-        field: string;
-        message: string;
-      }
-      
-      interface AxiosError {
+      const axiosError = error as {
         response?: {
           data?: {
-            details?: ValidationDetail[] | string;
+            details?: Array<{ field: string; message: string }> | string;
             error?: string;
             message?: string;
           };
         };
-      }
-
-      const axiosError = error as AxiosError;
+      };
       
       // Extract error message from response
       let errorMessage: string;
@@ -202,7 +193,10 @@ VersionError('');
           </li>
         </ol>
       </nav>
-Version Error Summary */}
+
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
+          {/* Version Error Summary */}
           {versionError && (
             <div
               className="govuk-error-summary"
@@ -218,10 +212,6 @@ Version Error Summary */}
               </div>
             </div>
           )}
-
-          {/* 
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
           
           <h1 className="govuk-heading-xl">{LABELS.ASSETS_MATCH_PLAN_TITLE}</h1>
 
