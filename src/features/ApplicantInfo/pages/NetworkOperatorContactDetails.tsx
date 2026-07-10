@@ -13,6 +13,8 @@ import SkipLink from "../../../components/SkipLink";
 
 const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>("");
+  const [version, setVersion] = useState<number>(1);
+  const [versionError, setVersionError] = useState<string>("");
 
   const { application, fetchApplication } = useApplication();
   const appId = useGetApplicationId();
@@ -21,9 +23,18 @@ const NetworkOperatorContactDetails: React.FC = () => {
   // Fetch application data on mount
   useEffect(() => {
     if (appId) {
+      setError("");
+      setVersionError("");
       fetchApplication(appId);
     }
   }, [appId, fetchApplication]);
+
+  // Load version from application_party
+  useEffect(() => {
+    if (application?.application_party?.version) {
+      setVersion(application.application_party.version);
+    }
+  }, [application]);
 
   // Contact confirmation state
   const { contactIsConfirmed, setContactIsConfirmed } =
@@ -32,10 +43,12 @@ const NetworkOperatorContactDetails: React.FC = () => {
   // Form submission handler
   const { handleSubmit } = useContactDetailsSubmit({
     application,
-    party,
     appId,
     contactIsConfirmed,
     setError,
+    version,
+    setVersion,
+    setVersionError,
   });
 
   // Format contact details for display
@@ -80,6 +93,20 @@ const NetworkOperatorContactDetails: React.FC = () => {
             </div>
           </div>
         )}
+        {/* Version conflict error */}
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                role="alert"
+                tabIndex={-1}
+              >
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
 
         <form onSubmit={handleSubmit} noValidate>
           <ContactDetailsSummary contactDetails={contactDetails} />

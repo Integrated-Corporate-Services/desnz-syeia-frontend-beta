@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApplication } from "../../../hooks/useApplication";
 import { applicationApiService } from "../../../services/applicationApiService";
@@ -14,6 +14,7 @@ import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
 import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 import { ROLES } from "../../../constants/roles";
 import { S37_BASE_URL } from "../../../constants/s37";
+import { ERROR_MESSAGES } from "../../../constants/error";
 import {
   MAX_REFERENCE_LENGTH,
   BREADCRUMBS,
@@ -38,6 +39,10 @@ const NetworkOperatorDetails: React.FC = () => {
   // Store
   const { application, setApplication, fetchApplication, createNewApplication } = useApplication();
   const applicationParty = application?.application_party;
+
+  // Version tracking for optimistic locking
+  const [version, setVersion] = useState<number>(1);
+  const [versionError, setVersionError] = useState<string>("");
 
   // Custom hooks
   const {
@@ -95,6 +100,11 @@ const NetworkOperatorDetails: React.FC = () => {
   useEffect(() => {
     if (appId) {
       fetchApplication(appId).then(() => {
+        // Load version from application_party
+        if (application?.application_party?.version) {
+          setVersion(application.application_party.version);
+        }
+        
         // If organization passed via state, update application_party
         if (stateOrgId && stateOrgName && application?.application_id) {
           setApplication({
@@ -116,6 +126,13 @@ const NetworkOperatorDetails: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appId]);
+
+  useEffect(() => {
+    // Load version from application_party whenever application changes
+    if (application?.application_party?.version) {
+      setVersion(application.application_party.version);
+    }
+  }, [application, application?.application_party?.version]);
 
   // Sync application data with form state
   useApplicationSync({
@@ -143,6 +160,8 @@ const NetworkOperatorDetails: React.FC = () => {
     if (!validateForm()) {
       return;
     }
+
+    setVersionError("");  // Clear previous errors
 
     try {
       let app = application;
@@ -181,10 +200,16 @@ const NetworkOperatorDetails: React.FC = () => {
           contact_isconfirmed: applicationParty?.contact_isconfirmed,
           type: application?.type,
           additional_contact: additionalContactString,
+          version: version,  // Pass version for optimistic locking
         };
 
         // Wait for the save operation to complete before navigating
         const result = await applicationApiService.saveNetworkOperator(saveData);
+
+        // Update version from response
+        if (result?.application_party?.version) {
+          setVersion(result.application_party.version);
+        }
 
         // Only navigate if the save was successful and we have an application ID
         if (result?.application?.application_id) {
@@ -198,9 +223,15 @@ const NetworkOperatorDetails: React.FC = () => {
           );
         }
       }
-    } catch (error) {
-      // You may want to show an error message to the user here
-      // For now, we'll stay on the current page to allow the user to try again
+    } catch (error: any) {
+      // Handle version conflict
+      if (error.isVersionConflict || error.statusCode === 409) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+      } else {
+        // Handle other errors - you may want to show an error message to the user
+        setVersionError(error.message || "An error occurred while saving");
+      }
+      // Stay on the current page to allow the user to try again
     }
   };
 
@@ -229,6 +260,22 @@ const NetworkOperatorDetails: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Applicant details</h1>
+            
+            {/* Version conflict error */}
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                role="alert"
+                tabIndex={-1}
+              >
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
+            
             {/* Error summary removed as per request. Field-level errors remain. */}
             <form onSubmit={handleSubmit} noValidate>
               {/* Applicant contact name */}

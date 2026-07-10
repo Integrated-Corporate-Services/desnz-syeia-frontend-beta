@@ -17,6 +17,7 @@ import { createLogger } from "../../../../utils/logger";
 
 const logger = createLogger('NetworkOperatorDetails');
 
+
 const NWL_BASE_URL = "/nwl";
 
 import {
@@ -25,6 +26,8 @@ import {
   FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
 import SkipLink from '../../../../components/SkipLink';
+import { ERROR_MESSAGES as GLOBAL_ERROR_MESSAGES } from "../../../../constants/error";
+
 
 const NetworkOperatorDetails: React.FC = () => {
   const { user } = useAuthUserContext();
@@ -63,6 +66,8 @@ const NetworkOperatorDetails: React.FC = () => {
     setAdditionalContacts,
     clearEmailInputError,
   } = useAdditionalContacts();
+
+  const [versionError, setVersionError] = React.useState<string>("");
 
   const organisationId =
     application?.application_party?.organisation_id || stateOrgId;
@@ -103,6 +108,7 @@ const NetworkOperatorDetails: React.FC = () => {
                 "Network Operator",
               line1: application?.application_party?.line1 || "",
               is_primary: true,
+              version: application?.application_party?.version || 1,
             },
           });
         }
@@ -172,6 +178,7 @@ const NetworkOperatorDetails: React.FC = () => {
           contact_isconfirmed: applicationParty?.contact_isconfirmed,
           type: application?.type,
           additional_contact: additionalContactString,
+          version: applicationParty?.version || 1, // Use the current version or default to 1
         };
 
         const result = await applicationApiService.saveNetworkOperator(saveData);
@@ -191,8 +198,15 @@ const NetworkOperatorDetails: React.FC = () => {
           );
         }
       }
-    } catch (error) {
-      logger.error('Failed to save network operator:', error);
+    } catch (error: Error | any) {
+      if (error.isVersionConflict || error.statusCode === 409) {
+              setVersionError(GLOBAL_ERROR_MESSAGES.VERSION_CONFLICT);
+            } else {
+              // Handle other errors - you may want to show an error message to the user
+              setVersionError(error.message || "An error occurred while saving");
+              logger.error('Failed to save network operator:', error);
+            }
+      
     }
   };
 
@@ -220,6 +234,20 @@ const NetworkOperatorDetails: React.FC = () => {
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+          {/* Version conflict error */}
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                role="alert"
+                tabIndex={-1}
+              >
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
             <h1 className="govuk-heading-l">Applicant details</h1>
             {(showErrorSummary || emailInputError) && (
               <div

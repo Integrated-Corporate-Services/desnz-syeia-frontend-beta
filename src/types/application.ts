@@ -52,6 +52,7 @@ export type ApplicationParty = {
   contact_isconfirmed?: boolean | null;
   person_name?: string;
   additional_contact?: string | null;
+  version?: number; 
 };
 
 export interface ApplicationDeletionResult {

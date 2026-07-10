@@ -13,6 +13,7 @@ const NWL_BASE_URL = "/nwl";
 
 const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>("");
+  const [versionError, setVersionError] = useState<string>("");
 
   const { application, fetchApplication } = useApplication();
   const appId = useGetApplicationId();
@@ -33,6 +34,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
     appId,
     contactIsConfirmed,
     setError,
+    setVersionError,
   });
 
   // Format contact details for display
@@ -73,6 +75,20 @@ return (
             </div>
           </div>
         )}
+        {/* Version conflict error */}
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                role="alert"
+                tabIndex={-1}
+              >
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
 
         <form onSubmit={handleSubmit} noValidate>
           <ContactDetailsSummary contactDetails={contactDetails} />

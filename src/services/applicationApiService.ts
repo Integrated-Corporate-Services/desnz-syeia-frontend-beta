@@ -35,10 +35,14 @@ export const applicationApiService = {
   getApplicationById: async (id: string, correlationId?: string) => {
     const headers: HeadersInit = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
     };
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${id}`), {
+    const response = await fetch(buildBackendUrl(`/backend/api/applications/${id}?_=${Date.now()}`), {
       credentials: "include",
       headers,
+      cache: "no-store",
     });
     return response.json();
   },
@@ -57,6 +61,21 @@ export const applicationApiService = {
         body: JSON.stringify(data),
       },
     );
+    
+    // Handle version conflict
+    if (response.status === 409) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: any = new Error(errorData.message || 'Version conflict');
+      error.isVersionConflict = true;
+      error.statusCode = 409;
+      throw error;
+    }
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to save network operator');
+    }
+    
     return response.json();
   },
 
@@ -134,7 +153,13 @@ export const applicationApiService = {
   confirmContactDetails: async (
     applicationId: string,
     isConfirmed: boolean,
+    version?: number,
   ) => {
+    const payload = {
+      contact_isconfirmed: isConfirmed,
+      contactVersion: version ?? 1,  // Pass version for optimistic locking
+    };
+    
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": generateCorrelationId(),
@@ -145,11 +170,18 @@ export const applicationApiService = {
         method: "PATCH",
         headers,
         credentials: "include",
-        body: JSON.stringify({
-          contact_isconfirmed: isConfirmed,
-        }),
+        body: JSON.stringify(payload),
       },
     );
+
+    // Handle version conflict
+    if (response.status === 409) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: any = new Error(errorData.message || 'Version conflict');
+      error.isVersionConflict = true;
+      error.statusCode = 409;
+      throw error;
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
