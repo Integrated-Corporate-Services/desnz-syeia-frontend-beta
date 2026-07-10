@@ -6,6 +6,7 @@ import {
   CHARACTER_LIMITS,
   MESSAGES,
 } from '../constants/negotiationsConstants';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import {
   useNegotiationsData,
   useFormValidation,
@@ -48,6 +49,10 @@ const EvidenceOfNegotiations: React.FC = () => {
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [isFormDirty, setIsFormDirty] = useState(false); // Track if user has modified the form
+  const [versionError, setVersionError] = useState<string>('');
+  
+  // Track version for optimistic locking
+  const versionRef = useRef<number | undefined>(undefined);
 
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
@@ -98,6 +103,9 @@ const EvidenceOfNegotiations: React.FC = () => {
       if (!isFormDirty) {
         setComments(newComments);
       }
+      
+      // Track version for optimistic locking
+      versionRef.current = negotiationsData.version;
       
       setUploadedFiles(newUploadedFiles);
       setApplicationDocuments(newApplicationDocuments);
@@ -151,6 +159,7 @@ const EvidenceOfNegotiations: React.FC = () => {
     }
 
     setIsSaving(true);
+    setVersionError(''); // Clear previous version errors
 
     try {
       // Merge existing files with newly uploaded files
@@ -168,6 +177,7 @@ const EvidenceOfNegotiations: React.FC = () => {
         // Send ALL file metadata to backend (existing + newly uploaded)
         uploaded_files: allUploadedFiles,
         application_documents: allDocuments,
+        version: versionRef.current, // Send version for optimistic locking
       });
 
       if (!result) {
@@ -193,7 +203,15 @@ const EvidenceOfNegotiations: React.FC = () => {
       }
       
       navigateToTaskList();
-    } catch (error) {
+    } catch (error: any) {
+      // Handle version conflict (409)
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+        setIsSaving(false);
+        return;
+      }
+      
       alert('An error occurred while saving. Please try again.');
     } finally {
       setIsSaving(false);
@@ -210,6 +228,23 @@ const EvidenceOfNegotiations: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.EVIDENCE_TITLE}</h1>
+
+            {/* Version Error Summary */}
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
 
             <ErrorSummary errors={errors} />
 

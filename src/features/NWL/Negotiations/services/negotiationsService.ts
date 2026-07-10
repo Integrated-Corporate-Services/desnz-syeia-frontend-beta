@@ -102,6 +102,24 @@ export const saveNegotiationsData = async (
         statusText: response.statusText,
         body: errorBody,
       });
+      
+      // Handle version conflict (409)
+      if (response.status === 409) {
+        try {
+          const errorData = JSON.parse(errorBody);
+          if (errorData.error === 'VERSION_CONFLICT') {
+            const conflictError: any = new Error(errorData.message || 'Version conflict detected');
+            conflictError.statusCode = 409;
+            conflictError.isVersionConflict = true;
+            throw conflictError;
+          }
+        } catch (parseError: any) {
+          if (parseError.isVersionConflict) {
+            throw parseError;
+          }
+        }
+      }
+      
       throw new Error(`Failed to save negotiations data: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     
@@ -173,6 +191,24 @@ export const patchNegotiationsData = async (
         statusText: response.statusText,
         body: errorBody,
       });
+      
+      // Handle version conflict (409)
+      if (response.status === 409) {
+        try {
+          const errorData = JSON.parse(errorBody);
+          if (errorData.error === 'VERSION_CONFLICT') {
+            const conflictError: any = new Error(errorData.message || 'Version conflict detected');
+            conflictError.statusCode = 409;
+            conflictError.isVersionConflict = true;
+            throw conflictError;
+          }
+        } catch (parseError: any) {
+          if (parseError.isVersionConflict) {
+            throw parseError;
+          }
+        }
+      }
+      
       throw new Error(`Failed to update negotiations data: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     

@@ -16,6 +16,7 @@ export type NegotiationsData = {
   application_documents?: ApplicationDocument[];
   created_at?: string;
   updated_at?: string;
+  version?: number; // For optimistic locking
 };
 
 export type DateFormData = {

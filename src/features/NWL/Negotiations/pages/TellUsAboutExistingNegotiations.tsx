@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   LABELS,
   HINTS,
   FORM_LABELS,
   CONTENT,
 } from '../constants/negotiationsConstants';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import {
   useNegotiationsData,
   useFormValidation,
@@ -42,6 +43,10 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
     year: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [versionError, setVersionError] = useState<string>('');
+  
+  // Track version for optimistic locking
+  const versionRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     logger.debug('[TellUsAboutExistingNegotiations] negotiationsData changed:', {
@@ -66,8 +71,12 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         year: negotiationsData.negotiations_start_date_year || '',
       });
       
+      // Track version for optimistic locking
+      versionRef.current = negotiationsData.version;
+      
       logger.debug('[TellUsAboutExistingNegotiations] State updated:', {
         hasNegotiations: hasNegValue,
+        version: negotiationsData.version,
         startDate: {
           day: negotiationsData.negotiations_start_date_day || '',
           month: negotiationsData.negotiations_start_date_month || '',
@@ -116,11 +125,13 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
     }
 
     setIsSaving(true);
+    setVersionError(''); // Clear previous version errors
 
     try {
       const isYes = hasNegotiations === 'yes';
       const payload: Partial<NegotiationsData> = {
         has_negotiations: isYes,
+        version: versionRef.current, // Send version for optimistic locking
       };
 
       // Date is mandatory when has_negotiations is true
@@ -161,8 +172,16 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
       } else {
         navigateToWhyNoNegotiations();
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Handle version conflict (409)
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+        return;
+      }
+      
       logger.error('Error saving negotiations data:', error);
+      setErrors({ general: 'Failed to save data. Please try again.' });
     } finally {
       setIsSaving(false);
     }
@@ -177,6 +196,23 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {/* Version Error Summary */}
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
+            
             <ErrorSummary errors={errors} />
 
             <form onSubmit={handleSubmit} noValidate>

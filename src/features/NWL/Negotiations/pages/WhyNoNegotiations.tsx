@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   LABELS,
   CHARACTER_LIMITS,
   MESSAGES,
 } from '../constants/negotiationsConstants';
+import { ERROR_MESSAGES } from '../../../../constants/error';
 import {
   useNegotiationsData,
   useFormValidation,
@@ -34,6 +35,10 @@ const WhyNoNegotiations: React.FC = () => {
 
   const [reason, setReason] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [versionError, setVersionError] = useState<string>('');
+  
+  // Track version for optimistic locking
+  const versionRef = useRef<number | undefined>(undefined);
 
   // Log every render to track state changes (for debugging)
   logger.debug('[WhyNoNegotiations] ===== COMPONENT RENDER =====', {
@@ -68,6 +73,10 @@ const WhyNoNegotiations: React.FC = () => {
         isUndefined: negotiationsData.no_negotiations_reason === undefined,
       });
       setReason(newReason);
+      
+      // Track version for optimistic locking
+      versionRef.current = negotiationsData.version;
+      
       logger.debug('[WhyNoNegotiations] ✓ State updated, reason set to:', newReason);
     } else {
       logger.debug('[WhyNoNegotiations] No negotiations data available (data is null/undefined)');
@@ -109,6 +118,7 @@ const WhyNoNegotiations: React.FC = () => {
 
     logger.debug('[WhyNoNegotiations] ✓ appId available:', appId);
     setIsSaving(true);
+    setVersionError(''); // Clear previous version errors
 
     try {
       // Use PATCH to only update reason without affecting other fields
@@ -117,6 +127,7 @@ const WhyNoNegotiations: React.FC = () => {
         has_negotiations: false,
         no_negotiations_reason: reason,
         negotiations_comments: '',
+        version: versionRef.current, // Send version for optimistic locking
       };
 
       logger.debug('[WhyNoNegotiations] ===== CALLING API =====');
@@ -168,7 +179,15 @@ const WhyNoNegotiations: React.FC = () => {
       }
       
       navigateToTaskList();
-    } catch (error) {
+    } catch (error: any) {
+      // Handle version conflict (409)
+      if (error.statusCode === 409 || error.isVersionConflict) {
+        setVersionError(ERROR_MESSAGES.VERSION_CONFLICT);
+        window.scrollTo(0, 0);
+        setIsSaving(false);
+        return;
+      }
+      
       logger.error('[WhyNoNegotiations] Error saving no negotiations reason:', error);
       alert('An error occurred while saving. Please try again.');
     } finally {
@@ -185,6 +204,23 @@ const WhyNoNegotiations: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {/* Version Error Summary */}
+            {versionError && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <div dangerouslySetInnerHTML={{ __html: versionError }} />
+                </div>
+              </div>
+            )}
+            
             <ErrorSummary errors={errors} />
 
             <form onSubmit={handleSubmit} noValidate>
