@@ -79,7 +79,7 @@ jobs:
         env:
           CI: true
 
-      - name: "[1/5] Check for Source Maps"
+      - name: "Check for Source Maps"
         run: |
           echo "Checking for source maps..."
           if find dist -name "*.map" -type f | grep -q .; then
@@ -90,7 +90,7 @@ jobs:
             echo " PASSED: No source maps found"
           fi
 
-      - name: "[2/5] Check React DevTools Disabled"
+      - name: "Check React DevTools Disabled"
         run: |
           echo "Checking React DevTools status..."
           if grep -rq "isDisabled:!0\|isDisabled:true" dist/assets/*.js 2>/dev/null; then
@@ -103,7 +103,7 @@ jobs:
             exit 1
           fi
 
-      - name: "[3/5] Check Minification"
+      - name: "Check Minification"
         run: |
           echo "Checking minification..."
           failed=0
@@ -126,7 +126,7 @@ jobs:
             exit 1
           fi
 
-      - name: "[4/5] Check Console Statements"
+      - name: "Check Console Statements"
         run: |
           echo "Checking for console statements..."
           if grep -rE "console\.(log|debug|info|trace)\s*\(" dist/assets/*.js 2>/dev/null; then
@@ -135,7 +135,7 @@ jobs:
             echo " PASSED: Console logs removed"
           fi
 
-      - name: "[5/5] Analyze Bundle Sizes"
+      - name: "Analyze Bundle Sizes"
         run: |
           echo "Analyzing bundle sizes..."
           echo ""
@@ -150,7 +150,7 @@ jobs:
         if: success()
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo " All HIGH-018 security checks passed!"
+          echo " All security checks passed!"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "✓ No source maps exposed"
           echo "✓ React DevTools disabled in production"
