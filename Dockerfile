@@ -106,11 +106,11 @@ RUN npm ci
 # Copy app source
 COPY . .
 
-# Build the app
+# Build the app with environment-specific mode
 RUN echo "========================================" && \
-    echo "Starting Vite Build Process..." && \
+    echo "Starting Vite Build Process with MODE=${MODE}..." && \
     echo "========================================" && \
-    npm run build && \
+    npm run build -- --mode ${MODE} && \
     echo "========================================" && \
     echo "Build Complete! Checking output..." && \
     echo "========================================" && \
