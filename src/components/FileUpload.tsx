@@ -6,6 +6,8 @@ import {
   uploadFileToS3,
   deleteFileCompletely,
   confirmUpload,
+  waitForFileScan,
+  clearPresignedUrlCache,
 } from "../services/s3ApiService"; 
 import { createLogger } from "../utils/logger";
 import { validateFiles,  } from "../utils/fileUploadValidation";
@@ -73,14 +75,22 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     (user as AuthUser)?.person_id ||
     DEMO_USER_ID;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scanAbortRef = useRef<AbortController | null>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
+  const [isScanning, setIsScanning] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [statuses, setStatuses] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
  
   const files = internalFiles;
+
+  useEffect(() => {
+    return () => {
+      scanAbortRef.current?.abort();
+    };
+  }, []);
 
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
@@ -389,19 +399,87 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             logger.info('Upload confirmed by server', {
               documentId: confirmResponse.documentId,
               fileId: confirmResponse.fileId,
-              s3Key: confirmResponse.s3Key
+              s3Key: confirmResponse.s3Key,
+              scanStatus: confirmResponse.scanStatus,
             });
+
+            newStatuses[i] =
+              "Your file is being scanned. Please wait while the upload is processed.";
+            setStatuses([...newStatuses]);
+            if (onValidationErrors) {
+              onValidationErrors([]);
+            }
+
+            setIsScanning(true);
+            scanAbortRef.current?.abort();
+            const abortController = new AbortController();
+            scanAbortRef.current = abortController;
+
+            let scanStatus;
+            try {
+              scanStatus = await waitForFileScan(confirmResponse.fileId, {
+                signal: abortController.signal,
+                onProgress: (status) => {
+                  newStatuses[i] =
+                    status.userMessage ||
+                    "Your file is being scanned. Please wait while the upload is processed.";
+                  setStatuses([...newStatuses]);
+                },
+              });
+            } finally {
+              setIsScanning(false);
+            }
+
+            if (scanStatus.scanResult === "INFECTED") {
+              const infectedMessage =
+                scanStatus.userMessage ||
+                "The uploaded file contains a virus and has been quarantined. Please upload a clean file.";
+              newStatuses[i] = infectedMessage;
+              setStatuses([...newStatuses]);
+              if (onValidationErrors) {
+                onValidationErrors([infectedMessage]);
+              }
+              try {
+                await deleteFileCompletely(confirmResponse.fileId, confirmResponse.s3Key);
+              } catch (cleanupError) {
+                logger.warn('Failed to clean up infected upload record', {
+                  fileId: confirmResponse.fileId,
+                  error: cleanupError,
+                });
+              }
+              continue;
+            }
+
+            if (scanStatus.scanStatus === "FAILED" || scanStatus.scanResult !== "CLEAN") {
+              const failedMessage =
+                scanStatus.userMessage ||
+                "Virus scanning failed. Please try uploading the file again.";
+              newStatuses[i] = failedMessage;
+              setStatuses([...newStatuses]);
+              if (onValidationErrors) {
+                onValidationErrors([failedMessage]);
+              }
+              continue;
+            }
+
+            // Drop any cached view/download URL that may still point at the upload bucket.
+            clearPresignedUrlCache(confirmResponse.s3Key);
+            clearPresignedUrlCache(`download_${confirmResponse.s3Key}`);
             
             const uploadedFile: UploadedFile = {
               id: confirmResponse.fileId,
               storageProvider: "aws_s3",
               s3Key: confirmResponse.s3Key,
-              bucketName: confirmResponse.bucketName,
+              bucketName: scanStatus.bucketName || confirmResponse.bucketName,
               virtualFolder: confirmResponse.virtualFolder,
               filename: confirmResponse.fileName,
               fileContentType: confirmResponse.contentType,
               fileSizeBytes: confirmResponse.fileSizeBytes,
               uploadedAtTimestamp: confirmResponse.uploadedAt,
+              scanStatus: scanStatus.scanStatus,
+              scanResult: scanStatus.scanResult,
+              virusName: scanStatus.virusName,
+              scannedAt: scanStatus.scannedAt,
             };
             uploadedFiles.push(uploadedFile);
             
@@ -419,7 +497,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             };
             applicationDocuments.push(applicationDocument);
             
-            newStatuses[i] = "Upload complete";
+            newStatuses[i] = "File scanned successfully. Upload complete.";
             setStatuses([...newStatuses]);
             
             setInternalFiles((prevFiles: File[]) => {
@@ -526,15 +604,38 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       className="govuk-link"
                       onClick={async (e) => {
                         e.preventDefault();
+                        if (file.scanResult === "INFECTED") {
+                          const msg =
+                            "The uploaded file contains a virus and has been quarantined. Please upload a clean file.";
+                          if (onValidationErrors) {
+                            onValidationErrors([msg]);
+                          }
+                          return;
+                        }
+                        if (file.scanStatus && file.scanStatus !== "COMPLETED") {
+                          const msg =
+                            "Your file is being scanned. Please wait while the upload is processed.";
+                          if (onValidationErrors) {
+                            onValidationErrors([msg]);
+                          }
+                          return;
+                        }
                         if (file.s3Key) {
                           try {
                             await downloadS3FileOnSameTab(file.s3Key);
                           } catch (error) {
+                            const message =
+                              error instanceof Error
+                                ? error.message
+                                : "Failed to download file";
                             logger.error('Failed to download file', {
                               s3Key: file.s3Key,
                               filename: file.filename,
                               error
                             });
+                            if (onValidationErrors) {
+                              onValidationErrors([message]);
+                            }
                           }
                         }
                       }}
@@ -629,17 +730,33 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
+      {isScanning && (
+        <p className="govuk-inset-text" role="status" aria-live="polite">
+          Your file is being scanned. Please wait while the upload is processed.
+        </p>
+      )}
 
       <div
         className="gds-upload-dropzone"
-        onDrop={handleDrop}
+        onDrop={(e) => {
+          if (isScanning) {
+            e.preventDefault();
+            return;
+          }
+          handleDrop(e);
+        }}
         onDragOver={handleDragOver}
         onClick={() => {
+          if (isScanning) {
+            return;
+          }
           if (onValidationErrors) {
             onValidationErrors([]);
           }
           fileInputRef.current?.click();
         }}
+        aria-disabled={isScanning}
+        style={isScanning ? { opacity: 0.6, pointerEvents: 'none' } : undefined}
       >
         <input
           type="file"
@@ -649,10 +766,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
+          disabled={isScanning}
         />
         <div className="gds-upload-dropzone-content">
           <span>No file chosen</span>
-          <button type="button" className="gds-upload-choose">
+          <button type="button" className="gds-upload-choose" disabled={isScanning}>
             Choose file
           </button>
           <span>or drop file</span>

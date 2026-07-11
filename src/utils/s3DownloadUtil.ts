@@ -1,6 +1,15 @@
 import { createLogger } from './logger';
 const logger = createLogger('s3DownloadUtil');
 
+async function resolveDownloadError(err: unknown, keyOrUrl: string): Promise<never> {
+  const message =
+    err instanceof Error
+      ? err.message
+      : 'Failed to download file';
+  logger.error('Download error', { keyOrUrl, error: err });
+  throw new Error(message);
+}
+
 // Utility to get presigned S3 URL and open in new tab
 export async function downloadS3File(keyOrUrl: string) {
   const { getPresignedGetUrl } = await import('../services/s3ApiService');
@@ -24,8 +33,7 @@ export async function downloadS3File(keyOrUrl: string) {
       throw new Error('Failed to get download URL');
     }
   } catch (err) {
-    logger.error('Download error', { keyOrUrl, error: err });
-    throw new Error('Failed to download file');
+    await resolveDownloadError(err, keyOrUrl);
   }
 }
 
@@ -42,7 +50,6 @@ export async function downloadS3FileOnSameTab(keyOrUrl: string) {
       throw new Error('Failed to get download URL for same tab');
     }
   } catch (err) {
-    logger.error('Download error on same tab', { keyOrUrl, error: err });
-    throw new Error('Failed to download file on same tab');
+    await resolveDownloadError(err, keyOrUrl);
   }
 }
