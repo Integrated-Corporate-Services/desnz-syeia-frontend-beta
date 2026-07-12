@@ -1,5 +1,6 @@
 import { getTelemetryConfig, getCurrentEnvironment } from './config';
 import { createLogger } from '../../../../utils/logger';
+import { addSRIToScript } from '../../../../utils/sriHelper';
 
 const logger = createLogger('GTM');
 
@@ -68,6 +69,10 @@ export function initGTM(): void {
   script.async = true;
   script.src = scriptSrc;
   script.setAttribute('crossorigin', 'anonymous');
+  
+  // SECURITY: Add Subresource Integrity (SRI) attributes
+  // Protects against CDN compromise attacks (MEDIUM #4)
+  addSRIToScript(script, scriptSrc);
   
   script.addEventListener('error', () => {
     logger.error('Failed to load GTM script', { src: scriptSrc });

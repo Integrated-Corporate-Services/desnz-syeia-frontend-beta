@@ -1,5 +1,6 @@
 import { getTelemetryConfig, getCurrentEnvironment } from './config';
 import { createLogger } from '../../../../utils/logger';
+import { addSRIToScript } from '../../../../utils/sriHelper';
 
 const logger = createLogger('GA4');
 
@@ -31,10 +32,16 @@ export function initGa4(): void {
   logger.debug('Initializing with ID:', MEASUREMENT_ID);
   logger.debug('Detected Environment:', getCurrentEnvironment());
 
+  const scriptUrl = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
   const script = document.createElement('script');
   script.id = 'ga4-script';
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
+  script.src = scriptUrl;
+  
+  // SECURITY: Add Subresource Integrity (SRI) attributes
+  // Protects against CDN compromise attacks (MEDIUM #4)
+  addSRIToScript(script, scriptUrl);
+  
   document.head.appendChild(script);
 
   const win = window as unknown as { dataLayer: IArguments[]; gtag: (...args: unknown[]) => void };
