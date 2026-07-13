@@ -6,6 +6,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import { getCardPaymentDescription } from '../../../constants/payment';
 import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentFailurePage');
@@ -116,7 +117,7 @@ const PaymentFailurePage: React.FC = () => {
       const result = await createPayment(
         amountInPence,
         applicationId,
-        `Section 37 Application Payment - ${applicationId}`,
+        getCardPaymentDescription(applicationId, baseUrl === NWL_BASE_URL),
         `${window.location.origin}/frontend/payment/callback`,
         {
           applicationId,

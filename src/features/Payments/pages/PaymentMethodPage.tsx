@@ -9,6 +9,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { trackPaymentEvent } from '../../../utils/analytics';
 import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
+import { getCardPaymentDescription } from '../../../constants/payment';
 import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentMethodPage');
@@ -110,7 +111,7 @@ const handlePayByCard = async () => {
     const result = await createPayment(
       amountInPence,
       applicationId, // reference
-      `Section 37 Application Payment - ${applicationId}`, // description
+      getCardPaymentDescription(applicationId, baseUrl === NWL_BASE_URL),
       `${window.location.origin}/frontend/payment/callback`, // return_url
       { // metadata
         applicationId,
