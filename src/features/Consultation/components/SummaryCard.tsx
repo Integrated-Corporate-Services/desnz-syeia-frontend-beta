@@ -6,6 +6,7 @@ import { ConsultationType, isLpaJourney as isLpaJourneyHelper, isOtherConsultati
 import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../utils/logger';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
+import { ExternalLink } from '../../../components/ExternalLink';
 
 const logger = createLogger('ConsultationSummaryCard');
 
@@ -311,7 +312,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
                         </tbody>
@@ -365,7 +366,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
                             {renderTableRow('Consultee contact name', respondingConsulteeName || '-')}
@@ -453,7 +454,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
 
@@ -534,7 +535,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
 
@@ -616,7 +617,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
                             
@@ -699,7 +700,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
                         </tbody>
