@@ -81,7 +81,7 @@ const EmailTemplate: React.FC = () => {
       if (action === "save") {
         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
       } else if (action === "continue") {
-        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/send-application-to-consultee?orgname=${encodeURIComponent(orgname)}&consulteeid=${encodeURIComponent(consulteeid)}`);
+        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/send-application-to-consultee`);
       }
     } catch (err: any) {
       setError(err.message);

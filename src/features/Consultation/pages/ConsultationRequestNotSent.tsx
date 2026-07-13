@@ -179,7 +179,7 @@ const handleSaveAndContinue = async () => {
    
     
     // Navigate to proposed development Details page
-    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
+    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development`);
   } catch (error) {
     logger.error('Error saving form metadata:', error);
     setErrorMessage('Failed to save. Please try again.');
