@@ -46,7 +46,7 @@ export const PAYMENT_ROUTES = {
   BANK_TRANSFER_PAYMENT: 'bank-transfer-payment',
   BANK_TRANSFER_CONFIRMATION: 'bank-transfer-confirmation',
   BANK_TRANSFER_SUCCESS: 'bank-transfer-success',
-  PAYMENT_CALLBACK: '/frontend/payment/callback',
+  PAYMENT_CALLBACK: '/payment/callback',
 } as const;
 
 /**

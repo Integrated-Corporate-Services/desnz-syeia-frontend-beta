@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { createLogger } from "./utils/logger";
 import { CookieBanner, CookieConsentProvider } from "./modules/cookie-consent";
 import { usePageTracking } from "./lib/analytics";
+import { buildBackendUrl } from "./utils/apiConfig";
 
 const logger = createLogger("App");
 
@@ -38,7 +39,7 @@ const AppContent = () => {
     const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
 
     if (LOGIN_DISABLED && !loading && !user && error) {
-      window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`;
+      window.location.href = buildBackendUrl('/auth/login');
     }
   }, [user, loading, error]);
 
@@ -155,8 +156,10 @@ const AppContent = () => {
   );
 };
 
+const routerBasename = (import.meta.env.VITE_ROUTER_BASENAME || '').replace(/\/$/, '');
+
 const App = () => (
-  <BrowserRouter basename="/frontend">
+  <BrowserRouter basename={routerBasename || undefined}>
     <CookieConsentProvider>
       <AuthUserProvider>
         <AccessRequestProvider>

@@ -26,14 +26,14 @@ axios.interceptors.response.use(
       // Handle 401 Unauthorized (session expired)
       if (status === 401) {
         logger.warn('Session expired or unauthorized, redirecting to landing page');
-        window.location.href = '/frontend/landingPage';
+        window.location.href = '/landingPage';
         return Promise.reject(error);
       }
       
       // Handle 403 Forbidden (insufficient permissions)
       if (status === 403) {
         logger.warn('Access forbidden, redirecting to landing page');
-        window.location.href = '/frontend/landingPage';
+        window.location.href = '/landingPage';
         return Promise.reject(error);
       }
     }
@@ -54,6 +54,20 @@ declare global {
 const handleConsentChange: ConsentChangeCallback = (prefs, source) => {
   console.log('[Consent]', source, prefs);
 };
+
+// Support old /frontend/* URLs while migrating to root-based frontend routing.
+const legacyFrontendPrefix = '/frontend';
+if (
+  window.location.pathname === legacyFrontendPrefix ||
+  window.location.pathname.startsWith(`${legacyFrontendPrefix}/`)
+) {
+  const strippedPath = window.location.pathname.slice(legacyFrontendPrefix.length) || '/';
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${strippedPath}${window.location.search}${window.location.hash}`
+  );
+}
 
 createRoot(document.getElementById("root")!).render(
   <CookieConsentProvider onConsentChange={handleConsentChange}>

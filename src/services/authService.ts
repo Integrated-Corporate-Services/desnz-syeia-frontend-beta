@@ -77,8 +77,8 @@ export async function logout(redirectTo?: string): Promise<void> {
   const baseUrl = import.meta.env.API_URL || '';
   // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 
-    ? `${baseUrl}/backend/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
-    : `${baseUrl}/backend/auth/logout?redirectTo=${encodeURIComponent('/frontend/landingPage')}`;
+    ? `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
+    : `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent('/landingPage')}`;
 
   // Let the backend handle all logout logic including OIDC session destruction
   // The backend will redirect appropriately after destroying sessions

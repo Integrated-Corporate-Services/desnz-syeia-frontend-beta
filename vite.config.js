@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
     return {
-        base: '/frontend',
+        base: env.VITE_ROUTER_BASENAME || '/',
         plugins: [react()],
         css: {
             preprocessorOptions: {
@@ -24,7 +24,15 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             open: true,
             proxy: {
+                '/invites': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
                 '/backend/invites': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/api': {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
@@ -32,7 +40,15 @@ export default defineConfig(({ mode }) => {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
+                '/auth': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
                 '/backend/auth': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies': {
                     target: env.API_URL,
                     changeOrigin: true,
                 },

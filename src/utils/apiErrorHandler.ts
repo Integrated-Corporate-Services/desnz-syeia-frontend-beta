@@ -56,11 +56,11 @@ export async function handleApiError(response: Response): Promise<never> {
     if (errorData.code === 'SESSION_TIMEOUT') {
       logger.info('Session timeout detected, redirecting to landing page');
       // Redirect to landing page (homepage)
-      window.location.href = '/frontend/landingPage';
+      window.location.href = '/landingPage';
     } else {
       // Generic unauthorized - could be invalid credentials
       logger.info('Unauthorized access, redirecting to landing page');
-      window.location.href = '/frontend/landingPage';
+      window.location.href = '/landingPage';
     }
     
     // This will never be reached due to redirect, but TypeScript needs it

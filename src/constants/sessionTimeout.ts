@@ -18,4 +18,4 @@ export const SESSION_TIMEOUT = Number(import.meta.env.VITE_SESSION_TIMEOUT_SECON
 export const SESSION_WARNING = Number(import.meta.env.VITE_SESSION_WARNING_SECONDS) || 120;
 
 // Redirect path after session timeout
-export const SIGNED_OUT_PAGE = import.meta.env.VITE_SIGNED_OUT_PATH || '/frontend/signed-out';
+export const SIGNED_OUT_PAGE = import.meta.env.VITE_SIGNED_OUT_PATH || '/signed-out';

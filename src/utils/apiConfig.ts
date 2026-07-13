@@ -13,6 +13,30 @@ export const getApiBaseUrl = (): string => {
   return import.meta.env.API_URL || '';
 };
 
+const useLegacyBackendPrefix = (): boolean => {
+  return import.meta.env.VITE_USE_LEGACY_BACKEND_PREFIX === 'true';
+};
+
+const normalizeBackendPath = (path: string): string => {
+  if (!path) {
+    return path;
+  }
+
+  if (useLegacyBackendPrefix()) {
+    return path;
+  }
+
+  if (path === '/backend') {
+    return '/';
+  }
+
+  if (path.startsWith('/backend/')) {
+    return path.replace('/backend', '');
+  }
+
+  return path;
+};
+
 /**
  * Build a full backend URL
  * @param path - The backend path (e.g., '/backend/api/users')
@@ -20,5 +44,6 @@ export const getApiBaseUrl = (): string => {
  */
 export const buildBackendUrl = (path: string): string => {
   const baseUrl = getApiBaseUrl();
-  return `${baseUrl}${path}`;
+  const normalizedPath = normalizeBackendPath(path);
+  return `${baseUrl}${normalizedPath}`;
 };
