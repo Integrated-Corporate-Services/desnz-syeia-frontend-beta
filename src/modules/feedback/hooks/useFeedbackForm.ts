@@ -3,6 +3,7 @@ import { IMPROVEMENTS_MAX_LENGTH } from '../constants/feedback.constants';
 import { submitFeedback } from '../services/feedback.api';
 import type { FormValues, FormErrors, FeedbackPayload } from '../types/feedback.types';
 import type { FeedbackSourceMetadata } from '../utils/extract-feedback-source.util';
+import { validateUrlsInTextContent, type UrlWarning } from '../utils/url-content-validator.util';
 
 const INITIAL_VALUES: FormValues = {
   satisfaction:  '',
@@ -31,6 +32,14 @@ function validate(values: FormValues): FormErrors {
     errors.improvements = `Your feedback must be ${IMPROVEMENTS_MAX_LENGTH} characters or fewer`;
   }
 
+  // Validate URLs in improvements field (SECURITY: MEDIUM #10)
+  if (values.improvements) {
+    const urlWarning = validateUrlsInTextContent(values.improvements);
+    if (urlWarning && urlWarning.type === 'error') {
+      errors.improvements = urlWarning.message;
+    }
+  }
+
   return errors;
 }
 
@@ -40,11 +49,18 @@ export function useFeedbackForm(sourceMetadata?: FeedbackSourceMetadata) {
   const [submitted,   setSubmitted]   = useState(false);
   const [submitting,  setSubmitting]  = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [urlWarning,  setUrlWarning]  = useState<UrlWarning | null>(null);
 
   function handleChange(field: keyof FormValues, value: string) {
     setValues((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+
+    // Check for URLs in improvements field (SECURITY: MEDIUM #10)
+    if (field === 'improvements') {
+      const warning = validateUrlsInTextContent(value);
+      setUrlWarning(warning);
     }
   }
 
@@ -103,6 +119,7 @@ export function useFeedbackForm(sourceMetadata?: FeedbackSourceMetadata) {
     submitted,
     submitting,
     serverError,
+    urlWarning,
     handleChange,
     handleSubmit,
   };
