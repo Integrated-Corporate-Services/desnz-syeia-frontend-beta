@@ -75,8 +75,17 @@ function hasSuspiciousPatterns(url: string): boolean {
     return true;
   }
   
-  // Check for data URIs or javascript
-  if (lowerUrl.startsWith('data:') || lowerUrl.startsWith('javascript:')) {
+
+  const dangerousSchemes = [
+    'javascript:',
+    'vbscript:',
+    'data:',
+    'file:',
+    'about:',
+    'blob:',
+  ];
+  
+  if (dangerousSchemes.some(scheme => lowerUrl.startsWith(scheme))) {
     return true;
   }
   
