@@ -220,6 +220,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
+      ...getCsrfHeaders(),
     };
     const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}`), {
       method: "DELETE",
