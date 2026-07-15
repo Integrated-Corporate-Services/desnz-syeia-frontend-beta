@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { NegotiationsData } from '../../Negotiations/types/negotiations';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
-import { SummaryRow } from '../types';
+import { SummaryRow, DocumentLink } from '../types';
 import { createSummaryRow } from '../utils';
 
 interface NegotiationsSummaryCardProps {
@@ -34,22 +34,19 @@ const formatStartDate = (data: NegotiationsData): string => {
   return CONSTANTS.NEGOTIATIONS_FIELDS.NOT_PROVIDED;
 };
 
-const getEvidenceDocumentTitles = (data: NegotiationsData): string => {
+const getEvidenceDocuments = (data: NegotiationsData): DocumentLink[] => {
   const evidenceDocs = Array.isArray(data.evidence_documents) ? data.evidence_documents : [];
   
-  if (evidenceDocs.length === 0) return CONSTANTS.NEGOTIATIONS_FIELDS.NO_DOCUMENTS;
+  if (evidenceDocs.length === 0) return [];
 
-  const docLinks = evidenceDocs
+  return evidenceDocs
     .filter((doc: any) => doc.filename)
     .map((doc: any) => {
       const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
       const filename = doc.filename;
       const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
-      return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
-    })
-    .join('<br>');
-
-  return docLinks || CONSTANTS.NEGOTIATIONS_FIELDS.NO_DOCUMENTS;
+      return { fileKey, filename, downloadUrl };
+    });
 };
 
 const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data, applicationId, canEdit }) => {
@@ -83,10 +80,13 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
       CONSTANTS.NEGOTIATIONS_FIELDS.ADDITIONAL_COMMENTS,
       comments
     ));
-    const evidenceHtml = getEvidenceDocumentTitles(data);
+    const documents = getEvidenceDocuments(data);
     rows.push({
       key: { text: CONSTANTS.NEGOTIATIONS_FIELDS.EVIDENCE_DOCUMENTS },
-      value: { text: '', html: evidenceHtml },
+      value: { 
+        text: documents.length === 0 ? CONSTANTS.NEGOTIATIONS_FIELDS.NO_DOCUMENTS : '',
+        documents: documents.length > 0 ? documents : undefined
+      },
     });
   } else {
     rows.push(createSummaryRow(
@@ -114,8 +114,22 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
             <div className="govuk-summary-list__row" key={index}>
               <dt className="govuk-summary-list__key govuk-!-width-one-half">{row.key.text}</dt>
               <dd className="govuk-summary-list__value govuk-!-width-one-half">
-                {row.value.html ? (
-                  <span dangerouslySetInnerHTML={{ __html: row.value.html }} />
+                {row.value.documents ? (
+                  <div>
+                    {row.value.documents.map((doc, docIndex) => (
+                      <React.Fragment key={doc.fileKey}>
+                        {docIndex > 0 && <br />}
+                        <a 
+                          href={doc.downloadUrl} 
+                          className="govuk-link"
+                          data-file-key={doc.fileKey}
+                          data-filename={doc.filename}
+                        >
+                          {doc.filename}
+                        </a>
+                      </React.Fragment>
+                    ))}
+                  </div>
                 ) : (
                   row.value.text
                 )}

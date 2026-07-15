@@ -1,6 +1,7 @@
 // src/services/eiafeesservice.ts
 
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 // EIA Fees type
 import { EiaFees } from '../types/eiaFees';
@@ -55,6 +56,7 @@ export const createEiaFee = async (payload: CreateEiaFeePayload): Promise<EiaFee
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -72,6 +74,7 @@ export const updateEiaFee = async (payload: UpdateEiaFeePayload): Promise<EiaFee
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),

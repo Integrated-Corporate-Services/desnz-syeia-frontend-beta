@@ -14,5 +14,5 @@ export function clearNonEssentialCookies(names: string[]): void {
 }
 
 export function getCsrfToken(): string | undefined {
-  return readCookie('csrf_token');
+  return readCookie('_csrf');
 }

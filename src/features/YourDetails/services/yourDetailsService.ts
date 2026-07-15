@@ -1,4 +1,5 @@
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../utils/csrf';
 
 export interface WorkAddress {
   line1: string;
@@ -92,6 +93,7 @@ export async function updateCurrentUserFullName(payload: UpdateFullNamePayload):
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -110,6 +112,7 @@ export async function updateCurrentUserWorkAddress(payload: UpdateWorkAddressPay
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -128,6 +131,7 @@ export async function updateCurrentUserAgencyName(payload: UpdateAgencyNamePaylo
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -160,6 +164,7 @@ export async function submitCurrentUserOrganisationRequest(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),

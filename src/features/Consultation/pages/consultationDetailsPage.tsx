@@ -53,7 +53,7 @@ const ConsultationDetailsPage: React.FC = () => {
 
     const handleRemoveConsultation = (consultationId: string, consultationName: string) => {
         // Navigate to the Remove Consultation page
-        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/remove?consultationName=${encodeURIComponent(consultationName)}`);
+        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/remove`);
     };
 
     const handleSaveAndContinue = async () => {

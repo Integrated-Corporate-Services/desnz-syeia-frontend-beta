@@ -26,7 +26,7 @@ export const useDeclarationSubmit = (applicationId: string) => {
     setError(null);
 
     if (!applicationId) {
-      console.error("Cannot save declaration: applicationId is missing");
+      logger.error("Cannot save declaration: applicationId is missing");
       setError("Application ID is missing");
       setIsSubmitting(false);
       return;
@@ -40,7 +40,7 @@ export const useDeclarationSubmit = (applicationId: string) => {
       await applicationApiService.submitApplication(applicationId);
       navigate(`${S37_BASE_URL}/${applicationId}/confirmation`);
     } catch (_err) {
-      console.error("Failed to submit application:", _err);
+      logger.error("Failed to submit application:", _err);
       setError("Failed to submit application. Please try again.");
       setIsSubmitting(false);
     }
