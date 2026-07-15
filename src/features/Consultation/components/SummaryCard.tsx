@@ -6,6 +6,7 @@ import { ConsultationType, isLpaJourney as isLpaJourneyHelper, isOtherConsultati
 import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../utils/logger';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
+import { ExternalLink } from '../../../components/ExternalLink';
 
 const logger = createLogger('ConsultationSummaryCard');
 
@@ -96,21 +97,19 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
 
     // Determine response path based on consultation type
     const responsePath = isLpaJourney ? 'response-initial' : 'response';
-    const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
+    const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}`;
     
-    // Determine request URL based on consultation type and status
-    let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
+    let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question`;
     
     if (consultationType === ConsultationType.PUBLIC) {
         requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`;
     } else if (isLpaJourney) {
-        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question`;
     } else if (statusDisplay === ConsultationStatus.DRAFT) {
-        // Only use consultation-request for DRAFT status if it's NOT an LPA journey (i.e., it's an OTHER consultation)
-        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request${consultationName ? `?consultationName=${encodeURIComponent(consultationName)}` : ''}`;
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request`;
     }
 
-    const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required${consultationName || orgName ? `?consultationName=${encodeURIComponent(consultationName || orgName || '')}` : ''}`;
+    const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required`;
     const withdrawUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-withdrawn`;
 
     // Format date as 'd MMM yyyy' (e.g., 16 Oct 2025)
@@ -311,7 +310,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
                         </tbody>
@@ -365,7 +364,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
                             {renderTableRow('Consultee contact name', respondingConsulteeName || '-')}
@@ -453,7 +452,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
 
@@ -534,7 +533,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
 
@@ -616,7 +615,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
                             
@@ -699,7 +698,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                 consultationRequestDocs && consultationRequestDocs.length > 0
                                     ? <>{consultationRequestDocs.map((doc, idx) => renderDocumentLink(doc, idx))}</>
                                     : evidenceUrl
-                                        ? <a href={evidenceUrl} className="govuk-link govuk-!-word-break" target="_blank" rel="noopener noreferrer">{evidenceLabel || evidenceUrl}</a>
+                                        ? <ExternalLink href={evidenceUrl} context="consultation-evidence" className="govuk-link govuk-!-word-break">{evidenceLabel || evidenceUrl}</ExternalLink>
                                         : '-'
                             )}
                         </tbody>

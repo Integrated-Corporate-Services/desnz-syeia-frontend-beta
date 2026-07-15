@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { applicationApiService } from '../services/applicationApiService';
 import { createLogger } from '../utils/logger';
+import { mapErrorToUserMessage } from '../utils/errorMapper';
 
 const logger = createLogger('ApplicationDeletionConfirmation');
 
@@ -50,7 +51,8 @@ export const ApplicationDeletionConfirmation: React.FC<ApplicationDeletionConfir
         }
       } catch (error) {
         logger.error('Application deletion failed', { applicationId, error });
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        // Sanitize error message before displaying to user
+        const errorMessage = mapErrorToUserMessage(error, 'ApplicationDeletion');
         onDeleteError(errorMessage);
       } finally {
         setIsDeleting(false);

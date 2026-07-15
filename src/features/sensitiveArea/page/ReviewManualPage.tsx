@@ -3,6 +3,9 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem, updateManuallySelectedLayers } from '../../../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../../../constants/s37';
 import SkipLink from '../../../components/SkipLink';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('ReviewManualPage');
 
 /**
  * ReviewManualPage Component
@@ -163,7 +166,7 @@ const ReviewManualPage: React.FC = () => {
       // Navigate to next page: AddOtherAreasQuestionPage
       navigate(`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`);
     } catch (err) {
-      console.error('Failed to save review:', err);
+      logger.error('Failed to save review:', err);
       setError('Failed to save your review. Please try again.');
     }
   };
