@@ -5,23 +5,14 @@ import {
   mapParishApiToParish,
   mapParishesToCodes,
 } from "../utils/parishMappers";
-import { buildBackendUrl } from "../../../utils/apiConfig";
+import axios from "axios";
 
 export const parishApiService = {
   searchParishes: async (searchTerm: string): Promise<Parish[]> => {
-    const response = await fetch(
-      buildBackendUrl(`${PARISH_API_ENDPOINTS.SEARCH}?q=${searchTerm}`),
-      {
-        credentials: "include"
-      }
+    const response = await axios.get<ParishSearchResponse>(
+      `${PARISH_API_ENDPOINTS.SEARCH}?q=${searchTerm}`
     );
-
-    if (!response.ok) {
-      throw new Error("Failed to search parishes");
-    }
-
-    const data: ParishSearchResponse = await response.json();
-    return (data.data || []).map(mapParishApiToParish);
+    return (response.data.data || []).map(mapParishApiToParish);
   },
 
   saveParishes: async (
@@ -29,20 +20,8 @@ export const parishApiService = {
     parishes: Parish[]
   ): Promise<void> => {
     const parishCodes = mapParishesToCodes(parishes);
-
-    const response = await fetch(buildBackendUrl(PARISH_API_ENDPOINTS.SAVE(applicationId)), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ parish_codes: parishCodes }),
+    await axios.post(PARISH_API_ENDPOINTS.SAVE(applicationId), { 
+      parish_codes: parishCodes 
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to save parishes");
-    }
-
-    return response.json();
   },
 };

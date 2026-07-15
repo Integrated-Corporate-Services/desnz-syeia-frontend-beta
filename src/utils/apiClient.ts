@@ -10,6 +10,7 @@
 
 import { apiFetch } from './apiErrorHandler';
 import { buildBackendUrl } from './apiConfig';
+import { getCsrfHeaders } from './csrf';
 
 export const API_BASE = buildBackendUrl('/backend/api');
 
@@ -35,6 +36,7 @@ export async function apiPost<T = any>(path: string, data?: any): Promise<T> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     body: data ? JSON.stringify(data) : undefined,
   });
@@ -52,6 +54,7 @@ export async function apiPut<T = any>(path: string, data?: any): Promise<T> {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     body: data ? JSON.stringify(data) : undefined,
   });
@@ -69,6 +72,7 @@ export async function apiPatch<T = any>(path: string, data?: any): Promise<T> {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     body: data ? JSON.stringify(data) : undefined,
   });
@@ -81,7 +85,12 @@ export async function apiPatch<T = any>(path: string, data?: any): Promise<T> {
  */
 export async function apiDelete<T = any>(path: string): Promise<T> {
   const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
-  return apiFetch<T>(url, { method: 'DELETE' });
+  return apiFetch<T>(url, { 
+    method: 'DELETE',
+    headers: {
+      ...getCsrfHeaders(),
+    },
+  });
 }
 
 /**
@@ -94,8 +103,11 @@ export async function apiUpload<T = any>(path: string, formData: FormData): Prom
   const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
   return apiFetch<T>(url, {
     method: 'POST',
+    headers: {
+      // Don't set Content-Type - browser will set it with boundary
+      ...getCsrfHeaders(),
+    },
     body: formData,
-    // Don't set Content-Type - browser will set it with boundary
   });
 }
 

@@ -1,6 +1,7 @@
 import type { AuthUser } from '../types/auth';
 import { createLogger } from '../utils/logger';
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 const logger = createLogger('authService');
 
@@ -26,6 +27,9 @@ export async function getAuthUser(): Promise<AuthUserResponse> {
 export async function signOut(): Promise<void> {
   await fetch(buildBackendUrl('/backend/auth/logout'), {
     method: "POST",
+    headers: {
+      ...getCsrfHeaders(),
+    },
     credentials: "include",
   });
 }
@@ -44,6 +48,7 @@ export async function keepAlive(): Promise<boolean> {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        ...getCsrfHeaders(),
       },
     });
 

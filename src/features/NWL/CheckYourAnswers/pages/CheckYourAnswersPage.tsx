@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import SkipLink from '../../../../components/SkipLink';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('CheckYourAnswersPage');
 
 import { fetchCheckYourAnswersData } from '../services';
 import { useDocumentDownload } from '../hooks';
@@ -78,7 +81,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                 try {
                     await updateProgress('Check your answers', 'Completed');
                 } catch (progressError) {
-                    console.error('Failed to update Check your answers progress:', progressError);
+                    logger.error('Failed to update Check your answers progress:', progressError);
                     // Don't block the user from viewing the page if progress update fails
                 }
             } catch {

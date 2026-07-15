@@ -9,6 +9,9 @@ import { progressApiService } from '../../../services/progressApiService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
 import SkipLink from '../../../components/SkipLink';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('ConsultationRequestsRequired');
 
 const ConsultationRequestsRequired: React.FC = () => {
     const { applicationId } = useParams();
@@ -103,7 +106,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                 navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
             }
         } catch (err) {
-            console.error('Error saving consultation requests:', err);
+            logger.error('Error saving consultation requests:', err);
         }
     };
 
@@ -122,7 +125,7 @@ const ConsultationRequestsRequired: React.FC = () => {
             // TODO: Save current state to backend
             navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
         } catch (err) {
-            console.error('Error saving for later:', err);
+            logger.error('Error saving for later:', err);
         }
     };
 

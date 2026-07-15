@@ -1,11 +1,13 @@
 import { ConsultationPack } from '../types/consultationPack';
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 export async function saveConsultationPack(pack: ConsultationPack) {
   const res = await fetch(buildBackendUrl('/backend/api/consultation-pack'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(pack),
