@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
@@ -22,8 +22,9 @@ const BankTransferConfirmationPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
-  
-  
+  const [resolvedInvoiceNumber, setResolvedInvoiceNumber] = useState<string | null>(null);
+  const [resolvedTotalAmount, setResolvedTotalAmount] = useState<number | null>(null);
+
   const fileUploadRef = useRef<FileUploadHandle>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
@@ -41,17 +42,93 @@ const BankTransferConfirmationPage: React.FC = () => {
   };
 
   const { invoiceNumber, totalAmount } = location.state || {};
-  
+
+  const effectiveInvoiceNumber = useMemo(
+    () => invoiceNumber || resolvedInvoiceNumber || sessionStorage.getItem('invoiceNumber') || '',
+    [invoiceNumber, resolvedInvoiceNumber]
+  );
+
+  const effectiveTotalAmount = useMemo(() => {
+    if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount)) {
+      return totalAmount;
+    }
+    if (typeof resolvedTotalAmount === 'number' && !Number.isNaN(resolvedTotalAmount)) {
+      return resolvedTotalAmount;
+    }
+    const storedAmount = sessionStorage.getItem('totalAmount');
+    if (storedAmount) {
+      const parsed = Number(storedAmount);
+      if (!Number.isNaN(parsed)) {
+        return parsed;
+      }
+    }
+    return null;
+  }, [totalAmount, resolvedTotalAmount]);
+
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
+
+  useEffect(() => {
+    const loadInvoiceAndAmountIfNeeded = async () => {
+      if (!applicationId) {
+        return;
+      }
+
+      if (!invoiceNumber && !resolvedInvoiceNumber) {
+        try {
+          const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+          });
+          if (response.ok) {
+            const result = await response.json();
+            if (result.invoiceExists && result.invoiceNumber) {
+              setResolvedInvoiceNumber(result.invoiceNumber);
+              sessionStorage.setItem('invoiceNumber', result.invoiceNumber);
+            }
+          }
+        } catch (err) {
+          logger.error('Failed to load invoice status', err);
+        }
+      } else if (invoiceNumber) {
+        sessionStorage.setItem('invoiceNumber', invoiceNumber);
+      }
+
+      if (
+        (typeof totalAmount !== 'number' || Number.isNaN(totalAmount)) &&
+        resolvedTotalAmount == null
+      ) {
+        try {
+          const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+          });
+          if (response.ok) {
+            const result = await response.json();
+            if (typeof result.totalAmount === 'number' && result.totalAmount > 0) {
+              setResolvedTotalAmount(result.totalAmount);
+              sessionStorage.setItem('totalAmount', result.totalAmount.toString());
+            }
+          }
+        } catch (err) {
+          logger.error('Failed to load payment amount', err);
+        }
+      } else if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount)) {
+        sessionStorage.setItem('totalAmount', totalAmount.toString());
+      }
+    };
+
+    loadInvoiceAndAmountIfNeeded();
+  }, [applicationId, invoiceNumber, totalAmount, resolvedInvoiceNumber, resolvedTotalAmount]);
 
   // No on-mount create/upsert call — payment will be created/submitted when user clicks Submit.
 
   const handleSubmit = async () => {
-    // Transaction number is optional now
+    // Transaction number is optional; invoice number and amount come from the payment journey
 
-    // Validate required fields: invoiceNumber and totalAmount
-    if (!invoiceNumber || invoiceNumber === '') {
-      setError('Invoice number is required');
+    if (!effectiveInvoiceNumber) {
+      setError('Invoice number is not available. Please return to Pay and submit and try again.');
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) errorSummary.scrollIntoView();
@@ -59,8 +136,8 @@ const BankTransferConfirmationPage: React.FC = () => {
       return;
     }
 
-    if (totalAmount === undefined || totalAmount === null) {
-      setError('Amount is required');
+    if (effectiveTotalAmount === undefined || effectiveTotalAmount === null) {
+      setError('Payment amount is not available. Please return to Pay and submit and try again.');
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) errorSummary.scrollIntoView();
@@ -76,7 +153,7 @@ const BankTransferConfirmationPage: React.FC = () => {
     try {
       logger.info('Submitting application with bank transfer', {
         applicationId,
-        invoiceNumber,
+        invoiceNumber: effectiveInvoiceNumber,
         transactionNumber
       });
 
@@ -93,13 +170,13 @@ const BankTransferConfirmationPage: React.FC = () => {
       const payload: any = {
         // snake_case
         payment_method: 'bank_transfer',
-        invoice_number: invoiceNumber,
+        invoice_number: effectiveInvoiceNumber,
         transaction_number: transactionNumber || null,
-        amount: totalAmount,
+        amount: effectiveTotalAmount,
         user_id: user?.user_id || null,
         // camelCase (controller may expect these)
         paymentMethod: 'bank_transfer',
-        invoiceNumber: invoiceNumber,
+        invoiceNumber: effectiveInvoiceNumber,
         transactionNumber: transactionNumber || null,
         userId: user?.user_id || null,
       };
@@ -181,8 +258,8 @@ const BankTransferConfirmationPage: React.FC = () => {
       logger.info('Application submitted successfully:', result);
       navigate(`${baseUrl}/${applicationId}/bank-transfer-success`, {
         state: {
-          invoiceNumber,
-          totalAmount,
+          invoiceNumber: effectiveInvoiceNumber,
+          totalAmount: effectiveTotalAmount,
           desnz_ref: result.desnz_ref || result.desnzReference,
           transactionNumber: transactionNumber.trim() || null,
         }
@@ -210,7 +287,7 @@ const BankTransferConfirmationPage: React.FC = () => {
                 Task list
               </Link>
             </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="page">
+            <li className="govuk-breadcrumbs__list-item">
               <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
                 Pay and submit
               </Link>
@@ -235,7 +312,11 @@ const BankTransferConfirmationPage: React.FC = () => {
                   <ul className="govuk-list govuk-error-summary__list">
                     {error && (
                       <li>
-                        <a href="#transaction-number">{error}</a>
+                        {error.includes('Invoice number') || error.includes('Payment amount') ? (
+                          <a href={`${baseUrl}/${applicationId}/payment-method`}>{error}</a>
+                        ) : (
+                          <a href="#transaction-number">{error}</a>
+                        )}
                       </li>
                     )}
                     {fileValidationErrors.map((validationError, index) => (
