@@ -6,10 +6,7 @@ import { useAuthUser } from "../../../hooks/useAuthUser";
 import { getConsultationPack, saveConsultationPack } from "../../../services/consultationPackService";
 import { PackSection } from '../../../types/consultationPack';
 import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService";
-import SkipLink from '../../../components/SkipLink';
-import { createLogger } from '../../../utils/logger';
-
-const logger = createLogger('ConsultationRequestNotSent'); 
+import SkipLink from '../../../components/SkipLink'; 
 
 const ConsultationRequestNotSent: React.FC = () => {
   const params = useParams();
@@ -51,7 +48,7 @@ const ConsultationRequestNotSent: React.FC = () => {
         setLpaName(name);
      
       } catch (error) {
-        logger.error('Error fetching LPA name:', error);
+        console.error('Error fetching LPA name:', error);
       }
     };
 
@@ -141,7 +138,7 @@ useEffect(() => {
         // This is just for verification/future use
         
       } catch (error) {
-        logger.error('Error loading form metadata:', error);
+        console.error('Error loading form metadata:', error);
       }
     };
 
@@ -164,7 +161,7 @@ const handleSaveAndContinue = async () => {
       : consultationPack?.application?.operator_ref || '';
     
     if (!orgName || !contactName) {
-      logger.error('Missing applicant details:', { orgName, contactName, reference, applicantReference });
+      console.error('Missing applicant details:', { orgName, contactName, reference, applicantReference });
       setErrorMessage('Applicant details are not available. Please refresh the page and try again.');
       return;
     }
@@ -179,9 +176,9 @@ const handleSaveAndContinue = async () => {
    
     
     // Navigate to proposed development Details page
-    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development`);
+    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(lpaName)}`);
   } catch (error) {
-    logger.error('Error saving form metadata:', error);
+    console.error('Error saving form metadata:', error);
     setErrorMessage('Failed to save. Please try again.');
   }
 };

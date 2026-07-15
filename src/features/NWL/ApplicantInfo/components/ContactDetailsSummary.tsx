@@ -29,13 +29,10 @@ export function ContactDetailsSummary({
       </div>
       <div className="govuk-summary-list__row">
         <dt className="govuk-summary-list__key">{LABELS.ADDRESS}</dt>
-        <dd className="govuk-summary-list__value">
-          {contactDetails.address.line1 && <div>{contactDetails.address.line1}</div>}
-          {contactDetails.address.line2 && <div>{contactDetails.address.line2}</div>}
-          {contactDetails.address.city && <div>{contactDetails.address.city}</div>}
-          {contactDetails.address.country && <div>{contactDetails.address.country}</div>}
-          {contactDetails.address.postcode && <div>{contactDetails.address.postcode}</div>}
-        </dd>
+        <dd
+          className="govuk-summary-list__value"
+          dangerouslySetInnerHTML={{ __html: contactDetails.address }}
+        />
       </div>
       <div className="govuk-summary-list__row">
         <dt className="govuk-summary-list__key">{LABELS.EMAIL}</dt>

@@ -1,5 +1,4 @@
 import type { FeedbackPayload } from '../types/feedback.types';
-import axios from 'axios';
 
 const ENDPOINT = '/backend/api/feedback';
 
@@ -24,12 +23,17 @@ function parseErrorMessage(body: Record<string, unknown>, status: number): strin
 }
 
 export async function submitFeedback(payload: FeedbackPayload): Promise<{ id: string }> {
-  try {
-    const response = await axios.post(ENDPOINT, payload);
-    return response.data;
-  } catch (error: any) {
-    const body = error.response?.data || {};
-    const status = error.response?.status || 500;
-    throw new Error(parseErrorMessage(body, status));
+  const response = await fetch(ENDPOINT, {
+    method:      'POST',
+    headers:     { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body:        JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({})) as Record<string, unknown>;
+    throw new Error(parseErrorMessage(body, response.status));
   }
+
+  return response.json() as Promise<{ id: string }>;
 }

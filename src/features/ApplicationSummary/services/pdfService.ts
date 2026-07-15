@@ -1,6 +1,5 @@
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { createLogger } from '../../../utils/logger';
-import { getCsrfHeaders } from '../../../utils/csrf';
 
 const logger = createLogger('pdfService');
 
@@ -33,7 +32,6 @@ export const downloadApplicationPdf = async (applicationId: string): Promise<voi
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        ...getCsrfHeaders(),
       },
       body: JSON.stringify({ filename: s3Key }),
     });

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { ConsultationDetails } from '../types/ConsultationDetails';
 import { buildBackendUrl } from '../utils/apiConfig';
-import { getCsrfHeaders } from '../utils/csrf';
 
 // Save 'Consultation Not Required' status
 export async function saveNotRequiredStatus(consultationId: string, consultationDetails: any): Promise<any> {
@@ -39,7 +38,6 @@ export async function withdrawConsultationRequest({ applicationId, consultationI
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...getCsrfHeaders(),
         },
         credentials: 'include',
         body: JSON.stringify({ applicationId, consultationId, updatedBy }),
@@ -89,8 +87,7 @@ export async function markConsultationAsRequestSent(
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders(),
+      'Content-Type': 'application/json'
     },
     credentials: 'include'
   });
@@ -166,11 +163,17 @@ export async function createPublicConsultation(
   }
 }
 
+/**
+ * Remove a consultation by setting its status to INACTIVE
+ * @param consultationId - The consultation ID
+ * @returns {Promise<any>}
+ */
 export async function removeConsultation(consultationId: string): Promise<any> {
   const url = `/backend/api/consultations/${consultationId}/remove`;
+  const payload = { userId: localStorage.getItem('user_id') };
 
   try {
-    const response = await axios.post(url, {}, { withCredentials: true });
+    const response = await axios.post(url, payload, { withCredentials: true });
     return response.data;
   } catch (error: any) {
     const originalMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';

@@ -1,7 +1,4 @@
 import { categorizeUrl } from './url-categorizer';
-import { createLogger } from '../../utils/logger';
-
-const logger = createLogger('PageMetadata');
 
 export interface PageMetadata {
   pageName:         string;
@@ -46,7 +43,7 @@ export function extractPageMetadata(url: string): PageMetadata {
       category,
     };
   } catch (error) {
-    logger.error('Failed to parse URL:', url, error);
+    console.error('[extractPageMetadata] Failed to parse URL:', url, error);
     return {
       pageName: 'unknown',
       applicationType: 'Common',

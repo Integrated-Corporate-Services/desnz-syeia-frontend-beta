@@ -4,9 +4,6 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { getConsultationDetailsById, removeConsultation } from '../../../services/consultationService';
 import { ConsultationDetails } from '../../../types/ConsultationDetails';
 import SkipLink from '../../../components/SkipLink';
-import { createLogger } from '../../../utils/logger';
-
-const logger = createLogger('RemoveConsultation');
 
 const RemoveConsultation: React.FC = () => {
   const { applicationId, consultationId } = useParams();
@@ -37,7 +34,7 @@ const RemoveConsultation: React.FC = () => {
         setConsultationDetails(details);
         setIsLoading(false);
       } catch (error) {
-        logger.error('Error fetching consultation details:', error);
+        console.error('Error fetching consultation details:', error);
         setIsLoading(false);
       }
     };
@@ -58,7 +55,7 @@ const RemoveConsultation: React.FC = () => {
         // Navigate back to manage consultation page
         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
       } catch (error) {
-        logger.error('Error removing consultation:', error);
+        console.error('Error removing consultation:', error);
         setError('Failed to remove consultation. Please try again.');
       }
     } else {

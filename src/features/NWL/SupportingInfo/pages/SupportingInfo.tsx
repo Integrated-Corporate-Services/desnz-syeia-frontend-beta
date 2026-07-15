@@ -7,11 +7,11 @@ import { getSupportingInfo, saveSupportingInfo } from "../services";
 import { useAuthUser } from "../../../../hooks/useAuthUser";
 import { NWL_FILE_CATEGORIES, NWL_FILE_SUBCATEGORIES } from "../../../../constants/fileCategoryConstants";
 import SkipLink from "../../../../components/SkipLink";
-import { filterErrorLinksByAnchors, ValidationError } from "../validations";
+import { filterErrorLinksByAnchors } from "../validations";
 
 const SupportingInfo: React.FC = () => {
 	// ...existing state declarations...
-	const [errors, setErrors] = useState<ValidationError[]>([]);
+	const [errors, setErrors] = useState<string[]>([]);
 	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 	const [id, setId] = useState<string>("");
 	const [signedWayleave, setSignedWayleave] = useState<string>("");
@@ -188,47 +188,47 @@ const SupportingInfo: React.FC = () => {
 
 	 const handleSubmit = async (e: React.FormEvent) => {
 		 e.preventDefault();
-		 const newErrors: ValidationError[] = [];
+		 const newErrors: string[] = [];
 		 // ...existing validation logic...
-		 if (!signedWayleave) newErrors.push({ message: 'Select if the current landowner has signed a wayleave', anchor: 'signedWayleave-error' });
+		 if (!signedWayleave) newErrors.push('<a href="#signedWayleave-error">Select if the current landowner has signed a wayleave</a>');
 		 if (signedWayleave === "Yes" && signedWayleaveFiles.length === 0) {
-			 newErrors.push({ message: 'Upload current landowners signed wayleave', anchor: 'signedWayleave-upload-1-error' });
+			 newErrors.push('<a href="#signedWayleave-upload-1-error">Upload current landowners signed wayleave</a>');
 		 }
-		 if (!inheritedWayleave) newErrors.push({ message: 'Select if the current landowner has inherited a wayleave', anchor: 'inheritedWayleave-error' });
+		 if (!inheritedWayleave) newErrors.push('<a href="#inheritedWayleave-error">Select if the current landowner has inherited a wayleave</a>');
 		 if (inheritedWayleave === "Yes" && inheritedWayleaveFiles.length === 0) {
-			 newErrors.push({ message: 'Upload a document that shows inheritance of a necessary wayleave', anchor: 'inheritedWayleave-upload-1-error' });
+			 newErrors.push('<a href="#inheritedWayleave-upload-1-error">Upload a document that shows inheritance of a necessary wayleave</a>');
 		 }
-		 if (!anyPayments) newErrors.push({ message: 'Select if Wayleave Payments have previously been made to the grantor', anchor: 'anyPayments-error' });
+		 if (!anyPayments) newErrors.push('<a href="#anyPayments-error">Select if Wayleave Payments have previously been made to the grantor</a>');
 		 if (anyPayments === "Yes" && anyPaymentsFiles.length === 0) {
-			 newErrors.push({ message: 'Upload a document that shows payments made to the grantor', anchor: 'anyPayments-upload-1-error' });
+			 newErrors.push('<a href="#anyPayments-upload-1-error">Upload a document that shows payments made to the grantor</a>');
 		 }
-		 if (!acceptedPayments) newErrors.push({ message: 'Select if Wayleave Payments have been accepted by the grantor', anchor: 'acceptedPayments-error' });
+		 if (!acceptedPayments) newErrors.push('<a href="#acceptedPayments-error">Select if Wayleave Payments have been accepted by the grantor</a>');
 		 if (acceptedPayments === "Yes" && acceptedPaymentsFiles.length === 0) {
-			 newErrors.push({ message: 'Upload a document that shows payments have been accepted by the grantor', anchor: 'acceptedPayments-upload-1-error' });
+			 newErrors.push('<a href="#acceptedPayments-upload-1-error">Upload a document that shows payments have been accepted by the grantor</a>');
 		 }
-		 if (!contact) newErrors.push({ message: 'Select if a new contract is implied', anchor: 'contact-error' });
+		 if (!contact) newErrors.push('<a href="#contact-error">Select if a new contract is implied</a>');
 		 if (contact === "email" && !contactByEmail.trim()) {
-			 newErrors.push({ message: 'Enter why you believe a new contract is implied', anchor: 'contact-by-email' });
+			 newErrors.push('<a href="#contact-by-email">Enter why you believe a new contract is implied</a>');
 		 }
-		 if (!writtenTermination) newErrors.push({ message: 'Select if a Written Termination Notice has been given', anchor: 'writtenTermination-error' });
+		 if (!writtenTermination) newErrors.push('<a href="#writtenTermination-error">Select if a Written Termination Notice has been given</a>');
 		 if (writtenTermination === "Yes" && (!writtenTerminationDate.day.trim() || !writtenTerminationDate.month.trim() || !writtenTerminationDate.year.trim())) {
-			 newErrors.push({ message: 'Enter the full Written Termination Notice issue date', anchor: 'writtenTerminationDate-day' });
+			 newErrors.push('<a href="#writtenTerminationDate-day">Enter the full Written Termination Notice issue date</a>');
 		 }
 		 if (writtenTermination === "Yes" && writtenTerminationFiles.length === 0) {
-			 newErrors.push({ message: 'Upload Written Termination Notice document', anchor: 'writtenTermination-upload-1-error' });
+			 newErrors.push('<a href="#writtenTermination-upload-1-error">Upload Written Termination Notice document</a>');
 		 }
-		 if (!writtenRemoval) newErrors.push({ message: 'Select if a Written Removal Notice has been given', anchor: 'writtenRemoval-error' });
+		 if (!writtenRemoval) newErrors.push('<a href="#writtenRemoval-error">Select if a Written Removal Notice has been given</a>');
 		 if (writtenRemoval === "Yes") {
 			 if (!writtenRemovalDate.day.trim() || !writtenRemovalDate.month.trim() || !writtenRemovalDate.year.trim()) {
-				 newErrors.push({ message: 'Enter the full Written Removal Notice issue date', anchor: 'writtenRemovalDate-day' });
+				 newErrors.push('<a href="#writtenRemovalDate-day">Enter the full Written Removal Notice issue date</a>');
 			 }
 			 if (writtenRemovalFiles.length === 0) {
-				 newErrors.push({ message: 'Upload Written Removal Notice document', anchor: 'writtenRemoval-upload-1-error' });
+				 newErrors.push('<a href="#writtenRemoval-upload-1-error">Upload Written Removal Notice document</a>');
 			 }
 		 }
-		 if (!titlePlan) newErrors.push({ message: 'Select if your application includes a title plan', anchor: 'titlePlan-error' });
+		 if (!titlePlan) newErrors.push('<a href="#titlePlan-error">Select if your application includes a title plan</a>');
 		 if (titlePlan === "Yes" && titlePlanFiles.length === 0) {
-			 newErrors.push({ message: 'Upload the title plan document', anchor: 'titlePlan-upload-1-error' });
+			 newErrors.push('<a href="#titlePlan-upload-1-error">Upload the title plan document</a>');
 		 }
 
 		 // Clear contactByEmail if No is selected
@@ -375,12 +375,8 @@ const SupportingInfo: React.FC = () => {
 										<span>{error}</span>
 									</li>
 								))}
-								{errors.map((error, idx) => (
-									<li key={idx}>
-										<a href={`#${error.anchor}`} className="govuk-link">
-											{error.message}
-										</a>
-									</li>
+								{errors.map((msg, idx) => (
+									<li key={idx} dangerouslySetInnerHTML={{ __html: msg }} />
 								))}
 							</ul>
 						</div>
@@ -406,7 +402,7 @@ const SupportingInfo: React.FC = () => {
 								<div className="govuk-radios__conditional" id="conditional-signedWayleave">
 									{signedWayleave === "Yes" && (
 										<>
-											{errors.some(e => e.anchor === 'signedWayleave-upload-1-error') && (
+											{errors.some(e => e.includes('signedWayleave-upload-1-error')) && (
 												<p id="signedWayleave-upload-1-error" className="govuk-error-message">Upload current landowners signed wayleave</p>
 											)}
 											{/* File validation errors removed - shown in error summary above */}
@@ -453,7 +449,7 @@ const SupportingInfo: React.FC = () => {
 								</div>
 														{inheritedWayleave === "Yes" && (
 															<div className="govuk-radios__conditional" id="conditional-inheritedWayleave">
-																{errors.some(e => e.anchor === 'inheritedWayleave-upload-1-error') && (
+																{errors.some(e => e.includes('inheritedWayleave-upload-1-error')) && (
 																	<p id="inheritedWayleave-upload-1-error" className="govuk-error-message">Upload a document that shows inheritance of a necessary wayleave</p>
 																)}
 																<FileUpload
@@ -492,7 +488,7 @@ const SupportingInfo: React.FC = () => {
 								</div>
 														{anyPayments === "Yes" && (
 															<div className="govuk-radios__conditional" id="conditional-anyPayments">
-																{errors.some(e => e.anchor === 'anyPayments-upload-1-error') && (
+																{errors.some(e => e.includes('anyPayments-upload-1-error')) && (
 																	<p id="anyPayments-upload-1-error" className="govuk-error-message">Upload a document that shows payments made to the grantor</p>
 																)}
 																<FileUpload
@@ -531,7 +527,7 @@ const SupportingInfo: React.FC = () => {
 								</div>
 														{acceptedPayments === "Yes" && (
 															<div className="govuk-radios__conditional" id="conditional-acceptedPayments">
-																{errors.some(e => e.anchor === 'acceptedPayments-upload-1-error') && (
+																{errors.some(e => e.includes('acceptedPayments-upload-1-error')) && (
 																	<p id="acceptedPayments-upload-1-error" className="govuk-error-message">Upload a document that shows payments have been accepted by the grantor</p>
 																)}															{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
 																<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
@@ -563,7 +559,7 @@ const SupportingInfo: React.FC = () => {
 					{/* Is a new contract implied? */}
 
 
-					<div className={`govuk-form-group${(!contact && errors.length > 0) || (contact === "email" && errors.some(e => e.anchor === 'contact-by-email-error')) ? ' govuk-form-group--error' : ''}`}>
+					<div className={`govuk-form-group${(!contact && errors.length > 0) || (contact === "email" && errors.some(e => e.includes('contact-by-email-error'))) ? ' govuk-form-group--error' : ''}`}>
 						<fieldset className="govuk-fieldset" aria-describedby="contact-hint">
 							<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 								<h1 className="govuk-fieldset__heading">Is a new contract implied?</h1>
@@ -593,13 +589,13 @@ const SupportingInfo: React.FC = () => {
 								</div>
 								{contact === "email" && (
 									<div className="govuk-radios__conditional" id="conditional-contact">
-										<div className={`govuk-form-group${errors.some(e => e.anchor === 'contact-by-email') ? ' govuk-form-group--error' : ''}`}>
+										<div className={`govuk-form-group${errors.some(e => e.includes('contact-by-email')) ? ' govuk-form-group--error' : ''}`}>
 											<label className="govuk-label" htmlFor="contact-by-email">Why do you believe this is so?</label>
-											{errors.some(e => e.anchor === 'contact-by-email') && (
+											{errors.some(e => e.includes('contact-by-email')) && (
 												<p id="contact-by-email-error" className="govuk-error-message">Enter why you believe a new contract is implied</p>
 											)}
 											<textarea
-												className={`govuk-textarea govuk-!-width-one-third${errors.some(e => e.anchor === 'contact-by-email') ? ' govuk-textarea--error' : ''}`}
+												className={`govuk-textarea govuk-!-width-one-third${errors.some(e => e.includes('contact-by-email')) ? ' govuk-textarea--error' : ''}`}
 												id="contact-by-email"
 												name="contactByEmail"
 												spellCheck={true}
@@ -663,11 +659,11 @@ const SupportingInfo: React.FC = () => {
 								</div>
 								{writtenTermination === "Yes" && (
 									<div className="govuk-radios__conditional" id="conditional-writtenTermination">
-										<div className={`govuk-form-group${errors.some(e => e.anchor === 'writtenTerminationDate-day') ? ' govuk-form-group--error' : ''}`}>
+										<div className={`govuk-form-group${errors.some(e => e.includes('writtenTerminationDate-day')) ? ' govuk-form-group--error' : ''}`}>
 											<fieldset className="govuk-fieldset" role="group" aria-describedby="writtenTerminationDate-hint">
 												<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">Written Termination Notice issue date</legend>
 												<div id="writtenTerminationDate-hint" className="govuk-hint"></div>
-												{errors.some(e => e.anchor === 'writtenTerminationDate-day') && (
+												{errors.some(e => e.includes('writtenTerminationDate-day')) && (
 													<p id="writtenTerminationDate-error" className="govuk-error-message">Enter the full Written Termination Notice issue date</p>
 												)}
 												<div className="govuk-date-input" id="writtenTerminationDate">
@@ -703,7 +699,7 @@ const SupportingInfo: React.FC = () => {
 											</fieldset>
 										</div>
 										<div className="govuk-form-group">
-										{errors.some(e => e.anchor === 'writtenTermination-upload-1-error') && (
+										{errors.some(e => e.includes('writtenTermination-upload-1-error')) && (
 											<p id="writtenTermination-upload-1-error" className="govuk-error-message">Upload Written Termination Notice document</p>
 										)}									{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
 										<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
@@ -770,11 +766,11 @@ const SupportingInfo: React.FC = () => {
 								</div>
 								   {writtenRemoval === "Yes" && (
 									   <div className="govuk-radios__conditional" id="conditional-writtenRemoval">
-										   <div className={`govuk-form-group${errors.some(e => e.anchor === 'writtenRemovalDate-day') ? ' govuk-form-group--error' : ''}`}>
+										   <div className={`govuk-form-group${errors.some(e => e.includes('writtenRemovalDate-day')) ? ' govuk-form-group--error' : ''}`}>
 											   <fieldset className="govuk-fieldset" role="group" aria-describedby="writtenRemovalDate-hint">
 												   <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">Written Removal Notice issue date</legend>
 												   <div id="writtenRemovalDate-hint" className="govuk-hint"></div>
-												   {errors.some(e => e.anchor === 'writtenRemovalDate-day') && (
+												   {errors.some(e => e.includes('writtenRemovalDate-day')) && (
 													   <p id="writtenRemovalDate-error" className="govuk-error-message">Enter the full Written Removal Notice issue date</p>
 												   )}
 												   <div className="govuk-date-input" id="writtenRemovalDate">
@@ -808,7 +804,7 @@ const SupportingInfo: React.FC = () => {
 												   </div>
 											   </fieldset>
 										   </div>
-										   {errors.some(e => e.anchor === 'writtenRemoval-upload-1-error') && (
+										   {errors.some(e => e.includes('writtenRemoval-upload-1-error')) && (
 											  <p id="writtenRemoval-upload-1-error" className="govuk-error-message">Upload Written Removal Notice document</p>
 										   )}									   {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
 											<p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
@@ -865,7 +861,7 @@ const SupportingInfo: React.FC = () => {
 								</div>
 								{titlePlan === "Yes" && (
 	<div className="govuk-radios__conditional" id="conditional-titlePlan">
-		{errors.some(e => e.anchor === 'titlePlan-upload-1-error') && (
+		{errors.some(e => e.includes('titlePlan-upload-1-error')) && (
 			<p id="titlePlan-upload-1-error" className="govuk-error-message">Upload the title plan document</p>
 		)}
 		{fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (

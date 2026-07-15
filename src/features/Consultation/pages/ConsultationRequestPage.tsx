@@ -8,9 +8,6 @@ import { validateDateComponents } from '../../../utils/validation';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
 import SkipLink from '../../../components/SkipLink';
-import { createLogger } from '../../../utils/logger';
-
-const logger = createLogger('ConsultationRequestPage');
 
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -236,7 +233,7 @@ const ConsultationRequestPage: React.FC = () => {
       log.info('[ConsultationRequestPage] Consultation request saved successfully');
       navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     } catch (error) {
-      logger.error('Save failed:', error);
+      console.error('Save failed:', error);
       log.error('[ConsultationRequestPage] Error saving consultation request:', error);
       alert(`Failed to save consultation request: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

@@ -1,38 +1,16 @@
-import { createLogger } from './logger';
-
-const logger = createLogger('csrf');
-
-let cachedToken: string | null = null;
+/**
+ * CSRF Token Management (Cookie-based)
+ * Backend sends token in cookie, frontend reads and includes in requests
+ */
 
 /**
- * Get CSRF token from /csrf-token endpoint
- * Uses fetch() to avoid circular dependency with axios interceptor
- * This is the industry standard approach
+ * Get CSRF token from cookie
+ * Backend automatically sets this cookie when session is created
  */
-export async function fetchCsrfToken(): Promise<string | null> {
-  try {
-    const response = await fetch('/backend/csrf-token', {
-      credentials: 'include',
-    });
-    if (!response.ok) return null;
-    const data = await response.json();
-    cachedToken = data.csrfToken;
-    logger.debug('Fetched new CSRF token from server');
-    return cachedToken;
-  } catch (error) {
-    logger.error('Failed to fetch CSRF token', error);
+export function getCsrfToken(): string | null {
+  if (typeof document === "undefined") {
     return null;
   }
-}
-
-
-export function getCsrfToken(): string | null {
-  return cachedToken;
-}
-
-
-export function getCsrfHeaders(): { 'X-CSRF-Token'?: string } {
-  const token = getCsrfToken();
-  logger.debug('Getting CSRF headers', { hasToken: !!token });
-  return token ? { 'X-CSRF-Token': token } : {};
+  const match = document.cookie.match(/(?:^|; )_csrf=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : null;
 }

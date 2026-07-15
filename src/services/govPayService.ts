@@ -1,6 +1,5 @@
 import log from '../logger';
 import { buildBackendUrl } from '../utils/apiConfig';
-import { getCsrfHeaders } from '../utils/csrf';
 
 export const createPayment = async (
   amount: number,
@@ -32,12 +31,9 @@ export const createPayment = async (
 
     const response = await fetch(buildBackendUrl(`/backend/api/gov-pay/applications/${applicationId}/payments`), {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        ...getCsrfHeaders(),
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-      credentials: 'include',
+      credentials: 'include', // Include credentials for session authentication
     });
 
     if (!response.ok) {
@@ -110,10 +106,7 @@ export const submitApplicationWithBankTransfer = async (
 
     const response = await fetch(buildBackendUrl(`/backend/api/application/${applicationId}/save-with-bank-transfer`), {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        ...getCsrfHeaders(),
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(payload),
     });

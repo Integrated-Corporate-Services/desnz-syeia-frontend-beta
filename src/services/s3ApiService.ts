@@ -3,7 +3,6 @@
 // URLs are cached in-memory to reduce backend calls
 
 import { buildBackendUrl } from '../utils/apiConfig';
-import { getCsrfHeaders } from '../utils/csrf';
 
 // Configuration from environment variables
 const S3_URL_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_URL_EXPIRY_SECONDS) || 1800; // Default: 30 minutes
@@ -33,10 +32,7 @@ export function clearPresignedUrlCache(filename?: string) {
 export async function getPresignedUrls(files: { filename: string; contentType: string }[]) {
   const res = await fetch(buildBackendUrl('/backend/api/upload/presigned-url'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ files })
   });
@@ -92,10 +88,7 @@ export async function confirmUpload(params: {
 }> {
   const res = await fetch(buildBackendUrl('/backend/api/upload/confirm'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify(params)
   });
@@ -130,10 +123,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/backend/api/file/presigned-url'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ filename })
   });
@@ -161,10 +151,7 @@ export async function listFilesByPrefix(prefix: string) {
 export async function deleteFileFromS3(key: string) {
   const res = await fetch(buildBackendUrl('/backend/api/file/delete'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ key })
   });
@@ -176,10 +163,7 @@ export async function deleteFileFromS3(key: string) {
 export async function deleteFileCompletely(fileId: string, key: string) {
   const res = await fetch(buildBackendUrl('/backend/api/file/delete'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ key, fileId })
   });
@@ -209,10 +193,7 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/backend/api/file/presigned-url/download'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ filename })
   });

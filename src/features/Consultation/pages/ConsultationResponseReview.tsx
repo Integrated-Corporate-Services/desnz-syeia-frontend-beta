@@ -8,9 +8,6 @@ import { fetchConsultationDetails } from '../../../services/consultationService'
 import { ConsultationType } from '../../../constants/consultationType';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import SkipLink from '../../../components/SkipLink';
-import { createLogger } from '../../../utils/logger';
-
-const logger = createLogger('ConsultationResponseReview');
 
 const ConsultationResponse3: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -53,7 +50,7 @@ const ConsultationResponse3: React.FC = () => {
                         setConsultationType(currentConsultation.consultationType || '');
                     }
                 } catch (err) {
-                    logger.error('Error fetching consultation response:', err);
+                    console.error('Error fetching consultation response:', err);
                 } finally {
                     setIsLoading(false);
                 }
@@ -106,7 +103,7 @@ const ConsultationResponse3: React.FC = () => {
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
-            logger.error('Error closing consultation:', err);
+            console.error('Error closing consultation:', err);
         }
     };
 
@@ -135,7 +132,7 @@ const ConsultationResponse3: React.FC = () => {
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
         } catch (err) {
-            logger.error('Error saving consultation response:', err);
+            console.error('Error saving consultation response:', err);
         }
     };
 
