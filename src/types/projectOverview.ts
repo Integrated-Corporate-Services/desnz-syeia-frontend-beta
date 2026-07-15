@@ -24,4 +24,7 @@ export interface ProjectOverviewModel {
   eipDetails: string;
   uploadedFiles: UploadedFile[];
   applicationDocuments: ApplicationDocument[];
+  // Version fields for optimistic locking
+  projectVersion?: number;
+  overviewVersion?: number;
 }

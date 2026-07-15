@@ -8,4 +8,5 @@ export interface EiaFees {
   updatedAt: string;
   createdBy?: string;
   updatedBy: string;
+  version?: number;
 }

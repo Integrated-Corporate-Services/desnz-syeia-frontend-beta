@@ -14,6 +14,7 @@ export interface ConsultationOutcomeApiData {
     consultees_recommendations_made?: boolean | null;
     consultees_recommendations_accepted?: boolean | null;
     consultees_recommendations_not_accepted_reason?: string | null;
+    version?: number;
 }
 
 export interface ConsultationOutcomeResponse {
@@ -29,6 +30,7 @@ export interface ConsultationOutcomeResponse {
     created_by: string;
     last_updated_at: string | null;
     last_updated_by: string | null;
+    version?: number;
 }
 
 export type SaveType = 'continue' | 'later';

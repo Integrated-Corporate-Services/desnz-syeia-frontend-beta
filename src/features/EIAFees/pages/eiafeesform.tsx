@@ -16,6 +16,7 @@ import {
     type ValidationError,
     EIA_FEES_ERROR_MESSAGES,
 } from '../validations';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import SkipLink from '../../../components/SkipLink';
 
 const EIAFeesForm: React.FC = () => {
@@ -29,12 +30,14 @@ const EIAFeesForm: React.FC = () => {
         screeningOnly: string;
         eiaFeeId?: string;
         applicationId?: string;
+        version?: number;
     };
     const [form, setForm] = useState<FormState>({
         isEiaDevelopment: '',
         screeningOnly: '',
         eiaFeeId: undefined,
         applicationId: undefined,
+        version: 1,
     });
     const [errors, setErrors] = useState<ValidationError[]>([]);
     const [loading, setLoading] = useState(false);
@@ -48,6 +51,7 @@ const EIAFeesForm: React.FC = () => {
             screeningOnly: '',
             eiaFeeId: undefined,
             applicationId: undefined,
+            version: 1,
         });
         setErrors([]);
         setApiError(null);
@@ -68,6 +72,7 @@ const EIAFeesForm: React.FC = () => {
                 screeningOnly: eiaFees.screeningOnly ? 'true' : 'false',
                 eiaFeeId: eiaFees.eiaFeeId,
                 applicationId: eiaFees.applicationId,
+                version: eiaFees.version || 1,
             });
         }
     }, [eiaFees, applicationId]);
@@ -106,6 +111,7 @@ const EIAFeesForm: React.FC = () => {
                     eiaId?: string;
                     createdAt?: string;
                     createdBy?: string;
+                    version?: number;
                 };
                 const payload: EiaPayload = {
                     applicationId: applicationId,
@@ -113,6 +119,7 @@ const EIAFeesForm: React.FC = () => {
                     screeningOnly: form.screeningOnly === 'true', // maps second question
                     updatedAt: new Date().toISOString(),
                     updatedBy: 'system',
+                    version: form.version,
                 };
                 if (eiaFees && eiaFees.eiaFeeId) {
                     // Update existing EIA Fee using store (PUT)
@@ -123,6 +130,7 @@ const EIAFeesForm: React.FC = () => {
                         screeningOnly: payload.screeningOnly,
                         updatedAt: payload.updatedAt,
                         updatedBy: payload.updatedBy,
+                        version: payload.version,
                     });
                 } else {
                     // Create new EIA Fee using store (POST)
@@ -138,6 +146,7 @@ const EIAFeesForm: React.FC = () => {
                         updatedAt: payload.updatedAt,
                         createdBy,
                         updatedBy: payload.updatedBy,
+                        version: payload.version,
                     });
                 }
                 setSuccess(true);
@@ -146,13 +155,19 @@ const EIAFeesForm: React.FC = () => {
                     screeningOnly: '',
                     eiaFeeId: undefined,
                     applicationId: undefined,
+                    version: 1,
                 });
                 // Navigate to the next page in the task list sequence
                 const redirectId = payload.applicationId;
                 const nextPageUrl = getNextPageUrl(TASK_NAMES.EIA_FEES, redirectId);
                 navigate(nextPageUrl);
-            } catch {
-                setApiError(EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED);
+            } catch (err: any) {
+                if (err.isVersionConflict || err.statusCode === 409) {
+                    setApiError(ERROR_MESSAGES.VERSION_CONFLICT);
+                } else {
+                    setApiError(EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED);
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } finally {
                 setLoading(false);
             }
@@ -193,7 +208,10 @@ const EIAFeesForm: React.FC = () => {
             {apiError && (
                 <div className="govuk-error-summary" role="alert">
                     <h2 className="govuk-error-summary__title">There is a problem</h2>
-                    <div className="govuk-error-summary__body">{apiError}</div>
+                    <div 
+                        className="govuk-error-summary__body"
+                        dangerouslySetInnerHTML={{ __html: apiError }}
+                    />
                 </div>
             )}
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

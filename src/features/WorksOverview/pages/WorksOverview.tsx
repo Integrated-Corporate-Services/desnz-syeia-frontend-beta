@@ -7,6 +7,7 @@ import TextArea from '../component/TextArea';
 import TextInput from '../component/TextInput';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 import { WORKS_OVERVIEW_LABELS } from '../../../constants/worksOverviewLabels';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -85,6 +86,7 @@ const WorksOverview: React.FC = () => {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [version, setVersion] = useState<number>(1);
   const [roadClosureFiles, setRoadClosureFiles] = useState<UploadedFile[]>([]);
   const [roadClosureDocuments, setRoadClosureDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingRoadClosureFiles, setPendingRoadClosureFiles] = useState<File[]>([]);
@@ -99,6 +101,7 @@ const WorksOverview: React.FC = () => {
 
   useEffect(() => {
     setForm(initialState);
+    setVersion(1);
     setRoadClosureFiles([]);
     setRoadClosureDocuments([]);
     setPendingRoadClosureFiles([]);
@@ -135,14 +138,17 @@ const WorksOverview: React.FC = () => {
             removalDescription: data.removalDescription || '',
           });
           setIsEditMode(true);
+          setVersion(data.version || 1);
           setRoadClosureFiles(mapUploadedFiles(data.roadClosureUploadedFiles));
           setRoadClosureDocuments(mapApplicationDocuments(data.roadClosureApplicationDocuments));
         } else {
           setForm(initialState);
+          setVersion(1);
           setIsEditMode(false);
         }
       } catch {
         setForm(initialState);
+        setVersion(1);
         setIsEditMode(false);
       }
     }
@@ -196,6 +202,7 @@ const WorksOverview: React.FC = () => {
     removingExistingEquipment: form.removingExistingEquipment === '' ? null : form.removingExistingEquipment === 'yes',
     removalDescription: form.removingExistingEquipment === 'yes' ? form.removalDescription : '',
     generalComments: '',
+    version: isEditMode ? version : undefined,
   });
 
   const uploadPendingFiles = async () => {
@@ -223,8 +230,13 @@ const WorksOverview: React.FC = () => {
     try {
       await persistForm();
       navigate(getNextPageUrl(TASK_NAMES.WORKS_OVERVIEW, effectiveApplicationId));
-    } catch {
-      setErrors([{ field: 'generalComments', message: ASSET_ERROR_MESSAGES.generalCommentsFailed }]);
+    } catch (err: any) {
+      // Handle version conflict error
+      if (err.isVersionConflict || err.statusCode === 409) {
+        setErrors([{ field: 'generalComments', message: ERROR_MESSAGES.VERSION_CONFLICT }]);
+      } else {
+        setErrors([{ field: 'generalComments', message: ASSET_ERROR_MESSAGES.generalCommentsFailed }]);
+      }
     }
   };
 
@@ -290,9 +302,24 @@ const WorksOverview: React.FC = () => {
               <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
               <div className="govuk-error-summary__body">
                 <ul className="govuk-list govuk-error-summary__list">
-                  {errors.map((err, idx) => (
-                    <li key={idx}><a href={`#${err.field}`}>{err.message}</a></li>
-                  ))}
+                  {errors.map((err, idx) => {
+                    // Check if error message contains HTML (like the refresh link for version conflicts)
+                    const containsHtml = /<a\s+[^>]*href="[^"]+"/i.test(err.message);
+                    
+                    if (containsHtml) {
+                      // Render HTML content (like clickable refresh link)
+                      return (
+                        <li key={idx} dangerouslySetInnerHTML={{ __html: err.message }} />
+                      );
+                    } else {
+                      // Standard field error with anchor link
+                      return (
+                        <li key={idx}>
+                          <a href={`#${err.field}`}>{err.message}</a>
+                        </li>
+                      );
+                    }
+                  })}
                 </ul>
               </div>
             </div>

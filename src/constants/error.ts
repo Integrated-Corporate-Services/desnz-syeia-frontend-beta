@@ -10,4 +10,5 @@ export const ERROR_MESSAGES = {
   UNAUTHORIZED: 'Unauthorized access.',
   REFERENCE_REQUIRED: 'Reference is required.',
   ORGANISATION_REQUIRED: 'Please select an organisation.',
+  VERSION_CONFLICT: 'This page has been updated. Please <a href="javascript:window.location.reload()" class="govuk-link">refresh the page</a> to get the latest data before saving your changes.',
 };

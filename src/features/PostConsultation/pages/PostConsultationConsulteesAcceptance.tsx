@@ -92,7 +92,15 @@ const PostConsultationConsulteesRecommendationsAcceptance: React.FC = () => {
                 </h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
-                    {error && <li>{error}</li>}
+                  {error && (
+                    <li>
+                      {error.includes('<a href') ? (
+                        <span dangerouslySetInnerHTML={{ __html: error }} />
+                      ) : (
+                        error
+                      )}
+                    </li>
+                  )}
                     {acceptConsulteesRecommendationsError && (
                       <li>
                         <a href="#accept-consultees-recommendations-yes">

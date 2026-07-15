@@ -5,13 +5,14 @@ import { useApplication } from '../../../hooks/useApplication';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
-import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import RadioGroup from '../component/RadioGroup';
 import { clearFieldError } from '../validations';
 import TextArea from '../component/TextArea';
 import MultiSelectDropdown from '../component/MultiSelect';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../constants/asset';
 import { createAsset } from '../../../services/asset-service';
 import { managePublicConsultationByVoltage } from '../../../services/consultationService';
@@ -31,6 +32,7 @@ interface AssetFormState {
     tori_noi: string;
     lineVoltage: string[];
     lineLength: string;
+    version: number;
 }
 
 const initialState: AssetFormState = {
@@ -40,14 +42,14 @@ const initialState: AssetFormState = {
     tori_noi: '',
     lineVoltage: [],
     lineLength: '',
+    version: 1,
 };
 
-type FormErrors = Partial<Record<keyof typeof initialState, string>>;
+type FormErrors = Partial<Record<keyof typeof initialState, string>> & { versionConflict?: string };
 
 const AssetInformationForm: React.FC = () => {
     const [form, setForm] = useState<AssetFormState>(initialState);
     const [errors, setErrors] = useState<FormErrors>({});
-    const [submitted, setSubmitted] = useState(false);
     const [originalVoltage, setOriginalVoltage] = useState<string[]>([]);
     const [currentFetchedAppId, setCurrentFetchedAppId] = useState<string>('');
     const { assets, loading, fetchAssets, updateAsset } = useAssets();
@@ -59,6 +61,8 @@ const AssetInformationForm: React.FC = () => {
     const fromSummary = location.state?.fromSummary === true;
     // Ref for first error field
     const firstErrorRef = useRef<HTMLInputElement | null>(null);
+    // Ref for error summary (for focus management)
+    const errorSummaryRef = useRef<HTMLDivElement>(null);
 
     // Determine if form should be read-only
     const isReadOnly = useApplicationReadOnly(application, user as AuthUser);
@@ -103,19 +107,19 @@ const AssetInformationForm: React.FC = () => {
         return publicNoticeStarted || allConsultationsClosed;
     }, [consultations]);
 
-    // Focus the first error field when errors change
+    // Focus and scroll to error summary when errors appear (especially for version conflicts)
     useEffect(() => {
-        if (submitted && Object.keys(errors).length > 0 && firstErrorRef.current) {
-            firstErrorRef.current.focus();
+        if (Object.keys(errors).length > 0 && errorSummaryRef.current) {
+            errorSummaryRef.current.focus();
+            errorSummaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-    }, [errors, submitted]);
+    }, [errors]);
 
     // Clear form state when applicationId changes
     useEffect(() => {
         setForm(initialState);
         setOriginalVoltage([]);
         setErrors({});
-        setSubmitted(false);
         setCurrentFetchedAppId(''); // Clear tracked app ID
     }, [effectiveApplicationId]);
 
@@ -155,6 +159,7 @@ const AssetInformationForm: React.FC = () => {
                 lineType: typeof asset.typeOfLine === 'object' && asset.typeOfLine !== null ? (asset.typeOfLine as { code?: string }).code || '' : asset.typeOfLine || '',
                 lineVoltage: voltageArr,
                 lineLength: asset.lineLength?.toString() || '',
+                version: asset.version || 1,
             });
             // Store original voltage for comparison on submit
             setOriginalVoltage(voltageArr);
@@ -241,7 +246,6 @@ const AssetInformationForm: React.FC = () => {
         if (isReadOnly) {
             return; // Prevent submission if read-only
         }
-        setSubmitted(true);
         const validationErrors = validate(form);
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length > 0) {
@@ -265,6 +269,7 @@ const AssetInformationForm: React.FC = () => {
                     overheadLines: { hasAddOrReplace: false, description: '' },
                     equipmentRemoval: { isRemoving: false, description: '' },
                     isExistingAsset: false,
+                    version: form.version,
                 },
             ],
         };
@@ -280,7 +285,13 @@ const AssetInformationForm: React.FC = () => {
                     const nextPageUrl = getNextPageUrl(TASK_NAMES.ASSETS, effectiveApplicationId);
                     navigate(nextPageUrl);
                 })
-                .catch((error) => {
+                .catch((error: Error & { isVersionConflict?: boolean; statusCode?: number }) => {
+                    // Handle version conflict specially
+                    if (error.isVersionConflict || error.statusCode === 409) {
+                        setErrors({ versionConflict: ERROR_MESSAGES.VERSION_CONFLICT });
+                        // Scroll handled by useEffect
+                        return;
+                    }
                     log.error('[AssetInformationForm] Failed to update asset:', error);
                     setErrors({ assetId: '', referenceNumber: ASSET_ERROR_MESSAGES.referenceNumber, lineType: ASSET_ERROR_MESSAGES.lineType, tori_noi: '', lineVoltage: ASSET_ERROR_MESSAGES.lineVoltage, lineLength: ASSET_ERROR_MESSAGES.lineLength });
                 });
@@ -354,8 +365,8 @@ const AssetInformationForm: React.FC = () => {
                 </div>
             )}
             <form className="govuk-!-margin-bottom-6" onSubmit={handleSubmit} noValidate>
-                {submitted && Object.keys(errors).length > 0 && (
-                    <div className="govuk-error-summary govuk-!-margin-bottom-6 govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
+                {Object.keys(errors).length > 0 && (
+                    <div ref={errorSummaryRef} className="govuk-error-summary govuk-!-margin-bottom-6 govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem
                         </h2>
@@ -364,7 +375,11 @@ const AssetInformationForm: React.FC = () => {
                                 {Object.entries(errors).map(([field, message]) =>
                                     typeof message === 'string' && message ? (
                                         <li key={field}>
-                                            <a href={`#${field}`}>{message}</a>
+                                            {field === 'versionConflict' ? (
+                                                <span dangerouslySetInnerHTML={{ __html: message }} />
+                                            ) : (
+                                                <a href={`#${field}`}>{message}</a>
+                                            )}
                                         </li>
                                     ) : null
                                 )}

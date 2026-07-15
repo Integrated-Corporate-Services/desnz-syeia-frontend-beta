@@ -1,7 +1,7 @@
 // src/services/eiafeesservice.ts
 
 import { buildBackendUrl } from '../utils/apiConfig';
-import { getCsrfHeaders } from '../utils/csrf';
+import { ERROR_MESSAGES } from '../constants/error';
 
 // EIA Fees type
 import { EiaFees } from '../types/eiaFees';
@@ -17,6 +17,7 @@ export interface CreateEiaFeePayload {
   updatedAt: string;
   createdBy: string;
   updatedBy: string;
+  version?: number;
 }
 
 // Payload for updating EIA Fee
@@ -27,6 +28,7 @@ export interface UpdateEiaFeePayload {
   screeningOnly: boolean;
   updatedAt: string;
   updatedBy: string;
+  version?: number;
 }
 
 // Service to fetch EIA Fees details from the backend
@@ -56,13 +58,20 @@ export const createEiaFee = async (payload: CreateEiaFeePayload): Promise<EiaFee
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
+    if (response.status === 409 || error.error === 'VERSION_CONFLICT') {
+      const conflictError: any = new Error(
+        error.message || ERROR_MESSAGES.VERSION_CONFLICT
+      );
+      conflictError.statusCode = 409;
+      conflictError.isVersionConflict = true;
+      throw conflictError;
+    }
     throw new Error(error.message || 'Failed to create EIA Fee');
   }
   return response.json();
@@ -74,13 +83,20 @@ export const updateEiaFee = async (payload: UpdateEiaFeePayload): Promise<EiaFee
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
+    if (response.status === 409 || error.error === 'VERSION_CONFLICT') {
+      const conflictError: any = new Error(
+        error.message || ERROR_MESSAGES.VERSION_CONFLICT
+      );
+      conflictError.statusCode = 409;
+      conflictError.isVersionConflict = true;
+      throw conflictError;
+    }
     throw new Error(error.message || 'Failed to update EIA Fee');
   }
   return response.json();

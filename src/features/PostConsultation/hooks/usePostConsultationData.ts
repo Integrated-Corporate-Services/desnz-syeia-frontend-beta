@@ -4,10 +4,8 @@ import { saveConsultationOutcome, getConsultationOutcome } from '../../../servic
 import { ConsultationOutcomeFormData, SaveType } from '../types';
 import { mapApiToFormData, mapFormDataToApi } from '../utils/mappers';
 import { POST_CONSULTATION_CONSTANTS } from '../constants';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import { useProgress } from '../../../hooks/useProgress';
-import { createLogger } from '../../../utils/logger';
-
-const logger = createLogger('PostConsultationData');
 
 export const usePostConsultationData = (applicationId: string | undefined) => {
     const { fetchProgress } = useProgress();
@@ -18,6 +16,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
     const [consulteesRecommendations, setConsulteesRecommendations] = useState<string>('');
     const [acceptConsulteesRecommendations, setAcceptConsulteesRecommendations] = useState<string>('');
     const [consulteesExplanation, setConsulteesExplanation] = useState<string>('');
+    const [version, setVersion] = useState<number>(1);
     const [loading, setLoading] = useState<boolean>(true);
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
@@ -28,8 +27,9 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
     const [consulteesRecommendationsDetailsError, setConsulteesRecommendationsDetailsError] = useState<string>('');
     const [acceptConsulteesRecommendationsError, setAcceptConsulteesRecommendationsError] = useState<string>('');
     const [consulteesRecommendationsReasonError, setConsulteesRecommendationsReasonError] = useState<string>('');
+    const [dataLoadTimestamp, setDataLoadTimestamp] = useState<number>(0);
 
-    // Load existing data on mount
+    // Load existing data on mount or when applicationId changes
     useEffect(() => {
         const loadExistingData = async () => {
             if (!applicationId) {
@@ -37,19 +37,25 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
                 return;
             }
 
+            setLoading(true);
+            setError('');
+            
             try {
                 const outcome = await getConsultationOutcome(applicationId);
                 const formData = mapApiToFormData(outcome);
 
-                if (formData.lpaModifications) setLpaModifications(formData.lpaModifications);
-                if (formData.acceptConditions) setAcceptConditions(formData.acceptConditions);
-                if (formData.explanation) setExplanation(formData.explanation);
-                if (formData.consulteesRecommendations) setConsulteesRecommendations(formData.consulteesRecommendations);
-                if (formData.acceptConsulteesRecommendations) setAcceptConsulteesRecommendations(formData.acceptConsulteesRecommendations);
-                if (formData.consulteesExplanation) setConsulteesExplanation(formData.consulteesExplanation);
-            } catch (err) {
-                const error = err as AxiosError<{ error?: string }>;
-                logger.error('Error loading consultation outcome:', error);
+                // ALWAYS update all state fields to ensure fresh data (no conditional updates)
+                setLpaModifications(formData.lpaModifications || '');
+                setAcceptConditions(formData.acceptConditions || '');
+                setExplanation(formData.explanation || '');
+                setConsulteesRecommendations(formData.consulteesRecommendations || '');
+                setAcceptConsulteesRecommendations(formData.acceptConsulteesRecommendations || '');
+                setConsulteesExplanation(formData.consulteesExplanation || '');
+                
+                // CRITICAL: Always update version from backend, default to 1 if not present
+                const loadedVersion = outcome?.version || 1;
+                setVersion(loadedVersion);
+            } catch {
                 setError(POST_CONSULTATION_CONSTANTS.ERROR_LOAD_FAILED);
             } finally {
                 setLoading(false);
@@ -57,7 +63,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
         };
 
         loadExistingData();
-    }, [applicationId]);
+    }, [applicationId, dataLoadTimestamp]);
 
     const saveData = async (
         saveType: SaveType,
@@ -65,6 +71,11 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
     ): Promise<boolean> => {
         if (!applicationId) {
             setError(POST_CONSULTATION_CONSTANTS.ERROR_MISSING_APP_ID);
+            return false;
+        }
+
+        // Prevent saving while data is loading (e.g., during automatic reload after version conflict)
+        if (loading) {
             return false;
         }
 
@@ -137,7 +148,13 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
             };
 
             const apiData = mapFormDataToApi(formData);
-            await saveConsultationOutcome(applicationId, apiData);
+            apiData.version = version;
+            const result = await saveConsultationOutcome(applicationId, apiData);
+
+            // CRITICAL: Update version immediately from backend response
+            if (result?.data?.version) {
+                setVersion(result.data.version);
+            }
 
             // Refresh progress after backend update
             if (applicationId && saveType === 'continue') {
@@ -150,10 +167,16 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
 
             return true;
         } catch (err) {
-            const error = err as AxiosError<{ error?: string }>;
-            logger.error('Error saving consultation outcome:', error);
-            const errorMessage = error.response?.data?.error || POST_CONSULTATION_CONSTANTS.ERROR_SAVE_FAILED;
-            setError(errorMessage);
+            const error = err as Error & { isVersionConflict?: boolean; statusCode?: number };
+            if (error.isVersionConflict || error.statusCode === 409) {
+                // Version conflict detected - user must manually refresh to get latest data
+                setError(error.message || ERROR_MESSAGES.VERSION_CONFLICT);
+            } else {
+                const axiosError = error as AxiosError<{ error?: string }>;
+                const errorMessage = axiosError.response?.data?.error || POST_CONSULTATION_CONSTANTS.ERROR_SAVE_FAILED;
+                setError(errorMessage);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return false;
         } finally {
             setSaving(false);

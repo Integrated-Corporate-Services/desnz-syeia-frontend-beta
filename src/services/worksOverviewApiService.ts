@@ -1,6 +1,5 @@
 import { WorksOverviewRequest } from '../types/works';
 import { buildBackendUrl } from '../utils/apiConfig';
-import { getCsrfHeaders } from '../utils/csrf';
 
 // Fetch WorksOverview by applicationId
 export async function getWorksOverview(applicationId: string) {
@@ -24,7 +23,6 @@ export async function createWorksOverview(payload: WorksOverviewRequest) {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...getCsrfHeaders(),
     },
     body: JSON.stringify(payload),
   });
@@ -42,13 +40,37 @@ export async function updateWorksOverview(applicationId: string, payload: WorksO
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...getCsrfHeaders(),
     },
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || 'Failed to update works overview');
+    let errorMessage = 'Failed to update works overview';
+    
+    try {
+      const errorData = await response.json();
+      
+      // Handle version conflict (409)
+      if (response.status === 409 || errorData.error === 'VERSION_CONFLICT') {
+        const conflictError: any = new Error(errorData.message);
+        conflictError.statusCode = 409;
+        conflictError.isVersionConflict = true;
+        throw conflictError;
+      }
+      
+      if (errorData.message) {
+        errorMessage = errorData.message;
+      } else if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch (parseError: any) {
+      // If it's already our conflict error, re-throw it
+      if (parseError.isVersionConflict) {
+        throw parseError;
+      }
+      // If JSON parsing fails, use default error message
+    }
+    
+    throw new Error(errorMessage);
   }
   return response.json();
 }

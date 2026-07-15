@@ -89,7 +89,15 @@ const PostConsultationLpaConditions: React.FC = () => {
                 </h2>
                 <div className="govuk-error-summary__body">
                   <ul className="govuk-list govuk-error-summary__list">
-                    {error && <li>{error}</li>}
+                  {error && (
+                    <li>
+                      {error.includes('<a href') ? (
+                        <span dangerouslySetInnerHTML={{ __html: error }} />
+                      ) : (
+                        error
+                      )}
+                    </li>
+                  )}
                     {acceptConditionsError && (
                       <li>
                         <a href="#accept-conditions-yes">

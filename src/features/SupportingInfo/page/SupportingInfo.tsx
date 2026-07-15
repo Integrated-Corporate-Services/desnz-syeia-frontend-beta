@@ -12,6 +12,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
+import { ERROR_MESSAGES } from '../../../constants/error';
 import { clearKeyedErrors } from '../validations';
 
 const logger = createLogger('SupportingInfo');
@@ -52,6 +53,7 @@ const SupportingInfo: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [version, setVersion] = useState<number>(1);
 
   // Track previous application ID and fetch/bind flags
   const prevAppIdRef = useRef(applicationId);
@@ -75,6 +77,7 @@ const SupportingInfo: React.FC = () => {
       setComments("");
       setUploadedFiles([]);
       setApplicationDocuments([]);
+      setVersion(1);
       prevAppIdRef.current = applicationId;
       hasFetchedRef.current = false;
       hasBindDataRef.current = false;
@@ -109,6 +112,7 @@ const SupportingInfo: React.FC = () => {
       setWayleavesReason(supportingInfo.wayleaves_not_obtained_reason || "");
       setSupportingDocs(has_additional_supporting_documents ? "yes" : "no");
       setComments(applicant_supporting_comments || "");
+      setVersion(supportingInfo.version || 1);
 
       // If uploaded_files is already in UploadedFile[] format, set it directly (with bounds check)
       if (
@@ -211,6 +215,7 @@ const SupportingInfo: React.FC = () => {
       applicant_supporting_comments: comments,
       uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
       application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
+      version: version,
     };
     
     try {
@@ -226,10 +231,14 @@ const SupportingInfo: React.FC = () => {
       navigate(nextPageUrl);
     } catch (err: any) {
       logger.error('Save failed:', err);
-      setErrors([{ 
-        key: 'save', 
-        message: err?.response?.data?.message || err?.message || SUPPORTING_INFO_ERRORS.SAVE_FAILED
-      }]);
+      if (err.isVersionConflict || err.statusCode === 409) {
+        setErrors([{ key: 'save', message: ERROR_MESSAGES.VERSION_CONFLICT }]);
+      } else {
+        setErrors([{ 
+          key: 'save', 
+          message: err?.response?.data?.message || err?.message || SUPPORTING_INFO_ERRORS.SAVE_FAILED
+        }]);
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   } else {
@@ -339,16 +348,20 @@ const SupportingInfo: React.FC = () => {
               ))}
               {errors.map((err, i) => (
                 <li key={i}>
-                  <a
-                    href="#"
-                    className="govuk-error-summary__link"
-                    onClick={e => {
-                      e.preventDefault();
-                      handleErrorClick(err.key);
-                    }}
-                  >
-                    {err.message}
-                  </a>
+                  {err.key === 'save' && err.message.includes('<a href') ? (
+                    <span dangerouslySetInnerHTML={{ __html: err.message }} />
+                  ) : (
+                    <a
+                      href="#"
+                      className="govuk-error-summary__link"
+                      onClick={e => {
+                        e.preventDefault();
+                        handleErrorClick(err.key);
+                      }}
+                    >
+                      {err.message}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -613,4 +626,3 @@ const SupportingInfo: React.FC = () => {
 };
 
 export default SupportingInfo;
-
