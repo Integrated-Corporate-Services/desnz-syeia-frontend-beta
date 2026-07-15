@@ -79,8 +79,10 @@ const BankTransferSuccessPage: React.FC = () => {
                 Task list
               </Link>
             </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="page">
-              Pay and submit
+            <li className="govuk-breadcrumbs__list-item">
+              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
+                Pay and submit
+              </Link>
             </li>
           </ol>
         </nav>
