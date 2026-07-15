@@ -46,7 +46,7 @@ const ConsultationInitialQuestion: React.FC = () => {
         if (!isLpaJourney(consultationDetails?.consultationType || '')) {
           log.info('[ConsultationInitialQuestion] Redirecting to consultation request page for non-LPA consultation');
           navigate(
-            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request`
+            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request?consultationName=${encodeURIComponent(consultationName)}`
           );
           return;
         }

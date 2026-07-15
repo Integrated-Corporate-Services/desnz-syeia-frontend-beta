@@ -153,8 +153,8 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
 
     setErrors({});
     setSubmitError('');
-    setSubmitted(false);
-    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/download-form`);
+    setSubmitted(false); // Reset after successful submit
+    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/download-form?consultationName=${encodeURIComponent(lpaName)}`);
   } catch (error) {
     log.error('Error saving proposed development:', error);
     setErrors({});

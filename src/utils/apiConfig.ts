@@ -1,21 +1,24 @@
-import { configService } from '../config/appConfig';
+/**
+ * API Configuration
+ * Provides the base URL for backend API calls
+ * Works in both dev (with Vite proxy) and production (with full URL)
+ */
 
+/**
+ * Get the API base URL from environment variable
+ * In dev mode: Returns empty string (uses Vite proxy)
+ * In production: Returns full backend URL (e.g., http://localhost:3000)
+ */
 export const getApiBaseUrl = (): string => {
-  return configService.getApiBaseUrl();
+  return import.meta.env.API_URL || '';
 };
 
+/**
+ * Build a full backend URL
+ * @param path - The backend path (e.g., '/backend/api/users')
+ * @returns Full URL with base if needed
+ */
 export const buildBackendUrl = (path: string): string => {
-  return configService.buildBackendUrl(path);
-};
-
-export const getAuthLoginUrl = (): string => {
-  return configService.getAuthLoginUrl();
-};
-
-export const getAuthLogoutUrl = (): string => {
-  return configService.getAuthLogoutUrl();
-};
-
-export const getApiUrl = (path: string): string => {
-  return configService.getApiUrl(path);
+  const baseUrl = getApiBaseUrl();
+  return `${baseUrl}${path}`;
 };

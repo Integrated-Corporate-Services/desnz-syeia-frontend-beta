@@ -1,7 +1,3 @@
-import { createLogger } from '../../../../utils/logger';
-
-const logger = createLogger('telemetry-config');
-
 interface ImportMetaEnv {
   readonly MODE: string;
   readonly DEV: boolean;
@@ -36,10 +32,11 @@ export function getTelemetryConfig(): TelemetryConfig {
   const enableGTM = env.VITE_ENABLE_GTM === 'true';
   const debugMode = env.MODE === 'development' || env.DEV === true;
 
+  // Debug logging in development mode
   if (debugMode) {
-    logger.info('Loaded from environment variables', {
-      hasGA4Id: !!ga4MeasurementId,
-      hasGTMId: !!gtmId,
+    console.log('[Telemetry Config] Loaded from environment variables:', {
+      ga4MeasurementId: ga4MeasurementId || '(not set)',
+      gtmId: gtmId || '(not set)',
       enableGA4,
       enableGTM,
       debugMode,

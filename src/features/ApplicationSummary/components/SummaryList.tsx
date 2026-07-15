@@ -15,22 +15,8 @@ export const SummaryList: React.FC<SummaryListProps> = ({ rows, classes = '' }) 
                         {row.key.text}
                     </dt>
                     <dd className={`govuk-summary-list__value ${row.value.classes || ''}`}>
-                        {row.value.documents ? (
-                            <div>
-                                {row.value.documents.map((doc, docIndex) => (
-                                    <React.Fragment key={doc.fileKey}>
-                                        {docIndex > 0 && <br />}
-                                        <a 
-                                            href={doc.downloadUrl} 
-                                            className="govuk-link"
-                                            data-file-key={doc.fileKey}
-                                            data-filename={doc.filename}
-                                        >
-                                            {doc.filename}
-                                        </a>
-                                    </React.Fragment>
-                                ))}
-                            </div>
+                        {row.value.html ? (
+                            <div dangerouslySetInnerHTML={{ __html: row.value.html }} />
                         ) : (
                             row.value.text
                         )}

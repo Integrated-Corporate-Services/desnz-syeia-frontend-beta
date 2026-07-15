@@ -1,21 +1,13 @@
 import React, { Component, ReactNode } from 'react';
-import { mapErrorToUserMessage, createSafeErrorLog } from '../utils/errorMapper';
-import { createLogger } from '../utils/logger';
-
-const logger = createLogger('ErrorBoundary');
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  /** Optional context identifier for error logging */
-  context?: string;
 }
 
 interface State {
   hasError: boolean;
   error?: Error;
-  /** User-friendly error message (sanitized) */
-  userMessage?: string;
 }
 
 class ErrorBoundary extends Component<Props, State> {
@@ -25,24 +17,11 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
-    // Get sanitized user-friendly message
-    const userMessage = mapErrorToUserMessage(error, 'ErrorBoundary');
-    return { hasError: true, error, userMessage };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log full technical details for debugging (never shown to user)
-    const safeError = createSafeErrorLog(error);
-    logger.error('Error caught by boundary', {
-      context: this.props.context,
-      error: safeError,
-      componentStack: errorInfo.componentStack,
-      // Only log full error info in development
-      ...(import.meta.env.MODE === 'development' && { 
-        fullError: error,
-        errorInfo 
-      }),
-    });
+    // Error caught by boundary
   }
 
   render() {
@@ -58,11 +37,18 @@ class ErrorBoundary extends Component<Props, State> {
           </h2>
           <div className="govuk-error-summary__body">
             <p className="govuk-body">
-              {/* Display sanitized user-friendly message only */}
-              {this.state.userMessage || 'Something went wrong. Please refresh the page or contact support if the problem persists.'}
+              An unexpected error occurred while displaying the map. Please refresh the page or contact support if the problem persists.
             </p>
-            {/* Technical details are NEVER shown to users, only logged */}
-            {/* In development mode, developers can see errors in browser console */}
+            {this.state.error && (
+              <details className="govuk-details" data-module="govuk-details">
+                <summary className="govuk-details__summary">
+                  <span className="govuk-details__summary-text">View technical details</span>
+                </summary>
+                <div className="govuk-details__text">
+                  <code style={{ wordBreak: 'break-all' }}>{this.state.error.toString()}</code>
+                </div>
+              </details>
+            )}
           </div>
         </div>
       );

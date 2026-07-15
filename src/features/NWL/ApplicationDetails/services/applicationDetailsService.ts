@@ -7,7 +7,6 @@ import { createLogger } from '../../../../utils/logger';
 import { generateCorrelationId } from '../../../../utils/correlationId';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { buildBackendUrl } from '../../../../utils/apiConfig';
-import { getCsrfHeaders } from '../../../../utils/csrf';
 
 const logger = createLogger('ApplicationDetailsService');
 
@@ -96,8 +95,7 @@ export const createOrUpdateApplicationDetails = async (
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'X-Correlation-ID': generateCorrelationId(),
-    'X-Page-ID': pageId,
-    ...getCsrfHeaders(),
+    'X-Page-ID': pageId, // Send page ID in header as string
   };
 
   // URL without page parameter - page ID is sent in header

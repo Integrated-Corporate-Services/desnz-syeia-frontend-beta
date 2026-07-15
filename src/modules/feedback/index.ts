@@ -1,9 +1,6 @@
 export { default as FeedbackPage } from './pages/FeedbackPage';
 
 export { useFeedbackForm } from './hooks/useFeedbackForm';
-export { useFeedbackSurveyUrl } from './hooks/useFeedbackSurveyUrl';
-
-export { validateFeedbackUrl } from './utils/url-validation.util';
 
 export { default as RadioGroup } from '../../components/commonFormFields/RadioGroup';
 

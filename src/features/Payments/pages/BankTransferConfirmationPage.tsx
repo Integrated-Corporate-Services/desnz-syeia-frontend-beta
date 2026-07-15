@@ -3,7 +3,6 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { buildBackendUrl } from '../../../utils/apiConfig';
-import { getCsrfHeaders } from '../../../utils/csrf';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
@@ -160,10 +159,7 @@ const BankTransferConfirmationPage: React.FC = () => {
 
       const response = await fetch(buildBackendUrl(`/backend/api/application/${applicationId}/save-with-bank-transfer`), {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          ...getCsrfHeaders(),
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ ...payload, action: 'create' }),
       });

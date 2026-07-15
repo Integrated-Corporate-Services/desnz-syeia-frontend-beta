@@ -1,6 +1,5 @@
 import { WorksOverviewRequest } from '../types/works';
 import { buildBackendUrl } from '../utils/apiConfig';
-import { getCsrfHeaders } from '../utils/csrf';
 
 // Fetch WorksOverview by applicationId
 export async function getWorksOverview(applicationId: string) {
@@ -24,7 +23,6 @@ export async function createWorksOverview(payload: WorksOverviewRequest) {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...getCsrfHeaders(),
     },
     body: JSON.stringify(payload),
   });
@@ -42,7 +40,6 @@ export async function updateWorksOverview(applicationId: string, payload: WorksO
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...getCsrfHeaders(),
     },
     body: JSON.stringify(payload),
   });

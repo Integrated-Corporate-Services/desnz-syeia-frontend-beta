@@ -32,7 +32,6 @@ export default function FeedbackPage() {
     submitted,
     submitting,
     serverError,
-    urlWarning,
     handleChange,
     handleSubmit,
   } = useFeedbackForm(sourceMetadata);
@@ -224,60 +223,6 @@ export default function FeedbackPage() {
                   aria-live="polite"
                 >
                   {CONTENT.charactersRemaining(IMPROVEMENTS_MAX_LENGTH - values.improvements.length)}
-                </div>
-              )}
-              
-              {/* URL Warning (SECURITY: MEDIUM #10) */}
-              {urlWarning && (
-                <div
-                  className={`govuk-notification-banner${
-                    urlWarning.type === 'error' 
-                      ? ' govuk-notification-banner--error' 
-                      : urlWarning.type === 'warning' 
-                      ? ' govuk-notification-banner--warning' 
-                      : ''
-                  }`}
-                  role={urlWarning.type === 'error' ? 'alert' : 'region'}
-                  aria-labelledby="url-warning-title"
-                  style={{
-                    marginTop: '1rem',
-                    backgroundColor: 
-                      urlWarning.type === 'error' 
-                        ? '#d4351c' 
-                        : urlWarning.type === 'warning' 
-                        ? '#f47738' 
-                        : '#1d70b8',
-                    border: `3px solid ${
-                      urlWarning.type === 'error' 
-                        ? '#d4351c' 
-                        : urlWarning.type === 'warning' 
-                        ? '#f47738' 
-                        : '#1d70b8'
-                    }`,
-                    padding: '1rem'
-                  }}
-                >
-                  <div className="govuk-notification-banner__header" style={{ backgroundColor: 'transparent', padding: 0 }}>
-                    <h2 
-                      className="govuk-notification-banner__title" 
-                      id="url-warning-title"
-                      style={{ color: 'white', fontSize: '1.125rem', fontWeight: 700 }}
-                    >
-                      {urlWarning.type === 'error' ? '⛔ ' : urlWarning.type === 'warning' ? '⚠️ ' : 'ℹ️ '}
-                      {urlWarning.type === 'error' ? 'URL Not Allowed' : urlWarning.type === 'warning' ? 'URL Warning' : 'URL Detected'}
-                    </h2>
-                  </div>
-                  <div className="govuk-notification-banner__content" style={{ padding: '0.5rem 0 0 0' }}>
-                    <p className="govuk-body" style={{ color: 'white', margin: 0 }}>
-                      {urlWarning.message}
-                    </p>
-                    {urlWarning.type === 'error' && (
-                      <p className="govuk-body govuk-!-margin-top-2" style={{ color: 'white', fontSize: '0.9rem' }}>
-                        <strong>For security reasons:</strong> Only HTTPS URLs from trusted domains are accepted. 
-                        Please remove localhost, internal IPs, or suspicious links.
-                      </p>
-                    )}
-                  </div>
                 </div>
               )}
             </div>

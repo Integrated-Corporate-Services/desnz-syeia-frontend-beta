@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { buildBackendUrl } from '../../../utils/apiConfig';
-import { getCsrfHeaders } from '../../../utils/csrf';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
@@ -195,7 +194,6 @@ const InvoiceGenerationPage: React.FC = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...getCsrfHeaders(),
           },
           signal: controller.signal,
           body: JSON.stringify(invoiceData),

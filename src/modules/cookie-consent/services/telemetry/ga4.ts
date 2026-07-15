@@ -1,8 +1,4 @@
 import { getTelemetryConfig, getCurrentEnvironment } from './config';
-import { createLogger } from '../../../../utils/logger';
-import { addSRIToScript } from '../../../../utils/sriHelper';
-
-const logger = createLogger('GA4');
 
 // HOTFIX: Lazy config loading - evaluates at runtime instead of build time
 let _config: ReturnType<typeof getTelemetryConfig> | null = null;
@@ -20,28 +16,22 @@ export function initGa4(): void {
   const DEBUG_MODE = config.debugMode;
 
   if (!ENABLED || !MEASUREMENT_ID) {
-    logger.warn('Not initialized:', { ENABLED, MEASUREMENT_ID });
+    console.warn('[GA4] Not initialized:', { ENABLED, MEASUREMENT_ID });
     return;
   }
 
   if (document.getElementById('ga4-script')) {
-    logger.debug('Already initialized');
+    console.log('[GA4] Already initialized');
     return;
   }
 
-  logger.debug('Initializing with ID:', MEASUREMENT_ID);
-  logger.debug('Detected Environment:', getCurrentEnvironment());
+  console.log('[GA4] Initializing with ID:', MEASUREMENT_ID);
+  console.log('[GA4] Detected Environment:', getCurrentEnvironment());
 
-  const scriptUrl = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
   const script = document.createElement('script');
   script.id = 'ga4-script';
   script.async = true;
-  script.src = scriptUrl;
-  
-  // SECURITY: Add Subresource Integrity (SRI) attributes
-  // Protects against CDN compromise attacks (MEDIUM #4)
-  addSRIToScript(script, scriptUrl);
-  
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
   document.head.appendChild(script);
 
   const win = window as unknown as { dataLayer: IArguments[]; gtag: (...args: unknown[]) => void };

@@ -6,9 +6,6 @@
   */
 
 import { readCookie } from '../modules/cookie-consent/utils';
-import { createLogger } from './logger';
-
-const logger = createLogger('gtm');
 
 declare global {
   interface Window {
@@ -20,19 +17,23 @@ declare global {
 
 const isCookieConsentAccepted = (): boolean => {
   const raw = readCookie('consent_preference');
-  logger.debug('Reading consent preference cookie', { hasCookie: !!raw });
+  console.log('[GTM] Reading consent_preference cookie:', raw);
   
   if (!raw) {
+    console.log('[GTM] No consent cookie found');
     return false;
   }
   
   try {
     const parsed = JSON.parse(decodeURIComponent(raw)) as Record<string, unknown>;
+    console.log('[GTM] Parsed consent data:', parsed);
+    
     const analyticsAccepted = parsed.analytics === 'accepted';
-    logger.debug('Consent status', { analyticsAccepted });
+    console.log('[GTM] Analytics consent status:', analyticsAccepted);
+    
     return analyticsAccepted;
   } catch (error) {
-    logger.error('Error parsing consent cookie', error);
+    console.error('[GTM] Error parsing consent cookie:', error);
     return false;
   }
 };
@@ -54,9 +55,10 @@ const ensureDataLayer = (): void => {
  */
 export const pushDataLayer = (event: string, data?: Record<string, unknown>): void => {
   const consentAccepted = isCookieConsentAccepted();
-  logger.debug('Pushing to dataLayer', { event, consentAccepted });
+  console.log('[GTM] pushDataLayer called - Consent accepted:', consentAccepted, 'Event:', event);
   
   if (!consentAccepted) {
+    console.log('[GTM] Analytics not accepted, skipping dataLayer push');
     return;
   }
 

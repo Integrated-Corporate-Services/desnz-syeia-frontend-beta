@@ -1638,7 +1638,7 @@ const CheckYourAnswers: React.FC = () => {
                                               try {
                                                 await downloadS3FileOnSameTab(key);
                                               } catch (error) {
-                                                logger.error('Failed to download file:', error);
+                                                console.error('Failed to download file:', error);
                                               }
                                             }}
                                           >
@@ -1682,7 +1682,7 @@ const CheckYourAnswers: React.FC = () => {
                                             try {
                                               await downloadS3FileOnSameTab(key);
                                             } catch (error) {
-                                              logger.error('Failed to download file:', error);
+                                              console.error('Failed to download file:', error);
                                             }
                                           }}
                                         >
