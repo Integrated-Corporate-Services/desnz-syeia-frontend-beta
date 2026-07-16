@@ -935,7 +935,7 @@ const CheckYourAnswers: React.FC = () => {
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Route map
                   <a
-                    href={`/frontend${S37_BASE_URL}/${applicationId}/route-map-only`}
+                    href={`${S37_BASE_URL}/${applicationId}/route-map-only`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="govuk-link"

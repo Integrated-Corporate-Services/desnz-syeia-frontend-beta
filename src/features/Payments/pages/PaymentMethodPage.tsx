@@ -111,7 +111,7 @@ const handlePayByCard = async () => {
       amountInPence,
       applicationId, // reference
       `Section 37 Application Payment - ${applicationId}`, // description
-      `${window.location.origin}/frontend/payment/callback`, // return_url
+      `${window.location.origin}/payment/callback`, // return_url
       { // metadata
         applicationId,
         invoiceNumber,

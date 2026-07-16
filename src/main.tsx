@@ -8,6 +8,7 @@ import React from "react";
 import axios from "axios";
 import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 import { createLogger } from "./utils/logger";
+import { buildBackendUrl } from "./utils/apiConfig";
 
 const logger = createLogger('axios-interceptor');
 
@@ -15,6 +16,14 @@ const logger = createLogger('axios-interceptor');
 // Use empty string for relative paths (same-origin requests)
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.API_URL || "";
+
+axios.interceptors.request.use((config) => {
+  if (typeof config.url === 'string' && config.url.startsWith('/backend')) {
+    config.url = buildBackendUrl(config.url);
+  }
+
+  return config;
+});
 
 // Add axios interceptor to handle session expiration globally
 axios.interceptors.response.use(

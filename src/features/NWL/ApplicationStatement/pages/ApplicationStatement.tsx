@@ -127,7 +127,7 @@ const ApplicationStatement: React.FC = () => {
 						</div>
 						{/* Call to action buttons */}
 						<div className="govuk-!-static-margin-top-6">
-							<a href={`/frontend${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2">Save for later</a>
+							<a href={`${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2">Save for later</a>
 							<button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
 						</div>
 					</form>

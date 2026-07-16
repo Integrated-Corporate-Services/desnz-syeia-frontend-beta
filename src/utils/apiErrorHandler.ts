@@ -3,7 +3,8 @@
  * Handles common HTTP errors, especially session timeout (401)
  */
 
-import { createLogger } from './logger';import { buildBackendUrl } from './apiConfig';
+import { createLogger } from './logger';
+import { buildBackendUrl } from './apiConfig';
 const logger = createLogger('ApiErrorHandler');
 
 export interface ApiError extends Error {
@@ -135,8 +136,7 @@ export async function apiFetch<T = unknown>(
  */
 export async function checkSessionValidity(): Promise<boolean> {
   try {
-    const baseUrl = buildBackendUrl('');
-    const response = await fetch(`${baseUrl}/backend/auth/user`, {
+    const response = await fetch(buildBackendUrl('/auth/user'), {
       credentials: 'include',
       method: 'GET',
     });

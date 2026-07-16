@@ -6,6 +6,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createPayment } from '../../../services/govPayService';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentFailurePage');
@@ -74,7 +75,7 @@ const PaymentFailurePage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/backend/api/invoice/${applicationId}/calculate-fees`, {
+      const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +118,7 @@ const PaymentFailurePage: React.FC = () => {
         amountInPence,
         applicationId,
         `Section 37 Application Payment - ${applicationId}`,
-        `${window.location.origin}/frontend/payment/callback`,
+        `${window.location.origin}/payment/callback`,
         {
           applicationId,
           invoiceNumber,
