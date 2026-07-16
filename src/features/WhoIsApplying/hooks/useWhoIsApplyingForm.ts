@@ -34,7 +34,7 @@ export const useWhoIsApplyingForm = () => {
       const newAppData = {
         type: "S37",
         operator_ref: "",
-        status: "Draft",
+        status: "DRAFT",
         created_by: (user as AuthUser)?.user_id || "",
       };
       app = await createNewApplication(newAppData);

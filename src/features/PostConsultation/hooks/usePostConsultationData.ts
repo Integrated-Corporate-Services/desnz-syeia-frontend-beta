@@ -5,6 +5,9 @@ import { ConsultationOutcomeFormData, SaveType } from '../types';
 import { mapApiToFormData, mapFormDataToApi } from '../utils/mappers';
 import { POST_CONSULTATION_CONSTANTS } from '../constants';
 import { useProgress } from '../../../hooks/useProgress';
+import { createLogger } from '../../../utils/logger';
+
+const logger = createLogger('PostConsultationData');
 
 export const usePostConsultationData = (applicationId: string | undefined) => {
     const { fetchProgress } = useProgress();
@@ -46,7 +49,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
                 if (formData.consulteesExplanation) setConsulteesExplanation(formData.consulteesExplanation);
             } catch (err) {
                 const error = err as AxiosError<{ error?: string }>;
-                console.error('Error loading consultation outcome:', error);
+                logger.error('Error loading consultation outcome:', error);
                 setError(POST_CONSULTATION_CONSTANTS.ERROR_LOAD_FAILED);
             } finally {
                 setLoading(false);
@@ -148,7 +151,7 @@ export const usePostConsultationData = (applicationId: string | undefined) => {
             return true;
         } catch (err) {
             const error = err as AxiosError<{ error?: string }>;
-            console.error('Error saving consultation outcome:', error);
+            logger.error('Error saving consultation outcome:', error);
             const errorMessage = error.response?.data?.error || POST_CONSULTATION_CONSTANTS.ERROR_SAVE_FAILED;
             setError(errorMessage);
             return false;

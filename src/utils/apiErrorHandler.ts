@@ -7,6 +7,11 @@ import { createLogger } from './logger';
 import { buildBackendUrl } from './apiConfig';
 const logger = createLogger('ApiErrorHandler');
 
+function redirectToSignedOut(reason: string): void {
+  const target = `/signed-out?reason=${encodeURIComponent(reason)}`;
+  window.location.href = target;
+}
+
 export interface ApiError extends Error {
   status?: number;
   code?: string;
@@ -53,13 +58,17 @@ export async function handleApiError(response: Response): Promise<never> {
       url: response.url,
     });
 
-    // Check if it's a session timeout
-    if (errorData.code === 'SESSION_TIMEOUT') {
-      logger.info('Session timeout detected, redirecting to landing page');
-      // Redirect to landing page (homepage)
-      window.location.href = '/landingPage';
+    const reason = errorData.code;
+    if (
+      reason === 'SESSION_TIMEOUT' ||
+      reason === 'SESSION_ABSOLUTE_TIMEOUT' ||
+      reason === 'SESSION_EVICTED' ||
+      reason === 'SESSION_GLOBAL_LOGOUT' ||
+      reason === 'SESSION_BACKCHANNEL_LOGOUT'
+    ) {
+      logger.info('Session termination detected, redirecting to signed-out page', { reason });
+      redirectToSignedOut(reason);
     } else {
-      // Generic unauthorized - could be invalid credentials
       logger.info('Unauthorized access, redirecting to landing page');
       window.location.href = '/landingPage';
     }

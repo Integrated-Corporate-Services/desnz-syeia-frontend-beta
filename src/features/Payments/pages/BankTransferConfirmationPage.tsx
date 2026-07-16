@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../utils/csrf';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
@@ -18,6 +19,7 @@ const BankTransferConfirmationPage: React.FC = () => {
   const { user } = useAuthUser();
   const [transactionNumber, setTransactionNumber] = useState('');
   const [error, setError] = useState('');
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
@@ -25,6 +27,19 @@ const BankTransferConfirmationPage: React.FC = () => {
   
   const fileUploadRef = useRef<FileUploadHandle>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+
+  const handleFileValidationErrors = (errors: string[]) => {
+    setFileValidationErrors(errors);
+    if (errors.length > 0) {
+      setTimeout(() => {
+        const errorSummary = document.querySelector('.govuk-error-summary');
+        if (errorSummary) {
+          (errorSummary as HTMLElement).focus?.();
+          errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 0);
+    }
+  };
 
   const { invoiceNumber, totalAmount } = location.state || {};
   
@@ -145,7 +160,10 @@ const BankTransferConfirmationPage: React.FC = () => {
 
       const response = await fetch(buildBackendUrl(`/backend/api/application/${applicationId}/save-with-bank-transfer`), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getCsrfHeaders(),
+        },
         credentials: 'include',
         body: JSON.stringify({ ...payload, action: 'create' }),
       });
@@ -206,15 +224,30 @@ const BankTransferConfirmationPage: React.FC = () => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {error && (
-              <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
+            {(error || fileValidationErrors.length > 0) && (
+              <div
+                className="govuk-error-summary"
+                role="alert"
+                aria-labelledby="error-summary-title"
+                tabIndex={-1}
+                data-module="govuk-error-summary"
+              >
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">
-                      <ul className="govuk-list govuk-error-summary__list">
-                        <li>{error}</li>
-                      </ul>
+                  <ul className="govuk-list govuk-error-summary__list">
+                    {error && (
+                      <li>
+                        <a href="#transaction-number">{error}</a>
+                      </li>
+                    )}
+                    {fileValidationErrors.map((validationError, index) => (
+                      <li key={`file-validation-${index}`}>
+                        <a href="#file-upload-section">{validationError}</a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             )}
@@ -227,12 +260,12 @@ const BankTransferConfirmationPage: React.FC = () => {
 
             <p className="govuk-body">Here are some examples of acceptable proof of payment:</p>
 
-            <ul className="govuk-list govuk-!-margin-bottom-4">
+            <ul className="govuk-list govuk-list--bullet govuk-!-margin-bottom-4">
               <li><strong>Transaction number</strong> - this is usually found within the details of the bank transfer</li>
               <li><strong>Document showing the bank transfer</strong> - this could be a remittance advice note or transfer receipt showing all the details of the transaction</li>
             </ul>
 
-            <div className={`govuk-form-group`}>
+            <div className="govuk-form-group">
               <label className="govuk-label govuk-label--m" htmlFor="transaction-number">
                 Transaction number (optional)
               </label>
@@ -249,9 +282,20 @@ const BankTransferConfirmationPage: React.FC = () => {
               />
             </div>
 
-            <div className="govuk-form-group govuk-!-margin-top-4">
-              <label className="govuk-label govuk-label--s" htmlFor="proof-file">Upload a document showing full details of the bank transfer (optional)</label>
-              <p className="govuk-hint">You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.</p>
+            <div
+              id="file-upload-section"
+              className={`govuk-form-group govuk-!-margin-top-4${
+                fileValidationErrors.length > 0 ? ' govuk-form-group--error' : ''
+              }`}
+            >
+              <label className="govuk-label govuk-label--s" htmlFor="file-upload-input">
+                Upload a document showing full details of the bank transfer (optional)
+              </label>
+              {fileValidationErrors.map((validationError, index) => (
+                <p key={`inline-file-error-${index}`} className="govuk-error-message" id={`file-upload-error-${index}`}>
+                  <span className="govuk-visually-hidden">Error:</span> {validationError}
+                </p>
+              ))}
               <FileUpload
                 ref={fileUploadRef}
                 showTitle={false}
@@ -262,12 +306,14 @@ const BankTransferConfirmationPage: React.FC = () => {
                 uploadedFiles={uploadedFiles}
                 applicationDocuments={applicationDocuments}
                 onPendingFilesChange={setPendingFiles}
-                onValidationErrors={() => {}}
+                onValidationErrors={handleFileValidationErrors}
                 onUploaded={(newUploadedFiles, newDocs) => {
+                  setFileValidationErrors([]);
                   setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
                   setApplicationDocuments(prev => [...prev, ...newDocs]);
                 }}
                 onDeleteFile={(fileId) => {
+                  setFileValidationErrors([]);
                   setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                   setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                 }}

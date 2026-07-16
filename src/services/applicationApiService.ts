@@ -1,5 +1,9 @@
 import { generateCorrelationId } from "../utils/correlationId";
 import { buildBackendUrl } from "../utils/apiConfig";
+import { fetchCsrfToken, getCsrfHeaders } from "../utils/csrf";
+import { createLogger } from "../utils/logger";
+
+const logger = createLogger('application-api');
 
 export const applicationApiService = {
   // Fetch applications for a user
@@ -19,10 +23,17 @@ export const applicationApiService = {
 
   // Create a new application
   createApplication: async (applicationData: any, correlationId?: string) => {
+    await fetchCsrfToken();
+    
+    const csrfHeaders = getCsrfHeaders();
+    logger.debug('Creating application', { hasToken: !!csrfHeaders['X-CSRF-Token'] });
+    
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
+      ...csrfHeaders,
     };
+    
     const response = await fetch(buildBackendUrl("/backend/api/applications"), {
       method: "POST",
       headers,
@@ -47,6 +58,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
+      ...getCsrfHeaders(),
     };
     const response = await fetch(
       buildBackendUrl("/backend/api/applications/network-operators"),
@@ -64,6 +76,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
+      ...getCsrfHeaders(),
     };
     const res = await fetch(
       buildBackendUrl(`/backend/api/applications/${applicationId}/submit`),
@@ -88,6 +101,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": generateCorrelationId(),
+      ...getCsrfHeaders(),
     };
     const response = await fetch(
       buildBackendUrl(`/backend/api/applications/${applicationId}/applicant-info`),
@@ -114,6 +128,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": generateCorrelationId(),
+      ...getCsrfHeaders(),
     };
     const response = await fetch(
       buildBackendUrl(`/backend/api/applications/${applicationId}/organisation`),
@@ -138,6 +153,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": generateCorrelationId(),
+      ...getCsrfHeaders(),
     };
     const response = await fetch(
       buildBackendUrl(`/backend/api/applications/${applicationId}/contact-confirmation`),
@@ -163,6 +179,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": generateCorrelationId(),
+      ...getCsrfHeaders(),
     };
     const response = await fetch(
       buildBackendUrl(`/backend/api/applications/${applicationId}/declaration`),
@@ -203,6 +220,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
+      ...getCsrfHeaders(),
     };
     const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}`), {
       method: "DELETE",

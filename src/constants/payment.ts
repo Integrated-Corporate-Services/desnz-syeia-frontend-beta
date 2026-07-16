@@ -163,6 +163,20 @@ export function formatCurrency(amount: number): string {
 }
 
 /**
+ * GOV.UK Pay payment description for card payments.
+ * Must reflect the application type (S37 vs NWL).
+ */
+export function getCardPaymentDescription(
+  applicationId: string,
+  isNwl: boolean
+): string {
+  const applicationLabel = isNwl
+    ? 'Necessary Wayleave Application Payment'
+    : 'Section 37 Application Payment';
+  return `${applicationLabel} - ${applicationId}`;
+}
+
+/**
  * Validate transaction number format
  */
 export function isValidTransactionNumber(value: string): boolean {

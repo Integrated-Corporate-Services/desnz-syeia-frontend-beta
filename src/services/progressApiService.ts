@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 export const progressApiService = {
 
@@ -21,7 +22,10 @@ export const progressApiService = {
   ) => {
   const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getCsrfHeaders(),
+      },
       credentials: 'include',
       body: JSON.stringify({ subsection_name, status, application_type }),
     });

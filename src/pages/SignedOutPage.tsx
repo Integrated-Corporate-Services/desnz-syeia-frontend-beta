@@ -2,6 +2,19 @@ import React from 'react';
 import { buildBackendUrl } from '../utils/apiConfig';
 
 const SignedOutPage: React.FC = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const reason = searchParams.get('reason');
+
+  const reasonMessageMap: Record<string, string> = {
+    SESSION_TIMEOUT: 'For your security, we signed you out because you were inactive for 30 minutes.',
+    SESSION_ABSOLUTE_TIMEOUT: 'For your security, we signed you out because your session reached the maximum duration.',
+    SESSION_EVICTED: 'You were signed out because you signed in on another device.',
+    SESSION_GLOBAL_LOGOUT: 'You have been signed out from all devices.',
+    SESSION_BACKCHANNEL_LOGOUT: 'Your GOV.UK One Login session ended, so you have been signed out.',
+  };
+
+  const reasonMessage = reason ? reasonMessageMap[reason] : undefined;
+
   const handleSignIn = () => {
     window.location.href = buildBackendUrl('/auth/login');
   };
@@ -14,7 +27,7 @@ const SignedOutPage: React.FC = () => {
             <h1 className="govuk-heading-xl">You have been signed out</h1>
             
             <p className="govuk-body-l">
-              For your security, we signed you out because you were inactive for 30 minutes.
+              {reasonMessage || 'For your security, we signed you out because you were inactive for 30 minutes.'}
             </p>
             
             <p className="govuk-body">

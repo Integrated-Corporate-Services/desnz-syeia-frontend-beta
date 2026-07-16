@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
-import { PAYMENT_PAGE_TITLES } from '../../../constants/payment';
+import { PAYMENT_PAGE_TITLES, PAYMENT_INFO_MESSAGES } from '../../../constants/payment';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import SkipLink from '../../../components/SkipLink';
 
@@ -75,10 +75,12 @@ const BankTransferPaymentPage: React.FC = () => {
           </div>
         )}
 
-        <h1 className="govuk-heading-xl">{PAYMENT_PAGE_TITLES.BANK_TRANSFER_PAYMENT}</h1>
+            <h1 className="govuk-heading-xl">{PAYMENT_PAGE_TITLES.BANK_TRANSFER_PAYMENT}</h1>
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+
+            <p className="govuk-body">{PAYMENT_INFO_MESSAGES.BANK_TRANSFER_INFO}</p>
 
             <p className="govuk-body">You must make your payment using these banking details:</p>
 

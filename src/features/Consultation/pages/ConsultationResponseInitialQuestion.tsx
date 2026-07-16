@@ -23,11 +23,9 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
       return;
     }
     if (responseReceived === 'yes') {
-      // Navigate to the consultation response form
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response?consultationName=${encodeURIComponent(consultationName)}`);
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response`);
     } else {
-      // Navigate to evidence response not received page when 'No' is selected
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/evidence-response-not-received?consultationName=${encodeURIComponent(consultationName)}`);
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/evidence-response-not-received`);
     }
   };
 
