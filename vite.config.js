@@ -48,7 +48,15 @@ export default defineConfig(({ mode }) => {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
-                '/cookies': {
+                '/cookies/preferences': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/withdraw': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/catalog': {
                     target: env.API_URL,
                     changeOrigin: true,
                 },

@@ -5,6 +5,7 @@ import type {
   UpdateConsentBody,
   WithdrawResponse,
 } from '../types';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -15,7 +16,7 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {
   const token = getCsrfToken();
-  const res = await fetch(path, {
+  const res = await fetch(buildBackendUrl(path), {
     credentials: 'include',
     ...init,
     headers: {
