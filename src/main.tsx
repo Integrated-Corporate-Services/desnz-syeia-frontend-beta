@@ -31,7 +31,11 @@ axios.interceptors.request.use(
     }
     
     if (csrfToken && ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
-      config.headers['X-CSRF-Token'] = csrfToken;
+      if (typeof config.headers.set === 'function') {
+        config.headers.set('x-csrf-token', csrfToken);
+      } else {
+        config.headers['x-csrf-token'] = csrfToken;
+      }
       logger.debug('CSRF token added to request', { 
         method: config.method, 
         url: config.url,
