@@ -1,11 +1,12 @@
 import { configService } from '../config/appConfig';
 
 export const getApiBaseUrl = (): string => {
-  return import.meta.env.API_URL || configService.getApiBaseUrl() || '';
+  return import.meta.env.VITE_API_URL || configService.getApiBaseUrl() || '';
 };
 
 export const buildBackendUrl = (path: string): string => {
   const baseUrl = getApiBaseUrl();
+  console.log('Building backend URL:', { baseUrl, path });
   return `${baseUrl}${path}`;
 };
 

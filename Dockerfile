@@ -6,6 +6,7 @@ FROM public.ecr.aws/docker/library/node:18 AS builder
 WORKDIR /app
 
 # Accept build arguments (only what Vite needs at build time)
+ARG VITE_API_URL=""
 ARG VITE_ENABLE_GA4=true
 ARG VITE_GA4_MEASUREMENT_ID=""
 ARG GTM_ID=""
@@ -42,6 +43,7 @@ ARG TRUSTED_ORIGIN=""
 ARG MODE=production
 
 # Set env variables for Vite build
+ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_ENABLE_GA4=$VITE_ENABLE_GA4
 ENV VITE_GA4_MEASUREMENT_ID=$VITE_GA4_MEASUREMENT_ID
 ENV VITE_GTM_ID=$GTM_ID
@@ -73,6 +75,7 @@ ENV MODE=$MODE
 RUN echo "========================================" && \
     echo "Environment Variables for Vite Build:" && \
     echo "========================================" && \
+    echo "VITE_API_URL: $VITE_API_URL" && \
     echo "VITE_GTM_ID: $VITE_GTM_ID (from GTM_ID: $GTM_ID)" && \
     echo "VITE_ENABLE_GTM: $VITE_ENABLE_GTM (from GTM_ISENABLED: $GTM_ISENABLED)" && \
     echo "VITE_GA4_MEASUREMENT_ID: $VITE_GA4_MEASUREMENT_ID" && \
