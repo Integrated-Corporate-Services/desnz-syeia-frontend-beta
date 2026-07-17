@@ -28,6 +28,7 @@ export interface SummaryRow {
     value: {
         text?: string;
         html?: string;
+        reactElement?: React.ReactNode;
         documents?: DocumentLink[];
         classes?: string;
     };
