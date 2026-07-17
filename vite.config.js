@@ -59,10 +59,6 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             open: true,
             proxy: {
-                '/backend/csrf-token': {
-                    target: env.API_URL,
-                    changeOrigin: true,
-                },
                 '/csrf-token': {
                     target: env.API_URL,
                     changeOrigin: true,
@@ -71,23 +67,11 @@ export default defineConfig(({ mode }) => {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
-                '/backend/invites': {
-                    target: env.API_URL,
-                    changeOrigin: true,
-                },
                 '/api': {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
-                '/backend/api': {
-                    target: env.API_URL,
-                    changeOrigin: true,
-                },
                 '/auth': {
-                    target: env.API_URL,
-                    changeOrigin: true,
-                },
-                '/backend/auth': {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
@@ -100,10 +84,6 @@ export default defineConfig(({ mode }) => {
                     changeOrigin: true,
                 },
                 '/cookies/catalog': {
-                    target: env.API_URL,
-                    changeOrigin: true,
-                },
-                '/backend/cookies': {
                     target: env.API_URL,
                     changeOrigin: true,
                 },

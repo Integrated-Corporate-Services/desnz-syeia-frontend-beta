@@ -12,15 +12,11 @@ import { apiFetch } from './apiErrorHandler';
 import { buildBackendUrl } from './apiConfig';
 import { getCsrfHeaders } from './csrf';
 
-export const API_BASE = buildBackendUrl('/backend/api');
+export const API_BASE = buildBackendUrl('/api');
 
 const resolveApiUrl = (path: string): string => {
   if (/^https?:\/\//.test(path)) {
     return path;
-  }
-
-  if (path.startsWith('/backend')) {
-    return buildBackendUrl(path);
   }
 
   return `${API_BASE}${path}`;

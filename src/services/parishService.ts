@@ -18,7 +18,7 @@ export const parishService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      buildBackendUrl(`/backend/api/applications/${applicationId}/parishes/lpas`),
+      buildBackendUrl(`/api/applications/${applicationId}/parishes/lpas`),
       {
         credentials: "include",
         headers,
@@ -44,7 +44,7 @@ export const parishService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      buildBackendUrl(`/backend/api/applications/${applicationId}/parishes`),
+      buildBackendUrl(`/api/applications/${applicationId}/parishes`),
       {
         method: "POST",
         headers,
@@ -69,7 +69,7 @@ export const parishService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      buildBackendUrl(`/backend/api/applications/${applicationId}/parishes`),
+      buildBackendUrl(`/api/applications/${applicationId}/parishes`),
       {
         credentials: "include",
         headers,

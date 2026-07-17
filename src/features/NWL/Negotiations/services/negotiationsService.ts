@@ -5,7 +5,7 @@ import { getCsrfHeaders } from '../../../../utils/csrf';
 const logger = createLogger('negotiationsService');
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 
-const API_BASE = buildBackendUrl('/backend/api/nwl');
+const API_BASE = buildBackendUrl('/api/nwl');
 
 // Re-export Page IDs for convenience
 export { NEGOTIATIONS_PAGE_IDS } from '../constants/pageNames';

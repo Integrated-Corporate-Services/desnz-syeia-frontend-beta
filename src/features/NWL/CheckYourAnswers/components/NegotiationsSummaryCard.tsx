@@ -44,7 +44,7 @@ const getEvidenceDocuments = (data: NegotiationsData): DocumentLink[] => {
     .map((doc: any) => {
       const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
       const filename = doc.filename;
-      const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+      const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
       return { fileKey, filename, downloadUrl };
     });
 };

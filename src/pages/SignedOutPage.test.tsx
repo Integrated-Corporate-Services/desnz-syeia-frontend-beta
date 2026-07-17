@@ -5,7 +5,7 @@ import SignedOutPage from './SignedOutPage';
 
 describe('SignedOutPage', () => {
   beforeEach(() => {
-    window.history.pushState({}, '', '/frontend/signed-out');
+    window.history.pushState({}, '', '/signed-out');
   });
 
   it('renders default inactivity message when no reason is provided', () => {
@@ -17,7 +17,7 @@ describe('SignedOutPage', () => {
   });
 
   it('renders device-evicted message for SESSION_EVICTED', () => {
-    window.history.pushState({}, '', '/frontend/signed-out?reason=SESSION_EVICTED');
+    window.history.pushState({}, '', '/signed-out?reason=SESSION_EVICTED');
 
     render(<SignedOutPage />);
 
@@ -27,7 +27,7 @@ describe('SignedOutPage', () => {
   });
 
   it('renders max-duration message for SESSION_ABSOLUTE_TIMEOUT', () => {
-    window.history.pushState({}, '', '/frontend/signed-out?reason=SESSION_ABSOLUTE_TIMEOUT');
+    window.history.pushState({}, '', '/signed-out?reason=SESSION_ABSOLUTE_TIMEOUT');
 
     render(<SignedOutPage />);
 

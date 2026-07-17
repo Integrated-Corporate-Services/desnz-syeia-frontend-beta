@@ -45,7 +45,7 @@ export const LandRegistrySummaryCard: React.FC<Props> = ({ data, applicationId, 
         if (data.land_registry_reference_document) {
             const doc = data.land_registry_reference_document;
             const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
             rows.push({
                 key: { text: CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC },
                 value: {

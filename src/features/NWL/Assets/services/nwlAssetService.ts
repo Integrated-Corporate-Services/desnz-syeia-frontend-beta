@@ -10,7 +10,7 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 const logger = createLogger('nwlAssetService');
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 
-const API_BASE = buildBackendUrl('/backend/api/nwl');
+const API_BASE = buildBackendUrl('/api/nwl');
 
 // Re-export Page IDs for convenience
 export { ASSETS_PAGE_IDS } from '../constants/pageNames';

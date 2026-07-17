@@ -40,7 +40,7 @@ export const useGetAccessRequest = (email: string | undefined) => {
 
       try {
         const response = await axios.get<AccessRequestData>(
-          `/backend/api/access-requests/by-email`,
+          `/api/access-requests/by-email`,
           {
             params: { email },
           }

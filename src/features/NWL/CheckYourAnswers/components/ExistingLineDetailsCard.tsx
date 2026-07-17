@@ -44,7 +44,7 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         const docs = data.implied_wayleave_documents;
         const docLinks = docs.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
             return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');
         groundsRows.push({
@@ -66,7 +66,7 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
         const docs = data.wayleave_expiry_documents;
         const docLinks = docs.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
             return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');
         groundsRows.push({
@@ -87,7 +87,7 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
     if (data.notice_to_terminate_documents && data.notice_to_terminate_documents.length > 0) {
         const docLinks = data.notice_to_terminate_documents.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
             return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');
         groundsRows.push({
@@ -106,7 +106,7 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
     if (data.notice_to_remove_documents && data.notice_to_remove_documents.length > 0) {
         const docLinks = data.notice_to_remove_documents.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
             return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');
         groundsRows.push({

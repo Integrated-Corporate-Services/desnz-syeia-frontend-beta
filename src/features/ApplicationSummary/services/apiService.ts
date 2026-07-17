@@ -66,7 +66,7 @@ const mapReviewResponse = (
 export const fetchApplicationReviewSummary = async (
     applicationId: string
 ): Promise<ApplicationReviewSummaryData> => {
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/review`), {
         credentials: 'include',
     });
 
@@ -102,7 +102,7 @@ export const fetchApplicationSummary = async (
     }
 
     const typeParam = applicationType.toLowerCase();
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/${typeParam}-summary`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/${typeParam}-summary`), {
         credentials: 'include',
     });
 

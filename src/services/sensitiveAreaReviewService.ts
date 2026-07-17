@@ -2,12 +2,12 @@ import axios from 'axios';
 import { SensitiveAreaReview } from '../types/sensitiveAreaReviewTypes';
 
 export async function getSensitiveAreaReview(applicationId: string): Promise<SensitiveAreaReview[]> {
-  const res = await axios.get(`/backend/api/get-sensitivereview?application_id=${applicationId}`);
+  const res = await axios.get(`/api/get-sensitivereview?application_id=${applicationId}`);
   return res.data;
 }
 
 export async function saveSensitiveAreaReview(review: SensitiveAreaReview): Promise<SensitiveAreaReview> {
-  const res = await axios.post('/backend/api/save-sensitivereview', review);
+  const res = await axios.post('/api/save-sensitivereview', review);
   return res.data;
 }
 
@@ -49,7 +49,7 @@ export interface AllSensitiveAreasResponse {
  * Used by AddOtherAreasPage to display both automated and manual areas
  */
 export async function getAllSensitiveAreas(applicationId: string): Promise<AllSensitiveAreasResponse> {
-  const res = await axios.get(`/backend/api/${applicationId}/sensitive-area-review-summary/manual`);
+  const res = await axios.get(`/api/${applicationId}/sensitive-area-review-summary/manual`);
   return res.data;
 }
 
@@ -61,7 +61,7 @@ export async function getAllSensitiveAreas(applicationId: string): Promise<AllSe
  */
 export async function addManualArea(applicationId: string, manualAreaName: string): Promise<{ success: boolean; message: string; area: ManuallyAddedArea }> {
   const payload = { manualAreaName };
-  const res = await axios.post(`/backend/api/${applicationId}/sensitive-area-review-summary/manual`, payload);
+  const res = await axios.post(`/api/${applicationId}/sensitive-area-review-summary/manual`, payload);
   return res.data;
 }
 
@@ -72,6 +72,6 @@ export async function addManualArea(applicationId: string, manualAreaName: strin
  * @returns Success response
  */
 export async function removeManualArea(applicationId: string, areaId: string): Promise<{ success: boolean; message: string; removedAreaId: string }> {
-  const res = await axios.delete(`/backend/api/${applicationId}/sensitive-area-review-summary/manual/${areaId}`);
+  const res = await axios.delete(`/api/${applicationId}/sensitive-area-review-summary/manual/${areaId}`);
   return res.data;
 }

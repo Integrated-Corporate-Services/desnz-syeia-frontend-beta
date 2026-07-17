@@ -15,7 +15,7 @@ export const networkOperatorApiService = {
    * @throws {Error} If API call fails or user is not authenticated
    */
   getNetworkOperators: async () => {
-    const response = await fetch(buildBackendUrl("/backend/api/network-operators"), {
+    const response = await fetch(buildBackendUrl("/api/network-operators"), {
       method: "GET",
       credentials: "include", // Include session cookie
       headers: {
@@ -41,7 +41,7 @@ export const networkOperatorApiService = {
    * @param {string} emailId - Email address to search by domain
    */
   getNetworkOperatorByEmail: async (emailId: string) => {
-    const response = await fetch(buildBackendUrl(`/backend/api/network-operators/${emailId}`), {
+    const response = await fetch(buildBackendUrl(`/api/network-operators/${emailId}`), {
       credentials: 'include'
     });
     if (!response.ok)

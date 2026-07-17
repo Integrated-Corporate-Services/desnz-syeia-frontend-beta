@@ -1,7 +1,7 @@
 import { nwlSupportingInfo } from '../types';
 import axios from 'axios';
 
-const API_BASE = '/backend/api/nwl';
+const API_BASE = '/api/nwl';
 
 export const getSupportingInfo = async (applicationId: string): Promise<nwlSupportingInfo | null> => {
   try {

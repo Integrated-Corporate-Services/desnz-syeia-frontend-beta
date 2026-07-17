@@ -53,7 +53,7 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
             // Handle both object format and string format for backwards compatibility
             if (typeof doc === 'object' && doc.filename) {
                 const fileKey = doc.fileUrl || doc.file_id;
-                const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+                const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
                 const docHtml = `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
                 rows.push({
                     key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },

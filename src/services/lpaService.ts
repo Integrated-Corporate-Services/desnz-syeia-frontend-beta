@@ -25,7 +25,7 @@ interface LpaSearchParams {
 
 class LpaService {
   private get baseUrl(): string {
-    return buildBackendUrl("/backend/api/lpa");
+    return buildBackendUrl("/api/lpa");
   }
 
   /**

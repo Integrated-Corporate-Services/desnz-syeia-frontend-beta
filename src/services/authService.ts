@@ -15,7 +15,7 @@ export type AuthUserResponse = {
  * Always uses relative paths for same-origin requests
  */
 export async function getAuthUser(): Promise<AuthUserResponse> {
-  const response = await fetch(buildBackendUrl('/backend/auth/user'), {
+  const response = await fetch(buildBackendUrl('/auth/user'), {
     credentials: "include",
   });
   if (!response.ok) {
@@ -25,7 +25,7 @@ export async function getAuthUser(): Promise<AuthUserResponse> {
 }
 
 export async function signOut(): Promise<void> {
-  await fetch(buildBackendUrl('/backend/auth/logout'), {
+  await fetch(buildBackendUrl('/auth/logout'), {
     method: "POST",
     headers: {
       ...getCsrfHeaders(),
@@ -43,7 +43,7 @@ export async function keepAlive(): Promise<boolean> {
   try {
     logger.info('Calling backend keep-alive endpoint to refresh session');
     
-    const response = await fetch(buildBackendUrl('/backend/auth/keep-alive'), {
+    const response = await fetch(buildBackendUrl('/auth/keep-alive'), {
       method: 'POST',
       credentials: 'include',
       headers: {
