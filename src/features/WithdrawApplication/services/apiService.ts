@@ -4,7 +4,7 @@ import { getCsrfHeaders } from '../../../utils/csrf';
 
 export const submitWithdrawal = async (request: WithdrawalRequest): Promise<WithdrawalResponse> => {
     try {
-        const response = await axios.post(
+        const response = await fetch(
             `/api/applications/${request.applicationId}/withdraw`,
             {
                 method: 'POST',
