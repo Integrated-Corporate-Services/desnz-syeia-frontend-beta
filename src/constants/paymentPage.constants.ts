@@ -17,6 +17,9 @@ export const PAYMENT_PAGE_TEXT: PaymentPageText = {
   detailsSummary: 'I cannot pay by card and need another way to pay',
   detailsParagraphs: [
     'If you cannot pay by credit or debit card, you can pay by bank transfer (BACS).',
+    'We can only start processing your submitted application after we receive your payment.',
+    'If you choose this payment method, the date of payment will become your official submission date.',
+    'You should pay by credit or debit card if you would like us to start processing your application more quickly.',
   ],
   detailsStatus: 'Processing payment',
   bankTransferButton: 'Pay by bank transfer',
