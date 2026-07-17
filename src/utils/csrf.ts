@@ -1,4 +1,5 @@
 import { createLogger } from './logger';
+import { buildBackendUrl } from './apiConfig';
 
 const logger = createLogger('csrf');
 
@@ -11,7 +12,7 @@ let cachedToken: string | null = null;
  */
 export async function fetchCsrfToken(): Promise<string | null> {
   try {
-    const response = await fetch('/backend/csrf-token', {
+    const response = await fetch(buildBackendUrl('/csrf-token'), {
       credentials: 'include',
     });
     if (!response.ok) return null;

@@ -128,9 +128,9 @@ WORKDIR /app
 RUN npm install -g serve
 
 # Copy built assets from builder stage and organize for serve.json
-# serve.json expects structure: dist-serve/frontend/
-RUN mkdir -p dist-serve/frontend
-COPY --from=builder /app/dist ./dist-serve/frontend
+# serve.json expects structure: dist-serve/
+RUN mkdir -p dist-serve
+COPY --from=builder /app/dist ./dist-serve
 
 # Copy serve configuration
 COPY serve.json ./serve.json
@@ -141,12 +141,12 @@ RUN echo "========================================" && \
     echo "========================================" && \
     ls -la /app && \
     echo "----------------------------------------" && \
-    echo "Contents of dist-serve/frontend:" && \
-    ls -la /app/dist-serve/frontend && \
+    echo "Contents of dist-serve:" && \
+    ls -la /app/dist-serve && \
     echo "========================================"
 
 # Expose port
 EXPOSE 5173
 
-# Start app (serve expects to find dist-serve/frontend based on serve.json config)
+# Start app (serve expects to find dist-serve based on serve.json config)
 CMD ["serve", "-l", "5173", "-c", "serve.json"]

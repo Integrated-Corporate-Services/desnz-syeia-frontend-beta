@@ -14,13 +14,25 @@ import { getCsrfHeaders } from './csrf';
 
 export const API_BASE = buildBackendUrl('/backend/api');
 
+const resolveApiUrl = (path: string): string => {
+  if (/^https?:\/\//.test(path)) {
+    return path;
+  }
+
+  if (path.startsWith('/backend')) {
+    return buildBackendUrl(path);
+  }
+
+  return `${API_BASE}${path}`;
+};
+
 /**
  * GET request
  * @param path API path (e.g., '/applications/123')
  * @returns Promise with response data
  */
 export async function apiGet<T = any>(path: string): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, { method: 'GET' });
 }
 
@@ -31,7 +43,7 @@ export async function apiGet<T = any>(path: string): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiPost<T = any>(path: string, data?: any): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, {
     method: 'POST',
     headers: {
@@ -49,7 +61,7 @@ export async function apiPost<T = any>(path: string, data?: any): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiPut<T = any>(path: string, data?: any): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, {
     method: 'PUT',
     headers: {
@@ -67,7 +79,7 @@ export async function apiPut<T = any>(path: string, data?: any): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiPatch<T = any>(path: string, data?: any): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, {
     method: 'PATCH',
     headers: {
@@ -84,7 +96,7 @@ export async function apiPatch<T = any>(path: string, data?: any): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiDelete<T = any>(path: string): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, { 
     method: 'DELETE',
     headers: {
@@ -100,7 +112,7 @@ export async function apiDelete<T = any>(path: string): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiUpload<T = any>(path: string, formData: FormData): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, {
     method: 'POST',
     headers: {
@@ -118,7 +130,7 @@ export async function apiUpload<T = any>(path: string, formData: FormData): Prom
  * @returns Promise with response data
  */
 export async function apiRequest<T = any>(path: string, options: RequestInit): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, options);
 }
 

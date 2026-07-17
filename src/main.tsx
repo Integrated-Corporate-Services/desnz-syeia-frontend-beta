@@ -8,6 +8,7 @@ import React from "react";
 import axios from "axios";
 import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 import { createLogger } from "./utils/logger";
+import { buildBackendUrl } from "./utils/apiConfig";
 import { fetchCsrfToken, getCsrfToken } from "./utils/csrf";
 import { getApiBaseUrl } from "./utils/apiConfig";
 
@@ -47,6 +48,14 @@ axios.interceptors.request.use(
   }
 );
 
+axios.interceptors.request.use((config) => {
+  if (typeof config.url === 'string' && config.url.startsWith('/backend')) {
+    config.url = buildBackendUrl(config.url);
+  }
+
+  return config;
+});
+
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -61,13 +70,13 @@ axios.interceptors.response.use(
       
       if (status === 401) {
         logger.warn('Session expired or unauthorized, redirecting to landing page');
-        window.location.href = '/frontend/landingPage';
+        window.location.href = '/landingPage';
         return Promise.reject(error);
       }
       
       if (status === 403) {
         logger.warn('Access forbidden, redirecting to landing page');
-        window.location.href = '/frontend/landingPage';
+        window.location.href = '/landingPage';
         return Promise.reject(error);
       }
             
@@ -96,6 +105,20 @@ const consentLogger = createLogger('consent');
 const handleConsentChange: ConsentChangeCallback = (prefs, source) => {
   consentLogger.info('Consent changed', { source, preferencesCount: Object.keys(prefs).length });
 };
+
+// Support old /frontend/* URLs while migrating to root-based frontend routing.
+const legacyFrontendPrefix = '/frontend';
+if (
+  window.location.pathname === legacyFrontendPrefix ||
+  window.location.pathname.startsWith(`${legacyFrontendPrefix}/`)
+) {
+  const strippedPath = window.location.pathname.slice(legacyFrontendPrefix.length) || '/';
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${strippedPath}${window.location.search}${window.location.hash}`
+  );
+}
 
 createRoot(document.getElementById("root")!).render(
   <CookieConsentProvider onConsentChange={handleConsentChange}>

@@ -105,8 +105,8 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
     } as Record<string, string>,
 
     ROUTES: {
-        APPLICATIONS: '/frontend/application-dashboard',
+        APPLICATIONS: '/application-dashboard',
         WITHDRAW: (applicationType: string, applicationId: string) => 
-            `/frontend/${applicationType.toLowerCase()}/${applicationId}/withdraw`,
+            `/${applicationType.toLowerCase()}/${applicationId}/withdraw`,
     },
 };

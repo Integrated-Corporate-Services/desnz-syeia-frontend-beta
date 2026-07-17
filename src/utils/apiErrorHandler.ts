@@ -3,11 +3,12 @@
  * Handles common HTTP errors, especially session timeout (401)
  */
 
-import { createLogger } from './logger';import { buildBackendUrl } from './apiConfig';
+import { createLogger } from './logger';
+import { buildBackendUrl } from './apiConfig';
 const logger = createLogger('ApiErrorHandler');
 
 function redirectToSignedOut(reason: string): void {
-  const target = `/frontend/signed-out?reason=${encodeURIComponent(reason)}`;
+  const target = `/signed-out?reason=${encodeURIComponent(reason)}`;
   window.location.href = target;
 }
 
@@ -69,7 +70,7 @@ export async function handleApiError(response: Response): Promise<never> {
       redirectToSignedOut(reason);
     } else {
       logger.info('Unauthorized access, redirecting to landing page');
-      window.location.href = '/frontend/landingPage';
+      window.location.href = '/landingPage';
     }
     
     // This will never be reached due to redirect, but TypeScript needs it
@@ -144,8 +145,7 @@ export async function apiFetch<T = unknown>(
  */
 export async function checkSessionValidity(): Promise<boolean> {
   try {
-    const baseUrl = buildBackendUrl('');
-    const response = await fetch(`${baseUrl}/backend/auth/user`, {
+    const response = await fetch(buildBackendUrl('/auth/user'), {
       credentials: 'include',
       method: 'GET',
     });

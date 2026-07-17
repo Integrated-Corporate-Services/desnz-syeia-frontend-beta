@@ -1,5 +1,6 @@
 
 import SkipLink from '../../components/SkipLink';
+import { buildBackendUrl } from '../../utils/apiConfig';
 
 const NWLGuidancePage = () => {
 
@@ -8,7 +9,7 @@ const NWLGuidancePage = () => {
       <SkipLink />
       <div className="govuk-width-container">
         <a
-          href="/frontend/landingPage"
+          href="/landingPage"
           className="govuk-back-link"
         >
           Submit your Energy Infrastructure Application
@@ -83,7 +84,7 @@ const NWLGuidancePage = () => {
             className="govuk-button govuk-button--start"
             data-module="govuk-button"
             type="button"
-            onClick={() => (window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`)}
+            onClick={() => (window.location.href = buildBackendUrl('/auth/login'))}
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             aria-label="Sign in to submit your application"
           >

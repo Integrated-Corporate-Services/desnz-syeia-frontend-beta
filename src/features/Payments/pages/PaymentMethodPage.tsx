@@ -112,7 +112,7 @@ const handlePayByCard = async () => {
       amountInPence,
       applicationId, // reference
       getCardPaymentDescription(applicationId, baseUrl === NWL_BASE_URL),
-      `${window.location.origin}/frontend/payment/callback`, // return_url
+      `${window.location.origin}/payment/callback`, // return_url
       { // metadata
         applicationId,
         invoiceNumber,

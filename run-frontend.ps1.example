@@ -46,8 +46,9 @@ $env:MODE = "local"
 # API ENDPOINTS
 # ===================================================================
 $env:VITE_API_BASE_URL = "http://localhost:3000"
-$env:VITE_AUTH_LOGIN_URL = "http://localhost:3000/backend/auth/login"
-$env:VITE_AUTH_LOGOUT_URL = "http://localhost:3000/backend/auth/logout"
+$env:VITE_AUTH_LOGIN_URL = "http://localhost:3000/auth/login"
+$env:VITE_AUTH_LOGOUT_URL = "http://localhost:3000/auth/logout"
+$env:VITE_USE_LEGACY_BACKEND_PREFIX = "false"
 
 # ===================================================================
 # START APPLICATION

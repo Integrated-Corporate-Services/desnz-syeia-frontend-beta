@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
     const isProduction = mode === 'production';
     
     return {
-        base: '/frontend',
+        base: env.VITE_ROUTER_BASENAME || '/',
         plugins: [react()],
         
         define: {
@@ -63,7 +63,19 @@ export default defineConfig(({ mode }) => {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
+                '/csrf-token': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/invites': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
                 '/backend/invites': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/api': {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
@@ -71,7 +83,23 @@ export default defineConfig(({ mode }) => {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
+                '/auth': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
                 '/backend/auth': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/preferences': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/withdraw': {
+                    target: env.API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/catalog': {
                     target: env.API_URL,
                     changeOrigin: true,
                 },
