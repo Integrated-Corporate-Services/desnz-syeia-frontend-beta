@@ -6,7 +6,7 @@ import {
   uploadFileToS3,
   deleteFileCompletely,
   confirmUpload,
-  waitForFileScan,
+  waitForFilesScan,
   clearPresignedUrlCache,
 } from "../services/s3ApiService"; 
 import { createLogger } from "../utils/logger";
@@ -18,6 +18,36 @@ import type { AuthUser } from "../types/auth";
 import { DEMO_USER_ID } from "../constants/demo";
 
 const logger = createLogger('FileUpload');
+
+const INFECTED_USER_MESSAGE =
+  'The uploaded file contains a virus and has been quarantined. Please upload a clean file.';
+
+/** Limit parallel S3 PUT + confirm calls to avoid saturating the browser/network. */
+const UPLOAD_CONFIRM_CONCURRENCY = 4;
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function runNext(): Promise<void> {
+    while (nextIndex < items.length) {
+      const current = nextIndex;
+      nextIndex += 1;
+      results[current] = await worker(items[current], current);
+    }
+  }
+
+  const runners = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    () => runNext()
+  );
+  await Promise.all(runners);
+  return results;
+}
 
 export interface FileUploadProps {
   title?: string;
@@ -79,6 +109,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
   const [isScanning, setIsScanning] = useState(false);
+  const [uploadNoticeMessage, setUploadNoticeMessage] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [statuses, setStatuses] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -127,6 +158,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onValidationErrors) {
       onValidationErrors([]);
     }
+    setUploadNoticeMessage(null);
     
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
@@ -354,186 +386,229 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
-      
-      for (let i = 0; i < uploadFiles.length; i++) {
-        const urlObj = data.urls[i];
-        if (!urlObj.url) {
-          newStatuses[i] = "Failed to get presigned URL";
-          setStatuses([...newStatuses]);
-          continue;
-        }
-        newStatuses[i] = "Uploading to S3...";
-        setStatuses([...newStatuses]);
-        try {
-          const uploadRes = await uploadFileToS3(urlObj.url, uploadFiles[i]);
-          
-          if (uploadRes.ok) {
-            const s3Key = prefix
-              ? `${prefix}/${uploadFiles[i].name}`
-              : uploadFiles[i].name;
-            
-            const etag = uploadRes.headers.get('etag');
-            
-            newStatuses[i] = "Confirming upload...";
-            setStatuses([...newStatuses]);
-            
-            logger.info('S3 upload successful, calling confirm endpoint', {
-              s3Key,
-              etag,
-              fileName: uploadFiles[i].name
-            });
-            
-            const confirmResponse = await confirmUpload({
-              s3Key,
-              fileName: uploadFiles[i].name,
-              contentType: uploadFiles[i].type || 'application/octet-stream',
-              fileSize: uploadFiles[i].size,
-              etag: etag || undefined,
-              applicationId: applicationId || '',
-              category: category || '',
-              addedBy: userId,
-              subCategory: subCategory,
-              consultationId: consultationId
-            });
-            
-            logger.info('Upload confirmed by server', {
-              documentId: confirmResponse.documentId,
-              fileId: confirmResponse.fileId,
-              s3Key: confirmResponse.s3Key,
-              scanStatus: confirmResponse.scanStatus,
-            });
 
-            newStatuses[i] =
-              "Your file is being scanned. Please wait while the upload is processed.";
-            setStatuses([...newStatuses]);
-            if (onValidationErrors) {
-              onValidationErrors([]);
+      setIsScanning(true);
+      scanAbortRef.current?.abort();
+      const abortController = new AbortController();
+      scanAbortRef.current = abortController;
+
+      type ConfirmedUpload = {
+        index: number;
+        confirmResponse: Awaited<ReturnType<typeof confirmUpload>>;
+      };
+
+      try {
+        // Phase 1: parallel S3 PUT + confirm (scans run async on the worker).
+        const confirmed = await mapWithConcurrency(
+          uploadFiles,
+          UPLOAD_CONFIRM_CONCURRENCY,
+          async (file, i): Promise<ConfirmedUpload | null> => {
+            const urlObj = data.urls[i];
+            if (!urlObj?.url) {
+              newStatuses[i] = "Failed to get presigned URL";
+              setStatuses([...newStatuses]);
+              return null;
             }
 
-            setIsScanning(true);
-            scanAbortRef.current?.abort();
-            const abortController = new AbortController();
-            scanAbortRef.current = abortController;
-
-            let scanStatus;
             try {
-              scanStatus = await waitForFileScan(confirmResponse.fileId, {
-                signal: abortController.signal,
-                onProgress: (status) => {
-                  newStatuses[i] =
-                    status.userMessage ||
-                    "Your file is being scanned. Please wait while the upload is processed.";
-                  setStatuses([...newStatuses]);
-                },
+              newStatuses[i] = "Uploading to S3...";
+              setStatuses([...newStatuses]);
+
+              const uploadRes = await uploadFileToS3(urlObj.url, file);
+              if (!uploadRes.ok) {
+                newStatuses[i] = "Upload failed: " + uploadRes.statusText;
+                setStatuses([...newStatuses]);
+                return null;
+              }
+
+              const s3Key = prefix ? `${prefix}/${file.name}` : file.name;
+              const etag = uploadRes.headers.get("etag");
+
+              newStatuses[i] = "Confirming upload...";
+              setStatuses([...newStatuses]);
+
+              logger.info("S3 upload successful, calling confirm endpoint", {
+                s3Key,
+                etag,
+                fileName: file.name,
               });
-            } finally {
-              setIsScanning(false);
-            }
 
-            if (scanStatus.scanResult === "INFECTED") {
-              const infectedMessage =
-                scanStatus.userMessage ||
-                "The uploaded file contains a virus and has been quarantined. Please upload a clean file.";
-              newStatuses[i] = infectedMessage;
-              setStatuses([...newStatuses]);
-              if (onValidationErrors) {
-                onValidationErrors([infectedMessage]);
-              }
-              try {
-                await deleteFileCompletely(confirmResponse.fileId, confirmResponse.s3Key);
-              } catch (cleanupError) {
-                logger.warn('Failed to clean up infected upload record', {
-                  fileId: confirmResponse.fileId,
-                  error: cleanupError,
-                });
-              }
-              continue;
-            }
-
-            if (scanStatus.scanStatus === "FAILED" || scanStatus.scanResult !== "CLEAN") {
-              const failedMessage =
-                scanStatus.userMessage ||
-                "Virus scanning failed. Please try uploading the file again.";
-              newStatuses[i] = failedMessage;
-              setStatuses([...newStatuses]);
-              if (onValidationErrors) {
-                onValidationErrors([failedMessage]);
-              }
-              continue;
-            }
-
-            // Drop any cached view/download URL that may still point at the upload bucket.
-            clearPresignedUrlCache(confirmResponse.s3Key);
-            clearPresignedUrlCache(`download_${confirmResponse.s3Key}`);
-            
-            const uploadedFile: UploadedFile = {
-              id: confirmResponse.fileId,
-              storageProvider: "aws_s3",
-              s3Key: confirmResponse.s3Key,
-              bucketName: scanStatus.bucketName || confirmResponse.bucketName,
-              virtualFolder: confirmResponse.virtualFolder,
-              filename: confirmResponse.fileName,
-              fileContentType: confirmResponse.contentType,
-              fileSizeBytes: confirmResponse.fileSizeBytes,
-              uploadedAtTimestamp: confirmResponse.uploadedAt,
-              scanStatus: scanStatus.scanStatus,
-              scanResult: scanStatus.scanResult,
-              virusName: scanStatus.virusName,
-              scannedAt: scanStatus.scannedAt,
-            };
-            uploadedFiles.push(uploadedFile);
-            
-            const applicationDocument: ApplicationDocument = {
-              documentId: confirmResponse.documentId,
-              applicationId: applicationId || "",
-              fileId: confirmResponse.fileId,
-              category: category || "",
-              subCategory: subCategory || "",
-              title: confirmResponse.fileName,
-              virtualFolder: confirmResponse.virtualFolder,
-              addedBy: userId,
-              addedAt: confirmResponse.uploadedAt,
-              consultationId: consultationId || undefined,
-            };
-            applicationDocuments.push(applicationDocument);
-            
-            newStatuses[i] = "File scanned successfully. Upload complete.";
-            setStatuses([...newStatuses]);
-            
-            setInternalFiles((prevFiles: File[]) => {
-              const idxToRemove = prevFiles.findIndex(
-                (file: File) =>
-                  file.name === uploadFiles[i].name &&
-                  file.size === uploadFiles[i].size
+              const confirmResponse = await confirmUpload(
+                {
+                  s3Key,
+                  fileName: file.name,
+                  contentType: file.type || "application/octet-stream",
+                  fileSize: file.size,
+                  etag: etag || undefined,
+                  applicationId: applicationId || "",
+                  category: category || "",
+                  addedBy: userId,
+                  subCategory: subCategory,
+                  consultationId: consultationId,
+                },
+                { signal: abortController.signal }
               );
-              if (idxToRemove !== -1) {
-                setStatuses((prevStatuses: string[]) =>
-                  prevStatuses.filter((_, idx: number) => idx !== idxToRemove)
-                );
-                setDownloadStatuses((prevDownloadStatuses: string[]) =>
-                  prevDownloadStatuses.filter(
-                    (_, idx: number) => idx !== idxToRemove
-                  )
-                );
-                return prevFiles.filter(
-                  (_, idx: number) => idx !== idxToRemove
-                );
-              }
-              return prevFiles;
-            });
-          } else {
-            newStatuses[i] = "Upload failed: " + uploadRes.statusText;
-            setStatuses([...newStatuses]);
+
+              logger.info("Upload confirmed by server", {
+                documentId: confirmResponse.documentId,
+                fileId: confirmResponse.fileId,
+                s3Key: confirmResponse.s3Key,
+                scanStatus: confirmResponse.scanStatus,
+              });
+
+              newStatuses[i] =
+                "Your file is being scanned. Please wait while the upload is processed.";
+              setStatuses([...newStatuses]);
+              return { index: i, confirmResponse };
+            } catch (err) {
+              newStatuses[i] =
+                "Error: " + (err instanceof Error ? err.message : String(err));
+              setStatuses([...newStatuses]);
+              logger.error("Upload or confirm failed", {
+                fileName: file.name,
+                error: err,
+              });
+              return null;
+            }
           }
-        } catch (err) {
-          newStatuses[i] =
-            "Error: " + (err instanceof Error ? err.message : String(err));
-          setStatuses([...newStatuses]);
-          logger.error('Upload or confirm failed', {
-            fileName: uploadFiles[i].name,
-            error: err
+        );
+
+        const confirmedUploads = confirmed.filter(
+          (item): item is ConfirmedUpload => item !== null
+        );
+
+        if (confirmedUploads.length === 0) {
+          return { uploadedFiles, applicationDocuments };
+        }
+
+        if (onValidationErrors) {
+          onValidationErrors([]);
+        }
+
+        // Phase 2: one shared batch poll for all confirmed fileIds.
+        const fileIds = confirmedUploads.map((c) => c.confirmResponse.fileId);
+        const scanStatuses = await waitForFilesScan(fileIds, {
+          signal: abortController.signal,
+          onProgress: (statuses) => {
+            const byId = new Map(statuses.map((s) => [s.fileId, s]));
+            for (const item of confirmedUploads) {
+              const status = byId.get(item.confirmResponse.fileId);
+              if (!status) continue;
+              newStatuses[item.index] =
+                status.userMessage ||
+                "Your file is being scanned. Please wait while the upload is processed.";
+            }
+            setStatuses([...newStatuses]);
+          },
+        });
+
+        const scanByFileId = new Map(scanStatuses.map((s) => [s.fileId, s]));
+        let infectedCount = 0;
+        let failedCount = 0;
+
+        // Phase 3: apply results (keep INFECTED in list for audit + user message).
+        for (const item of confirmedUploads) {
+          const { index: i, confirmResponse } = item;
+          const scanStatus = scanByFileId.get(confirmResponse.fileId);
+          if (!scanStatus) {
+            newStatuses[i] = "Virus scanning failed. Please try uploading the file again.";
+            failedCount += 1;
+            continue;
+          }
+
+          if (scanStatus.error) {
+            newStatuses[i] = scanStatus.error;
+            failedCount += 1;
+            continue;
+          }
+
+          if (
+            scanStatus.scanStatus === "FAILED" ||
+            (scanStatus.scanResult !== "CLEAN" && scanStatus.scanResult !== "INFECTED")
+          ) {
+            const failedMessage =
+              scanStatus.userMessage ||
+              "Virus scanning failed. Please try uploading the file again.";
+            newStatuses[i] = failedMessage;
+            failedCount += 1;
+            continue;
+          }
+
+          clearPresignedUrlCache(confirmResponse.s3Key);
+          clearPresignedUrlCache(`download_${confirmResponse.s3Key}`);
+
+          const isInfected = scanStatus.scanResult === "INFECTED";
+          if (isInfected) {
+            infectedCount += 1;
+            newStatuses[i] = scanStatus.userMessage || INFECTED_USER_MESSAGE;
+          } else {
+            newStatuses[i] = "File scanned successfully. Upload complete.";
+          }
+
+          const uploadedFile: UploadedFile = {
+            id: confirmResponse.fileId,
+            storageProvider: "aws_s3",
+            s3Key: confirmResponse.s3Key,
+            bucketName: scanStatus.bucketName || confirmResponse.bucketName,
+            virtualFolder: confirmResponse.virtualFolder,
+            filename: confirmResponse.fileName,
+            fileContentType: confirmResponse.contentType,
+            fileSizeBytes: confirmResponse.fileSizeBytes,
+            uploadedAtTimestamp: confirmResponse.uploadedAt,
+            scanStatus: scanStatus.scanStatus,
+            scanResult: scanStatus.scanResult,
+            virusName: scanStatus.virusName,
+            scannedAt: scanStatus.scannedAt,
+          };
+          uploadedFiles.push(uploadedFile);
+
+          const applicationDocument: ApplicationDocument = {
+            documentId: confirmResponse.documentId,
+            applicationId: applicationId || "",
+            fileId: confirmResponse.fileId,
+            category: category || "",
+            subCategory: subCategory || "",
+            title: confirmResponse.fileName,
+            virtualFolder: confirmResponse.virtualFolder,
+            addedBy: userId,
+            addedAt: confirmResponse.uploadedAt,
+            consultationId: consultationId || undefined,
+          };
+          applicationDocuments.push(applicationDocument);
+
+          setInternalFiles((prevFiles: File[]) => {
+            const idxToRemove = prevFiles.findIndex(
+              (f: File) =>
+                f.name === uploadFiles[i].name && f.size === uploadFiles[i].size
+            );
+            if (idxToRemove !== -1) {
+              setStatuses((prevStatuses: string[]) =>
+                prevStatuses.filter((_, idx: number) => idx !== idxToRemove)
+              );
+              setDownloadStatuses((prevDownloadStatuses: string[]) =>
+                prevDownloadStatuses.filter((_, idx: number) => idx !== idxToRemove)
+              );
+              return prevFiles.filter((_, idx: number) => idx !== idxToRemove);
+            }
+            return prevFiles;
           });
         }
+
+        setStatuses([...newStatuses]);
+
+        if (infectedCount > 0) {
+          setUploadNoticeMessage(INFECTED_USER_MESSAGE);
+        } else if (failedCount === 0) {
+          setUploadNoticeMessage(null);
+        }
+
+        if (failedCount > 0 && onValidationErrors) {
+          onValidationErrors([
+            "Virus scanning failed for one or more files. Please try uploading again.",
+          ]);
+        }
+      } finally {
+        setIsScanning(false);
       }
       
       if (onUploaded) {
@@ -605,11 +680,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       onClick={async (e) => {
                         e.preventDefault();
                         if (file.scanResult === "INFECTED") {
-                          const msg =
-                            "The uploaded file contains a virus and has been quarantined. Please upload a clean file.";
-                          if (onValidationErrors) {
-                            onValidationErrors([msg]);
-                          }
+                          setUploadNoticeMessage(INFECTED_USER_MESSAGE);
                           return;
                         }
                         if (file.scanStatus && file.scanStatus !== "COMPLETED") {
@@ -642,6 +713,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                     >
                       {file.filename ? file.filename.split("/").pop() : ""}
                     </a>
+                    {file.scanResult === "INFECTED" && (
+                      <p className="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-0">
+                        Quarantined — {INFECTED_USER_MESSAGE}
+                      </p>
+                    )}
                   </td>
                   <td className="govuk-table__cell govuk-table__cell--numeric">
                     <a
@@ -735,6 +811,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           Your file is being scanned. Please wait while the upload is processed.
         </p>
       )}
+      {!isScanning && uploadNoticeMessage && (
+        <p className="govuk-inset-text" role="status" aria-live="polite">
+          {uploadNoticeMessage}
+        </p>
+      )}
 
       <div
         className="gds-upload-dropzone"
@@ -755,7 +836,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           }
           fileInputRef.current?.click();
         }}
-        aria-disabled={isScanning}
         style={isScanning ? { opacity: 0.6, pointerEvents: 'none' } : undefined}
       >
         <input
@@ -763,6 +843,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           multiple
           ref={fileInputRef}
           id="file-upload-input" 
+          aria-label="Upload file"
+          title="Upload file"
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"

@@ -62,18 +62,21 @@ export async function uploadFileToS3(url: string, file: File) {
   return res;
 }
 
-export async function confirmUpload(params: {
-  s3Key: string;
-  fileName: string;
-  contentType: string;
-  fileSize: number;
-  etag?: string;
-  applicationId: string;
-  category: string;
-  addedBy: string;
-  subCategory?: string;
-  consultationId?: string;
-}): Promise<{
+export async function confirmUpload(
+  params: {
+    s3Key: string;
+    fileName: string;
+    contentType: string;
+    fileSize: number;
+    etag?: string;
+    applicationId: string;
+    category: string;
+    addedBy: string;
+    subCategory?: string;
+    consultationId?: string;
+  },
+  options?: { signal?: AbortSignal }
+): Promise<{
   documentId: string;
   fileId: string;
   fileName: string;
@@ -86,14 +89,20 @@ export async function confirmUpload(params: {
   status: string;
   etag?: string;
   scanEventId?: string;
-  scanStatus?: string;
-  scanResult?: string | null;
+  scanQueued?: boolean;
+  scanStatus: string;
+  scanResult: string | null;
+  virusName: string | null;
+  scannedAt: string | null;
+  userMessage: string;
+  downloadAllowed: boolean;
 }> {
   const res = await fetch(buildBackendUrl('/backend/api/upload/confirm'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify(params)
+    body: JSON.stringify(params),
+    signal: options?.signal,
   });
   
   if (!res.ok) {
@@ -117,6 +126,7 @@ export async function getFileScanStatus(fileId: string): Promise<{
   virusName: string | null;
   scannedAt: string | null;
   userMessage: string;
+  downloadAllowed?: boolean;
 }> {
   const res = await fetch(buildBackendUrl(`/backend/api/files/${encodeURIComponent(fileId)}/scan-status`), {
     method: 'GET',
@@ -135,6 +145,58 @@ export async function getFileScanStatus(fileId: string): Promise<{
   return await res.json();
 }
 
+export type FileScanStatusResult = Awaited<ReturnType<typeof getFileScanStatus>> & {
+  error?: string;
+};
+
+/** Must stay ≤ backend `getBatchScanStatusController` max (50). */
+const SCAN_STATUS_BATCH_SIZE = 50;
+
+function chunkIds(ids: string[], size: number): string[][] {
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += size) {
+    chunks.push(ids.slice(i, i + size));
+  }
+  return chunks;
+}
+
+async function getFilesScanStatusChunk(fileIds: string[]): Promise<FileScanStatusResult[]> {
+  const res = await fetch(buildBackendUrl('/backend/api/files/scan-status'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ fileIds }),
+  });
+
+  if (!res.ok) {
+    try {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to fetch batch scan status');
+    } catch (parseError) {
+      throw new Error('Failed to fetch batch scan status', {
+        cause: parseError instanceof Error ? parseError : undefined,
+      });
+    }
+  }
+
+  const data = await res.json();
+  return Array.isArray(data.results) ? data.results : [];
+}
+
+/**
+ * Batch fetch scan status for many fileIds.
+ * Automatically chunks requests to ≤ SCAN_STATUS_BATCH_SIZE (backend max 50).
+ */
+export async function getFilesScanStatus(fileIds: string[]): Promise<FileScanStatusResult[]> {
+  if (fileIds.length === 0) {
+    return [];
+  }
+
+  const chunks = chunkIds(fileIds, SCAN_STATUS_BATCH_SIZE);
+  const chunkResults = await Promise.all(chunks.map((chunk) => getFilesScanStatusChunk(chunk)));
+  return chunkResults.flat();
+}
+
 const SCAN_POLL_INTERVAL_MS = 2500;
 const SCAN_POLL_TIMEOUT_MS = 5 * 60 * 1000;
 
@@ -151,21 +213,66 @@ export async function waitForFileScan(
     onProgress?: (status: Awaited<ReturnType<typeof getFileScanStatus>>) => void;
   }
 ): Promise<Awaited<ReturnType<typeof getFileScanStatus>>> {
+  const results = await waitForFilesScan([fileId], {
+    intervalMs: options?.intervalMs,
+    timeoutMs: options?.timeoutMs,
+    signal: options?.signal,
+    onProgress: (statuses) => {
+      if (statuses[0]) {
+        options?.onProgress?.(statuses[0]);
+      }
+    },
+  });
+  return results[0];
+}
+
+/**
+ * Batch-poll until every file reaches COMPLETED/FAILED (or timeout).
+ * Uses POST /files/scan-status — chunks of ≤50 ids per request when many files are pending.
+ */
+export async function waitForFilesScan(
+  fileIds: string[],
+  options?: {
+    intervalMs?: number;
+    timeoutMs?: number;
+    signal?: AbortSignal;
+    onProgress?: (statuses: FileScanStatusResult[]) => void;
+  }
+): Promise<FileScanStatusResult[]> {
+  if (fileIds.length === 0) {
+    return [];
+  }
+
   const intervalMs = options?.intervalMs ?? SCAN_POLL_INTERVAL_MS;
   const timeoutMs = options?.timeoutMs ?? SCAN_POLL_TIMEOUT_MS;
   const startedAt = Date.now();
   let attempt = 0;
+  const finalById = new Map<string, FileScanStatusResult>();
+  let pending = [...fileIds];
 
-  while (Date.now() - startedAt < timeoutMs) {
+  while (pending.length > 0 && Date.now() - startedAt < timeoutMs) {
     if (options?.signal?.aborted) {
       throw new Error('Scan status polling was cancelled.');
     }
 
-    const status = await getFileScanStatus(fileId);
-    options?.onProgress?.(status);
+    const batch = await getFilesScanStatus(pending);
+    options?.onProgress?.(
+      fileIds.map((id) => finalById.get(id) || batch.find((r) => r.fileId === id)!).filter(Boolean)
+    );
 
-    if (status.scanStatus === 'COMPLETED' || status.scanStatus === 'FAILED') {
-      return status;
+    for (const status of batch) {
+      if (!status?.fileId) {
+        continue;
+      }
+      if (status.error || status.scanStatus === 'COMPLETED' || status.scanStatus === 'FAILED') {
+        finalById.set(status.fileId, status);
+      }
+    }
+
+    // Keep any fileId that has not reached a terminal state yet.
+    pending = pending.filter((id) => !finalById.has(id));
+    if (pending.length === 0) {
+      break;
     }
 
     attempt += 1;
@@ -183,7 +290,17 @@ export async function waitForFileScan(
     });
   }
 
-  throw new Error('Virus scanning is taking longer than expected. Please try again later.');
+  if (pending.length > 0) {
+    throw new Error('Virus scanning is taking longer than expected. Please try again later.');
+  }
+
+  return fileIds.map((id) => {
+    const status = finalById.get(id);
+    if (!status) {
+      throw new Error(`Missing scan status for fileId ${id}`);
+    }
+    return status;
+  });
 }
 
 /**
