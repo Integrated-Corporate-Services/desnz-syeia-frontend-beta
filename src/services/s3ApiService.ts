@@ -229,6 +229,7 @@ export async function waitForFileScan(
 /**
  * Batch-poll until every file reaches COMPLETED/FAILED (or timeout).
  * Uses POST /files/scan-status — chunks of ≤50 ids per request when many files are pending.
+ * Calls onFileComplete as soon as each file reaches a terminal state (progressive UI).
  */
 export async function waitForFilesScan(
   fileIds: string[],
@@ -237,6 +238,7 @@ export async function waitForFilesScan(
     timeoutMs?: number;
     signal?: AbortSignal;
     onProgress?: (statuses: FileScanStatusResult[]) => void;
+    onFileComplete?: (status: FileScanStatusResult) => void;
   }
 ): Promise<FileScanStatusResult[]> {
   if (fileIds.length === 0) {
@@ -265,7 +267,10 @@ export async function waitForFilesScan(
         continue;
       }
       if (status.error || status.scanStatus === 'COMPLETED' || status.scanStatus === 'FAILED') {
-        finalById.set(status.fileId, status);
+        if (!finalById.has(status.fileId)) {
+          finalById.set(status.fileId, status);
+          options?.onFileComplete?.(status);
+        }
       }
     }
 

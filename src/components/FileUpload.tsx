@@ -22,8 +22,34 @@ const logger = createLogger('FileUpload');
 const INFECTED_USER_MESSAGE =
   'The uploaded file contains a virus and has been quarantined. Please upload a clean file.';
 
-/** Limit parallel S3 PUT + confirm calls to avoid saturating the browser/network. */
-const UPLOAD_CONFIRM_CONCURRENCY = 4;
+function formatUploadSummary(cleanCount: number, infectedCount: number): string | null {
+  if (cleanCount === 0 && infectedCount === 0) {
+    return null;
+  }
+
+  const parts: string[] = [];
+
+  if (cleanCount > 0) {
+    parts.push(
+      cleanCount === 1
+        ? '1 file uploaded successfully.'
+        : `${cleanCount} files uploaded successfully.`
+    );
+  }
+
+  if (infectedCount > 0) {
+    parts.push(
+      infectedCount === 1
+        ? INFECTED_USER_MESSAGE
+        : `${infectedCount} files contain a virus and have been quarantined. Please upload clean files.`
+    );
+  }
+
+  return parts.join(' ');
+}
+
+/** Limit parallel S3 PUT + confirm calls (GDS: keep UI responsive under load). */
+const UPLOAD_CONFIRM_CONCURRENCY = 3;
 
 async function mapWithConcurrency<T, R>(
   items: T[],
@@ -109,6 +135,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
   const [isScanning, setIsScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState<{ completed: number; total: number } | null>(null);
   const [uploadNoticeMessage, setUploadNoticeMessage] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [statuses, setStatuses] = useState<string[]>([]);
@@ -159,7 +186,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       onValidationErrors([]);
     }
     setUploadNoticeMessage(null);
-    
+
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
       .map(doc => doc.fileId) || [];
@@ -485,41 +512,40 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           onValidationErrors([]);
         }
 
-        // Phase 2: one shared batch poll for all confirmed fileIds.
+        // Phase 2: batch poll — add each file to the list as soon as its scan finishes.
         const fileIds = confirmedUploads.map((c) => c.confirmResponse.fileId);
-        const scanStatuses = await waitForFilesScan(fileIds, {
-          signal: abortController.signal,
-          onProgress: (statuses) => {
-            const byId = new Map(statuses.map((s) => [s.fileId, s]));
-            for (const item of confirmedUploads) {
-              const status = byId.get(item.confirmResponse.fileId);
-              if (!status) continue;
-              newStatuses[item.index] =
-                status.userMessage ||
-                "Your file is being scanned. Please wait while the upload is processed.";
-            }
-            setStatuses([...newStatuses]);
-          },
-        });
+        const confirmByFileId = new Map(
+          confirmedUploads.map((c) => [c.confirmResponse.fileId, c])
+        );
+        setScanProgress({ completed: 0, total: confirmedUploads.length });
 
-        const scanByFileId = new Map(scanStatuses.map((s) => [s.fileId, s]));
         let infectedCount = 0;
+        let cleanCount = 0;
         let failedCount = 0;
 
-        // Phase 3: apply results (keep INFECTED in list for audit + user message).
-        for (const item of confirmedUploads) {
-          const { index: i, confirmResponse } = item;
-          const scanStatus = scanByFileId.get(confirmResponse.fileId);
-          if (!scanStatus) {
-            newStatuses[i] = "Virus scanning failed. Please try uploading the file again.";
-            failedCount += 1;
-            continue;
+        const promoteCompletedFile = (
+          scanStatus: Awaited<ReturnType<typeof waitForFilesScan>>[number]
+        ) => {
+          const item = confirmByFileId.get(scanStatus.fileId);
+          if (!item) {
+            return;
           }
+          // Prevent double-promoting the same fileId.
+          confirmByFileId.delete(scanStatus.fileId);
+
+          const { index: i, confirmResponse } = item;
+
+          setScanProgress((prev) =>
+            prev
+              ? { ...prev, completed: Math.min(prev.completed + 1, prev.total) }
+              : prev
+          );
 
           if (scanStatus.error) {
             newStatuses[i] = scanStatus.error;
             failedCount += 1;
-            continue;
+            setStatuses([...newStatuses]);
+            return;
           }
 
           if (
@@ -531,7 +557,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               "Virus scanning failed. Please try uploading the file again.";
             newStatuses[i] = failedMessage;
             failedCount += 1;
-            continue;
+            setStatuses([...newStatuses]);
+            return;
           }
 
           clearPresignedUrlCache(confirmResponse.s3Key);
@@ -541,9 +568,17 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           if (isInfected) {
             infectedCount += 1;
             newStatuses[i] = scanStatus.userMessage || INFECTED_USER_MESSAGE;
+            setUploadNoticeMessage(
+              formatUploadSummary(cleanCount, infectedCount)
+            );
           } else {
+            cleanCount += 1;
             newStatuses[i] = "File scanned successfully. Upload complete.";
+            setUploadNoticeMessage(
+              formatUploadSummary(cleanCount, infectedCount)
+            );
           }
+          setStatuses([...newStatuses]);
 
           const uploadedFile: UploadedFile = {
             id: confirmResponse.fileId,
@@ -576,6 +611,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           };
           applicationDocuments.push(applicationDocument);
 
+          // Progressive list update — parent appends as each scan finishes.
+          if (onUploaded) {
+            onUploaded([uploadedFile], [applicationDocument]);
+          }
+
           setInternalFiles((prevFiles: File[]) => {
             const idxToRemove = prevFiles.findIndex(
               (f: File) =>
@@ -592,12 +632,31 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             }
             return prevFiles;
           });
-        }
+        };
+
+        await waitForFilesScan(fileIds, {
+          signal: abortController.signal,
+          onProgress: (statuses) => {
+            const byId = new Map(statuses.map((s) => [s.fileId, s]));
+            for (const item of confirmedUploads) {
+              const status = byId.get(item.confirmResponse.fileId);
+              if (!status || status.scanStatus === "COMPLETED" || status.scanStatus === "FAILED") {
+                continue;
+              }
+              newStatuses[item.index] =
+                status.userMessage ||
+                "Your file is being scanned. Please wait while the upload is processed.";
+            }
+            setStatuses([...newStatuses]);
+          },
+          onFileComplete: promoteCompletedFile,
+        });
 
         setStatuses([...newStatuses]);
 
-        if (infectedCount > 0) {
-          setUploadNoticeMessage(INFECTED_USER_MESSAGE);
+        const summary = formatUploadSummary(cleanCount, infectedCount);
+        if (summary) {
+          setUploadNoticeMessage(summary);
         } else if (failedCount === 0) {
           setUploadNoticeMessage(null);
         }
@@ -609,11 +668,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         }
       } finally {
         setIsScanning(false);
+        setScanProgress(null);
       }
-      
-      if (onUploaded) {
-        onUploaded(uploadedFiles, applicationDocuments);
-      }
+
+      // Files already pushed via progressive onUploaded — return accumulated lists.
       return { uploadedFiles, applicationDocuments};
     } catch (err) {
       setStatuses(
@@ -679,16 +737,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       className="govuk-link"
                       onClick={async (e) => {
                         e.preventDefault();
-                        if (file.scanResult === "INFECTED") {
-                          setUploadNoticeMessage(INFECTED_USER_MESSAGE);
-                          return;
-                        }
                         if (file.scanStatus && file.scanStatus !== "COMPLETED") {
-                          const msg =
-                            "Your file is being scanned. Please wait while the upload is processed.";
-                          if (onValidationErrors) {
-                            onValidationErrors([msg]);
-                          }
+                          setUploadNoticeMessage(
+                            "Your file is being scanned. Please wait while the upload is processed."
+                          );
                           return;
                         }
                         if (file.s3Key) {
@@ -704,9 +756,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                               filename: file.filename,
                               error
                             });
-                            if (onValidationErrors) {
-                              onValidationErrors([message]);
-                            }
+                            setUploadNoticeMessage(message);
                           }
                         }
                       }}
@@ -807,14 +857,21 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
       {isScanning && (
-        <p className="govuk-inset-text" role="status" aria-live="polite">
-          Your file is being scanned. Please wait while the upload is processed.
-        </p>
+        <div className="govuk-inset-text" role="status" aria-live="polite">
+          <p className="govuk-body govuk-!-margin-bottom-0">
+            {scanProgress
+              ? `Scanning files. ${scanProgress.completed} of ${scanProgress.total} complete.`
+              : "Your file is being scanned. Please wait while the upload is processed."}
+          </p>
+          <p className="govuk-hint govuk-!-margin-top-2 govuk-!-margin-bottom-0">
+            Files appear in the list as soon as each scan finishes.
+          </p>
+        </div>
       )}
       {!isScanning && uploadNoticeMessage && (
-        <p className="govuk-inset-text" role="status" aria-live="polite">
-          {uploadNoticeMessage}
-        </p>
+        <div className="govuk-inset-text" role="status" aria-live="polite">
+          <p className="govuk-body govuk-!-margin-bottom-0">{uploadNoticeMessage}</p>
+        </div>
       )}
 
       <div
