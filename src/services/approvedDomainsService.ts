@@ -14,7 +14,7 @@ export const getApprovedDomains = async (organisationId: string): Promise<string
   try {
     logger.debug('Fetching approved domains', { organisationId });
     const response = await axios.get<ApprovedDomainsResponse>(
-      `/backend/api/admin/organisations/${organisationId}/approved-domains`
+      `/api/admin/organisations/${organisationId}/approved-domains`
     );
     logger.debug('Approved domains fetched successfully', { count: response.data.approved_domains.length });
     return response.data.approved_domains;
@@ -37,7 +37,7 @@ export const updateApprovedDomains = async (
   try {
     logger.debug('Updating approved domains', { organisationId, domains });
     const response = await axios.put<ApprovedDomainsResponse>(
-      `/backend/api/admin/organisations/${organisationId}/approved-domains`,
+      `/api/admin/organisations/${organisationId}/approved-domains`,
       { approved_domains: domains }
     );
     logger.debug('Approved domains updated successfully');

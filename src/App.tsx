@@ -137,8 +137,10 @@ const AppContent = () => {
   );
 };
 
+const routerBasename = (import.meta.env.VITE_ROUTER_BASENAME || '').replace(/\/$/, '');
+
 const App = () => (
-  <BrowserRouter basename="/frontend">
+  <BrowserRouter basename={routerBasename || undefined}>
     <CookieConsentProvider>
       <AuthUserProvider>
         <AccessRequestProvider>

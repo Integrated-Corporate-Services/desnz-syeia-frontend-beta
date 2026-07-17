@@ -62,7 +62,7 @@ const PaymentMethodPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ const handlePayByCard = async () => {
       amountInPence,
       applicationId, // reference
       getCardPaymentDescription(applicationId, baseUrl === NWL_BASE_URL),
-      `${window.location.origin}/frontend/payment/callback`, // return_url
+      `${window.location.origin}/payment/callback`, // return_url
       { // metadata
         applicationId,
         invoiceNumber,
@@ -155,6 +155,12 @@ const handlePayByCard = async () => {
   };
 
   const handleBankTransfer = () => {
+    if (invoiceNumber) {
+      sessionStorage.setItem('invoiceNumber', invoiceNumber);
+    }
+    if (typeof effectiveTotalAmount === 'number') {
+      sessionStorage.setItem('totalAmount', effectiveTotalAmount.toString());
+    }
     navigate(`${baseUrl}/${applicationId}/bank-transfer-payment`, {
       state: { invoiceNumber, totalAmount: effectiveTotalAmount, consentFee, eiaScreeningFee }
     });
@@ -218,7 +224,16 @@ const handlePayByCard = async () => {
                   {PAYMENT_PAGE_TEXT.detailsParagraphs[0]}
                 </p>
                 <p className="govuk-body">
+                  {PAYMENT_PAGE_TEXT.detailsParagraphs[1]}
+                </p>
+                <p className="govuk-body">
+                  {PAYMENT_PAGE_TEXT.detailsParagraphs[2]}
+                </p>
+                <p className="govuk-body">
                   Your application&apos;s status will show as &apos;{PAYMENT_PAGE_TEXT.detailsStatus}&apos; until we have reconciled your payment.
+                </p>
+                <p className="govuk-body">
+                  {PAYMENT_PAGE_TEXT.detailsParagraphs[3]}
                 </p>
                 <button
                   type="button"

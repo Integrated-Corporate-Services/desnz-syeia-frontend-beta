@@ -48,7 +48,6 @@ const SENSITIVE_PATTERNS = [
   /query/i,
   /at\s+\w+\.\w+/i, // Stack trace patterns
   /\/api\//i, // API endpoints
-  /\/backend\//i,
   /localhost/i,
   /127\.0\.0\.1/i,
   /token/i,
@@ -189,7 +188,6 @@ export function sanitizeErrorForDisplay(error: any): string {
   // Remove API endpoints
   sanitized = sanitized.replace(/https?:\/\/[^\s]+/g, '[URL]');
   sanitized = sanitized.replace(/\/api\/[^\s]+/g, '[API_ENDPOINT]');
-  sanitized = sanitized.replace(/\/backend\/[^\s]+/g, '[API_ENDPOINT]');
   
   // Remove tokens and sensitive values
   sanitized = sanitized.replace(/Bearer\s+[^\s]+/gi, 'Bearer [REDACTED]');

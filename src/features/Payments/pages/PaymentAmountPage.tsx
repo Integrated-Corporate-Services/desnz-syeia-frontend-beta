@@ -48,7 +48,7 @@ const PaymentAmountPage: React.FC = () => {
         setError('');
 
         // If an invoice already exists, skip generation step and go to invoice page.
-        const statusResponse = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
+        const statusResponse = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/status`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ const PaymentAmountPage: React.FC = () => {
         }
 
         // Call backend API to calculate fees
-        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

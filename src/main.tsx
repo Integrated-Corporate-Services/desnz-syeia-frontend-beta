@@ -8,6 +8,7 @@ import React from "react";
 import axios from "axios";
 import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 import { createLogger } from "./utils/logger";
+import { buildBackendUrl } from "./utils/apiConfig";
 import { fetchCsrfToken, getCsrfToken } from "./utils/csrf";
 import { getApiBaseUrl } from "./utils/apiConfig";
 
@@ -60,6 +61,11 @@ axios.interceptors.request.use(
   }
 );
 
+axios.interceptors.request.use((config) => {
+  // URLs are now handled directly in services
+  return config;
+});
+
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -74,13 +80,13 @@ axios.interceptors.response.use(
       
       if (status === 401) {
         logger.warn('Session expired or unauthorized, redirecting to landing page');
-        window.location.href = '/frontend/landingPage';
+        window.location.href = '/landingPage';
         return Promise.reject(error);
       }
       
       if (status === 403) {
         logger.warn('Access forbidden, redirecting to landing page');
-        window.location.href = '/frontend/landingPage';
+        window.location.href = '/landingPage';
         return Promise.reject(error);
       }
             

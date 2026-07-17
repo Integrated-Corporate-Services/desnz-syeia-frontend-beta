@@ -5,7 +5,7 @@ import { getCsrfHeaders } from '../../../../utils/csrf';
 
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 
-const API_BASE_URL = buildBackendUrl('/backend/api/nwl');
+const API_BASE_URL = buildBackendUrl('/api/nwl');
 
 export const landDetailsService = {
   async getLandDetails(applicationId: string): Promise<LandDetails | null> {

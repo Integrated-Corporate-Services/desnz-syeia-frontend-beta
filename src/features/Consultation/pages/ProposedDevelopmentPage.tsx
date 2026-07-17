@@ -57,7 +57,7 @@ const ProposedDevelopmentPage: React.FC = () => {
         } else {
           // If no saved data, pre-populate from project overview
           try {
-            const projectResponse = await fetch(buildBackendUrl(`/backend/api/project/${applicationId}`), {
+            const projectResponse = await fetch(buildBackendUrl(`/api/project/${applicationId}`), {
               credentials: 'include'
             });
             if (projectResponse.ok) {

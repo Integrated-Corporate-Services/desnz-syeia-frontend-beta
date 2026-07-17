@@ -104,7 +104,7 @@ export const RouteOverviewPage: React.FC = () => {
                     <li className="govuk-breadcrumbs__list-item">
                         <a
                             className="govuk-breadcrumbs__link"
-                            href={`${window.location.origin}/frontend${S37_BASE_URL}/${applicationId || ''}/task-list`}
+                            href={`${window.location.origin}${S37_BASE_URL}/${applicationId || ''}/task-list`}
                             onClick={(e) => {
                                 e.preventDefault();
                                 navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`);
@@ -125,7 +125,7 @@ export const RouteOverviewPage: React.FC = () => {
                     Any changes to the route will require you to run the sensitive area checks again, upload new plan information, and reconsult or provide updated information to consultees if consultations are open.
                 </p>
                 <div className="govuk-inset-text" style={{ maxWidth: 700, marginTop: 12 }}>
-                    <a className="govuk-link" href={`${window.location.origin}/frontend${S37_BASE_URL}/${applicationId || ''}/route-guidance`}>
+                    <a className="govuk-link" href={`${window.location.origin}${S37_BASE_URL}/${applicationId || ''}/route-guidance`}>
                         Read the guidance on adding a route or a route spur
                     </a>
                 </div>

@@ -77,12 +77,12 @@ class ConfigService {
       api: {
         base: baseUrl,
         auth: {
-          login: `${baseUrl}/backend/auth/login`,
-          logout: `${baseUrl}/backend/auth/logout`,
-          callback: `${baseUrl}/backend/auth/callback`,
+          login: `${baseUrl}/auth/login`,
+          logout: `${baseUrl}/auth/logout`,
+          callback: `${baseUrl}/auth/callback`,
         },
-        csrf: `${baseUrl}/backend/csrf-token`,
-        api: `${baseUrl}/backend/api`,
+        csrf: `${baseUrl}/csrf-token`,
+        api: `${baseUrl}/api`,
       },
       features: {
         sandboxRoutes: isDevelopment && this.parseBoolean(import.meta.env.VITE_SANDBOX_ROUTES_ENABLED),

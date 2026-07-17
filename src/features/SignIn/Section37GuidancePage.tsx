@@ -1,10 +1,12 @@
 
+import { buildBackendUrl } from '../../utils/apiConfig';
+
 const Section37GuidancePage = () => {
 
   return (
     <>
       <a
-        href="/frontend/landingPage"
+        href="/landingPage"
         className="govuk-back-link govuk-!-margin-bottom-6 govuk-!-margin-top-0"
         style={{ display: "inline-block", marginBottom: "32px", marginTop: 0 }}
       >
@@ -108,7 +110,7 @@ const Section37GuidancePage = () => {
           <button
             className="govuk-button govuk-button--start"
             type="button"
-            onClick={() => (window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`)}
+            onClick={() => (window.location.href = buildBackendUrl('/auth/login'))}
             style={{ display: "flex", alignItems: "center", gap: "8px" }}
             aria-describedby="start-button-description"
           >

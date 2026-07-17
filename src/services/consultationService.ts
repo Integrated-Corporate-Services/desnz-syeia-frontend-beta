@@ -6,35 +6,35 @@ import { getCsrfHeaders } from '../utils/csrf';
 // Save 'Consultation Not Required' status
 export async function saveNotRequiredStatus(consultationId: string, consultationDetails: any): Promise<any> {
     // consultationDetails should include all details, uploadedFiles, applicationDocuments, and updated reason
-    const response = await axios.post(`/backend/api/consultations/${consultationId}/savenotrequiredstatus`, { consultationDetails });
+    const response = await axios.post(`/api/consultations/${consultationId}/savenotrequiredstatus`, { consultationDetails });
     return response.data;
 }
 
 // Fetch 'Consultation Not Required' status
 export async function getNotRequiredStatus(consultationId: string, applicationId: string): Promise<any> {
-    const response = await axios.get(`/backend/api/consultations/${consultationId}/${applicationId}/getnotrequiredstatus`);
+    const response = await axios.get(`/api/consultations/${consultationId}/${applicationId}/getnotrequiredstatus`);
     return response.data;
 }
 
 export async function fetchConsultationDetails(applicationId: string, userId: string): Promise<ConsultationDetails> {
-    const response = await axios.get('/backend/api/consultations/getConsultationById', {
+    const response = await axios.get('/api/consultations/getConsultationById', {
         params: { applicationId, userId },
     });
     return response.data;
 }
 
 export async function getConsultationDetailsById(consultationId: string): Promise<ConsultationDetails> {
-    const response = await axios.get(`/backend/api/consultations/${consultationId}/details`);
+    const response = await axios.get(`/api/consultations/${consultationId}/details`);
     return response.data;
 }
 
 export async function saveConsultationMessage(consultationId: string, message: string, consulteeEmailAddress: string): Promise<any> {
-    const response = await axios.post(`/backend/api/consultations/${consultationId}/save-message`, { message, consulteeEmailAddress });
+    const response = await axios.post(`/api/consultations/${consultationId}/save-message`, { message, consulteeEmailAddress });
     return response.data;
 }
 
 export async function withdrawConsultationRequest({ applicationId, consultationId, updatedBy }: { applicationId: string; consultationId: string; updatedBy: string }): Promise<any> {
-    const url = buildBackendUrl(`/backend/api/consultations/${applicationId}/${consultationId}/withdraw-consultation`);
+    const url = buildBackendUrl(`/api/consultations/${applicationId}/${consultationId}/withdraw-consultation`);
     const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -53,7 +53,7 @@ export async function withdrawConsultationRequest({ applicationId, consultationI
 
 // Update all consultations for an application with lastUpdatedBy user id
 export async function updateAllConsultations(applicationId: string, userId: string): Promise<any> {
-    const url = `/backend/api/consultations/${applicationId}/update-all-consultations`;
+    const url = `/api/consultations/${applicationId}/update-all-consultations`;
     const payload = { userId };
 
     try {
@@ -67,7 +67,7 @@ export async function updateAllConsultations(applicationId: string, userId: stri
 
 // Create LPA consultations for selected LPAs
 export async function createLpaConsultations(applicationId: string, lpas: Array<{ lpa_code: string; lpa_name: string }>, userId: string, consultationType?: string): Promise<any> {
-    const url = `/backend/api/applications/${applicationId}/consultations`;
+    const url = `/api/applications/${applicationId}/consultations`;
     const payload = { lpas, userId, consultationType };
 
     try {
@@ -85,7 +85,7 @@ export async function createLpaConsultations(applicationId: string, lpas: Array<
 export async function markConsultationAsRequestSent(
   consultationId: string
 ): Promise<{ success: boolean; data?: any }> {
-  const url = buildBackendUrl(`/backend/api/consultations/${consultationId}/mark-request-sent`);
+  const url = buildBackendUrl(`/api/consultations/${consultationId}/mark-request-sent`);
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -109,7 +109,7 @@ export async function markConsultationAsRequestSent(
  * @returns {Promise<Array>} Array of other consultee organisations
  */
 export async function getOtherConsulteeOrganisations(applicationId: string): Promise<any> {
-  const url = `/backend/api/consultations/${applicationId}/other-consultees`;
+  const url = `/api/consultations/${applicationId}/other-consultees`;
   
   try {
     const response = await axios.get(url);
@@ -132,7 +132,7 @@ export async function createOtherConsultations(
   consultees: Array<{ consulteeOrganisationId?: string; otherConsulteeName?: string }>,
   userId: string
 ): Promise<any> {
-  const url = `/backend/api/applications/${applicationId}/other-consultations`;
+  const url = `/api/applications/${applicationId}/other-consultations`;
   const payload = { consultees, userId };
 
   try {
@@ -154,7 +154,7 @@ export async function createPublicConsultation(
   applicationId: string,
   userId: string
 ): Promise<any> {
-  const url = `/backend/api/applications/${applicationId}/public-consultation`;
+  const url = `/api/applications/${applicationId}/public-consultation`;
   const payload = { userId };
 
   try {
@@ -167,7 +167,7 @@ export async function createPublicConsultation(
 }
 
 export async function removeConsultation(consultationId: string): Promise<any> {
-  const url = `/backend/api/consultations/${consultationId}/remove`;
+  const url = `/api/consultations/${consultationId}/remove`;
 
   try {
     const response = await axios.post(url, {}, { withCredentials: true });
@@ -190,7 +190,7 @@ export async function managePublicConsultationByVoltage(
   userId: string,
   hasHighVoltage: boolean
 ): Promise<any> {
-  const url = `/backend/api/applications/${applicationId}/public-consultation/manage`;
+  const url = `/api/applications/${applicationId}/public-consultation/manage`;
   const payload = { userId, hasHighVoltage };
 
   try {

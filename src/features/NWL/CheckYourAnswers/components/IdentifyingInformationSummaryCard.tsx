@@ -44,7 +44,7 @@ export const IdentifyingInformationSummaryCard: React.FC<Props> = ({ data, appli
         const photosHtml = data.site_identification_photographs
             .map((photo: any) => {
                 const fileKey = photo.fileUrl || photo.file_id;
-                const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+                const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
                 return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${photo.filename}">${photo.filename}</a>`;
             })
             .join('<br>');

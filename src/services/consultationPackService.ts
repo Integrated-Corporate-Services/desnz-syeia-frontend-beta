@@ -3,7 +3,7 @@ import { buildBackendUrl } from '../utils/apiConfig';
 import { getCsrfHeaders } from '../utils/csrf';
 
 export async function saveConsultationPack(pack: ConsultationPack) {
-  const res = await fetch(buildBackendUrl('/backend/api/consultation-pack'), {
+  const res = await fetch(buildBackendUrl('/api/consultation-pack'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export async function saveConsultationPack(pack: ConsultationPack) {
 // Service for fetching consultation pack details
 export async function getConsultationPack(consultationId: string, applicationId: string) {
   const params = new URLSearchParams({ consultationId, applicationId });
-  const res = await fetch(buildBackendUrl(`/backend/api/consultation-pack?${params.toString()}`), {
+  const res = await fetch(buildBackendUrl(`/api/consultation-pack?${params.toString()}`), {
     credentials: 'include'
   });
   if (!res.ok) throw new Error("Failed to fetch consultation pack");

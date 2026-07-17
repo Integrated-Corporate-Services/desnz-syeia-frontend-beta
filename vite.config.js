@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
     const isProduction = mode === 'production';
     
     return {
-        base: '/frontend',
+        base: env.VITE_ROUTER_BASENAME || '/',
         plugins: [react()],
         
         define: {
@@ -59,24 +59,32 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             open: true,
             proxy: {
-                '/backend/csrf-token': {
-                    target: env.API_URL,
+                '/csrf-token': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
-                '/backend/invites': {
-                    target: env.API_URL,
+                '/invites': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
-                '/backend/api': {
-                    target: env.API_URL,
+                '/api': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
-                '/backend/auth': {
-                    target: env.API_URL,
+                '/auth': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
-                '/backend/cookies': {
-                    target: env.API_URL,
+                '/cookies/preferences': {
+                    target: env.VITE_API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/withdraw': {
+                    target: env.VITE_API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/catalog': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
             },

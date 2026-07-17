@@ -34,7 +34,7 @@ class RequestAccessService {
 
       logger.debug('Submitting access request with payload:', payload);
 
-      const response = await axios.post(`/backend/api/access-requests`, payload);
+      const response = await axios.post(`/api/access-requests`, payload);
 
       return {
         success: response.data.success !== false,
@@ -73,7 +73,7 @@ class RequestAccessService {
   ): Promise<RequestAccessStatusResponse> {
     try {
       const response = await axios.get(
-        `/backend/api/access-requests/${requestId}`
+        `/api/access-requests/${requestId}`
       );
       return {
         status: response.data.status,
@@ -93,7 +93,7 @@ class RequestAccessService {
     userEmail: string
   ): Promise<VerifyEmailResponse> {
     try {
-      const response = await axios.post(`/backend/api/auth/verify-email`, {
+      const response = await axios.post(`/api/auth/verify-email`, {
         code: code,
         email: userEmail,
       });
@@ -120,7 +120,7 @@ class RequestAccessService {
     email: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await axios.post(`/backend/api/auth/resend-code`, {
+      const response = await axios.post(`/api/auth/resend-code`, {
         email: email,
       });
 
@@ -146,7 +146,7 @@ class RequestAccessService {
   ): Promise<{ hasSubmittedRequest: boolean }> {
     try {
       const response = await axios.get(
-        `/backend/api/access-requests/by-email`,
+        `/api/access-requests/by-email`,
         {
           params: { email },
         }

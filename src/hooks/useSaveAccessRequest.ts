@@ -40,7 +40,7 @@ export const useSaveAccessRequest = () => {
 
     try {
       const response = await axios.post<SaveAccessRequestResponse>(
-        "/backend/api/access-requests/save",
+        "/api/access-requests/save",
         payload
       );
 

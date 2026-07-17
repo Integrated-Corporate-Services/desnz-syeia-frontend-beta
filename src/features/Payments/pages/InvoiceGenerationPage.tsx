@@ -104,7 +104,7 @@ const InvoiceGenerationPage: React.FC = () => {
     }
 
     try {
-      const statusResponse = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
+      const statusResponse = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/status`), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -190,7 +190,7 @@ const InvoiceGenerationPage: React.FC = () => {
 
       // Call backend API with applicationId in URL
       const response = await fetch(
-        buildBackendUrl(`/backend/api/invoice/${applicationId}/generate`),
+        buildBackendUrl(`/api/invoice/${applicationId}/generate`),
         {
           method: 'POST',
           headers: {
@@ -294,7 +294,7 @@ const InvoiceGenerationPage: React.FC = () => {
 
       try {
         setLoadingFees(true);
-        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
