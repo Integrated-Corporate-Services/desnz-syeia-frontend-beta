@@ -31,15 +31,24 @@ axios.interceptors.request.use(
     }
     
     if (csrfToken && ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
+      config.headers['x-csrf-token'] = csrfToken;
       if (typeof config.headers.set === 'function') {
         config.headers.set('x-csrf-token', csrfToken);
-      } else {
-        config.headers['x-csrf-token'] = csrfToken;
       }
+      
       logger.debug('CSRF token added to request', { 
         method: config.method, 
         url: config.url,
-        hasToken: !!csrfToken 
+        hasToken: !!csrfToken,
+        tokenPreview: csrfToken?.substring(0, 10) + '...',
+        headerKeys: Object.keys(config.headers)
+      });
+    } else {
+      logger.debug('CSRF token NOT added', {
+        method: config.method,
+        url: config.url,
+        hasToken: !!csrfToken,
+        isStatefulMethod: ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')
       });
     }
     
