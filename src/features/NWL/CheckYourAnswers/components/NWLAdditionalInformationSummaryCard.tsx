@@ -53,7 +53,7 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
                 }
                 const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
                 const filename = doc.filename || doc.title;
-                const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+                const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
                 return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
             })
             .join('<br>');

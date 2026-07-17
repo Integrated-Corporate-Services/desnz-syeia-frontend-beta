@@ -3,7 +3,7 @@ import { UploadedFile, ApplicationDocument } from '../types/fileUpload';
 import { buildBackendUrl } from '../utils/apiConfig';
 import { getCsrfHeaders } from '../utils/csrf';
 
-const API_BASE = buildBackendUrl('/backend/api/applications');
+const API_BASE = buildBackendUrl('/api/applications');
 
 export interface ConsultationRequest {
   applicationId: string;

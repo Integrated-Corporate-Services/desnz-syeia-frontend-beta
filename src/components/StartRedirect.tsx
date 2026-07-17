@@ -25,7 +25,7 @@ const StartRedirect: React.FC = () => {
     });
 
     const orgParam = orgCode ? `?org=${encodeURIComponent(orgCode)}` : '';
-    const path = `/backend/invites/${encodeURIComponent(invite)}${orgParam}`;
+    const path = `/invites/${encodeURIComponent(invite)}${orgParam}`;
 
     logger.info('Forwarding to backend:', path);
     window.location.replace(path);

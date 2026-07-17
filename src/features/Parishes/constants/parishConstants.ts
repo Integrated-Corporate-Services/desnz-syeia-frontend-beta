@@ -5,7 +5,7 @@ export const PARISH_VALIDATION = {
 } as const;
 
 export const PARISH_API_ENDPOINTS = {
-  SEARCH: "/backend/api/parish/search",
+  SEARCH: "/api/parish/search",
   SAVE: (applicationId: string) =>
-    `/backend/api/applications/${applicationId}/parishes`,
+    `/api/applications/${applicationId}/parishes`,
 } as const;

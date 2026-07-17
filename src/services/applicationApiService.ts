@@ -15,7 +15,7 @@ export const applicationApiService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
     const response = await fetch(
-      buildBackendUrl(`/backend/api/applications?created_by=${created_by}`),
+      buildBackendUrl(`/api/applications?created_by=${created_by}`),
       { credentials: "include", headers },
     );
     return response.json();
@@ -34,7 +34,7 @@ export const applicationApiService = {
       ...csrfHeaders,
     };
     
-    const response = await fetch(buildBackendUrl("/backend/api/applications"), {
+    const response = await fetch(buildBackendUrl("/api/applications"), {
       method: "POST",
       headers,
       credentials: "include",
@@ -47,7 +47,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${id}`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${id}`), {
       credentials: "include",
       headers,
     });
@@ -61,7 +61,7 @@ export const applicationApiService = {
       ...getCsrfHeaders(),
     };
     const response = await fetch(
-      buildBackendUrl("/backend/api/applications/network-operators"),
+      buildBackendUrl("/api/applications/network-operators"),
       {
         method: "POST",
         headers,
@@ -79,7 +79,7 @@ export const applicationApiService = {
       ...getCsrfHeaders(),
     };
     const res = await fetch(
-      buildBackendUrl(`/backend/api/applications/${applicationId}/submit`),
+      buildBackendUrl(`/api/applications/${applicationId}/submit`),
       {
         method: "POST",
         headers,
@@ -104,7 +104,7 @@ export const applicationApiService = {
       ...getCsrfHeaders(),
     };
     const response = await fetch(
-      buildBackendUrl(`/backend/api/applications/${applicationId}/applicant-info`),
+      buildBackendUrl(`/api/applications/${applicationId}/applicant-info`),
       {
         method: "PATCH",
         headers,
@@ -131,7 +131,7 @@ export const applicationApiService = {
       ...getCsrfHeaders(),
     };
     const response = await fetch(
-      buildBackendUrl(`/backend/api/applications/${applicationId}/organisation`),
+      buildBackendUrl(`/api/applications/${applicationId}/organisation`),
       {
         method: "PATCH",
         headers,
@@ -156,7 +156,7 @@ export const applicationApiService = {
       ...getCsrfHeaders(),
     };
     const response = await fetch(
-      buildBackendUrl(`/backend/api/applications/${applicationId}/contact-confirmation`),
+      buildBackendUrl(`/api/applications/${applicationId}/contact-confirmation`),
       {
         method: "PATCH",
         headers,
@@ -182,7 +182,7 @@ export const applicationApiService = {
       ...getCsrfHeaders(),
     };
     const response = await fetch(
-      buildBackendUrl(`/backend/api/applications/${applicationId}/declaration`),
+      buildBackendUrl(`/api/applications/${applicationId}/declaration`),
       {
         method: "PATCH",
         headers,
@@ -206,7 +206,7 @@ export const applicationApiService = {
     const headers: HeadersInit = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
     };
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/deletion-preview`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/deletion-preview`), {
       credentials: "include",
       headers,
     });
@@ -222,7 +222,7 @@ export const applicationApiService = {
       "X-Correlation-ID": correlationId || generateCorrelationId(),
       ...getCsrfHeaders(),
     };
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}`), {
       method: "DELETE",
       headers,
       credentials: "include",
@@ -243,7 +243,7 @@ fetchApplicationDetails: async (applicationId: string, correlationId?: string) =
     "X-Correlation-ID": correlationId || generateCorrelationId(),
   };
   
-  const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}`), {
+  const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}`), {
     method: 'GET',
     headers,
     credentials: 'include',
@@ -265,7 +265,7 @@ getApplicationReview: async (applicationId: string, correlationId?: string) => {
   };
 
   const response = await fetch(
-    buildBackendUrl(`/backend/api/applications/${applicationId}/review`),
+    buildBackendUrl(`/api/applications/${applicationId}/review`),
     {
       credentials: "include",
       headers,
@@ -296,7 +296,7 @@ withdrawApplication: async (
   };
 
   const response = await fetch(
-    buildBackendUrl(`/backend/api/applications/${applicationId}/withdraw`),
+    buildBackendUrl(`/api/applications/${applicationId}/withdraw`),
     {
       method: "POST",
       headers,
@@ -325,7 +325,7 @@ getWithdrawalRequest: async (applicationId: string, correlationId?: string) => {
   };
 
   const response = await fetch(
-    buildBackendUrl(`/backend/api/applications/${applicationId}/withdrawal-request`),
+    buildBackendUrl(`/api/applications/${applicationId}/withdrawal-request`),
     {
       credentials: "include",
       headers,

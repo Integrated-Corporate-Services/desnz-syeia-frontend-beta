@@ -5,7 +5,7 @@ import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
 export const submitWithdrawal = async (request: WithdrawalRequest): Promise<WithdrawalResponse> => {
     try {
         const response = await axios.post(
-            `/backend/api/applications/${request.applicationId}/withdraw`,
+            `/api/applications/${request.applicationId}/withdraw`,
             {
                 application_type: request.applicationType,
                 withdrawal_reason: request.reason,

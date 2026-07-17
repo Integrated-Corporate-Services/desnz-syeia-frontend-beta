@@ -158,7 +158,7 @@ const BankTransferConfirmationPage: React.FC = () => {
         }));
       }
 
-      const response = await fetch(buildBackendUrl(`/backend/api/application/${applicationId}/save-with-bank-transfer`), {
+      const response = await fetch(buildBackendUrl(`/api/application/${applicationId}/save-with-bank-transfer`), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

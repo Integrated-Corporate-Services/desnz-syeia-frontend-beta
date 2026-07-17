@@ -6,7 +6,7 @@ export const progressApiService = {
 
   // Fetch progress for an application
   fetchApplicationProgress: async (applicationId: string) => {
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/progress`), {
       credentials: 'include'
     });
     if (!response.ok) throw new Error('Failed to fetch application progress');
@@ -20,7 +20,7 @@ export const progressApiService = {
     status: string,
     application_type?: string
   ) => {
-  const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
+  const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/progress`), {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',

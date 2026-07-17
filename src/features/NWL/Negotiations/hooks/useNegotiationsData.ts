@@ -24,7 +24,7 @@ export const useNegotiationsData = () => {
     
     logger.debug('[useNegotiationsData] ===== FETCHING DATA =====');
     logger.debug('[useNegotiationsData] Fetching negotiations data for appId:', appId);
-    logger.debug('[useNegotiationsData] API URL:', `/backend/api/nwl/${appId}/negotiations`);
+    logger.debug('[useNegotiationsData] API URL:', `/api/nwl/${appId}/negotiations`);
     setIsLoading(true);
     try {
       const data = await getNegotiationsData(appId);

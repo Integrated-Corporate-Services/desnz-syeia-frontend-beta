@@ -41,7 +41,7 @@ const LandownerOccupantDetails: React.FC = () => {
       setLoading(false);
       return;
     }
-    const url = `/backend/api/nwl/${applicationId}/landowner-occupant-details`;
+    const url = `/api/nwl/${applicationId}/landowner-occupant-details`;
     fetch(url)
       .then(res => {
         if (!res.ok) {
@@ -172,7 +172,7 @@ const LandownerOccupantDetails: React.FC = () => {
         landOwner,
         landownerRepresentative,
       };
-      url = `/backend/api/nwl/${applicationId}/landowner-occupant-details`;
+      url = `/api/nwl/${applicationId}/landowner-occupant-details`;
       method = 'PUT';
       logger.log('LandownerOccupantDetails PUT payload:', payload);
     } else {
@@ -199,7 +199,7 @@ const LandownerOccupantDetails: React.FC = () => {
         landOwner,
         landownerRepresentative,
       };
-      url = `/backend/api/nwl/landowner-occupant-details`;
+      url = `/api/nwl/landowner-occupant-details`;
       method = 'POST';
       logger.log('LandownerOccupantDetails POST payload:', payload);
     }

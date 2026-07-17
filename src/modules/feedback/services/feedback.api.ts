@@ -1,7 +1,7 @@
 import type { FeedbackPayload } from '../types/feedback.types';
 import axios from 'axios';
 
-const ENDPOINT = '/backend/api/feedback';
+const ENDPOINT = '/api/feedback';
 
 function parseErrorMessage(body: Record<string, unknown>, status: number): string {
   if (typeof body['error'] === 'string') {

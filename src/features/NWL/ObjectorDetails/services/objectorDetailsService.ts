@@ -5,7 +5,7 @@ import { getCsrfHeaders } from '../../../../utils/csrf';
 import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('ObjectorDetailsService');
-const API_BASE = buildBackendUrl('/backend/api/nwl');
+const API_BASE = buildBackendUrl('/api/nwl');
 
 export const getObjectorDetails = async (applicationId: string): Promise<ObjectorDetails | null> => {
   try {

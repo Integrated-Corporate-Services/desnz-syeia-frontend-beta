@@ -4,7 +4,7 @@ import { getCsrfHeaders } from '../utils/csrf';
 
 // Fetch WorksOverview by applicationId
 export async function getWorksOverview(applicationId: string) {
-  const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/works-overview`), {
+  const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/works-overview`), {
     method: 'GET',
     credentials: 'include',
     headers: {
@@ -19,7 +19,7 @@ export async function getWorksOverview(applicationId: string) {
 
 // Create WorksOverview
 export async function createWorksOverview(payload: WorksOverviewRequest) {
-  const response = await fetch(buildBackendUrl('/backend/api/applications/works-overview'), {
+  const response = await fetch(buildBackendUrl('/api/applications/works-overview'), {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -37,7 +37,7 @@ export async function createWorksOverview(payload: WorksOverviewRequest) {
 
 // Update WorksOverview
 export async function updateWorksOverview(applicationId: string, payload: WorksOverviewRequest) {
-  const response = await fetch(buildBackendUrl(`/backend/api/applications/works-overview/${applicationId}`), {
+  const response = await fetch(buildBackendUrl(`/api/applications/works-overview/${applicationId}`), {
     method: 'PUT',
     credentials: 'include',
     headers: {

@@ -46,7 +46,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   }, []);
 
   const redirectToSignedOut = useCallback((reason: SessionTerminationReason) => {
-    window.location.assign(`/frontend/signed-out?reason=${encodeURIComponent(reason)}`);
+    window.location.assign(`/signed-out?reason=${encodeURIComponent(reason)}`);
   }, []);
 
   // Log configuration on mount

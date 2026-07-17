@@ -179,7 +179,7 @@ const CheckYourAnswers: React.FC = () => {
 
   useEffect(() => {
     if (!applicationId) return;
-    fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+    fetch(buildBackendUrl(`/api/applications/${applicationId}/review`), {
       credentials: 'include'
     })
       .then((res) => res.json())

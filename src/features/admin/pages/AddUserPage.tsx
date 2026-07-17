@@ -33,7 +33,7 @@ const AddUserPage: React.FC = () => {
   useEffect(() => {
     const fetchOrganisations = async () => {
       try {
-        const response = await axios.get('/backend/api/organisations');
+        const response = await axios.get('/api/organisations');
         const orgs = response.data.map((org: { organisation_id: string; organisation_name: string }) => ({
           value: org.organisation_id,
           label: org.organisation_name
