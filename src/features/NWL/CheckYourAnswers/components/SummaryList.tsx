@@ -33,6 +33,8 @@ export const SummaryList: React.FC<SummaryListProps> = ({ rows, classes = '' }) 
                                     </React.Fragment>
                                 ))}
                             </div>
+                        ) : row.value.reactElement ? (
+                            row.value.reactElement
                         ) : (
                             row.value.text
                         )}

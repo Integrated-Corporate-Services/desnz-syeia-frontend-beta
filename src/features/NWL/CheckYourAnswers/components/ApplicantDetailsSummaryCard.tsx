@@ -44,21 +44,32 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ data, application
     // Applicant contact name
     rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.CONTACT_NAME, data.applicant_contact_name || CONSTANTS.DEFAULTS.EMPTY));
 
-    // Address
     const addressParts = [data.address_line1, data.address_line2, data.postcode].filter((part) => part && part !== '-');
-    const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
-    rows.push({
-        key: { text: CONSTANTS.APPLICANT_FIELDS.ADDRESS },
-        value: { text: '', html: addressHtml },
-    });
+    if (addressParts.length > 0) {
+        rows.push({
+            key: { text: CONSTANTS.APPLICANT_FIELDS.ADDRESS },
+            value: { 
+                text: '',
+                reactElement: (
+                    <>
+                        {addressParts.map((part, idx) => (
+                            <React.Fragment key={idx}>
+                                {idx > 0 && <br />}
+                                {part}
+                            </React.Fragment>
+                        ))}
+                    </>
+                )
+            },
+        });
+    } else {
+        rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.ADDRESS, CONSTANTS.DEFAULTS.EMPTY));
+    }
 
-    // Email
     rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.EMAIL, formatEmail(data.email) || CONSTANTS.DEFAULTS.EMPTY));
 
-    // Phone
     rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.PHONE, formatPhone(data.phone) || CONSTANTS.DEFAULTS.EMPTY));
 
-    // Additional contacts (supports both legacy and current payload shapes)
     const additionalContacts = Array.isArray(data.additional_contacts)
         ? data.additional_contacts
         : typeof data.additional_contacts === 'string'
@@ -74,13 +85,23 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ data, application
                 : [];
 
     if (additionalContacts.length > 0) {
-        // Format each email as a clickable mailto link
-        const contactsHtml = additionalContacts
-            .map((email: string) => `<a href="mailto:${email}" class="govuk-link">${email}</a>`)
-            .join('<br>');
         rows.push({
             key: { text: CONSTANTS.APPLICANT_FIELDS.ADDITIONAL_CONTACTS },
-            value: { text: '', html: contactsHtml },
+            value: { 
+                text: '',
+                reactElement: (
+                    <>
+                        {additionalContacts.map((email: string, idx: number) => (
+                            <React.Fragment key={idx}>
+                                {idx > 0 && <br />}
+                                <a href={`mailto:${email}`} className="govuk-link">
+                                    {email}
+                                </a>
+                            </React.Fragment>
+                        ))}
+                    </>
+                )
+            },
         });
     } else {
         rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.ADDITIONAL_CONTACTS, CONSTANTS.DEFAULTS.EMPTY));
