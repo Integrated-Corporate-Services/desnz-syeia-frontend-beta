@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { createLogger } from '../utils/logger';
 import { trackJourneyEvent } from '../utils/analytics';
 import { useQueryParam } from '../hooks/useNavigation';
+import { buildBackendUrl } from '../utils/apiConfig';
 
 const logger = createLogger('StartRedirect');
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -25,7 +26,7 @@ const StartRedirect: React.FC = () => {
     });
 
     const orgParam = orgCode ? `?org=${encodeURIComponent(orgCode)}` : '';
-    const path = `/invites/${encodeURIComponent(invite)}${orgParam}`;
+    const path = buildBackendUrl(`/invites/${encodeURIComponent(invite)}${orgParam}`);
 
     logger.info('Forwarding to backend:', path);
     window.location.replace(path);
