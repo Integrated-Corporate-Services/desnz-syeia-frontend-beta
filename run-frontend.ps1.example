@@ -37,7 +37,7 @@ $env:VITE_DUMMY_USER_TYPE = "APPLICANT_TEAM_COORDINATOR"
 # ===================================================================
 # APPLICATION CONFIGURATION
 # ===================================================================
-$env:API_URL = "http://localhost:3000"
+$env:VITE_API_URL = "http://localhost:3000"
 $env:VITE_PORT = "5173"
 $env:VITE_LOGIN_DISABLED = "true"
 $env:MODE = "local"
@@ -45,7 +45,6 @@ $env:MODE = "local"
 # ===================================================================
 # API ENDPOINTS
 # ===================================================================
-$env:VITE_API_BASE_URL = "http://localhost:3000"
 $env:VITE_AUTH_LOGIN_URL = "http://localhost:3000/auth/login"
 $env:VITE_AUTH_LOGOUT_URL = "http://localhost:3000/auth/logout"
 $env:VITE_USE_LEGACY_BACKEND_PREFIX = "false"

@@ -97,7 +97,7 @@ export async function logout(redirectTo?: string): Promise<void> {
     logger.warn('Unable to broadcast logout event across tabs', error);
   }
 
-  const baseUrl = import.meta.env.API_URL || '';
+  const baseUrl = import.meta.env.VITE_API_URL || '';
   // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 
     ? `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`

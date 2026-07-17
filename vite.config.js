@@ -60,31 +60,31 @@ export default defineConfig(({ mode }) => {
             open: true,
             proxy: {
                 '/csrf-token': {
-                    target: env.API_URL,
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
                 '/invites': {
-                    target: env.API_URL,
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
                 '/api': {
-                    target: env.API_URL,
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
                 '/auth': {
-                    target: env.API_URL,
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
                 '/cookies/preferences': {
-                    target: env.API_URL,
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
                 '/cookies/withdraw': {
-                    target: env.API_URL,
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
                 '/cookies/catalog': {
-                    target: env.API_URL,
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
             },
