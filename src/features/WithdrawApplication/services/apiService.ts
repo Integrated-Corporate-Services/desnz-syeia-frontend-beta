@@ -1,9 +1,14 @@
 import { WithdrawalRequest, WithdrawalResponse } from '../types';
 import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
-import { getCsrfHeaders } from '../../../utils/csrf';
+import { getCsrfToken, fetchCsrfToken, getCsrfHeaders } from '../../../utils/csrf';
 
 export const submitWithdrawal = async (request: WithdrawalRequest): Promise<WithdrawalResponse> => {
     try {
+        
+         if (!getCsrfToken()) {
+             await fetchCsrfToken();
+         }
+        
         const response = await fetch(
             `/api/applications/${request.applicationId}/withdraw`,
             {
