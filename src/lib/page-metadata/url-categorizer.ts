@@ -151,10 +151,6 @@ export function categorizeUrl(pathname: string): UrlMetadata {
     return { applicationType: NWL_APP_TYPE, category: 'Application' };
   }
 
-  if (path.startsWith('tlp/') || path.startsWith('tlp')) {
-    return { applicationType: TLP_APP_TYPE, category: 'Application' };
-  }
-
   if (path.includes('application-dashboard') || path === '' || path.includes('application-dashboard')) {
     return { applicationType: COMMON_APP_TYPE, category: 'Dashboard' };
   }
