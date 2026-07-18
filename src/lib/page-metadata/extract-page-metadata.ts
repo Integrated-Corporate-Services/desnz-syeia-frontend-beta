@@ -12,8 +12,7 @@ export interface PageMetadata {
 function extractPageName(pathname: string): string {
   const segments = pathname
     .split('/')
-    .filter(Boolean)
-    .filter(seg => seg !== 'frontend');
+    .filter(Boolean); // Only filter out empty segments
 
   if (segments.length === 0) return 'home';
 
