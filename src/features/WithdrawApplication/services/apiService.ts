@@ -4,10 +4,10 @@ import { getCsrfToken, fetchCsrfToken, getCsrfHeaders } from '../../../utils/csr
 
 export const submitWithdrawal = async (request: WithdrawalRequest): Promise<WithdrawalResponse> => {
     try {
-        let token = getCsrfToken();
-        if (!token) {
-            token = await fetchCsrfToken();
-        }
+        
+         if (!getCsrfToken()) {
+             await fetchCsrfToken();
+         }
         
         const response = await fetch(
             `/api/applications/${request.applicationId}/withdraw`,
