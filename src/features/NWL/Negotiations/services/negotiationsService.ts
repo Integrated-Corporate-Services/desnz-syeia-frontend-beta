@@ -1,6 +1,6 @@
 import { NegotiationsData } from '../types';
 import { createLogger } from '../../../../utils/logger';
-import { getCsrfHeaders } from '../../../../utils/csrf';
+import { getCsrfHeaders, fetchCsrfToken } from '../../../../utils/csrf';
 
 const logger = createLogger('negotiationsService');
 import { buildBackendUrl } from '../../../../utils/apiConfig';
@@ -80,6 +80,8 @@ export const saveNegotiationsData = async (
       data: JSON.stringify(data, null, 2),
     });
 
+    await fetchCsrfToken();
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
@@ -146,6 +148,8 @@ export const patchNegotiationsData = async (
     logger.debug('[patchNegotiationsData] Attempting PATCH for applicationId:', applicationId);
     logger.debug('[patchNegotiationsData] PageId:', pageId);
     logger.debug('[patchNegotiationsData] Payload:', JSON.stringify(data, null, 2));
+
+    await fetchCsrfToken();
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -208,6 +212,8 @@ export const patchNegotiationsData = async (
 
 export const deleteNegotiationsData = async (applicationId: string): Promise<boolean> => {
   try {
+    await fetchCsrfToken();
+    
     const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
       method: 'DELETE',
       headers: {
