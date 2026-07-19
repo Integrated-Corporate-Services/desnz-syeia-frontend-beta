@@ -290,9 +290,15 @@ withdrawApplication: async (
   withdrawalReason?: string,
   correlationId?: string
 ) => {
+  await fetchCsrfToken();
+  
+  const csrfHeaders = getCsrfHeaders();
+  logger.debug('Withdrawing application', { applicationId, hasToken: !!csrfHeaders['X-CSRF-Token'] });
+  
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     "X-Correlation-ID": correlationId || generateCorrelationId(),
+    ...csrfHeaders,
   };
 
   const response = await fetch(
