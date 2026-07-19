@@ -166,6 +166,7 @@ export const patchNegotiationsData = async (
         ...headers,
         ...getCsrfHeaders(),
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     
@@ -219,6 +220,7 @@ export const deleteNegotiationsData = async (applicationId: string): Promise<boo
       headers: {
         ...getCsrfHeaders(),
       },
+      credentials: 'include',
     });
     
     if (!response.ok) {
