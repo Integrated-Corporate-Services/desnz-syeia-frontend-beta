@@ -80,7 +80,10 @@ export const saveNegotiationsData = async (
       data: JSON.stringify(data, null, 2),
     });
 
-    await fetchCsrfToken();
+    const token = await fetchCsrfToken();
+    if (!token) {
+      throw new Error('Failed to obtain CSRF token. Please refresh the page and try again.');
+    }
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -149,7 +152,10 @@ export const patchNegotiationsData = async (
     logger.debug('[patchNegotiationsData] PageId:', pageId);
     logger.debug('[patchNegotiationsData] Payload:', JSON.stringify(data, null, 2));
 
-    await fetchCsrfToken();
+    const token = await fetchCsrfToken();
+    if (!token) {
+      throw new Error('Failed to obtain CSRF token. Please refresh the page and try again.');
+    }
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
