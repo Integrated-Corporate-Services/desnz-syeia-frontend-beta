@@ -8,6 +8,7 @@ export * from './TaskListSummaryBreadcrumbs';
 export * from './ReviewApplicationInfoCard';
 export * from './ReviewPaymentDetailsCard';
 export * from './WithdrawalNotificationBanner';
+export * from './WithdrawalDecisionBanner';
 export * from './SummaryWithdrawButton';
 export * from './ApplicationSummaryContent';
 export * from './DownloadPdfButton';
