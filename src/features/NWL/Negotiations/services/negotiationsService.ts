@@ -1,6 +1,6 @@
 import { NegotiationsData } from '../types';
 import { createLogger } from '../../../../utils/logger';
-import { getCsrfHeaders } from '../../../../utils/csrf';
+import { getCsrfHeaders, fetchCsrfToken } from '../../../../utils/csrf';
 
 const logger = createLogger('negotiationsService');
 import { buildBackendUrl } from '../../../../utils/apiConfig';
@@ -80,6 +80,15 @@ export const saveNegotiationsData = async (
       data: JSON.stringify(data, null, 2),
     });
 
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    if (!csrfHeaders['X-CSRF-Token']) {
+      throw new Error('Unable to obtain CSRF token');
+    }
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
@@ -93,7 +102,7 @@ export const saveNegotiationsData = async (
       method: 'POST',
       headers: {
         ...headers,
-        ...getCsrfHeaders(),
+        ...csrfHeaders,
       },
       credentials: 'include',
       body: JSON.stringify(data),
@@ -146,6 +155,15 @@ export const patchNegotiationsData = async (
     logger.debug('[patchNegotiationsData] Attempting PATCH for applicationId:', applicationId);
     logger.debug('[patchNegotiationsData] PageId:', pageId);
     logger.debug('[patchNegotiationsData] Payload:', JSON.stringify(data, null, 2));
+
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    if (!csrfHeaders['X-CSRF-Token']) {
+      throw new Error('Unable to obtain CSRF token');
+    }
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -160,8 +178,9 @@ export const patchNegotiationsData = async (
       method: 'PATCH',
       headers: {
         ...headers,
-        ...getCsrfHeaders(),
+        ...csrfHeaders,
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     
@@ -203,25 +222,5 @@ export const patchNegotiationsData = async (
       logger.error('[patchNegotiationsData] POST fallback also failed:', fallbackError);
       return null;
     }
-  }
-};
-
-export const deleteNegotiationsData = async (applicationId: string): Promise<boolean> => {
-  try {
-    const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
-      method: 'DELETE',
-      headers: {
-        ...getCsrfHeaders(),
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to delete negotiations data: ${response.statusText}`);
-    }
-    
-    return true;
-  } catch (error: unknown) {
-    logger.error('Error deleting negotiations data:', error);
-    return false;
   }
 };

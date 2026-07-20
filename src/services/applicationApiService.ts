@@ -23,10 +23,15 @@ export const applicationApiService = {
 
   // Create a new application
   createApplication: async (applicationData: any, correlationId?: string) => {
-    await fetchCsrfToken();
-    
-    const csrfHeaders = getCsrfHeaders();
-    logger.debug('Creating application', { hasToken: !!csrfHeaders['X-CSRF-Token'] });
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    if (!csrfHeaders['X-CSRF-Token']) {
+      throw new Error('Unable to obtain CSRF token');
+    }
+    logger.debug('Creating application', { hasToken: true });
     
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -290,9 +295,20 @@ withdrawApplication: async (
   withdrawalReason?: string,
   correlationId?: string
 ) => {
+  let csrfHeaders = getCsrfHeaders();
+  if (!csrfHeaders['X-CSRF-Token']) {
+    await fetchCsrfToken();
+    csrfHeaders = getCsrfHeaders();
+  }
+  if (!csrfHeaders['X-CSRF-Token']) {
+    throw new Error('Unable to obtain CSRF token');
+  }
+  logger.debug('Withdrawing application', { applicationId, hasToken: true });
+  
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     "X-Correlation-ID": correlationId || generateCorrelationId(),
+    ...csrfHeaders,
   };
 
   const response = await fetch(
