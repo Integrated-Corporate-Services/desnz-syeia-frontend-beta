@@ -29,6 +29,10 @@ import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
 import SkipLink from "../../../components/SkipLink";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
+import { 
+  WithdrawalDecisionBanner, 
+  WithdrawalPendingBanner 
+} from "../../ApplicationSummary/components/WithdrawalDecisionBanner";
 
 import {
   PAGE_LABELS,
@@ -167,10 +171,12 @@ const ApplicationSummary: React.FC = () => {
   // Withdrawal request state
   const [withdrawalRequest, setWithdrawalRequest] = useState<{
     withdrawal_request_id: string;
-    request_status: string;
+    request_status: 'Requested' | 'Approved' | 'Rejected';
     voluntary_agreement: boolean;
     withdrawal_reason?: string;
     requested_at: string;
+    decision_at?: string;
+    decision_notes?: string;
   } | null>(null);
 
   // Memoize transformed routes to avoid recalculating on every render
@@ -500,18 +506,23 @@ const ApplicationSummary: React.FC = () => {
             
             {/* Withdrawal request notification banner */}
             {withdrawalRequest && withdrawalRequest.request_status === 'Requested' && (
-              <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-                <div className="govuk-notification-banner__header" style={{ backgroundColor: '#1d70b8' }}>
-                  <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title" style={{ color: 'white' }}>
-                    Important
-                  </h2>
-                </div>
-                <div className="govuk-notification-banner__content">
-                  <p className="govuk-notification-banner__heading">
-                    {FIELD_LABELS.WITHDRAWAL_NOTIFICATION_BANNER}
-                  </p>
-                </div>
-              </div>
+              <WithdrawalPendingBanner requestedDate={withdrawalRequest.requested_at} />
+            )}
+            
+            {withdrawalRequest && withdrawalRequest.request_status === 'Approved' && (
+              <WithdrawalDecisionBanner 
+                decision="Approved"
+                decisionDate={withdrawalRequest.decision_at}
+                decisionNotes={withdrawalRequest.decision_notes}
+              />
+            )}
+            
+            {withdrawalRequest && withdrawalRequest.request_status === 'Rejected' && (
+              <WithdrawalDecisionBanner 
+                decision="Rejected"
+                decisionDate={withdrawalRequest.decision_at}
+                decisionNotes={withdrawalRequest.decision_notes}
+              />
             )}
             
             {validationError && (
@@ -647,8 +658,10 @@ const ApplicationSummary: React.FC = () => {
               </div>
             )}
 
-            {/* Withdraw application button - only show if user has withdraw permission and no pending withdrawal request */}
-            {permissions?.canWithdraw && !permissions?.canEdit && !withdrawalRequest && (
+            {/* Withdraw application button - only show if user has withdraw permission, no pending request, or request was rejected */}
+            {permissions?.canWithdraw && 
+             !permissions?.canEdit && 
+             (!withdrawalRequest || withdrawalRequest.request_status === 'Rejected') && (
               <div className="govuk-button-group">
                 <button
                   type="button"
