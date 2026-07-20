@@ -80,9 +80,13 @@ export const saveNegotiationsData = async (
       data: JSON.stringify(data, null, 2),
     });
 
-    const token = await fetchCsrfToken();
-    if (!token) {
-      throw new Error('Failed to obtain CSRF token. Please refresh the page and try again.');
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    if (!csrfHeaders['X-CSRF-Token']) {
+      throw new Error('Unable to obtain CSRF token');
     }
 
     const headers: HeadersInit = {
@@ -98,7 +102,7 @@ export const saveNegotiationsData = async (
       method: 'POST',
       headers: {
         ...headers,
-        ...getCsrfHeaders(),
+        ...csrfHeaders,
       },
       credentials: 'include',
       body: JSON.stringify(data),
@@ -152,9 +156,13 @@ export const patchNegotiationsData = async (
     logger.debug('[patchNegotiationsData] PageId:', pageId);
     logger.debug('[patchNegotiationsData] Payload:', JSON.stringify(data, null, 2));
 
-    const token = await fetchCsrfToken();
-    if (!token) {
-      throw new Error('Failed to obtain CSRF token. Please refresh the page and try again.');
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    if (!csrfHeaders['X-CSRF-Token']) {
+      throw new Error('Unable to obtain CSRF token');
     }
     
     const headers: HeadersInit = {
@@ -170,7 +178,7 @@ export const patchNegotiationsData = async (
       method: 'PATCH',
       headers: {
         ...headers,
-        ...getCsrfHeaders(),
+        ...csrfHeaders,
       },
       credentials: 'include',
       body: JSON.stringify(data),

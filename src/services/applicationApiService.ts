@@ -23,13 +23,15 @@ export const applicationApiService = {
 
   // Create a new application
   createApplication: async (applicationData: any, correlationId?: string) => {
-    const token = await fetchCsrfToken();
-    if (!token) {
-      throw new Error('Failed to obtain CSRF token. Please refresh the page and try again.');
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
     }
-    
-    const csrfHeaders = getCsrfHeaders();
-    logger.debug('Creating application', { hasToken: !!csrfHeaders['X-CSRF-Token'] });
+    if (!csrfHeaders['X-CSRF-Token']) {
+      throw new Error('Unable to obtain CSRF token');
+    }
+    logger.debug('Creating application', { hasToken: true });
     
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -293,13 +295,15 @@ withdrawApplication: async (
   withdrawalReason?: string,
   correlationId?: string
 ) => {
-  const token = await fetchCsrfToken();
-  if (!token) {
-    throw new Error('Failed to obtain CSRF token. Please refresh the page and try again.');
+  let csrfHeaders = getCsrfHeaders();
+  if (!csrfHeaders['X-CSRF-Token']) {
+    await fetchCsrfToken();
+    csrfHeaders = getCsrfHeaders();
   }
-  
-  const csrfHeaders = getCsrfHeaders();
-  logger.debug('Withdrawing application', { applicationId, hasToken: !!csrfHeaders['X-CSRF-Token'] });
+  if (!csrfHeaders['X-CSRF-Token']) {
+    throw new Error('Unable to obtain CSRF token');
+  }
+  logger.debug('Withdrawing application', { applicationId, hasToken: true });
   
   const headers: HeadersInit = {
     "Content-Type": "application/json",
