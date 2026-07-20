@@ -210,26 +210,3 @@ export const patchNegotiationsData = async (
     }
   }
 };
-
-export const deleteNegotiationsData = async (applicationId: string): Promise<boolean> => {
-  try {
-    await fetchCsrfToken();
-    
-    const response = await fetch(`${API_BASE}/${applicationId}/negotiations`, {
-      method: 'DELETE',
-      headers: {
-        ...getCsrfHeaders(),
-      },
-      credentials: 'include',
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to delete negotiations data: ${response.statusText}`);
-    }
-    
-    return true;
-  } catch (error: unknown) {
-    logger.error('Error deleting negotiations data:', error);
-    return false;
-  }
-};
