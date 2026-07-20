@@ -506,7 +506,7 @@ const ApplicationSummary: React.FC = () => {
             
             {/* Withdrawal request notification banner */}
             {withdrawalRequest && withdrawalRequest.request_status === 'Requested' && (
-              <WithdrawalPendingBanner requestedDate={withdrawalRequest.requested_at} />
+              <WithdrawalPendingBanner />
             )}
             
             {withdrawalRequest && withdrawalRequest.request_status === 'Approved' && (

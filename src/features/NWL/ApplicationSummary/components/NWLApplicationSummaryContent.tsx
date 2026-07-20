@@ -55,7 +55,7 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
         <>
             {/* Withdrawal request notification banners */}
             {withdrawalRequest?.request_status === 'Requested' && (
-                <WithdrawalPendingBanner requestedDate={withdrawalRequest.requested_at} />
+                <WithdrawalPendingBanner />
             )}
             
             {withdrawalRequest?.request_status === 'Approved' && (
