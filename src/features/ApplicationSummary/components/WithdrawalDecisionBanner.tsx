@@ -2,14 +2,13 @@ import React from 'react';
 
 interface WithdrawalDecisionBannerProps {
   decision: 'Approved' | 'Rejected';
-  decisionDate?: string;
-  decisionNotes?: string;
+  decisionDate?: string; // Reserved for future use
+  decisionNotes?: string; // Reserved for future use (audit purposes only)
 }
 
 export const WithdrawalDecisionBanner: React.FC<WithdrawalDecisionBannerProps> = ({
   decision,
-  decisionDate,
-  decisionNotes,
+  // decisionDate and decisionNotes intentionally not displayed to end users
 }) => {
   const isApproved = decision === 'Approved';
 
@@ -38,23 +37,16 @@ export const WithdrawalDecisionBanner: React.FC<WithdrawalDecisionBannerProps> =
             ? 'Your request to withdraw this application has been approved.'
             : 'Your request to withdraw this application was rejected. Your application\'s status has not changed.'}
         </h3>
-        {decisionNotes && (
-          <p className="govuk-body">
-            <strong>Reason:</strong> {decisionNotes}
-          </p>
-        )}
       </div>
     </div>
   );
 };
 
 interface WithdrawalPendingBannerProps {
-  requestedDate?: string;
+  requestedDate?: string; // Reserved for future use
 }
 
-export const WithdrawalPendingBanner: React.FC<WithdrawalPendingBannerProps> = ({
-  requestedDate,
-}) => {
+export const WithdrawalPendingBanner: React.FC<WithdrawalPendingBannerProps> = () => {
   return (
     <div
       className="govuk-notification-banner"
@@ -75,15 +67,6 @@ export const WithdrawalPendingBanner: React.FC<WithdrawalPendingBannerProps> = (
         <p className="govuk-notification-banner__heading">
           Your withdrawal request is being reviewed by a case officer. You will be notified when a decision is made.
         </p>
-        {requestedDate && (
-          <p className="govuk-body">
-            Request submitted: {new Date(requestedDate).toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric'
-            })}
-          </p>
-        )}
       </div>
     </div>
   );

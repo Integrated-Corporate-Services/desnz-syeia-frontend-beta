@@ -9,6 +9,8 @@ import {
     ReviewPaymentDetailsCard,
     WithdrawalNotificationBanner,
     SummaryWithdrawButton,
+    WithdrawalDecisionBanner,
+    WithdrawalPendingBanner,
 } from '../../../ApplicationSummary/components';
 import {
     ApplicantDetailsSummaryCard,
@@ -51,8 +53,25 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
 
     return (
         <>
+            {/* Withdrawal request notification banners */}
             {withdrawalRequest?.request_status === 'Requested' && (
-                <WithdrawalNotificationBanner />
+                <WithdrawalPendingBanner requestedDate={withdrawalRequest.requested_at} />
+            )}
+            
+            {withdrawalRequest?.request_status === 'Approved' && (
+                <WithdrawalDecisionBanner 
+                    decision="Approved"
+                    decisionDate={withdrawalRequest.decision_at}
+                    decisionNotes={withdrawalRequest.decision_notes}
+                />
+            )}
+            
+            {withdrawalRequest?.request_status === 'Rejected' && (
+                <WithdrawalDecisionBanner 
+                    decision="Rejected"
+                    decisionDate={withdrawalRequest.decision_at}
+                    decisionNotes={withdrawalRequest.decision_notes}
+                />
             )}
 
             <h1 className="govuk-heading-l">{CONSTANTS.REVIEW_LAYOUT.HEADING}</h1>
