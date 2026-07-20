@@ -1,5 +1,6 @@
 import { buildBackendUrl } from "../utils/apiConfig";
 import { createLogger } from "../utils/logger";
+import { getCsrfHeaders } from "../utils/csrf";
 import type { User, CreateUserData } from "../types/user";
 import type { ServiceResponse } from "../types/common";
 
@@ -56,7 +57,10 @@ class UserService {
     try {
       const response = await fetch(buildBackendUrl("/api/users"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getCsrfHeaders()
+        },
         credentials: "include",
         body: JSON.stringify(userData)
       });
@@ -92,7 +96,10 @@ class UserService {
       }
       const response = await fetch(buildBackendUrl(`/api/users/${userId}/suspend`), {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getCsrfHeaders()
+        },
         credentials: "include",
         body: JSON.stringify(requestBody)
       });
@@ -131,6 +138,9 @@ class UserService {
     try {
       const response = await fetch(buildBackendUrl(`/api/users/${userId}/reactivate`), {
         method: "PATCH",
+        headers: {
+          ...getCsrfHeaders()
+        },
         credentials: "include"
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
