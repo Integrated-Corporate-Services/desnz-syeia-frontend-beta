@@ -1,5 +1,5 @@
 import React from 'react';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '../../../utils/sanitizer';
 import { SummaryRow } from '../types';
 
 export interface SummaryListProps {
@@ -35,7 +35,7 @@ export const SummaryList: React.FC<SummaryListProps> = ({ rows, classes = '' }) 
                         ) : row.value.reactElement ? (
                             row.value.reactElement
                         ) : row.value.html ? (
-                            <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(row.value.html) }} />
+                            <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(row.value.html) }} />
                         ) : (
                             row.value.text
                         )}
