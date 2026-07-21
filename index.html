@@ -23,6 +23,18 @@
       upgrade-insecure-requests;
     " />
     <title>DESNZ</title>
+    
+    <!-- 
+      Fix #4: Clickjacking Protection - Framebuster Script
+      Defense-in-depth: Break out of iframe if page is framed
+      Works even if X-Frame-Options header is stripped by proxy
+    -->
+    <script>
+      // Framebuster: Prevent clickjacking
+      if (top !== self) {
+        top.location = self.location;
+      }
+    </script>
   </head>
   <body class="govuk-frontend-supported">
     <div id="root"></div>
