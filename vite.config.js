@@ -50,9 +50,9 @@ export default defineConfig(({ mode }) => {
                     comments: false,
                 },
             },
-            // SECURITY: Only generate source maps in development mode
-            // Production builds must NEVER include source maps
-            sourcemap: isDevelopment ? true : false,
+            // SECURITY: NEVER generate source maps except in explicit development mode
+            // Must be false for production, staging, and any other environment
+            sourcemap: false,
             chunkSizeWarningLimit: 1000,
         },
         test: {
