@@ -1,4 +1,6 @@
-const mode = import.meta.env.MODE;
+import { getMode } from '../config/runtimeConfig';
+
+const mode = getMode();
 const isDevelopment = mode === 'local' || mode === 'development';
 
 const SENSITIVE_PATTERNS = [

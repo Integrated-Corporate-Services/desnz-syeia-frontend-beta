@@ -1,10 +1,11 @@
 import type { AwsRum, AwsRumConfig } from 'aws-rum-web';
+import { getRuntimeEnv, isDevelopment } from '../../../../config/runtimeConfig';
 
-const APP_MONITOR_ID   = import.meta.env.VITE_RUM_APP_MONITOR_ID;
-const IDENTITY_POOL_ID = import.meta.env.VITE_RUM_IDENTITY_POOL_ID;
-const AWS_REGION       = import.meta.env.VITE_AWS_REGION ?? 'eu-west-2';
+const APP_MONITOR_ID   = getRuntimeEnv('VITE_RUM_APP_MONITOR_ID', '');
+const IDENTITY_POOL_ID = getRuntimeEnv('VITE_RUM_IDENTITY_POOL_ID', '');
+const AWS_REGION       = getRuntimeEnv('VITE_AWS_REGION', 'eu-west-2');
 
-const SESSION_SAMPLE_RATE = import.meta.env.DEV ? 1 : 0.1;
+const SESSION_SAMPLE_RATE = isDevelopment() ? 1 : 0.1;
 
 let rumClient: AwsRum | null = null;
 

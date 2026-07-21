@@ -1,5 +1,6 @@
 import log from "../logger";
 import { buildBackendUrl } from "../utils/apiConfig";
+import { getRuntimeEnv } from '../config/runtimeConfig';
 
 export interface Lpa {
   lpa_code: string;
@@ -35,7 +36,7 @@ class LpaService {
     try {
       const url = this.baseUrl;
       log.debug("Fetching all LPAs from:", url);
-      log.debug("VITE_API_URL env var:", import.meta.env.VITE_API_URL);
+      log.debug("VITE_API_URL env var:", getRuntimeEnv('VITE_API_URL', ''));
       const response = await fetch(url, {
         credentials: "include"
       });

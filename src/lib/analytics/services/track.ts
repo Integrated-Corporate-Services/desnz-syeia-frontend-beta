@@ -1,5 +1,6 @@
 import { readCookie } from '../../../modules/cookie-consent/utils';
 import { AnalyticsEvent, type ParamsForEvent } from '../types';
+import { getRuntimeEnvBoolean } from '../../../config/runtimeConfig';
 
 function analyticsAccepted(): boolean {
   const raw = readCookie('consent_preference');
@@ -12,7 +13,7 @@ function analyticsAccepted(): boolean {
   }
 }
 
-const ENABLE_GA4 = import.meta.env.VITE_ENABLE_GA4 === 'true';
+const ENABLE_GA4 = getRuntimeEnvBoolean('VITE_ENABLE_GA4', false);
 
 function sendToGa4(event: string, params: Record<string, unknown>): void {
   if (!ENABLE_GA4) return;

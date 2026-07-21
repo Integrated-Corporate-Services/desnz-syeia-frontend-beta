@@ -8,6 +8,7 @@
  */
 
 import { createLogger } from './logger';
+import { isDevelopment } from '../config/runtimeConfig';
 
 const logger = createLogger('ErrorMapper');
 
@@ -136,7 +137,7 @@ export function mapErrorToUserMessage(error: any, context?: string): string {
       code: error?.code,
       stack: error?.stack,
       // Only log stack in development
-      ...(import.meta.env.MODE === 'development' && { fullError: error }),
+      ...(isDevelopment() && { fullError: error }),
     });
 
     // Categorize the error

@@ -221,10 +221,10 @@ const DUMMY_USERS: Record<string, DummyUser> = {
   },
 };
 
+import { getRuntimeEnv } from '../config/runtimeConfig';
+
 // Get user type from environment variable (defaults to APPLICANT_TEAM_COORDINATOR_NG)
-const DUMMY_USER_TYPE =
-  (import.meta.env.VITE_DUMMY_USER_TYPE as string) ||
-  "APPLICANT_TEAM_COORDINATOR_NG";
+const DUMMY_USER_TYPE = getRuntimeEnv('VITE_DUMMY_USER_TYPE', 'APPLICANT_TEAM_COORDINATOR_NG');
 const currentDummyUser =
   DUMMY_USERS[DUMMY_USER_TYPE] || DUMMY_USERS.APPLICANT_TEAM_COORDINATOR_NG;
 

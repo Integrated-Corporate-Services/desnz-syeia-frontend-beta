@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { validateFeedbackUrl } from '../utils/url-validation.util';
 import { DETAILED_SURVEY_URL } from '../constants/feedback.constants';
+import { getRuntimeEnv } from '../../../config/runtimeConfig';
 
 export function useFeedbackSurveyUrl() {
   return useMemo(() => {
-    const configUrl = import.meta.env.VITE_DETAILED_FEEDBACK_SURVEY_URL;
+    const configUrl = getRuntimeEnv('VITE_DETAILED_FEEDBACK_SURVEY_URL', '#');
     const urlToValidate = configUrl && configUrl !== '#' ? configUrl : DETAILED_SURVEY_URL;
     const result = validateFeedbackUrl(urlToValidate);
 

@@ -4,10 +4,11 @@
 
 import { buildBackendUrl } from '../utils/apiConfig';
 import { getCsrfHeaders } from '../utils/csrf';
+import { getRuntimeEnvNumber } from '../config/runtimeConfig';
 
 // Configuration from environment variables
-const S3_URL_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_URL_EXPIRY_SECONDS) || 1800; // Default: 30 minutes
-const S3_REFRESH_BEFORE_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS) || 120; // Default: 2 minutes
+const S3_URL_EXPIRY_SECONDS = getRuntimeEnvNumber('VITE_S3_URL_EXPIRY_SECONDS', 1800); // Default: 30 minutes
+const S3_REFRESH_BEFORE_EXPIRY_SECONDS = getRuntimeEnvNumber('VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS', 120); // Default: 2 minutes
 
 interface UrlCacheEntry {
   url: string;

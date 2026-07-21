@@ -1,4 +1,5 @@
 import { DETAILED_SURVEY_URL } from '../constants/feedback.constants';
+import { isDevelopment } from '../../../config/runtimeConfig';
 
 interface ValidationResult {
   isValid: boolean;
@@ -56,8 +57,8 @@ export function validateFeedbackUrl(
     };
   }
 
-  const isDevelopment = import.meta.env.MODE === 'development';
-  const allowedProtocols = isDevelopment ? ['http:', 'https:'] : ['https:'];
+  const devMode = isDevelopment();
+  const allowedProtocols = devMode ? ['http:', 'https:'] : ['https:'];
 
   if (!allowedProtocols.includes(urlObj.protocol)) {
     return {

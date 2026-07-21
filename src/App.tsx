@@ -16,6 +16,7 @@ import { createLogger } from "./utils/logger";
 import { CookieBanner, CookieConsentProvider } from "./modules/cookie-consent";
 import { usePageTracking } from "./lib/analytics";
 import { getAuthLoginUrl } from "./utils/apiConfig";
+import { getRuntimeEnvBoolean, getRuntimeEnv } from "./config/runtimeConfig";
 
 const logger = createLogger("App");
 
@@ -32,7 +33,7 @@ const AppContent = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
+    const LOGIN_DISABLED = getRuntimeEnvBoolean('VITE_LOGIN_DISABLED', false);
 
     if (LOGIN_DISABLED && !loading && !user && error) {
       window.location.href = getAuthLoginUrl();
@@ -137,7 +138,7 @@ const AppContent = () => {
   );
 };
 
-const routerBasename = (import.meta.env.VITE_ROUTER_BASENAME || '').replace(/\/$/, '');
+const routerBasename = getRuntimeEnv('VITE_ROUTER_BASENAME', '/').replace(/\/$/, '');
 
 const App = () => (
   <BrowserRouter basename={routerBasename || undefined}>
