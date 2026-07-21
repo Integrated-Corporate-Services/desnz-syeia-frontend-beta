@@ -836,19 +836,18 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       className="govuk-link"
                       onClick={async (e) => {
                         e.preventDefault();
+                        if (file.scanStatus && file.scanStatus !== "COMPLETED" && file.scanResult !== "INFECTED") {
+                          setUploadNoticeMessage(
+                            "Your file is being scanned. Please wait while the upload is processed."
+                          );
+                          return;
+                        }
                         if (file.scanResult === "INFECTED") {
                           setUploadNoticeMessage(
                             file.virusName
                               ? `${INFECTED_USER_MESSAGE} (${file.virusName})`
                               : INFECTED_USER_MESSAGE
                           );
-                          return;
-                        }
-                        if (file.scanStatus && file.scanStatus !== "COMPLETED") {
-                          setUploadNoticeMessage(
-                            "Your file is being scanned. Please wait while the upload is processed."
-                          );
-                          return;
                         }
                         if (file.s3Key) {
                           try {
@@ -873,6 +872,19 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                     {file.scanResult === "INFECTED" && (
                       <p className="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-0">
                         Quarantined — {INFECTED_USER_MESSAGE}
+                      </p>
+                    )}
+                    {file.scanStatus &&
+                      file.scanStatus !== "COMPLETED" &&
+                      file.scanStatus !== "FAILED" &&
+                      file.scanResult !== "INFECTED" && (
+                      <p className="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-0">
+                        Scanning in progress — download will be available when the scan finishes.
+                      </p>
+                    )}
+                    {file.scanStatus === "FAILED" && (
+                      <p className="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-0">
+                        Virus scanning failed. Please try uploading the file again.
                       </p>
                     )}
                   </td>
