@@ -1,18 +1,7 @@
 import { createLogger } from '../../../../utils/logger';
+import { getRuntimeEnv, getRuntimeEnvBoolean, getMode, isDevelopment } from '../../../../config/runtimeConfig';
 
 const logger = createLogger('telemetry-config');
-
-interface ImportMetaEnv {
-  readonly MODE: string;
-  readonly DEV: boolean;
-  readonly PROD: boolean;
-  readonly VITE_GA4_MEASUREMENT_ID?: string;
-  readonly VITE_ENABLE_GA4?: string;
-  readonly VITE_GTM_ID?: string;
-  readonly VITE_ENABLE_GTM?: string;
-  readonly VITE_DISABLE_TELEMETRY?: string;
-  [key: string]: string | boolean | undefined;
-}
 
 interface TelemetryConfig {
   ga4MeasurementId: string | null;
@@ -23,21 +12,18 @@ interface TelemetryConfig {
 }
 
 /**
- * Get telemetry configuration directly from environment variables
- * No fallbacks, no environment detection - purely from import.meta.env
+ * Get telemetry configuration from runtime environment variables
  */
 export function getTelemetryConfig(): TelemetryConfig {
-  const env = import.meta.env as ImportMetaEnv;
-
-  // Read directly from environment variables
-  const ga4MeasurementId = (env.VITE_GA4_MEASUREMENT_ID as string | undefined) || null;
-  const gtmId = (env.VITE_GTM_ID as string | undefined) || null;
-  const enableGA4 = env.VITE_ENABLE_GA4 === 'true';
-  const enableGTM = env.VITE_ENABLE_GTM === 'true';
-  const debugMode = env.MODE === 'development' || env.DEV === true;
+  // Read directly from runtime environment variables
+  const ga4MeasurementId = getRuntimeEnv('VITE_GA4_MEASUREMENT_ID', '') || null;
+  const gtmId = getRuntimeEnv('VITE_GTM_ID', '') || null;
+  const enableGA4 = getRuntimeEnvBoolean('VITE_ENABLE_GA4', false);
+  const enableGTM = getRuntimeEnvBoolean('VITE_ENABLE_GTM', false);
+  const debugMode = isDevelopment();
 
   if (debugMode) {
-    logger.info('Loaded from environment variables', {
+    logger.info('Loaded from runtime environment variables', {
       hasGA4Id: !!ga4MeasurementId,
       hasGTMId: !!gtmId,
       enableGA4,
@@ -56,10 +42,10 @@ export function getTelemetryConfig(): TelemetryConfig {
 }
 
 /**
- * Get current environment name from Vite MODE
+ * Get current environment name
  */
 export function getCurrentEnvironment(): string {
-  return (import.meta.env as ImportMetaEnv)?.MODE || 'unknown';
+  return getMode();
 }
 
 /**
@@ -67,9 +53,7 @@ export function getCurrentEnvironment(): string {
 * Respects environment variables for override
 */
 export function shouldEnableTelemetry(): boolean {
-  const env = import.meta.env as ImportMetaEnv;
-  
-  if (env?.VITE_DISABLE_TELEMETRY === 'true') {
+  if (getRuntimeEnvBoolean('VITE_DISABLE_TELEMETRY', false)) {
     return false;
   }
 

@@ -1,6 +1,7 @@
 ﻿import { S37_BASE_URL } from './s37';
 // import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
+import { getRuntimeEnv } from '../config/runtimeConfig';
 import TaskList from '../features/TaskList/pages/TaskList';
 import {
   PrivacyNoticePage,
@@ -1032,4 +1033,4 @@ export const ROUTES = {
     NETWORK_OPERATOR_CONTACT_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-contact-details`,
 };
 
-export const BASE_URL = import.meta.env.BASE_URL;
+export const BASE_URL = getRuntimeEnv('VITE_ROUTER_BASENAME', '/').replace(/\/$/, '');

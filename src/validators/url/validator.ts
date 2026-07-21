@@ -1,6 +1,7 @@
 import { matchPath } from 'react-router-dom';
 import { ALLOWED_ROUTES, ALLOWED_EXTERNAL_DOMAINS } from './routes';
 import type { ValidationConfig, ValidationResult, ParsedUrl } from './types';
+import { isDevelopment } from '../../config/runtimeConfig';
 
 export class UrlValidator {
   private config: Required<ValidationConfig>;
@@ -11,7 +12,7 @@ export class UrlValidator {
       allowedRoutes: config.allowedRoutes || ALLOWED_ROUTES,
       allowSubpaths: config.allowSubpaths ?? true,
       strictMode: config.strictMode ?? true,
-      debug: config.debug ?? (import.meta.env?.MODE === 'development'),
+      debug: config.debug ?? isDevelopment(),
     };
   }
   
@@ -306,7 +307,7 @@ export const urlValidator = new UrlValidator({
   allowedRoutes: ALLOWED_ROUTES,
   allowedDomains: ALLOWED_EXTERNAL_DOMAINS,
   strictMode: true,
-  debug: import.meta.env?.MODE === 'development',
+  debug: isDevelopment(),
 });
 
 export function validateUrl(url: string | null | undefined): string | null {

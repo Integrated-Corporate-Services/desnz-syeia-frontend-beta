@@ -1,3 +1,5 @@
+import { getRuntimeEnv, getRuntimeEnvBoolean, getRuntimeEnvNumber, getMode } from './runtimeConfig';
+
 type Environment = 'development' | 'staging' | 'production';
 
 interface ApiEndpoints {
@@ -60,7 +62,7 @@ class ConfigService {
   }
 
   private determineEnvironment(): Environment {
-    const mode = import.meta.env.MODE;
+    const mode = getMode();
     if (mode === 'production') return 'production';
     if (mode === 'staging') return 'staging';
     return 'development';
@@ -70,7 +72,7 @@ class ConfigService {
     const env = this.determineEnvironment();
     const isDevelopment = env === 'development';
 
-    const baseUrl = isDevelopment ? '' : this.sanitizeUrl(import.meta.env.VITE_API_BASE_URL || '');
+    const baseUrl = isDevelopment ? '' : this.sanitizeUrl(getRuntimeEnv('VITE_API_BASE_URL', getRuntimeEnv('VITE_API_URL', '')));
 
     return {
       environment: env,
@@ -85,25 +87,25 @@ class ConfigService {
         api: `${baseUrl}/api`,
       },
       features: {
-        sandboxRoutes: isDevelopment && this.parseBoolean(import.meta.env.VITE_SANDBOX_ROUTES_ENABLED),
+        sandboxRoutes: isDevelopment && getRuntimeEnvBoolean('VITE_SANDBOX_ROUTES_ENABLED'),
         analytics: {
           gtm: {
-            enabled: this.parseBoolean(import.meta.env.VITE_ENABLE_GTM),
-            id: import.meta.env.VITE_GTM_ID || '',
+            enabled: getRuntimeEnvBoolean('VITE_ENABLE_GTM'),
+            id: getRuntimeEnv('VITE_GTM_ID', ''),
           },
           ga4: {
-            enabled: this.parseBoolean(import.meta.env.VITE_ENABLE_GA4),
-            measurementId: import.meta.env.VITE_GA4_MEASUREMENT_ID || '',
+            enabled: getRuntimeEnvBoolean('VITE_ENABLE_GA4'),
+            measurementId: getRuntimeEnv('VITE_GA4_MEASUREMENT_ID', ''),
           },
         },
       },
       session: {
-        timeoutSeconds: parseInt(import.meta.env.VITE_SESSION_TIMEOUT_SECONDS || '1800', 10),
-        warningSeconds: parseInt(import.meta.env.VITE_SESSION_WARNING_SECONDS || '120', 10),
+        timeoutSeconds: getRuntimeEnvNumber('VITE_SESSION_TIMEOUT_SECONDS', 1800),
+        warningSeconds: getRuntimeEnvNumber('VITE_SESSION_WARNING_SECONDS', 120),
       },
       s3: {
-        urlExpirySeconds: parseInt(import.meta.env.VITE_S3_URL_EXPIRY_SECONDS || '1800', 10),
-        refreshBeforeExpirySeconds: parseInt(import.meta.env.VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS || '120', 10),
+        urlExpirySeconds: getRuntimeEnvNumber('VITE_S3_URL_EXPIRY_SECONDS', 1800),
+        refreshBeforeExpirySeconds: getRuntimeEnvNumber('VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS', 120),
       },
     };
   }
