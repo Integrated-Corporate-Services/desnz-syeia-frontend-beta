@@ -78,9 +78,12 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
       }
     }
     
-    // Block javascript: protocol
-    if (href && href.toLowerCase().startsWith('javascript:')) {
-      node.removeAttribute('href');
+    // Block dangerous protocols
+    if (href) {
+      const normalizedHref = href.trim().toLowerCase();
+      if (/^(javascript|data|vbscript|file):/i.test(normalizedHref)) {
+        node.removeAttribute('href');
+      }
     }
   }
 });
