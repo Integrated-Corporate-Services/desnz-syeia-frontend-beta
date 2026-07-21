@@ -5,6 +5,7 @@ import type {
   UpdateConsentBody,
   WithdrawResponse,
 } from '../types';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -15,7 +16,7 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {
   const token = getCsrfToken();
-  const res = await fetch(path, {
+  const res = await fetch(buildBackendUrl(path), {
     credentials: 'include',
     ...init,
     headers: {
@@ -38,9 +39,9 @@ const post = <T>(path: string, body: unknown) =>
   request<T>(path, { method: 'POST', body: JSON.stringify(body) });
 
 export const consentApi = {
-  getPreferences: () => get<ConsentPreferencesResponse>('/backend/cookies/preferences'),
+  getPreferences: () => get<ConsentPreferencesResponse>('/cookies/preferences'),
   setPreferences: (body: UpdateConsentBody) =>
-    post<ConsentPreferencesResponse>('/backend/cookies/preferences', body),
-  withdraw: () => post<WithdrawResponse>('/backend/cookies/withdraw', {}),
-  getCatalog: () => get<{ cookies: CatalogEntry[] }>('/backend/cookies/catalog'),
+    post<ConsentPreferencesResponse>('/cookies/preferences', body),
+  withdraw: () => post<WithdrawResponse>('/cookies/withdraw', {}),
+  getCatalog: () => get<{ cookies: CatalogEntry[] }>('/cookies/catalog'),
 };

@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../utils/csrf';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
@@ -18,26 +19,117 @@ const BankTransferConfirmationPage: React.FC = () => {
   const { user } = useAuthUser();
   const [transactionNumber, setTransactionNumber] = useState('');
   const [error, setError] = useState('');
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
-  
-  
+  const [resolvedInvoiceNumber, setResolvedInvoiceNumber] = useState<string | null>(null);
+  const [resolvedTotalAmount, setResolvedTotalAmount] = useState<number | null>(null);
+
   const fileUploadRef = useRef<FileUploadHandle>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
+  const handleFileValidationErrors = (errors: string[]) => {
+    setFileValidationErrors(errors);
+    if (errors.length > 0) {
+      setTimeout(() => {
+        const errorSummary = document.querySelector('.govuk-error-summary');
+        if (errorSummary) {
+          (errorSummary as HTMLElement).focus?.();
+          errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 0);
+    }
+  };
+
   const { invoiceNumber, totalAmount } = location.state || {};
-  
+
+  const effectiveInvoiceNumber = useMemo(
+    () => invoiceNumber || resolvedInvoiceNumber || sessionStorage.getItem('invoiceNumber') || '',
+    [invoiceNumber, resolvedInvoiceNumber]
+  );
+
+  const effectiveTotalAmount = useMemo(() => {
+    if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount)) {
+      return totalAmount;
+    }
+    if (typeof resolvedTotalAmount === 'number' && !Number.isNaN(resolvedTotalAmount)) {
+      return resolvedTotalAmount;
+    }
+    const storedAmount = sessionStorage.getItem('totalAmount');
+    if (storedAmount) {
+      const parsed = Number(storedAmount);
+      if (!Number.isNaN(parsed)) {
+        return parsed;
+      }
+    }
+    return null;
+  }, [totalAmount, resolvedTotalAmount]);
+
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
+
+  useEffect(() => {
+    const loadInvoiceAndAmountIfNeeded = async () => {
+      if (!applicationId) {
+        return;
+      }
+
+      if (!invoiceNumber && !resolvedInvoiceNumber) {
+        try {
+          const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+          });
+          if (response.ok) {
+            const result = await response.json();
+            if (result.invoiceExists && result.invoiceNumber) {
+              setResolvedInvoiceNumber(result.invoiceNumber);
+              sessionStorage.setItem('invoiceNumber', result.invoiceNumber);
+            }
+          }
+        } catch (err) {
+          logger.error('Failed to load invoice status', err);
+        }
+      } else if (invoiceNumber) {
+        sessionStorage.setItem('invoiceNumber', invoiceNumber);
+      }
+
+      if (
+        (typeof totalAmount !== 'number' || Number.isNaN(totalAmount)) &&
+        resolvedTotalAmount == null
+      ) {
+        try {
+          const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+          });
+          if (response.ok) {
+            const result = await response.json();
+            if (typeof result.totalAmount === 'number' && result.totalAmount > 0) {
+              setResolvedTotalAmount(result.totalAmount);
+              sessionStorage.setItem('totalAmount', result.totalAmount.toString());
+            }
+          }
+        } catch (err) {
+          logger.error('Failed to load payment amount', err);
+        }
+      } else if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount)) {
+        sessionStorage.setItem('totalAmount', totalAmount.toString());
+      }
+    };
+
+    loadInvoiceAndAmountIfNeeded();
+  }, [applicationId, invoiceNumber, totalAmount, resolvedInvoiceNumber, resolvedTotalAmount]);
 
   // No on-mount create/upsert call — payment will be created/submitted when user clicks Submit.
 
   const handleSubmit = async () => {
-    // Transaction number is optional now
+    // Transaction number is optional; invoice number and amount come from the payment journey
 
-    // Validate required fields: invoiceNumber and totalAmount
-    if (!invoiceNumber || invoiceNumber === '') {
-      setError('Invoice number is required');
+    if (!effectiveInvoiceNumber) {
+      setError('Invoice number is not available. Please return to Pay and submit and try again.');
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) errorSummary.scrollIntoView();
@@ -45,8 +137,8 @@ const BankTransferConfirmationPage: React.FC = () => {
       return;
     }
 
-    if (totalAmount === undefined || totalAmount === null) {
-      setError('Amount is required');
+    if (effectiveTotalAmount === undefined || effectiveTotalAmount === null) {
+      setError('Payment amount is not available. Please return to Pay and submit and try again.');
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) errorSummary.scrollIntoView();
@@ -62,7 +154,7 @@ const BankTransferConfirmationPage: React.FC = () => {
     try {
       logger.info('Submitting application with bank transfer', {
         applicationId,
-        invoiceNumber,
+        invoiceNumber: effectiveInvoiceNumber,
         transactionNumber
       });
 
@@ -79,13 +171,13 @@ const BankTransferConfirmationPage: React.FC = () => {
       const payload: any = {
         // snake_case
         payment_method: 'bank_transfer',
-        invoice_number: invoiceNumber,
+        invoice_number: effectiveInvoiceNumber,
         transaction_number: transactionNumber || null,
-        amount: totalAmount,
+        amount: effectiveTotalAmount,
         user_id: user?.user_id || null,
         // camelCase (controller may expect these)
         paymentMethod: 'bank_transfer',
-        invoiceNumber: invoiceNumber,
+        invoiceNumber: effectiveInvoiceNumber,
         transactionNumber: transactionNumber || null,
         userId: user?.user_id || null,
       };
@@ -143,9 +235,12 @@ const BankTransferConfirmationPage: React.FC = () => {
         }));
       }
 
-      const response = await fetch(buildBackendUrl(`/backend/api/application/${applicationId}/save-with-bank-transfer`), {
+      const response = await fetch(buildBackendUrl(`/api/application/${applicationId}/save-with-bank-transfer`), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getCsrfHeaders(),
+        },
         credentials: 'include',
         body: JSON.stringify({ ...payload, action: 'create' }),
       });
@@ -167,8 +262,8 @@ const BankTransferConfirmationPage: React.FC = () => {
       logger.info('Application submitted successfully:', result);
       navigate(`${baseUrl}/${applicationId}/bank-transfer-success`, {
         state: {
-          invoiceNumber,
-          totalAmount,
+          invoiceNumber: effectiveInvoiceNumber,
+          totalAmount: effectiveTotalAmount,
           desnz_ref: result.desnz_ref || result.desnzReference,
           transactionNumber: transactionNumber.trim() || null,
         }
@@ -196,7 +291,7 @@ const BankTransferConfirmationPage: React.FC = () => {
                 Task list
               </Link>
             </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="page">
+            <li className="govuk-breadcrumbs__list-item">
               <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
                 Pay and submit
               </Link>
@@ -206,15 +301,34 @@ const BankTransferConfirmationPage: React.FC = () => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {error && (
-              <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
+            {(error || fileValidationErrors.length > 0) && (
+              <div
+                className="govuk-error-summary"
+                role="alert"
+                aria-labelledby="error-summary-title"
+                tabIndex={-1}
+                data-module="govuk-error-summary"
+              >
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">
-                      <ul className="govuk-list govuk-error-summary__list">
-                        <li>{error}</li>
-                      </ul>
+                  <ul className="govuk-list govuk-error-summary__list">
+                    {error && (
+                      <li>
+                        {error.includes('Invoice number') || error.includes('Payment amount') ? (
+                          <a href={`${baseUrl}/${applicationId}/payment-method`}>{error}</a>
+                        ) : (
+                          <a href="#transaction-number">{error}</a>
+                        )}
+                      </li>
+                    )}
+                    {fileValidationErrors.map((validationError, index) => (
+                      <li key={`file-validation-${index}`}>
+                        <a href="#file-upload-section">{validationError}</a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             )}
@@ -227,12 +341,12 @@ const BankTransferConfirmationPage: React.FC = () => {
 
             <p className="govuk-body">Here are some examples of acceptable proof of payment:</p>
 
-            <ul className="govuk-list govuk-!-margin-bottom-4">
+            <ul className="govuk-list govuk-list--bullet govuk-!-margin-bottom-4">
               <li><strong>Transaction number</strong> - this is usually found within the details of the bank transfer</li>
               <li><strong>Document showing the bank transfer</strong> - this could be a remittance advice note or transfer receipt showing all the details of the transaction</li>
             </ul>
 
-            <div className={`govuk-form-group`}>
+            <div className="govuk-form-group">
               <label className="govuk-label govuk-label--m" htmlFor="transaction-number">
                 Transaction number (optional)
               </label>
@@ -249,9 +363,20 @@ const BankTransferConfirmationPage: React.FC = () => {
               />
             </div>
 
-            <div className="govuk-form-group govuk-!-margin-top-4">
-              <label className="govuk-label govuk-label--s" htmlFor="proof-file">Upload a document showing full details of the bank transfer (optional)</label>
-              <p className="govuk-hint">You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password protected.</p>
+            <div
+              id="file-upload-section"
+              className={`govuk-form-group govuk-!-margin-top-4${
+                fileValidationErrors.length > 0 ? ' govuk-form-group--error' : ''
+              }`}
+            >
+              <label className="govuk-label govuk-label--s" htmlFor="file-upload-input">
+                Upload a document showing full details of the bank transfer (optional)
+              </label>
+              {fileValidationErrors.map((validationError, index) => (
+                <p key={`inline-file-error-${index}`} className="govuk-error-message" id={`file-upload-error-${index}`}>
+                  <span className="govuk-visually-hidden">Error:</span> {validationError}
+                </p>
+              ))}
               <FileUpload
                 ref={fileUploadRef}
                 showTitle={false}
@@ -262,12 +387,14 @@ const BankTransferConfirmationPage: React.FC = () => {
                 uploadedFiles={uploadedFiles}
                 applicationDocuments={applicationDocuments}
                 onPendingFilesChange={setPendingFiles}
-                onValidationErrors={() => {}}
+                onValidationErrors={handleFileValidationErrors}
                 onUploaded={(newUploadedFiles, newDocs) => {
+                  setFileValidationErrors([]);
                   setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
                   setApplicationDocuments(prev => [...prev, ...newDocs]);
                 }}
                 onDeleteFile={(fileId) => {
+                  setFileValidationErrors([]);
                   setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                   setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                 }}

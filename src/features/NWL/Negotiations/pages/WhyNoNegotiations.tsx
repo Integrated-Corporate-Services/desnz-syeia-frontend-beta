@@ -120,7 +120,7 @@ const WhyNoNegotiations: React.FC = () => {
       };
 
       logger.debug('[WhyNoNegotiations] ===== CALLING API =====');
-      logger.debug('[WhyNoNegotiations] API URL:', `/backend/api/nwl/${appId}/negotiations`);
+      logger.debug('[WhyNoNegotiations] API URL:', `/api/nwl/${appId}/negotiations`);
       logger.debug('[WhyNoNegotiations] Payload:', JSON.stringify(payload, null, 2));
 
       const result = await patchNegotiationsData(appId, payload);

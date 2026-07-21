@@ -1,6 +1,7 @@
 import type { AuthUser } from '../types/auth';
 import { createLogger } from '../utils/logger';
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 const logger = createLogger('authService');
 
@@ -14,7 +15,7 @@ export type AuthUserResponse = {
  * Always uses relative paths for same-origin requests
  */
 export async function getAuthUser(): Promise<AuthUserResponse> {
-  const response = await fetch(buildBackendUrl('/backend/auth/user'), {
+  const response = await fetch(buildBackendUrl('/auth/user'), {
     credentials: "include",
   });
   if (!response.ok) {
@@ -24,8 +25,11 @@ export async function getAuthUser(): Promise<AuthUserResponse> {
 }
 
 export async function signOut(): Promise<void> {
-  await fetch(buildBackendUrl('/backend/auth/logout'), {
+  await fetch(buildBackendUrl('/auth/logout'), {
     method: "POST",
+    headers: {
+      ...getCsrfHeaders(),
+    },
     credentials: "include",
   });
 }
@@ -39,11 +43,12 @@ export async function keepAlive(): Promise<boolean> {
   try {
     logger.info('Calling backend keep-alive endpoint to refresh session');
     
-    const response = await fetch(buildBackendUrl('/backend/auth/keep-alive'), {
+    const response = await fetch(buildBackendUrl('/auth/keep-alive'), {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        ...getCsrfHeaders(),
       },
     });
 
@@ -74,11 +79,29 @@ export async function keepAlive(): Promise<boolean> {
 export async function logout(redirectTo?: string): Promise<void> {
   logger.info("Logging out user...", { redirectTo });
 
-  const baseUrl = import.meta.env.API_URL || '';
+  const parsedReason = (() => {
+    if (!redirectTo) {
+      return 'SESSION_GLOBAL_LOGOUT';
+    }
+
+    const reasonMatch = redirectTo.match(/[?&]reason=([^&]+)/);
+    return reasonMatch ? decodeURIComponent(reasonMatch[1]) : 'SESSION_GLOBAL_LOGOUT';
+  })();
+
+  try {
+    localStorage.setItem(
+      'syeia.session.termination',
+      JSON.stringify({ reason: parsedReason, at: Date.now() })
+    );
+  } catch (error) {
+    logger.warn('Unable to broadcast logout event across tabs', error);
+  }
+
+  const baseUrl = import.meta.env.VITE_API_URL || '';
   // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 
-    ? `${baseUrl}/backend/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
-    : `${baseUrl}/backend/auth/logout?redirectTo=${encodeURIComponent('/frontend/landingPage')}`;
+    ? `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
+    : `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent('/landingPage')}`;
 
   // Let the backend handle all logout logic including OIDC session destruction
   // The backend will redirect appropriately after destroying sessions

@@ -2,7 +2,7 @@ import { Negotiation } from '../types/Negotiation';
 
 import { buildBackendUrl } from '../utils/apiConfig';
 
-const API_BASE = buildBackendUrl('/backend/api/nwl');
+const API_BASE = buildBackendUrl('/api/nwl');
 
 export const getNegotiation = async (applicationId: string): Promise<Negotiation | null> => {
   try {

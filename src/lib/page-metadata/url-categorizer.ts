@@ -8,10 +8,8 @@ export function categorizeUrl(pathname: string): UrlMetadata {
   const COMMON_APP_TYPE = 'Common';
   const S37_APP_TYPE = 'S37';
   const NWL_APP_TYPE = 'NWL';
-  const TLP_APP_TYPE = 'TLP';
   const appType = path.includes('/s-37/') ? S37_APP_TYPE
                 : path.includes('/nwl/') ? NWL_APP_TYPE
-                : path.includes('/tlp/') ? TLP_APP_TYPE
                 : COMMON_APP_TYPE;
 
   if (path.includes('feedback')) {
@@ -117,7 +115,7 @@ export function categorizeUrl(pathname: string): UrlMetadata {
     return { applicationType: appType, category: 'Consultations' };
   }
 
-  if (path.startsWith('frontend/s-37') || path.startsWith('s-37/')) {
+  if (path.startsWith('s-37/') || path.startsWith('s-37')) {
     if (path.includes('network-operator-contact') || path.includes('network-operator-details') || path.includes('who-is-applying')) {
       return { applicationType: S37_APP_TYPE, category: 'Applicant details' };
     }
@@ -149,19 +147,15 @@ export function categorizeUrl(pathname: string): UrlMetadata {
     return { applicationType: S37_APP_TYPE, category: 'Application' };
   }
 
-  if (path.startsWith('frontend/nwl') || path.startsWith('nwl/')) {
+  if (path.startsWith('nwl/') || path.startsWith('nwl')) {
     return { applicationType: NWL_APP_TYPE, category: 'Application' };
   }
 
-  if (path.startsWith('frontend/tlp') || path.startsWith('tlp/')) {
-    return { applicationType: TLP_APP_TYPE, category: 'Application' };
-  }
-
-  if (path.includes('workbasket') || path === 'frontend' || path === '' || path.includes('application-dashboard')) {
+  if (path.includes('application-dashboard') || path === '' || path.includes('application-dashboard')) {
     return { applicationType: COMMON_APP_TYPE, category: 'Dashboard' };
   }
 
-  if (path === 'landingpage' || path === 'frontend/landingpage') {
+  if (path === 'landingPage') {
     return { applicationType: COMMON_APP_TYPE, category: 'Public' };
   }
   if (path.includes('s37-guidance')) {

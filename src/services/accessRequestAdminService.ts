@@ -12,7 +12,7 @@ class RequestService {
    */
   async getPendingRequests(): Promise<ServiceResponse<AccessRequest[]>> {
     try {
-      const response = await axios.get('/backend/api/access-requests');
+      const response = await axios.get('/api/access-requests');
       logger.debug('Fetched pending requests:', response.data?.length);
       return {
         success: true,
@@ -30,7 +30,7 @@ class RequestService {
   async getRequestById(requestId: string): Promise<ServiceResponse<AccessRequest>> {
     try {
       logger.debug('Fetching request by ID:', requestId);
-      const url = `/backend/api/access-requests/${requestId}`;
+      const url = `/api/access-requests/${requestId}`;
       const response = await axios.get(url);
       logger.debug('Request fetched successfully:', response.data?.access_request_id);
       return {
@@ -56,7 +56,7 @@ class RequestService {
    */
   async approveRequest(requestId: string): Promise<ServiceResponse<null>> {
     try {
-      const response = await axios.post(`/backend/api/access-requests/${requestId}/approve`);
+      const response = await axios.post(`/api/access-requests/${requestId}/approve`);
       logger.info('Request approved:', requestId);
       return {
         success: true,
@@ -77,7 +77,7 @@ class RequestService {
    */
   async rejectRequest(requestId: string, reason: string): Promise<ServiceResponse<null>> {
     try {
-      const response = await axios.post(`/backend/api/access-requests/${requestId}/reject`, {
+      const response = await axios.post(`/api/access-requests/${requestId}/reject`, {
         reason
       });
       logger.info('Request rejected:', requestId);

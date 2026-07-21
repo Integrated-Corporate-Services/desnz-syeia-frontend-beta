@@ -4,7 +4,7 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 
-const API_BASE_URL = buildBackendUrl('/backend/api/nwl');
+const API_BASE_URL = buildBackendUrl('/api/nwl');
 
 // Re-export Page IDs for convenience
 export { ADDITIONAL_INFO_PAGE_IDS } from '../constants/pageNames';

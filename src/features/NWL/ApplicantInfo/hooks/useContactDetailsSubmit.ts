@@ -33,7 +33,7 @@ export function useContactDetailsSubmit({
 
     setError("");
 
-    if (application && application.application_id) {
+    if (application && application.application_id) {      
       await applicationApiService.saveNetworkOperator({
         application_id: application.application_id,
         operator_ref: application.operator_ref,

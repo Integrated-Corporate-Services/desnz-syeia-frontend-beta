@@ -20,7 +20,7 @@ class OrganisationService {
   async getOrganisations(): Promise<ServiceResponse<Organisation[]>> {
     try {
       logger.debug("Fetching organisations");
-      const response = await axios.get("/backend/api/organisations");
+      const response = await axios.get("/api/organisations");
       logger.debug("Organisations fetched successfully", {
         count: response.data.length,
       });
@@ -47,7 +47,7 @@ class OrganisationService {
   async getOrganisationsDetailed(): Promise<ServiceResponse<Organisation[]>> {
     try {
       logger.debug("Fetching detailed organisations");
-      const response = await axios.get("/backend/api/admin/organisations");
+      const response = await axios.get("/api/admin/organisations");
       logger.debug("Detailed organisations fetched successfully", {
         count: response.data.length,
       });
@@ -79,7 +79,7 @@ class OrganisationService {
     try {
       logger.debug("Fetching organisation by ID", { id });
       const response = await axios.get(
-        `/backend/api/admin/organisations/${id}`
+        `/api/admin/organisations/${id}`
       );
       logger.debug("Organisation fetched successfully");
       return {
@@ -104,7 +104,7 @@ class OrganisationService {
   async getPublicOrganisations(): Promise<ServiceResponse<Organisation[]>> {
     try {
       logger.debug("Fetching public organisations");
-      const response = await axios.get("/backend/api/public/organisations");
+      const response = await axios.get("/api/public/organisations");
       logger.debug("Public organisations fetched successfully", {
         count: response.data.length,
       });

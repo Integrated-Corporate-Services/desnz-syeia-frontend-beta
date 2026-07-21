@@ -1,4 +1,7 @@
 import { categorizeUrl } from './url-categorizer';
+import { createLogger } from '../../utils/logger';
+
+const logger = createLogger('PageMetadata');
 
 export interface PageMetadata {
   pageName:         string;
@@ -9,8 +12,7 @@ export interface PageMetadata {
 function extractPageName(pathname: string): string {
   const segments = pathname
     .split('/')
-    .filter(Boolean)
-    .filter(seg => seg !== 'frontend');
+    .filter(Boolean); // Only filter out empty segments
 
   if (segments.length === 0) return 'home';
 
@@ -43,7 +45,7 @@ export function extractPageMetadata(url: string): PageMetadata {
       category,
     };
   } catch (error) {
-    console.error('[extractPageMetadata] Failed to parse URL:', url, error);
+    logger.error('Failed to parse URL:', url, error);
     return {
       pageName: 'unknown',
       applicationType: 'Common',

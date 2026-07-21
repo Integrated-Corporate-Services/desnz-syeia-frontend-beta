@@ -6,6 +6,7 @@ FROM public.ecr.aws/docker/library/node:18 AS builder
 WORKDIR /app
 
 # Accept build arguments (only what Vite needs at build time)
+ARG VITE_API_URL=""
 ARG VITE_ENABLE_GA4=true
 ARG VITE_GA4_MEASUREMENT_ID=""
 ARG GTM_ID=""
@@ -42,6 +43,7 @@ ARG TRUSTED_ORIGIN=""
 ARG MODE=production
 
 # Set env variables for Vite build
+ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_ENABLE_GA4=$VITE_ENABLE_GA4
 ENV VITE_GA4_MEASUREMENT_ID=$VITE_GA4_MEASUREMENT_ID
 ENV VITE_GTM_ID=$GTM_ID
@@ -73,6 +75,7 @@ ENV MODE=$MODE
 RUN echo "========================================" && \
     echo "Environment Variables for Vite Build:" && \
     echo "========================================" && \
+    echo "VITE_API_URL: $VITE_API_URL" && \
     echo "VITE_GTM_ID: $VITE_GTM_ID (from GTM_ID: $GTM_ID)" && \
     echo "VITE_ENABLE_GTM: $VITE_ENABLE_GTM (from GTM_ISENABLED: $GTM_ISENABLED)" && \
     echo "VITE_GA4_MEASUREMENT_ID: $VITE_GA4_MEASUREMENT_ID" && \
@@ -106,11 +109,11 @@ RUN npm ci
 # Copy app source
 COPY . .
 
-# Build the app
+# Build the app with environment-specific mode
 RUN echo "========================================" && \
-    echo "Starting Vite Build Process..." && \
+    echo "Starting Vite Build Process with MODE=${MODE}..." && \
     echo "========================================" && \
-    npm run build && \
+    npm run build -- --mode ${MODE} && \
     echo "========================================" && \
     echo "Build Complete! Checking output..." && \
     echo "========================================" && \
@@ -128,9 +131,9 @@ WORKDIR /app
 RUN npm install -g serve
 
 # Copy built assets from builder stage and organize for serve.json
-# serve.json expects structure: dist-serve/frontend/
-RUN mkdir -p dist-serve/frontend
-COPY --from=builder /app/dist ./dist-serve/frontend
+# serve.json expects structure: dist-serve/
+RUN mkdir -p dist-serve
+COPY --from=builder /app/dist ./dist-serve
 
 # Copy serve configuration
 COPY serve.json ./serve.json
@@ -141,12 +144,12 @@ RUN echo "========================================" && \
     echo "========================================" && \
     ls -la /app && \
     echo "----------------------------------------" && \
-    echo "Contents of dist-serve/frontend:" && \
-    ls -la /app/dist-serve/frontend && \
+    echo "Contents of dist-serve:" && \
+    ls -la /app/dist-serve && \
     echo "========================================"
 
 # Expose port
 EXPOSE 5173
 
-# Start app (serve expects to find dist-serve/frontend based on serve.json config)
+# Start app (serve expects to find dist-serve based on serve.json config)
 CMD ["serve", "-l", "5173", "-c", "serve.json"]

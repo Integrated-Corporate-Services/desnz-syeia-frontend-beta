@@ -1,6 +1,9 @@
 import { initGa4, disableGa4 } from './ga4';
 import { initGTM, disableGTM } from './gtm';
 import { initRum, tearDownRum, recordRumPageView } from './rum';
+import { createLogger } from '../../../../utils/logger';
+
+const logger = createLogger('Telemetry');
 
 export { recordRumPageView };
 
@@ -18,7 +21,7 @@ export function loadMonitoring(): void {
   if (monitoringLoaded) return;
   monitoringLoaded = true;
   initRum().catch((err: unknown) => {
-    console.error('[Telemetry] RUM initialisation failed:', err);
+    logger.error('RUM initialisation failed:', err);
     monitoringLoaded = false;
   });
 }

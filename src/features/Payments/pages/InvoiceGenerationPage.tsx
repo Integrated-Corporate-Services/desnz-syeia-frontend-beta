@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../utils/csrf';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
@@ -103,7 +104,7 @@ const InvoiceGenerationPage: React.FC = () => {
     }
 
     try {
-      const statusResponse = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
+      const statusResponse = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/status`), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -189,11 +190,12 @@ const InvoiceGenerationPage: React.FC = () => {
 
       // Call backend API with applicationId in URL
       const response = await fetch(
-        buildBackendUrl(`/backend/api/invoice/${applicationId}/generate`),
+        buildBackendUrl(`/api/invoice/${applicationId}/generate`),
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            ...getCsrfHeaders(),
           },
           signal: controller.signal,
           body: JSON.stringify(invoiceData),
@@ -292,7 +294,7 @@ const InvoiceGenerationPage: React.FC = () => {
 
       try {
         setLoadingFees(true);
-        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

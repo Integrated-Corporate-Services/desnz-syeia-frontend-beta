@@ -1,5 +1,6 @@
 import React from 'react';
 import SkipLink from '../../../components/SkipLink';
+import { buildBackendUrl } from '../../../utils/apiConfig';
 
 /**
  * Page shown to users whose access has been revoked (status = INACTIVE)
@@ -7,7 +8,7 @@ import SkipLink from '../../../components/SkipLink';
  */
 const UserAccessRevokedPage: React.FC = () => {
   const handleSignOut = () => {
-    window.location.href = '/backend/auth/logout';
+    window.location.href = buildBackendUrl('/auth/logout');
   };
 
   return (

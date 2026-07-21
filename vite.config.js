@@ -3,16 +3,51 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
+    const isProduction = mode === 'production';
+    
     return {
-        base: '/frontend',
+        base: env.VITE_ROUTER_BASENAME || '/',
         plugins: [react()],
+        
+        define: {
+            ...(isProduction && {
+                '__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({ isDisabled: true }),
+                'process.env.NODE_ENV': JSON.stringify('production')
+            })
+        },
+        
         css: {
             preprocessorOptions: {
                 scss: {
-                    quietDeps: true, // Suppress deprecation warnings from dependencies
+                    quietDeps: true,
                     silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'slash-div', 'mixed-decls'],
                 }
             }
+        },
+        build: {
+            minify: 'terser',
+            terserOptions: {
+                compress: {
+                    drop_console: isProduction,
+                    drop_debugger: true,
+                    pure_funcs: isProduction ? [
+                        'console.log',
+                        'console.info',
+                        'console.debug',
+                        'console.trace',
+                    ] : [],
+                    dead_code: true,
+                    unused: true,
+                },
+                mangle: {
+                    reserved: [],
+                },
+                format: {
+                    comments: false,
+                },
+            },
+            sourcemap: isProduction ? false : true,
+            chunkSizeWarningLimit: 1000,
         },
         test: {
             environment: 'jsdom',
@@ -24,20 +59,32 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             open: true,
             proxy: {
-                '/backend/invites': {
-                    target: env.API_URL,
+                '/csrf-token': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
-                '/backend/api': {
-                    target: env.API_URL,
+                '/invites': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
-                '/backend/auth': {
-                    target: env.API_URL,
+                '/api': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
-                '/backend/cookies': {
-                    target: env.API_URL,
+                '/auth': {
+                    target: env.VITE_API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/preferences': {
+                    target: env.VITE_API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/withdraw': {
+                    target: env.VITE_API_URL,
+                    changeOrigin: true,
+                },
+                '/cookies/catalog': {
+                    target: env.VITE_API_URL,
                     changeOrigin: true,
                 },
             },

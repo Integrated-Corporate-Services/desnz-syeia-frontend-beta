@@ -1,11 +1,12 @@
 /// <reference types="vite/client" />
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 export const progressApiService = {
 
   // Fetch progress for an application
   fetchApplicationProgress: async (applicationId: string) => {
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/progress`), {
       credentials: 'include'
     });
     if (!response.ok) throw new Error('Failed to fetch application progress');
@@ -19,9 +20,12 @@ export const progressApiService = {
     status: string,
     application_type?: string
   ) => {
-  const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
+  const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/progress`), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getCsrfHeaders(),
+      },
       credentials: 'include',
       body: JSON.stringify({ subsection_name, status, application_type }),
     });

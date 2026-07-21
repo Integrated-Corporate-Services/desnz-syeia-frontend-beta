@@ -1,5 +1,6 @@
 import { buildBackendUrl } from '../utils/apiConfig';
-const API_BASE = buildBackendUrl('/backend/api/applications');
+import { getCsrfHeaders } from '../utils/csrf';
+const API_BASE = buildBackendUrl('/api/applications');
 
 export interface ProposedDevelopmentData {
   projectDescription: string;
@@ -36,7 +37,10 @@ export async function saveProposedDevelopment(
   const url = `${API_BASE}/${applicationId}/consultations/${consultationId}/proposed-development`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
+    },
     credentials: 'include',
     body: JSON.stringify(data)
   });

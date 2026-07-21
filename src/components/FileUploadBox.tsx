@@ -3,6 +3,7 @@ import { getPresignedUrls, uploadFileToS3, getPresignedGetUrl } from '../service
 import { FileUploadResponse } from '../types/FileUploadResponse';
 import { validateFiles, formatFileSize, FILE_SIZE_LIMITS } from '../utils/fileUploadValidation';
 import { createLogger } from '../utils/logger';
+import { mapErrorToUserMessage } from '../utils/errorMapper';
 
 const logger = createLogger('FileUploadBox');
 
@@ -39,7 +40,9 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
           setExistingFilesLoading(false);
         })
         .catch(err => {
-          setExistingFilesError(err.message || 'Failed to fetch files');
+          // Sanitize error message for API errors
+          const errorMessage = mapErrorToUserMessage(err, 'FileList');
+          setExistingFilesError(errorMessage);
           setExistingFilesLoading(false);
         });
     });

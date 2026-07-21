@@ -2,20 +2,15 @@
  * NWL Progress API Service
  * Handles progress tracking for NWL subsections
  */
-import { buildBackendUrl } from '../../../utils/apiConfig';
+import axios from 'axios';
 
 export const nwlProgressService = {
   /**
    * Fetch progress for an NWL application
    */
   fetchProgress: async (applicationId: string) => {
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
-      credentials: 'include'
-    });
-    if (!response.ok) {
-      throw new Error('Failed to fetch application progress');
-    }
-    return response.json();
+    const response = await axios.get(`/api/applications/${applicationId}/progress`);
+    return response.data;
   },
 
   /**
@@ -26,22 +21,12 @@ export const nwlProgressService = {
     subsectionName: string,
     status: string
   ) => {
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/progress`), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ 
-        subsection_name: subsectionName, 
-        status,
-        application_type: 'NWL'
-      }),
+    const response = await axios.post(`/api/applications/${applicationId}/progress`, { 
+      subsection_name: subsectionName, 
+      status,
+      application_type: 'NWL'
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to update application progress');
-    }
-    
-    return response.json();
+    return response.data;
   },
 
 }

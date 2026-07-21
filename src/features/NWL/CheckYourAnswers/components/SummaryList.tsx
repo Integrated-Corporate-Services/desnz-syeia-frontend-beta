@@ -1,4 +1,5 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 import { SummaryRow } from '../types';
 
 export interface SummaryListProps {
@@ -16,7 +17,31 @@ export const SummaryList: React.FC<SummaryListProps> = ({ rows, classes = '' }) 
             {rows.map((row, index) => (
                 <div className="govuk-summary-list__row" key={index}>
                     <dt className={`govuk-summary-list__key govuk-!-width-one-half ${row.key.classes || ''}`}>{row.key.text}</dt>
-                    <dd className={`govuk-summary-list__value govuk-!-width-one-half ${row.value.classes || ''}`}>{row.value.html ? <span dangerouslySetInnerHTML={{ __html: row.value.html }} /> : row.value.text}</dd>
+                    <dd className={`govuk-summary-list__value govuk-!-width-one-half ${row.value.classes || ''}`}>
+                        {row.value.documents ? (
+                            <div>
+                                {row.value.documents.map((doc, docIndex) => (
+                                    <React.Fragment key={doc.fileKey}>
+                                        {docIndex > 0 && <br />}
+                                        <a 
+                                            href={doc.downloadUrl} 
+                                            className="govuk-link"
+                                            data-file-key={doc.fileKey}
+                                            data-filename={doc.filename}
+                                        >
+                                            {doc.filename}
+                                        </a>
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        ) : row.value.reactElement ? (
+                            row.value.reactElement
+                        ) : row.value.html ? (
+                            <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(row.value.html) }} />
+                        ) : (
+                            row.value.text
+                        )}
+                    </dd>
                     {row.actions && (
                         <dd className="govuk-summary-list__actions">
                             {row.actions.items.map((action: { href: string; text: string; visuallyHiddenText?: string }, actionIndex: number) => (

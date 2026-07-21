@@ -7,6 +7,7 @@ import { createLogger } from '../../../../utils/logger';
 import { generateCorrelationId } from '../../../../utils/correlationId';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { buildBackendUrl } from '../../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../../utils/csrf';
 
 const logger = createLogger('ApplicationDetailsService');
 
@@ -95,11 +96,12 @@ export const createOrUpdateApplicationDetails = async (
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'X-Correlation-ID': generateCorrelationId(),
-    'X-Page-ID': pageId, // Send page ID in header as string
+    'X-Page-ID': pageId,
+    ...getCsrfHeaders(),
   };
 
   // URL without page parameter - page ID is sent in header
-  const url = buildBackendUrl(`/backend/api/nwl/${applicationId}/application-details`);
+  const url = buildBackendUrl(`/api/nwl/${applicationId}/application-details`);
 
   logger.info('Saving application details', { applicationId, pageId });
 
@@ -149,7 +151,7 @@ export const fetchApplicationDetails = async (
     'X-Correlation-ID': generateCorrelationId(),
   };
 
-  const response = await fetch(buildBackendUrl(`/backend/api/nwl/${applicationId}/application-details`), {
+  const response = await fetch(buildBackendUrl(`/api/nwl/${applicationId}/application-details`), {
     credentials: 'include',
     headers,
   });

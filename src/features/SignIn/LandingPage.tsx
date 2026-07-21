@@ -1,5 +1,6 @@
 
 import SkipLink from '../../components/SkipLink';
+import { buildBackendUrl } from '../../utils/apiConfig';
 
 const LandingPage = () => {
   return (
@@ -38,8 +39,8 @@ const LandingPage = () => {
                 These are the different application types, linked to specific guidance for each:
               </p>
               <ul className="govuk-list govuk-list--bullet">
-                <li><a className="govuk-link" href="/frontend/s37-guidance">Overhead lines (Section 37)</a></li>
-                <li><a className="govuk-link" href="/frontend/nwl-guidance">Necessary wayleaves</a></li>
+                <li><a className="govuk-link" href="/s37-guidance">Overhead lines (Section 37)</a></li>
+                <li><a className="govuk-link" href="/nwl-guidance">Necessary wayleaves</a></li>
                 <li><a className="govuk-link" href="#">Tree felling or lopping</a></li>
               </ul>
               <p className="govuk-body">
@@ -73,7 +74,7 @@ const LandingPage = () => {
                 className="govuk-button govuk-button--start"
                 data-module="govuk-button"
                 onClick={() => {
-                  window.location.href = `${import.meta.env.API_URL || ''}/backend/auth/login`;
+                  window.location.href = buildBackendUrl('/auth/login');
                 }}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 aria-label="Sign in to submit your application"

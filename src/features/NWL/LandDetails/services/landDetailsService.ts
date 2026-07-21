@@ -1,10 +1,11 @@
 import { LandDetails } from '../types';
 import { mapBackendToFrontend, mapFrontendToBackend } from '../utils/landDetailsMapper';
 import logger from '../../../../logger';
+import { getCsrfHeaders } from '../../../../utils/csrf';
 
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 
-const API_BASE_URL = buildBackendUrl('/backend/api/nwl');
+const API_BASE_URL = buildBackendUrl('/api/nwl');
 
 export const landDetailsService = {
   async getLandDetails(applicationId: string): Promise<LandDetails | null> {
@@ -53,6 +54,7 @@ export const landDetailsService = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getCsrfHeaders(),
         },
         credentials: 'include',
         body: JSON.stringify(backendData),
@@ -98,6 +100,7 @@ export const landDetailsService = {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          ...getCsrfHeaders(),
         },
         credentials: 'include',
         body: JSON.stringify(backendData),

@@ -1,5 +1,6 @@
-import { buildBackendUrl } from '../utils/apiConfig';
-const API_BASE = buildBackendUrl('/backend/api/applications');
+import axios from 'axios';
+
+const API_BASE = '/api/applications';
 
 export interface FormMetadata {
   applicantOrganisationName?: string;
@@ -23,15 +24,15 @@ export async function getFormMetadata(
   applicationId: string,
   consultationId: string
 ): Promise<FormMetadata | null> {
-  const url = `${API_BASE}/${applicationId}/consultations/${consultationId}/form-metadata`;
-  const res = await fetch(url, { credentials: 'include' });
-  
-  if (!res.ok) {
-    if (res.status === 404) return null;
+  try {
+    const response = await axios.get(
+      `${API_BASE}/${applicationId}/consultations/${consultationId}/form-metadata`
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) return null;
     throw new Error('Failed to get form metadata');
   }
-  
-  return await res.json();
 }
 
 /**
@@ -42,20 +43,16 @@ export async function updateFormMetadata(
   consultationId: string,
   data: FormMetadata
 ): Promise<{ success: boolean; data?: FormMetadata }> {
-  const url = `${API_BASE}/${applicationId}/consultations/${consultationId}/form-metadata`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(data)
-  });
-  
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || 'Failed to update form metadata');
+  try {
+    const response = await axios.post(
+      `${API_BASE}/${applicationId}/consultations/${consultationId}/form-metadata`,
+      data
+    );
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.error || 'Failed to update form metadata';
+    throw new Error(message);
   }
-  
-  return await res.json();
 }
 
 /**

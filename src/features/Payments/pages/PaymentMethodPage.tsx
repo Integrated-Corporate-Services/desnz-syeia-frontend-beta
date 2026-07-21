@@ -9,6 +9,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { trackPaymentEvent } from '../../../utils/analytics';
 import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
+import { getCardPaymentDescription } from '../../../constants/payment';
 import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentMethodPage');
@@ -61,7 +62,7 @@ const PaymentMethodPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -110,8 +111,8 @@ const handlePayByCard = async () => {
     const result = await createPayment(
       amountInPence,
       applicationId, // reference
-      `Section 37 Application Payment - ${applicationId}`, // description
-      `${window.location.origin}/frontend/payment/callback`, // return_url
+      getCardPaymentDescription(applicationId, baseUrl === NWL_BASE_URL),
+      `${window.location.origin}/payment/callback`, // return_url
       { // metadata
         applicationId,
         invoiceNumber,
@@ -154,6 +155,12 @@ const handlePayByCard = async () => {
   };
 
   const handleBankTransfer = () => {
+    if (invoiceNumber) {
+      sessionStorage.setItem('invoiceNumber', invoiceNumber);
+    }
+    if (typeof effectiveTotalAmount === 'number') {
+      sessionStorage.setItem('totalAmount', effectiveTotalAmount.toString());
+    }
     navigate(`${baseUrl}/${applicationId}/bank-transfer-payment`, {
       state: { invoiceNumber, totalAmount: effectiveTotalAmount, consentFee, eiaScreeningFee }
     });
