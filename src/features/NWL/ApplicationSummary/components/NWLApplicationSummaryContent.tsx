@@ -7,7 +7,6 @@ import { usePdfDownload } from '../../../ApplicationSummary/hooks';
 import {
     ReviewApplicationInfoCard,
     ReviewPaymentDetailsCard,
-    WithdrawalNotificationBanner,
     SummaryWithdrawButton,
     WithdrawalDecisionBanner,
     WithdrawalPendingBanner,
@@ -44,8 +43,11 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     const navigate = useNavigate();
     const { isDownloading, error: pdfError, downloadPdf, clearError } = usePdfDownload();
 
+    // Show withdraw button if user can withdraw AND (no withdrawal request OR request was rejected)
     const showWithdraw =
-        data.permissions?.canWithdraw && !data.permissions?.canEdit && !withdrawalRequest;
+        data.permissions?.canWithdraw && 
+        !data.permissions?.canEdit && 
+        (!withdrawalRequest || withdrawalRequest.request_status === 'Rejected');
 
     const handleDownloadPdf = async () => {
         await downloadPdf(applicationId);
