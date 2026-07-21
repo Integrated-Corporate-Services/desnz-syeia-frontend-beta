@@ -3,7 +3,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
-    const isProduction = mode === 'production';
+    
+    // Determine if we're in production - be defensive about it
+    // Only enable source maps explicitly in development mode
+    const isDevelopment = mode === 'development' || mode === 'local';
+    const isProduction = mode === 'production' || process.env.NODE_ENV === 'production';
     
     return {
         base: env.VITE_ROUTER_BASENAME || '/',
@@ -28,9 +32,9 @@ export default defineConfig(({ mode }) => {
             minify: 'terser',
             terserOptions: {
                 compress: {
-                    drop_console: isProduction,
+                    drop_console: !isDevelopment,
                     drop_debugger: true,
-                    pure_funcs: isProduction ? [
+                    pure_funcs: !isDevelopment ? [
                         'console.log',
                         'console.info',
                         'console.debug',
@@ -46,7 +50,9 @@ export default defineConfig(({ mode }) => {
                     comments: false,
                 },
             },
-            sourcemap: isProduction ? false : true,
+            // SECURITY: Only generate source maps in development mode
+            // Production builds must NEVER include source maps
+            sourcemap: isDevelopment ? true : false,
             chunkSizeWarningLimit: 1000,
         },
         test: {
