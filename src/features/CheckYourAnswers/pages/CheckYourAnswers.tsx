@@ -179,7 +179,7 @@ const CheckYourAnswers: React.FC = () => {
 
   useEffect(() => {
     if (!applicationId) return;
-    fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+    fetch(buildBackendUrl(`/api/applications/${applicationId}/review`), {
       credentials: 'include'
     })
       .then((res) => res.json())
@@ -935,7 +935,7 @@ const CheckYourAnswers: React.FC = () => {
               <div className="govuk-summary-card__title-wrapper">
                 <h2 className="govuk-summary-card__title">Route map
                   <a
-                    href={`/frontend${S37_BASE_URL}/${applicationId}/route-map-only`}
+                    href={`${S37_BASE_URL}/${applicationId}/route-map-only`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="govuk-link"
@@ -1638,7 +1638,7 @@ const CheckYourAnswers: React.FC = () => {
                                               try {
                                                 await downloadS3FileOnSameTab(key);
                                               } catch (error) {
-                                                console.error('Failed to download file:', error);
+                                                logger.error('Failed to download file:', error);
                                               }
                                             }}
                                           >
@@ -1682,7 +1682,7 @@ const CheckYourAnswers: React.FC = () => {
                                             try {
                                               await downloadS3FileOnSameTab(key);
                                             } catch (error) {
-                                              console.error('Failed to download file:', error);
+                                              logger.error('Failed to download file:', error);
                                             }
                                           }}
                                         >

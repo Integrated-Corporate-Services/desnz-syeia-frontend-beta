@@ -16,7 +16,7 @@ export async function saveConsultationOutcome(
   data: ConsultationOutcomeData
 ): Promise<{ success: boolean; data: ConsultationOutcomeResponse }> {
   const response = await axios.post(
-    `/backend/api/applications/${applicationId}/consultation-outcome`,
+    `/api/applications/${applicationId}/consultation-outcome`,
     data
   );
   return response.data;
@@ -32,7 +32,7 @@ export async function getConsultationOutcome(
 ): Promise<ConsultationOutcomeResponse | null> {
   try {
     const response = await axios.get(
-      `/backend/api/applications/${applicationId}/consultation-outcome`
+      `/api/applications/${applicationId}/consultation-outcome`
     );
     return response.data;
   } catch (error: any) {
@@ -52,7 +52,7 @@ export async function getConsultationOutcomeStatus(
   applicationId: string
 ): Promise<ConsultationOutcomeStatusResponse> {
   const response = await axios.get(
-    `/backend/api/applications/${applicationId}/consultation-outcome/status`
+    `/api/applications/${applicationId}/consultation-outcome/status`
   );
   return response.data;
 }

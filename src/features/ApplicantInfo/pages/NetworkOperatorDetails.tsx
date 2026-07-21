@@ -157,7 +157,7 @@ const NetworkOperatorDetails: React.FC = () => {
         const newAppData = {
           type: "NWL",
           operator_ref: networkOperatorRef,
-          status: "Draft",
+          status: "DRAFT",
           created_by: created_by,
         };
         app = await createNewApplication(newAppData);

@@ -24,17 +24,17 @@ export interface SensitiveAreaReviewSummary {
 }
 
 export async function getSensitiveAreas(applicationId: string) {
-  const res = await axios.get(`/backend/api/sensitive-areas/${applicationId}`);
+  const res = await axios.get(`/api/sensitive-areas/${applicationId}`);
   return res.data;
 }
 
 export async function getSensitiveAreaCheckStatus(applicationId: string) {
-  const res = await axios.get(`/backend/api/sensitive-area-check-status/${applicationId}`);
+  const res = await axios.get(`/api/sensitive-area-check-status/${applicationId}`);
   return res.data;
 }
 
 export async function getSensitiveAreaReviewSummary(applicationId: string): Promise<SensitiveAreaReviewSummary> {
-  const res = await axios.get(`/backend/api/${applicationId}/sensitive-area-review-summary`);
+  const res = await axios.get(`/api/${applicationId}/sensitive-area-review-summary`);
   return res.data;
 }
 
@@ -44,12 +44,12 @@ export async function startSensitiveAreaCheck(applicationId: string, toleranceRe
     toleranceValue,
     routes
   };
-  const res = await axios.post(`/backend/api/sensitive-area-check/${applicationId}`, payload);
+  const res = await axios.post(`/api/sensitive-area-check/${applicationId}`, payload);
   return res.data;
 }
 
 export async function saveSensitiveReview(reviewPayload: any) {
-  const res = await axios.post(`/backend/api/save-sensitivereview`, reviewPayload);
+  const res = await axios.post(`/api/save-sensitivereview`, reviewPayload);
   return res.data;
 }
 
@@ -59,6 +59,6 @@ export async function updateManuallySelectedLayers(applicationId: string, select
     selectedLayerIds,
     noneSelected
   };
-  const res = await axios.post(`/backend/api/${applicationId}/sensitive-area-review-summary`, payload);
+  const res = await axios.post(`/api/${applicationId}/sensitive-area-review-summary`, payload);
   return res.data;
 }

@@ -10,8 +10,17 @@
 
 import { apiFetch } from './apiErrorHandler';
 import { buildBackendUrl } from './apiConfig';
+import { getCsrfHeaders } from './csrf';
 
-export const API_BASE = buildBackendUrl('/backend/api');
+export const API_BASE = buildBackendUrl('/api');
+
+const resolveApiUrl = (path: string): string => {
+  if (/^https?:\/\//.test(path)) {
+    return path;
+  }
+
+  return `${API_BASE}${path}`;
+};
 
 /**
  * GET request
@@ -19,7 +28,7 @@ export const API_BASE = buildBackendUrl('/backend/api');
  * @returns Promise with response data
  */
 export async function apiGet<T = any>(path: string): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, { method: 'GET' });
 }
 
@@ -30,11 +39,12 @@ export async function apiGet<T = any>(path: string): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiPost<T = any>(path: string, data?: any): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     body: data ? JSON.stringify(data) : undefined,
   });
@@ -47,11 +57,12 @@ export async function apiPost<T = any>(path: string, data?: any): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiPut<T = any>(path: string, data?: any): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     body: data ? JSON.stringify(data) : undefined,
   });
@@ -64,11 +75,12 @@ export async function apiPut<T = any>(path: string, data?: any): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiPatch<T = any>(path: string, data?: any): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     body: data ? JSON.stringify(data) : undefined,
   });
@@ -80,8 +92,13 @@ export async function apiPatch<T = any>(path: string, data?: any): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiDelete<T = any>(path: string): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
-  return apiFetch<T>(url, { method: 'DELETE' });
+  const url = resolveApiUrl(path);
+  return apiFetch<T>(url, { 
+    method: 'DELETE',
+    headers: {
+      ...getCsrfHeaders(),
+    },
+  });
 }
 
 /**
@@ -91,11 +108,14 @@ export async function apiDelete<T = any>(path: string): Promise<T> {
  * @returns Promise with response data
  */
 export async function apiUpload<T = any>(path: string, formData: FormData): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, {
     method: 'POST',
+    headers: {
+      // Don't set Content-Type - browser will set it with boundary
+      ...getCsrfHeaders(),
+    },
     body: formData,
-    // Don't set Content-Type - browser will set it with boundary
   });
 }
 
@@ -106,7 +126,7 @@ export async function apiUpload<T = any>(path: string, formData: FormData): Prom
  * @returns Promise with response data
  */
 export async function apiRequest<T = any>(path: string, options: RequestInit): Promise<T> {
-  const url = path.startsWith('/backend') ? path : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   return apiFetch<T>(url, options);
 }
 

@@ -24,8 +24,8 @@ export const getTeamCoordinators = async (
   try {
     logger.debug("Fetching team coordinators", { organisationId });
     const url = organisationId
-      ? `/backend/api/team-coordinators?organisation_id=${organisationId}`
-      : `/backend/api/team-coordinators`;
+      ? `/api/team-coordinators?organisation_id=${organisationId}`
+      : `/api/team-coordinators`;
     const response = await axios.get(url);
     logger.debug("Team coordinators fetched successfully", {
       count: response.data.length,
@@ -51,7 +51,7 @@ export const getTeamCoordinatorById = async (
       organisationId,
       coordinatorId,
     });
-    const url = `/backend/api/admin/organisations/${organisationId}/team-coordinators/${coordinatorId}`;
+    const url = `/api/admin/organisations/${organisationId}/team-coordinators/${coordinatorId}`;
     const response = await axios.get(url);
     logger.debug("Team coordinator fetched successfully", {
       data: response.data,
@@ -84,7 +84,7 @@ export const updateTeamCoordinator = async (
       updates,
     });
     const response = await axios.put(
-      `/backend/api/admin/organisations/${organisationId}/team-coordinators/${coordinatorId}`,
+      `/api/admin/organisations/${organisationId}/team-coordinators/${coordinatorId}`,
       updates,
     );
     logger.debug("Team coordinator updated successfully");

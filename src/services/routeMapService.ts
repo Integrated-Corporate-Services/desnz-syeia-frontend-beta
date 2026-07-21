@@ -1,11 +1,11 @@
 // Delete a route by route_id
 export async function deleteRoute(applicationId: string, route_id: string) {
-  return axios.delete(`/backend/api/applications/${applicationId}/route/${route_id}`);
+  return axios.delete(`/api/applications/${applicationId}/route/${route_id}`);
 }
 
 // Bulk delete route points by point_ids
 export async function deleteRoutePoints(applicationId: string, point_ids: string[]) {
-  return axios.delete(`/backend/api/applications/${applicationId}/route-points-remove`, {
+  return axios.delete(`/api/applications/${applicationId}/route-points-remove`, {
     data: { point_ids, applicationId },
     headers: { 'Content-Type': 'application/json' },
   });
@@ -24,7 +24,7 @@ export async function submitRoutePoints(applicationId: string, points: RoutePoin
   // Only handle single route for now
   const routes = [{ routeName: 'Route A', gridPoints: convertPoints(points) }];
 
-  return axios.post('/backend/api/map-route', {
+  return axios.post('/api/map-route', {
     applicationId,
     routes,
   });
@@ -32,13 +32,13 @@ export async function submitRoutePoints(applicationId: string, points: RoutePoin
 
 export async function getRoutesWithPoints(applicationId: string) {
   if (!applicationId) throw new Error('applicationId is required');
-  const res = await axios.get(`/backend/api/applications/${applicationId}/route`);
+  const res = await axios.get(`/api/applications/${applicationId}/route`);
   return res.data;
 }
 
 // New: create route with points
 export async function createRouteWithPoints(applicationId: string, route: any) {
-  return axios.post('/backend/api/map-route', {
+  return axios.post('/api/map-route', {
     applicationId,
     routes: [route],
   });
@@ -46,7 +46,7 @@ export async function createRouteWithPoints(applicationId: string, route: any) {
 
 // New: save (update) route with points
 export async function saveRoutesWithPoints(applicationId: string, routes: any[]) {
-  return axios.put('/backend/api/map-route', {
+  return axios.put('/api/map-route', {
     applicationId,
     routes,
   });

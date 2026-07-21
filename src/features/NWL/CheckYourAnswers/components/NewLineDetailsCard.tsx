@@ -22,7 +22,7 @@ const NewLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, appli
     if (data.wayleave_offer_documents && data.wayleave_offer_documents.length > 0) {
         const docLinks = data.wayleave_offer_documents.map((doc: any) => {
             const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/backend/api/file/download?key=${encodeURIComponent(fileKey)}`;
+            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
             return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
         }).join('<br>');
         groundsRows.push({

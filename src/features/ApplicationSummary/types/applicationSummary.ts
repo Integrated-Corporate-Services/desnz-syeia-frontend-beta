@@ -14,14 +14,22 @@ export enum ApplicationStatus {
     WITHDRAWN = 'WITHDRAWN',
 }
 
+export interface DocumentLink {
+    fileKey: string;
+    filename: string;
+    downloadUrl: string;
+}
+
 export interface SummaryRow {
     key: {
         text: string;
         classes?: string;
     };
     value: {
-        text: string;
+        text?: string;
         html?: string;
+        reactElement?: React.ReactNode;
+        documents?: DocumentLink[];
         classes?: string;
     };
     actions?: {

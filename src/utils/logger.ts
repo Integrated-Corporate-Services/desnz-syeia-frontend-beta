@@ -1,6 +1,40 @@
 const mode = import.meta.env.MODE;
 const isDevelopment = mode === 'local' || mode === 'development';
 
+const SENSITIVE_PATTERNS = [
+  'password', 'passwd', 'pwd',
+  'token', 'accessToken', 'refreshToken', 'sessionToken', 'csrfToken', 'csrf',
+  'apiKey', 'api_key', 'secret', 'privateKey',
+  'authorization', 'auth',
+  'cookie', 'session',
+  'email', 'emailAddress',
+  'ssn', 'socialSecurityNumber',
+  'creditCard', 'cardNumber', 'cvv', 'cvc',
+  'accountNumber', 'payment'
+];
+
+const redactSensitiveData = (obj: any, depth = 0): any => {
+  if (depth > 5) return '[MAX_DEPTH]';
+  if (typeof obj !== 'object' || obj === null) return obj;
+  if (Array.isArray(obj)) return obj.map(item => redactSensitiveData(item, depth + 1));
+  
+  const redacted: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const isSensitive = SENSITIVE_PATTERNS.some(pattern =>
+      key.toLowerCase().includes(pattern.toLowerCase())
+    );
+    
+    if (isSensitive) {
+      redacted[key] = '[REDACTED]';
+    } else if (typeof value === 'object' && value !== null) {
+      redacted[key] = redactSensitiveData(value, depth + 1);
+    } else {
+      redacted[key] = value;
+    }
+  }
+  return redacted;
+};
+
 class Logger {
   private context: string;
   private correlationId?: string;
@@ -14,7 +48,12 @@ class Logger {
     const prefix = this.correlationId
       ? `[${this.context}] [correlationId: ${this.correlationId}]`
       : `[${this.context}]`;
-    return [prefix, ...args];
+    
+    const redactedArgs = args.map(arg => 
+      typeof arg === 'object' ? redactSensitiveData(arg) : arg
+    );
+    
+    return [prefix, ...redactedArgs];
   }
 
   debug(...args: any[]) {
@@ -36,7 +75,12 @@ class Logger {
   }
 
   error(...args: any[]) {
-    console.error(...this.formatMessage("ERROR", ...args));
+    const redactedArgs = this.formatMessage("ERROR", ...args);
+    if (isDevelopment) {
+      console.error(...redactedArgs);
+    } else {
+      console.error(redactedArgs[0]);
+    }
   }
 }
 

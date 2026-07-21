@@ -1,8 +1,9 @@
 import { UploadedFile, ApplicationDocument } from '../types/fileUpload';
 
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
-const API_BASE = buildBackendUrl('/backend/api/applications');
+const API_BASE = buildBackendUrl('/api/applications');
 
 export interface ConsultationRequest {
   applicationId: string;
@@ -33,7 +34,8 @@ export async function saveConsultationRequest(data: ConsultationRequest): Promis
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(data)

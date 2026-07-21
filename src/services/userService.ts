@@ -1,5 +1,6 @@
 import { buildBackendUrl } from "../utils/apiConfig";
 import { createLogger } from "../utils/logger";
+import { getCsrfHeaders } from "../utils/csrf";
 import type { User, CreateUserData } from "../types/user";
 import type { ServiceResponse } from "../types/common";
 
@@ -17,7 +18,7 @@ class UserService {
       if (orgFilter) {
         params.append("organisation", orgFilter);
       }
-      const url = buildBackendUrl(`/backend/api/users${
+      const url = buildBackendUrl(`/api/users${
         params.toString() ? `?${params.toString()}` : ""
       }`);
       const response = await fetch(url, { credentials: "include" });
@@ -54,9 +55,12 @@ class UserService {
    */
   async createUser(userData: CreateUserData): Promise<ServiceResponse<User>> {
     try {
-      const response = await fetch(buildBackendUrl("/backend/api/users"), {
+      const response = await fetch(buildBackendUrl("/api/users"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getCsrfHeaders()
+        },
         credentials: "include",
         body: JSON.stringify(userData)
       });
@@ -90,9 +94,12 @@ class UserService {
       if (organisationId) {
         requestBody.organisationId = organisationId;
       }
-      const response = await fetch(buildBackendUrl(`/backend/api/users/${userId}/suspend`), {
+      const response = await fetch(buildBackendUrl(`/api/users/${userId}/suspend`), {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getCsrfHeaders()
+        },
         credentials: "include",
         body: JSON.stringify(requestBody)
       });
@@ -129,8 +136,11 @@ class UserService {
    */
   async reactivateUser(userId: string): Promise<ServiceResponse<void>> {
     try {
-      const response = await fetch(buildBackendUrl(`/backend/api/users/${userId}/reactivate`), {
+      const response = await fetch(buildBackendUrl(`/api/users/${userId}/reactivate`), {
         method: "PATCH",
+        headers: {
+          ...getCsrfHeaders()
+        },
         credentials: "include"
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);

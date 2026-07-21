@@ -46,7 +46,7 @@ export const PAYMENT_ROUTES = {
   BANK_TRANSFER_PAYMENT: 'bank-transfer-payment',
   BANK_TRANSFER_CONFIRMATION: 'bank-transfer-confirmation',
   BANK_TRANSFER_SUCCESS: 'bank-transfer-success',
-  PAYMENT_CALLBACK: '/frontend/payment/callback',
+  PAYMENT_CALLBACK: '/payment/callback',
 } as const;
 
 /**
@@ -160,6 +160,20 @@ export function formatBankDetails() {
  */
 export function formatCurrency(amount: number): string {
   return `£${amount.toFixed(2)}`;
+}
+
+/**
+ * GOV.UK Pay payment description for card payments.
+ * Must reflect the application type (S37 vs NWL).
+ */
+export function getCardPaymentDescription(
+  applicationId: string,
+  isNwl: boolean
+): string {
+  const applicationLabel = isNwl
+    ? 'Necessary Wayleave Application Payment'
+    : 'Section 37 Application Payment';
+  return `${applicationLabel} - ${applicationId}`;
 }
 
 /**

@@ -51,7 +51,7 @@ describe('InvoiceGenerationPage regressions', () => {
     fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
-      if (url.endsWith('/backend/api/invoice/APP123/calculate-fees')) {
+      if (url.endsWith('/api/invoice/APP123/calculate-fees')) {
         return {
           ok: true,
           json: async () => ({
@@ -64,7 +64,7 @@ describe('InvoiceGenerationPage regressions', () => {
         } as Response;
       }
 
-      if (url.endsWith('/backend/api/invoice/APP123/generate') && init?.method === 'POST') {
+      if (url.endsWith('/api/invoice/APP123/generate') && init?.method === 'POST') {
         return {
           ok: true,
           json: async () => ({
@@ -93,7 +93,7 @@ describe('InvoiceGenerationPage regressions', () => {
     });
 
     const generateRequestCall = fetchMock.mock.calls.find(([url]) =>
-      String(url).endsWith('/backend/api/invoice/APP123/generate')
+      String(url).endsWith('/api/invoice/APP123/generate')
     );
 
     expect(generateRequestCall).toBeTruthy();
@@ -121,7 +121,7 @@ describe('InvoiceGenerationPage regressions', () => {
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
       const url = String(input);
 
-      if (url.endsWith('/backend/api/invoice/APP123/status')) {
+      if (url.endsWith('/api/invoice/APP123/status')) {
         return {
           ok: true,
           json: async () => ({
@@ -156,7 +156,7 @@ describe('InvoiceGenerationPage regressions', () => {
     ).toBe(false);
 
     expect(
-      fetchMock.mock.calls.some(([url]) => String(url).endsWith('/backend/api/invoice/APP123/generate'))
+      fetchMock.mock.calls.some(([url]) => String(url).endsWith('/api/invoice/APP123/generate'))
     ).toBe(false);
   });
 });

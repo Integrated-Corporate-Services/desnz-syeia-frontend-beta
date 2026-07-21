@@ -87,10 +87,10 @@ export const WITHDRAWAL_CONSTANTS = {
     },
 
     ROUTES: {
-        APPLICATIONS: '/frontend/application-dashboard',
+        APPLICATIONS: '/application-dashboard',
         SUMMARY: (applicationType: string, applicationId: string) =>
-            `/frontend/${applicationType.toLowerCase()}/${applicationId}/application-summary`,
+            `/${applicationType.toLowerCase()}/${applicationId}/application-summary`,
         CONFIRMATION: (applicationType: string, applicationId: string) =>
-            `/frontend/${applicationType.toLowerCase()}/${applicationId}/withdrawal-confirmation`,
+            `/${applicationType.toLowerCase()}/${applicationId}/withdrawal-confirmation`,
     },
 };

@@ -3,8 +3,14 @@
  * Handles common HTTP errors, especially session timeout (401)
  */
 
-import { createLogger } from './logger';import { buildBackendUrl } from './apiConfig';
+import { createLogger } from './logger';
+import { buildBackendUrl } from './apiConfig';
 const logger = createLogger('ApiErrorHandler');
+
+function redirectToSignedOut(reason: string): void {
+  const target = `/signed-out?reason=${encodeURIComponent(reason)}`;
+  window.location.href = target;
+}
 
 export interface ApiError extends Error {
   status?: number;
@@ -52,15 +58,19 @@ export async function handleApiError(response: Response): Promise<never> {
       url: response.url,
     });
 
-    // Check if it's a session timeout
-    if (errorData.code === 'SESSION_TIMEOUT') {
-      logger.info('Session timeout detected, redirecting to landing page');
-      // Redirect to landing page (homepage)
-      window.location.href = '/frontend/landingPage';
+    const reason = errorData.code;
+    if (
+      reason === 'SESSION_TIMEOUT' ||
+      reason === 'SESSION_ABSOLUTE_TIMEOUT' ||
+      reason === 'SESSION_EVICTED' ||
+      reason === 'SESSION_GLOBAL_LOGOUT' ||
+      reason === 'SESSION_BACKCHANNEL_LOGOUT'
+    ) {
+      logger.info('Session termination detected, redirecting to signed-out page', { reason });
+      redirectToSignedOut(reason);
     } else {
-      // Generic unauthorized - could be invalid credentials
       logger.info('Unauthorized access, redirecting to landing page');
-      window.location.href = '/frontend/landingPage';
+      window.location.href = '/landingPage';
     }
     
     // This will never be reached due to redirect, but TypeScript needs it
@@ -135,8 +145,7 @@ export async function apiFetch<T = unknown>(
  */
 export async function checkSessionValidity(): Promise<boolean> {
   try {
-    const baseUrl = buildBackendUrl('');
-    const response = await fetch(`${baseUrl}/backend/auth/user`, {
+    const response = await fetch(buildBackendUrl('/auth/user'), {
       credentials: 'include',
       method: 'GET',
     });

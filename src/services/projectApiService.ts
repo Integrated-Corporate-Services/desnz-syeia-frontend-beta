@@ -1,8 +1,9 @@
 // src/services/projectApiService.ts
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 export const getProjectOverview = async (applicationId: string) => {
-  const response = await fetch(buildBackendUrl(`/backend/api/project/${applicationId}`), {
+  const response = await fetch(buildBackendUrl(`/api/project/${applicationId}`), {
     credentials: 'include'
   });
   if (!response.ok) throw new Error('Failed to fetch project overview');
@@ -10,9 +11,12 @@ export const getProjectOverview = async (applicationId: string) => {
 };
 
 export const saveProjectOverview = async (data: any) => {
-  const response = await fetch(buildBackendUrl('/backend/api/project/'), {
+  const response = await fetch(buildBackendUrl('/api/project/'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
+    },
     credentials: 'include',
     body: JSON.stringify(data),
   });
@@ -41,7 +45,7 @@ export const saveProjectOverview = async (data: any) => {
 
 // Fetch all projects except the given applicationId
 export const listProjects = async (applicationId: string) => {
-  const response = await fetch(buildBackendUrl(`/backend/api/project?applicationId=${applicationId}`), {
+  const response = await fetch(buildBackendUrl(`/api/project?applicationId=${applicationId}`), {
     credentials: 'include'
   });
   if (!response.ok) throw new Error('Failed to fetch project list');

@@ -158,7 +158,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
     setLoading(true);
     try {
       // Navigate to consultation request page
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request?consultationName=${encodeURIComponent(lpaName || consultationName)}`);
+      navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request`);
     } catch (error) {
       log.error('Error saving:', error);
     } finally {

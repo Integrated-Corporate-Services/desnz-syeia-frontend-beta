@@ -11,7 +11,7 @@ export async function sendNotificationEmail({ to, subject, message, consultation
   uploadedFiles: any[];
 }) {
   // Call backend endpoint for notify
-  const response = await axios.post('/backend/api/notify-consultee', {
+  const response = await axios.post('/api/notify-consultee', {
     to,
     subject,
     message,

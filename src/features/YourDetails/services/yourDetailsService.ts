@@ -1,4 +1,5 @@
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../utils/csrf';
 
 export interface WorkAddress {
   line1: string;
@@ -76,7 +77,7 @@ function throwApiError(body: ValidationErrorResponse, fallbackMessage: string, s
 }
 
 export async function getCurrentUserDetails(): Promise<UserDetailsResponse> {
-  const response = await fetch(buildBackendUrl('/backend/auth/details'), {
+  const response = await fetch(buildBackendUrl('/auth/details'), {
     credentials: 'include',
   });
 
@@ -88,10 +89,11 @@ export async function getCurrentUserDetails(): Promise<UserDetailsResponse> {
 }
 
 export async function updateCurrentUserFullName(payload: UpdateFullNamePayload): Promise<void> {
-  const response = await fetch(buildBackendUrl('/backend/auth/details/full-name'), {
+  const response = await fetch(buildBackendUrl('/auth/details/full-name'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -106,10 +108,11 @@ export async function updateCurrentUserFullName(payload: UpdateFullNamePayload):
 }
 
 export async function updateCurrentUserWorkAddress(payload: UpdateWorkAddressPayload): Promise<void> {
-  const response = await fetch(buildBackendUrl('/backend/auth/details/work-address'), {
+  const response = await fetch(buildBackendUrl('/auth/details/work-address'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -124,10 +127,11 @@ export async function updateCurrentUserWorkAddress(payload: UpdateWorkAddressPay
 }
 
 export async function updateCurrentUserAgencyName(payload: UpdateAgencyNamePayload): Promise<void> {
-  const response = await fetch(buildBackendUrl('/backend/auth/details/agency-name'), {
+  const response = await fetch(buildBackendUrl('/auth/details/agency-name'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -142,7 +146,7 @@ export async function updateCurrentUserAgencyName(payload: UpdateAgencyNamePaylo
 }
 
 export async function getCurrentUserOrganisationSelection(): Promise<OrganisationSelectionResponse> {
-  const response = await fetch(buildBackendUrl('/backend/auth/details/organisations-selection'), {
+  const response = await fetch(buildBackendUrl('/auth/details/organisations-selection'), {
     credentials: 'include',
   });
 
@@ -156,10 +160,11 @@ export async function getCurrentUserOrganisationSelection(): Promise<Organisatio
 export async function submitCurrentUserOrganisationRequest(
   payload: UpdateOrganisationsPayload
 ): Promise<void> {
-  const response = await fetch(buildBackendUrl('/backend/auth/details/organisations-request'), {
+  const response = await fetch(buildBackendUrl('/auth/details/organisations-selection'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),

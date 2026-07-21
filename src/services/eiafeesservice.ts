@@ -1,6 +1,7 @@
 // src/services/eiafeesservice.ts
 
 import { buildBackendUrl } from '../utils/apiConfig';
+import { getCsrfHeaders } from '../utils/csrf';
 
 // EIA Fees type
 import { EiaFees } from '../types/eiaFees';
@@ -32,7 +33,7 @@ export interface UpdateEiaFeePayload {
 export const fetchEiaFeesDetails = async (applicationId: string): Promise<EiaFees> => {
   try {
     log.debug('[fetchEiaFeesDetails] Fetching EIA Fees details', { applicationId });
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/eia-fees`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/eia-fees`), {
       credentials: 'include'
     });
     if (!response.ok) throw new Error('Failed to fetch EIA Fees details');
@@ -51,10 +52,11 @@ export const fetchEiaFeesDetails = async (applicationId: string): Promise<EiaFee
 
 // Service to create EIA Fee via POST
 export const createEiaFee = async (payload: CreateEiaFeePayload): Promise<EiaFees> => {
-  const response = await fetch(buildBackendUrl('/backend/api/applications/eia-fees'), {
+  const response = await fetch(buildBackendUrl('/api/applications/eia-fees'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),
@@ -68,10 +70,11 @@ export const createEiaFee = async (payload: CreateEiaFeePayload): Promise<EiaFee
 
 // Service to update EIA Fee via PUT
 export const updateEiaFee = async (payload: UpdateEiaFeePayload): Promise<EiaFees> => {
-  const response = await fetch(buildBackendUrl('/backend/api/applications/eia-fees'), {
+  const response = await fetch(buildBackendUrl('/api/applications/eia-fees'), {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
     },
     credentials: 'include',
     body: JSON.stringify(payload),

@@ -30,14 +30,23 @@ export interface CheckYourAnswersData {
 /**
  * Summary row for GOV.UK summary list
  */
+
+export interface DocumentLink {
+    fileKey: string;
+    filename: string;
+    downloadUrl: string;
+}
+
 export interface SummaryRow {
     key: {
         text: string;
         classes?: string;
     };
     value: {
-        text: string;
+        text?: string;
         html?: string;
+        reactElement?: React.ReactNode;
+        documents?: DocumentLink[];
         classes?: string;
     };
     actions?: {

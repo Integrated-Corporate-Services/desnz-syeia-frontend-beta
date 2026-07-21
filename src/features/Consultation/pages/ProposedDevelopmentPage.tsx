@@ -57,7 +57,7 @@ const ProposedDevelopmentPage: React.FC = () => {
         } else {
           // If no saved data, pre-populate from project overview
           try {
-            const projectResponse = await fetch(buildBackendUrl(`/backend/api/project/${applicationId}`), {
+            const projectResponse = await fetch(buildBackendUrl(`/api/project/${applicationId}`), {
               credentials: 'include'
             });
             if (projectResponse.ok) {
@@ -153,8 +153,8 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
 
     setErrors({});
     setSubmitError('');
-    setSubmitted(false); // Reset after successful submit
-    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/download-form?consultationName=${encodeURIComponent(lpaName)}`);
+    setSubmitted(false);
+    navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/download-form`);
   } catch (error) {
     log.error('Error saving proposed development:', error);
     setErrors({});

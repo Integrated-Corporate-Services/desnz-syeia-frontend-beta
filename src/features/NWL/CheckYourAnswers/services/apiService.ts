@@ -24,7 +24,7 @@ export interface NWLCheckYourAnswersResponse {
 }
 
 const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | null> => {
-    const response = await fetch(buildBackendUrl(`/backend/api/nwl/${applicationId}/assets`),
+    const response = await fetch(buildBackendUrl(`/api/nwl/${applicationId}/assets`),
         {
             credentials: 'include'
         });
@@ -47,7 +47,7 @@ const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | 
  * @returns Promise with NWL application data
  */
 export const fetchCheckYourAnswersData = async (applicationId: string): Promise<NWLCheckYourAnswersResponse> => {
-    const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/review`), {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/review`), {
         credentials: 'include'
     });
     if (!response.ok) {

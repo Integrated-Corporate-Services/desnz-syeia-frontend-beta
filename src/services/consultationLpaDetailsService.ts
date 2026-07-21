@@ -1,5 +1,6 @@
 import { buildBackendUrl } from '../utils/apiConfig';
-const API_BASE = buildBackendUrl('/backend/api/applications');
+import { getCsrfHeaders } from '../utils/csrf';
+const API_BASE = buildBackendUrl('/api/applications');
 
 export interface LPADetails {
   lpaContactName: string;
@@ -33,7 +34,10 @@ export async function saveLpaDetails(
   const url = `${API_BASE}/${applicationId}/consultations/${consultationId}/lpa-details`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...getCsrfHeaders(),
+    },
     credentials: 'include',
     body: JSON.stringify(data)
   });

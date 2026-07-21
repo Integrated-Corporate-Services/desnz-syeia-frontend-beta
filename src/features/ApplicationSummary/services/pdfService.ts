@@ -1,5 +1,6 @@
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { createLogger } from '../../../utils/logger';
+import { getCsrfHeaders } from '../../../utils/csrf';
 
 const logger = createLogger('pdfService');
 
@@ -7,7 +8,7 @@ export const downloadApplicationPdf = async (applicationId: string): Promise<voi
   try {
     logger.info('Initiating PDF download', { applicationId });
 
-    const generateUrl = buildBackendUrl(`/backend/api/nwl/${applicationId}/download-pdf`);
+    const generateUrl = buildBackendUrl(`/api/nwl/${applicationId}/download-pdf`);
 
     const generateResponse = await fetch(generateUrl, {
       method: 'GET',
@@ -25,13 +26,14 @@ export const downloadApplicationPdf = async (applicationId: string): Promise<voi
     const { s3Key, filename } = await generateResponse.json();
     logger.info('PDF S3 key received', { s3Key, filename });
 
-    const presignedUrl = buildBackendUrl('/backend/api/file/presigned-url/download');
+    const presignedUrl = buildBackendUrl('/api/file/presigned-url/download');
 
     const presignedResponse = await fetch(presignedUrl, {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        ...getCsrfHeaders(),
       },
       body: JSON.stringify({ filename: s3Key }),
     });
