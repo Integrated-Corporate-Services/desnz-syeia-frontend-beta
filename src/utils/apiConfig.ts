@@ -6,6 +6,7 @@ export const getApiBaseUrl = (): string => {
 
 export const buildBackendUrl = (path: string): string => {
   const baseUrl = getApiBaseUrl();
+  console.log('Building backend URL:', { baseUrl, path });
   return `${baseUrl}${path}`;
 };
 
