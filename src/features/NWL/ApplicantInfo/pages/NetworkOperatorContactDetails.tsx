@@ -19,11 +19,12 @@ const NetworkOperatorContactDetails: React.FC = () => {
   const appId = useGetApplicationId();
   const party = application?.application_party;
 
+  // Fetch application data on mount and when navigating to this page
   useEffect(() => {
     if (appId) {
       fetchApplication(appId);
     }
-  }, [appId, fetchApplication, location.state]);
+  }, [appId, fetchApplication, location.key]);
 
   const { contactIsConfirmed, setContactIsConfirmed } =
     useContactConfirmation(application);
