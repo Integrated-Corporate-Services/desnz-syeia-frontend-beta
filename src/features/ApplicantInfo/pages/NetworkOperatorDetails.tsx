@@ -162,10 +162,10 @@ const NetworkOperatorDetails: React.FC = () => {
         };
         app = await createNewApplication(newAppData);
         
-        // Navigate after successful creation
         if (app?.application_id) {
           navigate(
-            `${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`
+            `${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`,
+            { replace: true, state: { refetch: Date.now() } }
           );
         }
       } else {
@@ -186,15 +186,17 @@ const NetworkOperatorDetails: React.FC = () => {
         // Wait for the save operation to complete before navigating
         const result = await applicationApiService.saveNetworkOperator(saveData);
 
-        // Only navigate if the save was successful and we have an application ID
+
         if (result?.application?.application_id) {
           navigate(
-            `${S37_BASE_URL}/${result.application.application_id}/network-operator-contact-details`
+            `${S37_BASE_URL}/${result.application.application_id}/network-operator-contact-details`,
+            { replace: true, state: { refetch: Date.now() } }
           );
         } else {
           // Handle case where save didn't return expected data
           navigate(
-            `${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`
+            `${S37_BASE_URL}/${app.application_id}/network-operator-contact-details`,
+            { replace: true, state: { refetch: Date.now() } }
           );
         }
       }

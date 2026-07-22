@@ -1,7 +1,7 @@
 import { configService } from '../config/appConfig';
 
 export const getApiBaseUrl = (): string => {
-  return import.meta.env.VITE_API_URL || configService.getApiBaseUrl() || '';
+  return configService.getApiBaseUrl() || '';
 };
 
 export const buildBackendUrl = (path: string): string => {
