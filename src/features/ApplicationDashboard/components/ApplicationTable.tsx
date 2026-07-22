@@ -102,7 +102,6 @@ export const ApplicationTable: React.FC<Props> = ({
     if (app.permissions?.canEdit) {
       navigateToApplication(app.type, app.application_id, "task-list");
     } else if (isDraft && app.permissions?.canView) {
-      // Both NWL and S37: route to check-your-answers for read-only draft access
       navigateToApplication(app.type, app.application_id, "check-your-answers");
     } else if (app.permissions?.canView) {
       navigateToApplication(app.type, app.application_id, "application-summary");
@@ -177,7 +176,7 @@ export const ApplicationTable: React.FC<Props> = ({
                   app.permissions?.canEdit
                     ? 'task-list'
                     : app.status?.toLowerCase() === 'draft' && app.permissions?.canView
-                      ? app.type?.toLowerCase() === 'nwl' ? 'task-list' : 'check-your-answers'
+                      ? 'check-your-answers'
                       : 'application-summary'
                 )}
                 className="govuk-link"
@@ -187,11 +186,10 @@ export const ApplicationTable: React.FC<Props> = ({
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     const isDraft = app.status?.toLowerCase() === 'draft';
-                    const isNWL = app.type?.toLowerCase() === 'nwl';
                     const destination = app.permissions?.canEdit
                       ? "task-list"
                       : isDraft && app.permissions?.canView
-                        ? isNWL ? "task-list" : "check-your-answers"
+                        ? "check-your-answers"
                         : "application-summary";
                     navigateToApplication(
                       app.type,
@@ -248,11 +246,10 @@ export const ApplicationTable: React.FC<Props> = ({
     <div className="application-card-list" role="list" aria-label="Applications list">
       {sortedApplications.map((app) => {
         const isDraft = app.status?.toLowerCase() === 'draft';
-        const isNWL = app.type?.toLowerCase() === 'nwl';
         const destination = app.permissions?.canEdit
           ? "task-list"
           : isDraft && app.permissions?.canView
-            ? isNWL ? "task-list" : "check-your-answers"
+            ? "check-your-answers"
             : "application-summary";
         
         return (
