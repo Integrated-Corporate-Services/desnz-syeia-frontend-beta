@@ -103,10 +103,9 @@ export const ApplicationTable: React.FC<Props> = ({
     if (app.permissions?.canEdit) {
       navigateToApplication(app.type, app.application_id, "task-list");
     } else if (isDraft && app.permissions?.canView) {
-      // For NWL draft applications without edit permission, show task-list in read-only mode
-      // (consistent with S37 behavior for submitted applications)
+      
       if (isNWL) {
-        navigateToApplication(app.type, app.application_id, "task-list");
+        navigateToApplication(app.type, app.application_id, "check-your-answers");
       } else {
         navigateToApplication(app.type, app.application_id, "check-your-answers");
       }

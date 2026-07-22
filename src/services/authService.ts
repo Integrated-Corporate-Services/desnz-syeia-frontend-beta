@@ -97,11 +97,9 @@ export async function logout(redirectTo?: string): Promise<void> {
     logger.warn('Unable to broadcast logout event across tabs', error);
   }
 
-  const baseUrl = import.meta.env.VITE_API_URL || '';
-  // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 
-    ? `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
-    : `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent('/landingPage')}`;
+    ? buildBackendUrl(`/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`)
+    : buildBackendUrl(`/auth/logout?redirectTo=${encodeURIComponent('/landingPage')}`);
 
   // Let the backend handle all logout logic including OIDC session destruction
   // The backend will redirect appropriately after destroying sessions
