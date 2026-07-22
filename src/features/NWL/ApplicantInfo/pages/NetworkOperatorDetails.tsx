@@ -158,7 +158,7 @@ const NetworkOperatorDetails: React.FC = () => {
         if (app?.application_id) {
           navigate(
             `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`,
-            { replace: true, state: { refetch: Date.now() } }
+            { replace: true }
           );
         }
       } else {
@@ -186,12 +186,12 @@ const NetworkOperatorDetails: React.FC = () => {
         if (result?.application?.application_id) {
           navigate(
             `${NWL_BASE_URL}/${result.application.application_id}/network-operator-contact-details`,
-            { replace: true, state: { refetch: Date.now() } }
+            { replace: true }
           );
         } else {
           navigate(
             `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`,
-            { replace: true, state: { refetch: Date.now() } }
+            { replace: true }
           );
         }
       }
