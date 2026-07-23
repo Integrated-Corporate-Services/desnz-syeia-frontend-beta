@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { buildBackendUrl } from '../utils/apiConfig';
 
-const API_BASE = '/api/applications';
+const API_BASE = buildBackendUrl('/api/applications');
 
 export interface FormMetadata {
   applicantOrganisationName?: string;
