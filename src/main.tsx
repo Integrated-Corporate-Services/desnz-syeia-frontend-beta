@@ -71,20 +71,6 @@ axios.interceptors.response.use(
       }
       
       if (status === 403) {
-        // Routes that should handle their own 403 errors gracefully
-        const routesThatHandleOwnErrors = [
-          '/api/applications/',  // Application-related endpoints
-          '/review',              // Review endpoints
-        ];
-        
-        const url = error.config?.url || '';
-        const shouldHandleLocally = routesThatHandleOwnErrors.some(pattern => url.includes(pattern));
-        
-        if (shouldHandleLocally) {
-          logger.debug('403 error on protected route, allowing component to handle', { url });
-          return Promise.reject(error);
-        }
-        
         logger.warn('Access forbidden, redirecting to landing page');
         window.location.href = '/landingPage';
         return Promise.reject(error);

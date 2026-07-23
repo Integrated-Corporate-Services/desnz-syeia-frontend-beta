@@ -116,7 +116,7 @@ export const CheckYourAnswersPage: React.FC = () => {
             <>
                 <SkipLink />
                 <div className="govuk-width-container">
-                <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
+                <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
                 <main className="govuk-main-wrapper">
                     <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
                 </main>
@@ -129,7 +129,7 @@ export const CheckYourAnswersPage: React.FC = () => {
         <>
             <SkipLink />
             <div className="govuk-width-container">
-            <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
+            <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
