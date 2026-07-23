@@ -101,8 +101,8 @@ export async function logout(redirectTo?: string): Promise<void> {
   const baseUrl = getRuntimeEnv('VITE_API_URL', '');
   // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 
-    ? `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`
-    : `${baseUrl}/auth/logout?redirectTo=${encodeURIComponent('/landingPage')}`;
+    ? buildBackendUrl(`/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`)
+    : buildBackendUrl(`/auth/logout?redirectTo=${encodeURIComponent('/landingPage')}`);
 
   // Let the backend handle all logout logic including OIDC session destruction
   // The backend will redirect appropriately after destroying sessions

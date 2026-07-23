@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplication } from "../../../../hooks/useApplication";
 import { useContactConfirmation } from "../hooks/useContactConfirmation";
@@ -13,16 +13,18 @@ const NWL_BASE_URL = "/nwl";
 
 const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>("");
+  const location = useLocation();
 
   const { application, fetchApplication } = useApplication();
   const appId = useGetApplicationId();
   const party = application?.application_party;
 
+  // Fetch application data on mount and when navigating to this page
   useEffect(() => {
     if (appId) {
       fetchApplication(appId);
     }
-  }, [appId, fetchApplication]);
+  }, [appId, fetchApplication, location.key]);
 
   const { contactIsConfirmed, setContactIsConfirmed } =
     useContactConfirmation(application);
