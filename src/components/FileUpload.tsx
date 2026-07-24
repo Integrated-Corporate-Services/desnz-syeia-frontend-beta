@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef } from "react";
+import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef, useMemo } from "react";
 import { downloadS3FileOnSameTab } from "../utils/s3DownloadUtil";
 import "../styles/Fileupload.css";
 import {
@@ -6,6 +6,9 @@ import {
   uploadFileToS3,
   deleteFileCompletely,
   confirmUpload,
+  waitForFilesScan,
+  getFilesScanStatus,
+  clearPresignedUrlCache,
 } from "../services/s3ApiService"; 
 import { createLogger } from "../utils/logger";
 import { validateFiles,  } from "../utils/fileUploadValidation";
@@ -16,6 +19,65 @@ import type { AuthUser } from "../types/auth";
 import { DEMO_USER_ID } from "../constants/demo";
 
 const logger = createLogger('FileUpload');
+
+// GOV.UK / GDS-aligned messages (SYEIA-46 AC3, SYEIA-1466). Backend returns the same
+// wording via `userMessage`; these are used as fallbacks and for multi-file summaries.
+const INFECTED_USER_MESSAGE =
+  'Your document upload was blocked because our virus scan detected a potential security risk. ' +
+  'Please check the file on your device, run a virus scan and try uploading a clean version.';
+
+const INFECTED_MULTI_USER_MESSAGE = (count: number): string =>
+  `${count} of your document uploads were blocked because our virus scan detected a potential ` +
+  'security risk. Please check the files on your device, run a virus scan and try uploading clean versions.';
+
+const FAILED_USER_MESSAGE =
+  'Sorry, there is a problem with the service. Your file could not be scanned. Please try again later.';
+
+type FileScanMeta = {
+  scanStatus?: string | null;
+  scanResult?: string | null;
+  virusName?: string | null;
+  scannedAt?: string | null;
+};
+
+// Success confirmation shown in the inset notice. Infected/failed outcomes are surfaced
+// as GOV.UK errors (error summary + per-file error message), not in this notice.
+function formatUploadSummary(cleanCount: number): string | null {
+  if (cleanCount <= 0) {
+    return null;
+  }
+
+  return cleanCount === 1
+    ? '1 file uploaded successfully.'
+    : `${cleanCount} files uploaded successfully.`;
+}
+
+/** Limit parallel S3 PUT + confirm calls (GDS: keep UI responsive under load). */
+const UPLOAD_CONFIRM_CONCURRENCY = 3;
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function runNext(): Promise<void> {
+    while (nextIndex < items.length) {
+      const current = nextIndex;
+      nextIndex += 1;
+      results[current] = await worker(items[current], current);
+    }
+  }
+
+  const runners = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    () => runNext()
+  );
+  await Promise.all(runners);
+  return results;
+}
 
 export interface FileUploadProps {
   title?: string;
@@ -73,14 +135,115 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     (user as AuthUser)?.person_id ||
     DEMO_USER_ID;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scanAbortRef = useRef<AbortController | null>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState<{ completed: number; total: number } | null>(null);
+  const [uploadNoticeMessage, setUploadNoticeMessage] = useState<string | null>(null);
+  // Enrichment when parent pages omit scan fields from uploadedFiles
+  const [scanMetaByFileId, setScanMetaByFileId] = useState<Record<string, FileScanMeta>>({});
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [statuses, setStatuses] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
  
   const files = internalFiles;
+
+  const displayFiles = useMemo(() => {
+    if (!Array.isArray(uploadedFiles)) {
+      return [];
+    }
+    return uploadedFiles.map((file) => {
+      const meta = scanMetaByFileId[file.id];
+      if (!meta) {
+        return file;
+      }
+      return {
+        ...file,
+        scanStatus: file.scanStatus ?? meta.scanStatus ?? null,
+        scanResult: file.scanResult ?? meta.scanResult ?? null,
+        virusName: file.virusName ?? meta.virusName ?? null,
+        scannedAt: file.scannedAt ?? meta.scannedAt ?? null,
+      };
+    });
+  }, [uploadedFiles, scanMetaByFileId]);
+
+  useEffect(() => {
+    return () => {
+      scanAbortRef.current?.abort();
+    };
+  }, []);
+
+  // Parents often map UploadedFile without scan fields — load them here for all pages.
+  useEffect(() => {
+    if (!Array.isArray(uploadedFiles) || uploadedFiles.length === 0) {
+      return;
+    }
+
+    const idsNeedingScan = uploadedFiles
+      .filter(
+        (file) =>
+          Boolean(file?.id) &&
+          file.scanStatus == null &&
+          file.scanResult == null &&
+          !scanMetaByFileId[file.id]
+      )
+      .map((file) => file.id);
+
+    if (idsNeedingScan.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const statuses = await getFilesScanStatus(idsNeedingScan);
+        if (cancelled) {
+          return;
+        }
+
+        const nextMeta: Record<string, FileScanMeta> = {};
+        let infectedCount = 0;
+
+        for (const status of statuses) {
+          if (status.error || !status.fileId) {
+            continue;
+          }
+          nextMeta[status.fileId] = {
+            scanStatus: status.scanStatus ?? null,
+            scanResult: status.scanResult ?? null,
+            virusName: status.virusName ?? null,
+            scannedAt: status.scannedAt ?? null,
+          };
+          if (status.scanResult === 'INFECTED') {
+            infectedCount += 1;
+          }
+        }
+
+        if (Object.keys(nextMeta).length > 0) {
+          setScanMetaByFileId((prev) => ({ ...prev, ...nextMeta }));
+        }
+
+        if (!isScanning && infectedCount > 0) {
+          setUploadNoticeMessage(
+            infectedCount === 1
+              ? INFECTED_USER_MESSAGE
+              : INFECTED_MULTI_USER_MESSAGE(infectedCount)
+          );
+        }
+      } catch (error) {
+        logger.warn('Failed to enrich uploaded files with scan status', { error });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // scanMetaByFileId intentionally omitted to avoid re-fetch loops; we skip ids already enriched.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadedFiles, isScanning]);
 
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
@@ -117,7 +280,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onValidationErrors) {
       onValidationErrors([]);
     }
-    
+    setUploadNoticeMessage(null);
+
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
       .map(doc => doc.fileId) || [];
@@ -166,7 +330,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       }
     }
     
-    if (result.validFiles.length > 0 && result.errors.length === 0) {
+    if (result.validFiles.length > 0) {
       const allFiles = [...files, ...result.validFiles];
       
       if (onFilesChange) {
@@ -251,7 +415,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       }
     }
     
-     if (result.validFiles.length > 0 && result.errors.length === 0) {
+     if (result.validFiles.length > 0) {
       const allFiles = [...files, ...result.validFiles];
       
       if (onFilesChange) {
@@ -344,123 +508,267 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
-      
-      for (let i = 0; i < uploadFiles.length; i++) {
-        const urlObj = data.urls[i];
-        if (!urlObj.url) {
-          newStatuses[i] = "Failed to get presigned URL";
-          setStatuses([...newStatuses]);
-          continue;
-        }
-        newStatuses[i] = "Uploading to S3...";
-        setStatuses([...newStatuses]);
-        try {
-          const uploadRes = await uploadFileToS3(urlObj.url, uploadFiles[i]);
-          
-          if (uploadRes.ok) {
-            const s3Key = prefix
-              ? `${prefix}/${uploadFiles[i].name}`
-              : uploadFiles[i].name;
-            
-            const etag = uploadRes.headers.get('etag');
-            
-            newStatuses[i] = "Confirming upload...";
-            setStatuses([...newStatuses]);
-            
-            logger.info('S3 upload successful, calling confirm endpoint', {
-              s3Key,
-              etag,
-              fileName: uploadFiles[i].name
-            });
-            
-            const confirmResponse = await confirmUpload({
-              s3Key,
-              fileName: uploadFiles[i].name,
-              contentType: uploadFiles[i].type || 'application/octet-stream',
-              fileSize: uploadFiles[i].size,
-              etag: etag || undefined,
-              applicationId: applicationId || '',
-              category: category || '',
-              addedBy: userId,
-              subCategory: subCategory,
-              consultationId: consultationId
-            });
-            
-            logger.info('Upload confirmed by server', {
-              documentId: confirmResponse.documentId,
-              fileId: confirmResponse.fileId,
-              s3Key: confirmResponse.s3Key
-            });
-            
-            const uploadedFile: UploadedFile = {
-              id: confirmResponse.fileId,
-              storageProvider: "aws_s3",
-              s3Key: confirmResponse.s3Key,
-              bucketName: confirmResponse.bucketName,
-              virtualFolder: confirmResponse.virtualFolder,
-              filename: confirmResponse.fileName,
-              fileContentType: confirmResponse.contentType,
-              fileSizeBytes: confirmResponse.fileSizeBytes,
-              uploadedAtTimestamp: confirmResponse.uploadedAt,
-            };
-            uploadedFiles.push(uploadedFile);
-            
-            const applicationDocument: ApplicationDocument = {
-              documentId: confirmResponse.documentId,
-              applicationId: applicationId || "",
-              fileId: confirmResponse.fileId,
-              category: category || "",
-              subCategory: subCategory || "",
-              title: confirmResponse.fileName,
-              virtualFolder: confirmResponse.virtualFolder,
-              addedBy: userId,
-              addedAt: confirmResponse.uploadedAt,
-              consultationId: consultationId || undefined,
-            };
-            applicationDocuments.push(applicationDocument);
-            
-            newStatuses[i] = "Upload complete";
-            setStatuses([...newStatuses]);
-            
-            setInternalFiles((prevFiles: File[]) => {
-              const idxToRemove = prevFiles.findIndex(
-                (file: File) =>
-                  file.name === uploadFiles[i].name &&
-                  file.size === uploadFiles[i].size
-              );
-              if (idxToRemove !== -1) {
-                setStatuses((prevStatuses: string[]) =>
-                  prevStatuses.filter((_, idx: number) => idx !== idxToRemove)
-                );
-                setDownloadStatuses((prevDownloadStatuses: string[]) =>
-                  prevDownloadStatuses.filter(
-                    (_, idx: number) => idx !== idxToRemove
-                  )
-                );
-                return prevFiles.filter(
-                  (_, idx: number) => idx !== idxToRemove
-                );
+
+      setIsScanning(true);
+      scanAbortRef.current?.abort();
+      const abortController = new AbortController();
+      scanAbortRef.current = abortController;
+
+      type ConfirmedUpload = {
+        index: number;
+        confirmResponse: Awaited<ReturnType<typeof confirmUpload>>;
+      };
+
+      try {
+        // Phase 1: parallel S3 PUT + confirm (scans run async on the worker).
+        const confirmed = await mapWithConcurrency(
+          uploadFiles,
+          UPLOAD_CONFIRM_CONCURRENCY,
+          async (file, i): Promise<ConfirmedUpload | null> => {
+            const urlObj = data.urls[i];
+            if (!urlObj?.url) {
+              newStatuses[i] = "Failed to get presigned URL";
+              setStatuses([...newStatuses]);
+              return null;
+            }
+
+            try {
+              newStatuses[i] = "Uploading to S3...";
+              setStatuses([...newStatuses]);
+
+              const uploadRes = await uploadFileToS3(urlObj.url, file);
+              if (!uploadRes.ok) {
+                newStatuses[i] = "Upload failed: " + uploadRes.statusText;
+                setStatuses([...newStatuses]);
+                return null;
               }
-              return prevFiles;
-            });
-          } else {
-            newStatuses[i] = "Upload failed: " + uploadRes.statusText;
-            setStatuses([...newStatuses]);
+
+              const s3Key = prefix ? `${prefix}/${file.name}` : file.name;
+              const etag = uploadRes.headers.get("etag");
+
+              newStatuses[i] = "Confirming upload...";
+              setStatuses([...newStatuses]);
+
+              logger.info("S3 upload successful, calling confirm endpoint", {
+                s3Key,
+                etag,
+                fileName: file.name,
+              });
+
+              const confirmResponse = await confirmUpload(
+                {
+                  s3Key,
+                  fileName: file.name,
+                  contentType: file.type || "application/octet-stream",
+                  fileSize: file.size,
+                  etag: etag || undefined,
+                  applicationId: applicationId || "",
+                  category: category || "",
+                  addedBy: userId,
+                  subCategory: subCategory,
+                  consultationId: consultationId,
+                },
+                { signal: abortController.signal }
+              );
+
+              logger.info("Upload confirmed by server", {
+                documentId: confirmResponse.documentId,
+                fileId: confirmResponse.fileId,
+                s3Key: confirmResponse.s3Key,
+                scanStatus: confirmResponse.scanStatus,
+              });
+
+              newStatuses[i] =
+                "Your file is being scanned. Please wait while the upload is processed.";
+              setStatuses([...newStatuses]);
+              return { index: i, confirmResponse };
+            } catch (err) {
+              newStatuses[i] =
+                "Error: " + (err instanceof Error ? err.message : String(err));
+              setStatuses([...newStatuses]);
+              logger.error("Upload or confirm failed", {
+                fileName: file.name,
+                error: err,
+              });
+              return null;
+            }
           }
-        } catch (err) {
-          newStatuses[i] =
-            "Error: " + (err instanceof Error ? err.message : String(err));
-          setStatuses([...newStatuses]);
-          logger.error('Upload or confirm failed', {
-            fileName: uploadFiles[i].name,
-            error: err
-          });
+        );
+
+        const confirmedUploads = confirmed.filter(
+          (item): item is ConfirmedUpload => item !== null
+        );
+
+        if (confirmedUploads.length === 0) {
+          return { uploadedFiles, applicationDocuments };
         }
+
+        if (onValidationErrors) {
+          onValidationErrors([]);
+        }
+
+        // Phase 2: batch poll — add each file to the list as soon as its scan finishes.
+        const fileIds = confirmedUploads.map((c) => c.confirmResponse.fileId);
+        const confirmByFileId = new Map(
+          confirmedUploads.map((c) => [c.confirmResponse.fileId, c])
+        );
+        setScanProgress({ completed: 0, total: confirmedUploads.length });
+
+        let infectedCount = 0;
+        let cleanCount = 0;
+        let failedCount = 0;
+
+        const promoteCompletedFile = (
+          scanStatus: Awaited<ReturnType<typeof waitForFilesScan>>[number]
+        ) => {
+          const item = confirmByFileId.get(scanStatus.fileId);
+          if (!item) {
+            return;
+          }
+          // Prevent double-promoting the same fileId.
+          confirmByFileId.delete(scanStatus.fileId);
+
+          const { index: i, confirmResponse } = item;
+
+          setScanProgress((prev) =>
+            prev
+              ? { ...prev, completed: Math.min(prev.completed + 1, prev.total) }
+              : prev
+          );
+
+          if (scanStatus.error) {
+            newStatuses[i] = scanStatus.error;
+            failedCount += 1;
+            setStatuses([...newStatuses]);
+            return;
+          }
+
+          if (
+            scanStatus.scanStatus === "FAILED" ||
+            (scanStatus.scanResult !== "CLEAN" && scanStatus.scanResult !== "INFECTED")
+          ) {
+            const failedMessage =
+              scanStatus.userMessage || FAILED_USER_MESSAGE;
+            newStatuses[i] = failedMessage;
+            failedCount += 1;
+            setStatuses([...newStatuses]);
+            return;
+          }
+
+          clearPresignedUrlCache(confirmResponse.s3Key);
+          clearPresignedUrlCache(`download_${confirmResponse.s3Key}`);
+
+          const isInfected = scanStatus.scanResult === "INFECTED";
+          if (isInfected) {
+            infectedCount += 1;
+            newStatuses[i] = scanStatus.userMessage || INFECTED_USER_MESSAGE;
+          } else {
+            cleanCount += 1;
+            newStatuses[i] = "File scanned successfully. Upload complete.";
+          }
+          setUploadNoticeMessage(formatUploadSummary(cleanCount));
+          setStatuses([...newStatuses]);
+
+          const uploadedFile: UploadedFile = {
+            id: confirmResponse.fileId,
+            storageProvider: "aws_s3",
+            s3Key: confirmResponse.s3Key,
+            bucketName: scanStatus.bucketName || confirmResponse.bucketName,
+            virtualFolder: confirmResponse.virtualFolder,
+            filename: confirmResponse.fileName,
+            fileContentType: confirmResponse.contentType,
+            fileSizeBytes: confirmResponse.fileSizeBytes,
+            uploadedAtTimestamp: confirmResponse.uploadedAt,
+            scanStatus: scanStatus.scanStatus,
+            scanResult: scanStatus.scanResult,
+            virusName: scanStatus.virusName,
+            scannedAt: scanStatus.scannedAt,
+          };
+          uploadedFiles.push(uploadedFile);
+
+          const applicationDocument: ApplicationDocument = {
+            documentId: confirmResponse.documentId,
+            applicationId: applicationId || "",
+            fileId: confirmResponse.fileId,
+            category: category || "",
+            subCategory: subCategory || "",
+            title: confirmResponse.fileName,
+            virtualFolder: confirmResponse.virtualFolder,
+            addedBy: userId,
+            addedAt: confirmResponse.uploadedAt,
+            consultationId: consultationId || undefined,
+          };
+          applicationDocuments.push(applicationDocument);
+
+          // Progressive list update — parent appends as each scan finishes.
+          if (onUploaded) {
+            onUploaded([uploadedFile], [applicationDocument]);
+          }
+
+          setInternalFiles((prevFiles: File[]) => {
+            const idxToRemove = prevFiles.findIndex(
+              (f: File) =>
+                f.name === uploadFiles[i].name && f.size === uploadFiles[i].size
+            );
+            if (idxToRemove !== -1) {
+              setStatuses((prevStatuses: string[]) =>
+                prevStatuses.filter((_, idx: number) => idx !== idxToRemove)
+              );
+              setDownloadStatuses((prevDownloadStatuses: string[]) =>
+                prevDownloadStatuses.filter((_, idx: number) => idx !== idxToRemove)
+              );
+              return prevFiles.filter((_, idx: number) => idx !== idxToRemove);
+            }
+            return prevFiles;
+          });
+        };
+
+        await waitForFilesScan(fileIds, {
+          signal: abortController.signal,
+          onProgress: (statuses) => {
+            const byId = new Map(statuses.map((s) => [s.fileId, s]));
+            for (const item of confirmedUploads) {
+              const status = byId.get(item.confirmResponse.fileId);
+              if (!status || status.scanStatus === "COMPLETED" || status.scanStatus === "FAILED") {
+                continue;
+              }
+              newStatuses[item.index] =
+                status.userMessage ||
+                "Your file is being scanned. Please wait while the upload is processed.";
+            }
+            setStatuses([...newStatuses]);
+          },
+          onFileComplete: promoteCompletedFile,
+        });
+
+        setStatuses([...newStatuses]);
+
+        const summary = formatUploadSummary(cleanCount);
+        if (summary) {
+          setUploadNoticeMessage(summary);
+        } else if (failedCount === 0) {
+          setUploadNoticeMessage(null);
+        }
+
+        // Surface blocked/failed outcomes in the page-level GOV.UK error summary.
+        if ((infectedCount > 0 || failedCount > 0) && onValidationErrors) {
+          const scanErrors: string[] = [];
+          if (infectedCount > 0) {
+            scanErrors.push(
+              infectedCount === 1 ? INFECTED_USER_MESSAGE : INFECTED_MULTI_USER_MESSAGE(infectedCount)
+            );
+          }
+          if (failedCount > 0) {
+            scanErrors.push(FAILED_USER_MESSAGE);
+          }
+          onValidationErrors(scanErrors);
+        }
+      } finally {
+        setIsScanning(false);
+        setScanProgress(null);
       }
-      
-      if (onUploaded) {
-        onUploaded(uploadedFiles, applicationDocuments);
-      }
+
+      // Files already pushed via progressive onUploaded — return accumulated lists.
       return { uploadedFiles, applicationDocuments};
     } catch (err) {
       setStatuses(
@@ -513,12 +821,12 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   return (
     <div className="gds-upload-container" tabIndex={-1}>
       {/* Documents Uploaded Section - Show uploaded files first */}
-      {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
+      {showDocumentsHeading && displayFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
           {/* <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2> */}
           <table className="govuk-table">
             <tbody className="govuk-table__body">
-              {uploadedFiles.map((file: UploadedFile, idx: number) => (
+              {displayFiles.map((file: UploadedFile, idx: number) => (
                 <tr key={file.id} className="govuk-table__row">
                   <td className="govuk-table__cell">
                     <a
@@ -526,21 +834,65 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       className="govuk-link"
                       onClick={async (e) => {
                         e.preventDefault();
+                        // Only COMPLETED + CLEAN files may be downloaded. Block infected,
+                        // failed, still-scanning and unknown-scan-state files (e.g. before
+                        // enrichment completes) before reaching the download path.
+                        if (file.scanResult === "INFECTED") {
+                          setUploadNoticeMessage(
+                            file.virusName
+                              ? `${INFECTED_USER_MESSAGE} (${file.virusName})`
+                              : INFECTED_USER_MESSAGE
+                          );
+                          return;
+                        }
+                        if (file.scanStatus === "FAILED") {
+                          setUploadNoticeMessage(FAILED_USER_MESSAGE);
+                          return;
+                        }
+                        if (file.scanStatus !== "COMPLETED" || file.scanResult !== "CLEAN") {
+                          setUploadNoticeMessage(
+                            "Your file is being scanned. Please wait while the upload is processed."
+                          );
+                          return;
+                        }
                         if (file.s3Key) {
                           try {
                             await downloadS3FileOnSameTab(file.s3Key);
                           } catch (error) {
+                            const message =
+                              error instanceof Error
+                                ? error.message
+                                : "Failed to download file";
                             logger.error('Failed to download file', {
                               s3Key: file.s3Key,
                               filename: file.filename,
                               error
                             });
+                            setUploadNoticeMessage(message);
                           }
                         }
                       }}
                     >
                       {file.filename ? file.filename.split("/").pop() : ""}
                     </a>
+                    {file.scanResult === "INFECTED" && (
+                      <p className="govuk-error-message govuk-!-margin-top-1 govuk-!-margin-bottom-0">
+                        <span className="govuk-visually-hidden">Error:</span> {INFECTED_USER_MESSAGE}
+                      </p>
+                    )}
+                    {file.scanStatus &&
+                      file.scanStatus !== "COMPLETED" &&
+                      file.scanStatus !== "FAILED" &&
+                      file.scanResult !== "INFECTED" && (
+                      <p className="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-0">
+                        Scanning in progress — download will be available when the scan finishes.
+                      </p>
+                    )}
+                    {file.scanStatus === "FAILED" && (
+                      <p className="govuk-error-message govuk-!-margin-top-1 govuk-!-margin-bottom-0">
+                        <span className="govuk-visually-hidden">Error:</span> {FAILED_USER_MESSAGE}
+                      </p>
+                    )}
                   </td>
                   <td className="govuk-table__cell govuk-table__cell--numeric">
                     <a
@@ -629,30 +981,60 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
+      {isScanning && (
+        <div className="govuk-inset-text" role="status" aria-live="polite">
+          <p className="govuk-body govuk-!-margin-bottom-0">
+            {scanProgress
+              ? `Scanning files. ${scanProgress.completed} of ${scanProgress.total} complete.`
+              : "Your file is being scanned. Please wait while the upload is processed."}
+          </p>
+          <p className="govuk-hint govuk-!-margin-top-2 govuk-!-margin-bottom-0">
+            Files appear in the list as soon as each scan finishes.
+          </p>
+        </div>
+      )}
+      {!isScanning && uploadNoticeMessage && (
+        <div className="govuk-inset-text" role="status" aria-live="polite">
+          <p className="govuk-body govuk-!-margin-bottom-0">{uploadNoticeMessage}</p>
+        </div>
+      )}
 
       <div
         className="gds-upload-dropzone"
-        onDrop={handleDrop}
+        onDrop={(e) => {
+          if (isScanning) {
+            e.preventDefault();
+            return;
+          }
+          handleDrop(e);
+        }}
         onDragOver={handleDragOver}
         onClick={() => {
+          if (isScanning) {
+            return;
+          }
           if (onValidationErrors) {
             onValidationErrors([]);
           }
           fileInputRef.current?.click();
         }}
+        style={isScanning ? { opacity: 0.6, pointerEvents: 'none' } : undefined}
       >
         <input
           type="file"
           multiple
           ref={fileInputRef}
           id="file-upload-input" 
+          aria-label="Upload file"
+          title="Upload file"
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
+          disabled={isScanning}
         />
         <div className="gds-upload-dropzone-content">
           <span>No file chosen</span>
-          <button type="button" className="gds-upload-choose">
+          <button type="button" className="gds-upload-choose" disabled={isScanning}>
             Choose file
           </button>
           <span>or drop file</span>

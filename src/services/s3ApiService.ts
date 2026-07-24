@@ -3,11 +3,27 @@
 // URLs are cached in-memory to reduce backend calls
 
 import { buildBackendUrl } from '../utils/apiConfig';
-import { getCsrfHeaders } from '../utils/csrf';
+import { fetchCsrfToken, getCsrfToken, getCsrfHeaders } from '../utils/csrf';
 
 // Configuration from environment variables
 const S3_URL_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_URL_EXPIRY_SECONDS) || 1800; // Default: 30 minutes
 const S3_REFRESH_BEFORE_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS) || 120; // Default: 2 minutes
+
+async function csrfJsonHeaders(): Promise<Record<string, string>> {
+  // Reuse the cached CSRF token to avoid an extra round-trip on every request;
+  // only hit /csrf-token when we don't yet have one.
+  let token = getCsrfToken();
+  if (!token) {
+    token = await fetchCsrfToken();
+  }
+  if (!token) {
+    throw new Error('Unable to obtain a security token. Please refresh the page and try again.');
+  }
+  return {
+    'Content-Type': 'application/json',
+    ...getCsrfHeaders(),
+  };
+}
 
 interface UrlCacheEntry {
   url: string;
@@ -33,10 +49,7 @@ export function clearPresignedUrlCache(filename?: string) {
 export async function getPresignedUrls(files: { filename: string; contentType: string }[]) {
   const res = await fetch(buildBackendUrl('/api/upload/presigned-url'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: await csrfJsonHeaders(),
     credentials: 'include',
     body: JSON.stringify({ files })
   });
@@ -66,18 +79,21 @@ export async function uploadFileToS3(url: string, file: File) {
   return res;
 }
 
-export async function confirmUpload(params: {
-  s3Key: string;
-  fileName: string;
-  contentType: string;
-  fileSize: number;
-  etag?: string;
-  applicationId: string;
-  category: string;
-  addedBy: string;
-  subCategory?: string;
-  consultationId?: string;
-}): Promise<{
+export async function confirmUpload(
+  params: {
+    s3Key: string;
+    fileName: string;
+    contentType: string;
+    fileSize: number;
+    etag?: string;
+    applicationId: string;
+    category: string;
+    addedBy: string;
+    subCategory?: string;
+    consultationId?: string;
+  },
+  options?: { signal?: AbortSignal }
+): Promise<{
   documentId: string;
   fileId: string;
   fileName: string;
@@ -89,15 +105,19 @@ export async function confirmUpload(params: {
   uploadedAt: string;
   status: string;
   etag?: string;
+  scanStatus: string;
+  scanResult: string | null;
+  virusName: string | null;
+  scannedAt: string | null;
+  userMessage: string;
+  downloadAllowed: boolean;
 }> {
   const res = await fetch(buildBackendUrl('/api/upload/confirm'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: await csrfJsonHeaders(),
     credentials: 'include',
-    body: JSON.stringify(params)
+    body: JSON.stringify(params),
+    signal: options?.signal,
   });
   
   if (!res.ok) {
@@ -110,6 +130,203 @@ export async function confirmUpload(params: {
   }
   
   return await res.json();
+}
+
+export async function getFileScanStatus(fileId: string): Promise<{
+  fileId: string;
+  s3Key: string;
+  bucketName: string;
+  scanStatus: string;
+  scanResult: string | null;
+  virusName: string | null;
+  scannedAt: string | null;
+  userMessage: string;
+  downloadAllowed?: boolean;
+}> {
+  const res = await fetch(buildBackendUrl(`/api/files/${encodeURIComponent(fileId)}/scan-status`), {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    try {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to fetch scan status');
+    } catch (parseError) {
+      throw new Error('Failed to fetch scan status', { cause: parseError instanceof Error ? parseError : undefined });
+    }
+  }
+
+  return await res.json();
+}
+
+export type FileScanStatusResult = Awaited<ReturnType<typeof getFileScanStatus>> & {
+  error?: string;
+};
+
+/** Must stay ≤ backend `getBatchScanStatusController` max (50). */
+const SCAN_STATUS_BATCH_SIZE = 50;
+
+function chunkIds(ids: string[], size: number): string[][] {
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += size) {
+    chunks.push(ids.slice(i, i + size));
+  }
+  return chunks;
+}
+
+async function getFilesScanStatusChunk(fileIds: string[]): Promise<FileScanStatusResult[]> {
+  const res = await fetch(buildBackendUrl('/api/files/scan-status'), {
+    method: 'POST',
+    headers: await csrfJsonHeaders(),
+    credentials: 'include',
+    body: JSON.stringify({ fileIds }),
+  });
+
+  if (!res.ok) {
+    try {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to fetch batch scan status');
+    } catch (parseError) {
+      throw new Error('Failed to fetch batch scan status', {
+        cause: parseError instanceof Error ? parseError : undefined,
+      });
+    }
+  }
+
+  const data = await res.json();
+  return Array.isArray(data.results) ? data.results : [];
+}
+
+/**
+ * Batch fetch scan status for many fileIds.
+ * Automatically chunks requests to ≤ SCAN_STATUS_BATCH_SIZE (backend max 50).
+ */
+export async function getFilesScanStatus(fileIds: string[]): Promise<FileScanStatusResult[]> {
+  if (fileIds.length === 0) {
+    return [];
+  }
+
+  const chunks = chunkIds(fileIds, SCAN_STATUS_BATCH_SIZE);
+  const chunkResults = await Promise.all(chunks.map((chunk) => getFilesScanStatusChunk(chunk)));
+  return chunkResults.flat();
+}
+
+const SCAN_POLL_INTERVAL_MS = 2500;
+const SCAN_POLL_TIMEOUT_MS = 5 * 60 * 1000;
+
+/**
+ * Poll until virus scan completes (CLEAN / INFECTED / FAILED) or times out.
+ * Supports AbortSignal so callers can cancel on unmount / navigation.
+ */
+export async function waitForFileScan(
+  fileId: string,
+  options?: {
+    intervalMs?: number;
+    timeoutMs?: number;
+    signal?: AbortSignal;
+    onProgress?: (status: Awaited<ReturnType<typeof getFileScanStatus>>) => void;
+  }
+): Promise<Awaited<ReturnType<typeof getFileScanStatus>>> {
+  const results = await waitForFilesScan([fileId], {
+    intervalMs: options?.intervalMs,
+    timeoutMs: options?.timeoutMs,
+    signal: options?.signal,
+    onProgress: (statuses) => {
+      if (statuses[0]) {
+        options?.onProgress?.(statuses[0]);
+      }
+    },
+  });
+  return results[0];
+}
+
+/**
+ * Batch-poll until every file reaches COMPLETED/FAILED (or timeout).
+ * Uses POST /files/scan-status — chunks of ≤50 ids per request when many files are pending.
+ * Calls onFileComplete as soon as each file reaches a terminal state (progressive UI).
+ */
+export async function waitForFilesScan(
+  fileIds: string[],
+  options?: {
+    intervalMs?: number;
+    timeoutMs?: number;
+    signal?: AbortSignal;
+    onProgress?: (statuses: FileScanStatusResult[]) => void;
+    onFileComplete?: (status: FileScanStatusResult) => void;
+  }
+): Promise<FileScanStatusResult[]> {
+  if (fileIds.length === 0) {
+    return [];
+  }
+
+  const intervalMs = options?.intervalMs ?? SCAN_POLL_INTERVAL_MS;
+  const timeoutMs = options?.timeoutMs ?? SCAN_POLL_TIMEOUT_MS;
+  const startedAt = Date.now();
+  let attempt = 0;
+  const finalById = new Map<string, FileScanStatusResult>();
+  let pending = [...fileIds];
+
+  while (pending.length > 0 && Date.now() - startedAt < timeoutMs) {
+    if (options?.signal?.aborted) {
+      throw new Error('Scan status polling was cancelled.');
+    }
+
+    const batch = await getFilesScanStatus(pending);
+    options?.onProgress?.(
+      fileIds
+        .map((id) => finalById.get(id) ?? batch.find((r) => r.fileId === id))
+        .filter((r): r is FileScanStatusResult => Boolean(r))
+    );
+
+    for (const status of batch) {
+      if (!status?.fileId) {
+        continue;
+      }
+      if (status.error || status.scanStatus === 'COMPLETED' || status.scanStatus === 'FAILED') {
+        if (!finalById.has(status.fileId)) {
+          finalById.set(status.fileId, status);
+          options?.onFileComplete?.(status);
+        }
+      }
+    }
+
+    // Keep any fileId that has not reached a terminal state yet.
+    pending = pending.filter((id) => !finalById.has(id));
+    if (pending.length === 0) {
+      break;
+    }
+
+    attempt += 1;
+    const delay = Math.min(intervalMs * Math.pow(1.25, attempt - 1), 15000);
+    await new Promise<void>((resolve, reject) => {
+      const signal = options?.signal;
+      let timer: ReturnType<typeof setTimeout>;
+      const onAbort = () => {
+        clearTimeout(timer);
+        reject(new Error('Scan status polling was cancelled.'));
+      };
+      timer = setTimeout(() => {
+        // Remove the abort listener on normal completion so listeners don't
+        // accumulate across polling iterations.
+        signal?.removeEventListener('abort', onAbort);
+        resolve();
+      }, delay);
+      signal?.addEventListener('abort', onAbort, { once: true });
+    });
+  }
+
+  if (pending.length > 0) {
+    throw new Error('Virus scanning is taking longer than expected. Please try again later.');
+  }
+
+  return fileIds.map((id) => {
+    const status = finalById.get(id);
+    if (!status) {
+      throw new Error(`Missing scan status for fileId ${id}`);
+    }
+    return status;
+  });
 }
 
 /**
@@ -130,14 +347,21 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: await csrfJsonHeaders(),
     credentials: 'include',
     body: JSON.stringify({ filename })
   });
-  if (!res.ok) throw new Error('Failed to get presigned GET URL');
+  if (!res.ok) {
+    try {
+      const errorData = await res.json();
+      throw new Error(errorData.userMessage || errorData.message || errorData.error || 'Failed to get presigned GET URL');
+    } catch (parseError) {
+      if (parseError instanceof Error && parseError.message !== 'Failed to get presigned GET URL') {
+        throw parseError;
+      }
+      throw new Error('Failed to get presigned GET URL');
+    }
+  }
   const { url } = await res.json();
   
   const expiresAt = now + (S3_URL_EXPIRY_SECONDS * 1000);
@@ -161,10 +385,7 @@ export async function listFilesByPrefix(prefix: string) {
 export async function deleteFileFromS3(key: string) {
   const res = await fetch(buildBackendUrl('/api/file/delete'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: await csrfJsonHeaders(),
     credentials: 'include',
     body: JSON.stringify({ key })
   });
@@ -176,10 +397,7 @@ export async function deleteFileFromS3(key: string) {
 export async function deleteFileCompletely(fileId: string, key: string) {
   const res = await fetch(buildBackendUrl('/api/file/delete'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: await csrfJsonHeaders(),
     credentials: 'include',
     body: JSON.stringify({ key, fileId })
   });
@@ -209,14 +427,21 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url/download'), {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      ...getCsrfHeaders()
-    },
+    headers: await csrfJsonHeaders(),
     credentials: 'include',
     body: JSON.stringify({ filename })
   });
-  if (!res.ok) throw new Error('Failed to get presigned download URL');
+  if (!res.ok) {
+    try {
+      const errorData = await res.json();
+      throw new Error(errorData.userMessage || errorData.message || errorData.error || 'Failed to get presigned download URL');
+    } catch (parseError) {
+      if (parseError instanceof Error && parseError.message !== 'Failed to get presigned download URL') {
+        throw parseError;
+      }
+      throw new Error('Failed to get presigned download URL');
+    }
+  }
   const { url } = await res.json();
   
   const expiresAt = now + (S3_URL_EXPIRY_SECONDS * 1000);
