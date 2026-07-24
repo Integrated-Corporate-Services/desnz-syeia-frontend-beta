@@ -1,8 +1,9 @@
-// Runtime Configuration - Generated at 2026-07-24T06:56:33.898Z
+// Runtime Configuration - Default values for non-Docker builds
 // DO NOT EDIT - This file is auto-generated from environment variables
+// In Docker containers, this file is replaced at startup by generate-runtime-config.sh
 
 window._env_ = {
-  "VITE_API_URL": "\"; alert(\"XSS\"); var x=\"",
+  "VITE_API_URL": "",
   "VITE_API_BASE_URL": "",
   "VITE_ENABLE_GA4": "false",
   "VITE_GA4_MEASUREMENT_ID": "",
@@ -20,7 +21,7 @@ window._env_ = {
   "VITE_S3_URL_EXPIRY_SECONDS": "3600",
   "VITE_SANDBOX_ROUTES_ENABLED": "false",
   "VITE_DISABLED_FORM_TYPES": "",
-  "VITE_SERVICE_NAME": "Test Service",
+  "VITE_SERVICE_NAME": "SYEIA",
   "VITE_DETAILED_FEEDBACK_SURVEY_URL": "#",
   "VITE_ROUTER_BASENAME": "/",
   "VITE_RUM_APP_MONITOR_ID": "",

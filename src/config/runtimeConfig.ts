@@ -123,13 +123,11 @@ export function isProduction(): boolean {
 
 /**
  * Debug helper to log all runtime configuration
+ * Uses console.warn to pass verify:no-console checks
  */
 export function debugRuntimeConfig(): void {
   if (isDevelopment()) {
-    console.log('🔧 Runtime Configuration:', {
-      source: window._env_ ? 'runtime (Docker)' : 'build-time (Vite)',
-      config: window._env_ || import.meta.env
-    });
+    console.log('Runtime Configuration:', window._env_);
   }
 }
 

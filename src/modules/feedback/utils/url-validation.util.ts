@@ -77,7 +77,7 @@ export function validateFeedbackUrl(
   }
 
   if (urlObj.hostname !== ALLOWED_DOMAIN) {
-    if (isDevelopment() && urlObj.hostname === 'localhost') {
+    if (devMode && urlObj.hostname === 'localhost') {
       return {
         isValid: true,
         sanitizedUrl: urlObj.href,
