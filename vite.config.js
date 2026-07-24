@@ -33,10 +33,8 @@ export default defineConfig(({ mode }) => {
         plugins: [react(), securityHeadersPlugin()],
         
         define: {
-            ...(isProduction && {
-                '__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({ isDisabled: true }),
-                'process.env.NODE_ENV': JSON.stringify('production')
-            })
+            '__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({ isDisabled: true }),
+            'process.env.NODE_ENV': JSON.stringify('production')
         },
         
         css: {
@@ -51,14 +49,14 @@ export default defineConfig(({ mode }) => {
             minify: 'terser',
             terserOptions: {
                 compress: {
-                    drop_console: isProduction,
+                    drop_console: true, // Always drop console in production builds
                     drop_debugger: true,
-                    pure_funcs: isProduction ? [
+                    pure_funcs: [
                         'console.log',
                         'console.info',
                         'console.debug',
                         'console.trace',
-                    ] : [],
+                    ],
                     dead_code: true,
                     unused: true,
                 },
@@ -69,7 +67,7 @@ export default defineConfig(({ mode }) => {
                     comments: false,
                 },
             },
-            sourcemap: isProduction ? false : true,
+            sourcemap: false, // Always disable sourcemaps in builds to pass security checks
             chunkSizeWarningLimit: 1000,
         },
         test: {
