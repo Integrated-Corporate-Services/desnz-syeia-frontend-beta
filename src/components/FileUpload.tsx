@@ -834,18 +834,26 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       className="govuk-link"
                       onClick={async (e) => {
                         e.preventDefault();
-                        if (file.scanStatus && file.scanStatus !== "COMPLETED" && file.scanResult !== "INFECTED") {
-                          setUploadNoticeMessage(
-                            "Your file is being scanned. Please wait while the upload is processed."
-                          );
-                          return;
-                        }
+                        // Only COMPLETED + CLEAN files may be downloaded. Block infected,
+                        // failed, still-scanning and unknown-scan-state files (e.g. before
+                        // enrichment completes) before reaching the download path.
                         if (file.scanResult === "INFECTED") {
                           setUploadNoticeMessage(
                             file.virusName
                               ? `${INFECTED_USER_MESSAGE} (${file.virusName})`
                               : INFECTED_USER_MESSAGE
                           );
+                          return;
+                        }
+                        if (file.scanStatus === "FAILED") {
+                          setUploadNoticeMessage(FAILED_USER_MESSAGE);
+                          return;
+                        }
+                        if (file.scanStatus !== "COMPLETED" || file.scanResult !== "CLEAN") {
+                          setUploadNoticeMessage(
+                            "Your file is being scanned. Please wait while the upload is processed."
+                          );
+                          return;
                         }
                         if (file.s3Key) {
                           try {

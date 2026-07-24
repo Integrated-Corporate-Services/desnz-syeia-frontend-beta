@@ -3,14 +3,22 @@
 // URLs are cached in-memory to reduce backend calls
 
 import { buildBackendUrl } from '../utils/apiConfig';
-import { fetchCsrfToken, getCsrfHeaders } from '../utils/csrf';
+import { fetchCsrfToken, getCsrfToken, getCsrfHeaders } from '../utils/csrf';
 
 // Configuration from environment variables
 const S3_URL_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_URL_EXPIRY_SECONDS) || 1800; // Default: 30 minutes
 const S3_REFRESH_BEFORE_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS) || 120; // Default: 2 minutes
 
 async function csrfJsonHeaders(): Promise<Record<string, string>> {
-  await fetchCsrfToken();
+  // Reuse the cached CSRF token to avoid an extra round-trip on every request;
+  // only hit /csrf-token when we don't yet have one.
+  let token = getCsrfToken();
+  if (!token) {
+    token = await fetchCsrfToken();
+  }
+  if (!token) {
+    throw new Error('Unable to obtain a security token. Please refresh the page and try again.');
+  }
   return {
     'Content-Type': 'application/json',
     ...getCsrfHeaders(),
@@ -266,7 +274,9 @@ export async function waitForFilesScan(
 
     const batch = await getFilesScanStatus(pending);
     options?.onProgress?.(
-      fileIds.map((id) => finalById.get(id) || batch.find((r) => r.fileId === id)!).filter(Boolean)
+      fileIds
+        .map((id) => finalById.get(id) ?? batch.find((r) => r.fileId === id))
+        .filter((r): r is FileScanStatusResult => Boolean(r))
     );
 
     for (const status of batch) {
@@ -290,15 +300,19 @@ export async function waitForFilesScan(
     attempt += 1;
     const delay = Math.min(intervalMs * Math.pow(1.25, attempt - 1), 15000);
     await new Promise<void>((resolve, reject) => {
-      const timer = setTimeout(resolve, delay);
-      options?.signal?.addEventListener(
-        'abort',
-        () => {
-          clearTimeout(timer);
-          reject(new Error('Scan status polling was cancelled.'));
-        },
-        { once: true }
-      );
+      const signal = options?.signal;
+      let timer: ReturnType<typeof setTimeout>;
+      const onAbort = () => {
+        clearTimeout(timer);
+        reject(new Error('Scan status polling was cancelled.'));
+      };
+      timer = setTimeout(() => {
+        // Remove the abort listener on normal completion so listeners don't
+        // accumulate across polling iterations.
+        signal?.removeEventListener('abort', onAbort);
+        resolve();
+      }, delay);
+      signal?.addEventListener('abort', onAbort, { once: true });
     });
   }
 
