@@ -20,8 +20,18 @@ import { DEMO_USER_ID } from "../constants/demo";
 
 const logger = createLogger('FileUpload');
 
+// GOV.UK / GDS-aligned messages (SYEIA-46 AC3, SYEIA-1466). Backend returns the same
+// wording via `userMessage`; these are used as fallbacks and for multi-file summaries.
 const INFECTED_USER_MESSAGE =
-  'The uploaded file contains a virus and has been quarantined. Please upload a clean file.';
+  'Your document upload was blocked because our virus scan detected a potential security risk. ' +
+  'Please check the file on your device, run a virus scan and try uploading a clean version.';
+
+const INFECTED_MULTI_USER_MESSAGE = (count: number): string =>
+  `${count} of your document uploads were blocked because our virus scan detected a potential ` +
+  'security risk. Please check the files on your device, run a virus scan and try uploading clean versions.';
+
+const FAILED_USER_MESSAGE =
+  'Sorry, there is a problem with the service. Your file could not be scanned. Please try again later.';
 
 type FileScanMeta = {
   scanStatus?: string | null;
@@ -30,30 +40,16 @@ type FileScanMeta = {
   scannedAt?: string | null;
 };
 
-function formatUploadSummary(cleanCount: number, infectedCount: number): string | null {
-  if (cleanCount === 0 && infectedCount === 0) {
+// Success confirmation shown in the inset notice. Infected/failed outcomes are surfaced
+// as GOV.UK errors (error summary + per-file error message), not in this notice.
+function formatUploadSummary(cleanCount: number): string | null {
+  if (cleanCount <= 0) {
     return null;
   }
 
-  const parts: string[] = [];
-
-  if (cleanCount > 0) {
-    parts.push(
-      cleanCount === 1
-        ? '1 file uploaded successfully.'
-        : `${cleanCount} files uploaded successfully.`
-    );
-  }
-
-  if (infectedCount > 0) {
-    parts.push(
-      infectedCount === 1
-        ? INFECTED_USER_MESSAGE
-        : `${infectedCount} files contain a virus and have been quarantined. Please upload clean files.`
-    );
-  }
-
-  return parts.join(' ');
+  return cleanCount === 1
+    ? '1 file uploaded successfully.'
+    : `${cleanCount} files uploaded successfully.`;
 }
 
 /** Limit parallel S3 PUT + confirm calls (GDS: keep UI responsive under load). */
@@ -234,7 +230,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           setUploadNoticeMessage(
             infectedCount === 1
               ? INFECTED_USER_MESSAGE
-              : `${infectedCount} files contain a virus and have been quarantined. Please upload clean files.`
+              : INFECTED_MULTI_USER_MESSAGE(infectedCount)
           );
         }
       } catch (error) {
@@ -652,8 +648,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             (scanStatus.scanResult !== "CLEAN" && scanStatus.scanResult !== "INFECTED")
           ) {
             const failedMessage =
-              scanStatus.userMessage ||
-              "Virus scanning failed. Please try uploading the file again.";
+              scanStatus.userMessage || FAILED_USER_MESSAGE;
             newStatuses[i] = failedMessage;
             failedCount += 1;
             setStatuses([...newStatuses]);
@@ -667,16 +662,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           if (isInfected) {
             infectedCount += 1;
             newStatuses[i] = scanStatus.userMessage || INFECTED_USER_MESSAGE;
-            setUploadNoticeMessage(
-              formatUploadSummary(cleanCount, infectedCount)
-            );
           } else {
             cleanCount += 1;
             newStatuses[i] = "File scanned successfully. Upload complete.";
-            setUploadNoticeMessage(
-              formatUploadSummary(cleanCount, infectedCount)
-            );
           }
+          setUploadNoticeMessage(formatUploadSummary(cleanCount));
           setStatuses([...newStatuses]);
 
           const uploadedFile: UploadedFile = {
@@ -753,17 +743,25 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         setStatuses([...newStatuses]);
 
-        const summary = formatUploadSummary(cleanCount, infectedCount);
+        const summary = formatUploadSummary(cleanCount);
         if (summary) {
           setUploadNoticeMessage(summary);
         } else if (failedCount === 0) {
           setUploadNoticeMessage(null);
         }
 
-        if (failedCount > 0 && onValidationErrors) {
-          onValidationErrors([
-            "Virus scanning failed for one or more files. Please try uploading again.",
-          ]);
+        // Surface blocked/failed outcomes in the page-level GOV.UK error summary.
+        if ((infectedCount > 0 || failedCount > 0) && onValidationErrors) {
+          const scanErrors: string[] = [];
+          if (infectedCount > 0) {
+            scanErrors.push(
+              infectedCount === 1 ? INFECTED_USER_MESSAGE : INFECTED_MULTI_USER_MESSAGE(infectedCount)
+            );
+          }
+          if (failedCount > 0) {
+            scanErrors.push(FAILED_USER_MESSAGE);
+          }
+          onValidationErrors(scanErrors);
         }
       } finally {
         setIsScanning(false);
@@ -870,8 +868,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       {file.filename ? file.filename.split("/").pop() : ""}
                     </a>
                     {file.scanResult === "INFECTED" && (
-                      <p className="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-0">
-                        Quarantined — {INFECTED_USER_MESSAGE}
+                      <p className="govuk-error-message govuk-!-margin-top-1 govuk-!-margin-bottom-0">
+                        <span className="govuk-visually-hidden">Error:</span> {INFECTED_USER_MESSAGE}
                       </p>
                     )}
                     {file.scanStatus &&
@@ -883,8 +881,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       </p>
                     )}
                     {file.scanStatus === "FAILED" && (
-                      <p className="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-0">
-                        Virus scanning failed. Please try uploading the file again.
+                      <p className="govuk-error-message govuk-!-margin-top-1 govuk-!-margin-bottom-0">
+                        <span className="govuk-visually-hidden">Error:</span> {FAILED_USER_MESSAGE}
                       </p>
                     )}
                   </td>
