@@ -19,7 +19,7 @@ COPY . .
 RUN echo "========================================" && \
     echo "Building environment-agnostic frontend..." && \
     echo "========================================" && \
-    npm run build -- --mode ${MODE}  && \
+    npm run build -- --mode ${MODE}      && \
     echo "========================================" && \
     echo "Build Complete! Checking output..." && \
     echo "========================================" && \
@@ -41,9 +41,10 @@ RUN npm install -g serve
 RUN mkdir -p dist-serve
 COPY --from=builder /app/dist ./dist-serve
 
-# Copy serve configuration and runtime config generator
+# Copy serve configuration, runtime config script, and scripts directory
 COPY serve.json ./serve.json
 COPY generate-runtime-config.sh ./generate-runtime-config.sh
+COPY scripts ./scripts
 RUN chmod +x ./generate-runtime-config.sh
 
 # Verify the final structure
