@@ -1,6 +1,8 @@
 /**
  * Check Your Answers Breadcrumbs Component
  * Displays breadcrumb navigation for Check Your Answers page
+ * Shows "Application Dashboard" back link when in read-only mode
+ * Shows Task list breadcrumb when user has edit permissions
  */
 
 import React from 'react';
@@ -10,9 +12,20 @@ import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface CheckYourAnswersBreadcrumbsProps {
     applicationId: string;
+    canEdit?: boolean;
 }
 
-export const CheckYourAnswersBreadcrumbs: React.FC<CheckYourAnswersBreadcrumbsProps> = ({ applicationId }) => {
+export const CheckYourAnswersBreadcrumbs: React.FC<CheckYourAnswersBreadcrumbsProps> = ({ applicationId, canEdit = true }) => {
+    // Read-only mode: Show back link to Application Dashboard
+    if (!canEdit) {
+        return (
+            <Link to="/application-dashboard" className="govuk-back-link">
+                Application Dashboard
+            </Link>
+        );
+    }
+
+    // Edit mode: Show breadcrumbs with Task list
     return (
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">

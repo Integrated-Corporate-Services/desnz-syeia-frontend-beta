@@ -78,11 +78,14 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setLoading(false);
 
                 // Mark "Check your answers" section as completed when page loads successfully
-                try {
-                    await updateProgress('Check your answers', 'Completed');
-                } catch (progressError) {
-                    logger.error('Failed to update Check your answers progress:', progressError);
-                    // Don't block the user from viewing the page if progress update fails
+                // Only update progress if user has edit permissions (avoids 403 for read-only users)
+                if (data.permissions.canEdit) {
+                    try {
+                        await updateProgress('Check your answers', 'Completed');
+                    } catch (progressError) {
+                        logger.error('Failed to update Check your answers progress:', progressError);
+                        // Don't block the user from viewing the page if progress update fails
+                    }
                 }
             } catch {
                 setLoading(false);
@@ -113,7 +116,7 @@ export const CheckYourAnswersPage: React.FC = () => {
             <>
                 <SkipLink />
                 <div className="govuk-width-container">
-                <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
+                <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
                 <main className="govuk-main-wrapper">
                     <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
                 </main>
@@ -126,7 +129,7 @@ export const CheckYourAnswersPage: React.FC = () => {
         <>
             <SkipLink />
             <div className="govuk-width-container">
-            <CheckYourAnswersBreadcrumbs applicationId={applicationId!} />
+            <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
@@ -193,44 +196,49 @@ export const CheckYourAnswersPage: React.FC = () => {
                         <h2 className="govuk-heading-m">{CONSTANTS.SECTION_HEADINGS.ADDITIONAL_INFORMATION}</h2>
                         <NWLAdditionalInformationSummaryCard data={additionalInformation} applicationId={applicationId!} canEdit={permissions.canEdit} />
 
-                        <h2 className="govuk-heading-m">{CONSTANTS.DECLARATION.HEADING}</h2>
-                        <div className={`govuk-form-group ${declarationError ? 'govuk-form-group--error' : ''}`}>
-                            {declarationError && (
-                                <p className="govuk-error-message" id="declaration-error">
-                                    <span className="govuk-visually-hidden">Error:</span> {CONSTANTS.ERROR_MESSAGES.DECLARATION_REQUIRED}
-                                </p>
-                            )}
-                            <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                                <div className="govuk-checkboxes__item">
-                                    <input 
-                                        className="govuk-checkboxes__input" 
-                                        id="declaration" 
-                                        name="declaration" 
-                                        type="checkbox" 
-                                        checked={declarationConfirmed} 
-                                        onChange={(e) => {
-                                            setDeclarationConfirmed(e.target.checked);
-                                            if (e.target.checked) {
-                                                setDeclarationError(false);
-                                            }
-                                        }}
-                                        aria-describedby={declarationError ? 'declaration-error' : undefined}
-                                    />
-                                    <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
-                                        {CONSTANTS.DECLARATION.TEXT}
-                                    </label>
+                        {/* Show declaration and submit section only if user has edit permissions */}
+                        {permissions.canEdit && (
+                            <>
+                                <h2 className="govuk-heading-m">{CONSTANTS.DECLARATION.HEADING}</h2>
+                                <div className={`govuk-form-group ${declarationError ? 'govuk-form-group--error' : ''}`}>
+                                    {declarationError && (
+                                        <p className="govuk-error-message" id="declaration-error">
+                                            <span className="govuk-visually-hidden">Error:</span> {CONSTANTS.ERROR_MESSAGES.DECLARATION_REQUIRED}
+                                        </p>
+                                    )}
+                                    <div className="govuk-checkboxes" data-module="govuk-checkboxes">
+                                        <div className="govuk-checkboxes__item">
+                                            <input 
+                                                className="govuk-checkboxes__input" 
+                                                id="declaration" 
+                                                name="declaration" 
+                                                type="checkbox" 
+                                                checked={declarationConfirmed} 
+                                                onChange={(e) => {
+                                                    setDeclarationConfirmed(e.target.checked);
+                                                    if (e.target.checked) {
+                                                        setDeclarationError(false);
+                                                    }
+                                                }}
+                                                aria-describedby={declarationError ? 'declaration-error' : undefined}
+                                            />
+                                            <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
+                                                {CONSTANTS.DECLARATION.TEXT}
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <h2 className="govuk-heading-m">{CONSTANTS.SUBMIT.HEADING}</h2>
-                        <p className="govuk-body">{CONSTANTS.SUBMIT.DESCRIPTION}</p>
+                                <h2 className="govuk-heading-m">{CONSTANTS.SUBMIT.HEADING}</h2>
+                                <p className="govuk-body">{CONSTANTS.SUBMIT.DESCRIPTION}</p>
 
-                        <form onSubmit={handleSubmit}>
-                            <button type="submit" className="govuk-button" data-module="govuk-button" disabled={submitting}>
-                                {submitting ? CONSTANTS.SUBMIT.BUTTON_PROCESSING : CONSTANTS.SUBMIT.BUTTON_TEXT}
-                            </button>
-                        </form>
+                                <form onSubmit={handleSubmit}>
+                                    <button type="submit" className="govuk-button" data-module="govuk-button" disabled={submitting}>
+                                        {submitting ? CONSTANTS.SUBMIT.BUTTON_PROCESSING : CONSTANTS.SUBMIT.BUTTON_TEXT}
+                                    </button>
+                                </form>
+                            </>
+                        )}
                     </div>
                 </div>
             </main>
