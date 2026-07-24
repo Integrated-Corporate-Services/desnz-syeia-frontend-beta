@@ -13,10 +13,8 @@ node /app/scripts/generate-runtime-config-js.cjs
 # Verify the config was created
 if [ -f "/app/dist-serve/runtime-config.js" ]; then
     echo " Runtime configuration generated successfully"
-    echo "Configuration preview:"
-    head -n 10 /app/dist-serve/runtime-config.js
 else
-    echo "Failed to generate runtime configuration"
+    echo " Failed to generate runtime configuration"
     echo "Using default configuration from build"
 fi
 

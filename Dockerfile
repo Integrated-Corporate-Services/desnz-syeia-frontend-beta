@@ -19,7 +19,7 @@ COPY . .
 RUN echo "========================================" && \
     echo "Building environment-agnostic frontend..." && \
     echo "========================================" && \
-    npm run build -- --mode ${MODE}      && \
+    npm run build && \
     echo "========================================" && \
     echo "Build Complete! Checking output..." && \
     echo "========================================" && \

@@ -69,13 +69,15 @@ declare global {
  * Falls back to import.meta.env for local development
  */
 export function getRuntimeEnv(key: keyof RuntimeEnv, fallback: string = ''): string {
-  // In production (Docker), use window._env_
-  if (window._env_ && window._env_[key] !== undefined) {
-    return window._env_[key] || fallback;
+  // Guard window access for SSR/non-browser contexts
+  if (typeof window !== 'undefined' && window._env_ && window._env_[key] !== undefined) {
+    const value = window._env_[key];
+    // Explicitly check for null/undefined to allow empty strings
+    return value !== null && value !== undefined ? value : fallback;
   }
   
   // In development, fall back to import.meta.env
-  const viteEnv = import.meta.env[key];
+  const viteEnv = (import.meta.env as Record<string, unknown>)[key];
   return viteEnv !== undefined ? String(viteEnv) : fallback;
 }
 
@@ -105,9 +107,11 @@ export function getMode(): string {
 
 /**
  * Check if running in development mode
+ * Includes both 'development' and 'local' modes
  */
 export function isDevelopment(): boolean {
-  return getMode() === 'development';
+  const mode = getMode();
+  return mode === 'development' || mode === 'local';
 }
 
 /**

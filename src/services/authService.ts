@@ -2,7 +2,6 @@ import type { AuthUser } from '../types/auth';
 import { createLogger } from '../utils/logger';
 import { buildBackendUrl } from '../utils/apiConfig';
 import { getCsrfHeaders } from '../utils/csrf';
-import { getRuntimeEnv } from '../config/runtimeConfig';
 
 const logger = createLogger('authService');
 
@@ -98,7 +97,6 @@ export async function logout(redirectTo?: string): Promise<void> {
     logger.warn('Unable to broadcast logout event across tabs', error);
   }
 
-  const baseUrl = getRuntimeEnv('VITE_API_URL', '');
   // Build logout URL with optional redirect parameter
   const logoutUrl = redirectTo 
     ? buildBackendUrl(`/auth/logout?redirectTo=${encodeURIComponent(redirectTo)}`)
