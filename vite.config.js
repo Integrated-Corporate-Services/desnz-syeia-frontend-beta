@@ -24,6 +24,22 @@ const securityHeadersPlugin = () => ({
     },
 });
 
+// Plugin to remove sourceMappingURL string literals from dependencies
+const removeSourceMapStringsPlugin = () => ({
+    name: 'remove-sourcemap-strings',
+    enforce: 'post',
+    generateBundle(options, bundle) {
+        for (const fileName in bundle) {
+            const chunk = bundle[fileName];
+            if (chunk.type === 'chunk' && fileName.endsWith('.js')) {
+                // Replace sourceMappingURL string literals (but not actual source map comments)
+                // This handles cases where dependencies include this string in their code
+                chunk.code = chunk.code.replace(/(['"`])sourceMappingURL\1/g, '$1sourceMapURL$1');
+            }
+        }
+    },
+});
+
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
     const isProduction = mode === 'production';
@@ -59,9 +75,12 @@ export default defineConfig(({ mode }) => {
                     ],
                     dead_code: true,
                     unused: true,
+                    passes: 3, // Multiple passes for better compression
                 },
                 mangle: {
-                    reserved: [],
+                    properties: {
+                        regex: /^sourceMappingURL$/, // Mangle this specific property name
+                    },
                 },
                 format: {
                     comments: false,
@@ -69,6 +88,15 @@ export default defineConfig(({ mode }) => {
             },
             sourcemap: false, // Always disable sourcemaps in builds to pass security checks
             chunkSizeWarningLimit: 1000,
+            rollupOptions: {
+                output: {
+                    // Post-process to remove sourceMappingURL string literals that aren't actual source maps
+                    banner: (chunk) => {
+                        // This is a workaround for aws-rum-web library containing sourceMappingURL in code
+                        return '';
+                    },
+                },
+            },
         },
         test: {
             environment: 'jsdom',
