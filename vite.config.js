@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
     
     return {
         base: env.VITE_ROUTER_BASENAME || '/',
-        plugins: [react(), securityHeadersPlugin()],
+        plugins: [react(), securityHeadersPlugin(), removeSourceMapStringsPlugin()],
         
         define: {
             '__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({ isDisabled: true }),
@@ -75,28 +75,14 @@ export default defineConfig(({ mode }) => {
                     ],
                     dead_code: true,
                     unused: true,
-                    passes: 3, // Multiple passes for better compression
                 },
-                mangle: {
-                    properties: {
-                        regex: /^sourceMappingURL$/, // Mangle this specific property name
-                    },
-                },
+                mangle: true,
                 format: {
                     comments: false,
                 },
             },
             sourcemap: false, // Always disable sourcemaps in builds to pass security checks
             chunkSizeWarningLimit: 1000,
-            rollupOptions: {
-                output: {
-                    // Post-process to remove sourceMappingURL string literals that aren't actual source maps
-                    banner: (chunk) => {
-                        // This is a workaround for aws-rum-web library containing sourceMappingURL in code
-                        return '';
-                    },
-                },
-            },
         },
         test: {
             environment: 'jsdom',
