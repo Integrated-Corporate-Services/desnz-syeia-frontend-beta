@@ -50,24 +50,9 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
     const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/review`), {
         credentials: 'include'
     });
-    
     if (!response.ok) {
-        // Create an error object similar to axios errors for consistent error handling
         const errorText = await response.text();
-        let errorData;
-        try {
-            errorData = JSON.parse(errorText);
-        } catch {
-            errorData = { message: errorText };
-        }
-        
-        const error: any = new Error(`Failed to fetch application data: ${response.status} ${response.statusText}`);
-        error.response = {
-            status: response.status,
-            statusText: response.statusText,
-            data: errorData
-        };
-        throw error;
+        throw new Error(`Failed to fetch application data: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
