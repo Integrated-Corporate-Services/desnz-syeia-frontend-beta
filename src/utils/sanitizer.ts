@@ -67,7 +67,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
 
     // If the link already opens a new tab, always protect against tabnabbing
     if (target === '_blank') {
-      node.setAttribute('rel', 'noopener noreferrer');
+      node.setAttribute('rel', Array.from(new Set(`${node.getAttribute('rel') ?? ''} noopener noreferrer`.trim().split(/\s+/))).join(' '));
     }
     
     // External link detection
