@@ -63,13 +63,19 @@ export const sanitizeUrl = (url: string | undefined | null): string => {
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.tagName === 'A') {
     const href = node.getAttribute('href');
+    const target = node.getAttribute('target');
+
+    // If the link already opens a new tab, always protect against tabnabbing
+    if (target === '_blank') {
+      node.setAttribute('rel', 'noopener noreferrer');
+    }
     
     // External link detection
     if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-      const currentDomain = window.location.hostname;
+      const currentDomain = globalThis.location?.hostname;
       try {
         const linkUrl = new URL(href);
-        if (linkUrl.hostname !== currentDomain) {
+        if (currentDomain && linkUrl.hostname !== currentDomain) {
           // External link - add security attributes
           node.setAttribute('rel', 'noopener noreferrer');
           node.setAttribute('target', '_blank');
