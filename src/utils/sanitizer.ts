@@ -13,10 +13,12 @@ import DOMPurify from 'dompurify';
 // Strict configuration for user-generated content
 const STRICT_CONFIG: DOMPurify.Config = {
   ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'br', 'p', 'ul', 'ol', 'li'],
-  ALLOWED_ATTR: ['href', 'target', 'rel'],
-  ALLOW_DATA_ATTR: false,
+  // Needed by existing SummaryRow HTML (govuk-* classes + data-* hooks + internal/fragment links)
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+  ALLOW_DATA_ATTR: true,
   ALLOW_UNKNOWN_PROTOCOLS: false,
-  ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):)/i, // Only http, https, mailto
+  // Allow http(s)/mailto plus internal relative paths and fragments, but block protocol-relative URLs (//...)
+  ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/(?!\/)|#)/i,
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
   FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'oninput', 'onchange'],
 };
