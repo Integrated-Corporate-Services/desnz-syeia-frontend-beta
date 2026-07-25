@@ -24,21 +24,7 @@
     " />
     <title>DESNZ</title>
     
-    <!-- 
-      Fix #4: Clickjacking Protection - Framebuster Script
-      Defense-in-depth: Break out of iframe if page is framed
-      Works even if X-Frame-Options header is stripped by proxy
-    -->
-    <script>
-      // Framebuster: Prevent clickjacking
-      try {
-        if (top !== self) {
-          top.location = self.location;
-        }
-      } catch {
-        // Ignore: top navigation may be blocked (e.g. sandboxed iframe)
-      }
-    </script>
+    <!-- Clickjacking protection is enforced via CSP `frame-ancestors 'none'` above. -->
   </head>
   <body class="govuk-frontend-supported">
     <div id="root"></div>
