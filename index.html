@@ -31,8 +31,12 @@
     -->
     <script>
       // Framebuster: Prevent clickjacking
-      if (top !== self) {
-        top.location = self.location;
+      try {
+        if (top !== self) {
+          top.location = self.location;
+        }
+      } catch {
+        // Ignore: top navigation may be blocked (e.g. sandboxed iframe)
       }
     </script>
   </head>
