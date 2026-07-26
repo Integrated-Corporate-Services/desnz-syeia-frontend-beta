@@ -8,9 +8,10 @@
  */
 
 import { createLogger } from './logger';
+import { isDevelopmentMode } from '../config/runtimeEnv';
 
 const logger = createLogger('ErrorMapper');
-import { isDevelopmentMode } from '../config/runtimeEnv';
+
 /**
  * Error categories for mapping
  */

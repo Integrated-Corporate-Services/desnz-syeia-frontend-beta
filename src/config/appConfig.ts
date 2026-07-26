@@ -113,7 +113,7 @@ class ConfigService {
         urlObj.hostname === origin || urlObj.hostname.endsWith(`.${origin}`)
       );
 
-      if (!isAllowed && !isProductionMode()) {
+      if (!isAllowed) {
         return '';
       }
 
