@@ -13,9 +13,8 @@ import DOMPurify from 'dompurify';
 // Strict configuration for user-generated content
 const STRICT_CONFIG: DOMPurify.Config = {
   ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'br', 'p', 'ul', 'ol', 'li'],
-  // Needed by existing SummaryRow HTML (govuk-* classes + data-* hooks + internal/fragment links)
+  // Needed by existing SummaryRow HTML (govuk-* classes + data-* hooks + internal/fragment links). Inline styles are intentionally stripped.
   ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
-  ALLOW_DATA_ATTR: true,
   ALLOW_UNKNOWN_PROTOCOLS: false,
   // Allow http(s)/mailto plus internal relative paths and fragments, but block protocol-relative URLs (//...)
   ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/(?!\/)|#)/i,
