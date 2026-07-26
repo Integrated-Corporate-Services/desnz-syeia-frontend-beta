@@ -1,6 +1,7 @@
 import { matchPath } from 'react-router-dom';
 import { ALLOWED_ROUTES, ALLOWED_EXTERNAL_DOMAINS } from './routes';
 import type { ValidationConfig, ValidationResult, ParsedUrl } from './types';
+import { isDevelopmentMode } from '../../config/runtimeEnv';
 
 export class UrlValidator {
   private config: Required<ValidationConfig>;
@@ -11,7 +12,7 @@ export class UrlValidator {
       allowedRoutes: config.allowedRoutes || ALLOWED_ROUTES,
       allowSubpaths: config.allowSubpaths ?? true,
       strictMode: config.strictMode ?? true,
-      debug: config.debug ?? (import.meta.env?.MODE === 'development'),
+      debug: config.debug ?? isDevelopmentMode(),
     };
   }
   
@@ -48,7 +49,7 @@ export class UrlValidator {
     let parsed: ParsedUrl;
     try {
       parsed = this.parseUrl(normalized);
-    } catch (error) {
+    } catch {
       return { isValid: false, reason: 'MALFORMED_URL', originalUrl };
     }
     
@@ -259,7 +260,7 @@ export class UrlValidator {
       }
       
       return { isValid: true, originalUrl: search };
-    } catch (error) {
+    } catch {
       return { isValid: false, reason: 'MALFORMED_URL', originalUrl: search };
     }
   }
@@ -292,13 +293,17 @@ export class UrlValidator {
     return url;
   }
   
-  private log(message: string, data?: any) {
+  // Empty logging methods (console logging disabled for security)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private log(_message: string, _data?: unknown) {
   }
   
-  private warn(message: string, data?: any) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private warn(_message: string, _data?: unknown) {
   }
   
-  private error(message: string, data?: any) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private error(_message: string, _data?: unknown) {
   }
 }
 
@@ -306,7 +311,7 @@ export const urlValidator = new UrlValidator({
   allowedRoutes: ALLOWED_ROUTES,
   allowedDomains: ALLOWED_EXTERNAL_DOMAINS,
   strictMode: true,
-  debug: import.meta.env?.MODE === 'development',
+  debug: isDevelopmentMode(),
 });
 
 export function validateUrl(url: string | null | undefined): string | null {

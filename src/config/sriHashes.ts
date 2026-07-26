@@ -114,7 +114,9 @@ export type SRIMode = 'enforce' | 'report' | 'disabled';
  * 
  * Production should use 'enforce' once hashes are stable
  */
-export const SRI_MODE: SRIMode = (import.meta.env.VITE_SRI_MODE as SRIMode) || 'report';
+import { getRuntimeEnv } from './runtimeEnv';
+
+export const SRI_MODE: SRIMode = (getRuntimeEnv('VITE_SRI_MODE', 'report') as SRIMode) || 'report';
 
 /**
  * Check if SRI is enabled for current environment

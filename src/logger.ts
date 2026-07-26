@@ -1,7 +1,8 @@
 import log from 'loglevel';
+import { getMode } from './config/runtimeEnv';
 
-const env = import.meta.env.MODE;
-if (env === 'production' || env === 'prod' || env === 'staging') {
+const env = getMode();
+if (env === 'production' || env === 'staging') {
   //log.setLevel('error'); // Only show errors in production
 } else {
   log.setLevel('debug'); // Show all logs in dev/local

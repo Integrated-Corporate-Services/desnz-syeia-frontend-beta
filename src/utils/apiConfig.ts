@@ -1,7 +1,8 @@
 import { configService } from '../config/appConfig';
+import { getRuntimeEnv } from '../config/runtimeEnv';
 
 export const getApiBaseUrl = (): string => {
-  return import.meta.env.VITE_API_URL || configService.getApiBaseUrl() || '';
+  return getRuntimeEnv('VITE_API_URL') || configService.getApiBaseUrl() || '';
 };
 
 export const buildBackendUrl = (path: string): string => {

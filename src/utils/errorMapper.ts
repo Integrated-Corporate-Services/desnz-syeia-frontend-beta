@@ -10,7 +10,7 @@
 import { createLogger } from './logger';
 
 const logger = createLogger('ErrorMapper');
-
+import { isDevelopmentMode } from '../config/runtimeEnv';
 /**
  * Error categories for mapping
  */

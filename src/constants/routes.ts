@@ -1032,4 +1032,4 @@ export const ROUTES = {
     NETWORK_OPERATOR_CONTACT_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-contact-details`,
 };
 
-export const BASE_URL = import.meta.env.BASE_URL;
+export const BASE_URL = '/';
