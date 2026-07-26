@@ -92,10 +92,10 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
       }
     }
     
-    // Block dangerous protocols
+    // Block dangerous protocols (strip control chars to avoid scheme obfuscation)
     if (href) {
-      const normalizedHref = href.trim().toLowerCase();
-      if (/^(javascript|data|vbscript|file):/i.test(normalizedHref)) {
+      const hrefForSchemeCheck = href.trim().replace(/[\u0000-\u001F\u007F]/g, '');
+      if (/^(javascript|data|vbscript|file):/i.test(hrefForSchemeCheck)) {
         node.removeAttribute('href');
       }
     }
