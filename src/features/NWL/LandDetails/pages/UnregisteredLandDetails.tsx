@@ -14,7 +14,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
-import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../../components/FileUpload';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { LAND_DETAILS_SUBCATEGORIES } from '../constants';
 import { useAuthUser } from '../../../../hooks/useAuthUser';
@@ -39,6 +39,7 @@ const UnregisteredLandDetails: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   const maxCharacters = 4000;
 
@@ -189,6 +190,7 @@ const UnregisteredLandDetails: React.FC = () => {
                       applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
                     });
                   }}
+                  onUploadGateChange={setUploadGate}
                         />
                       </>
                     );
@@ -198,6 +200,7 @@ const UnregisteredLandDetails: React.FC = () => {
               <FormActions
                 onSaveAndContinue={handleSaveAndContinue}
                 isSaving={isSaving}
+                disabled={!uploadGate.canContinue}
               />
             </form>
           </div>

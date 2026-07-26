@@ -18,7 +18,7 @@ import {
 } from '../components';
 import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
-import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
@@ -44,6 +44,7 @@ const ImportantInformationDetails: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
@@ -213,9 +214,10 @@ const ImportantInformationDetails: React.FC = () => {
                   }}
                   onPendingFilesChange={setPendingFiles}
                   showDocumentsHeading={true}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
-              <FormActions isSaving={isSaving} />
+              <FormActions isSaving={isSaving} disabled={!uploadGate.canContinue} />
             </form>
           </div>
         </div>

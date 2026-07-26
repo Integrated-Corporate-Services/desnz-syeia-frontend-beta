@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { useApplicationId, useAssetsData } from '../hooks';
 import { BREADCRUMBS, LABELS, HINTS, FORM_ERRORS, MESSAGES } from '../constants';
-import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
@@ -29,6 +29,7 @@ const ProvideApplicationPlan: React.FC = () => {
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [showErrorSummary, setShowErrorSummary] = useState(false);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   // Load existing files when assetsData is available
   useEffect(() => {
@@ -247,6 +248,7 @@ const ProvideApplicationPlan: React.FC = () => {
                     setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
                   }}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
             </>
@@ -259,6 +261,7 @@ const ProvideApplicationPlan: React.FC = () => {
               className="govuk-button"
               data-module="govuk-button"
               onClick={handleSubmit}
+              disabled={!uploadGate.canContinue}
             >
               {LABELS.CONTINUE}
             </button>

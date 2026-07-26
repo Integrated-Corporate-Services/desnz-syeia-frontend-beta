@@ -6,7 +6,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { validateDateComponents } from '../../../utils/validation';
 import { ConsultationType } from '../../../constants/consultationType';
 import { fetchConsultationDetails } from '../../../services/consultationService';
@@ -25,6 +25,7 @@ const ConsultationResponse2: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
     const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+    const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
     const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>('');
     const [consultationType, setConsultationType] = useState<string>('');
@@ -484,6 +485,7 @@ const ConsultationResponse2: React.FC = () => {
                                         onValidationErrors={handleFileValidationErrors}
                                         consultationId={consultationId}
                                         onPendingFilesChange={setPendingFiles}
+                                        onUploadGateChange={setUploadGate}
                                     />
                                 </div>
                             </div>
@@ -494,6 +496,7 @@ const ConsultationResponse2: React.FC = () => {
                                     className="govuk-button"
                                     data-module="govuk-button"
                                     onClick={handleSaveAndContinue}
+                                    disabled={!uploadGate.canContinue}
                                 >
                                     Save and continue
                                 </button>

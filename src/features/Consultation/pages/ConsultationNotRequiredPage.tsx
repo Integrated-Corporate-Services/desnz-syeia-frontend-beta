@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -26,6 +26,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 	const [errors, setErrors] = useState<{reason?: string; files?: string}>({});
 	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+	const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 	// Ref for file upload
 	const fileUploadRef = useRef<FileUploadHandle>(null);
 
@@ -325,6 +326,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								onValidationErrors={handleFileValidationErrors}
 								onPendingFilesChange={setPendingFiles}
 								consultationId={consultationId}
+								onUploadGateChange={setUploadGate}
 							/>
 							</div>
 						 <div className="govuk-button-group govuk-!-margin-top-6">
@@ -341,6 +343,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 									className="govuk-button govuk-button--primary"
 									data-module="govuk-button"
 									onClick={handleSaveAndContinue}
+									disabled={!uploadGate.canContinue}
 								>
 									Save and Continue
 								</button>

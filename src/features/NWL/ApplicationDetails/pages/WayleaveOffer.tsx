@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
-import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -47,6 +47,7 @@ const WayleaveOffer: React.FC = () => {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   const handleFileValidationErrors = (errors: string[]) => {
     // Always update from FileUpload component to clear errors when new files selected
@@ -429,6 +430,7 @@ const WayleaveOffer: React.FC = () => {
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   onValidationErrors={handleFileValidationErrors}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
 
@@ -437,9 +439,9 @@ const WayleaveOffer: React.FC = () => {
                   type="submit"
                   className="govuk-button"
                   data-module="govuk-button"
-                  disabled={isLoading}
+                  disabled={isLoading || !uploadGate.canContinue}
                 >
-                  {isLoading ? 'Saving...' : (has21DayError ? 'Return to tasklist' : 'Save and continue')}
+                  {uploadGate.isScanning ? 'Scanning files...' : isLoading ? 'Saving...' : (has21DayError ? 'Return to tasklist' : 'Save and continue')}
                 </button>
               </div>
             </form>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -35,6 +35,7 @@ const PublicNoticesEvidence: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
   const fileUploadRef = useRef<FileUploadHandle>(null);
 
   useEffect(() => {
@@ -633,12 +634,13 @@ const PublicNoticesEvidence: React.FC = () => {
                   onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
                   onPendingFilesChange={setPendingFiles}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
 
               {/* Action buttons */}
               <div className="govuk-button-group">
-                <button type="submit" className="govuk-button" data-module="govuk-button">
+                <button type="submit" className="govuk-button" data-module="govuk-button" disabled={!uploadGate.canContinue}>
                   Save and continue
                 </button>
                 {/* <button

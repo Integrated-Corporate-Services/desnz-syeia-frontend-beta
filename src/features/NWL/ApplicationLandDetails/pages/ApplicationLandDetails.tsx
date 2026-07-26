@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import FileUpload from '../../../../components/FileUpload';
+import FileUpload, { FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../../components/FileUpload';
 // Use the advanced FileUpload component from ProjectOverview
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
@@ -24,6 +24,7 @@ const ApplicationLandDetails: React.FC = () => {
   const applicationId = getApplicationId();
 	const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 	const [, setApplicationDocuments] = useState<any[]>([]);
+	const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 	// Form state
 	const [applicationType, setApplicationType] = useState("");
 	const [networkOperatorReference, setNetworkOperatorReference] = useState("");
@@ -142,6 +143,7 @@ const ApplicationLandDetails: React.FC = () => {
 										setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));
 										setApplicationDocuments(prev => ([...(prev || []), ...newDocuments]));
 									}}
+									onUploadGateChange={setUploadGate}
 								/>
 								<div className="govuk-hint govuk-!-margin-top-1">
 									For example:
@@ -276,7 +278,7 @@ const ApplicationLandDetails: React.FC = () => {
 						</div>
 						<div className="govuk-!-static-margin-top-6">
 							<a href="application-overview.html" className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2">Save for later</a>
-							<button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
+							<button type="submit" className="govuk-button" data-module="govuk-button" disabled={!uploadGate.canContinue}>Save and continue</button>
 						</div>
 					</form>
 				</div>

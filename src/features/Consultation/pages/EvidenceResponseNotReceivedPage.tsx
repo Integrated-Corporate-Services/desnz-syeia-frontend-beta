@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { getConsultationResponse } from '../../../services/consultationResponseService';
@@ -32,6 +32,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     const [uploadedFileObjs, setUploadedFileObjs] = useState<UploadedFile[]>([]);
     const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
     const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+    const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
     const [formData, setFormData] = useState<EvidenceData>({
         declarationAccepted: false,
@@ -403,6 +404,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                     onValidationErrors={handleFileValidationErrors}
                                     consultationId={consultationId}
                                     onPendingFilesChange={setPendingFiles}
+                                    onUploadGateChange={setUploadGate}
                                 />
                             </div>
 
@@ -439,8 +441,8 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                     Close consultation
                                 </button> */}
 
-                                <button type="submit" className="govuk-button" data-module="govuk-button" disabled={loading}>
-                                    {loading ? 'Closing...' : 'Close consultation'}
+                                <button type="submit" className="govuk-button" data-module="govuk-button" disabled={loading || !uploadGate.canContinue}>
+                                    {uploadGate.isScanning ? 'Scanning files...' : loading ? 'Closing...' : 'Close consultation'}
                                 </button>
                                 {/* <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater} disabled={loading}>
                                     Save for later

@@ -5,7 +5,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import RadioGroup from '../component/RadioGroup';
 import TextArea from '../component/TextArea';
 import TextInput from '../component/TextInput';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { ASSET_ERROR_MESSAGES } from '../../../constants/assetError';
 import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../../../services/worksOverviewApiService';
 import { WORKS_OVERVIEW_LABELS } from '../../../constants/worksOverviewLabels';
@@ -88,6 +88,7 @@ const WorksOverview: React.FC = () => {
   const [roadClosureFiles, setRoadClosureFiles] = useState<UploadedFile[]>([]);
   const [roadClosureDocuments, setRoadClosureDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingRoadClosureFiles, setPendingRoadClosureFiles] = useState<File[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
   const roadClosureFileUploadRef = useRef<FileUploadHandle>(null);
   const navigate = useNavigate();
   const { user } = useAuthUser();
@@ -265,6 +266,7 @@ const WorksOverview: React.FC = () => {
               setRoadClosureFiles((prev) => [...prev, ...newUploadedFiles]);
               setRoadClosureDocuments((prev) => [...prev, ...newDocuments]);
             }}
+            onUploadGateChange={setUploadGate}
           />
         </fieldset>
       </div>
@@ -404,7 +406,7 @@ const WorksOverview: React.FC = () => {
             </div>
 
             <div className="govuk-button-group">
-              <button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
+              <button type="submit" className="govuk-button" data-module="govuk-button" disabled={!uploadGate.canContinue}>Save and continue</button>
             </div>
           </form>
         </main>

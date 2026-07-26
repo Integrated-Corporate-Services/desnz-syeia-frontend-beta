@@ -3,7 +3,7 @@ import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
-import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
 import {
   validateDate,
@@ -45,6 +45,7 @@ const NoticeToTerminate: React.FC = () => {
   
   // Ref for file upload
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   // Handle file validation errors from FileUpload component
   const handleFileValidationErrors = (errors: string[]) => {
@@ -414,6 +415,7 @@ const NoticeToTerminate: React.FC = () => {
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   onValidationErrors={handleFileValidationErrors}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
 
@@ -422,6 +424,7 @@ const NoticeToTerminate: React.FC = () => {
                   type="submit"
                   className="govuk-button"
                   data-module="govuk-button"
+                  disabled={!uploadGate.canContinue}
                 >
                   Save and continue
                 </button>

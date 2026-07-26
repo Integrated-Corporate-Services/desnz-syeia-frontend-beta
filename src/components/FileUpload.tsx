@@ -79,6 +79,42 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
+/** Gate for parent "Save and continue" buttons (SYEIA-46). */
+export type FileUploadGate = {
+  /** True while upload or virus scan is in progress (GDS status for the primary button). */
+  isScanning: boolean;
+  hasInfectedFiles: boolean;
+  /**
+   * False while upload/scan is in progress or any infected file remains.
+   * Parents must disable Save and continue when this is false.
+   */
+  canContinue: boolean;
+};
+
+export const DEFAULT_FILE_UPLOAD_GATE: FileUploadGate = {
+  isScanning: false,
+  hasInfectedFiles: false,
+  canContinue: true,
+};
+
+/** Shared GDS copy for parents that hard-stop submit while a scan is running. */
+export const FILE_SCAN_IN_PROGRESS_MESSAGE =
+  'Your file is being scanned. Please wait while the upload is processed.';
+
+/** Shared GDS copy for parents that hard-stop submit when a virus is detected. */
+export const FILE_INFECTED_BLOCK_MESSAGE = INFECTED_USER_MESSAGE;
+
+function buildUploadGate(
+  isBusy: boolean,
+  hasInfectedFiles: boolean
+): FileUploadGate {
+  return {
+    isScanning: isBusy,
+    hasInfectedFiles,
+    canContinue: !isBusy && !hasInfectedFiles,
+  };
+}
+
 export interface FileUploadProps {
   title?: string;
   prefix?: string;
@@ -101,11 +137,14 @@ export interface FileUploadProps {
   ) => void;
   uploadImmediately?: boolean; // New prop to control upload timing
   onPendingFilesChange?: (files: File[]) => void; // New prop to notify parent of pending files
+  /** Notifies parent so Save and continue can stay disabled until scans are clean. */
+  onUploadGateChange?: (gate: FileUploadGate) => void;
 }
 
 export interface FileUploadHandle {
   triggerUpload: () => Promise<{ uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[] }>;
   getPendingFiles: () => File[];
+  getUploadGate: () => FileUploadGate;
 }
 
 const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
@@ -127,6 +166,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   onUploaded,
   uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
   onPendingFilesChange,
+  onUploadGateChange,
 }, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
@@ -136,8 +176,53 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     DEMO_USER_ID;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scanAbortRef = useRef<AbortController | null>(null);
+  // Tracks files whose scan came back INFECTED. While any entry exists here the
+  // component must never let the applicant continue (SYEIA-46 AC2/AC4). Keyed by
+  // "name::size" so it survives re-renders without holding the File objects.
+  const blockedFilesRef = useRef<Set<string>>(new Set());
+  const getFileKey = (name: string, size: number) => `${name}::${size}`;
+  // Tracks the in-flight immediate upload+scan so "Save and continue" can wait
+  // for a scan verdict before deciding whether to block (SYEIA-46 AC2/AC4).
+  const uploadInFlightRef = useRef<Promise<unknown> | null>(null);
+  // State mirror of in-flight work so the gate re-renders as soon as files are
+  // selected (before async presign/scan) — closes the race where Save and continue
+  // stayed enabled for one tick after file select.
+  const [isUploadInProgress, setIsUploadInProgress] = useState(false);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
+  const [hasInfectedFiles, setHasInfectedFiles] = useState(false);
+
+  const syncBlockedFilesState = () => {
+    setHasInfectedFiles(blockedFilesRef.current.size > 0);
+  };
+
+  const markFileInfected = (name: string, size: number) => {
+    blockedFilesRef.current.add(getFileKey(name, size));
+    syncBlockedFilesState();
+  };
+
+  const clearFileInfected = (name: string, size: number) => {
+    blockedFilesRef.current.delete(getFileKey(name, size));
+    syncBlockedFilesState();
+  };
+
+  // Add files to the pending queue (used so immediate-upload files stay tracked
+  // until their scan verdict is known).
+  const markFilesPending = (filesToAdd: File[]) => {
+    setPendingFiles((prev) => {
+      const additions = filesToAdd.filter(
+        (a) => !prev.some((p) => p.name === a.name && p.size === a.size)
+      );
+      return additions.length ? [...prev, ...additions] : prev;
+    });
+  };
+
+  // Remove a single file from the pending queue once it is confirmed clean.
+  const unmarkFilePending = (name: string, size: number) => {
+    setPendingFiles((prev) =>
+      prev.filter((f) => !(f.name === name && f.size === size))
+    );
+  };
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState<{ completed: number; total: number } | null>(null);
   const [uploadNoticeMessage, setUploadNoticeMessage] = useState<string | null>(null);
@@ -168,6 +253,51 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       };
     });
   }, [uploadedFiles, scanMetaByFileId]);
+
+  // Keep Save and continue blocked whenever any listed file is INFECTED
+  // (covers live scan results and post-refresh enrichment).
+  useEffect(() => {
+    const uploadedInfected = displayFiles.some(
+      (file) => file.scanResult === "INFECTED"
+    );
+    setHasInfectedFiles(
+      uploadedInfected || blockedFilesRef.current.size > 0
+    );
+  }, [displayFiles]);
+
+  // Keep parent Save and continue buttons in sync with scan / infection state.
+  const onUploadGateChangeRef = useRef(onUploadGateChange);
+  onUploadGateChangeRef.current = onUploadGateChange;
+  const lastGateRef = useRef<FileUploadGate | null>(null);
+  // Busy = virus scan polling OR upload already started (immediate mode).
+  const isBusy = isScanning || isUploadInProgress;
+
+  useEffect(() => {
+    const notify = onUploadGateChangeRef.current;
+    if (!notify) {
+      return;
+    }
+    const gate = buildUploadGate(isBusy, hasInfectedFiles);
+    const prev = lastGateRef.current;
+    if (
+      prev &&
+      prev.isScanning === gate.isScanning &&
+      prev.hasInfectedFiles === gate.hasInfectedFiles &&
+      prev.canContinue === gate.canContinue
+    ) {
+      return;
+    }
+    lastGateRef.current = gate;
+    notify(gate);
+  }, [isBusy, hasInfectedFiles]);
+
+  // When this upload unmounts, clear the gate so multi-upload pages do not
+  // stay blocked by a stale instance that is no longer on the page.
+  useEffect(() => {
+    return () => {
+      onUploadGateChangeRef.current?.(DEFAULT_FILE_UPLOAD_GATE);
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -227,11 +357,15 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         }
 
         if (!isScanning && infectedCount > 0) {
-          setUploadNoticeMessage(
+          setHasInfectedFiles(true);
+          const message =
             infectedCount === 1
               ? INFECTED_USER_MESSAGE
-              : INFECTED_MULTI_USER_MESSAGE(infectedCount)
-          );
+              : INFECTED_MULTI_USER_MESSAGE(infectedCount);
+          setUploadNoticeMessage(message);
+          if (onValidationErrors) {
+            onValidationErrors([message]);
+          }
         }
       } catch (error) {
         logger.warn('Failed to enrich uploaded files with scan status', { error });
@@ -248,21 +382,100 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
     triggerUpload: async () => {
-      if (pendingFiles.length > 0) {
+      // Immediate-upload mode: a scan may still be running from when the file was
+      // selected. Wait for the verdict before deciding whether to continue, so an
+      // infected file can never slip through the scanning window (SYEIA-46 AC2/AC4).
+      if (uploadInFlightRef.current) {
+        try {
+          await uploadInFlightRef.current;
+        } catch {
+          // Any upload failure is surfaced per-file; the block check below decides.
+        }
+      }
+
+      // If immediate-mode pending files remain with no in-flight promise (e.g. race
+      // before the upload was assigned), upload them now rather than clearing and
+      // allowing Save and continue to proceed without a scan verdict.
+      if (uploadImmediately && pendingFiles.length > 0) {
+        if (uploadInFlightRef.current) {
+          try {
+            await uploadInFlightRef.current;
+          } catch {
+            // Surfaced per-file below.
+          }
+        } else {
+          setIsUploadInProgress(true);
+          const pendingSnapshot = [...pendingFiles];
+          const promise = uploadFiles(pendingSnapshot).finally(() => {
+            if (uploadInFlightRef.current === promise) {
+              uploadInFlightRef.current = null;
+            }
+            setIsUploadInProgress(false);
+          });
+          uploadInFlightRef.current = promise;
+          try {
+            await promise;
+          } catch {
+            // Surfaced per-file below.
+          }
+        }
+      }
+
+      // Block progression while any file is flagged infected. The applicant must
+      // remove the offending file before they can continue.
+      if (blockedFilesRef.current.size > 0 || hasInfectedFiles) {
+        throw new Error(INFECTED_USER_MESSAGE);
+      }
+
+      // Also block if any listed uploaded file is still marked INFECTED (e.g. after
+      // refresh enrichment) even if the blocked-files ref was cleared.
+      const listedInfected = (uploadedFiles ?? []).some(
+        (f) => f.scanResult === 'INFECTED' || scanMetaByFileId[f.id]?.scanResult === 'INFECTED'
+      );
+      if (listedInfected) {
+        throw new Error(INFECTED_USER_MESSAGE);
+      }
+
+      // Deferred-upload mode: files were queued but not uploaded yet - upload now.
+      if (!uploadImmediately && pendingFiles.length > 0) {
         logger.info('Manually triggering upload for pending files', {
           pendingFilesCount: pendingFiles.length
         });
-        
+
         const result = await uploadFiles(pendingFiles);
-        setPendingFiles([]); // Clear pending files after upload
+
+        // The scan may have flagged a file as infected during this upload.
+        if (blockedFilesRef.current.size > 0) {
+          throw new Error(INFECTED_USER_MESSAGE);
+        }
+
+        setPendingFiles([]); // Clear pending files after a fully clean upload
         if (onPendingFilesChange) {
           onPendingFilesChange([]);
         }
-        return result;
+        // Never hand infected files back to the parent save payload.
+        const cleanUploaded = result.uploadedFiles.filter(
+          (f) => f.scanResult !== 'INFECTED'
+        );
+        const cleanIds = new Set(cleanUploaded.map((f) => f.id));
+        return {
+          uploadedFiles: cleanUploaded,
+          applicationDocuments: result.applicationDocuments.filter((doc) =>
+            cleanIds.has(doc.fileId)
+          ),
+        };
+      }
+
+      // Immediate mode: clean files were already attached via onUploaded during
+      // upload. Clear any leftover pending entries (none are infected here).
+      setPendingFiles([]);
+      if (onPendingFilesChange) {
+        onPendingFilesChange([]);
       }
       return { uploadedFiles: [], applicationDocuments: [] };
     },
     getPendingFiles: () => pendingFiles,
+    getUploadGate: () => buildUploadGate(isScanning || isUploadInProgress, hasInfectedFiles),
   }));
 
   // Notify parent when pending files change
@@ -342,20 +555,20 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setDownloadStatuses(Array(allFiles.length).fill(""));
       
       if (uploadImmediately) {
-        // Upload immediately (original behavior)
-        setTimeout(() => {
-          const newFileIndices = allFiles
-            .map((file, idx) => ({ file, idx }))
-            .filter(({ file }) =>
-              result.validFiles.some(
-                (nf) => nf.name === file.name && nf.size === file.size
-              )
-            )
-            .map(({ idx }) => idx);
-          if (newFileIndices.length > 0) {
-            uploadFiles(newFileIndices.map((i) => allFiles[i]));
+        // Upload immediately. Keep files in the pending queue while they upload/scan
+        // so triggerUpload can await a verdict and block infected files (SYEIA-46).
+        // Start synchronously (no setTimeout) so Save and continue cannot race ahead
+        // of uploadInFlightRef / isUploadInProgress.
+        markFilesPending(result.validFiles);
+        setIsUploadInProgress(true);
+        const filesToUpload = result.validFiles;
+        const promise = uploadFiles(filesToUpload).finally(() => {
+          if (uploadInFlightRef.current === promise) {
+            uploadInFlightRef.current = null;
           }
-        }, 0);
+          setIsUploadInProgress(false);
+        });
+        uploadInFlightRef.current = promise;
       } else {
         // Store files for later upload
         const newPendingFiles = [...pendingFiles, ...result.validFiles];
@@ -427,20 +640,18 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setDownloadStatuses(Array(allFiles.length).fill(""));
       
       if (uploadImmediately) {
-        // Upload immediately (original behavior)
-        setTimeout(() => {
-          const newFileIndices = allFiles
-            .map((file, idx) => ({ file, idx }))
-            .filter(({ file }) =>
-              result.validFiles.some(
-                (df) => df.name === file.name && df.size === file.size
-              )
-            )
-            .map(({ idx }) => idx);
-          if (newFileIndices.length > 0) {
-            uploadFiles(newFileIndices.map((i) => allFiles[i]));
+        // Upload immediately. Start synchronously so Save and continue cannot race
+        // ahead of the scan gate (SYEIA-46 AC2/AC4).
+        markFilesPending(result.validFiles);
+        setIsUploadInProgress(true);
+        const filesToUpload = result.validFiles;
+        const promise = uploadFiles(filesToUpload).finally(() => {
+          if (uploadInFlightRef.current === promise) {
+            uploadInFlightRef.current = null;
           }
-        }, 0);
+          setIsUploadInProgress(false);
+        });
+        uploadInFlightRef.current = promise;
       } else {
         // Store files for later upload
         const newPendingFiles = [...pendingFiles, ...result.validFiles];
@@ -468,10 +679,15 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     }
     setStatuses((prev) => prev.filter((_, i) => i !== idx));
     setDownloadStatuses((prev) => prev.filter((_, i) => i !== idx));
-    
-    // Also remove from pending files if it exists there
-    if (fileToRemove && !uploadImmediately) {
-      setPendingFiles((prev) => 
+
+    if (fileToRemove) {
+      // Clear any "infected" block for this file so the applicant can continue
+      // once the offending file has been removed (SYEIA-46 AC2/AC4).
+      clearFileInfected(fileToRemove.name, fileToRemove.size);
+
+      // Remove from the pending queue. Infected files are kept pending even in
+      // immediate-upload mode, so always reconcile the queue here.
+      setPendingFiles((prev) =>
         prev.filter(f => !(f.name === fileToRemove.name && f.size === fileToRemove.size))
       );
     }
@@ -489,7 +705,19 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setStatuses(["No files selected"]);
       return { uploadedFiles: [], applicationDocuments: [] };
     }
+
+    // These files are being (re)scanned now, so clear any stale "infected" block
+    // for them; the scan below re-adds it if the file is still infected.
+    for (const f of uploadFiles) {
+      clearFileInfected(f.name, f.size);
+    }
     setStatuses(Array(uploadFiles.length).fill("Requesting presigned URLs..."));
+    // Mark busy immediately (before presign) so Save and continue stays disabled
+    // and the GDS scanning status is announced without a gap.
+    setIsScanning(true);
+    scanAbortRef.current?.abort();
+    const abortController = new AbortController();
+    scanAbortRef.current = abortController;
     
     try {
       const fileMetas = uploadFiles.map((f) => ({
@@ -503,16 +731,13 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setStatuses(
           Array(uploadFiles.length).fill("Failed to get presigned URLs")
         );
+        setIsScanning(false);
+        setScanProgress(null);
         return { uploadedFiles: [], applicationDocuments: [] };
       }
       const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
-
-      setIsScanning(true);
-      scanAbortRef.current?.abort();
-      const abortController = new AbortController();
-      scanAbortRef.current = abortController;
 
       type ConfirmedUpload = {
         index: number;
@@ -640,6 +865,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             newStatuses[i] = scanStatus.error;
             failedCount += 1;
             setStatuses([...newStatuses]);
+            const failedFile = uploadFiles[i];
+            if (failedFile) {
+              unmarkFilePending(failedFile.name, failedFile.size);
+            }
             return;
           }
 
@@ -652,6 +881,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             newStatuses[i] = failedMessage;
             failedCount += 1;
             setStatuses([...newStatuses]);
+            const failedFile = uploadFiles[i];
+            if (failedFile) {
+              unmarkFilePending(failedFile.name, failedFile.size);
+            }
             return;
           }
 
@@ -660,14 +893,104 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
           const isInfected = scanStatus.scanResult === "INFECTED";
           if (isInfected) {
+            // SYEIA-46 AC2/AC4: reject infected files for progression, but still show
+            // them in the documents list with an error so the applicant can remove them
+            // immediately (without waiting for a page refresh).
             infectedCount += 1;
             newStatuses[i] = scanStatus.userMessage || INFECTED_USER_MESSAGE;
-          } else {
-            cleanCount += 1;
-            newStatuses[i] = "File scanned successfully. Upload complete.";
+            setStatuses([...newStatuses]);
+
+            const infectedFile = uploadFiles[i];
+            if (infectedFile) {
+              markFileInfected(infectedFile.name, infectedFile.size);
+              unmarkFilePending(infectedFile.name, infectedFile.size);
+            }
+
+            const infectedUploadedFile: UploadedFile = {
+              id: confirmResponse.fileId,
+              storageProvider: "aws_s3",
+              s3Key: confirmResponse.s3Key,
+              bucketName: scanStatus.bucketName || confirmResponse.bucketName,
+              virtualFolder: confirmResponse.virtualFolder,
+              filename: confirmResponse.fileName,
+              fileContentType: confirmResponse.contentType,
+              fileSizeBytes: confirmResponse.fileSizeBytes,
+              uploadedAtTimestamp: confirmResponse.uploadedAt,
+              scanStatus: scanStatus.scanStatus,
+              scanResult: scanStatus.scanResult,
+              virusName: scanStatus.virusName,
+              scannedAt: scanStatus.scannedAt,
+            };
+            uploadedFiles.push(infectedUploadedFile);
+
+            const infectedApplicationDocument: ApplicationDocument = {
+              documentId: confirmResponse.documentId,
+              applicationId: applicationId || "",
+              fileId: confirmResponse.fileId,
+              category: category || "",
+              subCategory: subCategory || "",
+              title: confirmResponse.fileName,
+              virtualFolder: confirmResponse.virtualFolder,
+              addedBy: userId,
+              addedAt: confirmResponse.uploadedAt,
+              consultationId: consultationId || undefined,
+            };
+            applicationDocuments.push(infectedApplicationDocument);
+
+            if (onUploaded) {
+              onUploaded([infectedUploadedFile], [infectedApplicationDocument]);
+            }
+
+            // Surface the virus message as soon as this file finishes — do not wait
+            // for the rest of the batch (mixed clean/infected uploads).
+            if (onValidationErrors) {
+              onValidationErrors([
+                infectedCount === 1
+                  ? (scanStatus.userMessage || INFECTED_USER_MESSAGE)
+                  : INFECTED_MULTI_USER_MESSAGE(infectedCount),
+              ]);
+            }
+            setUploadNoticeMessage(
+              infectedCount === 1
+                ? (scanStatus.userMessage || INFECTED_USER_MESSAGE)
+                : INFECTED_MULTI_USER_MESSAGE(infectedCount)
+            );
+
+            setInternalFiles((prevFiles: File[]) => {
+              const idxToRemove = prevFiles.findIndex(
+                (f: File) =>
+                  f.name === uploadFiles[i].name && f.size === uploadFiles[i].size
+              );
+              if (idxToRemove !== -1) {
+                setStatuses((prevStatuses: string[]) =>
+                  prevStatuses.filter((_, idx: number) => idx !== idxToRemove)
+                );
+                setDownloadStatuses((prevDownloadStatuses: string[]) =>
+                  prevDownloadStatuses.filter((_, idx: number) => idx !== idxToRemove)
+                );
+                return prevFiles.filter((_, idx: number) => idx !== idxToRemove);
+              }
+              return prevFiles;
+            });
+            return;
           }
-          setUploadNoticeMessage(formatUploadSummary(cleanCount));
+
+          cleanCount += 1;
+          newStatuses[i] = "File scanned successfully. Upload complete.";
+          // Only show a clean success summary when nothing in this batch is infected.
+          if (infectedCount === 0) {
+            setUploadNoticeMessage(formatUploadSummary(cleanCount));
+          }
           setStatuses([...newStatuses]);
+
+          // Clean verdict - the file is now attached, so drop it from the pending
+          // queue (it no longer needs to gate "Save and continue").
+          {
+            const cleanFile = uploadFiles[i];
+            if (cleanFile) {
+              unmarkFilePending(cleanFile.name, cleanFile.size);
+            }
+          }
 
           const uploadedFile: UploadedFile = {
             id: confirmResponse.fileId,
@@ -743,11 +1066,20 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         setStatuses([...newStatuses]);
 
-        const summary = formatUploadSummary(cleanCount);
-        if (summary) {
-          setUploadNoticeMessage(summary);
-        } else if (failedCount === 0) {
-          setUploadNoticeMessage(null);
+        // Never replace an infected/failed outcome with a clean-only success summary.
+        if (infectedCount > 0) {
+          setUploadNoticeMessage(
+            infectedCount === 1
+              ? INFECTED_USER_MESSAGE
+              : INFECTED_MULTI_USER_MESSAGE(infectedCount)
+          );
+        } else {
+          const summary = formatUploadSummary(cleanCount);
+          if (summary) {
+            setUploadNoticeMessage(summary);
+          } else if (failedCount === 0) {
+            setUploadNoticeMessage(null);
+          }
         }
 
         // Surface blocked/failed outcomes in the page-level GOV.UK error summary.
@@ -771,6 +1103,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       // Files already pushed via progressive onUploaded — return accumulated lists.
       return { uploadedFiles, applicationDocuments};
     } catch (err) {
+      setIsScanning(false);
+      setScanProgress(null);
       setStatuses(
         Array(uploadFiles.length).fill(
           "Error: " + (err instanceof Error ? err.message : String(err))
@@ -783,7 +1117,30 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   // Handle file deletion from S3
   const handleDeleteFile = async (fileId: string, s3Key: string) => {
     try {
+      const deletedFile = (uploadedFiles ?? []).find((f) => f.id === fileId);
       await deleteFileCompletely(fileId, s3Key);
+      setScanMetaByFileId((prev) => {
+        const { [fileId]: _removed, ...rest } = prev;
+        return rest;
+      });
+      if (deletedFile) {
+        const baseName = deletedFile.filename
+          ? deletedFile.filename.split("/").pop() || deletedFile.filename
+          : "";
+        if (baseName) {
+          clearFileInfected(baseName, Number(deletedFile.fileSizeBytes) || 0);
+        }
+      }
+      // If the deleted file was the last known infected upload, lift the gate
+      // once no blocked pending files remain.
+      const remainingInfected = (uploadedFiles ?? []).some(
+        (f) =>
+          f.id !== fileId &&
+          (f.scanResult === 'INFECTED' || scanMetaByFileId[f.id]?.scanResult === 'INFECTED')
+      );
+      if (!remainingInfected && blockedFilesRef.current.size === 0) {
+        setHasInfectedFiles(false);
+      }
       if (onDeleteFile) {
         onDeleteFile(fileId);
       }
@@ -949,6 +1306,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       className="govuk-link"
                       onClick={(e) => {
                         e.preventDefault();
+                        const removed = pendingFiles[idx];
+                        if (removed) {
+                          clearFileInfected(removed.name, removed.size);
+                        }
                         const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
                         setPendingFiles(updatedPendingFiles);
                         
@@ -981,21 +1342,31 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
-      {isScanning && (
+      {isBusy && (
         <div className="govuk-inset-text" role="status" aria-live="polite">
           <p className="govuk-body govuk-!-margin-bottom-0">
             {scanProgress
               ? `Scanning files. ${scanProgress.completed} of ${scanProgress.total} complete.`
-              : "Your file is being scanned. Please wait while the upload is processed."}
+              : FILE_SCAN_IN_PROGRESS_MESSAGE}
           </p>
           <p className="govuk-hint govuk-!-margin-top-2 govuk-!-margin-bottom-0">
             Files appear in the list as soon as each scan finishes.
           </p>
         </div>
       )}
-      {!isScanning && uploadNoticeMessage && (
-        <div className="govuk-inset-text" role="status" aria-live="polite">
-          <p className="govuk-body govuk-!-margin-bottom-0">{uploadNoticeMessage}</p>
+      {uploadNoticeMessage && (
+        <div
+          className={hasInfectedFiles ? "govuk-!-margin-bottom-4" : "govuk-inset-text"}
+          role={hasInfectedFiles ? "alert" : "status"}
+          aria-live="polite"
+        >
+          {hasInfectedFiles ? (
+            <p className="govuk-error-message govuk-!-margin-bottom-0">
+              <span className="govuk-visually-hidden">Error:</span> {uploadNoticeMessage}
+            </p>
+          ) : (
+            <p className="govuk-body govuk-!-margin-bottom-0">{uploadNoticeMessage}</p>
+          )}
         </div>
       )}
 

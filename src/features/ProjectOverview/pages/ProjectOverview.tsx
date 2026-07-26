@@ -13,7 +13,7 @@ import TextInput from "../component/TextInput";
 import TextArea from "../component/TextArea";
 import NumberInput from "../component/NumberInput";
 import RadioGroup from "../component/RadioGroup";
-import FileUpload, { FileUploadHandle } from "../../../components/FileUpload";
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from "../../../components/FileUpload";
 
 
 import { getRelatedFieldAnchorIds, filterErrorLinksByAnchors } from '../validations';
@@ -65,6 +65,7 @@ const ProjectOverview = () => {
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 	const { user } = useAuthUser();
 	const userId = user?.user_id;
 
@@ -216,7 +217,11 @@ const ProjectOverview = () => {
 						filename: f.filename || '',
 						fileContentType: f.fileContentType || '',
 						fileSizeBytes: f.fileSizeBytes || 0,
-						uploadedAtTimestamp: f.uploadedAtTimestamp || ''
+						uploadedAtTimestamp: f.uploadedAtTimestamp || '',
+						scanStatus: (f as { scanStatus?: string | null }).scanStatus ?? null,
+						scanResult: (f as { scanResult?: string | null }).scanResult ?? null,
+						virusName: (f as { virusName?: string | null }).virusName ?? null,
+						scannedAt: (f as { scannedAt?: string | null }).scannedAt ?? null,
 					}))
 					: [],
 				applicationDocuments: Array.isArray(projectData.applicationDocuments)
@@ -856,12 +861,26 @@ const ProjectOverview = () => {
 										setErrors(prev => prev.filter(e => !e.includes('#planInformationDocuments')));
 									}
 								}} onUploaded={(newUploadedFiles, newProjectDocuments) => {
-									setFormState(prev => ({
-										...prev,
-										uploadedFiles: [...(prev.uploadedFiles || []), ...newUploadedFiles],
-										applicationDocuments: [...(prev.applicationDocuments || []), ...newProjectDocuments]
-									}));
+									setFormState(prev => {
+										const existingIds = new Set((prev.uploadedFiles || []).map(f => f.id));
+										const existingDocIds = new Set((prev.applicationDocuments || []).map(d => d.fileId));
+										return {
+											...prev,
+											uploadedFiles: [
+												...(prev.uploadedFiles || []).map(f => {
+													const updated = newUploadedFiles.find(n => n.id === f.id);
+													return updated ? { ...f, ...updated } : f;
+												}),
+												...newUploadedFiles.filter(f => !existingIds.has(f.id)),
+											],
+											applicationDocuments: [
+												...(prev.applicationDocuments || []),
+												...newProjectDocuments.filter(d => !existingDocIds.has(d.fileId)),
+											],
+										};
+									});
 								}}
+								onUploadGateChange={setUploadGate}
 							/>
 						</fieldset>
 					</div>
@@ -1016,8 +1035,8 @@ const ProjectOverview = () => {
 						ariaControls={["hasRelatedCpo-hidden", "hasRelatedCpo-no-hidden"]}
 					/>
 
-					<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue" disabled={isSubmitting}>
-						{projectOverview.saveAndContinue}
+					<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue" disabled={isSubmitting || !uploadGate.canContinue}>
+						{uploadGate.isScanning ? 'Scanning files...' : projectOverview.saveAndContinue}
 					</button>
 				</form>
 			</main>

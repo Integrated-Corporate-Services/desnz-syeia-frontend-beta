@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSupportingInfo } from "../../../hooks/useSupportingInfo";
 import TextArea from '../../ProjectOverview/component/TextArea';
 import { Button } from "govuk-react";
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE, FILE_SCAN_IN_PROGRESS_MESSAGE, FILE_INFECTED_BLOCK_MESSAGE } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import "../../../styles/_file_upload.scss";
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -64,6 +64,7 @@ const SupportingInfo: React.FC = () => {
   const regulationsRef = useRef<HTMLInputElement>(null);
   const supportingDocsRef = useRef<HTMLInputElement>(null);
   const fileUploadRef = useRef<FileUploadHandle>(null);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
   
   // Clear form only when switching to a different application
   useEffect(() => {
@@ -176,26 +177,88 @@ const SupportingInfo: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
+
+  // Hard-stop Save and continue while virus scan is running or any infected
+  // file remains (do not rely only on the disabled attribute).
+  if (supportingDocs === "yes" && !uploadGate.canContinue) {
+    const message = uploadGate.hasInfectedFiles
+      ? FILE_INFECTED_BLOCK_MESSAGE
+      : FILE_SCAN_IN_PROGRESS_MESSAGE;
+    setErrors([{ key: 'fileUpload', message }]);
+    if (uploadGate.hasInfectedFiles) {
+      setFileValidationErrors([FILE_INFECTED_BLOCK_MESSAGE]);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
   
   // Trigger file upload first (deferred upload pattern)
   let newlyUploadedFiles: UploadedFile[] = [];
   let newlyUploadedDocuments: ApplicationDocument[] = [];
   
   if (fileUploadRef.current && supportingDocs === "yes") {
-    try {
-      const result = await fileUploadRef.current.triggerUpload();
-      newlyUploadedFiles = result.uploadedFiles;
-      newlyUploadedDocuments = result.applicationDocuments;
-      
-      // Update state immediately so files remain visible even if validation fails
-      setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
-      setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
-    } catch (err: any) {
-      logger.error('File upload failed:', err);
-      setErrors([{ key: 'fileUpload', message: SUPPORTING_INFO_ERRORS.FILE_UPLOAD_FAILED }]);
+    // Re-check gate from the upload component (authoritative) before proceeding.
+    const liveGate = fileUploadRef.current.getUploadGate();
+    if (!liveGate.canContinue) {
+      const message = liveGate.hasInfectedFiles
+        ? FILE_INFECTED_BLOCK_MESSAGE
+        : FILE_SCAN_IN_PROGRESS_MESSAGE;
+      setErrors([{ key: 'fileUpload', message }]);
+      if (liveGate.hasInfectedFiles) {
+        setFileValidationErrors([FILE_INFECTED_BLOCK_MESSAGE]);
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+
+    try {
+      const result = await fileUploadRef.current.triggerUpload();
+      newlyUploadedFiles = result.uploadedFiles.filter(
+        (f) => f.scanResult !== 'INFECTED'
+      );
+      newlyUploadedDocuments = result.applicationDocuments.filter((doc) =>
+        newlyUploadedFiles.some((f) => f.id === doc.fileId)
+      );
+      
+      // Update state immediately so files remain visible even if validation fails
+      if (newlyUploadedFiles.length > 0) {
+        setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
+        setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
+      }
+    } catch (err: any) {
+      logger.error('File upload failed:', err);
+      const message =
+        err?.message === FILE_INFECTED_BLOCK_MESSAGE ||
+        (typeof err?.message === 'string' && err.message.includes('virus scan'))
+          ? FILE_INFECTED_BLOCK_MESSAGE
+          : SUPPORTING_INFO_ERRORS.FILE_UPLOAD_FAILED;
+      setErrors([{ key: 'fileUpload', message }]);
+      if (message === FILE_INFECTED_BLOCK_MESSAGE) {
+        setFileValidationErrors([FILE_INFECTED_BLOCK_MESSAGE]);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+  }
+
+  // Never persist infected files in the supporting-info save payload.
+  const cleanUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles].filter(
+    (f) => f.scanResult !== 'INFECTED'
+  );
+  const cleanFileIds = new Set(cleanUploadedFiles.map((f) => f.id));
+  const cleanApplicationDocuments = [
+    ...applicationDocuments,
+    ...newlyUploadedDocuments,
+  ].filter((doc) => cleanFileIds.has(doc.fileId));
+
+  if (
+    supportingDocs === "yes" &&
+    uploadedFiles.some((f) => f.scanResult === 'INFECTED')
+  ) {
+    setErrors([{ key: 'fileUpload', message: FILE_INFECTED_BLOCK_MESSAGE }]);
+    setFileValidationErrors([FILE_INFECTED_BLOCK_MESSAGE]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
   }
   
   const errs = validate(newlyUploadedFiles);
@@ -209,8 +272,8 @@ const SupportingInfo: React.FC = () => {
       esqcr_2002_compliance_confirmed: regulations,
       has_additional_supporting_documents: supportingDocs === "yes",
       applicant_supporting_comments: comments,
-      uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
-      application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
+      uploaded_files: cleanUploadedFiles,
+      application_documents: cleanApplicationDocuments,
     };
     
     try {
@@ -577,6 +640,7 @@ const SupportingInfo: React.FC = () => {
               }
             }}
             onPendingFilesChange={setPendingFiles}
+            onUploadGateChange={setUploadGate}
           />
         </div>
     )}
@@ -592,6 +656,22 @@ const SupportingInfo: React.FC = () => {
         onChange={() => {
           setSupportingDocs("no");
           clearError("supportingDocs", "supportingDocsFiles");
+          setFileValidationErrors([]);
+          setUploadGate(DEFAULT_FILE_UPLOAD_GATE);
+          // Drop infected files from local state so unmounting FileUpload cannot
+          // leave them in the save payload after the gate resets.
+          setUploadedFiles((prev) => prev.filter((f) => f.scanResult !== 'INFECTED'));
+          setApplicationDocuments((docs) => {
+            const infectedIds = new Set(
+              uploadedFiles
+                .filter((f) => f.scanResult === 'INFECTED')
+                .map((f) => f.id)
+            );
+            if (infectedIds.size === 0) {
+              return docs;
+            }
+            return docs.filter((d) => !infectedIds.has(d.fileId));
+          });
         }}
         ref={supportingDocsRef}
       />
@@ -603,8 +683,17 @@ const SupportingInfo: React.FC = () => {
 </fieldset>
 
       <div style={{ marginTop: 32 }}>
-        <Button type="submit" onClick={handleSubmit} disabled={loading}>
-          {loading ? "Saving..." : "Save and continue"}
+        <Button
+          type="submit"
+          onClick={handleSubmit}
+          disabled={loading || (supportingDocs === "yes" && !uploadGate.canContinue)}
+          aria-disabled={loading || (supportingDocs === "yes" && !uploadGate.canContinue)}
+        >
+          {supportingDocs === "yes" && uploadGate.isScanning
+            ? "Scanning files..."
+            : loading
+              ? "Saving..."
+              : "Save and continue"}
         </Button>
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
@@ -23,6 +23,7 @@ const ReviewDocumentsPage: React.FC = () => {
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   // Ref for file upload
   const fileUploadRef = useRef<FileUploadHandle>(null);
@@ -338,6 +339,7 @@ const ReviewDocumentsPage: React.FC = () => {
                   onDeleteFile={handleDeleteFile}
                   onValidationErrors={handleFileValidationErrors}
                   onPendingFilesChange={setPendingFiles}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
             </div>
@@ -386,9 +388,9 @@ const ReviewDocumentsPage: React.FC = () => {
                 className="govuk-button"
                 data-module="govuk-button"
                 onClick={() => handleSaveReview('continue')}
-                disabled={loading}
+                disabled={loading || !uploadGate.canContinue}
               >
-                {loading ? 'Saving...' : 'Save and continue'}
+                {uploadGate.isScanning ? 'Scanning files...' : loading ? 'Saving...' : 'Save and continue'}
               </button>
 
               {/* <button

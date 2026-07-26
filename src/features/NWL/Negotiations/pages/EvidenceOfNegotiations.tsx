@@ -18,7 +18,7 @@ import {
   TextAreaWithCounter,
 } from '../components';
 import { patchNegotiationsData } from '../services';
-import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
@@ -107,6 +107,7 @@ const EvidenceOfNegotiations: React.FC = () => {
 
   // Track when user modifies the comments field
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   // Watch for comments state changes
   useEffect(() => {
@@ -258,10 +259,11 @@ const EvidenceOfNegotiations: React.FC = () => {
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
                   showDocumentsHeading={true}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
 
-              <FormActions isSaving={isSaving} />
+              <FormActions isSaving={isSaving} disabled={!uploadGate.canContinue} />
             </form>
           </div>
         </div>

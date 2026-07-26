@@ -1,12 +1,13 @@
 
 import React, { useState } from "react";
-import FileUpload from '../../../../components/FileUpload';
+import FileUpload, { FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../../components/FileUpload';
 import { Link, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import SkipLink from '../../../../components/SkipLink';
 
 const ApplicationStatement: React.FC = () => {
 	const [details, setDetails] = useState("");
+	const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 	const [files, setFiles] = useState<File[]>([]);
 	const [errors, setErrors] = useState<{[key:string]:string}>({});
     const params = useParams();
@@ -123,12 +124,13 @@ const ApplicationStatement: React.FC = () => {
 								onFilesChange={setFiles}
 								category="APPLICATION_STATEMENT_EVIDENCE"
 								uploadImmediately={true}
+								onUploadGateChange={setUploadGate}
 							/>
 						</div>
 						{/* Call to action buttons */}
 						<div className="govuk-!-static-margin-top-6">
 							<a href={`${NWL_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary govuk-!-static-margin-right-2">Save for later</a>
-							<button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
+							<button type="submit" className="govuk-button" data-module="govuk-button" disabled={!uploadGate.canContinue}>Save and continue</button>
 						</div>
 					</form>
 				</div>

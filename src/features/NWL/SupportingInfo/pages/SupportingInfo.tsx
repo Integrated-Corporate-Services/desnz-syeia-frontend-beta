@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import FileUpload from '../../../../components/FileUpload';
+import FileUpload, { FileUploadGate } from '../../../../components/FileUpload';
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { nwlSupportingInfo } from "../types";
@@ -33,6 +33,7 @@ const SupportingInfo: React.FC = () => {
 	const [writtenTerminationFiles, setWrittenTerminationFiles] = useState<any[]>([]);
 	const [writtenRemovalFiles, setWrittenRemovalFiles] = useState<any[]>([]);
 	const [titlePlanFiles, setTitlePlanFiles] = useState<any[]>([]);
+	const [uploadGates, setUploadGates] = useState<Record<string, FileUploadGate>>({});
 
 	// State for applicationDocuments by category
 	const [signedWayleaveDocs, setSignedWayleaveDocs] = useState<any[]>([]);
@@ -344,6 +345,8 @@ const SupportingInfo: React.FC = () => {
 		 }
 	 };
 
+	const canContinueUploads = Object.values(uploadGates).every((g) => g.canContinue);
+
 	return (
 	<>
 		<SkipLink />
@@ -424,6 +427,7 @@ const SupportingInfo: React.FC = () => {
 													// Handle validation errors
 													setFileValidationErrors(errors);
 												}}
+												onUploadGateChange={(g) => setUploadGates(prev => ({ ...prev, signedWayleave: g }))}
 											/>
 										</>
 									)}
@@ -464,7 +468,9 @@ const SupportingInfo: React.FC = () => {
 																	subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_INHERITED_WAYLEAVE}
 																	uploadedFiles={inheritedWayleaveFiles}
 																	onUploaded={handleInheritedWayleaveUploaded}
-																	addedBy={userId}															uploadImmediately={true}																/>
+																	addedBy={userId}															uploadImmediately={true}
+																	onUploadGateChange={(g) => setUploadGates(prev => ({ ...prev, inheritedWayleave: g }))}
+																/>
 															</div>
 														)}
 								<div className="govuk-radios__item">
@@ -503,7 +509,9 @@ const SupportingInfo: React.FC = () => {
 																	subCategory={NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ANY_PAYMENTS}
 																	uploadedFiles={anyPaymentsFiles}
 																	onUploaded={handleAnyPaymentsUploaded}
-																	addedBy={userId}															uploadImmediately={true}																/>
+																	addedBy={userId}															uploadImmediately={true}
+																	onUploadGateChange={(g) => setUploadGates(prev => ({ ...prev, anyPayments: g }))}
+																/>
 															</div>
 														)}
 								<div className="govuk-radios__item">
@@ -550,6 +558,7 @@ const SupportingInfo: React.FC = () => {
 																		// Handle validation errors
 																		setFileValidationErrors(errors);
 																	}}
+																	onUploadGateChange={(g) => setUploadGates(prev => ({ ...prev, acceptedPayments: g }))}
 																/>
 															</div>
 														)}
@@ -720,7 +729,9 @@ const SupportingInfo: React.FC = () => {
 												addedBy={userId}											uploadImmediately={true}											onValidationErrors={(errors) => {
 												// Handle validation errors
 												setFileValidationErrors(errors);
-											}}											/>
+											}}
+											onUploadGateChange={(g) => setUploadGates(prev => ({ ...prev, writtenTermination: g }))}
+											/>
 										</div>
 									</div>
 								)}
@@ -826,6 +837,7 @@ const SupportingInfo: React.FC = () => {
 												   // Handle validation errors
 												   setFileValidationErrors(errors);
 											   }}
+											   onUploadGateChange={(g) => setUploadGates(prev => ({ ...prev, writtenRemoval: g }))}
 										   />
 									   </div>
 								   )}
@@ -887,6 +899,7 @@ const SupportingInfo: React.FC = () => {
 				// Handle validation errors
 				setFileValidationErrors(errors);
 			}}
+			onUploadGateChange={(g) => setUploadGates(prev => ({ ...prev, titlePlan: g }))}
 		/>
 	</div>
 )}
@@ -921,7 +934,7 @@ const SupportingInfo: React.FC = () => {
 						>
 							Save for later
 						</button>
-						<button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
+						<button type="submit" className="govuk-button" data-module="govuk-button" disabled={!canContinueUploads}>Save and continue</button>
 					</div>
 				</form>
 			</div>

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { saveConsultationRequest, getConsultationRequest } from '../../../services/consultationRequestService';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
@@ -29,6 +29,7 @@ const ConsultationRequestPage: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
   const fileUploadRef = useRef<FileUploadHandle>(null);
   const { user } = useAuthUser();
   const navigate = useNavigate();
@@ -448,6 +449,7 @@ const ConsultationRequestPage: React.FC = () => {
                   onValidationErrors={handleFileValidationErrors}
                   consultationId={consultationId}
                   onPendingFilesChange={setPendingFiles}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
               
@@ -456,6 +458,7 @@ const ConsultationRequestPage: React.FC = () => {
                   type="submit"
                   className="govuk-button"
                   data-module="govuk-button"
+                  disabled={!uploadGate.canContinue}
                 >
                   Save and continue
                 </button>

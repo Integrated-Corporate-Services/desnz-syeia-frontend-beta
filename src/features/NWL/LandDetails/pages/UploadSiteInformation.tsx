@@ -10,7 +10,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { LAND_DETAILS_LABELS } from '../constants';
-import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../../components/FileUpload';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
@@ -26,6 +26,7 @@ const UploadSiteInformation: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   const handleDeleteFile = (fileId: string) => {
     // Only remove files/documents belonging to SITE_INFORMATION subCategory
@@ -134,12 +135,14 @@ const UploadSiteInformation: React.FC = () => {
                       applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
                     });
                   }}
+                  onUploadGateChange={setUploadGate}
                 />
               </div>
 
               <FormActions
                 onSaveAndContinue={handleSaveAndContinue}
                 isSaving={isSaving}
+                disabled={!uploadGate.canContinue}
               />
             </form>
           </div>

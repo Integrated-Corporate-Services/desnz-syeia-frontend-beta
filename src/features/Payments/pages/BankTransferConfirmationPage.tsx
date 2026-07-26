@@ -6,7 +6,7 @@ import { buildBackendUrl } from '../../../utils/apiConfig';
 import { getCsrfHeaders } from '../../../utils/csrf';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
 import SkipLink from '../../../components/SkipLink';
 
@@ -28,6 +28,7 @@ const BankTransferConfirmationPage: React.FC = () => {
 
   const fileUploadRef = useRef<FileUploadHandle>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
 
   const handleFileValidationErrors = (errors: string[]) => {
     setFileValidationErrors(errors);
@@ -399,6 +400,7 @@ const BankTransferConfirmationPage: React.FC = () => {
                   setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                 }}
                 uploadImmediately={true}
+                onUploadGateChange={setUploadGate}
               />
             </div>
 
@@ -412,10 +414,10 @@ const BankTransferConfirmationPage: React.FC = () => {
                 className="govuk-button"
                 data-module="govuk-button"
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || !uploadGate.canContinue}
                 aria-busy={loading}
               >
-                {loading ? 'Submitting...' : 'Submit Application'}
+                {uploadGate.isScanning ? 'Scanning files...' : loading ? 'Submitting...' : 'Submit Application'}
               </button>
               <button
                 type="button"

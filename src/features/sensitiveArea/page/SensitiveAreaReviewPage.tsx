@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { Link } from 'react-router-dom';
-import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -30,6 +30,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
   const fileUploadRef = useRef<FileUploadHandle>(null);
   const navigate = useNavigate();
 
@@ -371,6 +372,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
               addedBy={review?.reviewed_by || 'current-user'}
               uploadedFiles={uploadedFiles}
               onPendingFilesChange={(files) => setPendingFiles(files)}
+              onUploadGateChange={setUploadGate}
             />
           </div>
 
@@ -439,6 +441,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
             className="govuk-button"
             data-module="govuk-button"
             onClick={() => handleSaveReview('continue')}
+            disabled={!uploadGate.canContinue}
           >
             Save and continue
           </button>

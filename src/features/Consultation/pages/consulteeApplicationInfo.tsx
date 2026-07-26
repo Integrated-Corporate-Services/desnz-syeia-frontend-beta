@@ -6,7 +6,7 @@ import { useAuthUser } from "../../../hooks/useAuthUser";
 import { getConsultationPack ,saveConsultationPack} from "../../../services/consultationPackService";
 import { PackSection, ConsultationPack } from '../../../types/consultationPack';
 import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCategoryConstants';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 import log from '../../../logger';
 import SkipLink from '../../../components/SkipLink';
@@ -26,6 +26,7 @@ const consulteeApplicationInfo: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [uploadGate, setUploadGate] = useState<FileUploadGate>(DEFAULT_FILE_UPLOAD_GATE);
   // Read consultationId from path params if available, fallback to query param
   const consultationId = params.consultationId || searchParams.get("consultationId") || "";
   const consultationName = searchParams.get("consultationName") || "";
@@ -488,6 +489,7 @@ useEffect(() => {
                   }));
                 }}
                 consultationId={consultationId}
+                onUploadGateChange={setUploadGate}
               />
             </div>
 
@@ -495,7 +497,7 @@ useEffect(() => {
   {/* <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater}>
     Save for later
   </button> */}
-  <button type="button" className="govuk-button" style={{ backgroundColor: '#00703c' }} onClick={handleSaveAndContinue}>
+  <button type="button" className="govuk-button" style={{ backgroundColor: '#00703c' }} onClick={handleSaveAndContinue} disabled={!uploadGate.canContinue}>
     Save and Continue
   </button>
 </div>
