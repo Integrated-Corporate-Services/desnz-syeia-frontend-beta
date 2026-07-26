@@ -24,7 +24,7 @@
     " />
     <title>DESNZ</title>
     
-    <!-- Clickjacking protection is enforced via CSP `frame-ancestors 'none'` above. -->
+    <!-- Note: CSP `frame-ancestors 'none'` is only reliably enforced when delivered via an HTTP response header; meta-delivered CSP may ignore `frame-ancestors` in some browsers. -->
   </head>
   <body class="govuk-frontend-supported">
     <div id="root"></div>
