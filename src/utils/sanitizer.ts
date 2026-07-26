@@ -46,17 +46,23 @@ export const sanitizeText = (dirty: string | undefined | null): string => {
  */
 export const sanitizeUrl = (url: string | undefined | null): string => {
   if (!url) return '';
-  
-  // Block dangerous protocols
-  const dangerous = /^(javascript|data|vbscript|file):/i;
-  if (dangerous.test(url.trim())) {
-    return '';
+
+  const trimmed = url.trim();
+
+  // Allow safe internal references
+  if (trimmed.startsWith('#')) return trimmed;
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) return trimmed;
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:' || parsed.protocol === 'mailto:') {
+      return parsed.href;
+    }
+  } catch {
+    // ignore
   }
-  
-  return DOMPurify.sanitize(url, { 
-    ALLOWED_TAGS: [],
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):)/i
-  });
+
+  return '';
 };
 
 // Add hook to force rel="noopener noreferrer" on external links
