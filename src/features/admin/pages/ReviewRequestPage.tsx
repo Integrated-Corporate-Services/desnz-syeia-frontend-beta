@@ -6,9 +6,7 @@ import SkipLink from '../../../components/SkipLink';
 import {
   ApplicantDetails,
   RejectionReasonForm,
-  ActionButtons,
-  RelatedContentSidebar,
-  // RelatedContentSidebar
+  ActionButtons
 } from '../../../components/shared/ReviewRequestComponents';
 
 const ReviewRequestPage: React.FC = () => {

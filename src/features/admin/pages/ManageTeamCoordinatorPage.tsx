@@ -11,7 +11,7 @@ const ManageTeamCoordinatorPage: React.FC = () => {
   }>();
   const navigate = useNavigate();
 
-  const { coordinator, loading, error, updateCoordinator } = useTeamCoordinator(
+  const { coordinator, loading, error } = useTeamCoordinator(
     organisationId,
     coordinatorId
   );

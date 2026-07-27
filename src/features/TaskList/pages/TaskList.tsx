@@ -19,7 +19,6 @@ const TaskList: React.FC = () => {
   const location = useLocation();
   const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
   const applicationId = useGetApplicationId();
-  const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
 
   // Use the hook to get sections from useTaskListData
   const {
@@ -29,16 +28,8 @@ const TaskList: React.FC = () => {
     submitError,
     handleSubmit,
     sensitiveAreaStatus,
-    showBanner,
-    setShowBanner,
-    deletedRouteName,
-    setDeletedRouteName,
     showSensitiveAreaPopup,
-    setShowSensitiveAreaPopup,
-    handleStatusUpdate,
-    statusClass,
-    progressLoading,
-    progressError,
+    statusClass
   } = useTaskListData();
 
   // Determine the base URL from the current path

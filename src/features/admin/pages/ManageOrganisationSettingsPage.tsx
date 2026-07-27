@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import SkipLink from '../../../components/SkipLink';
 
 const ManageOrganisationSettingsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
-  const navigate = useNavigate();
   const { organisation, loading, error } = useOrganisation(organisationId);
 
   const [hasChanges, setHasChanges] = useState(false);
