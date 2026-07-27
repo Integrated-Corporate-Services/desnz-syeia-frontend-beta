@@ -49,7 +49,6 @@ const NetworkOperatorDetails: React.FC = () => {
     setSelectedOrganisation,
     errors,
     setErrors,
-    showErrorSummary,
     setShowErrorSummary,
     validateForm,
     handleOperatorChange: handleOperatorChangeBase,

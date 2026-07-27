@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { S37_BASE_URL } from '../../../constants/s37';
-import { Link, useParams, useLocation, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { getConsultationPack ,saveConsultationPack} from "../../../services/consultationPackService";
@@ -13,7 +13,6 @@ import SkipLink from '../../../components/SkipLink';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
@@ -31,7 +30,6 @@ const consulteeApplicationInfo: React.FC = () => {
   const consultationName = searchParams.get("consultationName") || "";
   const navigate = useNavigate();
   const tabsRef = useRef<HTMLDivElement>(null);
-  const fileUploadRef = useRef<{ focus: () => void } | null>(null);
 
 // Scroll to top on mount
 useEffect(() => {
@@ -198,11 +196,6 @@ useEffect(() => {
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to save');
     }
-  };
-
-  const handleSaveForLater = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSave(false);
   };
 
   const handleSaveAndContinue = (e: React.FormEvent) => {

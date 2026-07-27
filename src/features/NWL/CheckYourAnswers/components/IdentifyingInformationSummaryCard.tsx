@@ -3,10 +3,6 @@ import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
 import { createSummaryRow, formatBoolean } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
-import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
-import { createLogger } from '../../../../utils/logger';
-
-const logger = createLogger('IdentifyingInformationSummaryCard');
 
 interface Props {
     data: any;

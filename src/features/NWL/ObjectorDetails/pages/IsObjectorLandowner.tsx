@@ -6,8 +6,7 @@ import {
   BREADCRUMBS,
   LABELS,
   FORM_ERRORS,
-  FORM_LABELS,
-  FORM_HINTS,
+  FORM_LABELS
 } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { saveObjectorLandownerStatus } from "../services/objectorDetailsService";

@@ -24,7 +24,6 @@ const ProposedDevelopmentPage: React.FC = () => {
   const navigate = useNavigate();
   const applicationId = useGetApplicationId();
   const { consultationId } = useParams();
-  const { user } = useAuthUser();
 
   const [searchParams] = useSearchParams();
   const consultationName = searchParams.get('consultationName') || '';

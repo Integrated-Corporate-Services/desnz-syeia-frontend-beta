@@ -7,8 +7,6 @@ import SkipLink from '../../../components/SkipLink';
 const ConsultationRequestSent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // Get applicationId from query params or state
-  const searchParams = new URLSearchParams(location.search);
   const applicationId = useGetApplicationId();
 
   // Scroll to top on mount

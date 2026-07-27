@@ -13,7 +13,6 @@ const EmailTemplate: React.FC = () => {
   const userId = user?.email || "";
   const navigate = useNavigate();
 
-  const [consultationDetails, setConsultationDetails] = useState<any>(null);
   const [message, setMessage] = useState(
     "An application has been sent to the Secretary of State under s37 of the Electricity Act 1989 seeking consent to install or keep installed an electric line above ground.\n\n" +
     "The views of your authority are required to inform a decision as to whether to grant this consent. Application details, including associated documents, can be viewed in this email."
@@ -35,7 +34,6 @@ const EmailTemplate: React.FC = () => {
       setError(null);
       try {
         const data = await getConsultationDetailsById(consultationId);
-        setConsultationDetails(data);
         if (data.consulteeEmailMessage) setMessage(data.consulteeEmailMessage);
         if (data.consulteeEmailAddress) setConsulteeEmailAddress(data.consulteeEmailAddress);
       } catch (err: any) {
