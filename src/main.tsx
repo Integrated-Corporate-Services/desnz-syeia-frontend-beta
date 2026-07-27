@@ -8,7 +8,6 @@ import React from "react";
 import axios from "axios";
 import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 import { createLogger } from "./utils/logger";
-import { buildBackendUrl } from "./utils/apiConfig";
 import { fetchCsrfToken, getCsrfToken } from "./utils/csrf";
 import { getApiBaseUrl } from "./utils/apiConfig";
 

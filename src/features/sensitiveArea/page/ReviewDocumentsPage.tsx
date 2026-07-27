@@ -32,8 +32,7 @@ const ReviewDocumentsPage: React.FC = () => {
     review,
     loading,
     error: reviewError,
-    fetchReview,
-    saveReview
+    fetchReview
   } = useSensitiveAreaReview(applicationId || '');
 
   // Fetch existing review data on mount

@@ -1,4 +1,4 @@
-import { getRuntimeEnv, getMode, parseEnvBoolean, parseEnvInt, isDevelopmentMode, isProductionMode } from './runtimeEnv';
+import { getRuntimeEnv, getMode, parseEnvBoolean, parseEnvInt, isDevelopmentMode } from './runtimeEnv';
 
 type Environment = 'development' | 'staging' | 'production';
 

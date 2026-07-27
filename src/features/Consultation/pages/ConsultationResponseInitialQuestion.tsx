@@ -8,7 +8,6 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const consultationName = searchParams.get('consultationName') || 'Consultee';
 
   const [responseReceived, setResponseReceived] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -27,10 +26,6 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
     } else {
       navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/evidence-response-not-received`);
     }
-  };
-
-  const handleSaveForLater = () => {
-    navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
   };
 
   return (

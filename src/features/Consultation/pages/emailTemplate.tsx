@@ -8,7 +8,6 @@ import SkipLink from '../../../components/SkipLink';
 const EmailTemplate: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { applicationId, consultationId } = useParams();
-  const consulteeid = searchParams.get("consulteeid") || "";
   const orgname = searchParams.get("orgname") || "";
   const { user } = useAuthUser();
   const userId = user?.email || "";

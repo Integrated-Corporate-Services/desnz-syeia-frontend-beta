@@ -141,12 +141,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState<{ completed: number; total: number } | null>(null);
   const [uploadNoticeMessage, setUploadNoticeMessage] = useState<string | null>(null);
+  const [statuses, setStatuses] = useState<string[]>([]);
+  const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
   // Enrichment when parent pages omit scan fields from uploadedFiles
   const [scanMetaByFileId, setScanMetaByFileId] = useState<Record<string, FileScanMeta>>({});
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [statuses, setStatuses] = useState<string[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
  
   const files = internalFiles;
 
@@ -455,31 +453,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRemoveFile = (idx: number) => {
-    const fileToRemove = files[idx];
-    
-    if (onRemoveFile) {
-      onRemoveFile(idx);
-    } else {
-      setInternalFiles((prev) => prev.filter((_, i) => i !== idx));
-    }
-    setStatuses((prev) => prev.filter((_, i) => i !== idx));
-    setDownloadStatuses((prev) => prev.filter((_, i) => i !== idx));
-    
-    // Also remove from pending files if it exists there
-    if (fileToRemove && !uploadImmediately) {
-      setPendingFiles((prev) => 
-        prev.filter(f => !(f.name === fileToRemove.name && f.size === fileToRemove.size))
-      );
-    }
-    
-   
-    if (onValidationErrors) {
-      onValidationErrors([]);
-    }
   };
 
   // Core upload logic, called instantly after file select/drop
