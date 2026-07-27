@@ -3,11 +3,11 @@ import { NWL_BASE_URL } from '../constants/nwl';
 import { TLP_BASE_URL } from '../constants/tlp';
 import { S37_BASE_URL } from '../constants/s37';
 import { APPLICATION_TYPES } from '../constants/applicationTypes';
-import { BASE_URL } from '../constants/routes';
+import { getBaseUrl } from '../constants/routes';
 
 export const useApplicationNavigation = () => {
   const navigate = useNavigate();
-  const NORMALISED_BASE = (BASE_URL || '').toString().replace(/\/$/, '');
+  const NORMALISED_BASE = getBaseUrl().replace(/\/$/, '');
 
   const getNavigationPath = (appType: string, appId: string, route: string): string => {
     if (appType === APPLICATION_TYPES.NWL) {

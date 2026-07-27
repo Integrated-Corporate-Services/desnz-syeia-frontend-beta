@@ -1,6 +1,7 @@
 import type { PrivacyNoticeConfig } from '../types';
+import { getRuntimeEnv } from '../../../config/runtimeEnv';
 
-const SERVICE_NAME = (import.meta.env.VITE_SERVICE_NAME as string) || 'SYEIA';
+const SERVICE_NAME = getRuntimeEnv('VITE_SERVICE_NAME', 'SYEIA');
 
 export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
   serviceName: 'SYEIA (Submit Your Energy Infrastructure Application)',

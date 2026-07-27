@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { mapErrorToUserMessage, createSafeErrorLog } from '../utils/errorMapper';
 import { createLogger } from '../utils/logger';
+import { isDevelopmentMode } from '../config/runtimeEnv';
 
 const logger = createLogger('ErrorBoundary');
 
@@ -38,7 +39,7 @@ class ErrorBoundary extends Component<Props, State> {
       error: safeError,
       componentStack: errorInfo.componentStack,
       // Only log full error info in development
-      ...(import.meta.env.MODE === 'development' && { 
+      ...(isDevelopmentMode() && { 
         fullError: error,
         errorInfo 
       }),

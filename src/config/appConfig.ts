@@ -1,3 +1,5 @@
+import { getRuntimeEnv, getMode, parseEnvBoolean, parseEnvInt, isDevelopmentMode, isProductionMode } from './runtimeEnv';
+
 type Environment = 'development' | 'staging' | 'production';
 
 interface ApiEndpoints {
@@ -59,18 +61,11 @@ class ConfigService {
     return ConfigService.instance;
   }
 
-  private determineEnvironment(): Environment {
-    const mode = import.meta.env.MODE;
-    if (mode === 'production') return 'production';
-    if (mode === 'staging') return 'staging';
-    return 'development';
-  }
-
   private loadConfiguration(): AppConfig {
-    const env = this.determineEnvironment();
-    const isDevelopment = env === 'development';
+    const env = getMode();
+    const isDevelopment = isDevelopmentMode();
 
-    const baseUrl = isDevelopment ? '' : this.sanitizeUrl(import.meta.env.VITE_API_BASE_URL || '');
+    const baseUrl = isDevelopment ? '' : this.sanitizeUrl(getRuntimeEnv('VITE_API_BASE_URL'));
 
     return {
       environment: env,
@@ -85,25 +80,25 @@ class ConfigService {
         api: `${baseUrl}/api`,
       },
       features: {
-        sandboxRoutes: isDevelopment && this.parseBoolean(import.meta.env.VITE_SANDBOX_ROUTES_ENABLED),
+        sandboxRoutes: isDevelopment && parseEnvBoolean(getRuntimeEnv('VITE_SANDBOX_ROUTES_ENABLED')),
         analytics: {
           gtm: {
-            enabled: this.parseBoolean(import.meta.env.VITE_ENABLE_GTM),
-            id: import.meta.env.VITE_GTM_ID || '',
+            enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_GTM')),
+            id: getRuntimeEnv('VITE_GTM_ID'),
           },
           ga4: {
-            enabled: this.parseBoolean(import.meta.env.VITE_ENABLE_GA4),
-            measurementId: import.meta.env.VITE_GA4_MEASUREMENT_ID || '',
+            enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_GA4')),
+            measurementId: getRuntimeEnv('VITE_GA4_MEASUREMENT_ID'),
           },
         },
       },
       session: {
-        timeoutSeconds: parseInt(import.meta.env.VITE_SESSION_TIMEOUT_SECONDS || '1800', 10),
-        warningSeconds: parseInt(import.meta.env.VITE_SESSION_WARNING_SECONDS || '120', 10),
+        timeoutSeconds: parseEnvInt(getRuntimeEnv('VITE_SESSION_TIMEOUT_SECONDS'), 1800),
+        warningSeconds: parseEnvInt(getRuntimeEnv('VITE_SESSION_WARNING_SECONDS'), 120),
       },
       s3: {
-        urlExpirySeconds: parseInt(import.meta.env.VITE_S3_URL_EXPIRY_SECONDS || '1800', 10),
-        refreshBeforeExpirySeconds: parseInt(import.meta.env.VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS || '120', 10),
+        urlExpirySeconds: parseEnvInt(getRuntimeEnv('VITE_S3_URL_EXPIRY_SECONDS'), 1800),
+        refreshBeforeExpirySeconds: parseEnvInt(getRuntimeEnv('VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS'), 120),
       },
     };
   }
@@ -119,37 +114,17 @@ class ConfigService {
       );
 
       if (!isAllowed) {
-        if (this.config?.environment !== 'production') {
-          console.warn('URL not in allowed origins list', { url: urlObj.hostname });
-        }
         return '';
       }
 
       if (urlObj.protocol !== 'https:' && urlObj.protocol !== 'http:') {
-        if (this.config?.environment !== 'production') {
-          console.error('Invalid URL protocol', { protocol: urlObj.protocol });
-        }
         return '';
       }
 
-      if (this.config?.environment === 'production' && urlObj.protocol === 'http:') {
-        if (this.config?.environment !== 'production') {
-          console.warn('HTTP protocol in production - should use HTTPS');
-        }
-      }
-
       return urlObj.origin;
-    } catch (error) {
-      if (this.config?.environment !== 'production') {
-        console.error('Invalid URL format', { url, error });
-      }
+    } catch {
       return '';
     }
-  }
-
-  private parseBoolean(value: string | undefined): boolean {
-    if (!value) return false;
-    return value.toLowerCase() === 'true' || value === '1';
   }
 
   private validateConfiguration(): void {
@@ -158,10 +133,6 @@ class ConfigService {
     if (environment === 'production') {
       if (!api.base) {
         throw new Error('API base URL is required in production');
-      }
-
-      if (api.base.startsWith('http://')) {
-        console.warn('Production API using HTTP instead of HTTPS');
       }
 
       if (api.base.includes('localhost')) {

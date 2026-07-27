@@ -1,5 +1,6 @@
-const mode = import.meta.env.MODE;
-const isDevelopment = mode === 'local' || mode === 'development';
+import { isDevelopmentMode } from '../config/runtimeEnv';
+
+const isDevelopment = isDevelopmentMode();
 
 const SENSITIVE_PATTERNS = [
   'password', 'passwd', 'pwd',

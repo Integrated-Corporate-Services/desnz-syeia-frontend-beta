@@ -1032,4 +1032,17 @@ export const ROUTES = {
     NETWORK_OPERATOR_CONTACT_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-contact-details`,
 };
 
-export const BASE_URL = import.meta.env.BASE_URL;
+/**
+ * Get the base URL for the application
+ * This reads from runtime configuration to support sub-path deployments
+ * @returns The base URL path (e.g., '/' or '/app')
+ */
+export const getBaseUrl = (): string => {
+  if (typeof window !== 'undefined' && window._env_) {
+    return window._env_.VITE_ROUTER_BASENAME || '/';
+  }
+  return '/';
+};
+
+// For backwards compatibility - use getBaseUrl() for dynamic access
+export const BASE_URL = getBaseUrl();
