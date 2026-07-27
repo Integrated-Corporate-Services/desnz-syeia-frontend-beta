@@ -238,14 +238,6 @@ const ConsultationResponse3: React.FC = () => {
                                 >
                                     Close consultation
                                 </button>
-                              {/*    <button
-                                    type="button"
-                                    className="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button"
-                                    onClick={handleSaveForLater}
-                                >
-                                    Save for later
-                                </button>*/}
                             </div> 
                         </form>
                             </>

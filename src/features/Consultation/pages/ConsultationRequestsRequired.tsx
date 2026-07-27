@@ -228,14 +228,6 @@ const ConsultationRequestsRequired: React.FC = () => {
                                 <button type="button" className="govuk-button govuk-!-margin-top-6" data-module="govuk-button" onClick={handleSaveAndContinue}>
                                     Save and continue
                                 </button>
-                                {/*   <button
-                                    type="button"
-                                    className="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button"
-                                    onClick={handleSaveForLater}
-                                >
-                                    Save for later
-                                </button>*/}
                             </div>
                         </form>
                     </main>

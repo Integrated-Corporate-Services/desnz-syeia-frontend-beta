@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
