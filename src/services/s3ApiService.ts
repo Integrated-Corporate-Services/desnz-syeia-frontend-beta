@@ -25,6 +25,35 @@ async function csrfJsonHeaders(): Promise<Record<string, string>> {
   };
 }
 
+/**
+ * Build a user-facing Error from a failed API response.
+ * Parses JSON when available; never leaks SyntaxError/parse failures to the UI.
+ */
+async function errorFromFailedResponse(
+  res: Response,
+  fallbackMessage: string,
+  pickMessage?: (body: Record<string, unknown>) => string | undefined
+): Promise<Error> {
+  let body: Record<string, unknown> | null = null;
+  try {
+    body = (await res.json()) as Record<string, unknown>;
+  } catch (parseError) {
+    return new Error(fallbackMessage, {
+      cause: parseError instanceof Error ? parseError : undefined,
+    });
+  }
+
+  const picked = pickMessage?.(body);
+  if (picked) {
+    return new Error(picked);
+  }
+
+  const userMessage = typeof body.userMessage === 'string' ? body.userMessage : undefined;
+  const message = typeof body.message === 'string' ? body.message : undefined;
+  const error = typeof body.error === 'string' ? body.error : undefined;
+  return new Error(userMessage || message || error || fallbackMessage);
+}
+
 interface UrlCacheEntry {
   url: string;
   expiresAt: number;
@@ -55,16 +84,17 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
   });
   
   if (!res.ok) {
-    // Try to get detailed error message from response
-    try {
-      const errorData = await res.json();
-      if (errorData.code === 'CREDENTIALS_EXPIRED') {
-        throw new Error(errorData.userMessage || 'File upload service is temporarily unavailable. Please try again in a few minutes or contact support.');
+    throw await errorFromFailedResponse(res, 'Failed to get presigned URLs', (body) => {
+      if (body.code === 'CREDENTIALS_EXPIRED') {
+        return (
+          (typeof body.userMessage === 'string' && body.userMessage) ||
+          'File upload service is temporarily unavailable. Please try again in a few minutes or contact support.'
+        );
       }
-      throw new Error(errorData.error || errorData.userMessage || 'Failed to get presigned URLs');
-    } catch (parseError) {
-      throw new Error('Failed to get presigned URLs', { cause: parseError instanceof Error ? parseError : undefined });
-    }
+      const error = typeof body.error === 'string' ? body.error : undefined;
+      const userMessage = typeof body.userMessage === 'string' ? body.userMessage : undefined;
+      return error || userMessage;
+    });
   }
   
   return await res.json();
@@ -121,12 +151,7 @@ export async function confirmUpload(
   });
   
   if (!res.ok) {
-    try {
-      const errorData = await res.json();
-      throw new Error(errorData.message || errorData.error || 'Failed to confirm file upload');
-    } catch (parseError) {
-      throw new Error('Failed to confirm file upload', { cause: parseError instanceof Error ? parseError : undefined });
-    }
+    throw await errorFromFailedResponse(res, 'Failed to confirm file upload');
   }
   
   return await res.json();
@@ -149,12 +174,7 @@ export async function getFileScanStatus(fileId: string): Promise<{
   });
 
   if (!res.ok) {
-    try {
-      const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to fetch scan status');
-    } catch (parseError) {
-      throw new Error('Failed to fetch scan status', { cause: parseError instanceof Error ? parseError : undefined });
-    }
+    throw await errorFromFailedResponse(res, 'Failed to fetch scan status');
   }
 
   return await res.json();
@@ -184,14 +204,7 @@ async function getFilesScanStatusChunk(fileIds: string[]): Promise<FileScanStatu
   });
 
   if (!res.ok) {
-    try {
-      const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to fetch batch scan status');
-    } catch (parseError) {
-      throw new Error('Failed to fetch batch scan status', {
-        cause: parseError instanceof Error ? parseError : undefined,
-      });
-    }
+    throw await errorFromFailedResponse(res, 'Failed to fetch batch scan status');
   }
 
   const data = await res.json();
@@ -352,15 +365,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
     body: JSON.stringify({ filename })
   });
   if (!res.ok) {
-    try {
-      const errorData = await res.json();
-      throw new Error(errorData.userMessage || errorData.message || errorData.error || 'Failed to get presigned GET URL');
-    } catch (parseError) {
-      if (parseError instanceof Error && parseError.message !== 'Failed to get presigned GET URL') {
-        throw parseError;
-      }
-      throw new Error('Failed to get presigned GET URL');
-    }
+    throw await errorFromFailedResponse(res, 'Failed to get presigned GET URL');
   }
   const { url } = await res.json();
   
@@ -432,15 +437,7 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
     body: JSON.stringify({ filename })
   });
   if (!res.ok) {
-    try {
-      const errorData = await res.json();
-      throw new Error(errorData.userMessage || errorData.message || errorData.error || 'Failed to get presigned download URL');
-    } catch (parseError) {
-      if (parseError instanceof Error && parseError.message !== 'Failed to get presigned download URL') {
-        throw parseError;
-      }
-      throw new Error('Failed to get presigned download URL');
-    }
+    throw await errorFromFailedResponse(res, 'Failed to get presigned download URL');
   }
   const { url } = await res.json();
   

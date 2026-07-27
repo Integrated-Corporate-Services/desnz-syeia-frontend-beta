@@ -157,7 +157,8 @@ const NetworkOperatorDetails: React.FC = () => {
         
         if (app?.application_id) {
           navigate(
-            `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`
+            `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`,
+            { replace: true }
           );
         }
       } else {
@@ -181,13 +182,16 @@ const NetworkOperatorDetails: React.FC = () => {
           await updateProgress('Applicant details', 'Completed');
         }
 
+
         if (result?.application?.application_id) {
           navigate(
-            `${NWL_BASE_URL}/${result.application.application_id}/network-operator-contact-details`
+            `${NWL_BASE_URL}/${result.application.application_id}/network-operator-contact-details`,
+            { replace: true }
           );
         } else {
           navigate(
-            `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`
+            `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`,
+            { replace: true }
           );
         }
       }

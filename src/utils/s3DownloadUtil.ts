@@ -43,9 +43,14 @@ export async function downloadS3FileOnSameTab(keyOrUrl: string) {
     }
   } catch (err) {
     logger.error('Download error on same tab', { keyOrUrl, error: err });
-    if (err instanceof Error && err.message) {
+    // Only rethrow deliberate API/user-facing messages (plain `Error` from
+    // s3ApiService). Wrap browser/network failures (TypeError, etc.) so the UI
+    // always sees a stable download message.
+    if (err instanceof Error && err.name === 'Error' && err.message) {
       throw err;
     }
-    throw new Error('Failed to download file on same tab');
+    throw new Error('Failed to download file on same tab', {
+      cause: err instanceof Error ? err : undefined,
+    });
   }
 }
