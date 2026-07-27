@@ -17,6 +17,8 @@ npm run build
 # Run With Docker
 
 docker build -t desnz-syeia-frontend-beta ./desnz-syeia-frontend-beta
+
+
 docker run -p 5173:5173 desnz-syeia-frontend-beta
 
 # URL
