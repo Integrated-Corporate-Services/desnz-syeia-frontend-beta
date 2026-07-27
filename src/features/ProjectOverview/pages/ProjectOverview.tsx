@@ -1036,7 +1036,7 @@ const ProjectOverview = () => {
 					/>
 
 					<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue" disabled={isSubmitting || !uploadGate.canContinue}>
-						{uploadGate.isScanning ? 'Scanning files...' : projectOverview.saveAndContinue}
+						{projectOverview.saveAndContinue}
 					</button>
 				</form>
 			</main>

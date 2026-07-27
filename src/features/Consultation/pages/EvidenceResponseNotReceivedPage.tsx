@@ -442,7 +442,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                                 </button> */}
 
                                 <button type="submit" className="govuk-button" data-module="govuk-button" disabled={loading || !uploadGate.canContinue}>
-                                    {uploadGate.isScanning ? 'Scanning files...' : loading ? 'Closing...' : 'Close consultation'}
+                                    {loading ? 'Closing...' : 'Close consultation'}
                                 </button>
                                 {/* <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater} disabled={loading}>
                                     Save for later

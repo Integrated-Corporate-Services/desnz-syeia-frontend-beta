@@ -417,7 +417,7 @@ const BankTransferConfirmationPage: React.FC = () => {
                 disabled={loading || !uploadGate.canContinue}
                 aria-busy={loading}
               >
-                {uploadGate.isScanning ? 'Scanning files...' : loading ? 'Submitting...' : 'Submit Application'}
+                {loading ? 'Submitting...' : 'Submit Application'}
               </button>
               <button
                 type="button"

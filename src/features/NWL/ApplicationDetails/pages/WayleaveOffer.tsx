@@ -441,7 +441,7 @@ const WayleaveOffer: React.FC = () => {
                   data-module="govuk-button"
                   disabled={isLoading || !uploadGate.canContinue}
                 >
-                  {uploadGate.isScanning ? 'Scanning files...' : isLoading ? 'Saving...' : (has21DayError ? 'Return to tasklist' : 'Save and continue')}
+                  {isLoading ? 'Saving...' : (has21DayError ? 'Return to tasklist' : 'Save and continue')}
                 </button>
               </div>
             </form>

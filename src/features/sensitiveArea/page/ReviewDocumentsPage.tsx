@@ -390,7 +390,7 @@ const ReviewDocumentsPage: React.FC = () => {
                 onClick={() => handleSaveReview('continue')}
                 disabled={loading || !uploadGate.canContinue}
               >
-                {uploadGate.isScanning ? 'Scanning files...' : loading ? 'Saving...' : 'Save and continue'}
+                {loading ? 'Saving...' : 'Save and continue'}
               </button>
 
               {/* <button

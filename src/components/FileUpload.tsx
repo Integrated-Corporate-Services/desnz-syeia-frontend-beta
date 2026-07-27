@@ -1141,6 +1141,20 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!remainingInfected && blockedFilesRef.current.size === 0) {
         setHasInfectedFiles(false);
       }
+      // Refresh the upload notice so "N file(s) uploaded successfully" does not
+      // linger after the file has been removed from the list.
+      const remainingCleanCount = (uploadedFiles ?? []).filter((f) => {
+        if (f.id === fileId) {
+          return false;
+        }
+        const result = f.scanResult ?? scanMetaByFileId[f.id]?.scanResult;
+        return result === 'CLEAN';
+      }).length;
+      setUploadNoticeMessage(
+        remainingInfected || blockedFilesRef.current.size > 0
+          ? null
+          : formatUploadSummary(remainingCleanCount)
+      );
       if (onDeleteFile) {
         onDeleteFile(fileId);
       }
@@ -1260,6 +1274,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                         if (onDeleteFile) {
                           await handleDeleteFile(file.id, file.s3Key);
                         } else if (onRemoveFile) {
+                          setUploadNoticeMessage(null);
                           onRemoveFile(idx);
                         }
                       }}

@@ -689,11 +689,7 @@ const SupportingInfo: React.FC = () => {
           disabled={loading || (supportingDocs === "yes" && !uploadGate.canContinue)}
           aria-disabled={loading || (supportingDocs === "yes" && !uploadGate.canContinue)}
         >
-          {supportingDocs === "yes" && uploadGate.isScanning
-            ? "Scanning files..."
-            : loading
-              ? "Saving..."
-              : "Save and continue"}
+          {loading ? "Saving..." : "Save and continue"}
         </Button>
       </div>
 
