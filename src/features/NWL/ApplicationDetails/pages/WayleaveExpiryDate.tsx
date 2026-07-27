@@ -158,8 +158,7 @@ const WayleaveExpiryDate: React.FC = () => {
         
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
-        // Clear file validation errors after successful upload
-        setFileValidationErrors([]);
+        // Keep virus-scan warnings from FileUpload (onValidationErrors).
       } catch {
         fileErrors.push('Failed to upload files. Please try again.');
       }
@@ -408,7 +407,7 @@ const WayleaveExpiryDate: React.FC = () => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                     setErrors([]);
-                    setFileValidationErrors([]);
+                    // FileUpload already reconciled virus warnings via onValidationErrors.
                   }}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);

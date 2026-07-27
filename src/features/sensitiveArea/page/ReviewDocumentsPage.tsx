@@ -181,7 +181,7 @@ const ReviewDocumentsPage: React.FC = () => {
     setUploadedFiles((prev) => [...prev, ...newFiles]);
     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
     setFormErrors([]);
-    setFileValidationErrors([]);
+    // Keep virus-scan warnings from FileUpload; only clear unrelated form/api errors.
     setApiError(null);
   };
 

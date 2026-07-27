@@ -5,6 +5,7 @@ import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE } from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
+import { retainVirusScanWarnings } from "../../../../utils/fileUploadVirusWarning";
 import {
   validateDate,
   validateDateNotInFuture,
@@ -149,8 +150,8 @@ const NoticeToRemove: React.FC = () => {
       // Set file validation errors for inline display
       setFileValidationErrors([FORM_ERRORS.NO_FILES]);
     } else {
-      // Clear file validation errors if files are present
-      setFileValidationErrors([]);
+      // Clear "no files" error only; keep any active virus-scan warnings.
+      setFileValidationErrors((prev) => retainVirusScanWarnings(prev));
     }
 
     setErrors(newErrors);
@@ -176,8 +177,7 @@ const NoticeToRemove: React.FC = () => {
         // Update state immediately so files remain visible even if validation fails
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
-        // Clear file validation errors after successful upload
-        setFileValidationErrors([]);
+        // Keep virus-scan warnings from FileUpload (onValidationErrors).
       } catch {
         const errorMsg = 'Failed to upload files. Please try again.';
         fileErrors.push(errorMsg);
@@ -221,7 +221,8 @@ const NoticeToRemove: React.FC = () => {
     if (fileErrors.length > 0) {
       setFileValidationErrors(fileErrors);
     } else {
-      setFileValidationErrors([]);
+      // Keep virus-scan warnings raised by FileUpload.
+      setFileValidationErrors((prev) => retainVirusScanWarnings(prev));
     }
 
     // If there are any validation errors, stay on page
@@ -457,7 +458,7 @@ const NoticeToRemove: React.FC = () => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                     setErrors([]);
-                    setFileValidationErrors([]);
+                    // FileUpload already reconciled virus warnings via onValidationErrors.
                   }}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);

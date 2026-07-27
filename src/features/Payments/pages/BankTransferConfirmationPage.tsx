@@ -390,12 +390,12 @@ const BankTransferConfirmationPage: React.FC = () => {
                 onPendingFilesChange={setPendingFiles}
                 onValidationErrors={handleFileValidationErrors}
                 onUploaded={(newUploadedFiles, newDocs) => {
-                  setFileValidationErrors([]);
+                  // Do not clear virus-scan warnings — FileUpload owns them via onValidationErrors.
                   setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
                   setApplicationDocuments(prev => [...prev, ...newDocs]);
                 }}
                 onDeleteFile={(fileId) => {
-                  setFileValidationErrors([]);
+                  // FileUpload already reconciled virus warnings before this callback.
                   setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                   setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                 }}

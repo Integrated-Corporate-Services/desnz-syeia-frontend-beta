@@ -85,7 +85,7 @@ const PublicNoticesEvidence: React.FC = () => {
   const handleUploadedFiles = (uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[]) => {
     setUploadedFileObjs(prev => [...prev, ...uploadedFiles]);
     setApplicationDocuments(prev => [...prev, ...applicationDocuments]);
-    // Clear file upload error when files are uploaded
+    // Clear file-required error when files are uploaded; keep virus-scan warnings.
     if (errors.fileUpload) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -93,7 +93,6 @@ const PublicNoticesEvidence: React.FC = () => {
         return newErrors;
       });
     }
-    setFileValidationErrors([]);
   };
 
   // Handle file validation errors from FileUpload component

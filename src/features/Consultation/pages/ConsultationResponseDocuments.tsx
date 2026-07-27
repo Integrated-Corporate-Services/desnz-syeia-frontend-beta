@@ -97,7 +97,7 @@ const ConsultationResponse2: React.FC = () => {
             const { uploadedFiles: _uploadedFiles, ...rest } = prev;
             return rest;
         });
-        setFileValidationErrors([]);
+        // Do not clear virus-scan warnings — FileUpload owns them via onValidationErrors.
     };
 
     // Handle file deletion

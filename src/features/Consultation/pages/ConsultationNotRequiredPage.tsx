@@ -97,7 +97,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			const { files: _files, ...rest } = prev;
 			return rest;
 		});
-		setFileValidationErrors([]);
+		// Do not clear virus-scan warnings — FileUpload owns them via onValidationErrors.
 	};
 
 	// Save and Continue handler (set status to CLOSED)

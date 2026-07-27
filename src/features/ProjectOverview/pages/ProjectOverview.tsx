@@ -17,6 +17,7 @@ import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE 
 
 
 import { getRelatedFieldAnchorIds, filterErrorLinksByAnchors } from '../validations';
+import { isVirusScanWarningMessage } from '../../../utils/fileUploadVirusWarning';
 import { ProjectOverviewModel } from '../../../types/projectOverview';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
@@ -61,6 +62,7 @@ const ProjectOverview = () => {
 			applicationDocuments: prev.applicationDocuments.filter(doc => doc.fileId !== fileId)
 		}));
 	};
+
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
@@ -144,12 +146,32 @@ const ProjectOverview = () => {
 		return idx >= 0 ? ("0" + (idx + 1)).slice(-2) : name;
 	};
 
-	// Clear file upload errors when files are selected
+	// Clear only the "upload a file is required" error when the applicant adds
+	// files — never wipe an active virus-scan warning.
 	useEffect(() => {
-		if (pendingFiles.length > 0 || (formState.uploadedFiles && formState.uploadedFiles.length > 0)) {
-			clearFieldError('planInformationDocuments');
-			setFileValidationErrors([]);
+		if (pendingFiles.length === 0 && !(formState.uploadedFiles && formState.uploadedFiles.length > 0)) {
+			return;
 		}
+
+		setFieldErrors((prev) => {
+			if (isVirusScanWarningMessage(prev.uploadedFiles)) {
+				return prev;
+			}
+			const next = { ...prev };
+			delete next.uploadedFiles;
+			delete next.planInformationDocuments;
+			delete next['planInformationDocuments-inputValue'];
+			return next;
+		});
+		setErrors((prev) =>
+			prev.filter((error) => {
+				if (isVirusScanWarningMessage(error)) {
+					return true;
+				}
+				return !error.includes('#planInformationDocuments');
+			})
+		);
+		setFileValidationErrors((prev) => prev.filter((error) => isVirusScanWarningMessage(error)));
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pendingFiles.length, formState.uploadedFiles.length]);
 

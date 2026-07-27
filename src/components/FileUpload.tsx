@@ -17,18 +17,23 @@ import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { DEMO_USER_ID } from "../constants/demo";
+import {
+  INFECTED_USER_MESSAGE as SHARED_INFECTED_USER_MESSAGE,
+  INFECTED_MULTI_USER_MESSAGE as SHARED_INFECTED_MULTI_USER_MESSAGE,
+  formatCleanUploadSummary,
+  getFileBaseName,
+  countInfectedListedFiles,
+  reconcileVirusWarningAfterDelete,
+  reconcileVirusWarningAfterScanBatch,
+} from "../utils/fileUploadVirusWarning";
 
 const logger = createLogger('FileUpload');
 
 // GOV.UK / GDS-aligned messages (SYEIA-46 AC3, SYEIA-1466). Backend returns the same
 // wording via `userMessage`; these are used as fallbacks and for multi-file summaries.
-const INFECTED_USER_MESSAGE =
-  'Your document upload was blocked because our virus scan detected a potential security risk. ' +
-  'Please check the file on your device, run a virus scan and try uploading a clean version.';
+const INFECTED_USER_MESSAGE = SHARED_INFECTED_USER_MESSAGE;
 
-const INFECTED_MULTI_USER_MESSAGE = (count: number): string =>
-  `${count} of your document uploads were blocked because our virus scan detected a potential ` +
-  'security risk. Please check the files on your device, run a virus scan and try uploading clean versions.';
+const INFECTED_MULTI_USER_MESSAGE = SHARED_INFECTED_MULTI_USER_MESSAGE;
 
 const FAILED_USER_MESSAGE =
   'Sorry, there is a problem with the service. Your file could not be scanned. Please try again later.';
@@ -43,13 +48,7 @@ type FileScanMeta = {
 // Success confirmation shown in the inset notice. Infected/failed outcomes are surfaced
 // as GOV.UK errors (error summary + per-file error message), not in this notice.
 function formatUploadSummary(cleanCount: number): string | null {
-  if (cleanCount <= 0) {
-    return null;
-  }
-
-  return cleanCount === 1
-    ? '1 file uploaded successfully.'
-    : `${cleanCount} files uploaded successfully.`;
+  return formatCleanUploadSummary(cleanCount);
 }
 
 /** Limit parallel S3 PUT + confirm calls (GDS: keep UI responsive under load). */
@@ -181,6 +180,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   // "name::size" so it survives re-renders without holding the File objects.
   const blockedFilesRef = useRef<Set<string>>(new Set());
   const getFileKey = (name: string, size: number) => `${name}::${size}`;
+  // True after we have pushed a virus warning to the parent page error slot.
+  // Used to clear that slot once infected files are gone, without wiping unrelated
+  // validation errors (e.g. "upload a file").
+  const virusWarningActiveRef = useRef(false);
   // Tracks the in-flight immediate upload+scan so "Save and continue" can wait
   // for a scan verdict before deciding whether to block (SYEIA-46 AC2/AC4).
   const uploadInFlightRef = useRef<Promise<unknown> | null>(null);
@@ -191,6 +194,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
   const [hasInfectedFiles, setHasInfectedFiles] = useState(false);
+
+  const onValidationErrorsRef = useRef(onValidationErrors);
+  onValidationErrorsRef.current = onValidationErrors;
 
   const syncBlockedFilesState = () => {
     setHasInfectedFiles(blockedFilesRef.current.size > 0);
@@ -203,7 +209,54 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
   const clearFileInfected = (name: string, size: number) => {
     blockedFilesRef.current.delete(getFileKey(name, size));
+    // Also clear any size-mismatched keys for the same filename (API size can
+    // differ from browser File.size).
+    for (const key of [...blockedFilesRef.current]) {
+      if (key.startsWith(`${name}::`)) {
+        blockedFilesRef.current.delete(key);
+      }
+    }
     syncBlockedFilesState();
+  };
+
+  const countBlockedPending = (pending: File[]) =>
+    pending.filter((f) =>
+      blockedFilesRef.current.has(getFileKey(f.name, f.size))
+    ).length;
+
+  /**
+   * After delete/remove: keep the virus warning if any infected file remains;
+   * only clear it when none remain. Never wipe the warning while infections exist.
+   */
+  const applyVirusWarningAfterDelete = (
+    listedFiles: UploadedFile[] | undefined,
+    pending: File[],
+    meta: Record<string, FileScanMeta>,
+    excludeFileId?: string
+  ) => {
+    const result = reconcileVirusWarningAfterDelete({
+      files: listedFiles ?? [],
+      metaById: meta,
+      excludeFileId,
+      blockedPendingCount: countBlockedPending(pending),
+    });
+
+    if (result.keepVirusWarning && result.virusMessage) {
+      setHasInfectedFiles(true);
+      setUploadNoticeMessage(result.virusMessage);
+      virusWarningActiveRef.current = true;
+      onValidationErrorsRef.current?.([result.virusMessage]);
+      return;
+    }
+
+    // No infected files left — clear virus warning only (keep clean success summary).
+    // Do not wipe the whole block set here; keys were already removed via clearFileInfected.
+    setHasInfectedFiles(blockedFilesRef.current.size > 0);
+    setUploadNoticeMessage(result.successMessage);
+    if (virusWarningActiveRef.current) {
+      virusWarningActiveRef.current = false;
+      onValidationErrorsRef.current?.([]);
+    }
   };
 
   // Add files to the pending queue (used so immediate-upload files stay tracked
@@ -363,6 +416,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               ? INFECTED_USER_MESSAGE
               : INFECTED_MULTI_USER_MESSAGE(infectedCount);
           setUploadNoticeMessage(message);
+          virusWarningActiveRef.current = true;
           if (onValidationErrors) {
             onValidationErrors([message]);
           }
@@ -681,20 +735,12 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setDownloadStatuses((prev) => prev.filter((_, i) => i !== idx));
 
     if (fileToRemove) {
-      // Clear any "infected" block for this file so the applicant can continue
-      // once the offending file has been removed (SYEIA-46 AC2/AC4).
       clearFileInfected(fileToRemove.name, fileToRemove.size);
-
-      // Remove from the pending queue. Infected files are kept pending even in
-      // immediate-upload mode, so always reconcile the queue here.
-      setPendingFiles((prev) =>
-        prev.filter(f => !(f.name === fileToRemove.name && f.size === fileToRemove.size))
+      const updatedPending = pendingFiles.filter(
+        (f) => !(f.name === fileToRemove.name && f.size === fileToRemove.size)
       );
-    }
-    
-   
-    if (onValidationErrors) {
-      onValidationErrors([]);
+      setPendingFiles(updatedPending);
+      applyVirusWarningAfterDelete(uploadedFiles, updatedPending, scanMetaByFileId);
     }
   };
 
@@ -943,6 +989,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
             // Surface the virus message as soon as this file finishes — do not wait
             // for the rest of the batch (mixed clean/infected uploads).
+            virusWarningActiveRef.current = true;
             if (onValidationErrors) {
               onValidationErrors([
                 infectedCount === 1
@@ -1066,34 +1113,34 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         setStatuses([...newStatuses]);
 
-        // Never replace an infected/failed outcome with a clean-only success summary.
-        if (infectedCount > 0) {
-          setUploadNoticeMessage(
-            infectedCount === 1
-              ? INFECTED_USER_MESSAGE
-              : INFECTED_MULTI_USER_MESSAGE(infectedCount)
-          );
-        } else {
-          const summary = formatUploadSummary(cleanCount);
-          if (summary) {
-            setUploadNoticeMessage(summary);
-          } else if (failedCount === 0) {
-            setUploadNoticeMessage(null);
-          }
-        }
+        // Keep / restore the virus warning when infections remain. Do not clear
+        // a progressive warning just because blocked/listed counts look empty.
+        const listedInfectedCount = countInfectedListedFiles(
+          uploadedFiles ?? [],
+          scanMetaByFileId
+        );
+        const batchResult = reconcileVirusWarningAfterScanBatch({
+          batchInfectedCount: infectedCount,
+          blockedRemainingCount: blockedFilesRef.current.size,
+          listedInfectedCount,
+          failedCount,
+          cleanCount,
+          virusWarningWasActive: virusWarningActiveRef.current,
+        });
 
-        // Surface blocked/failed outcomes in the page-level GOV.UK error summary.
-        if ((infectedCount > 0 || failedCount > 0) && onValidationErrors) {
-          const scanErrors: string[] = [];
-          if (infectedCount > 0) {
-            scanErrors.push(
-              infectedCount === 1 ? INFECTED_USER_MESSAGE : INFECTED_MULTI_USER_MESSAGE(infectedCount)
-            );
+        if (batchResult.virusMessage) {
+          setUploadNoticeMessage(batchResult.virusMessage);
+          virusWarningActiveRef.current = true;
+          const scanErrors = [batchResult.virusMessage];
+          if (batchResult.failedMessage) {
+            scanErrors.push(batchResult.failedMessage);
           }
-          if (failedCount > 0) {
-            scanErrors.push(FAILED_USER_MESSAGE);
-          }
-          onValidationErrors(scanErrors);
+          onValidationErrors?.(scanErrors);
+        } else if (batchResult.failedMessage) {
+          setUploadNoticeMessage(batchResult.failedMessage);
+          onValidationErrors?.([batchResult.failedMessage]);
+        } else {
+          setUploadNoticeMessage(batchResult.successMessage);
         }
       } finally {
         setIsScanning(false);
@@ -1119,48 +1166,24 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const deletedFile = (uploadedFiles ?? []).find((f) => f.id === fileId);
       await deleteFileCompletely(fileId, s3Key);
-      setScanMetaByFileId((prev) => {
-        const { [fileId]: _removed, ...rest } = prev;
-        return rest;
-      });
+      const nextMeta = { ...scanMetaByFileId };
+      delete nextMeta[fileId];
+      setScanMetaByFileId(nextMeta);
       if (deletedFile) {
-        const baseName = deletedFile.filename
-          ? deletedFile.filename.split("/").pop() || deletedFile.filename
-          : "";
+        const baseName = getFileBaseName(deletedFile.filename);
         if (baseName) {
           clearFileInfected(baseName, Number(deletedFile.fileSizeBytes) || 0);
         }
       }
-      // If the deleted file was the last known infected upload, lift the gate
-      // once no blocked pending files remain.
-      const remainingInfected = (uploadedFiles ?? []).some(
-        (f) =>
-          f.id !== fileId &&
-          (f.scanResult === 'INFECTED' || scanMetaByFileId[f.id]?.scanResult === 'INFECTED')
-      );
-      if (!remainingInfected && blockedFilesRef.current.size === 0) {
-        setHasInfectedFiles(false);
-      }
-      // Refresh the upload notice so "N file(s) uploaded successfully" does not
-      // linger after the file has been removed from the list.
-      const remainingCleanCount = (uploadedFiles ?? []).filter((f) => {
-        if (f.id === fileId) {
-          return false;
-        }
-        const result = f.scanResult ?? scanMetaByFileId[f.id]?.scanResult;
-        return result === 'CLEAN';
-      }).length;
-      setUploadNoticeMessage(
-        remainingInfected || blockedFilesRef.current.size > 0
-          ? null
-          : formatUploadSummary(remainingCleanCount)
+      // Keep virus warning if other infected files remain; clear only when none left.
+      applyVirusWarningAfterDelete(
+        uploadedFiles,
+        pendingFiles,
+        nextMeta,
+        fileId
       );
       if (onDeleteFile) {
         onDeleteFile(fileId);
-      }
-      
-      if (onValidationErrors) {
-        onValidationErrors([]);
       }
       
     } catch (error) {
@@ -1327,10 +1350,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                         }
                         const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
                         setPendingFiles(updatedPendingFiles);
-                        
-                        if (onValidationErrors) {
-                          onValidationErrors([]);
-                        }
+                        applyVirusWarningAfterDelete(
+                          uploadedFiles,
+                          updatedPendingFiles,
+                          scanMetaByFileId
+                        );
                         
                         if (onPendingFilesChange) {
                           onPendingFilesChange(updatedPendingFiles);
