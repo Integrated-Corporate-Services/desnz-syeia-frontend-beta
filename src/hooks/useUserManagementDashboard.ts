@@ -23,7 +23,6 @@ export const useUserManagementDashboard = () => {
     filteredUsers,
     loading: usersLoading,
     error: usersError,
-    confirmRevokeAccess
   } = useManageUsers();
 
   const {
