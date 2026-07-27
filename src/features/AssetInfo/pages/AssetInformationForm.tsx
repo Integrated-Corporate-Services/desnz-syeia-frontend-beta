@@ -5,7 +5,7 @@ import { useApplication } from '../../../hooks/useApplication';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
-import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import TextInput from '../component/TextInput';
 import RadioGroup from '../component/RadioGroup';
 import { clearFieldError } from '../validations';

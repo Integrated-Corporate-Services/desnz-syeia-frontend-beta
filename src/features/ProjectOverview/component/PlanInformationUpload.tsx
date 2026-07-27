@@ -1,5 +1,4 @@
 import React from "react";
-import FileUploadBox from '../../../components/FileUploadBox';
 import FileUpload from '../../../components/FileUpload';
 import type { Application } from '../../../types/application';
 
@@ -15,14 +14,13 @@ interface PlanInformationUploadProps {
 
 const PlanInformationUpload: React.FC<PlanInformationUploadProps> = ({ application, title }) => {
   const prefix = getS3Prefix(application) ?? undefined;
-  const [files, setFiles] = React.useState<File[]>([]);
 
   const handleFilesChange = (newFiles: File[]) => {
-    setFiles(newFiles);
+    // Files are managed by FileUpload component
   };
 
   const handleRemoveFile = (idx: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== idx));
+    // File removal is managed by FileUpload component
   };
 
   {/*
