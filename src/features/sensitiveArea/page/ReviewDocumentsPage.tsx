@@ -4,7 +4,6 @@ import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { SensitiveAreaReview } from '../../../types/sensitiveAreaReviewTypes';
-import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { createLogger } from '../../../utils/logger';

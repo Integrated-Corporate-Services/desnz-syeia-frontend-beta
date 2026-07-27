@@ -23,10 +23,7 @@ export const useUserManagementDashboard = () => {
     filteredUsers,
     loading: usersLoading,
     error: usersError,
-    showRevokeWarning,
-    handleRevokeAccess,
-    confirmRevokeAccess,
-    cancelRevoke,
+    confirmRevokeAccess
   } = useManageUsers();
 
   const {
@@ -47,10 +44,6 @@ export const useUserManagementDashboard = () => {
     loading: organisationsLoading,
     error: organisationsError,
   } = useOrganisations();
-
-  const handleConfirmRevoke = (userId: string) => {
-    confirmRevokeAccess(userId, navigateToAccessRevoked);
-  };
 
   const activeUsers = filteredUsers.filter((u) => u.status === "ACTIVE");
   const totalResults =

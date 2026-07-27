@@ -6,7 +6,6 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getProposedDevelopment, saveProposedDevelopment } from '../../../services/consultationProposedDevelopmentService';
-import { markConsultationAsRequestSent } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { isWithinCharacterLimit } from '../../../utils/validation';
 import { createLogger } from '../../../utils/logger';

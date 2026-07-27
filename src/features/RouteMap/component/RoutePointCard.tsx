@@ -30,7 +30,6 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
   isSelected,
 }) => {
   const [eastingTouched, setEastingTouched] = useState(false);
-  const [northingTouched, setNorthingTouched] = useState(false);
 
  
   const eastingValid = isValidGridValue(point.easting);
@@ -59,7 +58,6 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
   const handleInputChange = (field: 'easting' | 'northing', value: string) => {
     onChange(field, value);
     if (field === 'easting') setEastingTouched(true);
-    if (field === 'northing') setNorthingTouched(true);
   };
   return (
     <div className={`govuk-summary-card${error ? ' fds-summary-card--error' : ''}`}>
