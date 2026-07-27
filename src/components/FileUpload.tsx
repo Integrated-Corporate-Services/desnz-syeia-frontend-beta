@@ -97,6 +97,7 @@ export const DEFAULT_FILE_UPLOAD_GATE: FileUploadGate = {
 };
 
 /** Shared GDS copy for parents that hard-stop submit while a scan is running. */
+/** Shared copy for parents that hard-stop submit while a scan is running (not shown as a banner). */
 export const FILE_SCAN_IN_PROGRESS_MESSAGE =
   'Your file is being scanned. Please wait while the upload is processed.';
 
@@ -277,7 +278,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     );
   };
   const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState<{ completed: number; total: number } | null>(null);
   const [uploadNoticeMessage, setUploadNoticeMessage] = useState<string | null>(null);
   // Enrichment when parent pages omit scan fields from uploadedFiles
   const [scanMetaByFileId, setScanMetaByFileId] = useState<Record<string, FileScanMeta>>({});
@@ -758,8 +758,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       clearFileInfected(f.name, f.size);
     }
     setStatuses(Array(uploadFiles.length).fill("Requesting presigned URLs..."));
-    // Mark busy immediately (before presign) so Save and continue stays disabled
-    // and the GDS scanning status is announced without a gap.
+    // Mark busy immediately (before presign) so Save and continue stays disabled.
     setIsScanning(true);
     scanAbortRef.current?.abort();
     const abortController = new AbortController();
@@ -778,7 +777,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           Array(uploadFiles.length).fill("Failed to get presigned URLs")
         );
         setIsScanning(false);
-        setScanProgress(null);
         return { uploadedFiles: [], applicationDocuments: [] };
       }
       const newStatuses = Array(uploadFiles.length).fill("");
@@ -883,7 +881,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const confirmByFileId = new Map(
           confirmedUploads.map((c) => [c.confirmResponse.fileId, c])
         );
-        setScanProgress({ completed: 0, total: confirmedUploads.length });
 
         let infectedCount = 0;
         let cleanCount = 0;
@@ -900,12 +897,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           confirmByFileId.delete(scanStatus.fileId);
 
           const { index: i, confirmResponse } = item;
-
-          setScanProgress((prev) =>
-            prev
-              ? { ...prev, completed: Math.min(prev.completed + 1, prev.total) }
-              : prev
-          );
 
           if (scanStatus.error) {
             newStatuses[i] = scanStatus.error;
@@ -1144,14 +1135,12 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         }
       } finally {
         setIsScanning(false);
-        setScanProgress(null);
       }
 
       // Files already pushed via progressive onUploaded — return accumulated lists.
       return { uploadedFiles, applicationDocuments};
     } catch (err) {
       setIsScanning(false);
-      setScanProgress(null);
       setStatuses(
         Array(uploadFiles.length).fill(
           "Error: " + (err instanceof Error ? err.message : String(err))
@@ -1213,7 +1202,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   return (
-    <div className="gds-upload-container" tabIndex={-1}>
+    <div className="gds-upload-container" tabIndex={-1} aria-busy={isBusy || undefined}>
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && displayFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
@@ -1243,10 +1232,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                           setUploadNoticeMessage(FAILED_USER_MESSAGE);
                           return;
                         }
+                        // Still scanning / unknown — block download quietly (no scanning banner).
                         if (file.scanStatus !== "COMPLETED" || file.scanResult !== "CLEAN") {
-                          setUploadNoticeMessage(
-                            "Your file is being scanned. Please wait while the upload is processed."
-                          );
                           return;
                         }
                         if (file.s3Key) {
@@ -1272,14 +1259,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                     {file.scanResult === "INFECTED" && (
                       <p className="govuk-error-message govuk-!-margin-top-1 govuk-!-margin-bottom-0">
                         <span className="govuk-visually-hidden">Error:</span> {INFECTED_USER_MESSAGE}
-                      </p>
-                    )}
-                    {file.scanStatus &&
-                      file.scanStatus !== "COMPLETED" &&
-                      file.scanStatus !== "FAILED" &&
-                      file.scanResult !== "INFECTED" && (
-                      <p className="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-0">
-                        Scanning in progress — download will be available when the scan finishes.
                       </p>
                     )}
                     {file.scanStatus === "FAILED" && (
@@ -1381,18 +1360,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
-      {isBusy && (
-        <div className="govuk-inset-text" role="status" aria-live="polite">
-          <p className="govuk-body govuk-!-margin-bottom-0">
-            {scanProgress
-              ? `Scanning files. ${scanProgress.completed} of ${scanProgress.total} complete.`
-              : FILE_SCAN_IN_PROGRESS_MESSAGE}
-          </p>
-          <p className="govuk-hint govuk-!-margin-top-2 govuk-!-margin-bottom-0">
-            Files appear in the list as soon as each scan finishes.
-          </p>
-        </div>
-      )}
       {uploadNoticeMessage && (
         <div
           className={hasInfectedFiles ? "govuk-!-margin-bottom-4" : "govuk-inset-text"}

@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSupportingInfo } from "../../../hooks/useSupportingInfo";
 import TextArea from '../../ProjectOverview/component/TextArea';
 import { Button } from "govuk-react";
-import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE, FILE_SCAN_IN_PROGRESS_MESSAGE, FILE_INFECTED_BLOCK_MESSAGE } from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle, FileUploadGate, DEFAULT_FILE_UPLOAD_GATE, FILE_INFECTED_BLOCK_MESSAGE } from '../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import "../../../styles/_file_upload.scss";
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
@@ -181,14 +181,12 @@ const SupportingInfo: React.FC = () => {
   // Hard-stop Save and continue while virus scan is running or any infected
   // file remains (do not rely only on the disabled attribute).
   if (supportingDocs === "yes" && !uploadGate.canContinue) {
-    const message = uploadGate.hasInfectedFiles
-      ? FILE_INFECTED_BLOCK_MESSAGE
-      : FILE_SCAN_IN_PROGRESS_MESSAGE;
-    setErrors([{ key: 'fileUpload', message }]);
     if (uploadGate.hasInfectedFiles) {
+      setErrors([{ key: 'fileUpload', message: FILE_INFECTED_BLOCK_MESSAGE }]);
       setFileValidationErrors([FILE_INFECTED_BLOCK_MESSAGE]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // While scanning: button is disabled — exit quietly with no scanning banner.
     return;
   }
   
@@ -200,14 +198,11 @@ const SupportingInfo: React.FC = () => {
     // Re-check gate from the upload component (authoritative) before proceeding.
     const liveGate = fileUploadRef.current.getUploadGate();
     if (!liveGate.canContinue) {
-      const message = liveGate.hasInfectedFiles
-        ? FILE_INFECTED_BLOCK_MESSAGE
-        : FILE_SCAN_IN_PROGRESS_MESSAGE;
-      setErrors([{ key: 'fileUpload', message }]);
       if (liveGate.hasInfectedFiles) {
+        setErrors([{ key: 'fileUpload', message: FILE_INFECTED_BLOCK_MESSAGE }]);
         setFileValidationErrors([FILE_INFECTED_BLOCK_MESSAGE]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
