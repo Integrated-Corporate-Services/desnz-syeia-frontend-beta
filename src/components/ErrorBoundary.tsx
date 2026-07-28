@@ -14,7 +14,6 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  error?: Error;
   /** User-friendly error message (sanitized) */
   userMessage?: string;
 }
@@ -28,7 +27,7 @@ class ErrorBoundary extends Component<Props, State> {
   static getDerivedStateFromError(error: Error): State {
     // Get sanitized user-friendly message
     const userMessage = mapErrorToUserMessage(error, 'ErrorBoundary');
-    return { hasError: true, error, userMessage };
+    return { hasError: true, userMessage };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
