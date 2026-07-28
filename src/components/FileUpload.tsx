@@ -1372,7 +1372,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                         }
                       }}
                     >
-                      Remove
+                      Delete
                     </a>
                   </td>
                 </tr>
