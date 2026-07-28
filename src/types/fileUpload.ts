@@ -8,10 +8,6 @@ export interface UploadedFile {
   fileContentType: string;
   fileSizeBytes: number;
   uploadedAtTimestamp: string;
-  scanStatus?: string | null;
-  scanResult?: string | null;
-  virusName?: string | null;
-  scannedAt?: string | null;
 }
 
 export interface ApplicationDocument {
@@ -26,15 +22,4 @@ export interface ApplicationDocument {
   addedAt: string;
   description?: string;
   consultationId?: string;
-}
-
-export interface FileScanStatus {
-  fileId: string;
-  s3Key: string;
-  bucketName: string;
-  scanStatus: string;
-  scanResult: string | null;
-  virusName: string | null;
-  scannedAt: string | null;
-  userMessage: string;
 }

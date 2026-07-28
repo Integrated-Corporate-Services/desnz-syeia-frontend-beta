@@ -43,9 +43,6 @@ export async function downloadS3FileOnSameTab(keyOrUrl: string) {
     }
   } catch (err) {
     logger.error('Download error on same tab', { keyOrUrl, error: err });
-    if (err instanceof Error && err.message) {
-      throw err;
-    }
     throw new Error('Failed to download file on same tab');
   }
 }
