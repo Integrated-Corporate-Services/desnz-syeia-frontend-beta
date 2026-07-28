@@ -6,6 +6,7 @@ export interface FileScanBannerProps {
   fileCount?: number;
   fileName?: string;
   isQueued?: boolean;
+  justCompletedClean?: boolean;
 }
 
 export const FileScanBanner: React.FC<FileScanBannerProps> = ({
@@ -14,8 +15,15 @@ export const FileScanBanner: React.FC<FileScanBannerProps> = ({
   fileCount = 1,
   fileName,
   isQueued = false,
+  justCompletedClean = false,
 }) => {
-  if (!isScanning && !isQueued && scanStatus !== 'PROCESSING' && scanStatus !== 'INFECTED') {
+  if (
+    !isScanning &&
+    !isQueued &&
+    !justCompletedClean &&
+    scanStatus !== 'PROCESSING' &&
+    scanStatus !== 'INFECTED'
+  ) {
     return null;
   }
 
@@ -39,6 +47,30 @@ export const FileScanBanner: React.FC<FileScanBannerProps> = ({
           <p className="govuk-body">
             This file has been quarantined and cannot be accepted. Please remove the file and upload a clean copy.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (justCompletedClean && !isScanning && !isQueued && scanStatus !== 'PROCESSING') {
+    return (
+      <div
+        className="govuk-notification-banner govuk-notification-banner--success govuk-!-margin-bottom-4"
+        role="status"
+        aria-live="polite"
+        aria-labelledby="file-scan-complete-title"
+        data-module="govuk-notification-banner"
+      >
+        <div className="govuk-notification-banner__header">
+          <h2 className="govuk-notification-banner__title" id="file-scan-complete-title">
+            Scan complete
+          </h2>
+        </div>
+        <div className="govuk-notification-banner__content">
+          <p className="govuk-notification-banner__heading">
+            {fileName ? `"${fileName}" passed the virus scan.` : 'Your file passed the virus scan.'}
+          </p>
+          <p className="govuk-body">It is now available to view and download.</p>
         </div>
       </div>
     );
