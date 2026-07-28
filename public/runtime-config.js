@@ -13,12 +13,6 @@ window._env_ = {
   "VITE_SESSION_WARNING_SECONDS": "120",
   "VITE_LOGIN_DISABLED": "false",
   "VITE_DUMMY_USER_TYPE": "developer",
-  "VITE_AUTH_LOGIN_URL": "",
-  "VITE_LOGOUT_URL": "",
-  "VITE_SIGNED_OUT_PATH": "/signed-out",
-  "VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS": "300",
-  "VITE_S3_URL_EXPIRY_SECONDS": "3600",
-  "VITE_SANDBOX_ROUTES_ENABLED": "false",
   "VITE_DISABLED_FORM_TYPES": "",
   "VITE_SERVICE_NAME": "SYEIA",
   "VITE_DETAILED_FEEDBACK_SURVEY_URL": "#",
@@ -28,5 +22,6 @@ window._env_ = {
   "VITE_RUM_REGION": "eu-west-2",
   "VITE_AWS_REGION": "eu-west-2",
   "VITE_SRI_MODE": "report",
+  "VITE_TRUSTED_ORIGIN": "",
   "MODE": "development"
 };

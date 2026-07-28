@@ -20,4 +20,4 @@ export const SESSION_TIMEOUT = parseEnvInt(getRuntimeEnv('VITE_SESSION_TIMEOUT_S
 export const SESSION_WARNING = parseEnvInt(getRuntimeEnv('VITE_SESSION_WARNING_SECONDS'), 120);
 
 // Redirect path after session timeout
-export const SIGNED_OUT_PAGE = getRuntimeEnv('VITE_SIGNED_OUT_PATH', '/signed-out');
+export const SIGNED_OUT_PAGE = '/signed-out';

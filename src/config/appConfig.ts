@@ -1,4 +1,4 @@
-import { getRuntimeEnv, getMode, parseEnvBoolean, parseEnvInt, isDevelopmentMode, isProductionMode } from './runtimeEnv';
+import { getRuntimeEnv, getMode, parseEnvBoolean, parseEnvInt, isDevelopmentMode } from './runtimeEnv';
 
 type Environment = 'development' | 'staging' | 'production';
 
@@ -17,7 +17,6 @@ interface AppConfig {
   environment: Environment;
   api: ApiEndpoints;
   features: {
-    sandboxRoutes: boolean;
     analytics: {
       gtm: {
         enabled: boolean;
@@ -32,10 +31,6 @@ interface AppConfig {
   session: {
     timeoutSeconds: number;
     warningSeconds: number;
-  };
-  s3: {
-    urlExpirySeconds: number;
-    refreshBeforeExpirySeconds: number;
   };
 }
 
@@ -80,7 +75,6 @@ class ConfigService {
         api: `${baseUrl}/api`,
       },
       features: {
-        sandboxRoutes: isDevelopment && parseEnvBoolean(getRuntimeEnv('VITE_SANDBOX_ROUTES_ENABLED')),
         analytics: {
           gtm: {
             enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_GTM')),
@@ -96,10 +90,7 @@ class ConfigService {
         timeoutSeconds: parseEnvInt(getRuntimeEnv('VITE_SESSION_TIMEOUT_SECONDS'), 1800),
         warningSeconds: parseEnvInt(getRuntimeEnv('VITE_SESSION_WARNING_SECONDS'), 120),
       },
-      s3: {
-        urlExpirySeconds: parseEnvInt(getRuntimeEnv('VITE_S3_URL_EXPIRY_SECONDS'), 1800),
-        refreshBeforeExpirySeconds: parseEnvInt(getRuntimeEnv('VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS'), 120),
-      },
+      
     };
   }
 
@@ -191,9 +182,7 @@ class ConfigService {
     return this.config.session;
   }
 
-  public getS3Config() {
-    return this.config.s3;
-  }
+
 
   public getConfig(): Readonly<AppConfig> {
     return Object.freeze({ ...this.config });
@@ -203,8 +192,6 @@ class ConfigService {
 export const configService = ConfigService.getInstance();
 
 export const getApiBaseUrl = () => configService.getApiBaseUrl();
-export const getAuthLoginUrl = () => configService.getAuthLoginUrl();
-export const getAuthLogoutUrl = () => configService.getAuthLogoutUrl();
 export const buildBackendUrl = (path: string) => configService.buildBackendUrl(path);
 export const getApiUrl = (path: string) => configService.getApiUrl(path);
 export const isProduction = () => configService.isProduction();
