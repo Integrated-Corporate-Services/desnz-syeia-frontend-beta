@@ -578,7 +578,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                         e.preventDefault();
                         if (file.s3Key) {
                           try {
-                            await downloadS3FileOnSameTab(file.s3Key);
+                            await downloadS3FileOnSameTab(file.s3Key, file.id);
                           } catch (error) {
                             logger.error('Failed to download file', {
                               s3Key: file.s3Key,

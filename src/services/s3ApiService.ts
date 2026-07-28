@@ -180,8 +180,6 @@ export interface FileScanStatusEntry {
   scanStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null;
   scanResult: 'CLEAN' | 'INFECTED' | null;
   virusName: string | null;
-  scannedAt: string | null;
-  bucketName: string | null;
 }
 
 export async function getFileScanStatuses(fileIds: string[]): Promise<{ statuses: FileScanStatusEntry[] }> {
@@ -207,7 +205,7 @@ export async function getFileScanStatuses(fileIds: string[]): Promise<{ statuses
  * @param filename - S3 key/filename
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
-export async function getPresignedGetUrlForDownload(filename: string): Promise<string> {
+export async function getPresignedGetUrlForDownload(filename: string, fileId?: string): Promise<string> {
 
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url/download'), {
@@ -217,7 +215,7 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ filename })
+    body: JSON.stringify({ filename, fileId })
   });
   if (!res.ok) throw new Error('Failed to get presigned download URL');
   const { url } = await res.json();
