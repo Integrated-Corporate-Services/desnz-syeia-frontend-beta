@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import FileUpload from '../../../../components/FileUpload';
+import React, { useRef, useState } from "react";
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 // Use the advanced FileUpload component from ProjectOverview
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
@@ -40,6 +40,7 @@ const ApplicationLandDetails: React.FC = () => {
 	const [publicRoad, setPublicRoad] = useState("");
 	const [fileSiteUpload, setFileSiteUpload] = useState<File | null>(null);
 	const [errors, setErrors] = useState<{[key:string]:string}>({});
+	const fileUploadRef = useRef<FileUploadHandle>(null);
 
 	// File upload handlers
 	const handleFileSiteUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +72,10 @@ const ApplicationLandDetails: React.FC = () => {
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+		if (fileUploadRef.current?.isBusy()) {
+			setErrors({ fileUpload1: 'File scan is in progress. Wait for the scan to finish before continuing.' });
+			return;
+		}
 		if (validate()) {
 			// Submit logic here
 			// ...
@@ -136,6 +141,7 @@ const ApplicationLandDetails: React.FC = () => {
 									Upload any documents to support your application
 								</label>
 								<FileUpload
+									ref={fileUploadRef}
 									title=""
 																	  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_APPLICATION_LAND_DETAILS}`}
 									uploadedFiles={uploadedFiles}									uploadImmediately={true}									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {

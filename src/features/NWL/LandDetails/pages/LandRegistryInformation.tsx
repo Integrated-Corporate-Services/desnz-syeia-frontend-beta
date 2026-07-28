@@ -80,6 +80,12 @@ const LandRegistryInformation: React.FC = () => {
   const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 
   const handleSaveAndContinue = async () => {
+    if (fileUploadRef.current?.isBusy()) {
+      setFileUploadError('File scan is in progress. Wait for the scan to finish before continuing.');
+      window.scrollTo(0, 0);
+      return;
+    }
+
     // Validate both fields simultaneously and collect all errors
     const titleNumberValid = validateTitleNumber(titleNumber);
     
@@ -106,9 +112,16 @@ const LandRegistryInformation: React.FC = () => {
     try {
       // Trigger file upload if there are pending files
       if (fileUploadRef.current && pendingFiles.length > 0) {
-        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = 
-          await fileUploadRef.current.triggerUpload();
-        
+        const result = await fileUploadRef.current.triggerUpload();
+
+        if (result.scanErrors.length > 0) {
+          setFileValidationErrors(result.scanErrors);
+          window.scrollTo(0, 0);
+          return;
+        }
+
+        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = result;
+
         if (newUploadedFiles.length > 0) {
           await updateLandDetails({
             land_registry_title_number: titleNumber,

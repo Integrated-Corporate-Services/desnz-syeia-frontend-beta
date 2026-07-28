@@ -175,13 +175,32 @@ const ConsultationRequestPage: React.FC = () => {
   const handleSaveAndContinue = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (fileUploadRef.current?.isBusy()) {
+      setFileValidationErrors(['File scan is in progress. Wait for the scan to finish before continuing.']);
+      const errorSummary = document.getElementById('error-summary');
+      if (errorSummary) {
+        errorSummary.focus();
+        errorSummary.scrollIntoView({ block: 'start' });
+      }
+      return;
+    }
+
     try {
       let newlyUploadedFiles: UploadedFile[] = [];
       let newlyUploadedDocuments: ApplicationDocument[] = [];
-      
+
       if (fileUploadRef.current && pendingFiles.length > 0) {
         log.debug('[ConsultationRequestPage] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
         const result = await fileUploadRef.current.triggerUpload();
+        if (result.scanErrors.length > 0) {
+          setFileValidationErrors(result.scanErrors);
+          const errorSummary = document.getElementById('error-summary');
+          if (errorSummary) {
+            errorSummary.focus();
+            errorSummary.scrollIntoView({ block: 'start' });
+          }
+          return;
+        }
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
         log.info('[ConsultationRequestPage] Pending files uploaded successfully');

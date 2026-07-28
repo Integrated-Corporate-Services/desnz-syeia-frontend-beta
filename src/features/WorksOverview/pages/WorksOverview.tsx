@@ -199,8 +199,14 @@ const WorksOverview: React.FC = () => {
   });
 
   const uploadPendingFiles = async () => {
+    if (roadClosureFileUploadRef.current?.isBusy()) {
+      throw new Error('File scan is in progress. Wait for the scan to finish before continuing.');
+    }
     if (roadClosureFileUploadRef.current && pendingRoadClosureFiles.length > 0) {
-      await roadClosureFileUploadRef.current.triggerUpload();
+      const result = await roadClosureFileUploadRef.current.triggerUpload();
+      if (result.scanErrors.length > 0) {
+        throw new Error(result.scanErrors.join(' '));
+      }
     }
   };
 
@@ -223,8 +229,9 @@ const WorksOverview: React.FC = () => {
     try {
       await persistForm();
       navigate(getNextPageUrl(TASK_NAMES.WORKS_OVERVIEW, effectiveApplicationId));
-    } catch {
-      setErrors([{ field: 'generalComments', message: ASSET_ERROR_MESSAGES.generalCommentsFailed }]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ASSET_ERROR_MESSAGES.generalCommentsFailed;
+      setErrors([{ field: 'generalComments', message }]);
     }
   };
 

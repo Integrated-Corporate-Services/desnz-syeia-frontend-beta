@@ -68,6 +68,12 @@ const UnregisteredLandDetails: React.FC = () => {
   };
 
   const handleSaveAndContinue = async () => {
+    if (fileUploadRef.current?.isBusy()) {
+      setFileValidationErrors(['File scan is in progress. Wait for the scan to finish before continuing.']);
+      window.scrollTo(0, 0);
+      return;
+    }
+
     const isValid = validateUnregisteredLand(explanation);
 
     if (!isValid) {
@@ -80,9 +86,15 @@ const UnregisteredLandDetails: React.FC = () => {
     try {
       // Trigger file upload if there are pending files
       if (fileUploadRef.current && pendingFiles.length > 0) {
-        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = 
+        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs, scanErrors } =
           await fileUploadRef.current.triggerUpload();
-        
+
+        if (scanErrors.length > 0) {
+          setFileValidationErrors(scanErrors);
+          window.scrollTo(0, 0);
+          return;
+        }
+
         if (newUploadedFiles.length > 0) {
           await updateLandDetails({
             unregistered_land_explanation: explanation,

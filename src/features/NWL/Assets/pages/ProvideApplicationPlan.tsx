@@ -54,6 +54,12 @@ const ProvideApplicationPlan: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    if (fileUploadRef.current?.isBusy()) {
+      setError('File scan is in progress. Wait for the scan to finish before continuing.');
+      setShowErrorSummary(true);
+      return;
+    }
+
     // Track newly uploaded files
     let newUploadedFiles: UploadedFile[] = [];
     let newApplicationDocuments: ApplicationDocument[] = [];
@@ -67,6 +73,12 @@ const ProvideApplicationPlan: React.FC = () => {
         });
 
         const result = await fileUploadRef.current.triggerUpload();
+        if (result.scanErrors.length > 0) {
+          setFileValidationErrors(result.scanErrors);
+          setError(result.scanErrors[0]);
+          setShowErrorSummary(true);
+          return;
+        }
         if (result && result.uploadedFiles.length > 0) {
           newUploadedFiles = result.uploadedFiles;
           newApplicationDocuments = result.applicationDocuments;

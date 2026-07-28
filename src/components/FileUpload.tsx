@@ -43,8 +43,16 @@ export interface FileUploadProps {
 }
 
 export interface FileUploadHandle {
-  triggerUpload: () => Promise<{ uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[] }>;
+  triggerUpload: () => Promise<{
+    uploadedFiles: UploadedFile[];
+    applicationDocuments: ApplicationDocument[];
+    scanErrors: string[];
+  }>;
   getPendingFiles: () => File[];
+  /** True while a file is still being uploaded and/or virus-scanned (covers both
+   * uploadImmediately and deferred modes). Callers should check this before
+   * navigating away, since triggerUpload() is a no-op when uploadImmediately=true. */
+  isBusy: () => boolean;
 }
 
 const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
@@ -99,9 +107,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         }
         return result;
       }
-      return { uploadedFiles: [], applicationDocuments: [] };
+      return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     },
     getPendingFiles: () => pendingFiles,
+    isBusy: () => isScanning,
   }));
 
   // Notify parent when pending files change
@@ -321,11 +330,15 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   };
 
   // Core upload logic, called instantly after file select/drop
-  const uploadFiles = async (uploadFiles: File[]): Promise<{ uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[] }> => {
+  const uploadFiles = async (uploadFiles: File[]): Promise<{
+    uploadedFiles: UploadedFile[];
+    applicationDocuments: ApplicationDocument[];
+    scanErrors: string[];
+  }> => {
 
     if (uploadFiles.length === 0) {
       setStatuses(["No files selected"]);
-      return { uploadedFiles: [], applicationDocuments: [] };
+      return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     }
     setStatuses(Array(uploadFiles.length).fill("Requesting presigned URLs..."));
     setIsScanning(true);
@@ -342,7 +355,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         setStatuses(
           Array(uploadFiles.length).fill("Failed to get presigned URLs")
         );
-        return { uploadedFiles: [], applicationDocuments: [] };
+        return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
       }
       const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
@@ -496,14 +509,14 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
-      return { uploadedFiles, applicationDocuments };
+      return { uploadedFiles, applicationDocuments, scanErrors };
     } catch (err) {
       setStatuses(
         Array(uploadFiles.length).fill(
           "Error: " + (err instanceof Error ? err.message : String(err))
         )
       );
-      return { uploadedFiles: [], applicationDocuments: [] };
+      return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     } finally {
       setIsScanning(false);
     }

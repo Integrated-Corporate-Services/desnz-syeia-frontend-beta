@@ -35,7 +35,7 @@ const logger = createLogger('EvidenceOfNegotiations');
  */
 const EvidenceOfNegotiations: React.FC = () => {
   const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
-  const { errors, validateComments } = useFormValidation();
+  const { errors, setErrors, validateComments } = useFormValidation();
   const { navigateToTaskList } = useNegotiationsNavigation(appId);
   const { user } = useAuthUserContext();
   const userId = user?.user_id;
@@ -127,6 +127,12 @@ const EvidenceOfNegotiations: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (fileUploadRef.current?.isBusy()) {
+      setErrors({ fileUpload: 'File scan is in progress. Wait for the scan to finish before continuing.' });
+      window.scrollTo(0, 0);
+      return;
+    }
+
     // Capture newly uploaded files (if any)
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
@@ -134,6 +140,15 @@ const EvidenceOfNegotiations: React.FC = () => {
     // Upload pending files first and capture the result
     if (fileUploadRef.current && pendingFiles.length > 0) {
       const uploadResult = await fileUploadRef.current.triggerUpload();
+      if (uploadResult.scanErrors.length > 0) {
+        const scanErrors: Record<string, string> = {};
+        uploadResult.scanErrors.forEach((message, index) => {
+          scanErrors[`fileUpload-${index}`] = message;
+        });
+        setErrors(scanErrors);
+        window.scrollTo(0, 0);
+        return;
+      }
       newlyUploadedFiles = uploadResult.uploadedFiles;
       newlyUploadedDocuments = uploadResult.applicationDocuments;
     }

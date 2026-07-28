@@ -54,14 +54,26 @@ const UploadSiteInformation: React.FC = () => {
   const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 
   const handleSaveAndContinue = async () => {
+    if (fileUploadRef.current?.isBusy()) {
+      setFileValidationErrors(['File scan is in progress. Wait for the scan to finish before continuing.']);
+      window.scrollTo(0, 0);
+      return;
+    }
+
     setIsSaving(true);
 
     try {
       // Trigger file upload if there are pending files
       if (fileUploadRef.current && pendingFiles.length > 0) {
-        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = 
+        const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs, scanErrors } =
           await fileUploadRef.current.triggerUpload();
-        
+
+        if (scanErrors.length > 0) {
+          setFileValidationErrors(scanErrors);
+          window.scrollTo(0, 0);
+          return;
+        }
+
         if (newUploadedFiles.length > 0) {
           await updateLandDetails({
             uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],

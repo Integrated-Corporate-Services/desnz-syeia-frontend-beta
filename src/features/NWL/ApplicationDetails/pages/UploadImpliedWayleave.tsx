@@ -95,12 +95,23 @@ const UploadImpliedWayleave: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (fileUploadRef.current?.isBusy()) {
+      setFileValidationErrors(['File scan is in progress. Wait for the scan to finish before continuing.']);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
-    
+
     if (fileUploadRef.current && pendingFiles.length > 0) {
       try {
         const result = await fileUploadRef.current.triggerUpload();
+        if (result.scanErrors.length > 0) {
+          setFileValidationErrors(result.scanErrors);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
         

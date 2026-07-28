@@ -189,15 +189,34 @@ const ConsultationResponse2: React.FC = () => {
     };
 
     const handleSaveAndContinue = async () => {
+        if (fileUploadRef.current?.isBusy()) {
+            setFileValidationErrors(['File scan is in progress. Wait for the scan to finish before continuing.']);
+            const errorSummary = document.getElementById('error-summary');
+            if (errorSummary) {
+                errorSummary.focus();
+                errorSummary.scrollIntoView({  block: 'start' });
+            }
+            return;
+        }
+
         try {
             let newlyUploadedFiles: UploadedFile[] = [];
             let newlyUploadedDocuments: ApplicationDocument[] = [];
-            
+
             if (fileUploadRef.current && pendingFiles.length > 0) {
                 const result = await fileUploadRef.current.triggerUpload();
+                if (result.scanErrors.length > 0) {
+                    setFileValidationErrors(result.scanErrors);
+                    const errorSummary = document.getElementById('error-summary');
+                    if (errorSummary) {
+                        errorSummary.focus();
+                        errorSummary.scrollIntoView({  block: 'start' });
+                    }
+                    return;
+                }
                 newlyUploadedFiles = result.uploadedFiles;
                 newlyUploadedDocuments = result.applicationDocuments;
-                                
+
                 setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
                 setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
             }

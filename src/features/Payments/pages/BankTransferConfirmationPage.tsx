@@ -126,6 +126,15 @@ const BankTransferConfirmationPage: React.FC = () => {
   // No on-mount create/upsert call — payment will be created/submitted when user clicks Submit.
 
   const handleSubmit = async () => {
+    if (fileUploadRef.current?.isBusy()) {
+      setError('File scan is in progress. Wait for the scan to finish before continuing.');
+      setTimeout(() => {
+        const errorSummary = document.querySelector('.govuk-error-summary');
+        if (errorSummary) errorSummary.scrollIntoView();
+      }, 0);
+      return;
+    }
+
     // Transaction number is optional; invoice number and amount come from the payment journey
 
     if (!effectiveInvoiceNumber) {
@@ -163,6 +172,18 @@ const BankTransferConfirmationPage: React.FC = () => {
       let applicationDocuments: any[] = [];
       if (fileUploadRef.current && pendingFiles.length > 0) {
         const uploadResult = await fileUploadRef.current.triggerUpload();
+        if (uploadResult.scanErrors.length > 0) {
+          setFileValidationErrors(uploadResult.scanErrors);
+          setLoading(false);
+          setTimeout(() => {
+            const errorSummary = document.querySelector('.govuk-error-summary');
+            if (errorSummary) {
+              (errorSummary as HTMLElement).focus?.();
+              errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 0);
+          return;
+        }
         uploadedFiles = uploadResult.uploadedFiles || [];
         applicationDocuments = uploadResult.applicationDocuments || [];
       }
