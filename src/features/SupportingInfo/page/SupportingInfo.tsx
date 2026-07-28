@@ -93,7 +93,7 @@ const SupportingInfo: React.FC = () => {
   useEffect(() => {
     if (hasBindDataRef.current || !supportingInfo) return;
     
-    if (supportingInfo && applicationId && supportingInfo.application_id === applicationId) {
+    if (applicationId && supportingInfo.application_id === applicationId) {
       hasBindDataRef.current = true;
       const {
         wayleaves_obtained,
