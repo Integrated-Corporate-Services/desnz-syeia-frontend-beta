@@ -5,9 +5,6 @@
 import { buildBackendUrl } from '../utils/apiConfig';
 import { fetchCsrfToken, getCsrfToken, getCsrfHeaders } from '../utils/csrf';
 
-// Configuration from environment variables
-const S3_URL_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_URL_EXPIRY_SECONDS) || 1800; // Default: 30 minutes
-const S3_REFRESH_BEFORE_EXPIRY_SECONDS = Number(import.meta.env.VITE_S3_REFRESH_BEFORE_EXPIRY_SECONDS) || 120; // Default: 2 minutes
 
 async function csrfJsonHeaders(): Promise<Record<string, string>> {
   // Reuse the cached CSRF token to avoid an extra round-trip on every request;
@@ -336,13 +333,6 @@ export async function waitForFilesScan(
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
 export async function getPresignedGetUrl(filename: string): Promise<string> {
-  const cached = urlCache.get(filename);
-  const now = Date.now();
-
-  // Return cached URL if still valid (with buffer before expiry)
-  if (cached && cached.expiresAt > now + (S3_REFRESH_BEFORE_EXPIRY_SECONDS * 1000)) {
-    return cached.url;
-  }
 
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url'), {
@@ -364,11 +354,6 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   }
   const { url } = await res.json();
   
-  const expiresAt = now + (S3_URL_EXPIRY_SECONDS * 1000);
-
-  // Cache the URL
-  urlCache.set(filename, { url, expiresAt });
-
   return url;
 }
 
@@ -415,14 +400,6 @@ export async function deleteFileCompletely(fileId: string, key: string) {
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
 export async function getPresignedGetUrlForDownload(filename: string): Promise<string> {
-  const cacheKey = `download_${filename}`; // Separate cache for download URLs
-  const cached = urlCache.get(cacheKey);
-  const now = Date.now();
-
-  // Return cached URL if still valid (with 2 minute buffer before expiry)
-  if (cached && cached.expiresAt > now + 120000) {
-    return cached.url;
-  }
 
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url/download'), {
@@ -443,11 +420,6 @@ export async function getPresignedGetUrlForDownload(filename: string): Promise<s
     }
   }
   const { url } = await res.json();
-  
-  const expiresAt = now + (S3_URL_EXPIRY_SECONDS * 1000);
-
-  // Cache the URL
-  urlCache.set(cacheKey, { url, expiresAt });
 
   return url;
 }
