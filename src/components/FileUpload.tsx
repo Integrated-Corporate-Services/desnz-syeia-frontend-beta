@@ -12,7 +12,7 @@ import { validateFiles, } from "../utils/fileUploadValidation";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
 import FileScanBanner from "./FileScanBanner";
-import { useFileScanStatuses, TrackedFileScanState } from "../hooks/useFileScanStatuses";
+import { waitForScanResult } from "../utils/fileScanPolling";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { DEMO_USER_ID } from "../constants/demo";
@@ -82,37 +82,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [statuses, setStatuses] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
-  const { statuses: scanStatuses, trackFileIds, acknowledgeCompletion } = useFileScanStatuses();
 
   const files = internalFiles;
-
-  // Track every already-uploaded file's real DB scan status (covers files that
-  // finished scanning before this page was loaded, and resumes tracking on refresh).
-  useEffect(() => {
-    const ids = (uploadedFiles || []).map((f) => f.id).filter(Boolean);
-    if (ids.length > 0) {
-      trackFileIds(ids);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadedFiles]);
-
-  // Auto-dismiss the brief "scan complete" success banner a few seconds after
-  // a tracked file transitions to COMPLETED + CLEAN.
-  useEffect(() => {
-    const justCompletedIds = Array.from(scanStatuses.values())
-      .filter((entry) => entry.justCompletedClean)
-      .map((entry) => entry.fileId);
-
-    if (justCompletedIds.length === 0) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      justCompletedIds.forEach((id) => acknowledgeCompletion(id));
-    }, 4000);
-
-    return () => clearTimeout(timer);
-  }, [scanStatuses, acknowledgeCompletion]);
 
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
@@ -377,6 +348,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
+      const scanErrors: string[] = [];
 
       for (let i = 0; i < uploadFiles.length; i++) {
         const urlObj = data.urls[i];
@@ -425,37 +397,64 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               s3Key: confirmResponse.s3Key
             });
 
-            const uploadedFile: UploadedFile = {
-              id: confirmResponse.fileId,
-              storageProvider: "aws_s3",
-              s3Key: confirmResponse.s3Key,
-              bucketName: confirmResponse.bucketName,
-              virtualFolder: confirmResponse.virtualFolder,
-              filename: confirmResponse.fileName,
-              fileContentType: confirmResponse.contentType,
-              fileSizeBytes: confirmResponse.fileSizeBytes,
-              uploadedAtTimestamp: confirmResponse.uploadedAt,
-            };
-            uploadedFiles.push(uploadedFile);
-            // Start real-time scan-status polling the instant the file is confirmed,
-            // rather than waiting for the whole batch to finish uploading.
-            trackFileIds([uploadedFile.id]);
+            // Validation-first, then virus scan: the file is already validated and
+            // uploaded at this point, so wait here for the real ClamAV scan result
+            // before letting it appear anywhere in the "Documents uploaded" list.
+            newStatuses[i] = "Scanning for viruses...";
+            setStatuses([...newStatuses]);
 
-            const applicationDocument: ApplicationDocument = {
-              documentId: confirmResponse.documentId,
-              applicationId: applicationId || "",
-              fileId: confirmResponse.fileId,
-              category: category || "",
-              subCategory: subCategory || "",
-              title: confirmResponse.fileName,
-              virtualFolder: confirmResponse.virtualFolder,
-              addedBy: userId,
-              addedAt: confirmResponse.uploadedAt,
-              consultationId: consultationId || undefined,
-            };
-            applicationDocuments.push(applicationDocument);
+            const scanOutcome = await waitForScanResult(confirmResponse.fileId);
+            const displayName = confirmResponse.fileName.split('/').pop() || confirmResponse.fileName;
 
-            newStatuses[i] = "Upload complete";
+            if (scanOutcome.scanStatus === 'COMPLETED' && scanOutcome.scanResult === 'INFECTED') {
+              logger.warn('Uploaded file failed virus scan', {
+                fileId: confirmResponse.fileId,
+                fileName: confirmResponse.fileName,
+                virusName: scanOutcome.virusName,
+              });
+              scanErrors.push(
+                `${displayName} contains a virus${scanOutcome.virusName ? ` (${scanOutcome.virusName})` : ''} and could not be uploaded. Remove the file and try again.`
+              );
+              newStatuses[i] = "Virus detected";
+            } else if (scanOutcome.scanStatus !== 'COMPLETED') {
+              logger.warn('Uploaded file scan did not complete', {
+                fileId: confirmResponse.fileId,
+                fileName: confirmResponse.fileName,
+                scanStatus: scanOutcome.scanStatus,
+              });
+              scanErrors.push(`${displayName} could not be checked for viruses. Try uploading it again.`);
+              newStatuses[i] = "Scan failed";
+            } else {
+              const uploadedFile: UploadedFile = {
+                id: confirmResponse.fileId,
+                storageProvider: "aws_s3",
+                s3Key: confirmResponse.s3Key,
+                bucketName: confirmResponse.bucketName,
+                virtualFolder: confirmResponse.virtualFolder,
+                filename: confirmResponse.fileName,
+                fileContentType: confirmResponse.contentType,
+                fileSizeBytes: confirmResponse.fileSizeBytes,
+                uploadedAtTimestamp: confirmResponse.uploadedAt,
+              };
+              uploadedFiles.push(uploadedFile);
+
+              const applicationDocument: ApplicationDocument = {
+                documentId: confirmResponse.documentId,
+                applicationId: applicationId || "",
+                fileId: confirmResponse.fileId,
+                category: category || "",
+                subCategory: subCategory || "",
+                title: confirmResponse.fileName,
+                virtualFolder: confirmResponse.virtualFolder,
+                addedBy: userId,
+                addedAt: confirmResponse.uploadedAt,
+                consultationId: consultationId || undefined,
+              };
+              applicationDocuments.push(applicationDocument);
+
+              newStatuses[i] = "Upload complete";
+            }
+
             setStatuses([...newStatuses]);
 
             setInternalFiles((prevFiles: File[]) => {
@@ -492,6 +491,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             error: err
           });
         }
+      }
+
+      if (onValidationErrors) {
+        onValidationErrors(scanErrors);
       }
 
       if (onUploaded) {
@@ -548,134 +551,62 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
   };
 
-  // Aggregate the live per-file scan state (from polling) across every file this
-  // instance of FileUpload is responsible for, to drive the banner and heading.
-  const uploadedIds = (uploadedFiles || []).map((f) => f.id).filter(Boolean);
-  const trackedEntries = uploadedIds
-    .map((id) => scanStatuses.get(id))
-    .filter((entry): entry is TrackedFileScanState => !!entry);
-
-  const anyInfected = trackedEntries.find(
-    (e) => e.scanStatus === 'COMPLETED' && e.scanResult === 'INFECTED'
-  );
-  const anyProcessing = trackedEntries.some(
-    (e) => e.scanStatus === 'PENDING' || e.scanStatus === 'PROCESSING'
-  ) || uploadedIds.length > trackedEntries.length; // ids not yet resolved are still "scanning"
-  const anyJustCompletedClean = trackedEntries.some((e) => e.justCompletedClean);
-
-  const infectedFileName = anyInfected
-    ? uploadedFiles?.find((f) => f.id === anyInfected.fileId)?.filename?.split('/').pop()
-    : undefined;
-
-  const scanningCount =
-    trackedEntries.filter((e) => e.scanStatus === 'PENDING' || e.scanStatus === 'PROCESSING').length +
-    (uploadedIds.length - trackedEntries.length);
-  const cleanCount = trackedEntries.filter(
-    (e) => e.scanStatus === 'COMPLETED' && e.scanResult === 'CLEAN'
-  ).length;
-  const infectedCount = trackedEntries.filter(
-    (e) => e.scanStatus === 'COMPLETED' && e.scanResult === 'INFECTED'
-  ).length;
-  const failedCount = trackedEntries.filter(
-    (e) => e.scanStatus === 'FAILED' || e.scanStatus === 'TIMED_OUT'
-  ).length;
-
-  const summaryParts: string[] = [];
-  if (scanningCount > 0) summaryParts.push(`${scanningCount} scanning`);
-  if (cleanCount > 0) summaryParts.push(`${cleanCount} clean`);
-  if (infectedCount > 0) summaryParts.push(`${infectedCount} infected`);
-  if (failedCount > 0) summaryParts.push(`${failedCount} scan failed`);
-  const documentsSummary = summaryParts.join(', ');
-
-  const renderScanTag = (entry?: TrackedFileScanState) => {
-    if (entry?.scanStatus === 'COMPLETED' && entry.scanResult === 'CLEAN') {
-      return <strong className="govuk-tag govuk-tag--green">Clean</strong>;
-    }
-    if (entry?.scanStatus === 'COMPLETED' && entry.scanResult === 'INFECTED') {
-      return <strong className="govuk-tag govuk-tag--red">Infected</strong>;
-    }
-    if (entry?.scanStatus === 'FAILED') {
-      return <strong className="govuk-tag govuk-tag--red">Scan failed</strong>;
-    }
-    if (entry?.scanStatus === 'TIMED_OUT') {
-      return <strong className="govuk-tag govuk-tag--grey">Still checking</strong>;
-    }
-    return <strong className="govuk-tag govuk-tag--grey">Scanning…</strong>;
-  };
-
-  const canDownload = (entry?: TrackedFileScanState) =>
-    !!entry && entry.scanStatus === 'COMPLETED' && entry.scanResult === 'CLEAN';
-
   return (
     <div className="gds-upload-container" tabIndex={-1}>
       <FileScanBanner
         isScanning={isScanning}
         isQueued={pendingFiles.length > 0 && !isScanning}
         fileCount={isScanning ? (pendingFiles.length || 1) : pendingFiles.length}
-        scanStatus={anyInfected ? 'INFECTED' : anyProcessing ? 'PROCESSING' : undefined}
-        fileName={infectedFileName}
-        justCompletedClean={!anyInfected && !anyProcessing && anyJustCompletedClean}
       />
 
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
-          <h2 className="govuk-heading-s govuk-!-margin-bottom-2">
-            Documents uploaded{documentsSummary ? ` (${documentsSummary})` : ''}
-          </h2>
+          {/* <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2> */}
           <table className="govuk-table">
             <tbody className="govuk-table__body">
-              {uploadedFiles.map((file: UploadedFile, idx: number) => {
-                const scanEntry = scanStatuses.get(file.id);
-                const downloadable = canDownload(scanEntry);
-                return (
-                  <tr key={file.id} className="govuk-table__row">
-                    <td className="govuk-table__cell">
-                      {downloadable ? (
-                        <a
-                          href="#"
-                          className="govuk-link"
-                          onClick={async (e) => {
-                            e.preventDefault();
-                            if (file.s3Key) {
-                              try {
-                                await downloadS3FileOnSameTab(file.s3Key);
-                              } catch (error) {
-                                logger.error('Failed to download file', {
-                                  s3Key: file.s3Key,
-                                  filename: file.filename,
-                                  error
-                                });
-                              }
-                            }
-                          }}
-                        >
-                          {file.filename ? file.filename.split("/").pop() : ""}
-                        </a>
-                      ) : (
-                        <span>{file.filename ? file.filename.split("/").pop() : ""}</span>
-                      )}
-                    </td>
-                    <td className="govuk-table__cell">{renderScanTag(scanEntry)}</td>
-                    <td className="govuk-table__cell govuk-table__cell--numeric">
-                      <a
-                        href="#"
-                        className="govuk-link"
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          if (onDeleteFile) {
-                            await handleDeleteFile(file.id, file.s3Key);
-                          } else if (onRemoveFile) {
-                            onRemoveFile(idx);
+              {uploadedFiles.map((file: UploadedFile, idx: number) => (
+                <tr key={file.id} className="govuk-table__row">
+                  <td className="govuk-table__cell">
+                    <a
+                      href="#"
+                      className="govuk-link"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (file.s3Key) {
+                          try {
+                            await downloadS3FileOnSameTab(file.s3Key);
+                          } catch (error) {
+                            logger.error('Failed to download file', {
+                              s3Key: file.s3Key,
+                              filename: file.filename,
+                              error
+                            });
                           }
-                        }}
-                      >
-                        Delete
-                      </a>
-                    </td>
-                  </tr>
-                );
-              })}
+                        }
+                      }}
+                    >
+                      {file.filename ? file.filename.split("/").pop() : ""}
+                    </a>
+                  </td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                    <a
+                      href="#"
+                      className="govuk-link"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (onDeleteFile) {
+                          await handleDeleteFile(file.id, file.s3Key);
+                        } else if (onRemoveFile) {
+                          onRemoveFile(idx);
+                        }
+                      }}
+                    >
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

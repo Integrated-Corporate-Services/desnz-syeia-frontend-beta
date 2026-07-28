@@ -137,14 +137,4 @@
   background: inherit;
 }
 
-/* GOV.UK Design System only ships a default (blue) and --error (red) notification
-   banner. There is no official green "success" variant, so this mirrors the same
-   structure using the GOV.UK green (#00703c) used elsewhere for confirmation states. */
-.govuk-notification-banner--success {
-  border-color: #00703c;
-}
-.govuk-notification-banner--success .govuk-notification-banner__header {
-  background-color: #00703c;
-}
-
  
