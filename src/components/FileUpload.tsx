@@ -11,7 +11,6 @@ import { createLogger } from "../utils/logger";
 import { validateFiles, } from "../utils/fileUploadValidation";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
-import FileScanBanner from "./FileScanBanner";
 import { waitForScanResult } from "../utils/fileScanPolling";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
@@ -397,9 +396,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               s3Key: confirmResponse.s3Key
             });
 
-            // Validation-first, then virus scan: the file is already validated and
-            // uploaded at this point, so wait here for the real ClamAV scan result
-            // before letting it appear anywhere in the "Documents uploaded" list.
             newStatuses[i] = "Scanning for viruses...";
             setStatuses([...newStatuses]);
 
@@ -553,12 +549,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
   return (
     <div className="gds-upload-container" tabIndex={-1}>
-      <FileScanBanner
-        isScanning={isScanning}
-        isQueued={pendingFiles.length > 0 && !isScanning}
-        fileCount={isScanning ? (pendingFiles.length || 1) : pendingFiles.length}
-      />
-
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">

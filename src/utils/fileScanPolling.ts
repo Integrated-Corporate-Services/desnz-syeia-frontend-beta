@@ -12,17 +12,6 @@ export interface ScanOutcome {
 
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-/**
- * Polls GET /api/upload/status for a single uploaded file until the virus scan
- * reaches a terminal status (COMPLETED or FAILED), or times out after ~2 minutes.
- * Intended to be awaited inline in the upload flow so a file only becomes visible
- * (added to the documents list) once it has actually passed the scan.
- *
- * @param fileId - uploaded_files id returned by /api/upload/confirm
- * @example
- * const outcome = await waitForScanResult(confirmResponse.fileId);
- * if (outcome.scanStatus === 'COMPLETED' && outcome.scanResult === 'CLEAN') { ... }
- */
 export async function waitForScanResult(fileId: string): Promise<ScanOutcome> {
   for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
     const { statuses } = await getFileScanStatuses([fileId]);
