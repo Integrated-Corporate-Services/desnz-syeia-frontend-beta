@@ -52,7 +52,7 @@ const RouteMapPage: React.FC = () => {
     const applicationId = useGetApplicationId();
   
 
-  const effectiveApplicationId = applicationId 
+  const effectiveApplicationId = applicationId;
 
   // Store
   const { routes, error, fetchRoutes, createRoute, saveRoutes, deleteRoutePoints } = useRoutes();

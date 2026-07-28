@@ -156,7 +156,7 @@ const ProjectOverview = () => {
 	useEffect(() => {
 		if (hasBindDataRef.current || !projectData) return;
 		
-		if (projectData && applicationId && projectData.applicationId === applicationId) {
+		if (applicationId && projectData.applicationId === applicationId) {
 			hasBindDataRef.current = true;
 			const forms = projectData.forms || {};
 			// Handle CPO details: support both string and object (with 'field')

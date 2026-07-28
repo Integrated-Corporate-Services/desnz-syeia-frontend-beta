@@ -233,7 +233,7 @@ const PaymentAmountPage: React.FC = () => {
                 type="button"
                 className="govuk-button"
                 onClick={handleGenerateInvoice}
-                disabled={loading || error !== ''}
+                disabled={error !== ''}
               >
                 Generate Invoice
               </button>
