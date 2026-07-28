@@ -20,11 +20,11 @@ import { DEMO_USER_ID } from "../constants/demo";
 import {
   INFECTED_USER_MESSAGE as SHARED_INFECTED_USER_MESSAGE,
   INFECTED_MULTI_USER_MESSAGE as SHARED_INFECTED_MULTI_USER_MESSAGE,
-  formatCleanUploadSummary,
   getFileBaseName,
   countInfectedListedFiles,
   reconcileVirusWarningAfterDelete,
   reconcileVirusWarningAfterScanBatch,
+  shouldBlockContinueForInfection,
 } from "../utils/fileUploadVirusWarning";
 
 const logger = createLogger('FileUpload');
@@ -44,12 +44,6 @@ type FileScanMeta = {
   virusName?: string | null;
   scannedAt?: string | null;
 };
-
-// Success confirmation shown in the inset notice. Infected/failed outcomes are surfaced
-// as GOV.UK errors (error summary + per-file error message), not in this notice.
-function formatUploadSummary(cleanCount: number): string | null {
-  return formatCleanUploadSummary(cleanCount);
-}
 
 /** Limit parallel S3 PUT + confirm calls (GDS: keep UI responsive under load). */
 const UPLOAD_CONFIRM_CONCURRENCY = 3;
@@ -200,6 +194,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   onValidationErrorsRef.current = onValidationErrors;
 
   const syncBlockedFilesState = () => {
+    // Provisional: mark infected as soon as a block key is added. The
+    // displayFiles/pendingFiles effect is the source of truth and will clear
+    // stale keys once listed/pending state catches up.
     setHasInfectedFiles(blockedFilesRef.current.size > 0);
   };
 
@@ -226,6 +223,42 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     ).length;
 
   /**
+   * Recompute infection gate from what is still on screen / still pending.
+   * While a scan is in flight, keep the gate closed if any block keys remain
+   * (parent list may not have caught up yet). When idle, drop stale keys so
+   * Save and continue re-enables after the last infected file is removed.
+   */
+  const reconcileInfectionGate = (
+    listedFiles: UploadedFile[] | undefined,
+    pending: File[],
+    meta: Record<string, FileScanMeta>,
+    options?: { excludeFileId?: string; scanning?: boolean }
+  ): boolean => {
+    const listedInfectedCount = countInfectedListedFiles(
+      listedFiles ?? [],
+      meta,
+      options?.excludeFileId
+    );
+    const blockedPendingCount = countBlockedPending(pending);
+    const scanning = options?.scanning ?? false;
+
+    if (listedInfectedCount > 0 || blockedPendingCount > 0) {
+      setHasInfectedFiles(true);
+      return true;
+    }
+
+    if (scanning && blockedFilesRef.current.size > 0) {
+      setHasInfectedFiles(true);
+      return true;
+    }
+
+    // Idle and nothing infected remains — clear stale keys and lift the gate.
+    blockedFilesRef.current.clear();
+    setHasInfectedFiles(false);
+    return false;
+  };
+
+  /**
    * After delete/remove: keep the virus warning if any infected file remains;
    * only clear it when none remain. Never wipe the warning while infections exist.
    */
@@ -242,18 +275,22 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       blockedPendingCount: countBlockedPending(pending),
     });
 
-    if (result.keepVirusWarning && result.virusMessage) {
-      setHasInfectedFiles(true);
-      setUploadNoticeMessage(result.virusMessage);
-      virusWarningActiveRef.current = true;
-      onValidationErrorsRef.current?.([result.virusMessage]);
+    const stillBlocked = reconcileInfectionGate(listedFiles, pending, meta, {
+      excludeFileId,
+      scanning: isScanning || isUploadInProgress,
+    });
+
+    if (stillBlocked) {
+      if (result.virusMessage) {
+        setUploadNoticeMessage(result.virusMessage);
+        virusWarningActiveRef.current = true;
+        onValidationErrorsRef.current?.([result.virusMessage]);
+      }
       return;
     }
 
-    // No infected files left — clear virus warning only (keep clean success summary).
-    // Do not wipe the whole block set here; keys were already removed via clearFileInfected.
-    setHasInfectedFiles(blockedFilesRef.current.size > 0);
-    setUploadNoticeMessage(result.successMessage);
+    // No infected files left — clear virus warning and lift Save and continue.
+    setUploadNoticeMessage(null);
     if (virusWarningActiveRef.current) {
       virusWarningActiveRef.current = false;
       onValidationErrorsRef.current?.([]);
@@ -307,16 +344,14 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     });
   }, [uploadedFiles, scanMetaByFileId]);
 
-  // Keep Save and continue blocked whenever any listed file is INFECTED
-  // (covers live scan results and post-refresh enrichment).
+  // Keep Save and continue in sync with listed INFECTED files and pending
+  // blocked files. Prunes stale block keys when idle so deleting the last
+  // infected file re-enables the button without a page refresh.
   useEffect(() => {
-    const uploadedInfected = displayFiles.some(
-      (file) => file.scanResult === "INFECTED"
-    );
-    setHasInfectedFiles(
-      uploadedInfected || blockedFilesRef.current.size > 0
-    );
-  }, [displayFiles]);
+    reconcileInfectionGate(uploadedFiles, pendingFiles, scanMetaByFileId, {
+      scanning: isScanning || isUploadInProgress,
+    });
+  }, [displayFiles, pendingFiles, uploadedFiles, scanMetaByFileId, isScanning, isUploadInProgress]);
 
   // Keep parent Save and continue buttons in sync with scan / infection state.
   const onUploadGateChangeRef = useRef(onUploadGateChange);
@@ -1015,10 +1050,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
           cleanCount += 1;
           newStatuses[i] = "File scanned successfully. Upload complete.";
-          // Only show a clean success summary when nothing in this batch is infected.
-          if (infectedCount === 0) {
-            setUploadNoticeMessage(formatUploadSummary(cleanCount));
-          }
           setStatuses([...newStatuses]);
 
           // Clean verdict - the file is now attached, so drop it from the pending
@@ -1131,7 +1162,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           setUploadNoticeMessage(batchResult.failedMessage);
           onValidationErrors?.([batchResult.failedMessage]);
         } else {
-          setUploadNoticeMessage(batchResult.successMessage);
+          // Clean uploads: no success banner (files appear in the list).
+          setUploadNoticeMessage(null);
         }
       } finally {
         setIsScanning(false);
@@ -1202,7 +1234,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   return (
-    <div className="gds-upload-container" tabIndex={-1} aria-busy={isBusy || undefined}>
+    <div className="gds-upload-container" tabIndex={-1} aria-busy={isBusy}>
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && displayFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">

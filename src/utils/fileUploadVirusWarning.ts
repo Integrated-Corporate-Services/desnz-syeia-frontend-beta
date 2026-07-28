@@ -30,6 +30,18 @@ export function retainVirusScanWarnings(errors: string[]): string[] {
   return errors.filter((error) => isVirusScanWarningMessage(error));
 }
 
+/**
+ * Whether Save and continue must stay disabled for infection.
+ * Uses listed INFECTED files + pending blocked files only — never stale block
+ * keys for files already removed from both the list and the pending queue.
+ */
+export function shouldBlockContinueForInfection(params: {
+  listedInfectedCount: number;
+  blockedPendingCount: number;
+}): boolean {
+  return params.listedInfectedCount > 0 || params.blockedPendingCount > 0;
+}
+
 export type ScanMeta = {
   scanResult?: string | null;
 };
@@ -84,13 +96,10 @@ export function buildInfectedWarningMessage(infectedCount: number): string | nul
     : INFECTED_MULTI_USER_MESSAGE(infectedCount);
 }
 
-export function formatCleanUploadSummary(cleanCount: number): string | null {
-  if (cleanCount <= 0) {
-    return null;
-  }
-  return cleanCount === 1
-    ? '1 file uploaded successfully.'
-    : `${cleanCount} files uploaded successfully.`;
+export function formatCleanUploadSummary(_cleanCount: number): string | null {
+  // Clean uploads are confirmed by appearing in the documents list — do not show
+  // an "N files uploaded successfully" banner.
+  return null;
 }
 
 export type VirusWarningAfterDelete = {

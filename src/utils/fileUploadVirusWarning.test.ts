@@ -6,6 +6,7 @@ import {
   countInfectedListedFiles,
   reconcileVirusWarningAfterDelete,
   reconcileVirusWarningAfterScanBatch,
+  shouldBlockContinueForInfection,
 } from './fileUploadVirusWarning';
 
 describe('countInfectedListedFiles', () => {
@@ -87,7 +88,7 @@ describe('reconcileVirusWarningAfterDelete', () => {
 
     expect(result.keepVirusWarning).toBe(false);
     expect(result.virusMessage).toBeNull();
-    expect(result.successMessage).toBe('1 file uploaded successfully.');
+    expect(result.successMessage).toBeNull();
   });
 
   it('keeps the warning when blocked pending infected files remain', () => {
@@ -101,6 +102,35 @@ describe('reconcileVirusWarningAfterDelete', () => {
     expect(result.keepVirusWarning).toBe(true);
     expect(result.remainingInfected).toBe(3);
     expect(result.virusMessage).toBe(INFECTED_MULTI_USER_MESSAGE(3));
+  });
+});
+
+describe('shouldBlockContinueForInfection', () => {
+  it('blocks while listed infected files remain', () => {
+    expect(
+      shouldBlockContinueForInfection({
+        listedInfectedCount: 1,
+        blockedPendingCount: 0,
+      })
+    ).toBe(true);
+  });
+
+  it('blocks while pending blocked files remain', () => {
+    expect(
+      shouldBlockContinueForInfection({
+        listedInfectedCount: 0,
+        blockedPendingCount: 2,
+      })
+    ).toBe(true);
+  });
+
+  it('allows continue when nothing infected remains', () => {
+    expect(
+      shouldBlockContinueForInfection({
+        listedInfectedCount: 0,
+        blockedPendingCount: 0,
+      })
+    ).toBe(false);
   });
 });
 
@@ -145,7 +175,7 @@ describe('reconcileVirusWarningAfterScanBatch', () => {
     });
 
     expect(result.virusMessage).toBeNull();
-    expect(result.successMessage).toBe('2 files uploaded successfully.');
+    expect(result.successMessage).toBeNull();
   });
 
   it('shows warning from listed infected when block set is empty', () => {
@@ -173,6 +203,6 @@ describe('reconcileVirusWarningAfterScanBatch', () => {
 
     expect(result.virusMessage).toBeNull();
     expect(result.clearParentVirusErrors).toBe(false);
-    expect(result.successMessage).toBe('2 files uploaded successfully.');
+    expect(result.successMessage).toBeNull();
   });
 });
