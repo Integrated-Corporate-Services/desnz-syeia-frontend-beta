@@ -6,11 +6,12 @@ import {
   uploadFileToS3,
   deleteFileCompletely,
   confirmUpload,
-} from "../services/s3ApiService"; 
+} from "../services/s3ApiService";
 import { createLogger } from "../utils/logger";
-import { validateFiles,  } from "../utils/fileUploadValidation";
+import { validateFiles, } from "../utils/fileUploadValidation";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
+import VirusScanBanner from "./FileScanBanner";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { DEMO_USER_ID } from "../constants/demo";
@@ -75,11 +76,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
+  const [isScanning, setIsScanning] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [statuses, setStatuses] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
- 
+
   const files = internalFiles;
 
   // Expose methods to parent component via ref
@@ -89,7 +91,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         logger.info('Manually triggering upload for pending files', {
           pendingFilesCount: pendingFiles.length
         });
-        
+
         const result = await uploadFiles(pendingFiles);
         setPendingFiles([]); // Clear pending files after upload
         if (onPendingFilesChange) {
@@ -109,27 +111,27 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
   }, [pendingFiles, onPendingFilesChange]);
 
-const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    
+
     const newFiles = Array.from(e.target.files);
-    
+
     if (onValidationErrors) {
       onValidationErrors([]);
     }
-    
+
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
       .map(doc => doc.fileId) || [];
-    
+
     const uploadedFilesForThisCategory = uploadedFiles?.filter(
       file => fileIdsForThisCategory.includes(file.id)
     ) || [];
-    
+
     const uploadedFilesSize = uploadedFilesForThisCategory.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0);
-    
+
     const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
-    
+
     logger.info('Starting file validation - Per Page Limit', {
       page: prefix,
       category,
@@ -142,16 +144,16 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       totalExistingSize: uploadedFilesSize + pendingFilesSize,
       files: newFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
     });
-    
+
     const allExistingFiles = [...uploadedFilesForThisCategory, ...pendingFiles];
     const result = await validateFiles(newFiles, allExistingFiles);
-    
+
     logger.info('File validation completed', {
       validFilesCount: result.validFiles.length,
       errorsCount: result.errors.length,
       errors: result.errors
     });
-    
+
 
 
 
@@ -165,10 +167,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         onValidationErrors([]);
       }
     }
-    
+
     if (result.validFiles.length > 0 && result.errors.length === 0) {
       const allFiles = [...files, ...result.validFiles];
-      
+
       if (onFilesChange) {
         onFilesChange(allFiles);
       } else {
@@ -176,7 +178,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       }
       setStatuses(Array(allFiles.length).fill(""));
       setDownloadStatuses(Array(allFiles.length).fill(""));
-      
+
       if (uploadImmediately) {
         // Upload immediately (original behavior)
         setTimeout(() => {
@@ -202,31 +204,31 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         });
       }
     }
-    
+
     e.target.value = "";
   };
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    
+
     const droppedFiles = Array.from(e.dataTransfer.files);
-    
+
     // Immediately clear parent errors when validation starts
     if (onValidationErrors) {
       onValidationErrors([]);
     }
-    
+
     const fileIdsForThisCategory = applicationDocuments
       ?.filter(doc => doc.category === category)
       .map(doc => doc.fileId) || [];
-    
+
     const uploadedFilesForThisCategory = uploadedFiles?.filter(
       file => fileIdsForThisCategory.includes(file.id)
     ) || [];
-  
+
     const uploadedFilesSize = uploadedFilesForThisCategory.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0);
     const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
-    
+
     logger.info('Starting file validation (drop) - Per Page Limit', {
       page: prefix,
       droppedFilesCount: droppedFiles.length,
@@ -235,10 +237,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       pendingFilesSize,
       totalExistingSize: uploadedFilesSize + pendingFilesSize
     });
-    
+
     const allExistingFiles = [...uploadedFilesForThisCategory, ...pendingFiles];
     const result = await validateFiles(droppedFiles, allExistingFiles);
-    
+
     // Handle validation errors
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
@@ -250,10 +252,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         onValidationErrors([]);
       }
     }
-    
-     if (result.validFiles.length > 0 && result.errors.length === 0) {
+
+    if (result.validFiles.length > 0 && result.errors.length === 0) {
       const allFiles = [...files, ...result.validFiles];
-      
+
       if (onFilesChange) {
         onFilesChange(allFiles);
       } else {
@@ -261,7 +263,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       }
       setStatuses(Array(allFiles.length).fill(""));
       setDownloadStatuses(Array(allFiles.length).fill(""));
-      
+
       if (uploadImmediately) {
         // Upload immediately (original behavior)
         setTimeout(() => {
@@ -296,7 +298,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleRemoveFile = (idx: number) => {
     const fileToRemove = files[idx];
-    
+
     if (onRemoveFile) {
       onRemoveFile(idx);
     } else {
@@ -304,15 +306,15 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     }
     setStatuses((prev) => prev.filter((_, i) => i !== idx));
     setDownloadStatuses((prev) => prev.filter((_, i) => i !== idx));
-    
+
     // Also remove from pending files if it exists there
     if (fileToRemove && !uploadImmediately) {
-      setPendingFiles((prev) => 
+      setPendingFiles((prev) =>
         prev.filter(f => !(f.name === fileToRemove.name && f.size === fileToRemove.size))
       );
     }
-    
-   
+
+
     if (onValidationErrors) {
       onValidationErrors([]);
     }
@@ -320,21 +322,22 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   // Core upload logic, called instantly after file select/drop
   const uploadFiles = async (uploadFiles: File[]): Promise<{ uploadedFiles: UploadedFile[], applicationDocuments: ApplicationDocument[] }> => {
-    
+
     if (uploadFiles.length === 0) {
       setStatuses(["No files selected"]);
       return { uploadedFiles: [], applicationDocuments: [] };
     }
     setStatuses(Array(uploadFiles.length).fill("Requesting presigned URLs..."));
-    
+    setIsScanning(true);
+
     try {
       const fileMetas = uploadFiles.map((f) => ({
         filename: prefix ? `${prefix}/${f.name}` : f.name,
         contentType: f.type || "application/octet-stream",
       }));
-      
+
       const data = await getPresignedUrls(fileMetas);
-      
+
       if (!data.urls || data.urls.length !== uploadFiles.length) {
         setStatuses(
           Array(uploadFiles.length).fill("Failed to get presigned URLs")
@@ -344,7 +347,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
-      
+
       for (let i = 0; i < uploadFiles.length; i++) {
         const urlObj = data.urls[i];
         if (!urlObj.url) {
@@ -356,23 +359,23 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setStatuses([...newStatuses]);
         try {
           const uploadRes = await uploadFileToS3(urlObj.url, uploadFiles[i]);
-          
+
           if (uploadRes.ok) {
             const s3Key = prefix
               ? `${prefix}/${uploadFiles[i].name}`
               : uploadFiles[i].name;
-            
+
             const etag = uploadRes.headers.get('etag');
-            
+
             newStatuses[i] = "Confirming upload...";
             setStatuses([...newStatuses]);
-            
+
             logger.info('S3 upload successful, calling confirm endpoint', {
               s3Key,
               etag,
               fileName: uploadFiles[i].name
             });
-            
+
             const confirmResponse = await confirmUpload({
               s3Key,
               fileName: uploadFiles[i].name,
@@ -385,13 +388,13 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               subCategory: subCategory,
               consultationId: consultationId
             });
-            
+
             logger.info('Upload confirmed by server', {
               documentId: confirmResponse.documentId,
               fileId: confirmResponse.fileId,
               s3Key: confirmResponse.s3Key
             });
-            
+
             const uploadedFile: UploadedFile = {
               id: confirmResponse.fileId,
               storageProvider: "aws_s3",
@@ -404,7 +407,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               uploadedAtTimestamp: confirmResponse.uploadedAt,
             };
             uploadedFiles.push(uploadedFile);
-            
+
             const applicationDocument: ApplicationDocument = {
               documentId: confirmResponse.documentId,
               applicationId: applicationId || "",
@@ -418,10 +421,10 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               consultationId: consultationId || undefined,
             };
             applicationDocuments.push(applicationDocument);
-            
+
             newStatuses[i] = "Upload complete";
             setStatuses([...newStatuses]);
-            
+
             setInternalFiles((prevFiles: File[]) => {
               const idxToRemove = prevFiles.findIndex(
                 (file: File) =>
@@ -457,11 +460,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           });
         }
       }
-      
+
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
-      return { uploadedFiles, applicationDocuments};
+      return { uploadedFiles, applicationDocuments };
     } catch (err) {
       setStatuses(
         Array(uploadFiles.length).fill(
@@ -469,6 +472,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         )
       );
       return { uploadedFiles: [], applicationDocuments: [] };
+    } finally {
+      setIsScanning(false);
     }
   };
 
@@ -479,14 +484,14 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (onDeleteFile) {
         onDeleteFile(fileId);
       }
-      
+
       if (onValidationErrors) {
         onValidationErrors([]);
       }
-      
+
     } catch (error) {
       const err = error as Error & { response?: { data?: { error?: string }, status?: number }, status?: number };
-      
+
       logger.error('File Deletion Error Details:', {
         fileId,
         s3Key,
@@ -498,8 +503,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         userAgent: navigator.userAgent,
         url: window.location.href
       });
-      
-      
+
+
       const errorMsg = err?.response?.data?.error || err?.message || 'Unknown error occurred';
       logger.error('Failed to delete file completely', {
         fileId,
@@ -512,6 +517,12 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   return (
     <div className="gds-upload-container" tabIndex={-1}>
+      <VirusScanBanner
+        isScanning={isScanning}
+        isQueued={pendingFiles.length > 0 && !isScanning}
+        fileCount={isScanning ? (pendingFiles.length || 1) : pendingFiles.length}
+      />
+
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
@@ -599,11 +610,11 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                         e.preventDefault();
                         const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
                         setPendingFiles(updatedPendingFiles);
-                        
+
                         if (onValidationErrors) {
                           onValidationErrors([]);
                         }
-                        
+
                         if (onPendingFilesChange) {
                           onPendingFilesChange(updatedPendingFiles);
                         }
@@ -645,7 +656,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           type="file"
           multiple
           ref={fileInputRef}
-          id="file-upload-input" 
+          id="file-upload-input"
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
