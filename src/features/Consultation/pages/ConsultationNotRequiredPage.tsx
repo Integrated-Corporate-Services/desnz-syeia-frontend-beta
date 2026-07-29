@@ -118,8 +118,6 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		let newlyUploadedFiles: any[] = [];
 		let newlyUploadedDocuments: any[] = [];
 
-		// Always call triggerUpload() so it re-surfaces any infected/failed file still
-		// sitting in the "Rejected files" list, even when there's nothing new to upload.
 		if (fileUploadRef.current) {
 			try {
 				const result = await fileUploadRef.current.triggerUpload();
@@ -157,8 +155,6 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		}
 		
 		
-		// Unresolved file errors (infected/failed scan) must always block, even when
-		// another clean file already exists - it must not act as an escape hatch.
 		if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
 			setErrors(newErrors);
 			window.scrollTo(0, 0);

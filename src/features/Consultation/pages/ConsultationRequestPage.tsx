@@ -193,8 +193,6 @@ const ConsultationRequestPage: React.FC = () => {
       let newlyUploadedFiles: UploadedFile[] = [];
       let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-      // Always call triggerUpload() so it re-surfaces any infected/failed file still
-      // sitting in the "Rejected files" list, even when there's nothing new to upload.
       if (fileUploadRef.current) {
         log.debug('[ConsultationRequestPage] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
         const result = await fileUploadRef.current.triggerUpload();
@@ -228,8 +226,6 @@ const ConsultationRequestPage: React.FC = () => {
         newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.consultationRequestUpload.empty;
       }
       
-      // Unresolved file errors (infected/failed scan) must always block, even when
-      // another clean file already exists - it must not act as an escape hatch.
       if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
         setErrors(newErrors);
         const errorSummary = document.getElementById('error-summary');
