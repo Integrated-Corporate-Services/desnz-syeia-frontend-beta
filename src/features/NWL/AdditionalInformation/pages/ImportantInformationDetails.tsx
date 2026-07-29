@@ -43,7 +43,6 @@ const ImportantInformationDetails: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
@@ -226,7 +225,6 @@ const ImportantInformationDetails: React.FC = () => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);
                   }}
-                  onPendingFilesChange={setPendingFiles}
                   showDocumentsHeading={true}
                 />
               </div>

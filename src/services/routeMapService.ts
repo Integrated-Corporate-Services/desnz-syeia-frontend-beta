@@ -14,7 +14,6 @@ import axios from 'axios';
 import { RoutePoint } from '../components/SensitiveAreaCheckMap';
 
 export async function submitRoutePoints(applicationId: string, points: RoutePoint[]) {
-  const getRouteName = (idx: number) => `Route ${String.fromCharCode(65 + idx)}`;
   // Helper to convert points to numbers
   const convertPoints = (pts: RoutePoint[]) => pts.map(pt => ({
     easting: Number(pt.easting),

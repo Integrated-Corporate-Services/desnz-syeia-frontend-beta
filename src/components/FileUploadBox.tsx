@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { getPresignedUrls, uploadFileToS3, getPresignedGetUrl } from '../services/s3ApiService';
 import { FileUploadResponse } from '../types/FileUploadResponse';
-import { validateFiles, formatFileSize, FILE_SIZE_LIMITS } from '../utils/fileUploadValidation';
+import { validateFiles } from '../utils/fileUploadValidation';
 import { createLogger } from '../utils/logger';
 import { mapErrorToUserMessage } from '../utils/errorMapper';
 

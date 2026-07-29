@@ -120,15 +120,6 @@ const ConsultationRequestsRequired: React.FC = () => {
         }
     };
 
-    const handleSaveForLater = async () => {
-        try {
-            // TODO: Save current state to backend
-            navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
-        } catch (err) {
-            logger.error('Error saving for later:', err);
-        }
-    };
-
     return (
         <>
             <SkipLink />

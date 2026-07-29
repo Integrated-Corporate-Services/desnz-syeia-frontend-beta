@@ -19,7 +19,6 @@ import {
     LandownerDetailsSummaryCard,
     RepresentativeDetailsSummaryCard,
     SiteAddressSummaryCard,
-    LandLocationSummaryCard,
     LandRegistrySummaryCard,
     OSGridReferenceSummaryCard,
     IdentifyingInformationSummaryCard,

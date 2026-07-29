@@ -7,7 +7,6 @@ import {
   LABELS,
   FORM_ERRORS,
   FORM_LABELS,
-  FORM_HINTS,
 } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { saveObjectorLandownerStatus } from "../services/objectorDetailsService";

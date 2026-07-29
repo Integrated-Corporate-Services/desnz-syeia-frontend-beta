@@ -12,7 +12,6 @@ import { useNetworkOperatorForm } from "../hooks/useNetworkOperatorForm";
 import { useApplicationSync } from "../hooks/useApplicationSync";
 import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
 import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
-import { ROLES } from "../../../constants/roles";
 import { S37_BASE_URL } from "../../../constants/s37";
 import {
   MAX_REFERENCE_LENGTH,
@@ -49,7 +48,6 @@ const NetworkOperatorDetails: React.FC = () => {
     setSelectedOrganisation,
     errors,
     setErrors,
-    showErrorSummary,
     setShowErrorSummary,
     validateForm,
     handleOperatorChange: handleOperatorChangeBase,

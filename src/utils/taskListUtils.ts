@@ -47,9 +47,6 @@ export const TASK_NAMES = {
 export function getInitialSections(applicationId?: string, assetInformationStatus?: string): TaskListSection[] {
     const base = applicationId ? `${S37_BASE_URL}/${applicationId}` : `${S37_BASE_URL}/:applicationId`;
 
-    // Determine if Pay and submit should be disabled
-    const isAssetInfoCompleted = assetInformationStatus === 'Completed';
-
     return [
         {
             title: 'Applicant details',
@@ -245,8 +242,6 @@ export function applySensitiveAreaCheckLogic(sections: TaskListSection[], inProg
             const checksCompleted = sensitiveCheckItem?.status === 'Completed';
             const routeItem = section.items.find((item) => item.name === 'Route');
             const routeCompleted = routeItem?.status === 'Completed';
-            const worksOverviewItem = section.items.find((item) => item.name === 'Works overview');
-            const worksOverviewCompleted = worksOverviewItem?.status === 'Completed';
 
             return {
                 ...section,

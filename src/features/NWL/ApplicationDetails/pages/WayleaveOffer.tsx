@@ -44,7 +44,6 @@ const WayleaveOffer: React.FC = () => {
   }>({});
   const [has21DayError, setHas21DayError] = useState<boolean>(false);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const fileUploadRef = useRef<FileUploadHandle>(null);
 
@@ -427,7 +426,6 @@ const WayleaveOffer: React.FC = () => {
                     applicationDocuments={applicationDocuments}
                     showDocumentsHeading={true}
                     uploadImmediately={true}
-                    onPendingFilesChange={setPendingFiles}
                     onDeleteFile={(fileId) => {
                       setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                       setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));

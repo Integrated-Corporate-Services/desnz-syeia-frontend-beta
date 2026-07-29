@@ -27,7 +27,6 @@ const BankTransferConfirmationPage: React.FC = () => {
   const [resolvedTotalAmount, setResolvedTotalAmount] = useState<number | null>(null);
 
   const fileUploadRef = useRef<FileUploadHandle>(null);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const handleFileValidationErrors = (errors: string[]) => {
     setFileValidationErrors(errors);
@@ -414,7 +413,6 @@ const BankTransferConfirmationPage: React.FC = () => {
                 addedBy={user?.user_id}
                 uploadedFiles={uploadedFiles}
                 applicationDocuments={applicationDocuments}
-                onPendingFilesChange={setPendingFiles}
                 onValidationErrors={handleFileValidationErrors}
                 onUploaded={(newUploadedFiles, newDocs) => {
                   setFileValidationErrors([]);

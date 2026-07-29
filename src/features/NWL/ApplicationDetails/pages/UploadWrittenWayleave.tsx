@@ -26,7 +26,6 @@ const UploadWrittenWayleave: React.FC = () => {
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [error, setError] = useState<string>("");
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   
   const fileUploadRef = useRef<FileUploadHandle>(null);
 
@@ -252,7 +251,6 @@ const UploadWrittenWayleave: React.FC = () => {
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
                   uploadImmediately={true}
-                  onPendingFilesChange={setPendingFiles}
                   onDeleteFile={(fileId) => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));

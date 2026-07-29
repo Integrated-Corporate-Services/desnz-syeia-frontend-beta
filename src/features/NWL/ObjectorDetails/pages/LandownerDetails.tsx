@@ -5,7 +5,6 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
   BREADCRUMBS,
   LABELS,
-  FORM_ERRORS,
   FORM_LABELS,
   TITLE_OPTIONS,
 } from "../constants/objectorDetailsConstants";

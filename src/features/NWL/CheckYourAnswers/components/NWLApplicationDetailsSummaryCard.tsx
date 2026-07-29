@@ -1,7 +1,6 @@
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
-import { SummaryRow } from '../types';
-import { createSummaryRow, formatDate } from '../utils';
+import { createSummaryRow } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 

@@ -152,45 +152,6 @@ const ConsultationResponse: React.FC = () => {
         }
     };
 
-    const handleSaveForLater = async () => {
-        if (!validateFormatOnly()) {
-            const errorSummary = document.getElementById('error-summary');
-            if (errorSummary) {
-                errorSummary.focus();
-                errorSummary.scrollIntoView({  block: 'start' });
-            }
-            return;
-        }
-
-        try {
-            // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!, applicationId);
-            
-            const payload: Partial<ConsultationResponse> = {
-                ...existingData,
-                response_full_name: contactName || undefined,
-                response_email_address: email || undefined,
-                has_objection: hasObjection ? hasObjection === 'yes' : undefined,
-                created_by: userId,
-                last_updated_by: userId,
-                isSave: true
-            };
-            
-            // Only include IDs if they have valid values
-            if (consultationId) {
-                payload.consultation_id = consultationId;
-            }
-            if (responseId) {
-                payload.response_id = responseId;
-            }
-
-            await saveConsultationResponse(payload, applicationId);
-            navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
-        } catch (err) {
-            logger.error('Error saving consultation response:', err);
-        }
-    };
-
     return (
         <>
             <SkipLink />

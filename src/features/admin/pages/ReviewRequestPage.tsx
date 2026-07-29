@@ -8,7 +8,6 @@ import {
   RejectionReasonForm,
   ActionButtons,
   RelatedContentSidebar,
-  // RelatedContentSidebar
 } from '../../../components/shared/ReviewRequestComponents';
 
 const ReviewRequestPage: React.FC = () => {

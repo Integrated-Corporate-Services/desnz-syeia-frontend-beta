@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SkipLink from '../../../../components/SkipLink';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS, TITLE_OPTIONS } from "../constants/objectorDetailsConstants";
+import { BREADCRUMBS, LABELS, FORM_LABELS, TITLE_OPTIONS } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { saveRepresentativeDetails } from "../services/objectorDetailsService";

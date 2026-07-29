@@ -46,7 +46,6 @@ const EvidenceOfNegotiations: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [isFormDirty, setIsFormDirty] = useState(false); // Track if user has modified the form
 
   const handleDeleteFile = (fileId: string) => {
@@ -269,7 +268,6 @@ const EvidenceOfNegotiations: React.FC = () => {
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   uploadImmediately={true}
-                  onPendingFilesChange={setPendingFiles}
                   onDeleteFile={handleDeleteFile}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
