@@ -23,6 +23,27 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 
+// Exact set of anchor ids this page's createErrorLink() calls can produce - used to validate
+// the href extracted back out of an error string before it's rendered, since error text can
+// embed attacker-controlled content (e.g. an uploaded filename in a virus-scan message).
+const VALID_ERROR_ANCHOR_IDS = new Set([
+	'projectName-inputValue',
+	'projectDescription-inputValue',
+	'tallestPoleHeight-inputValue',
+	'planReference-inputValue',
+	'areWorkStartDatesKnown',
+	'earliestWorkStartDate-month',
+	'earliestWorkStartDate-year',
+	'latestWorkStartDate-month',
+	'latestWorkStartDate-year',
+	'planInformationDocuments',
+	'hasRelatedApplications',
+	'relatedApplicationsDetails-inputValue',
+	'hasRelatedCpo',
+	'relatedCpoDetails-inputValue',
+	'file-upload',
+]);
+
 const emptyProjectOverview: ProjectOverviewModel = {
 	applicationFormId: "",
 	projectName: "",
@@ -263,15 +284,21 @@ const ProjectOverview = () => {
 							<div className="govuk-error-summary__body">
 								<ul className="govuk-list govuk-error-summary__list">
 									{errors.map((err, idx) => {
-										// Parse error link: errors are in format '<a href="#id">message</a>'
+										// Parse error link: errors are in format '<a href="#id">message</a>'.
+										// The href is validated against a fixed allowlist before use, since
+										// the message portion can embed attacker-controlled content (e.g. an
+										// uploaded filename in a virus-scan message).
 										const match = err.match(/<a href="#([^"]+)">([^<]+)<\/a>/);
 										if (match) {
 											const [, href, message] = match;
-											return (
-												<li key={idx}>
-													<a href={`#${href}`}>{message}</a>
-												</li>
-											);
+											if (VALID_ERROR_ANCHOR_IDS.has(href)) {
+												return (
+													<li key={idx}>
+														<a href={`#${href}`}>{message}</a>
+													</li>
+												);
+											}
+											return <li key={idx}>{message}</li>;
 										}
 										return <li key={idx}>{err}</li>;
 									})}
