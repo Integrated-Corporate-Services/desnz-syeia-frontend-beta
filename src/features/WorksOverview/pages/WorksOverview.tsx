@@ -48,37 +48,37 @@ const yesNoOptions = [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No'
 const mapUploadedFiles = (files: unknown[]): UploadedFile[] =>
   Array.isArray(files)
     ? files.map((file) => {
-        const f = file as Record<string, unknown>;
-        return {
-          id: String(f.id || ''),
-          storageProvider: String(f.storageProvider || ''),
-          s3Key: String(f.s3Key || ''),
-          bucketName: String(f.bucketName || ''),
-          virtualFolder: String(f.virtualFolder || ''),
-          filename: String(f.filename || ''),
-          fileContentType: String(f.fileContentType || ''),
-          fileSizeBytes: Number(f.fileSizeBytes || 0),
-          uploadedAtTimestamp: String(f.uploadedAtTimestamp || ''),
-        };
-      })
+      const f = file as Record<string, unknown>;
+      return {
+        id: String(f.id || ''),
+        storageProvider: String(f.storageProvider || ''),
+        s3Key: String(f.s3Key || ''),
+        bucketName: String(f.bucketName || ''),
+        virtualFolder: String(f.virtualFolder || ''),
+        filename: String(f.filename || ''),
+        fileContentType: String(f.fileContentType || ''),
+        fileSizeBytes: Number(f.fileSizeBytes || 0),
+        uploadedAtTimestamp: String(f.uploadedAtTimestamp || ''),
+      };
+    })
     : [];
 
 const mapApplicationDocuments = (documents: unknown[]): ApplicationDocument[] =>
   Array.isArray(documents)
     ? documents.map((doc) => {
-        const d = doc as Record<string, unknown>;
-        return {
-          documentId: String(d.documentId || ''),
-          applicationId: String(d.applicationId || ''),
-          fileId: String(d.fileId || ''),
-          category: String(d.category || ''),
-          title: String(d.title || ''),
-          virtualFolder: String(d.virtualFolder || ''),
-          addedBy: String(d.addedBy || ''),
-          addedAt: String(d.addedAt || ''),
-          description: String(d.description || ''),
-        };
-      })
+      const d = doc as Record<string, unknown>;
+      return {
+        documentId: String(d.documentId || ''),
+        applicationId: String(d.applicationId || ''),
+        fileId: String(d.fileId || ''),
+        category: String(d.category || ''),
+        title: String(d.title || ''),
+        virtualFolder: String(d.virtualFolder || ''),
+        addedBy: String(d.addedBy || ''),
+        addedAt: String(d.addedAt || ''),
+        description: String(d.description || ''),
+      };
+    })
     : [];
 
 const WorksOverview: React.FC = () => {
@@ -199,8 +199,14 @@ const WorksOverview: React.FC = () => {
   });
 
   const uploadPendingFiles = async () => {
+    if (roadClosureFileUploadRef.current?.isBusy()) {
+      throw new Error('File scan is in progress. Wait for the scan to finish before continuing.');
+    }
     if (roadClosureFileUploadRef.current && pendingRoadClosureFiles.length > 0) {
-      await roadClosureFileUploadRef.current.triggerUpload();
+      const result = await roadClosureFileUploadRef.current.triggerUpload();
+      if (result.scanErrors.length > 0) {
+        throw new Error(result.scanErrors.join(' '));
+      }
     }
   };
 
@@ -223,8 +229,14 @@ const WorksOverview: React.FC = () => {
     try {
       await persistForm();
       navigate(getNextPageUrl(TASK_NAMES.WORKS_OVERVIEW, effectiveApplicationId));
-    } catch {
-      setErrors([{ field: 'generalComments', message: ASSET_ERROR_MESSAGES.generalCommentsFailed }]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ASSET_ERROR_MESSAGES.generalCommentsFailed;
+      setErrors([{ field: 'generalComments', message }]);
+      if (message === 'File scan is in progress. Wait for the scan to finish before continuing.') {
+        setTimeout(() => {
+          setErrors(prev => (prev.length === 1 && prev[0].message === message) ? [] : prev);
+        }, 6000);
+      }
     }
   };
 

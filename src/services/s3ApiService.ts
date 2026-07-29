@@ -30,14 +30,14 @@ export function clearPresignedUrlCache(filename?: string) {
 export async function getPresignedUrls(files: { filename: string; contentType: string }[]) {
   const res = await fetch(buildBackendUrl('/api/upload/presigned-url'), {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
       ...getCsrfHeaders()
     },
     credentials: 'include',
     body: JSON.stringify({ files })
   });
-  
+
   if (!res.ok) {
     // Try to get detailed error message from response
     try {
@@ -50,7 +50,7 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
       throw new Error('Failed to get presigned URLs', { cause: parseError instanceof Error ? parseError : undefined });
     }
   }
-  
+
   return await res.json();
 }
 
@@ -89,14 +89,14 @@ export async function confirmUpload(params: {
 }> {
   const res = await fetch(buildBackendUrl('/api/upload/confirm'), {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
       ...getCsrfHeaders()
     },
     credentials: 'include',
     body: JSON.stringify(params)
   });
-  
+
   if (!res.ok) {
     try {
       const errorData = await res.json();
@@ -105,7 +105,7 @@ export async function confirmUpload(params: {
       throw new Error('Failed to confirm file upload', { cause: parseError instanceof Error ? parseError : undefined });
     }
   }
-  
+
   return await res.json();
 }
 
@@ -120,7 +120,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url'), {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
       ...getCsrfHeaders()
     },
@@ -129,7 +129,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   });
   if (!res.ok) throw new Error('Failed to get presigned GET URL');
   const { url } = await res.json();
-  
+
   return url;
 }
 
@@ -146,7 +146,7 @@ export async function listFilesByPrefix(prefix: string) {
 export async function deleteFileFromS3(key: string) {
   const res = await fetch(buildBackendUrl('/api/file/delete'), {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
       ...getCsrfHeaders()
     },
@@ -161,7 +161,7 @@ export async function deleteFileFromS3(key: string) {
 export async function deleteFileCompletely(fileId: string, key: string) {
   const res = await fetch(buildBackendUrl('/api/file/delete'), {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
       ...getCsrfHeaders()
     },
@@ -175,23 +175,47 @@ export async function deleteFileCompletely(fileId: string, key: string) {
   return await res.json();
 }
 
+export interface FileScanStatusEntry {
+  fileId: string;
+  scanStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null;
+  scanResult: 'CLEAN' | 'INFECTED' | null;
+  virusName: string | null;
+}
+
+export async function getFileScanStatuses(fileIds: string[]): Promise<{ statuses: FileScanStatusEntry[] }> {
+  if (fileIds.length === 0) {
+    return { statuses: [] };
+  }
+
+  const res = await fetch(
+    buildBackendUrl(`/api/upload/status?fileIds=${encodeURIComponent(fileIds.join(','))}`),
+    { credentials: 'include' }
+  );
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch file scan statuses');
+  }
+
+  return await res.json();
+}
+
 /**
  * Get presigned download URL (forces browser download)
  * URLs are cached to reduce backend calls
  * @param filename - S3 key/filename
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
-export async function getPresignedGetUrlForDownload(filename: string): Promise<string> {
+export async function getPresignedGetUrlForDownload(filename: string, fileId?: string): Promise<string> {
 
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url/download'), {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ filename })
+    body: JSON.stringify({ filename, fileId })
   });
   if (!res.ok) throw new Error('Failed to get presigned download URL');
   const { url } = await res.json();

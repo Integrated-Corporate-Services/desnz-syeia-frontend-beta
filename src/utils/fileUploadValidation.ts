@@ -11,8 +11,8 @@ export * from './fileValidator';
 // Re-export commonly used functions for convenience
 export { validateFiles, validateSingleFile, quickValidateFiles } from './fileValidator';
 export { isPasswordProtected } from './passwordProtectionDetector';
-export { 
-  formatFileSize, 
+export {
+  formatFileSize,
   isValidFileType,
   isExcelFile,
   isLegacyOfficeFile,

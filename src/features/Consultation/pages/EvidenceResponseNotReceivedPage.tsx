@@ -201,16 +201,41 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
     const handleCloseConsultation = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (fileUploadRef.current?.isBusy()) {
+            const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+            setFileValidationErrors([scanInProgressMessage]);
+            const errorSummary = document.getElementById('error-summary');
+            if (errorSummary) {
+                errorSummary.focus();
+                errorSummary.scrollIntoView({ block: 'start' });
+            }
+            setTimeout(() => {
+                setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+            }, 6000);
+            return;
+        }
+
         setSubmitted(true);
         setLoading(true);
 
         try {
             let newlyUploadedFiles: UploadedFile[] = [];
             let newlyUploadedDocuments: ApplicationDocument[] = [];
-            
+
             if (fileUploadRef.current && pendingFiles.length > 0) {
                 logger.debug('[EvidenceResponseNotReceivedPage] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
                 const result = await fileUploadRef.current.triggerUpload();
+                if (result.scanErrors.length > 0) {
+                    setFileValidationErrors(result.scanErrors);
+                    const errorSummary = document.getElementById('error-summary');
+                    if (errorSummary) {
+                        errorSummary.focus();
+                        errorSummary.scrollIntoView({ block: 'start' });
+                    }
+                    setLoading(false);
+                    return;
+                }
                 newlyUploadedFiles = result.uploadedFiles;
                 newlyUploadedDocuments = result.applicationDocuments;
                 logger.info('[EvidenceResponseNotReceivedPage] Pending files uploaded successfully');

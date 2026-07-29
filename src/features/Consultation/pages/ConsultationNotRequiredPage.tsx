@@ -102,18 +102,33 @@ const ConsultationNotRequiredPage: React.FC = () => {
 	// Save and Continue handler (set status to CLOSED)
 	const navigate = useNavigate();
 	const handleSaveAndContinue = async () => {
+		if (fileUploadRef.current?.isBusy()) {
+			const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+			setFileValidationErrors([scanInProgressMessage]);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+			setTimeout(() => {
+				setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+			}, 6000);
+			return;
+		}
+
 		if (!consultationId || !notRequiredStatus?.details) return;
-		
+
 		// Trigger file upload first if there are pending files (deferred upload pattern)
 		let newlyUploadedFiles: any[] = [];
 		let newlyUploadedDocuments: any[] = [];
-		
+
 		if (fileUploadRef.current && pendingFiles.length > 0) {
 			try {
 				const result = await fileUploadRef.current.triggerUpload();
+				if (result.scanErrors.length > 0) {
+					setFileValidationErrors(result.scanErrors);
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+					return;
+				}
 				newlyUploadedFiles = result.uploadedFiles;
 				newlyUploadedDocuments = result.applicationDocuments;
-				
+
 				// Update state immediately so files remain visible even if validation fails
 				setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
 				setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);

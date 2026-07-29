@@ -6,7 +6,7 @@ import { useAuthUser } from "../../../hooks/useAuthUser";
 import { getConsultationPack ,saveConsultationPack} from "../../../services/consultationPackService";
 import { PackSection, ConsultationPack } from '../../../types/consultationPack';
 import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCategoryConstants';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 import log from '../../../logger';
 import SkipLink from '../../../components/SkipLink';
@@ -31,7 +31,7 @@ const consulteeApplicationInfo: React.FC = () => {
   const consultationName = searchParams.get("consultationName") || "";
   const navigate = useNavigate();
   const tabsRef = useRef<HTMLDivElement>(null);
-  const fileUploadRef = useRef<{ focus: () => void } | null>(null);
+  const fileUploadRef = useRef<FileUploadHandle>(null);
 
 // Scroll to top on mount
 useEffect(() => {
@@ -166,6 +166,14 @@ useEffect(() => {
   };
 
   const handleSave = async (validate: boolean) => {
+    if (fileUploadRef.current?.isBusy()) {
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setErrorMessage(scanInProgressMessage);
+      setTimeout(() => {
+        setErrorMessage(prev => (prev === scanInProgressMessage) ? null : prev);
+      }, 6000);
+      return;
+    }
     if (validate && !packSections.some(section => section.include)) {
       setErrorMessage('You must select at least one section to continue.');
       return;
@@ -470,6 +478,7 @@ useEffect(() => {
               )}
               
               <FileUpload
+                ref={fileUploadRef}
                 title="Additional supporting documents"
                 prefix={applicationId ? `${applicationId}/${FILE_CATEGORIES.CONSULTATION_ADDITIONAL_DOCUMENTS}` : ''}
                 applicationId={applicationId}

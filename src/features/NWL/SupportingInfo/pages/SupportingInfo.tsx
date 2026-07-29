@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import FileUpload from '../../../../components/FileUpload';
+import React, { useState, useEffect, useRef } from "react";
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { nwlSupportingInfo } from "../types";
@@ -33,6 +33,15 @@ const SupportingInfo: React.FC = () => {
 	const [writtenTerminationFiles, setWrittenTerminationFiles] = useState<any[]>([]);
 	const [writtenRemovalFiles, setWrittenRemovalFiles] = useState<any[]>([]);
 	const [titlePlanFiles, setTitlePlanFiles] = useState<any[]>([]);
+
+	// Refs for each FileUpload widget, so submit can check isBusy() before navigating
+	const signedWayleaveRef = useRef<FileUploadHandle>(null);
+	const inheritedWayleaveRef = useRef<FileUploadHandle>(null);
+	const anyPaymentsRef = useRef<FileUploadHandle>(null);
+	const acceptedPaymentsRef = useRef<FileUploadHandle>(null);
+	const writtenTerminationRef = useRef<FileUploadHandle>(null);
+	const writtenRemovalRef = useRef<FileUploadHandle>(null);
+	const titlePlanRef = useRef<FileUploadHandle>(null);
 
 	// State for applicationDocuments by category
 	const [signedWayleaveDocs, setSignedWayleaveDocs] = useState<any[]>([]);
@@ -188,6 +197,27 @@ const SupportingInfo: React.FC = () => {
 
 	 const handleSubmit = async (e: React.FormEvent) => {
 		 e.preventDefault();
+
+		 const fileUploadRefs = [
+			 signedWayleaveRef,
+			 inheritedWayleaveRef,
+			 anyPaymentsRef,
+			 acceptedPaymentsRef,
+			 writtenTerminationRef,
+			 writtenRemovalRef,
+			 titlePlanRef,
+		 ];
+		 if (fileUploadRefs.some(ref => ref.current?.isBusy())) {
+			 const scanInProgressMessage: ValidationError = { message: 'File scan is in progress. Wait for the scan to finish before continuing.', anchor: 'file-scan-in-progress' };
+			 setErrors([scanInProgressMessage]);
+			 const errorSummary = document.querySelector('.govuk-error-summary');
+			 if (errorSummary) errorSummary.scrollIntoView({  });
+			 setTimeout(() => {
+				 setErrors(prev => (prev.length === 1 && prev[0].anchor === 'file-scan-in-progress') ? [] : prev);
+			 }, 6000);
+			 return;
+		 }
+
 		 const newErrors: ValidationError[] = [];
 		 // ...existing validation logic...
 		 if (!signedWayleave) newErrors.push({ message: 'Select if the current landowner has signed a wayleave', anchor: 'signedWayleave-error' });
@@ -411,6 +441,7 @@ const SupportingInfo: React.FC = () => {
 											)}
 											{/* File validation errors removed - shown in error summary above */}
 											<FileUpload
+												ref={signedWayleaveRef}
 												title="Upload current landowners signed wayleave"
 												prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_SIGNED_WAYLEAVE}/`}
 												applicationId={applicationId}
@@ -457,7 +488,8 @@ const SupportingInfo: React.FC = () => {
 																	<p id="inheritedWayleave-upload-1-error" className="govuk-error-message">Upload a document that shows inheritance of a necessary wayleave</p>
 																)}
 																<FileUpload
-																	title="Upload a document that shows inheritance of a necessary wayleave in relation to the specified asset schedule"
+																	ref={inheritedWayleaveRef}
+																		title="Upload a document that shows inheritance of a necessary wayleave in relation to the specified asset schedule"
 																	prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_INHERITED_WAYLEAVE}/`}
 																	applicationId={applicationId}
 																	category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
@@ -496,6 +528,7 @@ const SupportingInfo: React.FC = () => {
 																	<p id="anyPayments-upload-1-error" className="govuk-error-message">Upload a document that shows payments made to the grantor</p>
 																)}
 																<FileUpload
+																	ref={anyPaymentsRef}
 																	title="Upload a document that shows payments made to the grantor to support your application"
 																	prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ANY_PAYMENTS}/`}
 																	applicationId={applicationId}
@@ -538,6 +571,7 @@ const SupportingInfo: React.FC = () => {
 																	<span className="govuk-visually-hidden">Error:</span> {error}
 																</p>
 															))}																<FileUpload
+																	ref={acceptedPaymentsRef}
 																	title="Upload a document that shows payments have been accepted by the grantor"
 																	prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_ACCEPTED_PAYMENTS}/`}
 																	applicationId={applicationId}
@@ -710,6 +744,7 @@ const SupportingInfo: React.FC = () => {
 											<span className="govuk-visually-hidden">Error:</span> {error}
 										</p>
 									))}										<FileUpload
+												ref={writtenTerminationRef}
 												title="Upload Written Termination Notice document"
 												prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_TERMINATION_NOTICE}/`}
 												applicationId={applicationId}
@@ -815,7 +850,8 @@ const SupportingInfo: React.FC = () => {
 												<span className="govuk-visually-hidden">Error:</span> {error}
 											</p>
 									   ))}										   <FileUpload
-											   title="Upload Written Removal Notice document"
+											   ref={writtenRemovalRef}
+												   title="Upload Written Removal Notice document"
 											   prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_WRITTEN_REMOVAL_NOTICE}/`}
 											   applicationId={applicationId}
 											   category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}
@@ -874,7 +910,8 @@ const SupportingInfo: React.FC = () => {
 			</p>
 		))}
 		<FileUpload
-			title="Upload the title plan document"
+			ref={titlePlanRef}
+				title="Upload the title plan document"
 			prefix={`${applicationId}/${NWL_FILE_SUBCATEGORIES.NWL_SUPPORT_INFO_TITLE_PLAN}/`}
 			applicationId={applicationId}
 			category={NWL_FILE_CATEGORIES.NWL_SUPPORT_INFO}

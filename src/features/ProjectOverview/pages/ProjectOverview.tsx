@@ -283,6 +283,17 @@ const ProjectOverview = () => {
 					e.preventDefault();
 					setIsSubmitting(true);
 
+					if (fileUploadRef.current?.isBusy()) {
+						const scanInProgressMessage = `<a href="#file-upload">File scan is in progress. Wait for the scan to finish before continuing.</a>`;
+						setErrors([scanInProgressMessage]);
+						setIsSubmitting(false);
+						window.scrollTo({ top: 0 });
+						setTimeout(() => {
+							setErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+						}, 6000);
+						return;
+					}
+
 					// Track if we uploaded files in this submission
 					let filesWereUploaded = false;
 					let newlyUploadedFiles: UploadedFile[] = [];
@@ -292,6 +303,12 @@ const ProjectOverview = () => {
 					if (fileUploadRef.current && pendingFiles.length > 0) {
 						try {
 							const result = await fileUploadRef.current.triggerUpload();
+							if (result.scanErrors.length > 0) {
+								setErrors(result.scanErrors.map(msg => `<a href="#file-upload">${msg}</a>`));
+								setIsSubmitting(false);
+								window.scrollTo({ top: 0 });
+								return;
+							}
 							filesWereUploaded = true; // Mark that files were uploaded
 							newlyUploadedFiles = result.uploadedFiles;
 							newlyUploadedDocuments = result.applicationDocuments;

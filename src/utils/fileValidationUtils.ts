@@ -1,6 +1,6 @@
-import { 
-  FILE_SIZE_UNITS, 
-  FILE_TYPE_CATEGORIES, 
+import {
+  FILE_SIZE_UNITS,
+  FILE_TYPE_CATEGORIES,
   ALLOWED_FILE_EXTENSIONS,
   BIFF_RECORD_CONSTANTS,
   PASSWORD_PROTECTION_SIGNATURES,
@@ -16,11 +16,11 @@ export type FileOrMetadata = File | UploadedFile;
 
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   const size = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
-  
+
   return `${size} ${FILE_SIZE_UNITS[i]}`;
 };
 
@@ -28,7 +28,6 @@ export const getFileExtension = (filename: string): string => {
   const extension = filename.split('.').pop()?.toLowerCase();
   return extension ? `.${extension}` : '';
 };
-
 
 const toSafeNumber = (value: string | number | undefined | null): number => {
   if (value === undefined || value === null) return 0;
@@ -39,14 +38,14 @@ const toSafeNumber = (value: string | number | undefined | null): number => {
 export const calculateTotalSize = (files: FileOrMetadata[]): number => {
   return files.reduce((total, file) => {
     let size: number;
-    
+
     if ((file as File).size !== undefined) {
       // File object - size is always a number
       size = (file as File).size;
     } else {
       size = toSafeNumber((file as UploadedFile).fileSizeBytes);
     }
-    
+
     return total + size;
   }, 0);
 };
@@ -56,19 +55,19 @@ export const isDuplicateFile = (newFile: File, existingFiles: FileOrMetadata[]):
     const existingName = (existingFile as File).name !== undefined
       ? (existingFile as File).name
       : (existingFile as UploadedFile).filename;
-    
-    
+
+
     const existingFileName = existingName.split('/').pop() || existingName;
     const newFileName = newFile.name;
-    
-    
+
+
     return existingFileName.toLowerCase() === newFileName.toLowerCase();
   });
 };
 
 export const isValidFileType = (
-  file: File, 
-  allowedTypes: string[], 
+  file: File,
+  allowedTypes: string[],
   allowedExtensions: string[]
 ): boolean => {
   const fileExtension = getFileExtension(file.name);
@@ -78,7 +77,7 @@ export const isValidFileType = (
 export const readFileHeader = (file: File, bytesToRead: number = 1024): Promise<Uint8Array> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       const arrayBuffer = e.target?.result as ArrayBuffer;
       if (!arrayBuffer) {
@@ -87,11 +86,11 @@ export const readFileHeader = (file: File, bytesToRead: number = 1024): Promise<
       }
       resolve(new Uint8Array(arrayBuffer));
     };
-    
+
     reader.onerror = () => {
       reject(new Error('Failed to read file'));
     };
-    
+
     reader.readAsArrayBuffer(file.slice(0, bytesToRead));
   });
 };
@@ -103,8 +102,8 @@ export const uint8ArrayToHex = (uint8Array: Uint8Array): string => {
 };
 
 export const createFileValidationError = (
-  filename: string, 
-  errorType: string, 
+  filename: string,
+  errorType: string,
   details?: string
 ): string => {
   const baseMessage = `${filename}: ${errorType}`;
@@ -112,8 +111,8 @@ export const createFileValidationError = (
 };
 
 export const logValidationEvent = (
-  event: string, 
-  filename: string, 
+  event: string,
+  filename: string,
   details?: Record<string, unknown>
 ): void => {
   logger.debug(`File validation ${event}`, {
@@ -166,13 +165,13 @@ export const getOptimalReadSize = (filename: string): number => {
 
 export const parseBiffRecordLength = (hexString: string): number => {
   if (hexString.length !== 4) return 0;
-  
+
   const littleEndian = hexString.substring(2, 4) + hexString.substring(0, 2);
   return parseInt(littleEndian, 16);
 };
 
 export const isValidBiffRecordLength = (length: number): boolean =>
-  length >= BIFF_RECORD_CONSTANTS.MIN_RECORD_LENGTH && 
+  length >= BIFF_RECORD_CONSTANTS.MIN_RECORD_LENGTH &&
   length <= BIFF_RECORD_CONSTANTS.MAX_RECORD_LENGTH;
 
 export const isKnownFilePassLength = (length: number): boolean =>
@@ -180,14 +179,14 @@ export const isKnownFilePassLength = (length: number): boolean =>
   length === BIFF_RECORD_CONSTANTS.FILEPASS_RC4_ENCRYPTION_LENGTH;
 
 export const findFilePassRecord = (
-  contentHex: string, 
+  contentHex: string,
   filename: string
 ): { found: boolean; offset?: number; length?: number; context?: string } => {
   const filePassMarker = PASSWORD_PROTECTION_SIGNATURES.OFFICE_LEGACY.BIFF_FILEPASS_RECORD;
   const maxSearchBytes = 8192;
   const maxSearchHex = maxSearchBytes * 2;
   const searchLimit = Math.min(contentHex.length - 8, maxSearchHex);
-  
+
   logger.info('Searching for BIFF FilePass record', {
     filename,
     filePassMarker,
@@ -195,14 +194,14 @@ export const findFilePassRecord = (
     searchLimit: searchLimit / 2,
     note: 'Only searching first 8KB to avoid false positives in cell data'
   });
-  
+
   for (let i = 0; i < searchLimit; i += 2) {
     if (contentHex.substring(i, i + 4) === filePassMarker) {
       const lengthHex = contentHex.substring(i + 4, i + 8);
       const recordLength = parseBiffRecordLength(lengthHex);
-      
-      if (recordLength >= BIFF_RECORD_CONSTANTS.FILEPASS_OLD_ENCRYPTION_LENGTH && 
-          recordLength <= BIFF_RECORD_CONSTANTS.MAX_RECORD_LENGTH) {
+
+      if (recordLength >= BIFF_RECORD_CONSTANTS.FILEPASS_OLD_ENCRYPTION_LENGTH &&
+        recordLength <= BIFF_RECORD_CONSTANTS.MAX_RECORD_LENGTH) {
         logger.info('Found BIFF FilePass record', {
           filename,
           offset: i / 2,
@@ -210,7 +209,7 @@ export const findFilePassRecord = (
           isKnownLength: isKnownFilePassLength(recordLength),
           encryptionType: recordLength === 6 ? 'XOR' : recordLength === 54 ? 'RC4' : 'UNKNOWN',
         });
-        
+
         return {
           found: true,
           offset: i / 2,
@@ -220,7 +219,7 @@ export const findFilePassRecord = (
       }
     }
   }
-  
+
   logger.info('BIFF FilePass record NOT found', { filename });
   return { found: false };
 };
@@ -231,13 +230,13 @@ export const validateBiffRecordStructure = (
   expectedRecordType: string
 ): boolean => {
   if (offset + 8 > hexContent.length) return false;
-  
+
   const recordType = hexContent.substring(offset, offset + 4);
   if (recordType !== expectedRecordType) return false;
-  
+
   const lengthHex = hexContent.substring(offset + 4, offset + 8);
   const recordLength = parseBiffRecordLength(lengthHex);
-  
+
   return isValidBiffRecordLength(recordLength);
 };
 
@@ -250,7 +249,7 @@ export const findWordEncryptionFlag = (
     contentLength: contentHex.length,
     bytesScanned: contentHex.length / 2
   });
-  
+
   const encryptionInfoPattern = PASSWORD_PROTECTION_SIGNATURES.OFFICE_LEGACY.ENCRYPTION_INFO;
   const hasEncryptionInfo = contentHex.includes(encryptionInfoPattern);
   logger.info('EncryptionInfo stream name', {
@@ -260,7 +259,7 @@ export const findWordEncryptionFlag = (
     logger.info('ENCRYPTED via EncryptionInfo stream (RC4/AES)', { filename });
     return true;
   }
-  
+
   const rc4Pattern = PASSWORD_PROTECTION_SIGNATURES.OFFICE_LEGACY.RC4_CRYPTO_API;
   const hasRc4 = contentHex.includes(rc4Pattern);
   logger.info('Check 2 — RC4 CryptoAPI marker', { filename, found: hasRc4 });
@@ -268,7 +267,7 @@ export const findWordEncryptionFlag = (
     logger.info('ENCRYPTED via RC4 CryptoAPI marker', { filename });
     return true;
   }
-  
+
   const knownWordVersions = [0x00C1, 0x00D9, 0x0101, 0x010C, 0x0112];
 
   const fibMagic = 'eca5';
@@ -291,7 +290,7 @@ export const findWordEncryptionFlag = (
       continue;
     }
 
-    
+
     const byteOffset = fibIndex / 2;
     const isAtSectorBoundary = byteOffset >= 512 && (byteOffset % 512 === 0);
 
@@ -307,13 +306,13 @@ export const findWordEncryptionFlag = (
       const flagsHex = contentHex.substring(flagsHexOffset, flagsHexOffset + 4);
       const flags = parseInt(flagsHex.substring(2, 4) + flagsHex.substring(0, 2), 16);
 
-      const fEncrypted  = (flags & 0x0100) !== 0;
+      const fEncrypted = (flags & 0x0100) !== 0;
       const fObfuscated = (flags & 0x8000) !== 0;
 
       logger.info('FIB candidate (both guards passed)', {
         filename,
         byteOffset,
-        nFib:        '0x' + nFib.toString(16).padStart(4, '0'),
+        nFib: '0x' + nFib.toString(16).padStart(4, '0'),
         flagsParsed: '0x' + flags.toString(16).padStart(4, '0'),
         fEncrypted,
         fObfuscated,

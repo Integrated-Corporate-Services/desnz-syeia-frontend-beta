@@ -154,16 +154,31 @@ const NoticeToTerminate: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (fileUploadRef.current?.isBusy()) {
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setFileValidationErrors([scanInProgressMessage]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+      }, 6000);
+      return;
+    }
+
     // Trigger file upload first if there are pending files (deferred upload pattern)
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
-    
+
     if (fileUploadRef.current && pendingFiles.length > 0) {
       try {
         const result = await fileUploadRef.current.triggerUpload();
+        if (result.scanErrors.length > 0) {
+          setFileValidationErrors(result.scanErrors);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
-        
+
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
         // Clear file validation errors after successful upload

@@ -12,11 +12,11 @@ export async function downloadS3File(keyOrUrl: string) {
       link.href = url;
       link.target = '_blank';  // This opens in a new tab
       link.rel = 'noopener noreferrer';  // Security best practice
-      
+
       // Trigger the link
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
     } else {
@@ -29,13 +29,11 @@ export async function downloadS3File(keyOrUrl: string) {
   }
 }
 
-export async function downloadS3FileOnSameTab(keyOrUrl: string) {
+export async function downloadS3FileOnSameTab(keyOrUrl: string, fileId?: string) {
   const { getPresignedGetUrlForDownload } = await import('../services/s3ApiService');
   try {
-    const url = await getPresignedGetUrlForDownload(keyOrUrl);
+    const url = await getPresignedGetUrlForDownload(keyOrUrl, fileId);
     if (url) {
-      // Simple approach: just navigate to the URL
-      // The browser will either download or display based on Content-Type
       window.location.href = url;
     } else {
       logger.error('Failed to get download URL for same tab', { keyOrUrl });

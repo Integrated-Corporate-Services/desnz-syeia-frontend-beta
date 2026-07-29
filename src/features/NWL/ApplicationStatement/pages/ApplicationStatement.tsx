@@ -1,6 +1,6 @@
 
-import React, { useState } from "react";
-import FileUpload from '../../../../components/FileUpload';
+import React, { useRef, useState } from "react";
+import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { Link, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import SkipLink from '../../../../components/SkipLink';
@@ -9,6 +9,7 @@ const ApplicationStatement: React.FC = () => {
 	const [details, setDetails] = useState("");
 	const [files, setFiles] = useState<File[]>([]);
 	const [errors, setErrors] = useState<{[key:string]:string}>({});
+	const fileUploadRef = useRef<FileUploadHandle>(null);
     const params = useParams();
 	  const getApplicationId = () => {
 		if (params.applicationId) return params.applicationId;
@@ -23,6 +24,22 @@ const ApplicationStatement: React.FC = () => {
 	  const applicationId = getApplicationId();
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+		if (fileUploadRef.current?.isBusy()) {
+			const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+			setErrors(prev => ({ ...prev, files: scanInProgressMessage }));
+			setTimeout(() => {
+				const errorSummary = document.querySelector('.govuk-error-summary');
+				if (errorSummary) errorSummary.scrollIntoView({  });
+			}, 0);
+			setTimeout(() => {
+				setErrors(prev => {
+					if (prev.files !== scanInProgressMessage) return prev;
+					const { files, ...rest } = prev;
+					return rest;
+				});
+			}, 6000);
+			return;
+		}
 		const newErrors: {[key:string]:string} = {};
 		if (!details.trim()) {
 			newErrors.details = "Enter details about your application";

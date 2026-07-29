@@ -65,12 +65,27 @@ const ImportantInformationDetails: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (fileUploadRef.current?.isBusy()) {
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setErrors({ fileUpload: scanInProgressMessage });
+      window.scrollTo(0, 0);
+      setTimeout(() => {
+        setErrors(prev => (Object.keys(prev).length === 1 && prev.fileUpload === scanInProgressMessage) ? {} : prev);
+      }, 6000);
+      return;
+    }
+
     // Upload pending files first and get the results directly
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
-    
+
     if (fileUploadRef.current && pendingFiles.length > 0) {
       const uploadResult = await fileUploadRef.current.triggerUpload();
+      if (uploadResult.scanErrors.length > 0) {
+        setErrors({ fileUpload: uploadResult.scanErrors.join(' ') });
+        window.scrollTo(0, 0);
+        return;
+      }
       newlyUploadedFiles = uploadResult.uploadedFiles;
       newlyUploadedDocuments = uploadResult.applicationDocuments;
     }
