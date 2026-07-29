@@ -18,6 +18,9 @@
     "update-sri": "node scripts/updateSriHashes.js",
     "verify:no-console": "node -e \"const fs=require('fs');const glob=require('glob');const files=glob.sync('src/**/*.{ts,tsx}',{ignore:['**/*.test.ts','**/*.spec.ts','**/node_modules/**']});let found=false;files.forEach(f=>{const content=fs.readFileSync(f,'utf8');const matches=content.match(/console\\.(log|info|debug)/g);if(matches&&!content.includes('src/utils/logger.ts')){console.log(f+': '+matches.length+' console statements');found=true}});if(found){console.log('❌ Found console statements');process.exit(1)}else{console.log('✅ No problematic console statements found')}\""
   },
+  "engines": {
+    "node": ">=20"
+  },
   "overrides": {
     "immutable": "5.1.9",
     "postcss": "8.5.18",
