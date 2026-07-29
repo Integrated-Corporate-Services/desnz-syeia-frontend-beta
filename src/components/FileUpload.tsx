@@ -18,6 +18,14 @@ import { DEMO_USER_ID } from "../constants/demo";
 
 const logger = createLogger('FileUpload');
 
+interface RejectedFile {
+  id: string;
+  s3Key: string;
+  filename: string;
+  reason: 'INFECTED' | 'FAILED';
+  virusName?: string | null;
+}
+
 export interface FileUploadProps {
   title?: string;
   prefix?: string;
@@ -84,6 +92,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
+  const [rejectedFiles, setRejectedFiles] = useState<RejectedFile[]>([]); // Infected/failed-scan files - kept visible so the user can delete them
   const [isScanning, setIsScanning] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [statuses, setStatuses] = useState<string[]>([]);
@@ -361,6 +370,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
       const scanErrors: string[] = [];
+      const newRejectedFiles: RejectedFile[] = [];
 
       for (let i = 0; i < uploadFiles.length; i++) {
         const urlObj = data.urls[i];
@@ -424,6 +434,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               scanErrors.push(
                 `${displayName} contains a virus${scanOutcome.virusName ? ` (${scanOutcome.virusName})` : ''} and could not be uploaded. Remove the file and try again.`
               );
+              newRejectedFiles.push({
+                id: confirmResponse.fileId,
+                s3Key: confirmResponse.s3Key,
+                filename: confirmResponse.fileName,
+                reason: 'INFECTED',
+                virusName: scanOutcome.virusName,
+              });
               newStatuses[i] = "Virus detected";
             } else if (scanOutcome.scanStatus !== 'COMPLETED') {
               logger.warn('Uploaded file scan did not complete', {
@@ -432,6 +449,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                 scanStatus: scanOutcome.scanStatus,
               });
               scanErrors.push(`${displayName} could not be checked for viruses. Try uploading it again.`);
+              newRejectedFiles.push({
+                id: confirmResponse.fileId,
+                s3Key: confirmResponse.s3Key,
+                filename: confirmResponse.fileName,
+                reason: 'FAILED',
+              });
               newStatuses[i] = "Scan failed";
             } else {
               const uploadedFile: UploadedFile = {
@@ -502,6 +525,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         }
       }
 
+      if (newRejectedFiles.length > 0) {
+        setRejectedFiles((prev) => [...prev, ...newRejectedFiles]);
+      }
+
       if (onValidationErrors) {
         onValidationErrors(scanErrors);
       }
@@ -560,6 +587,26 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
   };
 
+  // Handle deletion of an infected/failed-scan file (same S3+DB delete as a clean file)
+  const handleDeleteRejectedFile = async (fileId: string, s3Key: string) => {
+    try {
+      await deleteFileCompletely(fileId, s3Key);
+      setRejectedFiles((prev) => prev.filter((f) => f.id !== fileId));
+
+      if (onValidationErrors) {
+        onValidationErrors([]);
+      }
+    } catch (error) {
+      const err = error as Error;
+      logger.error('Failed to delete rejected file', {
+        fileId,
+        s3Key,
+        errorMessage: err?.message,
+        error: err,
+      });
+    }
+  };
+
   return (
     <div className="gds-upload-container" tabIndex={-1}>
       {/* Documents Uploaded Section - Show uploaded files first */}
@@ -603,6 +650,40 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                         } else if (onRemoveFile) {
                           onRemoveFile(idx);
                         }
+                      }}
+                    >
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Rejected Files Section - Infected or failed-scan files, kept visible so they can be deleted */}
+      {rejectedFiles.length > 0 && (
+        <div className="govuk-!-margin-bottom-6">
+          <table className="govuk-table">
+            <tbody className="govuk-table__body">
+              {rejectedFiles.map((file) => (
+                <tr key={file.id} className="govuk-table__row">
+                  <td className="govuk-table__cell">
+                    <span>{file.filename ? file.filename.split("/").pop() : ""}</span>
+                  </td>
+                  <td className="govuk-table__cell">
+                    <strong className="govuk-tag govuk-tag--red">
+                      {file.reason === 'INFECTED' ? 'Infected' : 'Scan failed'}
+                    </strong>
+                  </td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                    <a
+                      href="#"
+                      className="govuk-link"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        await handleDeleteRejectedFile(file.id, file.s3Key);
                       }}
                     >
                       Delete
