@@ -108,8 +108,6 @@ const UploadImpliedWayleave: React.FC = () => {
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-    // Always call triggerUpload() so it re-surfaces any infected/failed file still
-    // sitting in the "Rejected files" list, even when there's nothing new to upload.
     if (fileUploadRef.current) {
       try {
         const result = await fileUploadRef.current.triggerUpload();
@@ -133,8 +131,6 @@ const UploadImpliedWayleave: React.FC = () => {
       }
     }
 
-    // Unresolved file errors (infected/failed scan) must always block, even when
-    // another clean file already exists - it must not act as an escape hatch.
     if (fileValidationErrors.length > 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
