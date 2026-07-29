@@ -1,8 +1,7 @@
 import { getFileScanStatuses } from "../services/s3ApiService";
 
-const POLL_INTERVAL_MS = 2000;
-const MAX_POLL_ATTEMPTS = 60; // ~2 minutes at 2s intervals
-
+const POLL_INTERVAL_MS = 1000;
+const MAX_POLL_ATTEMPTS = 120;
 export interface ScanOutcome {
   fileId: string;
   scanStatus: 'COMPLETED' | 'FAILED' | 'TIMED_OUT';

@@ -96,8 +96,12 @@ const UploadImpliedWayleave: React.FC = () => {
     e.preventDefault();
 
     if (fileUploadRef.current?.isBusy()) {
-      setFileValidationErrors(['File scan is in progress. Wait for the scan to finish before continuing.']);
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setFileValidationErrors([scanInProgressMessage]);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+      }, 6000);
       return;
     }
 

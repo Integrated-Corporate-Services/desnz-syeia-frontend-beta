@@ -127,11 +127,18 @@ const BankTransferConfirmationPage: React.FC = () => {
 
   const handleSubmit = async () => {
     if (fileUploadRef.current?.isBusy()) {
-      setError('File scan is in progress. Wait for the scan to finish before continuing.');
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setFileValidationErrors([scanInProgressMessage]);
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
-        if (errorSummary) errorSummary.scrollIntoView();
+        if (errorSummary) {
+          (errorSummary as HTMLElement).focus?.();
+          errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }, 0);
+      setTimeout(() => {
+        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+      }, 6000);
       return;
     }
 

@@ -284,9 +284,13 @@ const ProjectOverview = () => {
 					setIsSubmitting(true);
 
 					if (fileUploadRef.current?.isBusy()) {
-						setErrors([`<a href="#file-upload">File scan is in progress. Wait for the scan to finish before continuing.</a>`]);
+						const scanInProgressMessage = `<a href="#file-upload">File scan is in progress. Wait for the scan to finish before continuing.</a>`;
+						setErrors([scanInProgressMessage]);
 						setIsSubmitting(false);
 						window.scrollTo({ top: 0 });
+						setTimeout(() => {
+							setErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+						}, 6000);
 						return;
 					}
 

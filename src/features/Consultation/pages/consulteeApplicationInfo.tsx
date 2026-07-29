@@ -167,7 +167,11 @@ useEffect(() => {
 
   const handleSave = async (validate: boolean) => {
     if (fileUploadRef.current?.isBusy()) {
-      setErrorMessage('File scan is in progress. Wait for the scan to finish before continuing.');
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setErrorMessage(scanInProgressMessage);
+      setTimeout(() => {
+        setErrorMessage(prev => (prev === scanInProgressMessage) ? null : prev);
+      }, 6000);
       return;
     }
     if (validate && !packSections.some(section => section.include)) {

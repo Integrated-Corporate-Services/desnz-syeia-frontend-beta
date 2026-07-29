@@ -69,8 +69,12 @@ const UnregisteredLandDetails: React.FC = () => {
 
   const handleSaveAndContinue = async () => {
     if (fileUploadRef.current?.isBusy()) {
-      setFileValidationErrors(['File scan is in progress. Wait for the scan to finish before continuing.']);
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setFileValidationErrors([scanInProgressMessage]);
       window.scrollTo(0, 0);
+      setTimeout(() => {
+        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+      }, 6000);
       return;
     }
 

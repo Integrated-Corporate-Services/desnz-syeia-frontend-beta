@@ -66,8 +66,12 @@ const ImportantInformationDetails: React.FC = () => {
     e.preventDefault();
 
     if (fileUploadRef.current?.isBusy()) {
-      setErrors({ fileUpload: 'File scan is in progress. Wait for the scan to finish before continuing.' });
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setErrors({ fileUpload: scanInProgressMessage });
       window.scrollTo(0, 0);
+      setTimeout(() => {
+        setErrors(prev => (Object.keys(prev).length === 1 && prev.fileUpload === scanInProgressMessage) ? {} : prev);
+      }, 6000);
       return;
     }
 

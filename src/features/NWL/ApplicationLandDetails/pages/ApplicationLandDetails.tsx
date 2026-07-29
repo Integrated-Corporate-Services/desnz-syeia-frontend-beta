@@ -73,7 +73,15 @@ const ApplicationLandDetails: React.FC = () => {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (fileUploadRef.current?.isBusy()) {
-			setErrors({ fileUpload1: 'File scan is in progress. Wait for the scan to finish before continuing.' });
+			const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+			setErrors(prev => ({ ...prev, fileUpload1: scanInProgressMessage }));
+			setTimeout(() => {
+				setErrors(prev => {
+					if (prev.fileUpload1 !== scanInProgressMessage) return prev;
+					const { fileUpload1, ...rest } = prev;
+					return rest;
+				});
+			}, 6000);
 			return;
 		}
 		if (validate()) {

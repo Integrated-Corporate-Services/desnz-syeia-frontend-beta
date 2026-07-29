@@ -25,11 +25,19 @@ const ApplicationStatement: React.FC = () => {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (fileUploadRef.current?.isBusy()) {
-			setErrors({ files: 'File scan is in progress. Wait for the scan to finish before continuing.' });
+			const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+			setErrors(prev => ({ ...prev, files: scanInProgressMessage }));
 			setTimeout(() => {
 				const errorSummary = document.querySelector('.govuk-error-summary');
 				if (errorSummary) errorSummary.scrollIntoView({  });
 			}, 0);
+			setTimeout(() => {
+				setErrors(prev => {
+					if (prev.files !== scanInProgressMessage) return prev;
+					const { files, ...rest } = prev;
+					return rest;
+				});
+			}, 6000);
 			return;
 		}
 		const newErrors: {[key:string]:string} = {};

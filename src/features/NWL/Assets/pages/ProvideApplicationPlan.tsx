@@ -55,8 +55,14 @@ const ProvideApplicationPlan: React.FC = () => {
 
   const handleSubmit = async () => {
     if (fileUploadRef.current?.isBusy()) {
-      setError('File scan is in progress. Wait for the scan to finish before continuing.');
+      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
+      setFileValidationErrors([scanInProgressMessage]);
+      setError(scanInProgressMessage);
       setShowErrorSummary(true);
+      setTimeout(() => {
+        setError(prev => (prev === scanInProgressMessage ? '' : prev));
+        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
+      }, 6000);
       return;
     }
 

@@ -208,9 +208,13 @@ const SupportingInfo: React.FC = () => {
 			 titlePlanRef,
 		 ];
 		 if (fileUploadRefs.some(ref => ref.current?.isBusy())) {
-			 setErrors([{ message: 'File scan is in progress. Wait for the scan to finish before continuing.', anchor: 'file-scan-in-progress' }]);
+			 const scanInProgressMessage: ValidationError = { message: 'File scan is in progress. Wait for the scan to finish before continuing.', anchor: 'file-scan-in-progress' };
+			 setErrors([scanInProgressMessage]);
 			 const errorSummary = document.querySelector('.govuk-error-summary');
 			 if (errorSummary) errorSummary.scrollIntoView({  });
+			 setTimeout(() => {
+				 setErrors(prev => (prev.length === 1 && prev[0].anchor === 'file-scan-in-progress') ? [] : prev);
+			 }, 6000);
 			 return;
 		 }
 
