@@ -108,7 +108,9 @@ const UploadWrittenWayleave: React.FC = () => {
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    // Always call triggerUpload() so it re-surfaces any infected/failed file still
+    // sitting in the "Rejected files" list, even when there's nothing new to upload.
+    if (fileUploadRef.current) {
       try {
         const result = await fileUploadRef.current.triggerUpload();
         if (result.scanErrors.length > 0) {
@@ -118,7 +120,7 @@ const UploadWrittenWayleave: React.FC = () => {
         }
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
-        
+
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
         // Clear file validation errors after successful upload

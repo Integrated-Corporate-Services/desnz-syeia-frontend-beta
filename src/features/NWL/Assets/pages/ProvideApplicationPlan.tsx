@@ -70,8 +70,10 @@ const ProvideApplicationPlan: React.FC = () => {
     let newUploadedFiles: UploadedFile[] = [];
     let newApplicationDocuments: ApplicationDocument[] = [];
 
-    // First, upload any pending files to S3
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    // First, upload any pending files to S3. Always call triggerUpload() so it
+    // re-surfaces any infected/failed file still sitting in the "Rejected files"
+    // list, even when there's nothing new to upload.
+    if (fileUploadRef.current) {
       try {
         logger.debug('[handleSubmit] Uploading pending files', {
           applicationId,

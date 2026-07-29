@@ -117,11 +117,10 @@ const ReviewDocumentsPage: React.FC = () => {
     setFormErrors([]);
     setApiError(null);
 
-    // Trigger file upload first if there are pending files (deferred upload pattern)
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    if (fileUploadRef.current) {
       try {
         const result = await fileUploadRef.current.triggerUpload();
         if (result.scanErrors.length > 0) {
@@ -142,8 +141,7 @@ const ReviewDocumentsPage: React.FC = () => {
     if (saveType === 'continue') {
       const errors = validateForm(newlyUploadedFiles);
 
-      const hasExistingFiles = uploadedFiles && uploadedFiles.length > 0;
-      if (errors.length > 0 || (fileValidationErrors.length > 0 && !hasExistingFiles)) {
+      if (errors.length > 0 || fileValidationErrors.length > 0) {
         setFormErrors(errors);
         // Scroll to error summary
         document.getElementById('error-summary')?.focus();

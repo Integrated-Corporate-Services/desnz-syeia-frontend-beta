@@ -178,10 +178,8 @@ const PublicNoticesEvidence: React.FC = () => {
     }
 
     setErrors(newErrors);
-    
-    const hasExistingFiles = uploadedFileObjs && uploadedFileObjs.length > 0;
-    
-    return Object.keys(newErrors).length === 0 && (fileValidationErrors.length === 0 || hasExistingFiles);
+
+    return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
   };
 
   const handleSaveAndContinue = async (e: React.FormEvent) => {
@@ -215,7 +213,7 @@ const PublicNoticesEvidence: React.FC = () => {
       let newlyUploadedFiles: UploadedFile[] = [];
       let newlyUploadedDocuments: ApplicationDocument[] = [];
       
-      if (fileUploadRef.current && pendingFiles.length > 0) {
+      if (fileUploadRef.current) {
         log.debug('[PublicNoticesEvidence] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
         const result = await fileUploadRef.current.triggerUpload();
         if (result.scanErrors.length > 0) {

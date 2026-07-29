@@ -141,8 +141,10 @@ const EvidenceOfNegotiations: React.FC = () => {
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-    // Upload pending files first and capture the result
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    // Upload pending files first and capture the result. Always call triggerUpload()
+    // so it re-surfaces any infected/failed file still sitting in the "Rejected files"
+    // list, even when there's nothing new to upload.
+    if (fileUploadRef.current) {
       const uploadResult = await fileUploadRef.current.triggerUpload();
       if (uploadResult.scanErrors.length > 0) {
         const scanErrors: Record<string, string> = {};

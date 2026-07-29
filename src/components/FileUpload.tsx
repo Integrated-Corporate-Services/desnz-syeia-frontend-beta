@@ -631,8 +631,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             <caption className="govuk-visually-hidden">Documents uploaded</caption>
             <thead className="govuk-table__head">
               <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header">File</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric">Action</th>
+                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
+                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
               </tr>
             </thead>
             <tbody className="govuk-table__body">
@@ -689,9 +689,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             <caption className="govuk-visually-hidden">Files that failed the virus scan</caption>
             <thead className="govuk-table__head">
               <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header">File</th>
-                <th scope="col" className="govuk-table__header">Status</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric">Action</th>
+                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
+                <th scope="col" className="govuk-table__header govuk-visually-hidden">Status</th>
+                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
               </tr>
             </thead>
             <tbody className="govuk-table__body">
@@ -731,8 +731,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             <caption className="govuk-visually-hidden">Files to be uploaded</caption>
             <thead className="govuk-table__head">
               <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header">File</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric">Action</th>
+                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
+                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
               </tr>
             </thead>
             <tbody className="govuk-table__body">

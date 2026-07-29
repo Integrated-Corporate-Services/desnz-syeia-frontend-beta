@@ -96,11 +96,10 @@ const SensitiveAreaReviewPage: React.FC = () => {
     setFormErrors([]);
     setApiError(null);
 
-    // Trigger file upload first if there are pending files (deferred upload pattern)
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    if (fileUploadRef.current) {
       try {
         const result = await fileUploadRef.current.triggerUpload();
         if (result.scanErrors.length > 0) {
