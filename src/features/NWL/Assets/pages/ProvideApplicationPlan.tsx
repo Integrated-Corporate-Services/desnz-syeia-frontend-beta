@@ -70,8 +70,7 @@ const ProvideApplicationPlan: React.FC = () => {
     let newUploadedFiles: UploadedFile[] = [];
     let newApplicationDocuments: ApplicationDocument[] = [];
 
-    // First, upload any pending files to S3
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    if (fileUploadRef.current) {
       try {
         logger.debug('[handleSubmit] Uploading pending files', {
           applicationId,

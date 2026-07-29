@@ -141,8 +141,7 @@ const EvidenceOfNegotiations: React.FC = () => {
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-    // Upload pending files first and capture the result
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    if (fileUploadRef.current) {
       const uploadResult = await fileUploadRef.current.triggerUpload();
       if (uploadResult.scanErrors.length > 0) {
         const scanErrors: Record<string, string> = {};

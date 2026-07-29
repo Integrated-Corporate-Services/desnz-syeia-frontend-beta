@@ -163,10 +163,8 @@ const ConsultationResponse2: React.FC = () => {
         }
 
         setErrors(newErrors);
-        
-        const hasExistingFiles = uploadedFileObjs && uploadedFileObjs.length > 0;
-        
-        return Object.keys(newErrors).length === 0 && (fileValidationErrors.length === 0 || hasExistingFiles);
+
+        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
     };
 
     const validateFormatOnly = () => {
@@ -182,10 +180,8 @@ const ConsultationResponse2: React.FC = () => {
         }
 
         setErrors(newErrors);
-        
-        const hasExistingFiles = uploadedFileObjs && uploadedFileObjs.length > 0;
-        
-        return Object.keys(newErrors).length === 0 && (fileValidationErrors.length === 0 || hasExistingFiles);
+
+        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
     };
 
     const handleSaveAndContinue = async () => {
@@ -207,7 +203,7 @@ const ConsultationResponse2: React.FC = () => {
             let newlyUploadedFiles: UploadedFile[] = [];
             let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-            if (fileUploadRef.current && pendingFiles.length > 0) {
+            if (fileUploadRef.current) {
                 const result = await fileUploadRef.current.triggerUpload();
                 if (result.scanErrors.length > 0) {
                     setFileValidationErrors(result.scanErrors);
@@ -243,9 +239,7 @@ const ConsultationResponse2: React.FC = () => {
                 newErrors.uploadedFiles = errorMessage;
             }
             
-            const hasExistingFiles = uploadedFileObjs.length > 0;
-            
-            if (Object.keys(newErrors).length > 0 || (fileValidationErrors.length > 0 && !hasExistingFiles)) {
+            if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
                 setErrors(newErrors);
                 const errorSummary = document.getElementById('error-summary');
                 if (errorSummary) {

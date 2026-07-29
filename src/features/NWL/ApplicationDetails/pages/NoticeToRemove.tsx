@@ -176,7 +176,7 @@ const NoticeToRemove: React.FC = () => {
     let newlyUploadedDocuments: ApplicationDocument[] = [];
     const fileErrors: string[] = [];
 
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    if (fileUploadRef.current) {
       try {
         const result = await fileUploadRef.current.triggerUpload();
         if (result.scanErrors.length > 0) {

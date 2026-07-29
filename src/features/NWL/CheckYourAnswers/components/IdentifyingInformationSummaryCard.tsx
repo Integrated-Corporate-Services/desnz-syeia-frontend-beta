@@ -1,7 +1,7 @@
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
-import { createSummaryRow, formatBoolean } from '../utils';
+import { createSummaryRow, formatBoolean, buildDocumentLinkHtml } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../../utils/logger';
@@ -42,11 +42,7 @@ export const IdentifyingInformationSummaryCard: React.FC<Props> = ({ data, appli
 
     if (data.site_identification_photographs && data.site_identification_photographs.length > 0) {
         const photosHtml = data.site_identification_photographs
-            .map((photo: any) => {
-                const fileKey = photo.fileUrl || photo.file_id;
-                const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-                return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${photo.filename}">${photo.filename}</a>`;
-            })
+            .map(buildDocumentLinkHtml)
             .join('<br>');
         rows.push({
             key: { text: CONSTANTS.IDENTIFYING_INFO_FIELDS.SITE_PHOTOGRAPHS },

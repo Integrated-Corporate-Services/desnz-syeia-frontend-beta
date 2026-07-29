@@ -1,7 +1,7 @@
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
-import { createSummaryRow, formatDate } from '../utils';
+import { createSummaryRow, formatDate, buildDocumentLinkHtml } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
@@ -20,11 +20,7 @@ const NewLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, appli
     groundsRows.push(createSummaryRow(CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_NOTICE_DATE, formatDate(data.wayleave_offer_date)));
     
     if (data.wayleave_offer_documents && data.wayleave_offer_documents.length > 0) {
-        const docLinks = data.wayleave_offer_documents.map((doc: any) => {
-            const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
-        }).join('<br>');
+        const docLinks = data.wayleave_offer_documents.map(buildDocumentLinkHtml).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_NOTICE_DOCUMENTS },
             value: { text: '', html: docLinks },

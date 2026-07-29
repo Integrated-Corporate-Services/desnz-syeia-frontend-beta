@@ -1,7 +1,7 @@
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
-import { createSummaryRow, formatDate, formatBoolean, getApplicationOptionText, getWayleaveTypeText } from '../utils';
+import { createSummaryRow, formatDate, formatBoolean, getApplicationOptionText, getWayleaveTypeText, buildDocumentLinkHtml } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
@@ -42,11 +42,7 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
 
     if (data.implied_wayleave_documents && data.implied_wayleave_documents.length > 0) {
         const docs = data.implied_wayleave_documents;
-        const docLinks = docs.map((doc: any) => {
-            const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
-        }).join('<br>');
+        const docLinks = docs.map(buildDocumentLinkHtml).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_EXPIRY_DOCUMENTS || 'Documents relating to the existing wayleave' },
             value: { text: '', html: docLinks },
@@ -64,11 +60,7 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
 
     if (data.wayleave_expiry_documents && data.wayleave_expiry_documents.length > 0) {
         const docs = data.wayleave_expiry_documents;
-        const docLinks = docs.map((doc: any) => {
-            const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
-        }).join('<br>');
+        const docLinks = docs.map(buildDocumentLinkHtml).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.WAYLEAVE_EXPIRY_DOCUMENTS },
             value: { text: '', html: docLinks },
@@ -85,11 +77,7 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
     }
 
     if (data.notice_to_terminate_documents && data.notice_to_terminate_documents.length > 0) {
-        const docLinks = data.notice_to_terminate_documents.map((doc: any) => {
-            const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
-        }).join('<br>');
+        const docLinks = data.notice_to_terminate_documents.map(buildDocumentLinkHtml).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_TO_TERMINATE_DOCUMENTS },
             value: { text: '', html: docLinks },
@@ -104,11 +92,7 @@ const ExistingLineDetailsCard: React.FC<Props> = ({ data, noticeComplianceData, 
     );
 
     if (data.notice_to_remove_documents && data.notice_to_remove_documents.length > 0) {
-        const docLinks = data.notice_to_remove_documents.map((doc: any) => {
-            const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-            return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
-        }).join('<br>');
+        const docLinks = data.notice_to_remove_documents.map(buildDocumentLinkHtml).join('<br>');
         groundsRows.push({
             key: { text: CONSTANTS.APPLICATION_FIELDS.NOTICE_DOCUMENTS },
             value: { text: '', html: docLinks },

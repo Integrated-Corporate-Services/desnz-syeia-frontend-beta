@@ -177,7 +177,7 @@ const BankTransferConfirmationPage: React.FC = () => {
       // If there are pending files in the FileUpload component, trigger upload now
       let uploadedFiles: any[] = [];
       let applicationDocuments: any[] = [];
-      if (fileUploadRef.current && pendingFiles.length > 0) {
+      if (fileUploadRef.current) {
         const uploadResult = await fileUploadRef.current.triggerUpload();
         if (uploadResult.scanErrors.length > 0) {
           setFileValidationErrors(uploadResult.scanErrors);

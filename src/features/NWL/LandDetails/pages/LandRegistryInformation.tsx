@@ -114,8 +114,7 @@ const LandRegistryInformation: React.FC = () => {
     setIsSaving(true);
 
     try {
-      // Trigger file upload if there are pending files
-      if (fileUploadRef.current && pendingFiles.length > 0) {
+      if (fileUploadRef.current) {
         const result = await fileUploadRef.current.triggerUpload();
 
         if (result.scanErrors.length > 0) {

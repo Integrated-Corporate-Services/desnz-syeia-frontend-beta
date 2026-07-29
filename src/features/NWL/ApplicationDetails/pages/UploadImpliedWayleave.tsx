@@ -108,7 +108,7 @@ const UploadImpliedWayleave: React.FC = () => {
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    if (fileUploadRef.current) {
       try {
         const result = await fileUploadRef.current.triggerUpload();
         if (result.scanErrors.length > 0) {
@@ -118,7 +118,7 @@ const UploadImpliedWayleave: React.FC = () => {
         }
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
-        
+
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
         // Clear file validation errors after successful upload
@@ -131,10 +131,7 @@ const UploadImpliedWayleave: React.FC = () => {
       }
     }
 
-
-    const hasExistingFiles = uploadedFiles.length > 0;
-
-    if (fileValidationErrors.length > 0 && !hasExistingFiles) {
+    if (fileValidationErrors.length > 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }

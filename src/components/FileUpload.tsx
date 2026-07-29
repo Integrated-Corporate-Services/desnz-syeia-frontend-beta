@@ -26,6 +26,14 @@ interface RejectedFile {
   virusName?: string | null;
 }
 
+
+function getRejectedFileMessage(file: RejectedFile): string {
+  const displayName = file.filename.split('/').pop() || file.filename;
+  return file.reason === 'INFECTED'
+    ? `${displayName} contains a virus${file.virusName ? ` (${file.virusName})` : ''} and could not be uploaded. Remove the file and try again.`
+    : `${displayName} could not be checked for viruses. Try uploading it again.`;
+}
+
 export interface FileUploadProps {
   title?: string;
   prefix?: string;
@@ -57,9 +65,6 @@ export interface FileUploadHandle {
     scanErrors: string[];
   }>;
   getPendingFiles: () => File[];
-  /** True while a file is still being uploaded and/or virus-scanned (covers both
-   * uploadImmediately and deferred modes). Callers should check this before
-   * navigating away, since triggerUpload() is a no-op when uploadImmediately=true. */
   isBusy: () => boolean;
 }
 
@@ -104,6 +109,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
     triggerUpload: async () => {
+      const staleInfectedFiles: RejectedFile[] = (uploadedFiles || [])
+        .filter((f: UploadedFile) => f.scanResult === 'INFECTED')
+        .map((f: UploadedFile) => ({ id: f.id, s3Key: f.s3Key, filename: f.filename, reason: 'INFECTED' as const, virusName: f.virusName }));
+      const unresolvedRejectedErrors = [...rejectedFiles, ...staleInfectedFiles].map(getRejectedFileMessage);
+
       if (pendingFiles.length > 0) {
         logger.info('Manually triggering upload for pending files', {
           pendingFilesCount: pendingFiles.length
@@ -114,9 +124,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         if (onPendingFilesChange) {
           onPendingFilesChange([]);
         }
-        return result;
+        return {
+          ...result,
+          scanErrors: [...unresolvedRejectedErrors, ...result.scanErrors],
+        };
       }
-      return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
+      return { uploadedFiles: [], applicationDocuments: [], scanErrors: unresolvedRejectedErrors };
     },
     getPendingFiles: () => pendingFiles,
     isBusy: () => isScanning,
@@ -423,7 +436,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             setStatuses([...newStatuses]);
 
             const scanOutcome = await waitForScanResult(confirmResponse.fileId);
-            const displayName = confirmResponse.fileName.split('/').pop() || confirmResponse.fileName;
 
             if (scanOutcome.scanStatus === 'COMPLETED' && scanOutcome.scanResult === 'INFECTED') {
               logger.warn('Uploaded file failed virus scan', {
@@ -431,16 +443,15 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                 fileName: confirmResponse.fileName,
                 virusName: scanOutcome.virusName,
               });
-              scanErrors.push(
-                `${displayName} contains a virus${scanOutcome.virusName ? ` (${scanOutcome.virusName})` : ''} and could not be uploaded. Remove the file and try again.`
-              );
-              newRejectedFiles.push({
+              const rejectedFile: RejectedFile = {
                 id: confirmResponse.fileId,
                 s3Key: confirmResponse.s3Key,
                 filename: confirmResponse.fileName,
                 reason: 'INFECTED',
                 virusName: scanOutcome.virusName,
-              });
+              };
+              scanErrors.push(getRejectedFileMessage(rejectedFile));
+              newRejectedFiles.push(rejectedFile);
               newStatuses[i] = "Virus detected";
             } else if (scanOutcome.scanStatus !== 'COMPLETED') {
               logger.warn('Uploaded file scan did not complete', {
@@ -448,13 +459,14 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                 fileName: confirmResponse.fileName,
                 scanStatus: scanOutcome.scanStatus,
               });
-              scanErrors.push(`${displayName} could not be checked for viruses. Try uploading it again.`);
-              newRejectedFiles.push({
+              const rejectedFile: RejectedFile = {
                 id: confirmResponse.fileId,
                 s3Key: confirmResponse.s3Key,
                 filename: confirmResponse.fileName,
                 reason: 'FAILED',
-              });
+              };
+              scanErrors.push(getRejectedFileMessage(rejectedFile));
+              newRejectedFiles.push(rejectedFile);
               newStatuses[i] = "Scan failed";
             } else {
               const uploadedFile: UploadedFile = {
@@ -467,6 +479,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                 fileContentType: confirmResponse.contentType,
                 fileSizeBytes: confirmResponse.fileSizeBytes,
                 uploadedAtTimestamp: confirmResponse.uploadedAt,
+                scanStatus: scanOutcome.scanStatus,
+                scanResult: scanOutcome.scanResult,
+                virusName: scanOutcome.virusName,
               };
               uploadedFiles.push(uploadedFile);
 
@@ -612,8 +627,14 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
-          {/* <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2> */}
           <table className="govuk-table">
+            <caption className="govuk-visually-hidden">Documents uploaded</caption>
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
+                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
+              </tr>
+            </thead>
             <tbody className="govuk-table__body">
               {uploadedFiles.map((file: UploadedFile, idx: number) => (
                 <tr key={file.id} className="govuk-table__row">
@@ -662,10 +683,17 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         </div>
       )}
 
-      {/* Rejected Files Section - Infected or failed-scan files, kept visible so they can be deleted */}
       {rejectedFiles.length > 0 && (
-        <div className="govuk-!-margin-bottom-6">
+        <div className="govuk-!-margin-bottom-6" role="status" aria-live="polite">
           <table className="govuk-table">
+            <caption className="govuk-visually-hidden">Files that failed the virus scan</caption>
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
+                <th scope="col" className="govuk-table__header govuk-visually-hidden">Status</th>
+                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
+              </tr>
+            </thead>
             <tbody className="govuk-table__body">
               {rejectedFiles.map((file) => (
                 <tr key={file.id} className="govuk-table__row">
@@ -686,7 +714,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                         await handleDeleteRejectedFile(file.id, file.s3Key);
                       }}
                     >
-                      Delete
+                      Delete<span className="govuk-visually-hidden"> {file.filename ? file.filename.split("/").pop() : "file"}</span>
                     </a>
                   </td>
                 </tr>
@@ -700,6 +728,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       {pendingFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
           <table className="govuk-table">
+            <caption className="govuk-visually-hidden">Files to be uploaded</caption>
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
+                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
+              </tr>
+            </thead>
             <tbody className="govuk-table__body">
               {pendingFiles.map((file: File, idx: number) => (
                 <tr key={`pending-${idx}`} className="govuk-table__row">

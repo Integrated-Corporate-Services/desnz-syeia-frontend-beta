@@ -79,7 +79,7 @@ const ImportantInformationDetails: React.FC = () => {
     let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
-    if (fileUploadRef.current && pendingFiles.length > 0) {
+    if (fileUploadRef.current) {
       const uploadResult = await fileUploadRef.current.triggerUpload();
       if (uploadResult.scanErrors.length > 0) {
         setErrors({ fileUpload: uploadResult.scanErrors.join(' ') });

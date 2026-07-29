@@ -99,6 +99,12 @@ export const formatEmail = (email: string | null | undefined): string => {
 };
 
 
+export const buildDocumentLinkHtml = (doc: { file_id?: string; fileUrl?: string; s3_key?: string; filename: string }): string => {
+    const fileKey = doc.fileUrl || doc.s3_key || doc.file_id || '';
+    const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
+    return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-file-id="${doc.file_id || ''}" data-filename="${doc.filename}">${doc.filename}</a>`;
+};
+
 export const getNestedProperty = (obj: any, path: string, defaultValue: any = ''): any => {
     const keys = path.split('.');
     let result = obj;

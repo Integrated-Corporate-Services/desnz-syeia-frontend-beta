@@ -118,7 +118,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		let newlyUploadedFiles: any[] = [];
 		let newlyUploadedDocuments: any[] = [];
 
-		if (fileUploadRef.current && pendingFiles.length > 0) {
+		if (fileUploadRef.current) {
 			try {
 				const result = await fileUploadRef.current.triggerUpload();
 				if (result.scanErrors.length > 0) {
@@ -155,9 +155,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		}
 		
 		
-		const hasExistingFiles = uploadedFileObjs.length > 0 || applicationDocuments.length > 0;
-		
-		if (Object.keys(newErrors).length > 0 || (fileValidationErrors.length > 0 && !hasExistingFiles)) {
+		if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
 			setErrors(newErrors);
 			window.scrollTo(0, 0);
 			return;
