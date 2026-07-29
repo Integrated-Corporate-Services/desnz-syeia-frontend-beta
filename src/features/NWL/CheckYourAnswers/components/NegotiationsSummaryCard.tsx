@@ -45,7 +45,7 @@ const getEvidenceDocuments = (data: NegotiationsData): DocumentLink[] => {
       const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
       const filename = doc.filename;
       const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-      return { fileKey, filename, downloadUrl };
+      return { fileKey, fileId: doc.file_id, filename, downloadUrl };
     });
 };
 
@@ -119,10 +119,11 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
                     {row.value.documents.map((doc, docIndex) => (
                       <React.Fragment key={doc.fileKey}>
                         {docIndex > 0 && <br />}
-                        <a 
-                          href={doc.downloadUrl} 
+                        <a
+                          href={doc.downloadUrl}
                           className="govuk-link"
                           data-file-key={doc.fileKey}
+                          data-file-id={doc.fileId}
                           data-filename={doc.filename}
                         >
                           {doc.filename}

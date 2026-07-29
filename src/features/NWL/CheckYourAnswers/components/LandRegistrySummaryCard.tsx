@@ -1,7 +1,7 @@
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
-import { createSummaryRow, formatBoolean } from '../utils';
+import { createSummaryRow, formatBoolean, buildDocumentLinkHtml } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../../utils/logger';
@@ -44,13 +44,11 @@ export const LandRegistrySummaryCard: React.FC<Props> = ({ data, applicationId, 
 
         if (data.land_registry_reference_document) {
             const doc = data.land_registry_reference_document;
-            const fileKey = doc.fileUrl || doc.file_id;
-            const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
             rows.push({
                 key: { text: CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC },
                 value: {
                     text: '',
-                    html: `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`,
+                    html: buildDocumentLinkHtml(doc),
                 },
             });
         } else {

@@ -61,7 +61,7 @@ export const AssetsPlanSummaryCard: React.FC<Props> = ({ data, applicationId, ca
                 const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
                 const filename = doc.filename || doc.title;
                 const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-                return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${filename}">${filename}</a>`;
+                return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-file-id="${doc.file_id || ''}" data-filename="${filename}">${filename}</a>`;
             })
             .join('<br>');
         rows.push({

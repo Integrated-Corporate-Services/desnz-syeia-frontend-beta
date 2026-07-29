@@ -33,6 +33,7 @@ export interface CheckYourAnswersData {
 
 export interface DocumentLink {
     fileKey: string;
+    fileId?: string;
     filename: string;
     downloadUrl: string;
 }

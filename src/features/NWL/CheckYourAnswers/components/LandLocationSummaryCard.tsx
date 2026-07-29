@@ -6,7 +6,7 @@
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
-import { createSummaryRow, formatBoolean } from '../utils';
+import { createSummaryRow, formatBoolean, buildDocumentLinkHtml } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
@@ -52,9 +52,7 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
             const doc = data.land_registry_reference_document;
             // Handle both object format and string format for backwards compatibility
             if (typeof doc === 'object' && doc.filename) {
-                const fileKey = doc.fileUrl || doc.file_id;
-                const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-                const docHtml = `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-filename="${doc.filename}">${doc.filename}</a>`;
+                const docHtml = buildDocumentLinkHtml(doc);
                 rows.push({
                     key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },
                     value: { text: '', html: docHtml },

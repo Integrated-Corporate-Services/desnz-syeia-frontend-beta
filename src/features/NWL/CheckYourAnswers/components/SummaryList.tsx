@@ -23,10 +23,11 @@ export const SummaryList: React.FC<SummaryListProps> = ({ rows, classes = '' }) 
                                 {row.value.documents.map((doc, docIndex) => (
                                     <React.Fragment key={doc.fileKey}>
                                         {docIndex > 0 && <br />}
-                                        <a 
-                                            href={doc.downloadUrl} 
+                                        <a
+                                            href={doc.downloadUrl}
                                             className="govuk-link"
                                             data-file-key={doc.fileKey}
+                                            data-file-id={doc.fileId}
                                             data-filename={doc.filename}
                                         >
                                             {doc.filename}
