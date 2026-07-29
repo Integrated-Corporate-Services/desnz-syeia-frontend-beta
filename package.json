@@ -19,7 +19,10 @@
     "verify:no-console": "node -e \"const fs=require('fs');const glob=require('glob');const files=glob.sync('src/**/*.{ts,tsx}',{ignore:['**/*.test.ts','**/*.spec.ts','**/node_modules/**']});let found=false;files.forEach(f=>{const content=fs.readFileSync(f,'utf8');const matches=content.match(/console\\.(log|info|debug)/g);if(matches&&!content.includes('src/utils/logger.ts')){console.log(f+': '+matches.length+' console statements');found=true}});if(found){console.log('❌ Found console statements');process.exit(1)}else{console.log('✅ No problematic console statements found')}\""
   },
   "overrides": {
-    "immutable": "5.1.9"
+    "immutable": "5.1.9",
+    "postcss": "8.5.18",
+    "react-router": "7.18.2",
+    "brace-expansion": "5.0.8"
   },
   "dependencies": {
     "@govuk-react/icon-crown": "^0.1.0",
@@ -37,7 +40,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.4.1",
+    "react-router-dom": "^7.18.2",
     "sass": "^1.86.1",
     "styled-components": "^6.1.16",
     "zustand": "^5.0.8"
