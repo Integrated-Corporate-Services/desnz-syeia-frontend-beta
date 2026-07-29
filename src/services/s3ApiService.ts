@@ -113,9 +113,12 @@ export async function confirmUpload(params: {
  * Get presigned GET URL for viewing/downloading files
  * URLs are cached to reduce backend calls
  * @param filename - S3 key/filename
+ * @param fileId - uploaded_files id, used by the backend to look up the file's
+ *   real current bucket (clean/quarantine once scanned) instead of assuming
+ *   the original upload bucket, and to refuse files that aren't clean
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
-export async function getPresignedGetUrl(filename: string): Promise<string> {
+export async function getPresignedGetUrl(filename: string, fileId?: string): Promise<string> {
 
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url'), {
@@ -125,7 +128,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ filename })
+    body: JSON.stringify({ filename, fileId })
   });
   if (!res.ok) throw new Error('Failed to get presigned GET URL');
   const { url } = await res.json();

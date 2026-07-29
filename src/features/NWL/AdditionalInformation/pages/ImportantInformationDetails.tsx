@@ -66,12 +66,16 @@ const ImportantInformationDetails: React.FC = () => {
     e.preventDefault();
 
     if (fileUploadRef.current?.isBusy()) {
-      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
-      setErrors({ fileUpload: scanInProgressMessage });
+      const blockingMessages = fileUploadRef.current.getBlockingMessages();
+      const isPersistent = fileUploadRef.current.hasRejectedFiles();
+      const combinedMessage = blockingMessages.join(' ');
+      setErrors({ fileUpload: combinedMessage });
       window.scrollTo(0, 0);
-      setTimeout(() => {
-        setErrors(prev => (Object.keys(prev).length === 1 && prev.fileUpload === scanInProgressMessage) ? {} : prev);
-      }, 6000);
+      if (!isPersistent) {
+        setTimeout(() => {
+          setErrors(prev => (Object.keys(prev).length === 1 && prev.fileUpload === combinedMessage) ? {} : prev);
+        }, 6000);
+      }
       return;
     }
 

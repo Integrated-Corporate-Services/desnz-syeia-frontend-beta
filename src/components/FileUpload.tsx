@@ -6,6 +6,7 @@ import {
   uploadFileToS3,
   deleteFileCompletely,
   confirmUpload,
+  getFileScanStatuses,
 } from "../services/s3ApiService";
 import { createLogger } from "../utils/logger";
 import { validateFiles, } from "../utils/fileUploadValidation";
@@ -22,7 +23,7 @@ interface RejectedFile {
   id: string;
   s3Key: string;
   filename: string;
-  reason: 'INFECTED' | 'FAILED';
+  reason: 'INFECTED' | 'FAILED' | 'PENDING';
   virusName?: string | null;
 }
 
@@ -57,10 +58,20 @@ export interface FileUploadHandle {
     scanErrors: string[];
   }>;
   getPendingFiles: () => File[];
-  /** True while a file is still being uploaded and/or virus-scanned (covers both
-   * uploadImmediately and deferred modes). Callers should check this before
+  /** True while a file is still being uploaded/virus-scanned, OR while a file has
+   * been confirmed infected/failed and is still sitting there unresolved. Covers
+   * both uploadImmediately and deferred modes. Callers should check this before
    * navigating away, since triggerUpload() is a no-op when uploadImmediately=true. */
   isBusy: () => boolean;
+  /** The specific reason(s) isBusy() is currently true - e.g. "<file> contains a
+   * virus (<name>) and cannot be used. Remove the file and try again." for a
+   * confirmed-infected file, vs a generic "still scanning" message when nothing
+   * is actually wrong yet. Empty array when isBusy() is false. */
+  getBlockingMessages: () => string[];
+  /** True if any currently-blocking reason is a confirmed infected/failed file
+   * (not just "still scanning"). Callers should NOT auto-dismiss the message in
+   * this case - it won't resolve on its own, only deleting the file clears it. */
+  hasRejectedFiles: () => boolean;
 }
 
 const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
@@ -80,7 +91,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   showTitle = true,
   onValidationErrors,
   onUploaded,
-  uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
+  uploadImmediately = false,
   onPendingFilesChange,
 }, ref) => {
   // Get user from auth context
@@ -119,8 +130,82 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     },
     getPendingFiles: () => pendingFiles,
-    isBusy: () => isScanning,
+    isBusy: () => isScanning || rejectedFiles.length > 0,
+    getBlockingMessages: () => {
+      if (rejectedFiles.length > 0) {
+        return rejectedFiles.map((f) => {
+          const displayName = f.filename ? f.filename.split('/').pop() : f.filename;
+          if (f.reason === 'INFECTED') {
+            return `${displayName} contains a virus${f.virusName ? ` (${f.virusName})` : ''} and cannot be used. Remove the file and try again.`;
+          }
+          if (f.reason === 'FAILED') {
+            return `${displayName} could not be checked for viruses. Remove the file and try again.`;
+          }
+          return `${displayName} is still being checked for viruses. Wait for the scan to finish before continuing.`;
+        });
+      }
+      if (isScanning) {
+        return ['File scan is in progress. Wait for the scan to finish before continuing.'];
+      }
+      return [];
+    },
+    hasRejectedFiles: () => rejectedFiles.length > 0,
   }));
+
+  useEffect(() => {
+    const ids = (uploadedFiles || []).map((f) => f.id).filter(Boolean);
+    if (ids.length === 0) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { statuses } = await getFileScanStatuses(ids);
+        if (cancelled) return;
+
+        const statusById = new Map(statuses.map((s) => [s.fileId, s]));
+        const newlyUnsafe: RejectedFile[] = [];
+
+        for (const file of uploadedFiles || []) {
+          const status = statusById.get(file.id);
+          const isClean = status?.scanStatus === 'COMPLETED' && status?.scanResult === 'CLEAN';
+          if (isClean) continue;
+
+          const reason: RejectedFile['reason'] =
+            status?.scanStatus === 'COMPLETED' && status?.scanResult === 'INFECTED'
+              ? 'INFECTED'
+              : status?.scanStatus === 'FAILED'
+                ? 'FAILED'
+                : 'PENDING';
+
+          newlyUnsafe.push({
+            id: file.id,
+            s3Key: file.s3Key,
+            filename: file.filename,
+            reason,
+            virusName: status?.virusName,
+          });
+        }
+
+        if (newlyUnsafe.length > 0) {
+          logger.warn('Excluding non-clean pre-loaded files from the downloadable documents list', {
+            files: newlyUnsafe.map((f) => ({ id: f.id, filename: f.filename, reason: f.reason })),
+          });
+          setRejectedFiles((prev) => {
+            const existingIds = new Set(prev.map((f) => f.id));
+            const toAdd = newlyUnsafe.filter((f) => !existingIds.has(f.id));
+            return toAdd.length > 0 ? [...prev, ...toAdd] : prev;
+          });
+        }
+      } catch (err) {
+        logger.error('Failed to re-verify scan status of previously-loaded files', { error: err });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [uploadedFiles]);
 
   // Notify parent when pending files change
   useEffect(() => {
@@ -609,58 +694,62 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
   return (
     <div className="gds-upload-container" tabIndex={-1}>
-      {/* Documents Uploaded Section - Show uploaded files first */}
-      {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
-        <div className="govuk-!-margin-bottom-6">
-          {/* <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2> */}
-          <table className="govuk-table">
-            <tbody className="govuk-table__body">
-              {uploadedFiles.map((file: UploadedFile, idx: number) => (
-                <tr key={file.id} className="govuk-table__row">
-                  <td className="govuk-table__cell">
-                    <a
-                      href="#"
-                      className="govuk-link"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (file.s3Key) {
-                          try {
-                            await downloadS3FileOnSameTab(file.s3Key, file.id);
-                          } catch (error) {
-                            logger.error('Failed to download file', {
-                              s3Key: file.s3Key,
-                              filename: file.filename,
-                              error
-                            });
-                          }
-                        }
-                      }}
-                    >
-                      {file.filename ? file.filename.split("/").pop() : ""}
-                    </a>
-                  </td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">
-                    <a
-                      href="#"
-                      className="govuk-link"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (onDeleteFile) {
-                          await handleDeleteFile(file.id, file.s3Key);
-                        } else if (onRemoveFile) {
-                          onRemoveFile(idx);
-                        }
-                      }}
-                    >
-                      Delete
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.filter(
+        (file) => !rejectedFiles.some((rf) => rf.id === file.id)
+      ).length > 0 && (
+          <div className="govuk-!-margin-bottom-6">
+            {/* <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2> */}
+            <table className="govuk-table">
+              <tbody className="govuk-table__body">
+                {uploadedFiles
+                  .map((file: UploadedFile, idx: number) => ({ file, idx }))
+                  .filter(({ file }) => !rejectedFiles.some((rf) => rf.id === file.id))
+                  .map(({ file, idx }) => (
+                    <tr key={file.id} className="govuk-table__row">
+                      <td className="govuk-table__cell">
+                        <a
+                          href="#"
+                          className="govuk-link"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            if (file.s3Key) {
+                              try {
+                                await downloadS3FileOnSameTab(file.s3Key, file.id);
+                              } catch (error) {
+                                logger.error('Failed to download file', {
+                                  s3Key: file.s3Key,
+                                  filename: file.filename,
+                                  error
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          {file.filename ? file.filename.split("/").pop() : ""}
+                        </a>
+                      </td>
+                      <td className="govuk-table__cell govuk-table__cell--numeric">
+                        <a
+                          href="#"
+                          className="govuk-link"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            if (onDeleteFile) {
+                              await handleDeleteFile(file.id, file.s3Key);
+                            } else if (onRemoveFile) {
+                              onRemoveFile(idx);
+                            }
+                          }}
+                        >
+                          Delete
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
       {/* Rejected Files Section - Infected or failed-scan files, kept visible so they can be deleted */}
       {rejectedFiles.length > 0 && (
@@ -673,9 +762,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                     <span>{file.filename ? file.filename.split("/").pop() : ""}</span>
                   </td>
                   <td className="govuk-table__cell">
-                    <strong className="govuk-tag govuk-tag--red">
-                      {file.reason === 'INFECTED' ? 'Infected' : 'Scan failed'}
-                    </strong>
+                    {file.reason === 'PENDING' ? (
+                      <strong className="govuk-tag govuk-tag--grey">Scanning…</strong>
+                    ) : (
+                      <strong className="govuk-tag govuk-tag--red">
+                        {file.reason === 'INFECTED' ? 'Infected' : 'Scan failed'}
+                      </strong>
+                    )}
                   </td>
                   <td className="govuk-table__cell govuk-table__cell--numeric">
                     <a

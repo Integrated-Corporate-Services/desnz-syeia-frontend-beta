@@ -284,13 +284,17 @@ const ProjectOverview = () => {
 					setIsSubmitting(true);
 
 					if (fileUploadRef.current?.isBusy()) {
-						const scanInProgressMessage = `<a href="#file-upload">File scan is in progress. Wait for the scan to finish before continuing.</a>`;
-						setErrors([scanInProgressMessage]);
+						const blockingMessages = fileUploadRef.current.getBlockingMessages()
+							.map(msg => `<a href="#file-upload">${msg}</a>`);
+						const isPersistent = fileUploadRef.current.hasRejectedFiles();
+						setErrors(blockingMessages);
 						setIsSubmitting(false);
 						window.scrollTo({ top: 0 });
-						setTimeout(() => {
-							setErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
-						}, 6000);
+						if (!isPersistent) {
+							setTimeout(() => {
+								setErrors(prev => (JSON.stringify(prev) === JSON.stringify(blockingMessages)) ? [] : prev);
+							}, 6000);
+						}
 						return;
 					}
 

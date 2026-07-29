@@ -167,11 +167,15 @@ useEffect(() => {
 
   const handleSave = async (validate: boolean) => {
     if (fileUploadRef.current?.isBusy()) {
-      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
-      setErrorMessage(scanInProgressMessage);
-      setTimeout(() => {
-        setErrorMessage(prev => (prev === scanInProgressMessage) ? null : prev);
-      }, 6000);
+      const blockingMessages = fileUploadRef.current.getBlockingMessages();
+      const isPersistent = fileUploadRef.current.hasRejectedFiles();
+      const blockingMessage = blockingMessages.join(' ');
+      setErrorMessage(blockingMessage);
+      if (!isPersistent) {
+        setTimeout(() => {
+          setErrorMessage(prev => (prev === blockingMessage) ? null : prev);
+        }, 6000);
+      }
       return;
     }
     if (validate && !packSections.some(section => section.include)) {

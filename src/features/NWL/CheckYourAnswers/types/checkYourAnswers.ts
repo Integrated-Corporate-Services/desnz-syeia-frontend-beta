@@ -35,6 +35,10 @@ export interface DocumentLink {
     fileKey: string;
     filename: string;
     downloadUrl: string;
+    /** uploaded_files id - lets the download endpoint find the file's real
+     * current bucket instead of assuming the original upload bucket, which
+     * 404s once the scan workflow has moved/deleted the object from there. */
+    fileId?: string;
 }
 
 export interface SummaryRow {

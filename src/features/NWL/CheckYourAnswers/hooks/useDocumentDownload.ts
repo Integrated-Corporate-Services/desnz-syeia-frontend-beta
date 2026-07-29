@@ -11,16 +11,20 @@ export const useDocumentDownload = () => {
             
             if (target.tagName === 'A' && target.hasAttribute('data-file-key')) {
                 e.preventDefault();
-                
+
                 const fileKey = target.getAttribute('data-file-key');
-                
+                // Optional for now - only set once a card passes it through. Without it
+                // the backend falls back to the original upload bucket, which 404s once
+                // the scan workflow has moved/deleted the object from there.
+                const fileId = target.getAttribute('data-file-id') || undefined;
+
                 if (fileKey) {
                     try {
-                        logger.info('Downloading document via presigned URL', { fileKey });
-                        await downloadS3FileOnSameTab(fileKey);
-                        logger.info('Document download initiated successfully', { fileKey });
+                        logger.info('Downloading document via presigned URL', { fileKey, fileId });
+                        await downloadS3FileOnSameTab(fileKey, fileId);
+                        logger.info('Document download initiated successfully', { fileKey, fileId });
                     } catch (error) {
-                        logger.error('Failed to download document', { error, fileKey });
+                        logger.error('Failed to download document', { error, fileKey, fileId });
                     }
                 }
             }

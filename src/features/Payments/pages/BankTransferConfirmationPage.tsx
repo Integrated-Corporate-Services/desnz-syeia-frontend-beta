@@ -127,8 +127,9 @@ const BankTransferConfirmationPage: React.FC = () => {
 
   const handleSubmit = async () => {
     if (fileUploadRef.current?.isBusy()) {
-      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
-      setFileValidationErrors([scanInProgressMessage]);
+      const blockingMessages = fileUploadRef.current.getBlockingMessages();
+      const isPersistent = fileUploadRef.current.hasRejectedFiles();
+      setFileValidationErrors(blockingMessages);
       setTimeout(() => {
         const errorSummary = document.querySelector('.govuk-error-summary');
         if (errorSummary) {
@@ -136,9 +137,11 @@ const BankTransferConfirmationPage: React.FC = () => {
           errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 0);
-      setTimeout(() => {
-        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
-      }, 6000);
+      if (!isPersistent) {
+        setTimeout(() => {
+          setFileValidationErrors(prev => (JSON.stringify(prev) === JSON.stringify(blockingMessages)) ? [] : prev);
+        }, 6000);
+      }
       return;
     }
 

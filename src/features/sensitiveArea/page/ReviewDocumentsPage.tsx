@@ -105,12 +105,15 @@ const ReviewDocumentsPage: React.FC = () => {
   // Save handler
   const handleSaveReview = async (saveType: 'continue' | 'later' = 'continue') => {
     if (fileUploadRef.current?.isBusy()) {
-      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
-      setFileValidationErrors([scanInProgressMessage]);
+      const blockingMessages = fileUploadRef.current.getBlockingMessages();
+      const isPersistent = fileUploadRef.current.hasRejectedFiles();
+      setFileValidationErrors(blockingMessages);
       document.getElementById('error-summary')?.focus();
-      setTimeout(() => {
-        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
-      }, 6000);
+      if (!isPersistent) {
+        setTimeout(() => {
+          setFileValidationErrors(prev => (JSON.stringify(prev) === JSON.stringify(blockingMessages)) ? [] : prev);
+        }, 6000);
+      }
       return;
     }
 

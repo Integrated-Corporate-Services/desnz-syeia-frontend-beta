@@ -208,13 +208,17 @@ const SupportingInfo: React.FC = () => {
 			 titlePlanRef,
 		 ];
 		 if (fileUploadRefs.some(ref => ref.current?.isBusy())) {
-			 const scanInProgressMessage: ValidationError = { message: 'File scan is in progress. Wait for the scan to finish before continuing.', anchor: 'file-scan-in-progress' };
-			 setErrors([scanInProgressMessage]);
+			 const blockingMessages = fileUploadRefs.flatMap(ref => ref.current?.getBlockingMessages() || []);
+			 const isPersistent = fileUploadRefs.some(ref => ref.current?.hasRejectedFiles());
+			 const blockingErrors: ValidationError[] = blockingMessages.map(msg => ({ message: msg, anchor: 'file-scan-in-progress' }));
+			 setErrors(blockingErrors);
 			 const errorSummary = document.querySelector('.govuk-error-summary');
 			 if (errorSummary) errorSummary.scrollIntoView({  });
-			 setTimeout(() => {
-				 setErrors(prev => (prev.length === 1 && prev[0].anchor === 'file-scan-in-progress') ? [] : prev);
-			 }, 6000);
+			 if (!isPersistent) {
+				 setTimeout(() => {
+					 setErrors(prev => (JSON.stringify(prev) === JSON.stringify(blockingErrors)) ? [] : prev);
+				 }, 6000);
+			 }
 			 return;
 		 }
 

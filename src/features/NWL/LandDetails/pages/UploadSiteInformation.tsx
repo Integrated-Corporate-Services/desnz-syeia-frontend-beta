@@ -55,12 +55,15 @@ const UploadSiteInformation: React.FC = () => {
 
   const handleSaveAndContinue = async () => {
     if (fileUploadRef.current?.isBusy()) {
-      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
-      setFileValidationErrors([scanInProgressMessage]);
+      const blockingMessages = fileUploadRef.current.getBlockingMessages();
+      const isPersistent = fileUploadRef.current.hasRejectedFiles();
+      setFileValidationErrors(blockingMessages);
       window.scrollTo(0, 0);
-      setTimeout(() => {
-        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
-      }, 6000);
+      if (!isPersistent) {
+        setTimeout(() => {
+          setFileValidationErrors(prev => (JSON.stringify(prev) === JSON.stringify(blockingMessages)) ? [] : prev);
+        }, 6000);
+      }
       return;
     }
 

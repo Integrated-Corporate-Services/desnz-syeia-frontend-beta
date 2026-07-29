@@ -55,14 +55,18 @@ const ProvideApplicationPlan: React.FC = () => {
 
   const handleSubmit = async () => {
     if (fileUploadRef.current?.isBusy()) {
-      const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
-      setFileValidationErrors([scanInProgressMessage]);
-      setError(scanInProgressMessage);
+      const blockingMessages = fileUploadRef.current.getBlockingMessages();
+      const isPersistent = fileUploadRef.current.hasRejectedFiles();
+      const blockingMessage = blockingMessages.join(' ');
+      setFileValidationErrors(blockingMessages);
+      setError(blockingMessage);
       setShowErrorSummary(true);
-      setTimeout(() => {
-        setError(prev => (prev === scanInProgressMessage ? '' : prev));
-        setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
-      }, 6000);
+      if (!isPersistent) {
+        setTimeout(() => {
+          setError(prev => (prev === blockingMessage ? '' : prev));
+          setFileValidationErrors(prev => (JSON.stringify(prev) === JSON.stringify(blockingMessages)) ? [] : prev);
+        }, 6000);
+      }
       return;
     }
 

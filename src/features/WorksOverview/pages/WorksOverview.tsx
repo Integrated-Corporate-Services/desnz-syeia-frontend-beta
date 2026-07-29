@@ -200,7 +200,11 @@ const WorksOverview: React.FC = () => {
 
   const uploadPendingFiles = async () => {
     if (roadClosureFileUploadRef.current?.isBusy()) {
-      throw new Error('File scan is in progress. Wait for the scan to finish before continuing.');
+      const blockingMessages = roadClosureFileUploadRef.current.getBlockingMessages();
+      const isPersistent = roadClosureFileUploadRef.current.hasRejectedFiles();
+      const err = new Error(blockingMessages.join(' ')) as Error & { isPersistent?: boolean };
+      err.isPersistent = isPersistent;
+      throw err;
     }
     if (roadClosureFileUploadRef.current && pendingRoadClosureFiles.length > 0) {
       const result = await roadClosureFileUploadRef.current.triggerUpload();
@@ -232,7 +236,12 @@ const WorksOverview: React.FC = () => {
     } catch (err) {
       const message = err instanceof Error ? err.message : ASSET_ERROR_MESSAGES.generalCommentsFailed;
       setErrors([{ field: 'generalComments', message }]);
-      if (message === 'File scan is in progress. Wait for the scan to finish before continuing.') {
+      // Only auto-clear the transient "still scanning" case from Guard 1 above
+      // (explicitly marked isPersistent: false). Every other error path (real
+      // scanErrors from triggerUpload, a persistent rejected-file block, or a
+      // genuine save failure) stays on screen until the user resolves it.
+      const isTransient = err instanceof Error && (err as Error & { isPersistent?: boolean }).isPersistent === false;
+      if (isTransient) {
         setTimeout(() => {
           setErrors(prev => (prev.length === 1 && prev[0].message === message) ? [] : prev);
         }, 6000);
