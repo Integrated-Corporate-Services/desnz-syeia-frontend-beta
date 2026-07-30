@@ -128,6 +128,7 @@ export interface WorksOverview {
 export interface ResponseDocument {
 	name?: string;
 	url: string;
+	file_id?: string;
 }
 
 export interface Consultation {
@@ -149,11 +150,11 @@ export interface Consultation {
     evidenceResponseNotReceivedDocs?: ResponseDocument[];
     consulteeContactName?: string;
     closeComments?: string;
-    consultationRequestDocs?: { name: string; url: string; key?: string; filename?: string }[];
+    consultationRequestDocs?: { name: string; url: string; key?: string; filename?: string; file_id?: string }[];
     respondingConsulteeName?: string;
     respondingConsulteeEmail?: string;
     notRequiredReason?: string;
-    notRequiredDocs?: { name: string; url: string; key?: string; filename?: string }[];
+    notRequiredDocs?: { name: string; url: string; key?: string; filename?: string; file_id?: string }[];
 	// PUBLIC consultation specific fields
     firstDatePublished?: string | null;
     secondDatePublished?: string | null;
