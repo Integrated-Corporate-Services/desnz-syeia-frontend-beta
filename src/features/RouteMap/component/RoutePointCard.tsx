@@ -29,10 +29,6 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
   onFocus,
   isSelected,
 }) => {
-  const [eastingTouched, setEastingTouched] = useState(false);
-  const [northingTouched, setNorthingTouched] = useState(false);
-
- 
   const eastingValid = isValidGridValue(point.easting);
   const northingValid = isValidGridValue(point.northing);
   // Only show error styling if error prop is present (after submit)
@@ -58,8 +54,6 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
  // Unified onChange handler
   const handleInputChange = (field: 'easting' | 'northing', value: string) => {
     onChange(field, value);
-    if (field === 'easting') setEastingTouched(true);
-    if (field === 'northing') setNorthingTouched(true);
   };
   return (
     <div className={`govuk-summary-card${error ? ' fds-summary-card--error' : ''}`}>

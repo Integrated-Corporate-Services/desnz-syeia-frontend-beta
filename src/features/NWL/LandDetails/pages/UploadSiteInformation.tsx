@@ -24,7 +24,6 @@ const UploadSiteInformation: React.FC = () => {
   const fileUploadRef = useRef<FileUploadHandle>(null);
 
   const [isSaving, setIsSaving] = useState(false);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 
   const handleDeleteFile = (fileId: string) => {
@@ -141,7 +140,6 @@ const UploadSiteInformation: React.FC = () => {
                   applicationDocuments={pageApplicationDocuments}
                   onDeleteFile={handleDeleteFile}
                   uploadImmediately={true}
-                  onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}
                   onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {
                     updateLandDetails({

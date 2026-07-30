@@ -2,7 +2,7 @@ import React from 'react';
 import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
 import { S37_BASE_URL } from '../../../constants/s37';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import RouteDeletedBanner from '../component/RouteDeletedBanner';
 import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';

@@ -4,7 +4,7 @@ import { getSensitiveAreaSettings } from '../../../services/sensitiveAreaSetting
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { startSensitiveAreaCheck } from '../../../services/sensitiveAreaService';
 import { getRoutesWithPoints } from '../../../services/routeMapService';
-import SensitiveAreaCheckMap, { RoutePoint } from '../../../components/SensitiveAreaCheckMap';
+import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
 import ErrorBoundary from '../../../components/ErrorBoundary';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';

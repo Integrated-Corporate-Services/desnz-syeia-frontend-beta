@@ -8,7 +8,6 @@ import React from "react";
 import axios from "axios";
 import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 import { createLogger } from "./utils/logger";
-import { buildBackendUrl } from "./utils/apiConfig";
 import { fetchCsrfToken, getCsrfToken } from "./utils/csrf";
 import { getApiBaseUrl } from "./utils/apiConfig";
 
@@ -18,7 +17,7 @@ const csrfLogger = createLogger('csrf');
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = getApiBaseUrl();
 
-fetchCsrfToken().then(token => {
+fetchCsrfToken().then(() => {
   csrfLogger.debug('Initial CSRF token fetched on app startup');
 });
 

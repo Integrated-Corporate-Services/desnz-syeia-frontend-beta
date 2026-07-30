@@ -17,7 +17,6 @@ const LandownerOccupantDetails: React.FC = () => {
   const [repContactPhone, setRepContactPhone] = useState("");
   const [errors, setErrors] = useState<{[key:string]:string}>({});
   const [showRepFields, setShowRepFields] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const navigate = useNavigate();
 
@@ -38,7 +37,6 @@ const LandownerOccupantDetails: React.FC = () => {
   useEffect(() => {
     if (!applicationId) {
       setIsEditMode(false);
-      setLoading(false);
       return;
     }
     const url = `/api/nwl/${applicationId}/landowner-occupant-details`;
@@ -46,7 +44,6 @@ const LandownerOccupantDetails: React.FC = () => {
       .then(res => {
         if (!res.ok) {
           setIsEditMode(false);
-          setLoading(false);
           return null;
         }
         return res.json();
@@ -90,17 +87,11 @@ const LandownerOccupantDetails: React.FC = () => {
           setRepContactEmail('');
           setRepContactPhone('');
         }
-        setLoading(false);
       })
       .catch(() => {
         setIsEditMode(false);
-        setLoading(false);
       });
   }, [applicationId]);
-
-  const isValidUUID = (uuid: string) => {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

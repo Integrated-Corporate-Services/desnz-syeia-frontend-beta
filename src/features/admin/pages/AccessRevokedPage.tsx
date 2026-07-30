@@ -5,7 +5,7 @@ import SkipLink from '../../../components/SkipLink';
 
 const AccessRevokedPage: React.FC = () => {
   const location = useLocation();
-  const { navigateToDashboard, navigateToAddUser } = useManageUsersNavigation();
+  const { navigateToDashboard } = useManageUsersNavigation();
 
   const state = location.state as { userName?: string; userEmail?: string } | null;
   const userName = state?.userName || 'the user';

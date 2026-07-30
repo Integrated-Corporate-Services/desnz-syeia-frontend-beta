@@ -46,7 +46,6 @@ export const useDashboard = (userRole: string) => {
           
           // Calculate stats from all the data
           const approved = requests.filter(req => req.status === 'APPROVED').length;
-          const rejected = requests.filter(req => req.status === 'REJECTED').length;
           
           setStats({
             pendingRequests: pending.length,

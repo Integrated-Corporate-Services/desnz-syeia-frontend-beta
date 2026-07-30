@@ -178,38 +178,6 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			}
 		};
 
-		// Save for later handler (set status to REQUEST_INCOMPLETE)
-		const handleSaveForLater = async () => {
-			if (!consultationId || !notRequiredStatus?.details) return;
-			
-			// For save for later, only require reason (allow saving without files for partial completion)
-			const newErrors: {reason?: string} = {};
-			
-			if (!reason.trim()) {
-				newErrors.reason = 'You must provide a reason why this consultation is not required';
-				setErrors(newErrors);
-				window.scrollTo(0, 0);
-				return;
-			}
-			
-			// Clear any previous errors
-			setErrors({});
-			
-			const updatedDetails = {
-				...notRequiredStatus.details,
-				status: ConsultationStatus.REQUEST_INCOMPLETE,
-				notRequiredReason: reason,
-				uploadedFiles: uploadedFileObjs,
-				applicationDocuments: applicationDocuments
-			};
-			try {
-				await saveNotRequiredStatus(consultationId, updatedDetails);
-				navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-			} catch (err) {
-				// TODO: error handling
-			}
-		};
-
 	return (
 		<>
 			<SkipLink />

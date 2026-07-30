@@ -13,7 +13,6 @@ import SkipLink from '../../../components/SkipLink';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
@@ -206,11 +205,6 @@ useEffect(() => {
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to save');
     }
-  };
-
-  const handleSaveForLater = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSave(false);
   };
 
   const handleSaveAndContinue = (e: React.FormEvent) => {
