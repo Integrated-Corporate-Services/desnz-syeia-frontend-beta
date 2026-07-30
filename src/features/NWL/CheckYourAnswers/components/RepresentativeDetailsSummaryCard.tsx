@@ -48,7 +48,7 @@ export const RepresentativeDetailsSummaryCard: React.FC<Props> = ({ data, applic
 
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.ORGANISATION, data.representative_organisation || CONSTANTS.DEFAULTS.EMPTY));
 
-    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.EMAIL, formatEmail(data.representative_email)));
+    rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.EMAIL, formatEmail(data.representative_email), undefined, 'Change', true));
 
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.PHONE, formatPhone(data.representative_phone)));
 

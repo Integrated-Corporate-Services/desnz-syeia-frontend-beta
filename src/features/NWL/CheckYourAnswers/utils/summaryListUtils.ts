@@ -32,10 +32,16 @@ export const formatList = (items: string[]): string => {
     return `<ul class="govuk-list govuk-list--bullet">${items.map((item) => `<li>${item}</li>`).join('')}</ul>`;
 };
 
-export const createSummaryRow = (key: string, value: string, changeLink?: string, changeLinkText: string = 'Change'): SummaryRow => {
+export const createSummaryRow = (
+    key: string,
+    value: string,
+    changeLink?: string,
+    changeLinkText: string = 'Change',
+    isHtml: boolean = false
+): SummaryRow => {
     const row: SummaryRow = {
         key: { text: key },
-        value: value.includes('<') ? { text: '', html: value } : { text: value },
+        value: isHtml ? { text: '', html: value } : { text: value },
     };
 
     if (changeLink) {

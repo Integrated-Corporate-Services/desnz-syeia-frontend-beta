@@ -72,6 +72,8 @@ export const useUserManagementDashboard = () => {
       "Last login": user.lastLogin || "Never",
     }));
 
+    if (csvData.length === 0) return;
+
     const headers = Object.keys(csvData[0]).join(",");
     const rows = csvData.map((row) => Object.values(row).join(","));
     const csv = [headers, ...rows].join("\n");

@@ -51,7 +51,7 @@ export const OccupierDetailsSummaryCard: React.FC<Props> = ({ data, applicationI
     });
 
     // Email
-    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.EMAIL, formatEmail(data.objector_email)));
+    rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.EMAIL, formatEmail(data.objector_email), undefined, 'Change', true));
 
     // Phone
     rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.PHONE, formatPhone(data.objector_phone)));

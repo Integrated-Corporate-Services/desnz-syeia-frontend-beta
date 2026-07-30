@@ -46,7 +46,7 @@ export const LandownerDetailsSummaryCard: React.FC<Props> = ({ data, application
             key: { text: CONSTANTS.LANDOWNER_FIELDS.ADDRESS },
             value: { text: '', html: addressHtml },
         });
-        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.EMAIL, formatEmail(data.landowner_email)));
+        rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.EMAIL, formatEmail(data.landowner_email), undefined, 'Change', true));
         rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.PHONE, formatPhone(data.landowner_phone)));
     }
 

@@ -52,7 +52,10 @@ const SENSITIVE_PATTERNS = [
   /127\.0\.0\.1/i,
   /token/i,
   /session/i,
-  /key/i,
+  /\bapi[_\s-]?key\b/i,
+  /\bsecret[_\s-]?key\b/i,
+  /\bprivate[_\s-]?key\b/i,
+  /\baccess[_\s-]?key\b/i,
   /secret/i,
   /password/i,
   /cookie/i,
@@ -213,7 +216,7 @@ export function createSafeErrorLog(error: any): Record<string, any> {
 /**
  * Helper for React components to display error messages safely
  */
-export function useErrorMessage(error: any, context?: string): string | null {
+export function getErrorMessage(error: any, context?: string): string | null {
   if (!error) return null;
   return mapErrorToUserMessage(error, context);
 }

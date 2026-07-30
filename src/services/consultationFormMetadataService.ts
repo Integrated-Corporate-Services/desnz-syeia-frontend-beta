@@ -32,7 +32,17 @@ export async function getFormMetadata(
     return response.data;
   } catch (error: any) {
     if (error.response?.status === 404) return null;
-    throw new Error('Failed to get form metadata');
+    const status = error.response?.status;
+    const originalMessage = error.message;
+    const context = [
+      status ? `status ${status}` : null,
+      originalMessage ? `message: ${originalMessage}` : null
+    ]
+      .filter(Boolean)
+      .join(', ');
+    throw new Error(
+      `Failed to get form metadata${context ? ` (${context})` : ''}`
+    );
   }
 }
 
@@ -51,8 +61,17 @@ export async function updateFormMetadata(
     );
     return response.data;
   } catch (error: any) {
-    const message = error.response?.data?.error || 'Failed to update form metadata';
-    throw new Error(message);
+    const status = error.response?.status;
+    const originalMessage = error.response?.data?.error || error.message;
+    const context = [
+      status ? `status ${status}` : null,
+      originalMessage ? `message: ${originalMessage}` : null
+    ]
+      .filter(Boolean)
+      .join(', ');
+    throw new Error(
+      `Failed to update form metadata${context ? ` (${context})` : ''}`
+    );
   }
 }
 
@@ -67,7 +86,11 @@ export async function downloadConsultationForm(
   const res = await fetch(url, { credentials: 'include' });
   
   if (!res.ok) {
-    throw new Error('Failed to download consultation form');
+    const status = res.status;
+    const statusText = res.statusText;
+    throw new Error(
+      `Failed to download consultation form (status ${status}: ${statusText})`
+    );
   }
   
   return await res.blob();

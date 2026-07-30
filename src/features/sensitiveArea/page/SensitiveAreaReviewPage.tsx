@@ -163,11 +163,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
     };
     try {
       await saveReview(payload);
-      if (saveType === 'continue') {
-        navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-      } else {
-        navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
-      }
+      navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : SENSITIVE_AREA_ERRORS.SAVE_REVIEW_FAILED;
       setApiError(errorMessage);
