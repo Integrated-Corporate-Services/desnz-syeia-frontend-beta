@@ -24,7 +24,8 @@
   "overrides": {
     "immutable": "5.1.9",
     "postcss": "8.5.18",
-    "brace-expansion": "5.0.8"
+    "brace-expansion": "5.0.8",
+    "uuid": "11.1.1"
   },
   "dependencies": {
     "@govuk-react/icon-crown": "^0.1.0",
