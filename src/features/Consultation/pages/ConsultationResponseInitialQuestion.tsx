@@ -5,7 +5,6 @@ import SkipLink from '../../../components/SkipLink';
 
 const ConsultationResponseInitialQuestion: React.FC = () => {
   const { applicationId, consultationId } = useParams();
-  const location = useLocation();
   const navigate = useNavigate();
 
   const [responseReceived, setResponseReceived] = useState<string>('');
