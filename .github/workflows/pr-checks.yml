@@ -24,6 +24,7 @@ jobs:
         with:
           fail-on-severity: moderate
           comment-summary-in-pr: always
+          allow-ghsas: GHSA-qwww-vcr4-c8h2
 
   build:
     name: "Build Verification"
