@@ -10,12 +10,11 @@ import SkipLink from '../../../components/SkipLink';
 
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const applicationId = useGetApplicationId();
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
   
-  const { invoiceNumber, paymentId, reference, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
+  const { invoiceNumber, paymentId, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
 
   // State for fetched desnz_ref if not passed
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);

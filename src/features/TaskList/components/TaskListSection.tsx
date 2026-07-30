@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import RouteEntry from '../../RouteMap/page/RouteEntry';
-import { S37_BASE_URL } from '../../../constants/s37';
 
 interface TaskListSectionProps {
   section: {
@@ -33,7 +32,6 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
   handleSubmit,
   statusClass,
 }) => {
-  const navigate = useNavigate();
   const isSubmitted = applicationStatus?.toLowerCase() === 'submitted';
   const canEdit = !isSubmitted || isAdmin;
 

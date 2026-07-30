@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { S37_BASE_URL } from '../../../constants/s37';
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
@@ -24,8 +24,6 @@ const ConsultationRequestNotSent: React.FC = () => {
   const [consultationPack, setConsultationPack] = useState<any>(null);
   const [packSections, setPackSections] = useState<PackSection[]>([]);
   const [packDocuments, setPackDocuments] = useState<any[]>([]);
-  const [selectAllSections, setSelectAllSections] = useState(false);
-  const [selectAllDocuments, setSelectAllDocuments] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -88,43 +86,6 @@ const ConsultationRequestNotSent: React.FC = () => {
     fetchData();
   }, [consultationId, applicationId]);
 
-  const handleSave = async (validate: boolean) => {
-    try {
-      const packObj = {
-        consultation: consultationPack?.consultation || { 
-          id: consultationId, 
-          applicationId 
-        },
-        pack: consultationPack?.pack || { 
-          packId: '', 
-          consultationId, 
-          createdAt: '', 
-          createdBy: user?.user_id || '', 
-          lastUpdatedAt: '', 
-          lastUpdatedBy: user?.user_id || '' 
-        },
-        packSections,
-        packDocuments,
-        uploadedFiles: consultationPack?.uploadedFiles || [],
-        applicationDocuments: consultationPack?.applicationDocuments || [],
-        appDocs: []
-      };
-
-      await saveConsultationPack(packObj);
-
-      if (validate) {
-        const consulteeid = consultationPack?.consultation?.default_email || "";
-        const orgname = consultationPack?.consultation?.org_name || "";
-        const queryParams = `?consulteeid=${encodeURIComponent(consulteeid)}&orgname=${encodeURIComponent(orgname)}`;
-        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/email-consultee${queryParams}`);
-      } else {
-        navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to save');
-    }
-  };
-
   // const handleSaveForLater = (e: React.FormEvent) => {
   //   e.preventDefault();
   //   handleSave(false);
@@ -135,7 +96,7 @@ useEffect(() => {
       try {
         if (!consultationId || !applicationId) return;
         
-        const existingData = await getFormMetadata(applicationId, consultationId);
+        await getFormMetadata(applicationId, consultationId);
         
         // The applicant details are already populated from consultationPack
         // This is just for verification/future use

@@ -13,8 +13,7 @@ import { SaveType } from "../types";
 import SkipLink from "../../../components/SkipLink";
 
 const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
-  const { applicationId, getTaskListUrl, getCheckYourAnswersUrl, navigateAfterCompletion } = usePostConsultationNavigation();
-  const navigate = useNavigate();
+  const { applicationId, getTaskListUrl, navigateAfterCompletion } = usePostConsultationNavigation();
   const {
     consulteesExplanation,
     setConsulteesExplanation,

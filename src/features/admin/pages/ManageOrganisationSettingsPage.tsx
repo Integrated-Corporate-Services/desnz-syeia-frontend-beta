@@ -6,7 +6,6 @@ import SkipLink from '../../../components/SkipLink';
 
 const ManageOrganisationSettingsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
-  const navigate = useNavigate();
   const { organisation, loading, error } = useOrganisation(organisationId);
 
   const [hasChanges, setHasChanges] = useState(false);

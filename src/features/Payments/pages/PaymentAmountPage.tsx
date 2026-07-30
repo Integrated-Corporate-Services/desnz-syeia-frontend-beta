@@ -12,10 +12,8 @@ const PaymentAmountPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const applicationId = useGetApplicationId();
-  const { user } = useAuthUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { assets } = useAssets();
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 

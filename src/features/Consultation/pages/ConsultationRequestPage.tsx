@@ -136,27 +136,6 @@ const ConsultationRequestPage: React.FC = () => {
     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
   };
 
-  // Validation function
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-    
-    // Date validation using shared utility
-    const dateValidation = validateDateComponents(responseDate, 'consultation request', { required: true });
-    if (!dateValidation.isValid) {
-      newErrors.responseDate = dateValidation.error!;
-    }
-    
-    // File validation - check both uploaded files AND pending files
-    const hasFiles = (uploadedFileObjs && uploadedFileObjs.length > 0) || pendingFiles.length > 0;
-    
-    if (!hasFiles) {
-      newErrors.fileUpload = CONSULTATION_VALIDATION_MESSAGES.consultationRequestUpload.empty;
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
-  };
-
   // Validation for save for later (only format validation, not required fields)
   const validateFormatOnly = () => {
     const newErrors: { [key: string]: string } = {};
@@ -260,42 +239,6 @@ const ConsultationRequestPage: React.FC = () => {
       logger.error('Save failed:', error);
       log.error('[ConsultationRequestPage] Error saving consultation request:', error);
       alert(`Failed to save consultation request: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  // Save for later handler (format validation only)
-  const handleSaveForLater = async () => {
-    if (!validateFormatOnly()) {
-      // Scroll to error summary
-      const errorSummary = document.getElementById('error-summary');
-      if (errorSummary) {
-        errorSummary.focus();
-        errorSummary.scrollIntoView({ block: 'start' });
-      }
-      return;
-    }
-    
-    let sentDate = '';
-    if (responseDate.year && responseDate.month && responseDate.day) {
-      sentDate = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
-    }
-    const payload = {
-      applicationId: applicationId || '',
-      consultationId: consultationId || '',
-      sentDate: sentDate || undefined,
-      uploadedFiles: uploadedFileObjs,
-      applicationDocuments: applicationDocuments,
-      createdBy: user?.user_id || '',
-      lastUpdatedBy: user?.user_id || '',
-      status: ConsultationStatus.DRAFT,
-    };
-    try {
-      log.debug('[ConsultationRequestPage] Saving consultation draft', { status: ConsultationStatus.DRAFT });
-      await saveConsultationRequest(payload);
-      log.info('[ConsultationRequestPage] Consultation draft saved successfully');
-      navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-    } catch (error) {
-      log.error('[ConsultationRequestPage] Error saving consultation request for later:', error);
     }
   };
 

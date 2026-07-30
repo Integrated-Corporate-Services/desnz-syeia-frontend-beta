@@ -1,34 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import AssetInformationForm from '../features/AssetInfo/pages/AssetInformationForm';
-import ProjectOverview from '../features/ProjectOverview/pages/ProjectOverview';
+import React from 'react';
 import LandingPage from '../features/SignIn/LandingPage';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { ROUTE_CONFIG } from '../constants/routes';
 
-// Real authentication check using backend /api/user endpoint
-const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch('/api/user', { credentials: 'include' });
-        if (res.ok) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch (e) {
-        setIsAuthenticated(false);
-      }
-    };
-    checkAuth();
-  }, []);
-  return isAuthenticated;
-};
-
-
 const AppRouter: React.FC = () => {
-  const isAuthenticated = false; // DNS always leads to signin
 
   return (
     <Routes>

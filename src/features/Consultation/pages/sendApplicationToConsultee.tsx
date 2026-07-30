@@ -16,7 +16,6 @@ const SendApplicationToConsultee: React.FC = () => {
   const consultationId = params.consultationId || searchParams.get("consultationId") || "";
   const applicationId = params.applicationId || searchParams.get("applicationId") || "";
 
-  const [consultationName, setConsultationName] = useState("");
   const [orgEmail, setOrgEmail] = useState("");
   const [packSections, setPackSections] = useState<any[]>([]);
   const [packDocuments, setPackDocuments] = useState<any[]>([]);
@@ -42,7 +41,6 @@ const SendApplicationToConsultee: React.FC = () => {
       setError(null);
       try {
         const data = await getConsultationPack(consultationId, applicationId);
-        setConsultationName(data?.consultation?.org_name || "Consultation name");
         setOrgEmail(data?.consultation?.consultee_email_address || "");
         setPackSections((data?.packSections || []).filter((s: any) => s.include));
         setPackDocuments((data?.packDocuments || []).filter((d: any) => d.include));

@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import SkipLink from "../../../components/SkipLink";
 
 const PostConsultationLpaConditions: React.FC = () => {
-  const { applicationId, getTaskListUrl, getCheckYourAnswersUrl, navigateAfterCompletion } = usePostConsultationNavigation();
+  const { applicationId, getTaskListUrl, navigateAfterCompletion } = usePostConsultationNavigation();
   const navigate = useNavigate();
   const {
     acceptConditions,

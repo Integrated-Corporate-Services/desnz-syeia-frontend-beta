@@ -37,7 +37,6 @@ const UnregisteredLandDetails: React.FC = () => {
     setExplanation(landDetails.unregistered_land_explanation || '');
   }, [landDetails.unregistered_land_explanation]);
   const [isSaving, setIsSaving] = useState(false);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
 
   const maxCharacters = 4000;
@@ -196,7 +195,6 @@ const UnregisteredLandDetails: React.FC = () => {
                     applicationDocuments={pageApplicationDocuments}
                     uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
-                  onPendingFilesChange={setPendingFiles}
                   onValidationErrors={setFileValidationErrors}
                   onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {
                     updateLandDetails({

@@ -99,10 +99,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
   const [rejectedFiles, setRejectedFiles] = useState<RejectedFile[]>([]); // Infected/failed-scan files - kept visible so the user can delete them
   const [isScanning, setIsScanning] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [statuses, setStatuses] = useState<string[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [downloadStatuses, setDownloadStatuses] = useState<string[]>([]);
 
   const files = internalFiles;
 
@@ -207,8 +203,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       } else {
         setInternalFiles(allFiles);
       }
-      setStatuses(Array(allFiles.length).fill(""));
-      setDownloadStatuses(Array(allFiles.length).fill(""));
 
       if (uploadImmediately) {
         // Upload immediately (original behavior)
@@ -292,8 +286,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       } else {
         setInternalFiles(allFiles);
       }
-      setStatuses(Array(allFiles.length).fill(""));
-      setDownloadStatuses(Array(allFiles.length).fill(""));
 
       if (uploadImmediately) {
         // Upload immediately (original behavior)
@@ -326,31 +318,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     e.preventDefault();
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRemoveFile = (idx: number) => {
-    const fileToRemove = files[idx];
-
-    if (onRemoveFile) {
-      onRemoveFile(idx);
-    } else {
-      setInternalFiles((prev) => prev.filter((_, i) => i !== idx));
-    }
-    setStatuses((prev) => prev.filter((_, i) => i !== idx));
-    setDownloadStatuses((prev) => prev.filter((_, i) => i !== idx));
-
-    // Also remove from pending files if it exists there
-    if (fileToRemove && !uploadImmediately) {
-      setPendingFiles((prev) =>
-        prev.filter(f => !(f.name === fileToRemove.name && f.size === fileToRemove.size))
-      );
-    }
-
-
-    if (onValidationErrors) {
-      onValidationErrors([]);
-    }
-  };
-
   // Core upload logic, called instantly after file select/drop
   const uploadFiles = async (uploadFiles: File[]): Promise<{
     uploadedFiles: UploadedFile[];
@@ -359,10 +326,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   }> => {
 
     if (uploadFiles.length === 0) {
-      setStatuses(["No files selected"]);
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     }
-    setStatuses(Array(uploadFiles.length).fill("Requesting presigned URLs..."));
     setIsScanning(true);
 
     try {
@@ -374,12 +339,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       const data = await getPresignedUrls(fileMetas);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
-        setStatuses(
-          Array(uploadFiles.length).fill("Failed to get presigned URLs")
-        );
         return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
       }
-      const newStatuses = Array(uploadFiles.length).fill("");
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
       const scanErrors: string[] = [];
@@ -388,12 +349,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       for (let i = 0; i < uploadFiles.length; i++) {
         const urlObj = data.urls[i];
         if (!urlObj.url) {
-          newStatuses[i] = "Failed to get presigned URL";
-          setStatuses([...newStatuses]);
           continue;
         }
-        newStatuses[i] = "Uploading to S3...";
-        setStatuses([...newStatuses]);
         try {
           const uploadRes = await uploadFileToS3(urlObj.url, uploadFiles[i]);
 
@@ -403,9 +360,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               : uploadFiles[i].name;
 
             const etag = uploadRes.headers.get('etag');
-
-            newStatuses[i] = "Confirming upload...";
-            setStatuses([...newStatuses]);
 
             logger.info('S3 upload successful, calling confirm endpoint', {
               s3Key,
@@ -432,9 +386,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               s3Key: confirmResponse.s3Key
             });
 
-            newStatuses[i] = "Scanning for viruses...";
-            setStatuses([...newStatuses]);
-
             const scanOutcome = await waitForScanResult(confirmResponse.fileId);
 
             if (scanOutcome.scanStatus === 'COMPLETED' && scanOutcome.scanResult === 'INFECTED') {
@@ -452,10 +403,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               };
               scanErrors.push(getRejectedFileMessage(rejectedFile));
               newRejectedFiles.push(rejectedFile);
-              newStatuses[i] = "Virus detected";
             } else if (scanOutcome.scanStatus !== 'COMPLETED') {
               logger.warn('Uploaded file scan did not complete', {
-                fileId: confirmResponse.fileId,
                 fileName: confirmResponse.fileName,
                 scanStatus: scanOutcome.scanStatus,
               });
@@ -467,7 +416,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               };
               scanErrors.push(getRejectedFileMessage(rejectedFile));
               newRejectedFiles.push(rejectedFile);
-              newStatuses[i] = "Scan failed";
             } else {
               const uploadedFile: UploadedFile = {
                 id: confirmResponse.fileId,
@@ -499,11 +447,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               };
               applicationDocuments.push(applicationDocument);
 
-              newStatuses[i] = "Upload complete";
             }
-
-            setStatuses([...newStatuses]);
-
             setInternalFiles((prevFiles: File[]) => {
               const idxToRemove = prevFiles.findIndex(
                 (file: File) =>
@@ -511,14 +455,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                   file.size === uploadFiles[i].size
               );
               if (idxToRemove !== -1) {
-                setStatuses((prevStatuses: string[]) =>
-                  prevStatuses.filter((_, idx: number) => idx !== idxToRemove)
-                );
-                setDownloadStatuses((prevDownloadStatuses: string[]) =>
-                  prevDownloadStatuses.filter(
-                    (_, idx: number) => idx !== idxToRemove
-                  )
-                );
                 return prevFiles.filter(
                   (_, idx: number) => idx !== idxToRemove
                 );
@@ -526,13 +462,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               return prevFiles;
             });
           } else {
-            newStatuses[i] = "Upload failed: " + uploadRes.statusText;
-            setStatuses([...newStatuses]);
+            // Upload failed
           }
         } catch (err) {
-          newStatuses[i] =
-            "Error: " + (err instanceof Error ? err.message : String(err));
-          setStatuses([...newStatuses]);
           logger.error('Upload or confirm failed', {
             fileName: uploadFiles[i].name,
             error: err
@@ -553,11 +485,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       }
       return { uploadedFiles, applicationDocuments, scanErrors };
     } catch (err) {
-      setStatuses(
-        Array(uploadFiles.length).fill(
-          "Error: " + (err instanceof Error ? err.message : String(err))
-        )
-      );
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     } finally {
       setIsScanning(false);

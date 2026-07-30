@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Parish } from "../types/Parish";
 import { parishApiService } from "../services/parishApiService";
 import { PARISH_VALIDATION } from "../constants/parishConstants";
-import { S37_BASE_URL } from "../../../constants/s37";
 import { createLogger } from "../../../utils/logger";
 import { getNextPageUrl, TASK_NAMES } from "../../../utils/taskListUtils";
 

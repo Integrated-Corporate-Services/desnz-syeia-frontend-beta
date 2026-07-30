@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { SaveType } from '../types';
-import { areAllRequiredSectionsCompleted, getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 export const usePostConsultationNavigation = () => {
     const navigate = useNavigate();

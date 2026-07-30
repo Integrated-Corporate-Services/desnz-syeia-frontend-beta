@@ -41,7 +41,6 @@ const NoticeToTerminate: React.FC = () => {
     year?: string;
   }>({});
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   
   // Ref for file upload
   const fileUploadRef = useRef<FileUploadHandle>(null);
@@ -417,7 +416,6 @@ const NoticeToTerminate: React.FC = () => {
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
                   uploadImmediately={true}
-                  onPendingFilesChange={setPendingFiles}
                   onDeleteFile={(fileId) => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));

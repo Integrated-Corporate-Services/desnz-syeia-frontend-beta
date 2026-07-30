@@ -39,7 +39,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
-    const [submitError, setSubmitError] = useState<string>('');
     const [submitted, setSubmitted] = useState(false);    
     const [loading, setLoading] = useState(false);
     const [comments, setComments] = useState<string>('');
@@ -128,21 +127,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         setSubmitted(false);
     }, []);
 
-    const validateForm = (): boolean => {
-        const newErrors: Record<string, string> = {};
-
-        if (uploadedFileObjs.length === 0) {
-            newErrors.files = CONSULTATION_VALIDATION_MESSAGES.evidenceNotReceivedUpload.empty;
-        }
-
-        if (!formData.declarationAccepted) {
-            newErrors.declaration = CONSULTATION_VALIDATION_MESSAGES.evidenceNotReceivedDeclaration.empty;
-        }
-
-        setErrors(newErrors);
-        setSubmitError('');
-        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
-    };
 
     // Handle file validation errors from FileUpload component
     const handleFileValidationErrors = (errors: string[]) => {
@@ -257,7 +241,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
             if (Object.keys(newErrors).length > 0 || fileValidationErrors.length > 0) {
                 setErrors(newErrors);
-                setSubmitError('');
                 const errorSummary = document.getElementById('error-summary');
                 if (errorSummary) {
                     errorSummary.focus();

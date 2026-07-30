@@ -110,35 +110,6 @@ const ConsultationResponse3: React.FC = () => {
         }
     };
 
-    const handleSaveForLater = async () => {
-        try {
-            // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!, applicationId);
-            
-            const payload: Partial<ConsultationResponse> = {
-                ...existingData,
-                response_comments: comments,
-                created_by: userId,
-                last_updated_by: userId,
-                has_all_documents_uploaded: declarationAccepted,
-                isSave: true
-            };
-            
-            // Only include IDs if they have valid values
-            if (consultationId) {
-                payload.consultation_id = consultationId;
-            }
-            if (responseId) {
-                payload.response_id = responseId;
-            }
-
-            await saveConsultationResponse(payload, applicationId);
-            navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-        } catch (err) {
-            logger.error('Error saving consultation response:', err);
-        }
-    };
-
     return (
         <>
             <SkipLink />

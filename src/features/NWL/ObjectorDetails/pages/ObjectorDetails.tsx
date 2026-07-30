@@ -8,7 +8,7 @@ import { saveObjectorPersonalInfo } from '../services';
 const ObjectorDetails: React.FC = () => {
   const { appId, objectorDetails } = useObjectorDetailsData();
   const { errors, validatePersonDetails, clearFieldError } = useFormValidation();
-  const { navigateToObjectorAddress, navigateToTaskList } = useObjectorNavigation(appId);
+  const { navigateToObjectorAddress } = useObjectorNavigation(appId);
 
   const [title, setTitle] = useState('');
   const [fullName, setFullName] = useState('');

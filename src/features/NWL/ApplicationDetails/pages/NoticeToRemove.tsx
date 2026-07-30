@@ -41,7 +41,6 @@ const NoticeToRemove: React.FC = () => {
     year?: string;
   }>({});
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   
   // Ref for file upload
   const fileUploadRef = useRef<FileUploadHandle>(null);
@@ -123,40 +122,6 @@ const NoticeToRemove: React.FC = () => {
       setUploadedFiles(files as unknown as UploadedFile[]);
     }
   }, [applicationDetails, appId]);
-
-  const validateForm = (uploadedFilesCount: number, applicationDocsCount: number): boolean => {
-    const newErrors: string[] = [];
-    const newFieldErrors: typeof fieldErrors = {};
-
-    if (!day || !month || !year) {
-      newErrors.push(VALIDATION_MESSAGES.DATE_REQUIRED);
-      if (!day) newFieldErrors.day = VALIDATION_MESSAGES.DATE_REQUIRED;
-      if (!month) newFieldErrors.month = VALIDATION_MESSAGES.DATE_REQUIRED;
-      if (!year) newFieldErrors.year = VALIDATION_MESSAGES.DATE_REQUIRED;
-    } else if (!validateDate(day, month, year)) {
-      newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
-      newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
-    } else if (!validateDateNotInFuture(day, month, year)) {
-      newErrors.push(FORM_ERRORS.FUTURE_DATE);
-      newFieldErrors.day = FORM_ERRORS.FUTURE_DATE;
-    }
-
-    // Validate files
-    const totalFiles = uploadedFilesCount + applicationDocsCount;
-    if (totalFiles === 0) {
-      //newErrors.push(FORM_ERRORS.NO_FILES);
-      // Set file validation errors for inline display
-      setFileValidationErrors([FORM_ERRORS.NO_FILES]);
-    } else {
-      // Clear file validation errors if files are present
-      setFileValidationErrors([]);
-    }
-
-    setErrors(newErrors);
-    setFieldErrors(newFieldErrors);
-
-    return newErrors.length === 0;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -466,7 +431,6 @@ const NoticeToRemove: React.FC = () => {
                   applicationDocuments={applicationDocuments}
                   showDocumentsHeading={true}
                   uploadImmediately={true}
-                  onPendingFilesChange={setPendingFiles}
                   onDeleteFile={(fileId) => {
                     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));

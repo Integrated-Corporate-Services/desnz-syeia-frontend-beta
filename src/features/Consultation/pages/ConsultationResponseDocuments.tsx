@@ -143,30 +143,6 @@ const ConsultationResponse2: React.FC = () => {
         }
     };
 
-    const validateForm = () => {
-        const newErrors: { [key: string]: string } = {};
-
-        // For PUBLIC consultations, skip date validation
-        if (consultationType !== ConsultationType.PUBLIC) {
-            // Date validation using shared utility
-            const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: true });
-            if (!dateValidation.isValid) {
-                newErrors.responseDate = dateValidation.error!;
-            }
-        }
-
-        if (!uploadedFileObjs || uploadedFileObjs.length === 0) {
-            const errorMessage = consultationType === ConsultationType.PUBLIC
-                ? CONSULTATION_VALIDATION_MESSAGES.responseDocumentsUpload.emptyPublic
-                : CONSULTATION_VALIDATION_MESSAGES.responseDocumentsUpload.emptyNonPublic;
-            newErrors.uploadedFiles = errorMessage;
-        }
-
-        setErrors(newErrors);
-
-        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
-    };
-
     const validateFormatOnly = () => {
         const newErrors: { [key: string]: string } = {};
 
@@ -277,50 +253,6 @@ const ConsultationResponse2: React.FC = () => {
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response3`);
         } catch (err) {
             alert(`Failed to save consultation response: ${err instanceof Error ? err.message : 'Unknown error'}`);
-        }
-    };
-
-    const handleSaveForLater = async () => {
-        if (!validateFormatOnly()) {
-            const errorSummary = document.getElementById('error-summary');
-            if (errorSummary) {
-                errorSummary.focus();
-                errorSummary.scrollIntoView({  block: 'start' });
-            }
-            return;
-        }
-
-        let receivedAt;
-        if (responseDate.year && responseDate.month && responseDate.day) {
-            receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
-        }
-
-        try {
-            // Fetch existing data to preserve all fields
-            const existingData = await getConsultationResponse(consultationId!, applicationId);
-            
-            const payload: Partial<ConsultationResponse> = {
-                ...existingData,
-                received_at: receivedAt,
-                uploaded_files: uploadedFileObjs.length > 0 ? uploadedFileObjs : existingData.uploaded_files,
-                application_documents: applicationDocuments.length > 0 ? applicationDocuments : existingData.application_documents,
-                created_by: userId,
-                last_updated_by: userId,
-                isSave: true
-            };
-            
-            // Only include IDs if they have valid values
-            if (consultationId) {
-                payload.consultation_id = consultationId;
-            }
-            if (responseId) {
-                payload.response_id = responseId;
-            }
-
-            await saveConsultationResponse(payload, applicationId);
-            navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
-        } catch (err) {
-            // Error saving consultation response
         }
     };
 
