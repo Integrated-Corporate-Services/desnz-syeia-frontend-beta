@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import LandingPage from '../features/SignIn/LandingPage';
 import { Routes, Route } from 'react-router-dom';
 import { ROUTE_CONFIG } from '../constants/routes';
