@@ -6,6 +6,7 @@
 import axios from 'axios';
 import { createLogger } from '../../../../utils/logger';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
+import { parseBackendValidationErrors } from '../../../../utils/apiErrorHandler';
 
 const logger = createLogger('nwlAssetService');
 import { buildBackendUrl } from '../../../../utils/apiConfig';
@@ -90,6 +91,13 @@ export const nwlAssetService = {
         error: error.message,
         response: error.response?.data
       });
+      // Parse validation errors if present
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const err: any = new Error(error.message);
+        err.status = error.response.status;
+        err.validationErrors = parseBackendValidationErrors(error.response.data);
+        throw err;
+      }
       throw error;
     }
   },

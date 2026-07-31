@@ -3,6 +3,7 @@ import { ObjectorDetails } from '../types';
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 import { getCsrfHeaders } from '../../../../utils/csrf';
 import { createLogger } from '../../../../utils/logger';
+import { parseBackendValidationErrors } from '../../../../utils/apiErrorHandler';
 
 const logger = createLogger('ObjectorDetailsService');
 const API_BASE = buildBackendUrl('/api/nwl');
@@ -19,7 +20,7 @@ export const getObjectorDetails = async (applicationId: string): Promise<Objecto
       const errorData = await response.json().catch(() => ({}));
       const error: any = new Error(`Failed to fetch objector details: ${response.statusText}`);
       error.status = response.status;
-      error.validationErrors = errorData.details || errorData.message || errorData;
+      error.validationErrors = parseBackendValidationErrors(errorData);
       throw error;
     }
     return await response.json();
@@ -63,7 +64,7 @@ export const saveObjectorDetails = async (
       const errorData = await response.json().catch(() => ({}));
       const error: any = new Error(`Failed to save objector details: ${response.statusText}`);
       error.status = response.status;
-      error.validationErrors = errorData.details || errorData.message || errorData;
+      error.validationErrors = parseBackendValidationErrors(errorData);
       throw error;
     }
     
@@ -91,7 +92,7 @@ export const deleteObjectorDetails = async (applicationId: string): Promise<bool
       const errorData = await response.json().catch(() => ({}));
       const error: any = new Error(`Failed to delete objector details: ${response.statusText}`);
       error.status = response.status;
-      error.validationErrors = errorData.details || errorData.message || errorData;
+      error.validationErrors = parseBackendValidationErrors(errorData);
       throw error;
     }
 

@@ -37,7 +37,15 @@ const RepresentativeAddress: React.FC = () => {
     const newErrors: { [key: string]: string } = {};
     if (!addressLine1.trim()) newErrors.addressLine1 = FORM_ERRORS.MISSING_ADDRESS_LINE1;
     if (!town.trim()) newErrors.town = FORM_ERRORS.MISSING_TOWN;
-    if (!postcode.trim()) newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
+    if (!postcode.trim()) {
+      newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
+    } else {
+      // Postcode is provided, validate format
+      const postcodeError = validatePostcode(postcode);
+      if (postcodeError) {
+        newErrors.postcode = postcodeError;
+      }
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -209,17 +217,8 @@ const RepresentativeAddress: React.FC = () => {
                 <label className="govuk-label" htmlFor="postcode">{FORM_LABELS.POSTCODE}</label>
                 {errors.postcode && <p id="postcode-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.postcode}</p>}
                 <input className={`govuk-input ${errors.postcode ? "govuk-input--error" : ""}`} id="postcode" name="postcode" type="text" value={postcode} onChange={(e) => {
-                  const value = e.target.value;
-                  setPostcode(value);
+                  setPostcode(e.target.value);
                   handleClearFieldError('postcode');
-                  
-                  // Validate postcode format if user is typing
-                  if (value.trim()) {
-                    const postcodeError = validatePostcode(value);
-                    if (postcodeError) {
-                      setErrors(prev => ({ ...prev, postcode: postcodeError }));
-                    }
-                  }
                 }} aria-describedby={errors.postcode ? "postcode-error" : undefined} />
               </div>
               <button type="submit" className="govuk-button" data-module="govuk-button" disabled={isSaving}>
