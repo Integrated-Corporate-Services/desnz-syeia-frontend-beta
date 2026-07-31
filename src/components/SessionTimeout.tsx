@@ -215,7 +215,6 @@ const SessionTimeoutModal: React.FC = () => {
             disabled={remaining <= 0 || isRefreshing} 
             type="button" 
             onClick={handleContinueClick}
-            disabled={isRefreshing}
             data-module="govuk-button"
             aria-describedby="stay-description"
           >
