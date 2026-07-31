@@ -21,7 +21,6 @@ const ConsultationResponse3: React.FC = () => {
     const [comments, setComments] = useState<string>('');
     const [declarationAccepted, setDeclarationAccepted] = useState<boolean>(false);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    const [responseId, setResponseId] = useState<string>('');
     const [consultationName, setConsultationName] = useState<string>('');
     const [consultationType, setConsultationType] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -39,7 +38,6 @@ const ConsultationResponse3: React.FC = () => {
                     setIsLoading(true);
                     const data = await getConsultationResponse(consultationId, applicationId);
                     setComments(data.response_comments || '');
-                    setResponseId(data.response_id || '');
                     // Fetch all consultations to get the organization name
                     const consultations = await fetchConsultationDetails(applicationId!, user?.user_id!);
 

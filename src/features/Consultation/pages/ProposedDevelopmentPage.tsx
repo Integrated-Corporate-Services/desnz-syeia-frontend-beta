@@ -3,7 +3,6 @@ import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom'
 import { S37_BASE_URL } from '../../../constants/s37';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationPack } from '../../../services/consultationPackService';
 import { getProposedDevelopment, saveProposedDevelopment } from '../../../services/consultationProposedDevelopmentService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';

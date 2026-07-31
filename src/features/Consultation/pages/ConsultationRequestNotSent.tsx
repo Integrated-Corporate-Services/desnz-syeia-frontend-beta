@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { S37_BASE_URL } from '../../../constants/s37';
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
-import { useAuthUser } from "../../../hooks/useAuthUser";
-import { getConsultationPack, saveConsultationPack } from "../../../services/consultationPackService";
-import { PackSection } from '../../../types/consultationPack';
+import { getConsultationPack } from "../../../services/consultationPackService";
 import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService";
 import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
@@ -15,15 +13,12 @@ const ConsultationRequestNotSent: React.FC = () => {
   const params = useParams();
   const [searchParams] = useSearchParams();
   const applicationId = useGetApplicationId();
-  const { user } = useAuthUser();
   const consultationId = params.consultationId || searchParams.get("consultationId") || "";
   const consultationName = searchParams.get("consultationName") || "Consultation";
   
   const navigate = useNavigate();
 
   const [consultationPack, setConsultationPack] = useState<any>(null);
-  const [packSections, setPackSections] = useState<PackSection[]>([]);
-  const [packDocuments, setPackDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -69,13 +64,6 @@ const ConsultationRequestNotSent: React.FC = () => {
       try {
         const data = await getConsultationPack(consultationId, applicationId);
         setConsultationPack(data);
-        
-        if (data?.pack?.packSections) {
-          setPackSections(data.pack.packSections);
-        }
-        if (data?.pack?.packDocuments) {
-          setPackDocuments(data.pack.packDocuments);
-        }
       } catch (err: any) {
         setError(err.message || 'Failed to load consultation pack');
       } finally {

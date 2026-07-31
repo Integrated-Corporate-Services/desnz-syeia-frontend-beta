@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { S37_BASE_URL } from '../../../constants/s37';
-import { Link, useParams, useLocation, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { getConsultationPack ,saveConsultationPack} from "../../../services/consultationPackService";
