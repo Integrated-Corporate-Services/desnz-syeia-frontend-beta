@@ -27,26 +27,26 @@ export interface ConsultationDetails {
   dateClosed?: string;
   objectionRaised?: boolean;
   closeComments?: string;
-  responseDocuments?: { name: string; url: string }[];
+  responseDocuments?: { name: string; url: string; file_id?: string }[];
   respondingConsulteeName?: string;
   respondingConsulteeEmail?: string;
   consulteeEmailMessage?: string;
   consulteeEmailAddress?: string;
   // Additional details for 'Consultation Not Required' status
   notRequiredReason ?: string;
-  notRequiredDocs ?: { name: string; url: string; key?: string; filename?: string }[];
-  uploadedFiles ?: { name: string; url: string }[];
-  applicationDocuments ?: { name: string; url: string }[];
+  notRequiredDocs ?: { name: string; url: string; key?: string; filename?: string; file_id?: string }[];
+  uploadedFiles ?: { name: string; url: string; file_id?: string }[];
+  applicationDocuments ?: { name: string; url: string; file_id?: string }[];
   // LPA Consultation Form (generated document)
-  lpaConsultationForm?: { name: string; url: string; key?: string; filename?: string }[];
+  lpaConsultationForm?: { name: string; url: string; key?: string; filename?: string; file_id?: string }[];
   // Consultation request documents (evidence of request)
-  consultationRequestDocs ?: { name: string; url: string; key?: string; filename?: string }[];
+  consultationRequestDocs ?: { name: string; url: string; key?: string; filename?: string; file_id?: string }[];
   dateRequestCreated?: string;
-  evidenceResponseNotReceivedDocs?: { url: string; name: string; key?: string; filename?: string }[];
+  evidenceResponseNotReceivedDocs?: { url: string; name: string; key?: string; filename?: string; file_id?: string }[];
 
   // Public consultation specific fields
   firstDatePublished?: string | null;
   secondDatePublished?: string | null;
-  evidenceOfPublicationDocs?: { name: string; url: string }[];
-  publicResponseDocuments?: { name: string; url: string }[];
+  evidenceOfPublicationDocs?: { name: string; url: string; file_id?: string }[];
+  publicResponseDocuments?: { name: string; url: string; file_id?: string }[];
 }
