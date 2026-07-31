@@ -143,23 +143,6 @@ const ConsultationResponse2: React.FC = () => {
         }
     };
 
-    const validateFormatOnly = () => {
-        const newErrors: { [key: string]: string } = {};
-
-        // For PUBLIC consultations, skip date validation
-        if (consultationType !== ConsultationType.PUBLIC) {
-            // Date format validation using shared utility (not required)
-            const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: false });
-            if (!dateValidation.isValid) {
-                newErrors.responseDate = dateValidation.error!;
-            }
-        }
-
-        setErrors(newErrors);
-
-        return Object.keys(newErrors).length === 0 && fileValidationErrors.length === 0;
-    };
-
     const handleSaveAndContinue = async () => {
         if (fileUploadRef.current?.isBusy()) {
             const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';

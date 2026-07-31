@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import SkipLink from '../../../components/SkipLink';
 
 const ConsultationRequestSent: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   // Get applicationId from query params or state
   const applicationId = useGetApplicationId();
 

@@ -136,20 +136,6 @@ const ConsultationRequestPage: React.FC = () => {
     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
   };
 
-  // Validation for save for later (only format validation, not required fields)
-  const validateFormatOnly = () => {
-    const newErrors: { [key: string]: string } = {};
-    
-    // Date format validation using shared utility (not required)
-    const dateValidation = validateDateComponents(responseDate, 'consultation request', { required: false });
-    if (!dateValidation.isValid) {
-      newErrors.responseDate = dateValidation.error!;
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   // Save and Continue handler (with validation)
   const handleSaveAndContinue = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -23,11 +23,9 @@ export const useUserManagementDashboard = () => {
     filteredUsers,
     loading: usersLoading,
     error: usersError,
-    confirmRevokeAccess,
   } = useManageUsers();
 
   const {
-    navigateToAccessRevoked,
     navigateToReviewRequest,
     navigateToRevokeUser,
   } = useManageUsersNavigation();
