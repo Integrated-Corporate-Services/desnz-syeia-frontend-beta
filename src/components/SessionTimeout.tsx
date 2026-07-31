@@ -28,13 +28,20 @@ const SessionTimeoutModal: React.FC = () => {
 
   /**
    * Handles "Stay signed in" button click
-   * 1. Calls backend keep-alive endpoint to refresh server-side session
-   * 2. If successful, resets frontend timer
-   * 3. If backend session expired (401), logs out immediately
-   * 4. If error, resets frontend timer anyway (next API call will handle auth)
+   * 1. Validates that timeout hasn't expired on client side
+   * 2. Calls backend keep-alive endpoint to refresh server-side session
+   * 3. If successful, resets frontend timer
+   * 4. If backend session expired (401), logs out immediately
+   * 5. If error, resets frontend timer anyway (next API call will handle auth)
    */
   const handleContinueClick = useCallback(async () => {
     try {
+      // Client-side validation: Don't allow refresh if time has already expired
+      if (remaining <= 0) {
+        await logout(SIGNED_OUT_PAGE);
+        return;
+      }
+
       setIsRefreshing(true);
       logger.info('User clicked "Stay signed in" - refreshing backend session');
       
@@ -60,7 +67,7 @@ const SessionTimeoutModal: React.FC = () => {
     } finally {
       setIsRefreshing(false);
     }
-  }, [resetTimer]);
+  }, [resetTimer, remaining]);
 
   // Always show the same warning message on all pages
   const answerWarning = useMemo(() => {
@@ -74,6 +81,13 @@ const SessionTimeoutModal: React.FC = () => {
     const warningText = warningMinutes === 1 ? "1 minute" : `${warningMinutes} minutes`;
     return showCountdown ? formatSeconds(remaining) : warningText;
   }, [remaining]);
+
+  // Force logout when countdown reaches 0 (safety mechanism)
+  React.useEffect(() => {
+    if (showModal && remaining <= 0) {
+      logout(SIGNED_OUT_PAGE);
+    }
+  }, [showModal, remaining]);
 
   React.useEffect(() => {
     if (showModal) {
@@ -197,7 +211,8 @@ const SessionTimeoutModal: React.FC = () => {
         <div className="govuk-!-margin-top-4">
           <button 
             ref={staySignedInRef}
-            className="govuk-button govuk-button--success" 
+            className="govuk-button govuk-button--success"
+            disabled={remaining <= 0 || isRefreshing} 
             type="button" 
             onClick={handleContinueClick}
             disabled={isRefreshing}
