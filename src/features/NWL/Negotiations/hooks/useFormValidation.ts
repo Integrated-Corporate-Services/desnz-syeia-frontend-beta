@@ -63,6 +63,27 @@ export const useFormValidation = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const validateDateNotInFuture = (day: string, month: string, year: string): boolean => {
+    // First validate the date is valid
+    if (!validateDate(day, month, year)) {
+      return false;
+    }
+
+    const dayNum = parseInt(day, 10);
+    const monthNum = parseInt(month, 10);
+    const yearNum = parseInt(year, 10);
+    const inputDate = new Date(yearNum, monthNum - 1, dayNum);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (inputDate > today) {
+      setErrors({ date: FORM_ERRORS.FUTURE_DATE });
+      return false;
+    }
+
+    return true;
+  };
+
   const validateComments = (comments: string, required: boolean = false): boolean => {
     const newErrors: FormErrors = {};
 
@@ -100,6 +121,7 @@ export const useFormValidation = () => {
     setErrors,
     validateRadioSelection,
     validateDate,
+    validateDateNotInFuture,
     validateComments,
     validateNoNegotiationsReason,
     clearErrors,

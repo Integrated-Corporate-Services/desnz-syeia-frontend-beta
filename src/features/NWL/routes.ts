@@ -17,12 +17,10 @@ import NWLWhoIsApplying from './WhoIsApplying/pages/WhoIsApplying';
 import NWLNetworkOperatorDetails from './ApplicantInfo/pages/NetworkOperatorDetails';
 import NWLNetworkOperatorContactDetails from './ApplicantInfo/pages/NetworkOperatorContactDetails';
 import { NWLTaskList } from './TaskList';
-import NWLSupportingInfo from './SupportingInfo/pages/SupportingInfo';
 import { RelatedApplications as NWLRelatedApplications, OtherImportantInformation as NWLOtherImportantInformation, ImportantInformationDetails as NWLImportantInformationDetails } from './AdditionalInformation';
 import { TellUsAboutExistingNegotiations as NWLTellUsAboutExistingNegotiations, EvidenceOfNegotiations as NWLEvidenceOfNegotiations, WhyNoNegotiations as NWLWhyNoNegotiations } from './Negotiations/pages';
 import NWLLandownerOccupantDetails from './LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from './ApplicationLandDetails/pages/ApplicationLandDetails';
-import NWLApplicationStatement from './ApplicationStatement/pages/ApplicationStatement';
 import {
     TypeOfUse as NWLTypeOfUse,
     WayleaveOffer as NWLWayleaveOffer,
@@ -362,15 +360,6 @@ export const nwlApplicationLandRoutes = [
     },
 ];
 
-export const nwlSupportingInfoRoutes = [
-    {
-        path: `${NWL_BASE_URL}/:applicationId/supporting-information`,
-        component: NWLSupportingInfo,
-        auth: true,
-        layout: true,
-    },
-];
-
 export const nwlNegotiationsRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/existing-negotiations`,
@@ -408,15 +397,6 @@ export const nwlAdditionalInformationRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/other-important-information/details`,
         component: NWLImportantInformationDetails,
-        auth: true,
-        layout: true,
-    },
-];
-
-export const nwlApplicationStatementRoutes = [
-    {
-        path: `${NWL_BASE_URL}/:applicationId/application-statement`,
-        component: NWLApplicationStatement,
         auth: true,
         layout: true,
     },
@@ -542,10 +522,8 @@ export const nwlRoutes = [
     ...nwlApplicationDetailsRoutes,
     ...nwlLandownerOccupantRoutes,
     ...nwlApplicationLandRoutes,
-    ...nwlSupportingInfoRoutes,
     ...nwlNegotiationsRoutes,
     ...nwlAdditionalInformationRoutes,
-    ...nwlApplicationStatementRoutes,
     ...nwlObjectorDetailsRoutes,
     ...nwlCheckYourAnswersRoutes,
     ...nwlApplicationSummaryRoutes,

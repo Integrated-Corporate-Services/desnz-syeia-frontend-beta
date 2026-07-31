@@ -131,12 +131,18 @@ const WayleaveOffer: React.FC = () => {
     } else if (!validateDate(day, month, year)) {
       newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
+      newFieldErrors.month = VALIDATION_MESSAGES.DATE_INVALID;
+      newFieldErrors.year = VALIDATION_MESSAGES.DATE_INVALID;
     } else if (!validateDateNotInFuture(day, month, year)) {
       newErrors.push(FORM_ERRORS.FUTURE_DATE);
       newFieldErrors.day = FORM_ERRORS.FUTURE_DATE;
+      newFieldErrors.month = FORM_ERRORS.FUTURE_DATE;
+      newFieldErrors.year = FORM_ERRORS.FUTURE_DATE;
     } else if (!validateDateAtLeast21DaysAgo(day, month, year)) {
       newErrors.push(VALIDATION_MESSAGES.DATE_NOT_21_DAYS_AGO);
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_NOT_21_DAYS_AGO;
+      newFieldErrors.month = VALIDATION_MESSAGES.DATE_NOT_21_DAYS_AGO;
+      newFieldErrors.year = VALIDATION_MESSAGES.DATE_NOT_21_DAYS_AGO;
       setHas21DayError(true);
     } else {
       setHas21DayError(false);
@@ -187,20 +193,19 @@ const WayleaveOffer: React.FC = () => {
       }
     }
 
-    if (!validateForm()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (fileValidationErrors.length > 0) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
     // Check if at least one file is uploaded (mandatory)
     const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
     if (allUploadedFiles.length === 0) {
       setFileValidationErrors([FORM_ERRORS.MISSING_FILE]);
+    } else {
+      setFileValidationErrors([]);
+    }
+
+    // Validate date form
+    const isDateValid = validateForm();
+
+    // If either validation fails, scroll to top and return
+    if (!isDateValid || fileValidationErrors.length > 0 || allUploadedFiles.length === 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }

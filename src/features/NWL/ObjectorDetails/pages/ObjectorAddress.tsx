@@ -56,6 +56,12 @@ const ObjectorAddress: React.FC = () => {
 
     if (!postcode.trim()) {
       newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
+    } else {
+      // Postcode is provided, validate format
+      const postcodeError = validatePostcode(postcode);
+      if (postcodeError) {
+        newErrors.postcode = postcodeError;
+      }
     }
 
     setErrors(newErrors);
@@ -376,17 +382,8 @@ const ObjectorAddress: React.FC = () => {
                   type="text"
                   value={postcode}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    setPostcode(value);
+                    setPostcode(e.target.value);
                     handleClearFieldError('postcode');
-                    
-                    // Validate postcode format if user is typing
-                    if (value.trim()) {
-                      const postcodeError = validatePostcode(value);
-                      if (postcodeError) {
-                        setErrors(prev => ({ ...prev, postcode: postcodeError }));
-                      }
-                    }
                   }}
                   aria-describedby={
                     errors.postcode ? "postcode-error" : undefined
