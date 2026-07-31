@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import SkipLink from '../../../components/SkipLink';
 
 const ConsultationResponseInitialQuestion: React.FC = () => {
   const { applicationId, consultationId } = useParams();
-  const location = useLocation();
   const navigate = useNavigate();
 
   const [responseReceived, setResponseReceived] = useState<string>('');

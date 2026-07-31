@@ -96,17 +96,6 @@ const ConsultationResponse: React.FC = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const validateFormatOnly = () => {
-        const newErrors: { [key: string]: string } = {};
-
-        if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            newErrors.email = CONSULTATION_VALIDATION_MESSAGES.consulteeEmail.invalidFormat;
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const handleSaveAndContinue = async () => {
         if (!validateForm()) {
             const errorSummary = document.getElementById('error-summary');

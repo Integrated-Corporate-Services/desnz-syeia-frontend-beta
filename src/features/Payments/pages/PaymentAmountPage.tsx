@@ -4,8 +4,6 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import { useAuthUser } from '../../../hooks/useAuthUser';
-import { useAssets } from '../../../hooks/useAssets';
 import SkipLink from '../../../components/SkipLink';
 
 const PaymentAmountPage: React.FC = () => {
