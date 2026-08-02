@@ -42,7 +42,7 @@ const LandownerDetails: React.FC = () => {
   const mapBackendErrorFields = (validationErrors: any): { [key: string]: string } => {
     const mappedErrors: { [key: string]: string } = {};
     
-    if (validationErrors && typeof validationErrors === 'object') {
+    if (validationErrors && typeof validationErrors === 'object' && validationErrors !== null) {
       if (validationErrors.landowner_email) {
         mappedErrors.email = validationErrors.landowner_email;
       }
