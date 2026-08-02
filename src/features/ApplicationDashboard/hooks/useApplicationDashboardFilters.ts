@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+﻿import { useState, useMemo, useEffect, useRef } from "react";
 import type { Application } from "../../../types/application";
 import type { TabType } from "../constants/filterOptions";
 import { normalizeApplicationType } from "../../../utils/formatters";
@@ -16,6 +16,17 @@ export const useApplicationDashboardFilters = (
   const [submittedBy, setSubmittedBy] = useState<"me" | "all">(defaultSubmittedBy);
   const [caseTypes, setCaseTypes] = useState<string[]>([]);
   const [statuses, setStatuses] = useState<string[]>([]);
+  
+  // Track if we've initialized from role to avoid resetting user's manual changes
+  const hasInitializedFromRole = useRef(false);
+  
+  // Update submittedBy when userRole loads (only on first role load)
+  useEffect(() => {
+    if (userRole && !hasInitializedFromRole.current) {
+      hasInitializedFromRole.current = true;
+      setSubmittedBy(defaultSubmittedBy);
+    }
+  }, [userRole, defaultSubmittedBy]);
 
   const toggleCaseType = (caseType: string) => {
     setCaseTypes((prev) =>
