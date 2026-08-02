@@ -157,9 +157,13 @@ const WayleaveOffer: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Track file errors locally to avoid stale state in submission guards
+    let currentFileErrors: string[] = [];
+
     if (fileUploadRef.current?.isBusy()) {
       const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
-      setFileValidationErrors([scanInProgressMessage]);
+      currentFileErrors = [scanInProgressMessage];
+      setFileValidationErrors(currentFileErrors);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => {
         setFileValidationErrors(prev => (prev.length === 1 && prev[0] === scanInProgressMessage) ? [] : prev);
@@ -174,7 +178,8 @@ const WayleaveOffer: React.FC = () => {
       try {
         const result = await fileUploadRef.current.triggerUpload();
         if (result.scanErrors.length > 0) {
-          setFileValidationErrors(result.scanErrors);
+          currentFileErrors = result.scanErrors;
+          setFileValidationErrors(currentFileErrors);
           window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
@@ -184,13 +189,26 @@ const WayleaveOffer: React.FC = () => {
         setUploadedFiles(prev => [...prev, ...newlyUploadedFiles]);
         setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
         // Clear file validation errors after successful upload
-        setFileValidationErrors([]);
+        currentFileErrors = [];
+        setFileValidationErrors(currentFileErrors);
       } catch {
         const errorMsg = 'Failed to upload files. Please try again.';
-        setFileValidationErrors([errorMsg]);
+        currentFileErrors = [errorMsg];
+        setFileValidationErrors(currentFileErrors);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
+    }
+
+    if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // Use local variable instead of state to avoid stale closure
+    if (currentFileErrors.length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
 
     // Check if at least one file is uploaded (mandatory)

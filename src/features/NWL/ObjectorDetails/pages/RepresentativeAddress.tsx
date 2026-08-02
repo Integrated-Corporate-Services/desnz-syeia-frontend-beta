@@ -61,7 +61,7 @@ const RepresentativeAddress: React.FC = () => {
   const mapBackendErrorFields = (validationErrors: any): { [key: string]: string } => {
     const mappedErrors: { [key: string]: string } = {};
     
-    if (validationErrors && typeof validationErrors === 'object') {
+    if (validationErrors && typeof validationErrors === 'object' && validationErrors !== null) {
       if (validationErrors.representative_address_line1) {
         mappedErrors.addressLine1 = validationErrors.representative_address_line1;
       }
