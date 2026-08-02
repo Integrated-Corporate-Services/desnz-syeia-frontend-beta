@@ -30,6 +30,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
   const timerRef = useRef<number | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
   const isLoggingOutRef = useRef(false);
+  const showModalRef = useRef(false);
 
   // Derive auth state
   const isAuthenticated = !!user && !authLoading;
@@ -54,6 +55,11 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     logger.info(`Session timeout initialized: Idle timeout = ${SESSION_TIMEOUT}s (${SESSION_TIMEOUT / 60} min), Warning period = ${SESSION_WARNING}s (${SESSION_WARNING / 60} min)`);
     logger.info(`Modal will show at ${SESSION_TIMEOUT - SESSION_WARNING}s (${(SESSION_TIMEOUT - SESSION_WARNING) / 60} min of idle time)`);
   }, []); // Empty deps - only log once on mount
+
+  // Sync showModalRef with showModal state
+  useEffect(() => {
+    showModalRef.current = showModal;
+  }, [showModal]);
 
   // Reset modal state when user becomes unauthenticated
   // This ensures modal doesn't show on landing page or after logout
@@ -173,10 +179,12 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
         // If session expired while on another tab, logout immediately
         if (idleSeconds >= SESSION_TIMEOUT) {
           logger.warn(`Session expired while on another tab (idle ${idleMinutes}m) - logging out`);
-          handleLogout();
+          handleLogout().catch(err => {
+            logger.error('Logout failed during visibility change:', err);
+          });
         }
         // If in warning period, show modal immediately
-        else if (idleSeconds >= modalShowTime && !showModal) {
+        else if (idleSeconds >= modalShowTime && !showModalRef.current) {
           logger.warn(`Warning period reached while on another tab - showing modal`);
           setShowModal(true);
           setRemaining(SESSION_TIMEOUT - idleSeconds);
@@ -218,7 +226,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
       
       // Show modal when reaching warning threshold (28 minutes by default)
       if (idleSeconds >= modalShowTime && idleSeconds < SESSION_TIMEOUT) {
-        if (!showModal) {
+        if (!showModalRef.current) {
           logger.warn(`SHOWING TIMEOUT MODAL - Idle for ${idleMinutes}m ${idleSeconds % 60}s`);
           setShowModal(true);
         }
@@ -233,7 +241,9 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
           clearInterval(timerRef.current);
           timerRef.current = null;
         }
-        handleLogout();
+        handleLogout().catch(err => {
+          logger.error('Auto logout failed:', err);
+        });
       }
     }, 1000);
     
@@ -243,7 +253,7 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
         timerRef.current = null;
       }
     };
-  }, [isAuthenticated, showModal, handleLogout]);
+  }, [isAuthenticated, handleLogout]);
 
   const value = useMemo(() => ({ showModal, remaining, resetTimer, handleLogout }), [showModal, remaining, resetTimer, handleLogout]);
 
