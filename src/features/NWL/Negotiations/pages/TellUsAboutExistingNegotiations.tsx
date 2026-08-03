@@ -29,7 +29,7 @@ const logger = createLogger('TellUsAboutExistingNegotiations');
  */
 const TellUsAboutExistingNegotiations: React.FC = () => {
   const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
-  const { errors, validateRadioSelection, setErrors } = useFormValidation();
+  const { errors, validateRadioSelection, validateDate, setErrors } = useFormValidation();
   const {
     navigateToEvidenceOfNegotiations,
     navigateToWhyNoNegotiations,
