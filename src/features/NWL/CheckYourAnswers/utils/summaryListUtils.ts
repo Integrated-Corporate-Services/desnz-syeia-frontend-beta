@@ -39,6 +39,12 @@ export const createSummaryRow = (
     changeLinkText: string = 'Change',
     isHtml: boolean = false
 ): SummaryRow => {
+    key: string,
+    value: string,
+        value: isHtml ? { text: '', html: value } : { text: value },
+    changeLinkText: string = 'Change',
+    isHtml: boolean = false
+): SummaryRow => {
     const row: SummaryRow = {
         key: { text: key },
         value: isHtml ? { text: '', html: value } : { text: value },
