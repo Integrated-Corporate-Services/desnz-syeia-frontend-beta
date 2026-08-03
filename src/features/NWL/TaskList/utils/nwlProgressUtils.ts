@@ -16,7 +16,7 @@ export const NWL_SUBSECTIONS = {
   OS_GRID_REFERENCE: 'OS Grid reference',
   IDENTIFYING_INFORMATION: 'Identifying information',
   ASSETS: 'Assets',
-  SUPPORTING_INFORMATION: 'Supporting information',
+  ADDITIONAL_INFORMATION: 'Additional information',
   NEGOTIATIONS: 'Negotiations',
   APPLICATION_STATEMENT: 'Application statement',
   CHECK_YOUR_ANSWERS: 'Check your answers',
@@ -93,7 +93,7 @@ export function checkDependencies(
       NWL_SUBSECTIONS.IDENTIFYING_INFORMATION,
       NWL_SUBSECTIONS.ASSETS,
       NWL_SUBSECTIONS.NEGOTIATIONS,
-      NWL_SUBSECTIONS.SUPPORTING_INFORMATION,
+      NWL_SUBSECTIONS.ADDITIONAL_INFORMATION,
     ];
     
     return requiredSections.every(sectionName => {
@@ -118,7 +118,7 @@ export function checkDependencies(
       NWL_SUBSECTIONS.IDENTIFYING_INFORMATION,
       NWL_SUBSECTIONS.ASSETS,
       NWL_SUBSECTIONS.NEGOTIATIONS,
-      NWL_SUBSECTIONS.SUPPORTING_INFORMATION,
+      NWL_SUBSECTIONS.ADDITIONAL_INFORMATION,
       NWL_SUBSECTIONS.CHECK_YOUR_ANSWERS,
     ];
     

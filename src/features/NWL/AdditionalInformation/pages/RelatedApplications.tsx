@@ -82,8 +82,8 @@ const RelatedApplications: React.FC = () => {
       // If "no", update progress to Completed (the flow is done)
       if (hasRelatedApplications === 'no') {
         try {
-          await updateProgress('Supporting information', 'Completed');
-          logger.info('[RelatedApplications] Progress updated for Supporting information section');
+          await updateProgress('Additional information', 'Completed');
+          logger.info('[RelatedApplications] Progress updated for Additional information section');
         } catch (progressError) {
           logger.error('[RelatedApplications] Error updating progress', progressError);
           // Continue even if progress update fails

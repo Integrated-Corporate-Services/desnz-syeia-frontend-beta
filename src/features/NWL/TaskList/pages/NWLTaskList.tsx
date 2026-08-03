@@ -276,10 +276,10 @@ const NWLTaskList: React.FC = () => {
 							<tbody className="govuk-table__body">
 								<tr className="govuk-table__row">
 									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.SUPPORTING_INFORMATION, 'Related applications', NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS)}
+										{renderLink(NWL_SUBSECTIONS.ADDITIONAL_INFORMATION, 'Related applications', NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS)}
 									</td>
 									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.SUPPORTING_INFORMATION)}
+										{renderStatusTag(NWL_SUBSECTIONS.ADDITIONAL_INFORMATION)}
 									</td>
 								</tr>
 							</tbody>

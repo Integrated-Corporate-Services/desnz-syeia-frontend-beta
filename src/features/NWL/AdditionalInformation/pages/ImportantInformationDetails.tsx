@@ -121,7 +121,7 @@ const ImportantInformationDetails: React.FC = () => {
 
       // Update progress for Supporting information section (backend subsection name)
       try {
-        await updateProgress('Supporting information', 'Completed');
+        await updateProgress('Additional information', 'Completed');
       } catch (progressError) {
         // Continue even if progress update fails
       }
