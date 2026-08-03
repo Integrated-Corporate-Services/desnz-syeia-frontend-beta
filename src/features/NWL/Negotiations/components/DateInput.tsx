@@ -17,6 +17,8 @@ export const DateInput: React.FC<DateInputProps> = ({
   legend = "Please confirm the start date of negotiations.",
 }) => {
   const hasError = errors.date || errors.day || errors.month || errors.year;
+  // If there's a general date error, highlight all fields
+  const hasGeneralError = !!errors.date && !errors.day && !errors.month && !errors.year;
 
   return (
     <div className={`govuk-form-group ${hasError ? 'govuk-form-group--error' : ''}`}>
@@ -39,7 +41,7 @@ export const DateInput: React.FC<DateInputProps> = ({
               </label>
               <input
                 className={`govuk-input govuk-date-input__input govuk-input--width-2 ${
-                  errors.day ? 'govuk-input--error' : ''
+                  errors.day || hasGeneralError ? 'govuk-input--error' : ''
                 }`}
                 id="day"
                 name="day"
@@ -58,7 +60,7 @@ export const DateInput: React.FC<DateInputProps> = ({
               </label>
               <input
                 className={`govuk-input govuk-date-input__input govuk-input--width-2 ${
-                  errors.month ? 'govuk-input--error' : ''
+                  errors.month || hasGeneralError ? 'govuk-input--error' : ''
                 }`}
                 id="month"
                 name="month"
@@ -77,7 +79,7 @@ export const DateInput: React.FC<DateInputProps> = ({
               </label>
               <input
                 className={`govuk-input govuk-date-input__input govuk-input--width-4 ${
-                  errors.year ? 'govuk-input--error' : ''
+                  errors.year || hasGeneralError ? 'govuk-input--error' : ''
                 }`}
                 id="year"
                 name="year"

@@ -155,3 +155,36 @@ export async function checkSessionValidity(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Parse backend validation errors from array format to object format
+ * Backend returns: { error: "Validation failed", details: [{ field: "...", message: "..." }] }
+ * This converts to: { field_name: "error message" }
+ */
+export interface BackendValidationError {
+  field: string;
+  message: string;
+}
+
+export function parseBackendValidationErrors(
+  errorData: any
+): { [key: string]: string } {
+  const errors: { [key: string]: string } = {};
+
+  // Check if it's a validation error with details array
+  if (errorData && Array.isArray(errorData.details)) {
+    errorData.details.forEach((detail: BackendValidationError) => {
+      if (detail.field && detail.message) {
+        errors[detail.field] = detail.message;
+      }
+    });
+  } else if (errorData && typeof errorData.details === 'object') {
+    // Handle case where details is already an object
+    Object.assign(errors, errorData.details);
+  } else if (errorData && typeof errorData === 'object' && !errorData.details) {
+    // Handle case where error details are at the root level
+    Object.assign(errors, errorData);
+  }
+
+  return errors;
+}

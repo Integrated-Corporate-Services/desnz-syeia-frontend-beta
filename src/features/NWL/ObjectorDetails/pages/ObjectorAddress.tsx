@@ -56,6 +56,12 @@ const ObjectorAddress: React.FC = () => {
 
     if (!postcode.trim()) {
       newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
+    } else {
+      // Postcode is provided, validate format
+      const postcodeError = validatePostcode(postcode);
+      if (postcodeError) {
+        newErrors.postcode = postcodeError;
+      }
     }
 
     setErrors(newErrors);
@@ -70,24 +76,25 @@ const ObjectorAddress: React.FC = () => {
     });
   };
 
-  const mapBackendErrorFields = (validationErrors: any): { [key: string]: string } => {
+  const mapBackendErrorFields = (validationErrors: unknown): { [key: string]: string } => {
     const mappedErrors: { [key: string]: string } = {};
     
     if (validationErrors && typeof validationErrors === 'object') {
-      if (validationErrors.objector_address_line1) {
-        mappedErrors.addressLine1 = validationErrors.objector_address_line1;
+      const errors = validationErrors as Record<string, any>;
+      if (errors.objector_address_line1) {
+        mappedErrors.addressLine1 = errors.objector_address_line1;
       }
-      if (validationErrors.objector_address_line2) {
-        mappedErrors.addressLine2 = validationErrors.objector_address_line2;
+      if (errors.objector_address_line2) {
+        mappedErrors.addressLine2 = errors.objector_address_line2;
       }
-      if (validationErrors.objector_town) {
-        mappedErrors.town = validationErrors.objector_town;
+      if (errors.objector_town) {
+        mappedErrors.town = errors.objector_town;
       }
-      if (validationErrors.objector_county) {
-        mappedErrors.county = validationErrors.objector_county;
+      if (errors.objector_county) {
+        mappedErrors.county = errors.objector_county;
       }
-      if (validationErrors.objector_postcode) {
-        mappedErrors.postcode = validationErrors.objector_postcode;
+      if (errors.objector_postcode) {
+        mappedErrors.postcode = errors.objector_postcode;
       }
     }
     
@@ -376,17 +383,8 @@ const ObjectorAddress: React.FC = () => {
                   type="text"
                   value={postcode}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    setPostcode(value);
+                    setPostcode(e.target.value);
                     handleClearFieldError('postcode');
-                    
-                    // Validate postcode format if user is typing
-                    if (value.trim()) {
-                      const postcodeError = validatePostcode(value);
-                      if (postcodeError) {
-                        setErrors(prev => ({ ...prev, postcode: postcodeError }));
-                      }
-                    }
                   }}
                   aria-describedby={
                     errors.postcode ? "postcode-error" : undefined

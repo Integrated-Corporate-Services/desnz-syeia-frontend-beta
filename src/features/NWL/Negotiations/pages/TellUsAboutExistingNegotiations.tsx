@@ -29,7 +29,7 @@ const logger = createLogger('TellUsAboutExistingNegotiations');
  */
 const TellUsAboutExistingNegotiations: React.FC = () => {
   const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
-  const { errors, validateRadioSelection, validateDate, setErrors } = useFormValidation();
+  const { errors, validateRadioSelection, validateDate, validateDateNotInFuture, setErrors } = useFormValidation();
   const {
     navigateToEvidenceOfNegotiations,
     navigateToWhyNoNegotiations,
@@ -104,8 +104,8 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
         return;
       }
       
-      // Validate date format and validity
-      if (!validateDate(startDate.day, startDate.month, startDate.year)) {
+      // Validate date format, validity, and that it's not in the future
+      if (!validateDateNotInFuture(startDate.day, startDate.month, startDate.year)) {
         window.scrollTo(0, 0);
         return;
       }

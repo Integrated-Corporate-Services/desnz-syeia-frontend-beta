@@ -1,6 +1,7 @@
 import { NegotiationsData } from '../types';
 import { createLogger } from '../../../../utils/logger';
 import { getCsrfHeaders, fetchCsrfToken } from '../../../../utils/csrf';
+import { parseBackendValidationErrors } from '../../../../utils/apiErrorHandler';
 
 const logger = createLogger('negotiationsService');
 import { buildBackendUrl } from '../../../../utils/apiConfig';
@@ -24,13 +25,16 @@ export const getNegotiationsData = async (applicationId: string): Promise<Negoti
         logger.debug('[getNegotiationsData] Not found (404), returning null');
         return null;
       }
-      const errorText = await response.text();
+      const errorData = await response.json().catch(() => ({}));
       logger.error('[getNegotiationsData] Error response:', {
         status: response.status,
         statusText: response.statusText,
-        body: errorText,
+        errorData,
       });
-      throw new Error(`Failed to fetch negotiations data: ${response.statusText}`);
+      const error: any = new Error(`Failed to fetch negotiations data: ${response.statusText}`);
+      error.status = response.status;
+      error.validationErrors = parseBackendValidationErrors(errorData);
+      throw error;
     }
     
     const data = await response.json();
@@ -109,13 +113,16 @@ export const saveNegotiationsData = async (
     });
     
     if (!response.ok) {
-      const errorBody = await response.text();
+      const errorData = await response.json().catch(() => ({}));
       logger.error('[saveNegotiationsData] POST failed:', {
         status: response.status,
         statusText: response.statusText,
-        body: errorBody,
+        errorData,
       });
-      throw new Error(`Failed to save negotiations data: ${response.status} ${response.statusText} - ${errorBody}`);
+      const error: any = new Error(`Failed to save negotiations data: ${response.status} ${response.statusText}`);
+      error.status = response.status;
+      error.validationErrors = parseBackendValidationErrors(errorData);
+      throw error;
     }
     
     const result = await response.json();

@@ -9,6 +9,7 @@ interface ApplicationDashboardFiltersProps {
   caseTypes: string[];
   statuses: string[];
   showSubmittedByFilter?: boolean;
+  defaultSubmittedBy?: "me" | "all";
   onSearchChange: (value: string) => void;
   onSubmittedByChange: (value: "me" | "all") => void;
   onCaseTypeToggle: (caseType: string) => void;
@@ -24,6 +25,7 @@ export const ApplicationDashboardFilters: React.FC<ApplicationDashboardFiltersPr
   caseTypes,
   statuses,
   showSubmittedByFilter = true,
+  defaultSubmittedBy = "me",
   onSearchChange,
   onSubmittedByChange,
   onCaseTypeToggle,
@@ -89,7 +91,7 @@ export const ApplicationDashboardFilters: React.FC<ApplicationDashboardFiltersPr
   const handleClearFilters = () => {
     // Clear local state
     setLocalSearchText("");
-    setLocalSubmittedBy("me");
+    setLocalSubmittedBy(defaultSubmittedBy);
     setLocalCaseTypes([]);
     setLocalStatuses([]);
 
@@ -189,7 +191,7 @@ export const ApplicationDashboardFilters: React.FC<ApplicationDashboardFiltersPr
         handleLocalStatusToggle(pill.value);
         break;
       case "submittedBy":
-        setLocalSubmittedBy("me");
+        setLocalSubmittedBy(defaultSubmittedBy);
         break;
     }
   };

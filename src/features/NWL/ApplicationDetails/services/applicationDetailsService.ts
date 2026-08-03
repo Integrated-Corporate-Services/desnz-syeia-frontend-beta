@@ -8,6 +8,7 @@ import { generateCorrelationId } from '../../../../utils/correlationId';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 import { getCsrfHeaders } from '../../../../utils/csrf';
+import { parseBackendValidationErrors } from '../../../../utils/apiErrorHandler';
 
 const logger = createLogger('ApplicationDetailsService');
 
@@ -113,9 +114,12 @@ export const createOrUpdateApplicationDetails = async (
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    logger.error('Failed to save application details', { error });
-    throw new Error(error.message || 'Failed to save application details');
+    const errorData = await response.json().catch(() => ({}));
+    logger.error('Failed to save application details', { errorData });
+    const error: any = new Error(errorData.message || errorData.error || 'Failed to save application details');
+    error.status = response.status;
+    error.validationErrors = parseBackendValidationErrors(errorData);
+    throw error;
   }
 
   const result = await response.json();
@@ -162,9 +166,12 @@ export const fetchApplicationDetails = async (
   }
 
   if (!response.ok) {
-    const error = await response.json();
-    logger.error('Failed to fetch application details', { error });
-    throw new Error(error.message || 'Failed to fetch application details');
+    const errorData = await response.json().catch(() => ({}));
+    logger.error('Failed to fetch application details', { errorData });
+    const error: any = new Error(errorData.message || errorData.error || 'Failed to fetch application details');
+    error.status = response.status;
+    error.validationErrors = parseBackendValidationErrors(errorData);
+    throw error;
   }
 
   const result = await response.json();

@@ -39,24 +39,25 @@ const LandownerDetails: React.FC = () => {
   /**
    * Map backend validation error field names to frontend field names
    */
-  const mapBackendErrorFields = (validationErrors: any): { [key: string]: string } => {
+  const mapBackendErrorFields = (validationErrors: unknown): { [key: string]: string } => {
     const mappedErrors: { [key: string]: string } = {};
     
     if (validationErrors && typeof validationErrors === 'object') {
-      if (validationErrors.landowner_email) {
-        mappedErrors.email = validationErrors.landowner_email;
+      const errors = validationErrors as Record<string, any>;
+      if (errors.landowner_email) {
+        mappedErrors.email = errors.landowner_email;
       }
-      if (validationErrors.landowner_phone) {
-        mappedErrors.phone = validationErrors.landowner_phone;
+      if (errors.landowner_phone) {
+        mappedErrors.phone = errors.landowner_phone;
       }
-      if (validationErrors.landowner_full_name) {
-        mappedErrors.fullName = validationErrors.landowner_full_name;
+      if (errors.landowner_full_name) {
+        mappedErrors.fullName = errors.landowner_full_name;
       }
-      if (validationErrors.landowner_title) {
-        mappedErrors.title = validationErrors.landowner_title;
+      if (errors.landowner_title) {
+        mappedErrors.title = errors.landowner_title;
       }
-      if (validationErrors.landowner_organisation) {
-        mappedErrors.organisation = validationErrors.landowner_organisation;
+      if (errors.landowner_organisation) {
+        mappedErrors.organisation = errors.landowner_organisation;
       }
     }
     

@@ -23,16 +23,33 @@ export const useFormValidation = () => {
   /**
    * Validate phone number format
    * Only validates if phone is provided (optional field)
+   * Supports UK mobile, landline, and international formats
    */
   const validatePhone = (phone: string): string | null => {
     if (!phone.trim()) {
       return null; // Optional field, empty is OK
     }
-    // Phone should be at least 10 characters and contain only digits, spaces, hyphens, parentheses, +
-    const phoneRegex = /^[\d\s\-+()]{10,}$/;
-    if (!phoneRegex.test(phone)) {
+    
+    // Remove spaces, hyphens, and parentheses for validation
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    
+    // Phone should contain only digits and optional + at the start
+    if (!/^\+?\d+$/.test(cleanPhone)) {
       return FORM_ERRORS.INVALID_PHONE;
     }
+    
+    // Check length: UK numbers are 10-11 digits (or 12-13 with +44)
+    // Allow a reasonable range: minimum 10 digits, maximum 15 digits (international standard)
+    const digitCount = cleanPhone.replace(/\+/g, '').length;
+    if (digitCount < 10 || digitCount > 15) {
+      return FORM_ERRORS.INVALID_PHONE;
+    }
+    
+    // Original input (with formatting) should not exceed 20 characters
+    if (phone.length > 20) {
+      return FORM_ERRORS.INVALID_PHONE;
+    }
+    
     return null;
   };
 

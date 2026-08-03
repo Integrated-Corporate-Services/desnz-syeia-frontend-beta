@@ -54,10 +54,8 @@ import NWLNetworkOperatorDetails from '../features/NWL/ApplicantInfo/pages/Netwo
 import NWLNetworkOperatorContactDetails from '../features/NWL/ApplicantInfo/pages/NetworkOperatorContactDetails';
 import { NWLTaskList } from '../features/NWL/TaskList';
 import NWLAssets from '../features/NWL/Assets/pages/Assets';
-import NWLSupportingInfo from '../features/NWL/SupportingInfo/pages/SupportingInfo';
 import NWLLandownerOccupantDetails from '../features/NWL/LandownerOccupantDetails/pages/LandownerOccupantDetails';
 import NWLApplicationLandDetails from '../features/NWL/ApplicationLandDetails/pages/ApplicationLandDetails';
-import NWLApplicationStatement from '../features/NWL/ApplicationStatement/pages/ApplicationStatement';
 import { nwlObjectorDetailsRoutes, nwlLandDetailsRoutes } from '../features/NWL/routes';
 import { nwlRoutes } from '../features/NWL/routes';
 
@@ -574,19 +572,6 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: `${NWL_BASE_URL}/:applicationId/application-and-land-details`,
         component: NWLApplicationLandDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: `${NWL_BASE_URL}/:applicationId/supporting-information`,
-        component: NWLSupportingInfo,
-        auth: true,
-        layout: true,
-    },
-   
-    {
-        path: `${NWL_BASE_URL}/:applicationId/application-statement`,
-        component: NWLApplicationStatement,
         auth: true,
         layout: true,
     },
