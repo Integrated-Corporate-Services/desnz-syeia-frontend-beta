@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { AdditionalInformationData } from '../types';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { parseBackendValidationErrors } from '../../../../utils/apiErrorHandler';
