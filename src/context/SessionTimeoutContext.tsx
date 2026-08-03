@@ -3,7 +3,6 @@ import { logout } from '../services/authService';
 import { useAuthUserContext } from './AuthUserContext';
 import { createLogger } from '../utils/logger';
 import { SESSION_TIMEOUT, SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
-import { buildBackendUrl } from '../utils/apiConfig';
 
 const logger = createLogger('SessionTimeoutContext');
 const SESSION_TERMINATION_STORAGE_KEY = 'syeia.session.termination';
@@ -200,58 +199,14 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
     };
   }, [isAuthenticated, showModal, handleLogout]);
 
-  // Periodic session validation - detect if user was signed out on another device
-  // Polls backend every 30 seconds to check for session eviction
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const EVICTION_CHECK_INTERVAL = 30000; // 30 seconds
-    let evictionCheckTimer: number | null = null;
-
-    const checkForEviction = async () => {
-      try {
-        const response = await fetch(buildBackendUrl('/auth/keep-alive'), {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          const data = await response.json().catch(() => ({}));
-          
-          // Check if session was evicted (signed in on another device)
-          if (data.code === 'SESSION_EVICTED') {
-            logger.warn('Session evicted - user signed in on another device');
-            broadcastTermination('SESSION_EVICTED');
-            redirectToSignedOut('SESSION_EVICTED');
-          }
-          // Check for other termination reasons
-          else if (data.code && data.code.startsWith('SESSION_')) {
-            logger.warn('Session terminated', { reason: data.code });
-            redirectToSignedOut(data.code);
-          }
-        }
-      } catch (error) {
-        // Network errors are logged but don't trigger logout
-        // The user may just be temporarily offline
-        logger.debug('Eviction check failed (network error)', error);
-      }
-    };
-
-    // Check immediately on mount
-    checkForEviction();
-
-    // Then check every 30 seconds
-    evictionCheckTimer = window.setInterval(checkForEviction, EVICTION_CHECK_INTERVAL);
-
-    return () => {
-      if (evictionCheckTimer) {
-        clearInterval(evictionCheckTimer);
-      }
-    };
-  }, [isAuthenticated, broadcastTermination, redirectToSignedOut]);
+  // TODO: Periodic session validation - detect if user was signed out on another device
+  // DISABLED: This was calling /auth/keep-alive which extends the session every 30s,
+  // preventing the session timeout modal from ever appearing.
+  // Need to implement a non-refreshing /session/status endpoint first.
+  // useEffect(() => {
+  //   if (!isAuthenticated) return;
+  //   ... eviction check code ...
+  // }, [isAuthenticated, broadcastTermination, redirectToSignedOut]);
 
   // Main timer loop - runs every second
   useEffect(() => {
