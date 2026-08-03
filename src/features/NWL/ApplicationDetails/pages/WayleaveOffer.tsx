@@ -211,19 +211,17 @@ const WayleaveOffer: React.FC = () => {
       return;
     }
 
+    // Validate date form
+    if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     // Check if at least one file is uploaded (mandatory)
     const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
     if (allUploadedFiles.length === 0) {
-      setFileValidationErrors([FORM_ERRORS.MISSING_FILE]);
-    } else {
-      setFileValidationErrors([]);
-    }
-
-    // Validate date form
-    const isDateValid = validateForm();
-
-    // If either validation fails, scroll to top and return
-    if (!isDateValid || fileValidationErrors.length > 0 || allUploadedFiles.length === 0) {
+      currentFileErrors = [FORM_ERRORS.MISSING_FILE];
+      setFileValidationErrors(currentFileErrors);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
