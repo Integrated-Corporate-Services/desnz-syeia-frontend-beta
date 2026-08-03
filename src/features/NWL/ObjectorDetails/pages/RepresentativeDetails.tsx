@@ -38,8 +38,9 @@ const RepresentativeDetails: React.FC = () => {
     const mappedErrors: { [key: string]: string } = {};
     
     if (validationErrors && typeof validationErrors === 'object') {
-      if (validationErrors.representative_email) {
-        mappedErrors.email = validationErrors.representative_email;
+      const errors = validationErrors as Record<string, any>;
+      if (errors.representative_email) {
+        mappedErrors.email = errors.representative_email;
       }
       if (validationErrors.representative_phone) {
         mappedErrors.phone = validationErrors.representative_phone;

@@ -35,20 +35,21 @@ const ObjectorDetails: React.FC = () => {
     const mappedErrors: { [key: string]: string } = {};
     
     if (validationErrors && typeof validationErrors === 'object') {
-      if (validationErrors.objector_email) {
-        mappedErrors.email = validationErrors.objector_email;
+      const errors = validationErrors as Record<string, any>;
+      if (errors.objector_email) {
+        mappedErrors.email = errors.objector_email;
       }
-      if (validationErrors.objector_phone) {
-        mappedErrors.phone = validationErrors.objector_phone;
+      if (errors.objector_phone) {
+        mappedErrors.phone = errors.objector_phone;
       }
-      if (validationErrors.objector_full_name) {
-        mappedErrors.fullName = validationErrors.objector_full_name;
+      if (errors.objector_full_name) {
+        mappedErrors.fullName = errors.objector_full_name;
       }
-      if (validationErrors.objector_title) {
-        mappedErrors.title = validationErrors.objector_title;
+      if (errors.objector_title) {
+        mappedErrors.title = errors.objector_title;
       }
-      if (validationErrors.objector_organisation) {
-        mappedErrors.organisation = validationErrors.objector_organisation;
+      if (errors.objector_organisation) {
+        mappedErrors.organisation = errors.objector_organisation;
       }
     }
     

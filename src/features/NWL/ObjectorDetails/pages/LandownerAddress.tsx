@@ -62,20 +62,21 @@ const LandownerAddress: React.FC = () => {
     const mappedErrors: { [key: string]: string } = {};
     
     if (validationErrors && typeof validationErrors === 'object') {
-      if (validationErrors.landowner_address_line1) {
-        mappedErrors.addressLine1 = validationErrors.landowner_address_line1;
+      const errors = validationErrors as Record<string, any>;
+      if (errors.landowner_address_line1) {
+        mappedErrors.addressLine1 = errors.landowner_address_line1;
       }
-      if (validationErrors.landowner_address_line2) {
-        mappedErrors.addressLine2 = validationErrors.landowner_address_line2;
+      if (errors.landowner_address_line2) {
+        mappedErrors.addressLine2 = errors.landowner_address_line2;
       }
-      if (validationErrors.landowner_town) {
-        mappedErrors.town = validationErrors.landowner_town;
+      if (errors.landowner_town) {
+        mappedErrors.town = errors.landowner_town;
       }
-      if (validationErrors.landowner_county) {
-        mappedErrors.county = validationErrors.landowner_county;
+      if (errors.landowner_county) {
+        mappedErrors.county = errors.landowner_county;
       }
-      if (validationErrors.landowner_postcode) {
-        mappedErrors.postcode = validationErrors.landowner_postcode;
+      if (errors.landowner_postcode) {
+        mappedErrors.postcode = errors.landowner_postcode;
       }
     }
     
