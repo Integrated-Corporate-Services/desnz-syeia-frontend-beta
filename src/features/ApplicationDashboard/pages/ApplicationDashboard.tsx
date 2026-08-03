@@ -37,6 +37,7 @@ const ApplicationDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const userRole = getUserRole(user as AuthUser);
   const {
     activeTab,
     setActiveTab,
@@ -50,7 +51,8 @@ const ApplicationDashboard: React.FC = () => {
     toggleStatus,
     filteredApplications,
     tabCounts,
-  } = useApplicationDashboardFilters(applications, created_by);
+    defaultSubmittedBy,
+  } = useApplicationDashboardFilters(applications, created_by, userRole);
 
   useEffect(() => {
     if (created_by && typeof created_by === "string") {
@@ -81,8 +83,8 @@ const ApplicationDashboard: React.FC = () => {
     caseTypes.forEach((type) => toggleCaseType(type));
     // Clear statuses
     statuses.forEach((status) => toggleStatus(status));
-    // Reset submitted by to default
-    setSubmittedBy("me");
+    // Reset submitted by to user role default
+    setSubmittedBy(defaultSubmittedBy);
     // Reset pagination
     setCurrentPage(1);
   };
@@ -134,6 +136,7 @@ const ApplicationDashboard: React.FC = () => {
                 caseTypes={caseTypes}
                 statuses={statuses}
                 showSubmittedByFilter={canSeeSubmittedByFilter}
+                defaultSubmittedBy={defaultSubmittedBy}
                 onSearchChange={setSearchText}
                 onSubmittedByChange={setSubmittedBy}
                 onCaseTypeToggle={toggleCaseType}

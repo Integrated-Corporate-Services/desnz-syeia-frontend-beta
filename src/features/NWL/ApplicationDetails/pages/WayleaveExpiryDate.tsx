@@ -130,9 +130,13 @@ const WayleaveExpiryDate: React.FC = () => {
     } else if (!validateDate(day, month, year)) {
       newErrors.push(VALIDATION_MESSAGES.DATE_INVALID);
       newFieldErrors.day = VALIDATION_MESSAGES.DATE_INVALID;
+      newFieldErrors.month = VALIDATION_MESSAGES.DATE_INVALID;
+      newFieldErrors.year = VALIDATION_MESSAGES.DATE_INVALID;
     } else if (!validateDateNotInFuture(day, month, year)) {
       newErrors.push(FORM_ERRORS.FUTURE_DATE);
       newFieldErrors.day = FORM_ERRORS.FUTURE_DATE;
+      newFieldErrors.month = FORM_ERRORS.FUTURE_DATE;
+      newFieldErrors.year = FORM_ERRORS.FUTURE_DATE;
     }
 
     setErrors(newErrors);

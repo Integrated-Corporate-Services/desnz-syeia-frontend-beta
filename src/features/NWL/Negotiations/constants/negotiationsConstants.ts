@@ -10,7 +10,7 @@ export const BREADCRUMBS = {
 export const LABELS = {
   EXISTING_NEGOTIATIONS_TITLE: "Are there any negotiations in progress?",
   EVIDENCE_TITLE: "Provide evidence of negotiations",
-  NO_NEGOTIATIONS_TITLE: "Tell us why there have not been any negotiations",
+  NO_NEGOTIATIONS_TITLE: "Why are there no negotiations?",
   CONTINUE: "Save and continue",
   SAVE_FOR_LATER: "Save for later",
 } as const;
@@ -29,8 +29,9 @@ export const FORM_ERRORS = {
   INVALID_DAY: "Day must be a number between 1 and 31",
   INVALID_MONTH: "Month must be a number between 1 and 12",
   INVALID_YEAR: "Year must be a valid 4-digit year",
+  FUTURE_DATE: "Date cannot be in the future",
   MISSING_COMMENTS: "Enter details about the negotiations",
-  MISSING_NO_NEGOTIATIONS_REASON: "Enter a reason why there have not been any negotiations",
+  MISSING_NO_NEGOTIATIONS_REASON: "Enter a reason why there are no negotiations",
   COMMENTS_TOO_LONG: "Comments must be 4000 characters or less",
 } as const;
 
@@ -44,7 +45,7 @@ export const FORM_LABELS = {
   ADDITIONAL_COMMENTS: "Tell us about the negotiations",
   DOCUMENTS_UPLOADED: "Documents uploaded",
   UPLOAD_EVIDENCE: "Upload any evidence of negotiations (optional)",
-  NO_NEGOTIATIONS_REASON: "Tell us why there have not been any negotiations",
+  NO_NEGOTIATIONS_REASON: "Why are there no negotiations?",
   NO_FILE_CHOSEN: "No file chosen",
   CHOOSE_FILE: "Choose file",
   OR_DROP_FILE: "or drop file",

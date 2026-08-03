@@ -2,6 +2,7 @@ import { LandDetails } from '../types';
 import { mapBackendToFrontend, mapFrontendToBackend } from '../utils/landDetailsMapper';
 import logger from '../../../../logger';
 import { getCsrfHeaders } from '../../../../utils/csrf';
+import { parseBackendValidationErrors } from '../../../../utils/apiErrorHandler';
 
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 
@@ -18,7 +19,11 @@ export const landDetailsService = {
         if (response.status === 404) {
           return null;
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        const error: any = new Error(`HTTP error! status: ${response.status}`);
+        error.status = response.status;
+        error.validationErrors = parseBackendValidationErrors(errorData);
+        throw error;
       }
 
       const backendData = await response.json();
@@ -61,9 +66,12 @@ export const landDetailsService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
+        const errorData = await response.json().catch(() => ({}));
         logger.error('Error creating land details:', errorData);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const error: any = new Error(`HTTP error! status: ${response.status}`);
+        error.status = response.status;
+        error.validationErrors = parseBackendValidationErrors(errorData);
+        throw error;
       }
 
       const responseData = await response.json();
@@ -107,9 +115,12 @@ export const landDetailsService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
+        const errorData = await response.json().catch(() => ({}));
         logger.error('Error updating land details:', errorData);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const error: any = new Error(`HTTP error! status: ${response.status}`);
+        error.status = response.status;
+        error.validationErrors = parseBackendValidationErrors(errorData);
+        throw error;
       }
 
       const responseData = await response.json();

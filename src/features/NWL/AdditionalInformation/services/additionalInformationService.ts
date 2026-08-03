@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { AdditionalInformationData } from '../types';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
+import { parseBackendValidationErrors } from '../../../../utils/apiErrorHandler';
 
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 
@@ -21,10 +22,15 @@ export const getAdditionalInformationData = async (
     );
     return response.data;
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'response' in error && 
-        error.response && typeof error.response === 'object' && 'status' in error.response &&
-        error.response.status === 404) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
       return null;
+    }
+    // Parse validation errors if present
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const err: any = new Error(error.message);
+      err.status = error.response.status;
+      err.validationErrors = parseBackendValidationErrors(error.response.data);
+      throw err;
     }
     throw error;
   }
@@ -87,11 +93,22 @@ export const createOrUpdateAdditionalInformationData = async (
     headers['X-Page-ID'] = pageId;
   }
 
-  await axios.post(
-    `${API_BASE_URL}/additional-information`,
-    cleanData,
-    { headers }
-  );
+  try {
+    await axios.post(
+      `${API_BASE_URL}/additional-information`,
+      cleanData,
+      { headers }
+    );
+  } catch (error: unknown) {
+    // Parse validation errors if present
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const err: any = new Error(error.message);
+      err.status = error.response.status;
+      err.validationErrors = parseBackendValidationErrors(error.response.data);
+      throw err;
+    }
+    throw error;
+  }
 };
 
 /**
@@ -120,5 +137,16 @@ export const updateAdditionalInformationData = async (
     backendData.other_information_details = data.other_information_details;
   }
 
-  await axios.post(`${API_BASE_URL}/additional-information`, backendData);
+  try {
+    await axios.post(`${API_BASE_URL}/additional-information`, backendData);
+  } catch (error: unknown) {
+    // Parse validation errors if present
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const err: any = new Error(error.message);
+      err.status = error.response.status;
+      err.validationErrors = parseBackendValidationErrors(error.response.data);
+      throw err;
+    }
+    throw error;
+  }
 };

@@ -34,24 +34,25 @@ const RepresentativeDetails: React.FC = () => {
   /**
    * Map backend validation error field names to frontend field names
    */
-  const mapBackendErrorFields = (validationErrors: any): { [key: string]: string } => {
+  const mapBackendErrorFields = (validationErrors: unknown): { [key: string]: string } => {
     const mappedErrors: { [key: string]: string } = {};
     
     if (validationErrors && typeof validationErrors === 'object') {
-      if (validationErrors.representative_email) {
-        mappedErrors.email = validationErrors.representative_email;
+      const errors = validationErrors as Record<string, any>;
+      if (errors.representative_email) {
+        mappedErrors.email = errors.representative_email;
       }
-      if (validationErrors.representative_phone) {
-        mappedErrors.phone = validationErrors.representative_phone;
+      if (errors.representative_phone) {
+        mappedErrors.phone = errors.representative_phone;
       }
-      if (validationErrors.representative_full_name) {
-        mappedErrors.fullName = validationErrors.representative_full_name;
+      if (errors.representative_full_name) {
+        mappedErrors.fullName = errors.representative_full_name;
       }
-      if (validationErrors.representative_title) {
-        mappedErrors.title = validationErrors.representative_title;
+      if (errors.representative_title) {
+        mappedErrors.title = errors.representative_title;
       }
-      if (validationErrors.representative_organisation) {
-        mappedErrors.organisation = validationErrors.representative_organisation;
+      if (errors.representative_organisation) {
+        mappedErrors.organisation = errors.representative_organisation;
       }
     }
     

@@ -24,7 +24,7 @@ const logger = createLogger('WhyNoNegotiations');
 
 /**
  * Why No Negotiations Page
- * Collects reason why there have been no negotiations
+ * Collects reason why there are no negotiations
  */
 const WhyNoNegotiations: React.FC = () => {
   const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();

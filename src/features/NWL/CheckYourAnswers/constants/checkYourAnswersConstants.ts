@@ -168,7 +168,7 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         START_DATE: 'Start date of negotiations',
         ADDITIONAL_COMMENTS: 'Additional comments',
         EVIDENCE_DOCUMENTS: 'Evidence of negotiations',
-        NO_NEGOTIATIONS_REASON: 'Why there have not been any negotiations',
+        NO_NEGOTIATIONS_REASON: 'Why are there no negotiations?',
         NOT_PROVIDED: 'Not provided',
         NO_DOCUMENTS: 'No documents uploaded',
     },

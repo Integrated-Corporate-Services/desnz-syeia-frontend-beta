@@ -37,7 +37,15 @@ const RepresentativeAddress: React.FC = () => {
     const newErrors: { [key: string]: string } = {};
     if (!addressLine1.trim()) newErrors.addressLine1 = FORM_ERRORS.MISSING_ADDRESS_LINE1;
     if (!town.trim()) newErrors.town = FORM_ERRORS.MISSING_TOWN;
-    if (!postcode.trim()) newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
+    if (!postcode.trim()) {
+      newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
+    } else {
+      // Postcode is provided, validate format
+      const postcodeError = validatePostcode(postcode);
+      if (postcodeError) {
+        newErrors.postcode = postcodeError;
+      }
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -50,24 +58,25 @@ const RepresentativeAddress: React.FC = () => {
     });
   };
 
-  const mapBackendErrorFields = (validationErrors: any): { [key: string]: string } => {
+  const mapBackendErrorFields = (validationErrors: unknown): { [key: string]: string } => {
     const mappedErrors: { [key: string]: string } = {};
     
     if (validationErrors && typeof validationErrors === 'object') {
-      if (validationErrors.representative_address_line1) {
-        mappedErrors.addressLine1 = validationErrors.representative_address_line1;
+      const errors = validationErrors as Record<string, any>;
+      if (errors.representative_address_line1) {
+        mappedErrors.addressLine1 = errors.representative_address_line1;
       }
-      if (validationErrors.representative_address_line2) {
-        mappedErrors.addressLine2 = validationErrors.representative_address_line2;
+      if (errors.representative_address_line2) {
+        mappedErrors.addressLine2 = errors.representative_address_line2;
       }
-      if (validationErrors.representative_town) {
-        mappedErrors.town = validationErrors.representative_town;
+      if (errors.representative_town) {
+        mappedErrors.town = errors.representative_town;
       }
-      if (validationErrors.representative_county) {
-        mappedErrors.county = validationErrors.representative_county;
+      if (errors.representative_county) {
+        mappedErrors.county = errors.representative_county;
       }
-      if (validationErrors.representative_postcode) {
-        mappedErrors.postcode = validationErrors.representative_postcode;
+      if (errors.representative_postcode) {
+        mappedErrors.postcode = errors.representative_postcode;
       }
     }
     
@@ -209,17 +218,8 @@ const RepresentativeAddress: React.FC = () => {
                 <label className="govuk-label" htmlFor="postcode">{FORM_LABELS.POSTCODE}</label>
                 {errors.postcode && <p id="postcode-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.postcode}</p>}
                 <input className={`govuk-input ${errors.postcode ? "govuk-input--error" : ""}`} id="postcode" name="postcode" type="text" value={postcode} onChange={(e) => {
-                  const value = e.target.value;
-                  setPostcode(value);
+                  setPostcode(e.target.value);
                   handleClearFieldError('postcode');
-                  
-                  // Validate postcode format if user is typing
-                  if (value.trim()) {
-                    const postcodeError = validatePostcode(value);
-                    if (postcodeError) {
-                      setErrors(prev => ({ ...prev, postcode: postcodeError }));
-                    }
-                  }
                 }} aria-describedby={errors.postcode ? "postcode-error" : undefined} />
               </div>
               <button type="submit" className="govuk-button" data-module="govuk-button" disabled={isSaving}>
