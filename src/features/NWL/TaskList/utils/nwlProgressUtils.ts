@@ -16,7 +16,7 @@ export const NWL_SUBSECTIONS = {
   OS_GRID_REFERENCE: 'OS Grid reference',
   IDENTIFYING_INFORMATION: 'Identifying information',
   ASSETS: 'Assets',
-  SUPPORTING_INFORMATION: 'Supporting information',
+  ADDITIONAL_INFORMATION: 'Additional information',
   NEGOTIATIONS: 'Negotiations',
   APPLICATION_STATEMENT: 'Application statement',
   CHECK_YOUR_ANSWERS: 'Check your answers',
