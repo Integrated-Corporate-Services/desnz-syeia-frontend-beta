@@ -34,10 +34,10 @@ const RepresentativeDetails: React.FC = () => {
   /**
    * Map backend validation error field names to frontend field names
    */
-  const mapBackendErrorFields = (validationErrors: any): { [key: string]: string } => {
+  const mapBackendErrorFields = (validationErrors: unknown): { [key: string]: string } => {
     const mappedErrors: { [key: string]: string } = {};
     
-    if (validationErrors && typeof validationErrors === 'object' && validationErrors !== null) {
+    if (validationErrors && typeof validationErrors === 'object') {
       if (validationErrors.representative_email) {
         mappedErrors.email = validationErrors.representative_email;
       }
