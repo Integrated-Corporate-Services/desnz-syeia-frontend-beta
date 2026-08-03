@@ -579,12 +579,14 @@ const ProjectOverview = () => {
 								uploadedAtTimestamp: f.uploadedAtTimestamp
 
 							})),
-							// Always send relatedCpoDetails as string (not object)
-							relatedCpoDetails: typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
-								? formState.relatedCpoDetails.field || ''
-								: (formState.relatedCpoDetails || ''),
-							// Send relatedApplicationsDetails as string
-							relatedApplicationsDetails: formState.relatedApplicationsDetails || '',
+							// Always send relatedCpoDetails as string (not object), clear if hasRelatedCpo is false
+							relatedCpoDetails: formState.hasRelatedCpo === "false" ? '' : (
+								typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
+									? formState.relatedCpoDetails.field || ''
+									: (formState.relatedCpoDetails || '')
+							),
+							// Send relatedApplicationsDetails as string, clear if hasRelatedApplications is false
+							relatedApplicationsDetails: formState.hasRelatedApplications === "false" ? '' : (formState.relatedApplicationsDetails || ''),
 							// Include both existing application documents and newly uploaded documents from this submission
 							applicationDocuments: [...(formState.applicationDocuments || []), ...newlyUploadedDocuments].map(d => ({
 								documentId: d.documentId || '',
@@ -999,7 +1001,7 @@ const ProjectOverview = () => {
 											value="false"
 											checked={formState.hasRelatedApplications === "false"}
 											onChange={() => {
-												setFormState(prev => ({ ...prev, hasRelatedApplications: "false", relatedApplicationsDetails: "" }));
+												setFormState(prev => ({ ...prev, hasRelatedApplications: "false" }));
 												clearFieldError('hasRelatedApplications-inputValue');
 											}}
 										/>
