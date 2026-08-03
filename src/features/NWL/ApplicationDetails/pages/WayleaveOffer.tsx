@@ -211,12 +211,6 @@ const WayleaveOffer: React.FC = () => {
       return;
     }
 
-    // Validate date form
-    if (!validateForm()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
     // Check if at least one file is uploaded (mandatory)
     const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
     if (allUploadedFiles.length === 0) {

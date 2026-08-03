@@ -62,20 +62,21 @@ const RepresentativeAddress: React.FC = () => {
     const mappedErrors: { [key: string]: string } = {};
     
     if (validationErrors && typeof validationErrors === 'object') {
-      if (validationErrors.representative_address_line1) {
-        mappedErrors.addressLine1 = validationErrors.representative_address_line1;
+      const errors = validationErrors as Record<string, any>;
+      if (errors.representative_address_line1) {
+        mappedErrors.addressLine1 = errors.representative_address_line1;
       }
-      if (validationErrors.representative_address_line2) {
-        mappedErrors.addressLine2 = validationErrors.representative_address_line2;
+      if (errors.representative_address_line2) {
+        mappedErrors.addressLine2 = errors.representative_address_line2;
       }
-      if (validationErrors.representative_town) {
-        mappedErrors.town = validationErrors.representative_town;
+      if (errors.representative_town) {
+        mappedErrors.town = errors.representative_town;
       }
-      if (validationErrors.representative_county) {
-        mappedErrors.county = validationErrors.representative_county;
+      if (errors.representative_county) {
+        mappedErrors.county = errors.representative_county;
       }
-      if (validationErrors.representative_postcode) {
-        mappedErrors.postcode = validationErrors.representative_postcode;
+      if (errors.representative_postcode) {
+        mappedErrors.postcode = errors.representative_postcode;
       }
     }
     
