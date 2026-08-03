@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import SkipLink from '../../../components/SkipLink';

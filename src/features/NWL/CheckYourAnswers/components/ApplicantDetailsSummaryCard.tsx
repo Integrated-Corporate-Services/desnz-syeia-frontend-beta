@@ -66,7 +66,7 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ data, application
         rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.ADDRESS, CONSTANTS.DEFAULTS.EMPTY));
     }
 
-    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.EMAIL, formatEmail(data.email) || CONSTANTS.DEFAULTS.EMPTY));
+    rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.EMAIL, formatEmail(data.email) || CONSTANTS.DEFAULTS.EMPTY, undefined, 'Change', true));
 
     rows.push(createSummaryRow(CONSTANTS.APPLICANT_FIELDS.PHONE, formatPhone(data.phone) || CONSTANTS.DEFAULTS.EMPTY));
 

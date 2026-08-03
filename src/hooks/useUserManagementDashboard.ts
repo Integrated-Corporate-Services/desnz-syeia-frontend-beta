@@ -23,11 +23,9 @@ export const useUserManagementDashboard = () => {
     filteredUsers,
     loading: usersLoading,
     error: usersError,
-    confirmRevokeAccess,
   } = useManageUsers();
 
   const {
-    navigateToAccessRevoked,
     navigateToReviewRequest,
     navigateToRevokeUser,
   } = useManageUsersNavigation();
@@ -71,6 +69,8 @@ export const useUserManagementDashboard = () => {
       Status: user.status,
       "Last login": user.lastLogin || "Never",
     }));
+
+    if (csvData.length === 0) return;
 
     const headers = Object.keys(csvData[0]).join(",");
     const rows = csvData.map((row) => Object.values(row).join(","));
