@@ -56,11 +56,11 @@ const IdentifyingInformation: React.FC = () => {
 
       try {
         await updateProgress('Identifying information', 'Completed');
-      } catch (_err) {
+      } catch (err) {
       }
 
       goToUploadSiteInformation();
-    } catch (_error) {
+    } catch (error) {
       setIsSaving(false);
     }
   };

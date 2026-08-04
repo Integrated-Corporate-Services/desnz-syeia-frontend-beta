@@ -18,6 +18,7 @@ interface UseContactDetailsSubmitProps {
  */
 export function useContactDetailsSubmit({
   application,
+  party,
   appId,
   contactIsConfirmed,
   setError,

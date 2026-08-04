@@ -60,7 +60,7 @@ const WithdrawApplicationPage: React.FC = () => {
           desnzRef: data.desnz_ref || "S3700245",
           formType: data.type || "S37",
         });
-      } catch (_err) {
+      } catch (err) {
         // Use fallback values if fetch fails
         setApplicationData({
           desnzRef: locationState?.desnzRef || "S3700245",

@@ -484,7 +484,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         onUploaded(uploadedFiles, applicationDocuments);
       }
       return { uploadedFiles, applicationDocuments, scanErrors };
-    } catch (_err) {
+    } catch (err) {
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     } finally {
       setIsScanning(false);

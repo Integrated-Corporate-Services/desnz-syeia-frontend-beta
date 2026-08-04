@@ -92,7 +92,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		setUploadedFileObjs(prev => [...prev, ...newFiles]);
 		setApplicationDocuments(prev => [...prev, ...newDocuments]);
 		setErrors(prev => {
-			 
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { files: _files, ...rest } = prev;
 			return rest;
 		});
@@ -132,7 +132,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				// Update state immediately so files remain visible even if validation fails
 				setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
 				setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
-		} catch (_err: any) {
+			} catch (err: any) {
 				const errorMsg = 'Failed to upload files. Please try again.';
 				setFileValidationErrors([errorMsg]);
 				window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -173,7 +173,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			try {
 				await saveNotRequiredStatus(consultationId, updatedDetails);
 				navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-			} catch (_err) {
+			} catch (err) {
 				// TODO: error handling
 			}
 		};

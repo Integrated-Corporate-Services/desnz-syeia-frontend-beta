@@ -71,6 +71,7 @@ export const AddUserButton: React.FC<AddUserButtonProps> = ({ onAddUser }) => {
 export const UserOverviewSection: React.FC<UserOverviewSectionProps> = ({
   activeCount,
   inactiveCount,
+  userOrganisation,
 }) => (
   <>
     <h2 className="govuk-heading-m">User overview</h2>
@@ -205,6 +206,7 @@ export const UserRow: React.FC<UserRowProps> = ({
   user,
   showRevokeWarning,
   actionColumnCount,
+  onRevokeAccess,
   onConfirmRevoke,
   onCancelRevoke,
 }) => {

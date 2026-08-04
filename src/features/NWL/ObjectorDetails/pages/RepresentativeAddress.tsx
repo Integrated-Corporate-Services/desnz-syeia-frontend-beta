@@ -106,7 +106,7 @@ const RepresentativeAddress: React.FC = () => {
 
       try {
         await updateProgress('Representative details', 'Completed');
-      } catch (_e) {
+      } catch (e) {
         // ignore progress errors
       }
 

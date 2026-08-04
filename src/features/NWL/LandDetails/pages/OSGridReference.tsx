@@ -78,12 +78,12 @@ const OSGridReference: React.FC = () => {
 
       try {
         await updateProgress('OS Grid reference', 'Completed');
-      } catch (_e) {
+      } catch (e) {
         // ignore progress errors
       }
 
       goToIdentifyingInformation();
-    } catch (_error) {
+    } catch (error) {
       setSaveError("Failed to save OS grid reference. Please try again.");
       window.scrollTo(0, 0);
     } finally {

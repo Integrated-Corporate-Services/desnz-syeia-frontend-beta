@@ -76,12 +76,12 @@ const SiteAddress: React.FC = () => {
 
         try {
           await updateProgress('Site address', 'Completed');
-        } catch (_e) {
+        } catch (e) {
           // ignore progress errors
         }
 
       goToCountrySelection();
-    } catch (_error) {
+    } catch (error) {
       setSaveError("Failed to save site address. Please try again.");
       window.scrollTo(0, 0);
     } finally {

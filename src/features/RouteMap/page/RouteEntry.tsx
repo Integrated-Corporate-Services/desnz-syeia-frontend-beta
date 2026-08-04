@@ -26,7 +26,7 @@ const RouteEntry: React.FC<RouteEntryProps> = ({  children }) => {
       } else {
         navigate(`${S37_BASE_URL}/${applicationId}/route-guidance`);
       }
-    } catch (_err) {
+    } catch (err) {
   navigate(`${S37_BASE_URL}/${applicationId}/route-guidance`);
     } finally {
       setLoading(false);

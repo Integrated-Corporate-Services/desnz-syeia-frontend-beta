@@ -31,7 +31,7 @@ export const useParishSubmit = (applicationId: string) => {
         // Navigate to the next page in the task list sequence
         const nextPageUrl = getNextPageUrl(TASK_NAMES.PARISHES, applicationId);
         navigate(nextPageUrl);
-      } catch (_error) {
+      } catch (error) {
         setValidationError("Failed to save parishes. Please try again.");
         window.scrollTo({ top: 0 });
       } finally {

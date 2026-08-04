@@ -91,7 +91,7 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
                     type="text"
                     value={point.easting}
                     onChange={e => handleInputChange('easting', e.target.value)}
-                    onFocus={_e => {
+                    onFocus={e => {
                       setLastFocused('easting');
                       onFocus();
                     }}
@@ -109,7 +109,7 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
                     type="text"
                     value={point.northing}
                     onChange={e => handleInputChange('northing', e.target.value)}
-                    onFocus={_e => {
+                    onFocus={e => {
                       setLastFocused('northing');
                       onFocus();
                     }}

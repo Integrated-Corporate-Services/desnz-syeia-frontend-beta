@@ -43,7 +43,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
         try {
           const details = await getObjectorDetails(applicationId);
           setObjectorAddress(details);
-        } catch (_error) {
+        } catch (error) {
           // Error fetching objector address
         } finally {
           setIsLoading(false);
@@ -74,7 +74,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
       // Update progress
       try {
         await updateProgress('Site address', 'In Progress');
-      } catch (_e) {
+      } catch (e) {
         // ignore progress errors
       }
 
@@ -93,13 +93,13 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
           // Update progress to completed
           try {
             await updateProgress('Site address', 'Completed');
-          } catch (_e) {
+          } catch (e) {
             // ignore
           }
           
           // Navigate to country selection (skip address entry)
           goToCountrySelection();
-        } catch (_error) {
+        } catch (error) {
           setSaveError("Failed to save site address. Please try again.");
           window.scrollTo(0, 0);
         }
@@ -110,12 +110,12 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
             is_site_at_objector_address: false,
           
           });
-        } catch (_error) {
+        } catch (error) {
           // Error saving flag
         }
         goToSiteAddress();
       }
-    } catch (_error) {
+    } catch (error) {
       setSaveError("Failed to process selection. Please try again.");
       window.scrollTo(0, 0);
     } finally {

@@ -294,15 +294,15 @@ export class UrlValidator {
   }
   
   // Empty logging methods (console logging disabled for security)
-   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private log(_message: string, _data?: unknown) {
   }
   
-   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private warn(_message: string, _data?: unknown) {
   }
   
-   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private error(_message: string, _data?: unknown) {
   }
 }

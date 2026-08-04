@@ -66,7 +66,7 @@ const ConsultationResponse2: React.FC = () => {
                         setConsultationName(orgName);
                         setConsultationType(currentConsultation.consultationType || '');
                     }
-                } catch (_err) {
+                } catch (err) {
                     // Error fetching consultation response
                 } finally {
                     setIsLoading(false);
@@ -80,7 +80,7 @@ const ConsultationResponse2: React.FC = () => {
     useEffect(() => {
         if (pendingFiles.length > 0 || uploadedFileObjs.length > 0) {
             setErrors(prev => {
-                 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { uploadedFiles: _uploadedFiles, ...rest } = prev;
                 return rest;
             });
@@ -92,7 +92,7 @@ const ConsultationResponse2: React.FC = () => {
         setUploadedFileObjs(prev => [...prev, ...newFiles]);
         setApplicationDocuments(prev => [...prev, ...newDocuments]);
         setErrors(prev => {
-             
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { uploadedFiles: _uploadedFiles, ...rest } = prev;
             return rest;
         });
@@ -111,7 +111,7 @@ const ConsultationResponse2: React.FC = () => {
         // Clear form-level errors when file validation errors are cleared
         if (errors.length === 0) {
             setErrors(prev => {
-                 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { uploadedFiles: _uploadedFiles, ...rest } = prev;
                 return rest;
             });
@@ -328,7 +328,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, day: e.target.value });
                                                         if (errors.responseDate) {
-                                                            const { responseDate: _responseDate, ...restErrors } = errors;
+                                                            const { responseDate, ...restErrors } = errors;
                                                             setErrors(restErrors);
                                                         }
                                                     }}
@@ -349,7 +349,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, month: e.target.value });
                                                         if (errors.responseDate) {
-                                                            const { responseDate: _responseDate2, ...restErrors } = errors;
+                                                            const { responseDate, ...restErrors } = errors;
                                                             setErrors(restErrors);
                                                         }
                                                     }}
@@ -370,7 +370,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, year: e.target.value });
                                                         if (errors.responseDate) {
-                                                            const { responseDate: _responseDate3, ...restErrors } = errors;
+                                                            const { responseDate, ...restErrors } = errors;
                                                             setErrors(restErrors);
                                                         }
                                                     }}

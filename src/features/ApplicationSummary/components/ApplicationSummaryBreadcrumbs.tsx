@@ -6,7 +6,10 @@ export interface ApplicationSummaryBreadcrumbsProps {
     applicationId: string;
 }
 
-export const ApplicationSummaryBreadcrumbs: React.FC<ApplicationSummaryBreadcrumbsProps> = () => {
+export const ApplicationSummaryBreadcrumbs: React.FC<ApplicationSummaryBreadcrumbsProps> = ({
+    applicationType,
+    applicationId,
+}) => {
     return (
         <Link to="/application-dashboard" className="govuk-back-link">
             Back

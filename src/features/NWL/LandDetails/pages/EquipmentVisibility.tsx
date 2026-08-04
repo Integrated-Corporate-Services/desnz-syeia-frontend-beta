@@ -58,12 +58,12 @@ const EquipmentVisibility: React.FC = () => {
 
       try {
         await updateProgress('Identifying information', 'Completed');
-      } catch (_err) {
+      } catch (err) {
         // Non-blocking: progress update failure shouldn't prevent navigation
       }
 
       goToTaskList();
-    } catch (_error) {
+    } catch (error) {
       // Error is handled by updateLandDetails
     } finally {
       setIsSaving(false);

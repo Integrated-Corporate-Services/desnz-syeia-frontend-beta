@@ -198,7 +198,7 @@ const NetworkOperatorDetails: React.FC = () => {
           );
         }
       }
-    } catch (_error) {
+    } catch (error) {
       // You may want to show an error message to the user here
       // For now, we'll stay on the current page to allow the user to try again
     }

@@ -16,7 +16,7 @@ export const useParishSearch = () => {
       try {
         const results = await parishApiService.searchParishes(value);
         setSearchResults(results);
-      } catch (_error) {
+      } catch (error) {
         setSearchResults([]);
       } finally {
         setIsSearching(false);

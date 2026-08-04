@@ -238,7 +238,7 @@ export const RouteOverviewPage: React.FC = () => {
                                     // Call progress update for 'no spur' before navigating
                                     try {
                                         await progressData.updateProgressItem(applicationId!, 'Route', 'Completed');
-                                    } catch (_err) {
+                                    } catch (err) {
                                         // TODO: error handling
                                     }
                                     const nextPageUrl = getNextPageUrl(TASK_NAMES.ROUTE, applicationId || '');

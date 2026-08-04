@@ -85,7 +85,7 @@ const UploadSiteInformation: React.FC = () => {
       }
 
       goToEquipmentVisibility();
-    } catch (_error) {
+    } catch (error) {
       // Error is handled by updateLandDetails or file upload
     } finally {
       setIsSaving(false);

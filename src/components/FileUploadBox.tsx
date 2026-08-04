@@ -340,7 +340,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
         )}
         {!existingFilesLoading && !existingFilesError && existingFiles.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            {existingFiles.map((file, _idx) => (
+            {existingFiles.map((file, idx) => (
               <div key={file.key} style={{ border: '2px solid #b1b4b6', background: '#fff', marginBottom: 16, padding: 12, boxSizing: 'border-box', width: '100%', maxWidth: 700, display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontWeight: 'bold', color: '#0b0c0c', background: '#f3f2f1', padding: '2px 4px', fontSize: '1.05rem' }}>{file.key.replace(prefix + '/', '')}</span>
                 <span style={{ marginLeft: 8, color: '#505a5f', fontSize: '1rem' }}>- {Math.round(file.size / 1024)} kB</span>

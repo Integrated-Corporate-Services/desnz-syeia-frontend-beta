@@ -109,7 +109,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
         }
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
-      } catch (_err: any) {
+      } catch (err: any) {
         setApiError(SENSITIVE_AREA_ERRORS.FILE_UPLOAD_FAILED);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;

@@ -11,6 +11,7 @@ export interface PaymentConfirmationPanelProps {
 
 export const PaymentConfirmationPanel: React.FC<PaymentConfirmationPanelProps> = ({
     desnzRef,
+    applicationType,
     payment,
 }) => {
     const isPaid = payment.status === PaymentStatus.PAID;

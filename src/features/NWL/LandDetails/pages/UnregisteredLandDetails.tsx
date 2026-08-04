@@ -116,11 +116,11 @@ const UnregisteredLandDetails: React.FC = () => {
 
       try {
         await updateProgress('Land registry', 'Completed');
-      } catch (_err) {
+      } catch (err) {
       }
 
       goToOSGridReference();
-    } catch (_error) {
+    } catch (error) {
       // Error is handled by updateLandDetails or file upload
     } finally {
       setIsSaving(false);

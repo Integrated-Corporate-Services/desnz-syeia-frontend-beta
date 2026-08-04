@@ -19,6 +19,7 @@ export interface SearchableDropdownProps {
 const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   label,
   hint,
+  value,
   onChange,
   fetchOptions,
   placeholder = '',
