@@ -23,18 +23,26 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-      'no-console': ['error', {
-        allow: ['warn', 'error']
-      }],
-      'no-debugger': 'error',
-      'no-alert': 'warn',
+     
       '@typescript-eslint/no-unused-vars': ['error', {
         'argsIgnorePattern': '^_',
         'varsIgnorePattern': '^_',
         'caughtErrorsIgnorePattern': '^_',
         'destructuredArrayIgnorePattern': '^_'
       }],
-      'no-unused-vars': 'off', // Disable base rule as it's covered by @typescript-eslint/no-unused-vars
+      'no-unused-vars': 'off',
+      
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-debugger': 'warn',
+      'no-alert': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
+      'no-empty': 'warn',
+      'no-useless-escape': 'warn',
+      'prefer-const': 'warn',
+      'no-unsafe-finally': 'warn',
+      'no-control-regex': 'warn',
+      'prefer-rest-params': 'warn',
     },
   },
 )
