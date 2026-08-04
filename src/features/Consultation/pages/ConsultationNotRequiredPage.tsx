@@ -92,7 +92,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		setUploadedFileObjs(prev => [...prev, ...newFiles]);
 		setApplicationDocuments(prev => [...prev, ...newDocuments]);
 		setErrors(prev => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			 
 			const { files: _files, ...rest } = prev;
 			return rest;
 		});

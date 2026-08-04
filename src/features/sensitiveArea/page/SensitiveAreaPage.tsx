@@ -45,7 +45,7 @@ const SensitiveAreaPage: React.FC = () => {
                         setToleranceValue(String(first.tolerance_meters ?? ''));
                     }
                 }
-            } catch (_err) {
+            } catch (err) {
                 // TODO: error handling
                 setError('Failed to load route or sensitive area settings');
             }
