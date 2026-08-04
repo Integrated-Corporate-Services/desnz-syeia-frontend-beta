@@ -28,6 +28,13 @@ export default tseslint.config(
       }],
       'no-debugger': 'error',
       'no-alert': 'warn',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern': '^_',
+        'caughtErrorsIgnorePattern': '^_',
+        'destructuredArrayIgnorePattern': '^_'
+      }],
+      'no-unused-vars': 'off', // Disable base rule as it's covered by @typescript-eslint/no-unused-vars
     },
   },
 )
