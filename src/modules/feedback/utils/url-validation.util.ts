@@ -33,7 +33,7 @@ export function validateFeedbackUrl(
   let urlObj: URL;
   try {
     urlObj = new URL(sanitized);
-  } catch (error) {
+  } catch (_error) {
     return {
       isValid: false,
       sanitizedUrl: DETAILED_SURVEY_URL,

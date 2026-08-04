@@ -132,7 +132,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 				// Update state immediately so files remain visible even if validation fails
 				setUploadedFileObjs(prev => [...prev, ...newlyUploadedFiles]);
 				setApplicationDocuments(prev => [...prev, ...newlyUploadedDocuments]);
-			} catch (err: any) {
+		} catch (_err: any) {
 				const errorMsg = 'Failed to upload files. Please try again.';
 				setFileValidationErrors([errorMsg]);
 				window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -173,7 +173,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			try {
 				await saveNotRequiredStatus(consultationId, updatedDetails);
 				navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-			} catch (err) {
+			} catch (_err) {
 				// TODO: error handling
 			}
 		};

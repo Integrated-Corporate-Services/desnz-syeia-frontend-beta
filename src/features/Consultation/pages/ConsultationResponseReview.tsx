@@ -211,7 +211,7 @@ const ConsultationResponse3: React.FC = () => {
                                                 onChange={e => {
                                                     setDeclarationAccepted(e.target.checked);
                                                     if (errors.declaration) {
-                                                        const { declaration, ...restErrors } = errors;
+                                                        const { declaration: _declaration, ...restErrors } = errors;
                                                         setErrors(restErrors);
                                                     }
                                                 }}

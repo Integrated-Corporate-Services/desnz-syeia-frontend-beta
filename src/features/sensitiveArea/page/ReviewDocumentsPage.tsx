@@ -128,7 +128,7 @@ const ReviewDocumentsPage: React.FC = () => {
         }
         newlyUploadedFiles = result.uploadedFiles;
         newlyUploadedDocuments = result.applicationDocuments;
-      } catch (err: any) {
+      } catch (_err: any) {
         setApiError('Failed to upload files. Please try again.');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;

@@ -37,7 +37,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
     try {
       const v = localStorage.getItem(lsKey(appId));
       if (v === 'yes' || v === 'no') return v;
-    } catch (e) {
+    } catch (_e) {
       // ignore localStorage errors
     }
     return null;
@@ -49,7 +49,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
       } else {
         localStorage.setItem(lsKey(appId), option);
       }
-    } catch (e) {
+    } catch (_e) {
       // ignore write errors
     }
   };
@@ -83,7 +83,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
             setSelectedOption(latestReview.add_other_areas_choice);
           }
         }
-      } catch (err) {
+      } catch (_err) {
         // ignore — non-fatal for pre-fill
       } finally {
         if (mounted) setLoading(false);
@@ -148,7 +148,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
       try {
         await saveSensitiveReview(payload);
         saveOption(effectiveApplicationId, null);
-      } catch (err) {
+      } catch (_err) {
         // If save fails, keep local stash so user choice isn't lost; optionally surface error
         // For now we silently fallback to local stash
       } finally {

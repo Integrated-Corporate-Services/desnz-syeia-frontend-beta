@@ -66,7 +66,7 @@ const ConsultationResponse2: React.FC = () => {
                         setConsultationName(orgName);
                         setConsultationType(currentConsultation.consultationType || '');
                     }
-                } catch (err) {
+                } catch (_err) {
                     // Error fetching consultation response
                 } finally {
                     setIsLoading(false);
@@ -328,7 +328,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, day: e.target.value });
                                                         if (errors.responseDate) {
-                                                            const { responseDate, ...restErrors } = errors;
+                                                            const { responseDate: _responseDate, ...restErrors } = errors;
                                                             setErrors(restErrors);
                                                         }
                                                     }}
@@ -349,7 +349,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, month: e.target.value });
                                                         if (errors.responseDate) {
-                                                            const { responseDate, ...restErrors } = errors;
+                                                            const { responseDate: _responseDate2, ...restErrors } = errors;
                                                             setErrors(restErrors);
                                                         }
                                                     }}
@@ -370,7 +370,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, year: e.target.value });
                                                         if (errors.responseDate) {
-                                                            const { responseDate, ...restErrors } = errors;
+                                                            const { responseDate: _responseDate3, ...restErrors } = errors;
                                                             setErrors(restErrors);
                                                         }
                                                     }}

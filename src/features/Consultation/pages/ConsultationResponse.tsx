@@ -213,7 +213,7 @@ const ConsultationResponse: React.FC = () => {
                                     onChange={e => {
                                         setContactName(e.target.value);
                                         if (errors.contactName) {
-                                            const { contactName, ...restErrors } = errors;
+                                            const { contactName: _contactName, ...restErrors } = errors;
                                             setErrors(restErrors);
                                         }
                                     }}
@@ -245,7 +245,7 @@ const ConsultationResponse: React.FC = () => {
                                     onChange={e => {
                                         setEmail(e.target.value);
                                         if (errors.email) {
-                                            const { email, ...restErrors } = errors;
+                                            const { email: _email, ...restErrors } = errors;
                                             setErrors(restErrors);
                                         }
                                     }}
@@ -277,7 +277,7 @@ const ConsultationResponse: React.FC = () => {
                                                 onChange={e => {
                                                     setHasObjection(e.target.value);
                                                     if (errors.hasObjection) {
-                                                        const { hasObjection, ...restErrors } = errors;
+                                                        const { hasObjection: _hasObjection2, ...restErrors } = errors;
                                                         setErrors(restErrors);
                                                     }
                                                 }}
@@ -297,7 +297,7 @@ const ConsultationResponse: React.FC = () => {
                                                 onChange={e => {
                                                     setHasObjection(e.target.value);
                                                     if (errors.hasObjection) {
-                                                        const { hasObjection, ...restErrors } = errors;
+                                                        const { hasObjection: _hasObjection3, ...restErrors } = errors;
                                                         setErrors(restErrors);
                                                     }
                                                 }}

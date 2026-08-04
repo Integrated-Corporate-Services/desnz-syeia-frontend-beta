@@ -144,7 +144,7 @@ export function useTaskListData() {
         try {
             await submitApp(effectiveApplicationId);
             navigate(`${S37_BASE_URL}/${effectiveApplicationId}/application-submitted`);
-        } catch (err) {
+        } catch (_err) {
             setSubmitError('Failed to submit application. Please try again.');
         } finally {
             setSubmitting(false);

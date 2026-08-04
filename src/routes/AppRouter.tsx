@@ -7,7 +7,7 @@ const AppRouter: React.FC = () => {
 
   return (
     <Routes>
-      {ROUTE_CONFIG.map(({ path, component: Component, auth }) => {
+      {ROUTE_CONFIG.map(({ path, component: Component, auth: _auth }) => {
         // If root or /landingPage, always show LandingPage
         if (path === '/' || path === '/landingPage') {
           return <Route key={path} path={path} element={<LandingPage />} />;

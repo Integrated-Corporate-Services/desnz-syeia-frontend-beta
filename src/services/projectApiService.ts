@@ -33,7 +33,7 @@ export const saveProjectOverview = async (data: any) => {
       } else if (errorData.error) {
         errorMessage = errorData.error;
       }
-    } catch (parseError) {
+    } catch (_parseError) {
       // If JSON parsing fails, use default error message
     }
     
