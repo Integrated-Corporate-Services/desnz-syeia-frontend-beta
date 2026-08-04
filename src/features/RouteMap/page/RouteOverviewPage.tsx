@@ -1,5 +1,5 @@
 import React from 'react';
-import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
+import { ROUTE_ERROR_MESSAGES, DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH } from '../../../constants/routeErrorMessages';
 import { S37_BASE_URL } from '../../../constants/s37';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -17,6 +17,7 @@ export const RouteOverviewPage: React.FC = () => {
     const [details, setDetails] = React.useState('');
     const [formError, setFormError] = React.useState<string | null>(null);
     const detailsRef = React.useRef<HTMLTextAreaElement>(null);
+    const remainingChars = Math.max(0, DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH - details.length);
     const applicationId = useGetApplicationId();
     const navigate = useNavigate();
     const location = useLocation();
@@ -229,6 +230,13 @@ export const RouteOverviewPage: React.FC = () => {
                                     }, 0);
                                     return;
                                 }
+                                if (spurChoice === 'notconnected' && details.length > DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH) {
+                                    setFormError(ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong);
+                                    setTimeout(() => {
+                                        detailsRef.current?.focus();
+                                    }, 0);
+                                    return;
+                                }
                                 setFormError(null);
                                 if (spurChoice === 'spur' || spurChoice === 'notconnected') {
                                     navigate(`${S37_BASE_URL}/${applicationId}/route-map`, {
@@ -289,28 +297,39 @@ export const RouteOverviewPage: React.FC = () => {
                                         </div>
                                         {/* Justification error only for textarea */}
                                         {spurChoice === 'notconnected' && (
-                                            <div className={`govuk-inset-text${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification ? ' govuk-form-group--error' : ''}`} style={{ marginLeft: 0, marginTop: 8, borderLeft: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification ? '4px solid #d4351c' : undefined }}>
-                                                <label htmlFor="routeDetails" className="govuk-label govuk-visually-hidden">
-                                                    Explain why this additional route should be included with the main route of this application
-                                                </label>
-                                                <span className="govuk-body" style={{ display: 'block', marginBottom: 4 }}>
-                                                    Explain why this additional route should be included with the main route of this application
-                                                </span>
-                                                {formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification && (
-                                                    <span className="govuk-error-message" style={{ color: '#d4351c', marginBottom: 4 }}>
-                                                        {formError}
-                                                    </span>
-                                                )}
-                                                <textarea
-                                                    id="routeDetails"
-                                                    className="govuk-textarea"
-                                                    style={{ width: '100%', minHeight: 100, border: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification ? '2px solid #d4351c' : undefined }}
-                                                    ref={detailsRef}
-                                                    value={details}
-                                                    onChange={(e) => setDetails(e.target.value)}
-                                                    aria-describedby={formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification ? 'routeDetails-error' : undefined}
-                                                    aria-invalid={formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification}
-                                                />
+                                            <div className={`govuk-inset-text${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? ' govuk-form-group--error' : ''}`} style={{ marginLeft: 0, marginTop: 8, borderLeft: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? '4px solid #d4351c' : undefined }}>
+                                                <div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH}>
+                                                    <label htmlFor="routeDetails" className="govuk-label">
+                                                        Explain why this additional route should be included with the main route of this application
+                                                    </label>
+                                                    {(formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong) && (
+                                                        <span className="govuk-error-message" id="routeDetails-error">
+                                                            <span className="govuk-visually-hidden">Error:</span> {formError}
+                                                        </span>
+                                                    )}
+                                                    <textarea
+                                                        id="routeDetails"
+                                                        className={`govuk-textarea govuk-js-character-count${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? ' govuk-textarea--error' : ''}`}
+                                                        style={{ minHeight: 100 }}
+                                                        rows={5}
+                                                        ref={detailsRef}
+                                                        value={details}
+                                                        maxLength={DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val.length <= DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH) {
+                                                                setDetails(val);
+                                                            } else {
+                                                                setDetails(val.slice(0, DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH));
+                                                            }
+                                                        }}
+                                                        aria-describedby={(formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong) ? 'routeDetails-error routeDetails-info' : 'routeDetails-info'}
+                                                        aria-invalid={formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong}
+                                                    />
+                                                    <div id="routeDetails-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH} characters</div>
+                                                    <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You have {remainingChars} characters remaining</div>
+                                                    <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {remainingChars} characters remaining</div>
+                                                </div>
                                             </div>
                                         )}
                                         <div className="govuk-radios__item">
