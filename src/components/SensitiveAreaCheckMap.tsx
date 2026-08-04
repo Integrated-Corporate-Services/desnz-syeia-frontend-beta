@@ -34,7 +34,7 @@ interface SensitiveAreaCheckMapProps {
 const ROUTE_COLOR = '#1d70b8'; // GOV blue
 const MARKER_COLOR = '#010103ff';
 
-const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, selectedIdx, setPoints, setSelectedIdx, routeName, mode = 'overview', routes }) => {
+const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, selectedIdx, setPoints, routeName, mode = 'overview', routes }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   // Track all polylines for multi-route
@@ -219,7 +219,7 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
             // All points are at the same location, use the first point
             midLatLng = latlngs[0];
           } else {
-            let midDist = totalDist / 2;
+            const midDist = totalDist / 2;
             let acc = 0;
             midLatLng = latlngs[0];
             for (let i = 1; i < latlngs.length; i++) {

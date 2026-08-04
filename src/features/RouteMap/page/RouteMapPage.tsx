@@ -12,7 +12,7 @@ import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
 import SkipLink from '../../../components/SkipLink';
 
 // Validation function for a single point using centralized error messages
-function getPointError(easting: string, northing: string, routeName: string, idx: number) {
+function getPointError(easting: string, northing: string, _routeName: string, _idx: number) {
   if (!easting && !northing) return ROUTE_ERROR_MESSAGES.missingEastingNorthing;
   if (!easting) return ROUTE_ERROR_MESSAGES.missingEasting;
   if (!northing) return ROUTE_ERROR_MESSAGES.missingNorthing;
@@ -180,7 +180,7 @@ const RouteMapPage: React.FC = () => {
         setPointsToDelete([]); // Clear after successful delete
       }
   navigate(`${S37_BASE_URL}/${effectiveApplicationId}/route-overview`);
-    } catch (err) {
+    } catch (_err) {
       setSubmitError('Failed to submit route points. Please try again.');
     } finally {
       setSubmitting(false);

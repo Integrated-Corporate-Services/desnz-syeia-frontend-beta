@@ -51,7 +51,7 @@ const ConsultationDetailsPage: React.FC = () => {
     // Combine all historical consultations
     const allHistoricalConsultations = [...historicalRegularConsultations, ...historicalOtherConsultations];
 
-    const handleRemoveConsultation = (consultationId: string, consultationName: string) => {
+    const handleRemoveConsultation = (consultationId: string, _consultationName: string) => {
         // Navigate to the Remove Consultation page
         navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/remove`);
     };

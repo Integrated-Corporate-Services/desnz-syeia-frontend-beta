@@ -54,12 +54,12 @@ const IsThereRepresentative: React.FC = () => {
         // If no representative, mark Representative details as completed
         try {
           await updateProgress('Representative details', 'Completed');
-        } catch (e) {
+        } catch (_e) {
           // ignore progress errors
         }
         navigate(`${NWL_BASE_URL}/${appId}/task-list`);
       }
-    } catch (error) {
+    } catch (_error) {
       setSaveError("Failed to save representative status. Please try again.");
       window.scrollTo(0, 0);
     } finally {

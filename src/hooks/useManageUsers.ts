@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import { createLogger } from "../utils/logger";
-import type { AuthUser } from "../types/auth";
 import type { User } from "../types/user";
 import userService from "../services/userService";
 import { ROLES } from "../constants/roles";

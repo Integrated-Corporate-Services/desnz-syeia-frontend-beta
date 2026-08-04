@@ -7,7 +7,7 @@ type LandDetailsBreadcrumbsProps = {
   currentPage: string;
 };
 
-const LandDetailsBreadcrumbs: React.FC<LandDetailsBreadcrumbsProps> = ({ applicationId, currentPage }) => {
+const LandDetailsBreadcrumbs: React.FC<LandDetailsBreadcrumbsProps> = ({ applicationId }) => {
   return (
     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
       <ol className="govuk-breadcrumbs__list">

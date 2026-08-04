@@ -102,7 +102,7 @@ const PublicNoticesEvidence: React.FC = () => {
     // Clear form-level errors when file validation errors are cleared
     if (errors.length === 0) {
       setErrors(prev => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const { fileUpload: _fileUpload, ...rest } = prev;
         return rest;
       });
@@ -381,7 +381,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           onChange={(e) => {
                             setFirstDateDay(e.target.value);
                             if (errors.firstDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { firstDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }
@@ -404,7 +404,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           onChange={(e) => {
                             setFirstDateMonth(e.target.value);
                             if (errors.firstDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { firstDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }
@@ -427,7 +427,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           onChange={(e) => {
                             setFirstDateYear(e.target.value);
                             if (errors.firstDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { firstDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }
@@ -466,7 +466,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           onChange={(e) => {
                             setSecondDateDay(e.target.value);
                             if (errors.secondDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { secondDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }
@@ -489,7 +489,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           onChange={(e) => {
                             setSecondDateMonth(e.target.value);
                             if (errors.secondDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { secondDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }
@@ -512,7 +512,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           onChange={(e) => {
                             setSecondDateYear(e.target.value);
                             if (errors.secondDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { secondDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }

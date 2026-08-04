@@ -11,7 +11,7 @@ import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 import log from '../../../logger';
 import SkipLink from '../../../components/SkipLink';
 
-const consulteeApplicationInfo: React.FC = () => {
+const ConsulteeApplicationInfo: React.FC = () => {
   const params = useParams();
   const [searchParams] = useSearchParams();
   const applicationId = useGetApplicationId();
@@ -63,8 +63,8 @@ useEffect(() => {
         setError(null);
         const data = await getConsultationPack(consultationId, applicationId);
         setConsultationPack(data);
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
+      } catch (_err: any) {
+        setError(_err.message || "Unknown error");
       } finally {
         setLoading(false);
       }
@@ -137,7 +137,7 @@ useEffect(() => {
         })
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, consultationPack, user]);
 
   const handleSectionCheckboxChange = (idx: number) => {
@@ -202,8 +202,8 @@ useEffect(() => {
       } else {
         navigate(`${S37_BASE_URL}/${applicationId}/task-list`);
       }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to save');
+    } catch (_err: any) {
+      setErrorMessage(_err.message || 'Failed to save');
     }
   };
 
@@ -435,7 +435,7 @@ useEffect(() => {
                     </tr>
                   </thead>
                   <tbody>
-                    {packDocuments.map((doc, idx) => (
+                    {packDocuments.map((doc, _idx) => (
                       <tr key={doc.documentId} className="govuk-table__row" style={{ height: '28px' }}>
                         <td className="govuk-table__cell" style={{ textAlign: 'center', padding: '2px 4px' }}>
                           <div className="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
@@ -510,7 +510,7 @@ useEffect(() => {
   );
 };
 
-export default consulteeApplicationInfo;
+export default ConsulteeApplicationInfo;
 // GOV.UK Tabs JS initialisation
 declare const window: any;
 

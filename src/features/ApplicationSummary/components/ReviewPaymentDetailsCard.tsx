@@ -97,6 +97,32 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
     desnzRef,
     applicationStatus
 }) => {
+    // Hook must be called BEFORE any early returns
+    useEffect(() => {
+        if (!payment) return;
+        
+        const invoiceLink = document.querySelector('.invoice-download-link') as HTMLAnchorElement;
+        if (invoiceLink && applicationId && applicationType) {
+            const handleClick = async (e: Event) => {
+                e.preventDefault();
+                const s3Key = invoiceLink.getAttribute('data-s3-key');
+                if (s3Key) {
+                    try {
+                        await downloadInvoiceWithFallback(s3Key, applicationId, applicationType);
+                    } catch (_error) {
+                        logger.error('[ReviewPaymentDetailsCard] Failed to download invoice:', _error);
+                    }
+                }
+            };
+
+            invoiceLink.addEventListener('click', handleClick);
+
+            return () => {
+                invoiceLink.removeEventListener('click', handleClick);
+            };
+        }
+    }, [applicationId, applicationType, desnzRef, payment]);
+
     if (!payment) {
         return null;
     }
@@ -200,29 +226,6 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
             });
         }
     }
-    useEffect(() => {
-        const invoiceLink = document.querySelector('.invoice-download-link') as HTMLAnchorElement;
-        if (invoiceLink && applicationId && applicationType) {
-            const handleClick = async (e: Event) => {
-                e.preventDefault();
-                const s3Key = invoiceLink.getAttribute('data-s3-key');
-                if (s3Key) {
-                    try {
-                        await downloadInvoiceWithFallback(s3Key, applicationId, applicationType);
-                    } catch (error) {
-                        logger.error('[ReviewPaymentDetailsCard] Failed to download invoice:', error);
-                       
-                    }
-                }
-            };
-
-            invoiceLink.addEventListener('click', handleClick);
-
-            return () => {
-                invoiceLink.removeEventListener('click', handleClick);
-            };
-        }
-    }, [applicationId, applicationType, desnzRef]);
 
     return <SummaryCard title={L.PAYMENT.HEADING} rows={rows} />;
 };

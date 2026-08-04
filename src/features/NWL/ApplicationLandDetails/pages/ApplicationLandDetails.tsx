@@ -78,7 +78,7 @@ const ApplicationLandDetails: React.FC = () => {
 			setTimeout(() => {
 				setErrors(prev => {
 					if (prev.fileUpload1 !== scanInProgressMessage) return prev;
-					const { fileUpload1, ...rest } = prev;
+				const { fileUpload1: _fileUpload1, ...rest } = prev;
 					return rest;
 				});
 			}, 6000);

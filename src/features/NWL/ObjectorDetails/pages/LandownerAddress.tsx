@@ -106,7 +106,7 @@ const LandownerAddress: React.FC = () => {
 
       try {
         await updateProgress('Landowner details', 'Completed');
-      } catch (e) {
+      } catch (_e) {
         // ignore progress errors
       }
       navigate(`${NWL_BASE_URL}/${appId}/is-there-representative`);

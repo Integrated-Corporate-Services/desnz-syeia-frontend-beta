@@ -63,7 +63,7 @@ export const useLandDetailsData = (applicationId: string) => {
           return JSON.stringify(newVal) !== JSON.stringify(oldVal);
         }
         return newVal !== oldVal;
-      } catch (e) {
+      } catch (_e) {
         return true;
       }
     });

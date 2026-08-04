@@ -46,7 +46,7 @@ import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
 import RouteDeletePage from '../features/RouteMap/page/RouteDeletePage';
 import WorksOverview from '../features/WorksOverview/pages/WorksOverview';
 import ConsultationPage from '../features/Consultation/pages/consultationDetailsPage';
-import consulteeApplicationDetails from '../features/Consultation/pages/consulteeApplicationInfo';
+import ConsulteeApplicationInfo from '../features/Consultation/pages/consulteeApplicationInfo';
 import ConsultationRequestSent from '../features/Consultation/pages/ConsultationRequestSent';
 import SendApplicationToConsultee from '../features/Consultation/pages/sendApplicationToConsultee';
 import NWLWhoIsApplying from '../features/NWL/WhoIsApplying/pages/WhoIsApplying';
@@ -762,13 +762,13 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     },
     {
         path: `${S37_BASE_URL}/:applicationId/consultation/:consultationId/consultee-application-details`,
-        component: consulteeApplicationDetails,
+        component: ConsulteeApplicationInfo,
         auth: true,
         layout: true,
     },
     {
         path: `${S37_BASE_URL}/:applicationId/consultation/consultee-application-details`,
-        component: consulteeApplicationDetails,
+        component: ConsulteeApplicationInfo,
         auth: true,
         layout: true,
     },

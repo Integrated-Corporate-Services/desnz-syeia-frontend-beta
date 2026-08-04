@@ -51,7 +51,7 @@ const CountrySelection: React.FC = () => {
       });
 
       goToLandRegistry();
-    } catch (error) {
+    } catch (_error) {
       setSaveError("Failed to save country selection. Please try again.");
       window.scrollTo(0, 0);
     } finally {

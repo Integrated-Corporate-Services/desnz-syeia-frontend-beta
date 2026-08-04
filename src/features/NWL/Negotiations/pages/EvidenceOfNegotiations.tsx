@@ -205,12 +205,12 @@ const EvidenceOfNegotiations: React.FC = () => {
       // Update progress for Negotiations section
       try {
         await updateProgress('Negotiations', 'Completed');
-      } catch (progressError) {
+      } catch (_progressError) {
         // Continue even if progress update fails
       }
       
       navigateToTaskList();
-    } catch (error) {
+    } catch (_error) {
       alert('An error occurred while saving. Please try again.');
     } finally {
       setIsSaving(false);

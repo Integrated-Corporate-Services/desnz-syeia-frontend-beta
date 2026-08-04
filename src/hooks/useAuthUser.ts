@@ -40,7 +40,7 @@ export function useAuthUser() {
         logger.info("Not authenticated:", err);
         setLoading(false);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- run only once on mount;
+     
     // store setters and module constants are stable
   }, []);
 

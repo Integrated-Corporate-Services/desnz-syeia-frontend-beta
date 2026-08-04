@@ -96,7 +96,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     useEffect(() => {
         if (pendingFiles.length > 0 || uploadedFileObjs.length > 0) {
             setErrors(prev => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                 
                 const { files: _files, ...rest } = prev;
                 return rest;
             });
@@ -109,7 +109,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         setUploadedFileObjs(prev => [...prev, ...newFiles]);
         setApplicationDocuments(prev => [...prev, ...newDocuments]);
         setErrors(prev => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+             
             const { files: _files, ...rest } = prev;
             return rest;
         });
@@ -135,7 +135,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         // Clear form-level errors when file validation errors are cleared
         if (errors.length === 0) {
             setErrors(prev => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                 
                 const { files: _files, ...rest } = prev;
                 return rest;
             });

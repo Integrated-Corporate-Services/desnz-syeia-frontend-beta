@@ -44,7 +44,7 @@ const ConsultationRequestPage: React.FC = () => {
     // Clear form-level errors when file validation errors are cleared
     if (errors.length === 0) {
       setErrors(prev => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const { fileUpload: _fileUpload, ...rest } = prev;
         return rest;
       });
@@ -110,7 +110,7 @@ const ConsultationRequestPage: React.FC = () => {
   React.useEffect(() => {
     if (pendingFiles.length > 0 || uploadedFileObjs.length > 0) {
       setErrors(prev => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const { fileUpload: _fileUpload, ...rest } = prev;
         return rest;
       });
@@ -123,7 +123,7 @@ const ConsultationRequestPage: React.FC = () => {
     setUploadedFileObjs(prev => [...prev, ...newFiles]);
     setApplicationDocuments(prev => [...prev, ...newDocuments]);
     setErrors(prev => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const { fileUpload: _fileUpload, ...rest } = prev;
       return rest;
     });
@@ -309,7 +309,7 @@ const ConsultationRequestPage: React.FC = () => {
                           onChange={e => {
                             setResponseDate({ ...responseDate, day: e.target.value });
                             if (errors.responseDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { responseDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }
@@ -331,7 +331,7 @@ const ConsultationRequestPage: React.FC = () => {
                           onChange={e => {
                             setResponseDate({ ...responseDate, month: e.target.value });
                             if (errors.responseDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { responseDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }
@@ -353,7 +353,7 @@ const ConsultationRequestPage: React.FC = () => {
                           onChange={e => {
                             setResponseDate({ ...responseDate, year: e.target.value });
                             if (errors.responseDate) {
-                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                               
                               const { responseDate: _, ...restErrors } = errors;
                               setErrors(restErrors);
                             }

@@ -29,7 +29,7 @@ export const useParishes = (applicationId: string) => {
           })) || [];
 
         setParishes(savedParishes);
-      } catch (error) {
+      } catch (_error) {
         setLoadError("Failed to load saved parishes");
       } finally {
         setIsLoading(false);

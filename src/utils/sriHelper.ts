@@ -96,7 +96,7 @@ export function addSRIToLink(link: HTMLLinkElement, url: string): HTMLLinkElemen
  * @param integrity - The integrity hash that was used
  * @param event - The error event
  */
-function handleSRIError(url: string, integrity: string, event: Event): void {
+function handleSRIError(url: string, integrity: string, _event: Event): void {
   const errorMessage = 'SRI integrity check failed or script failed to load';
   
   logger.error(errorMessage, {

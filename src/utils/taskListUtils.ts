@@ -44,7 +44,7 @@ export const TASK_NAMES = {
     PAY_AND_SUBMIT: 'Pay and submit',
 } as const;
 
-export function getInitialSections(applicationId?: string, assetInformationStatus?: string): TaskListSection[] {
+export function getInitialSections(applicationId?: string, _assetInformationStatus?: string): TaskListSection[] {
     const base = applicationId ? `${S37_BASE_URL}/${applicationId}` : `${S37_BASE_URL}/:applicationId`;
 
     return [

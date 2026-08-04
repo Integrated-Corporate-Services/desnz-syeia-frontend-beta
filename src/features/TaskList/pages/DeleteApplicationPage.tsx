@@ -36,7 +36,7 @@ const DeleteApplicationPage: React.FC = () => {
     try {
       await applicationApiService.deleteApplication(applicationId);
       navigate('/application-dashboard');
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to delete application. Please try again.');
     } finally {
       setSubmitting(false);

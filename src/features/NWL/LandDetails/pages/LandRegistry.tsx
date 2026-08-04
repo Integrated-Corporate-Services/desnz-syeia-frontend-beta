@@ -57,7 +57,7 @@ const LandRegistry: React.FC = () => {
       } else {
         goToUnregisteredLandDetails();
       }
-    } catch (error) {
+    } catch (_error) {
       // Error is handled by updateLandDetails
     } finally {
       setIsSaving(false);

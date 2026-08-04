@@ -11,7 +11,7 @@ interface AccordionProps {
   heading?: string;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ sections, heading }) => {
+const Accordion: React.FC<AccordionProps> = ({ sections }) => {
   const [openSections, setOpenSections] = useState<{ [id: string]: boolean }>(
     sections.reduce((acc, section) => ({ ...acc, [section.id]: true }), {})
   );

@@ -124,7 +124,7 @@ const ObjectorAddress: React.FC = () => {
 
       try {
         await updateProgress('Objector details', 'Completed');
-      } catch (e) {
+      } catch (_e) {
         // ignore progress errors
       }
 

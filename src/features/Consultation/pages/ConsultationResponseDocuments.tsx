@@ -80,7 +80,7 @@ const ConsultationResponse2: React.FC = () => {
     useEffect(() => {
         if (pendingFiles.length > 0 || uploadedFileObjs.length > 0) {
             setErrors(prev => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                 
                 const { uploadedFiles: _uploadedFiles, ...rest } = prev;
                 return rest;
             });
@@ -92,7 +92,7 @@ const ConsultationResponse2: React.FC = () => {
         setUploadedFileObjs(prev => [...prev, ...newFiles]);
         setApplicationDocuments(prev => [...prev, ...newDocuments]);
         setErrors(prev => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+             
             const { uploadedFiles: _uploadedFiles, ...rest } = prev;
             return rest;
         });
@@ -111,7 +111,7 @@ const ConsultationResponse2: React.FC = () => {
         // Clear form-level errors when file validation errors are cleared
         if (errors.length === 0) {
             setErrors(prev => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                 
                 const { uploadedFiles: _uploadedFiles, ...rest } = prev;
                 return rest;
             });
