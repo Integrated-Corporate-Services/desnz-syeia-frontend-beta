@@ -220,7 +220,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
         contentType: f.type || 'application/octet-stream',
         description: uploadDescriptions[i]
       }));
-      const data = await getPresignedUrls(fileMetas);
+      const data = await getPresignedUrls(fileMetas, applicationId);
       if (!data.urls || data.urls.length !== uploadFiles.length) {
         setStatuses(Array(uploadFiles.length).fill('Failed to get presigned URLs'));
         setError('Failed to get presigned URLs');

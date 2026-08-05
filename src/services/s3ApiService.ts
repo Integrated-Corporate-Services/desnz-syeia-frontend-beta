@@ -27,7 +27,12 @@ export function clearPresignedUrlCache(filename?: string) {
   }
 }
 
-export async function getPresignedUrls(files: { filename: string; contentType: string }[]) {
+export async function getPresignedUrls(files: { filename: string; contentType: string }[], applicationId?: string) {
+  const body: any = { files };
+  if (applicationId) {
+    body.applicationId = applicationId;
+  }
+  
   const res = await fetch(buildBackendUrl('/api/upload/presigned-url'), {
     method: 'POST',
     headers: {
@@ -35,7 +40,7 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ files })
+    body: JSON.stringify(body)
   });
 
   if (!res.ok) {

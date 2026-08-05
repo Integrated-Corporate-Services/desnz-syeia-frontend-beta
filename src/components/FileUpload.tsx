@@ -336,7 +336,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         contentType: f.type || "application/octet-stream",
       }));
 
-      const data = await getPresignedUrls(fileMetas);
+      const data = await getPresignedUrls(fileMetas, applicationId);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
         return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
