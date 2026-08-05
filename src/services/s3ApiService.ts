@@ -133,9 +133,9 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   return url;
 }
 
-// List files for a given prefix
-export async function listFilesByPrefix(prefix: string) {
-  const res = await fetch(buildBackendUrl(`/api/files?prefix=${encodeURIComponent(prefix)}`), {
+
+export async function listFilesByPrefix(prefix: string, applicationId: string) {
+  const res = await fetch(buildBackendUrl(`/api/files?prefix=${encodeURIComponent(prefix)}&applicationId=${encodeURIComponent(applicationId)}`), {
     credentials: 'include'
   });
   if (!res.ok) throw new Error('Failed to list files');

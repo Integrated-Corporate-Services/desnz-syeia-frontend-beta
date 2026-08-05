@@ -10,10 +10,11 @@ const logger = createLogger('FileUploadBox');
 export interface FileUploadBoxProps {
   title?: string;
   prefix?: string;
+  applicationId?: string; // Required for authorization when listing files
   onUploadComplete?: (results: FileUploadResponse[]) => void;
 }
 
-const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', prefix = '', onUploadComplete }) => {
+const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', prefix = '', applicationId, onUploadComplete }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [statuses, setStatuses] = useState<string[]>([]);
   const [descriptions, setDescriptions] = useState<string[]>([]);
@@ -30,11 +31,11 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
 
   // Fetch existing files for the prefix on mount
   React.useEffect(() => {
-    if (!prefix) return;
+    if (!prefix || !applicationId) return;
     setExistingFilesLoading(true);
     setExistingFilesError(null);
     import('../services/s3ApiService').then(({ listFilesByPrefix }) => {
-      listFilesByPrefix(prefix)
+      listFilesByPrefix(prefix, applicationId)
         .then(data => {
           setExistingFiles(data.files || []);
           setExistingFilesLoading(false);
@@ -46,7 +47,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
           setExistingFilesLoading(false);
         });
     });
-  }, [prefix]);
+  }, [prefix, applicationId]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
