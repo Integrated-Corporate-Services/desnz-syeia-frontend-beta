@@ -143,7 +143,7 @@ export async function listFilesByPrefix(prefix: string) {
 }
 
 // Delete a file from S3 by key
-export async function deleteFileFromS3(key: string) {
+export async function deleteFileFromS3(key: string, applicationId: string) {
   const res = await fetch(buildBackendUrl('/api/file/delete'), {
     method: 'POST',
     headers: {
@@ -151,14 +151,14 @@ export async function deleteFileFromS3(key: string) {
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ key })
+    body: JSON.stringify({ key, applicationId })
   });
   if (!res.ok) throw new Error('Failed to delete file');
   return await res.json();
 }
 
 // Delete a file completely (from both S3 and database)
-export async function deleteFileCompletely(fileId: string, key: string) {
+export async function deleteFileCompletely(fileId: string, key: string, applicationId: string) {
   const res = await fetch(buildBackendUrl('/api/file/delete'), {
     method: 'POST',
     headers: {
@@ -166,7 +166,7 @@ export async function deleteFileCompletely(fileId: string, key: string) {
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ key, fileId })
+    body: JSON.stringify({ key, fileId, applicationId })
   });
   if (!res.ok) {
     const errorResponse = await res.json();
