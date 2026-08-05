@@ -495,7 +495,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const handleDeleteFile = async (fileId: string, s3Key: string) => {
     try {
       if (!applicationId) {
-        throw new Error('Application ID is required to delete files');
+        const msg = 'Application ID is required to delete files';
+        onValidationErrors?.([msg]);
+        logger.error(msg, { fileId, s3Key });
+        return;
       }
       await deleteFileCompletely(fileId, s3Key, applicationId);
       if (onDeleteFile) {
@@ -536,7 +539,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const handleDeleteRejectedFile = async (fileId: string, s3Key: string) => {
     try {
       if (!applicationId) {
-        throw new Error('Application ID is required to delete files');
+        const msg = 'Application ID is required to delete files';
+        onValidationErrors?.([msg]);
+        logger.error(msg, { fileId, s3Key });
+        return;
       }
       await deleteFileCompletely(fileId, s3Key, applicationId);
       setRejectedFiles((prev) => prev.filter((f) => f.id !== fileId));

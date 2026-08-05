@@ -10,7 +10,7 @@ const logger = createLogger('FileUploadBox');
 export interface FileUploadBoxProps {
   title?: string;
   prefix?: string;
-  applicationId?: string; // Required for authorization when listing files
+  applicationId: string; // Required for authorization when listing files
   onUploadComplete?: (results: FileUploadResponse[]) => void;
 }
 
