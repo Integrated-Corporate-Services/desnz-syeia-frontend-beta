@@ -297,8 +297,8 @@ export const RouteOverviewPage: React.FC = () => {
                                         </div>
                                         {/* Justification error only for textarea */}
                                         {spurChoice === 'notconnected' && (
-                                            <div className={`govuk-inset-text${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? ' govuk-form-group--error' : ''}`} style={{ marginLeft: 0, marginTop: 8, borderLeft: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? '4px solid #d4351c' : undefined }}>
-                                                <div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH}>
+                                            <div className="govuk-inset-text" style={{ marginLeft: 0, marginTop: 8, borderLeft: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? '4px solid #d4351c' : undefined }}>
+                                                <div className={`govuk-form-group govuk-character-count${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? ' govuk-form-group--error' : ''}`} data-module="govuk-character-count" data-maxlength={DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH}>
                                                     <label htmlFor="routeDetails" className="govuk-label">
                                                         Explain why this additional route should be included with the main route of this application
                                                     </label>
