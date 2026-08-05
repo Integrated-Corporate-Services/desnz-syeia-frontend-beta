@@ -51,13 +51,14 @@ const UserManagementDashboard: React.FC = () => {
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
-            {activeTab === "organisations" && (
+            
+            {/* {activeTab === "organisations" && (
               <OrganisationsTab
                 organisations={organisations}
                 loading={organisationsLoading}
                 error={organisationsError}
               />
-            )}
+            )} */}
 
             {activeTab === "active-users" && (
               <ActiveUsersTab
