@@ -295,7 +295,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     //         // Navigate back to consultation details
     //         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
     //     } catch (error) {
-    //         console.error('Error saving evidence:', error);
+    //         // Error handling removed
     //     } finally {
     //         setLoading(false);
     //     }

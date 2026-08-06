@@ -84,7 +84,6 @@ export function CookieConsentProvider({ children, onConsentChange }: CookieConse
         // const shouldAutoAccept = isDev;
         
         // if (shouldAutoAccept) {
-        //   console.log('[Cookie Consent] DEV MODE: Auto-accepting analytics cookies');
         //   // Auto-accept without showing banner
         //   consentApi.setPreferences({ analytics: 'accepted', monitoring: 'accepted' })
         //     .then((newPrefs) => {
@@ -101,7 +100,6 @@ export function CookieConsentProvider({ children, onConsentChange }: CookieConse
         //       syncTelemetry(newPrefs);
         //     })
         //     .catch((err) => {
-        //       console.error('[Cookie Consent] Auto-accept failed:', err);
         //       // Fall back to normal flow
         //       setState({
         //         loading: false,
