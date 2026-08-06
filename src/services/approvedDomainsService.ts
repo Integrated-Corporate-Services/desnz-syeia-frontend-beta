@@ -12,11 +12,9 @@ export type { ApprovedDomainsResponse };
  */
 export const getApprovedDomains = async (organisationId: string): Promise<string[]> => {
   try {
-    logger.debug('Fetching approved domains', { organisationId });
     const response = await axios.get<ApprovedDomainsResponse>(
       `/api/admin/organisations/${organisationId}/approved-domains`
     );
-    logger.debug('Approved domains fetched successfully', { count: response.data.approved_domains.length });
     return response.data.approved_domains;
   } catch (error: any) {
     logger.error('Failed to fetch approved domains', {
@@ -35,12 +33,10 @@ export const updateApprovedDomains = async (
   domains: string[]
 ): Promise<string[]> => {
   try {
-    logger.debug('Updating approved domains', { organisationId, domains });
     const response = await axios.put<ApprovedDomainsResponse>(
       `/api/admin/organisations/${organisationId}/approved-domains`,
       { approved_domains: domains }
     );
-    logger.debug('Approved domains updated successfully');
     return response.data.approved_domains;
   } catch (error: any) {
     logger.error('Failed to update approved domains', {
