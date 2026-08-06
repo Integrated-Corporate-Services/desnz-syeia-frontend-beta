@@ -373,30 +373,30 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    {
-        path: '/admin/organisation/:organisationId/settings',
-        component: ManageOrganisationSettingsPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/admin/organisations/:organisationId/team-coordinators',
-        component: TeamCoordinatorsPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
-        component: ManageTeamCoordinatorPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/admin/organisations/:organisationId/approved-domains',
-        component: ApprovedEmailDomainsPage,
-        auth: true,
-        layout: true,
-    },
+    // {
+    //     path: '/admin/organisation/:organisationId/settings',
+    //     component: ManageOrganisationSettingsPage,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: '/admin/organisations/:organisationId/team-coordinators',
+    //     component: TeamCoordinatorsPage,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
+    //     component: ManageTeamCoordinatorPage,
+    //     auth: true,
+    //     layout: true,
+    // },
+    // {
+    //     path: '/admin/organisations/:organisationId/approved-domains',
+    //     component: ApprovedEmailDomainsPage,
+    //     auth: true,
+    //     layout: true,
+    // },
     {
         path: '/request-access',
         component: AccessRequestIntroPage,
@@ -463,12 +463,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    {
-        path: '/admin/add-user',
-        component: AddUserPage,
-        auth: true,
-        layout: true,
-    },
+    // {
+    //     path: '/admin/add-user',
+    //     component: AddUserPage,
+    //     auth: true,
+    //     layout: true,
+    // },
     {
         path: '/admin/user-created',
         component: UserCreatedPage,
