@@ -469,12 +469,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     //     auth: true,
     //     layout: true,
     // },
-    {
-        path: '/admin/user-created',
-        component: UserCreatedPage,
-        auth: true,
-        layout: true,
-    },
+    // {
+    //     path: '/admin/user-created',
+    //     component: UserCreatedPage,
+    //     auth: true,
+    //     layout: true,
+    // },
     {
         path: '/admin/access-revoked',
         component: AccessRevokedPage,
