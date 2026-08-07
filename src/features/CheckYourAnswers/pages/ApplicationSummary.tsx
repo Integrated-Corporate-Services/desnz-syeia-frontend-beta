@@ -623,7 +623,7 @@ const ApplicationSummary: React.FC = () => {
                                 const desnzRef = invoiceNumber.replace('.pdf', '').split('/')[1];
                                 const s3Key = `Section-37/${applicationId}/invoice/INV01/${desnzRef}.pdf`;
 
-                                await downloadS3FileOnSameTab(s3Key);
+                                await downloadS3FileOnSameTab(s3Key, undefined, applicationId);
                               } catch (error) {
                                 logger.error('Failed to download invoice:', error);
                               }
@@ -848,7 +848,7 @@ const ApplicationSummary: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1181,7 +1181,7 @@ const ApplicationSummary: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1331,7 +1331,7 @@ const ApplicationSummary: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1441,7 +1441,7 @@ const ApplicationSummary: React.FC = () => {
                                       e.preventDefault();
                                       const key = doc.key || doc.url;
                                       try {
-                                        await downloadS3FileOnSameTab(key, doc.file_id);
+                                        await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                       } catch (error) {
                                         // Optionally show error to user
                                         logger.error('Failed to download file:', { error });
@@ -1536,7 +1536,7 @@ const ApplicationSummary: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                             } catch (error) {
                                               logger.error('Failed to download file:', { error });
                                             }
@@ -1578,7 +1578,7 @@ const ApplicationSummary: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                             } catch (error) {
                                               logger.error('Failed to download file:', { error });
                                             }
@@ -1633,7 +1633,7 @@ const ApplicationSummary: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                             } catch (error) {
                                               logger.error('Failed to download file:', { error });
                                             }
@@ -1706,7 +1706,7 @@ const ApplicationSummary: React.FC = () => {
                                                 e.preventDefault();
                                                 const key = doc.url;
                                                 try {
-                                                  await downloadS3FileOnSameTab(key, doc.file_id);
+                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                                 } catch (error) {
                                                   logger.error('Failed to download file:', error);
                                                 }
@@ -1759,7 +1759,7 @@ const ApplicationSummary: React.FC = () => {
                                                 e.preventDefault();
                                                 const key = doc.url;
                                                 try {
-                                                  await downloadS3FileOnSameTab(key, doc.file_id);
+                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
                                                 } catch (error) {
                                                   logger.error('Failed to download file:', { error });
                                                 }

@@ -95,7 +95,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     }, [applicationId, updateProgress]);
 
     // Use custom hook for document downloads
-    useDocumentDownload();
+    useDocumentDownload(applicationId);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

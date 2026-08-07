@@ -2,10 +2,10 @@ import { createLogger } from './logger';
 const logger = createLogger('s3DownloadUtil');
 
 // Utility to get presigned S3 URL and open in new tab
-export async function downloadS3File(keyOrUrl: string) {
+export async function downloadS3File(keyOrUrl: string, applicationId?: string) {
   const { getPresignedGetUrl } = await import('../services/s3ApiService');
   try {
-    const url = await getPresignedGetUrl(keyOrUrl);
+    const url = await getPresignedGetUrl(keyOrUrl, applicationId);
     if (url) {
       // Open the presigned URL in a new tab
       const link = document.createElement('a');
@@ -29,10 +29,10 @@ export async function downloadS3File(keyOrUrl: string) {
   }
 }
 
-export async function downloadS3FileOnSameTab(keyOrUrl: string, fileId?: string) {
+export async function downloadS3FileOnSameTab(keyOrUrl: string, fileId?: string, applicationId?: string) {
   const { getPresignedGetUrlForDownload } = await import('../services/s3ApiService');
   try {
-    const url = await getPresignedGetUrlForDownload(keyOrUrl, fileId);
+    const url = await getPresignedGetUrlForDownload(keyOrUrl, fileId, applicationId);
     if (url) {
       window.location.href = url;
     } else {

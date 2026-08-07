@@ -280,7 +280,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
     try {
       const filename = files[idx].name;
       const prefixPath = prefix ? `${prefix}/${filename}` : filename;
-      const url = await getPresignedGetUrl(prefixPath);
+      const url = await getPresignedGetUrl(prefixPath, applicationId);
       if (!url) {
         setDownloadStatuses(ds => {
           const newDs = [...ds];
@@ -349,7 +349,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ title = 'Upload files', p
                   type="button"
                   onClick={async () => {
                     try {
-                      const url = await getPresignedGetUrl(file.key);
+                      const url = await getPresignedGetUrl(file.key, applicationId);
                       if (url) window.open(url, '_blank');
                     } catch (err) {
                       alert('Failed to download: ' + (err instanceof Error ? err.message : String(err)));

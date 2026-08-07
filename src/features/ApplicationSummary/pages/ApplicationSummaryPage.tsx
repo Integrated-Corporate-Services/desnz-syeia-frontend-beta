@@ -18,7 +18,7 @@ export const ApplicationSummaryPage: React.FC = () => {
     const isNWL = location.pathname.includes('/nwl/');
     const { withdrawalRequest } = useWithdrawalRequest(applicationId);
     
-    useDocumentDownload();
+    useDocumentDownload(applicationId);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
