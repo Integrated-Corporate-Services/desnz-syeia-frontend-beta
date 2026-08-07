@@ -261,7 +261,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 has_all_documents_uploaded: formData.declarationAccepted,
                    uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
                 application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
-                // CRITICAL: Explicitly set these to undefined to clear any previous response data
                 response_full_name: undefined,
                 response_email_address: undefined,
                 has_objection: undefined,
