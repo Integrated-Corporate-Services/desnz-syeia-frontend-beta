@@ -27,7 +27,12 @@ export function clearPresignedUrlCache(filename?: string) {
   }
 }
 
-export async function getPresignedUrls(files: { filename: string; contentType: string }[]) {
+export async function getPresignedUrls(files: { filename: string; contentType: string }[], applicationId?: string) {
+  const body: any = { files };
+  if (applicationId) {
+    body.applicationId = applicationId;
+  }
+  
   const res = await fetch(buildBackendUrl('/api/upload/presigned-url'), {
     method: 'POST',
     headers: {
@@ -35,7 +40,7 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ files })
+    body: JSON.stringify(body)
   });
 
   if (!res.ok) {
@@ -133,9 +138,9 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
   return url;
 }
 
-// List files for a given prefix
-export async function listFilesByPrefix(prefix: string) {
-  const res = await fetch(buildBackendUrl(`/api/files?prefix=${encodeURIComponent(prefix)}`), {
+
+export async function listFilesByPrefix(prefix: string, applicationId: string) {
+  const res = await fetch(buildBackendUrl(`/api/files?prefix=${encodeURIComponent(prefix)}&applicationId=${encodeURIComponent(applicationId)}`), {
     credentials: 'include'
   });
   if (!res.ok) throw new Error('Failed to list files');
@@ -143,7 +148,7 @@ export async function listFilesByPrefix(prefix: string) {
 }
 
 // Delete a file from S3 by key
-export async function deleteFileFromS3(key: string) {
+export async function deleteFileFromS3(key: string, applicationId: string) {
   const res = await fetch(buildBackendUrl('/api/file/delete'), {
     method: 'POST',
     headers: {
@@ -151,14 +156,14 @@ export async function deleteFileFromS3(key: string) {
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ key })
+    body: JSON.stringify({ key, applicationId })
   });
   if (!res.ok) throw new Error('Failed to delete file');
   return await res.json();
 }
 
 // Delete a file completely (from both S3 and database)
-export async function deleteFileCompletely(fileId: string, key: string) {
+export async function deleteFileCompletely(fileId: string, key: string, applicationId: string) {
   const res = await fetch(buildBackendUrl('/api/file/delete'), {
     method: 'POST',
     headers: {
@@ -166,7 +171,7 @@ export async function deleteFileCompletely(fileId: string, key: string) {
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ key, fileId })
+    body: JSON.stringify({ key, fileId, applicationId })
   });
   if (!res.ok) {
     const errorResponse = await res.json();

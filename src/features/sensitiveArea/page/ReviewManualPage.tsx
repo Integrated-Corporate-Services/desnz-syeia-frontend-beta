@@ -191,7 +191,6 @@ const ReviewManualPage: React.FC = () => {
       
   //     navigate(`${S37_BASE_URL}/${effectiveApplicationId}/task-list`);
   //   } catch (err) {
-  //     console.error('Failed to save for later:', err);
   //     setError('Failed to save your progress. Please try again.');
   //   }
   // };

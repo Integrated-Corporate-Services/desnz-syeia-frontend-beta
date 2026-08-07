@@ -336,7 +336,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         contentType: f.type || "application/octet-stream",
       }));
 
-      const data = await getPresignedUrls(fileMetas);
+      const data = await getPresignedUrls(fileMetas, applicationId);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
         return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
@@ -494,7 +494,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   // Handle file deletion from S3
   const handleDeleteFile = async (fileId: string, s3Key: string) => {
     try {
-      await deleteFileCompletely(fileId, s3Key);
+      if (!applicationId) {
+        const msg = 'Application ID is required to delete files';
+        onValidationErrors?.([msg]);
+        logger.error(msg, { fileId, s3Key });
+        return;
+      }
+      await deleteFileCompletely(fileId, s3Key, applicationId);
       if (onDeleteFile) {
         onDeleteFile(fileId);
       }
@@ -532,7 +538,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   // Handle deletion of an infected/failed-scan file (same S3+DB delete as a clean file)
   const handleDeleteRejectedFile = async (fileId: string, s3Key: string) => {
     try {
-      await deleteFileCompletely(fileId, s3Key);
+      if (!applicationId) {
+        const msg = 'Application ID is required to delete files';
+        onValidationErrors?.([msg]);
+        logger.error(msg, { fileId, s3Key });
+        return;
+      }
+      await deleteFileCompletely(fileId, s3Key, applicationId);
       setRejectedFiles((prev) => prev.filter((f) => f.id !== fileId));
 
       if (onValidationErrors) {
