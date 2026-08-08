@@ -7,9 +7,9 @@ const logger = createLogger('useDocumentDownload');
 export const useDocumentDownload = (applicationId?: string) => {
     useEffect(() => {
         const handleDocClick = async (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
+            const target = (e.target as HTMLElement).closest('a[data-file-key]') as HTMLElement | null;
 
-            if (target.tagName === 'A' && target.hasAttribute('data-file-key')) {
+            if (target) {
                 e.preventDefault();
 
                 const fileKey = target.getAttribute('data-file-key');

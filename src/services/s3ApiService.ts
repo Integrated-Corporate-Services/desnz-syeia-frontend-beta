@@ -118,7 +118,7 @@ export async function confirmUpload(params: {
  * Get presigned GET URL for viewing/downloading files
  * URLs are cached to reduce backend calls
  * @param filename - S3 key/filename
- * @param applicationId - Application the file belongs to (required by checkApplicationAccess)
+ * @param applicationId - Application the file belongs to (used by checkApplicationAccess)
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
 export async function getPresignedGetUrl(filename: string, applicationId?: string): Promise<string> {
@@ -210,7 +210,7 @@ export async function getFileScanStatuses(fileIds: string[]): Promise<{ statuses
  * URLs are cached to reduce backend calls
  * @param filename - S3 key/filename
  * @param fileId - Uploaded file ID (optional)
- * @param applicationId - Application the file belongs to (required by checkApplicationAccess)
+ * @param applicationId - Application the file belongs to (used by checkApplicationAccess)
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
 export async function getPresignedGetUrlForDownload(filename: string, fileId?: string, applicationId?: string): Promise<string> {
