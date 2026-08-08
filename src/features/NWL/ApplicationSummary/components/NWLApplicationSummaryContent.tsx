@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { ApplicationReviewSummaryData } from '../../../ApplicationSummary/types/reviewSummary';
 import { WithdrawalRequest } from '../../../ApplicationSummary/types';
-import { usePdfDownload } from '../../../ApplicationSummary/hooks';
+import { usePdfDownload, useApplicationPackageDownload } from '../../../ApplicationSummary/hooks';
 import {
     ReviewApplicationInfoCard,
     ReviewPaymentDetailsCard,
@@ -41,12 +41,22 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
 }) => {
     const navigate = useNavigate();
     const { isDownloading, error: pdfError, downloadPdf, clearError } = usePdfDownload();
+    const { 
+        isDownloading: isDownloadingPackage, 
+        error: packageError, 
+        downloadPackage, 
+        clearError: clearPackageError 
+    } = useApplicationPackageDownload();
 
     const showWithdraw =
         data.permissions?.canWithdraw && !data.permissions?.canEdit && !withdrawalRequest;
 
     const handleDownloadPdf = async () => {
         await downloadPdf(applicationId);
+    };
+
+    const handleDownloadPackage = async () => {
+        await downloadPackage(applicationId);
     };
 
     return (
@@ -79,6 +89,28 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 </div>
             )}
 
+            {packageError && (
+                <div 
+                    className="govuk-error-summary" 
+                    role="alert" 
+                    aria-labelledby="package-error-summary-title"
+                >
+                    <h2 className="govuk-error-summary__title" id="package-error-summary-title">
+                        There is a problem
+                    </h2>
+                    <div className="govuk-error-summary__body">
+                        <p className="govuk-body">{packageError}</p>
+                    </div>
+                    <button
+                        type="button"
+                        className="govuk-button govuk-button--secondary govuk-!-margin-top-2"
+                        onClick={clearPackageError}
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            )}
+
             <ReviewApplicationInfoCard
                 desnzRef={data.desnzRef}
                 status={data.status}
@@ -100,6 +132,28 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
             <p className="govuk-body">
                 You need to share a copy of this application with the objector or their 
                 representative within 7 days of submitting it.
+            </p>
+
+            <button
+                type="button"
+                className="govuk-button govuk-!-margin-bottom-3"
+                onClick={handleDownloadPackage}
+                disabled={isDownloadingPackage || data.permissions?.canDownload === false}
+                aria-busy={isDownloadingPackage}
+            >
+                {isDownloadingPackage ? 'Preparing download...' : 'Download application with all files (ZIP)'}
+            </button>
+
+            <p className="govuk-body govuk-!-margin-bottom-2">
+                This will download a ZIP file containing:
+            </p>
+            <ul className="govuk-list govuk-list--bullet">
+                <li>Application summary (PDF)</li>
+                <li>All documents you uploaded, organised by category</li>
+            </ul>
+
+            <p className="govuk-body govuk-!-margin-top-4">
+                Or download just the summary:
             </p>
 
             <p className="govuk-body">
