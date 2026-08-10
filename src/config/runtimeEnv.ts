@@ -12,7 +12,6 @@
 
 interface RuntimeEnv {
   VITE_API_URL: string;
-  VITE_API_BASE_URL: string;
   VITE_ENABLE_GA4: string;
   VITE_GA4_MEASUREMENT_ID: string;
   VITE_GTM_ID: string;
@@ -45,7 +44,6 @@ declare global {
 if (typeof window !== 'undefined' && !window._env_) {
   window._env_ = {
     VITE_API_URL: '',
-    VITE_API_BASE_URL: '',
     VITE_ENABLE_GA4: 'false',
     VITE_GA4_MEASUREMENT_ID: '',
     VITE_GTM_ID: '',
@@ -126,6 +124,10 @@ export function getMode(): 'development' | 'staging' | 'production' {
  */
 export function isDevelopmentMode(): boolean {
   return getMode() === 'development';
+}
+
+export function isStaging(): boolean {
+  return getMode() === 'staging';
 }
 
 /**
