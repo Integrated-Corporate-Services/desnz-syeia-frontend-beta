@@ -60,7 +60,7 @@ class ConfigService {
     const env = getMode();
     const isDevelopment = isDevelopmentMode();
 
-    const baseUrl = isDevelopment ? '' : this.sanitizeUrl(getRuntimeEnv('VITE_API_BASE_URL'));
+    const baseUrl = isDevelopment ? '' : this.sanitizeUrl(getRuntimeEnv('VITE_API_URL'));
 
     return {
       environment: env,
