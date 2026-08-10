@@ -42,6 +42,7 @@ export const usePdfDownload = (): UsePdfDownloadResult => {
     try {
       setIsDownloadingPackage(true);
       setError(null);
+      setPackageSizeLabel(null);
       const result = await downloadApplicationPackage(applicationId);
       setPackageSizeLabel(formatSize(result.sizeBytes));
     } catch (err: any) {
