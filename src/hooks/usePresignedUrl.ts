@@ -20,7 +20,7 @@ const logger = createLogger('usePresignedUrl');
  * const { url, isLoading } = usePresignedUrl('uploads/file.pdf');
  * return <img src={url} />;
  */
-export const usePresignedUrl = (filename: string | null, forceDownload = false) => {
+export const usePresignedUrl = (filename: string | null, forceDownload = false, applicationId?: string) => {
   const [url, setUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,9 +33,9 @@ export const usePresignedUrl = (filename: string | null, forceDownload = false) 
 
     try {
       const fetchedUrl = forceDownload
-        ? await getPresignedGetUrlForDownload(filename)
-        : await getPresignedGetUrl(filename);
-      
+        ? await getPresignedGetUrlForDownload(filename, undefined, applicationId)
+        : await getPresignedGetUrl(filename, applicationId);
+
       setUrl(fetchedUrl);
       logger.debug('Presigned URL fetched', { filename, forceDownload });
     } catch (err) {
@@ -45,7 +45,7 @@ export const usePresignedUrl = (filename: string | null, forceDownload = false) 
     } finally {
       setIsLoading(false);
     }
-  }, [filename, forceDownload]);
+  }, [filename, forceDownload, applicationId]);
 
   useEffect(() => {
     if (filename) {

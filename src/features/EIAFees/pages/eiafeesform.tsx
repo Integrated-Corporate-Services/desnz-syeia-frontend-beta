@@ -7,6 +7,8 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useEiaFees } from '../../../hooks/useEiaFees';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import type { AuthUser } from '../../../types/auth';
 import EIAFeesSummary from './EIAFeesSummary';
 import {
     validateEiaFeesForm,
@@ -21,6 +23,8 @@ import SkipLink from '../../../components/SkipLink';
 const EIAFeesForm: React.FC = () => {
     const navigate = useNavigate();
     const applicationId = useGetApplicationId();
+    const { user } = useAuthUserContext();
+    const userId = (user as AuthUser)?.user_id;
 
     // State for fetched EIA Fees
     const { eiaFees, fetchEiaFees, createEiaFees, updateEiaFees } = useEiaFees();
@@ -93,6 +97,11 @@ const EIAFeesForm: React.FC = () => {
         setApiError(null);
         setSuccess(false);
 
+        if (!userId) {
+            setApiError(EIA_FEES_ERROR_MESSAGES.API.UNKNOWN_ERROR);
+            return;
+        }
+
         if (validationErrors.length === 0) {
             setLoading(true);
             try {
@@ -112,7 +121,7 @@ const EIAFeesForm: React.FC = () => {
                     isEiaDevelopment: form.isEiaDevelopment === 'true', // maps first question
                     screeningOnly: form.screeningOnly === 'true', // maps second question
                     updatedAt: new Date().toISOString(),
-                    updatedBy: 'system',
+                    updatedBy: userId,
                 };
                 if (eiaFees && eiaFees.eiaFeeId) {
                     // Update existing EIA Fee using store (PUT)
@@ -128,7 +137,7 @@ const EIAFeesForm: React.FC = () => {
                     // Create new EIA Fee using store (POST)
                     const eiaId = crypto.randomUUID();
                     const createdAt = new Date().toISOString();
-                    const createdBy = 'system';
+                    const createdBy = userId;
                     await createEiaFees({
                         eiaId,
                         applicationId: payload.applicationId,

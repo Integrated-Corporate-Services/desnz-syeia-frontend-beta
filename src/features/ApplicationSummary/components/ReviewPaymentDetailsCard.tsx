@@ -38,7 +38,7 @@ const downloadInvoiceWithFallback = async (
     try {
         logger.info('[ReviewPaymentDetailsCard] Attempting to download invoice', { s3Key, applicationId });
         
-        await downloadS3FileOnSameTab(s3Key);
+        await downloadS3FileOnSameTab(s3Key, undefined, applicationId);
         logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully from S3');
         
     } catch (downloadError) {
@@ -76,7 +76,7 @@ const downloadInvoiceWithFallback = async (
                 s3Key: result.s3Key 
             });
 
-            await downloadS3FileOnSameTab(result.s3Key || s3Key);
+            await downloadS3FileOnSameTab(result.s3Key || s3Key, undefined, applicationId);
             logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully after generation');
             
         } catch (generateError) {

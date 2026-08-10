@@ -4,21 +4,21 @@ import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('useDocumentDownload');
 
-export const useDocumentDownload = () => {
+export const useDocumentDownload = (applicationId?: string) => {
     useEffect(() => {
         const handleDocClick = async (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            
-            if (target.tagName === 'A' && target.hasAttribute('data-file-key')) {
+            const target = (e.target as HTMLElement).closest('a[data-file-key]') as HTMLElement | null;
+
+            if (target) {
                 e.preventDefault();
-                
+
                 const fileKey = target.getAttribute('data-file-key');
                 const fileId = target.getAttribute('data-file-id') || undefined;
 
                 if (fileKey) {
                     try {
                         logger.info('Downloading document via presigned URL', { fileKey, fileId });
-                        await downloadS3FileOnSameTab(fileKey, fileId);
+                        await downloadS3FileOnSameTab(fileKey, fileId, applicationId);
                         logger.info('Document download initiated successfully', { fileKey, fileId });
                     } catch (error) {
                         logger.error('Failed to download document', { error, fileKey, fileId });
@@ -28,9 +28,9 @@ export const useDocumentDownload = () => {
         };
 
         document.addEventListener('click', handleDocClick);
-        
+
         return () => {
             document.removeEventListener('click', handleDocClick);
         };
-    }, []);
+    }, [applicationId]);
 };

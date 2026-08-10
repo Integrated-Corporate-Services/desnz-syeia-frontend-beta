@@ -118,9 +118,10 @@ export async function confirmUpload(params: {
  * Get presigned GET URL for viewing/downloading files
  * URLs are cached to reduce backend calls
  * @param filename - S3 key/filename
+ * @param applicationId - Application the file belongs to (used by checkApplicationAccess)
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
-export async function getPresignedGetUrl(filename: string): Promise<string> {
+export async function getPresignedGetUrl(filename: string, applicationId?: string): Promise<string> {
 
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url'), {
@@ -130,7 +131,7 @@ export async function getPresignedGetUrl(filename: string): Promise<string> {
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ filename })
+    body: JSON.stringify({ filename, applicationId })
   });
   if (!res.ok) throw new Error('Failed to get presigned GET URL');
   const { url } = await res.json();
@@ -208,9 +209,11 @@ export async function getFileScanStatuses(fileIds: string[]): Promise<{ statuses
  * Get presigned download URL (forces browser download)
  * URLs are cached to reduce backend calls
  * @param filename - S3 key/filename
+ * @param fileId - Uploaded file ID (optional)
+ * @param applicationId - Application the file belongs to (used by checkApplicationAccess)
  * @returns Promise<string> - Presigned URL (valid for 30 minutes)
  */
-export async function getPresignedGetUrlForDownload(filename: string, fileId?: string): Promise<string> {
+export async function getPresignedGetUrlForDownload(filename: string, fileId?: string, applicationId?: string): Promise<string> {
 
   // Fetch new URL
   const res = await fetch(buildBackendUrl('/api/file/presigned-url/download'), {
@@ -220,7 +223,7 @@ export async function getPresignedGetUrlForDownload(filename: string, fileId?: s
       ...getCsrfHeaders()
     },
     credentials: 'include',
-    body: JSON.stringify({ filename, fileId })
+    body: JSON.stringify({ filename, fileId, applicationId })
   });
   if (!res.ok) throw new Error('Failed to get presigned download URL');
   const { url } = await res.json();
