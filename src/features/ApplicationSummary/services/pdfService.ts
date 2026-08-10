@@ -33,8 +33,7 @@ const triggerBrowserDownload = (blob: Blob, filename: string): void => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(blobUrl);
-};
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
 
 export const downloadApplicationPdf = async (applicationId: string): Promise<void> => {
   try {
