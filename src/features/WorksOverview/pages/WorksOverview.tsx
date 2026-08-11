@@ -87,7 +87,7 @@ const WorksOverview: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [roadClosureFiles, setRoadClosureFiles] = useState<UploadedFile[]>([]);
   const [roadClosureDocuments, setRoadClosureDocuments] = useState<ApplicationDocument[]>([]);
-  const [pendingRoadClosureFiles, setPendingRoadClosureFiles] = useState<File[]>([]);
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const roadClosureFileUploadRef = useRef<FileUploadHandle>(null);
   const navigate = useNavigate();
   const { user } = useAuthUser();
@@ -101,7 +101,7 @@ const WorksOverview: React.FC = () => {
     setForm(initialState);
     setRoadClosureFiles([]);
     setRoadClosureDocuments([]);
-    setPendingRoadClosureFiles([]);
+    setFileValidationErrors([]);
   }, [effectiveApplicationId]);
 
   useEffect(() => {
@@ -202,7 +202,7 @@ const WorksOverview: React.FC = () => {
     if (roadClosureFileUploadRef.current?.isBusy()) {
       throw new Error('File scan is in progress. Wait for the scan to finish before continuing.');
     }
-    if (roadClosureFileUploadRef.current && pendingRoadClosureFiles.length > 0) {
+    if (roadClosureFileUploadRef.current) {
       const result = await roadClosureFileUploadRef.current.triggerUpload();
       if (result.scanErrors.length > 0) {
         throw new Error(result.scanErrors.join(' '));
@@ -254,9 +254,14 @@ const WorksOverview: React.FC = () => {
   const roadClosuresYesFields = (
     <>
       <TextArea id="roadClosuresDetails" name="roadClosuresDetails" label={WORKS_OVERVIEW_LABELS.ROAD_CLOSURES_DETAILS} value={form.roadClosuresDetails} onChange={handleChange} error={getFieldErrorMessage('roadClosuresDetails', errors)} maxLength={4000} showCount />
-      <div className="govuk-form-group govuk-!-margin-top-2">
+      <div className={`govuk-form-group govuk-!-margin-top-2 ${fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="road-closure-file-upload">
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">{WORKS_OVERVIEW_LABELS.ROAD_CLOSURES_DOCUMENTS}</legend>
+          {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
+            <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
+              <span className="govuk-visually-hidden">Error:</span> {error}
+            </p>
+          ))}
           <FileUpload
             ref={roadClosureFileUploadRef}
             title="Upload a file"
@@ -267,12 +272,13 @@ const WorksOverview: React.FC = () => {
             addedBy={userId}
             uploadedFiles={roadClosureFiles}
             applicationDocuments={roadClosureDocuments}
-            uploadImmediately={false}
+            uploadImmediately={true}
             onDeleteFile={(fileId) => {
               setRoadClosureFiles((prev) => prev.filter((file) => file.id !== fileId));
               setRoadClosureDocuments((prev) => prev.filter((doc) => doc.fileId !== fileId));
+              setFileValidationErrors([]);
             }}
-            onPendingFilesChange={setPendingRoadClosureFiles}
+            onValidationErrors={setFileValidationErrors}
             onUploaded={(newUploadedFiles, newDocuments) => {
               setRoadClosureFiles((prev) => [...prev, ...newUploadedFiles]);
               setRoadClosureDocuments((prev) => [...prev, ...newDocuments]);
@@ -297,11 +303,14 @@ const WorksOverview: React.FC = () => {
         </nav>
 
         <main className="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content" role="main">
-          {errors.length > 0 && (
+          {(errors.length > 0 || fileValidationErrors.length > 0) && (
             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
               <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
               <div className="govuk-error-summary__body">
                 <ul className="govuk-list govuk-error-summary__list">
+                  {fileValidationErrors.map((error, index) => (
+                    <li key={`file-${index}`}><a href="#road-closure-file-upload">{error}</a></li>
+                  ))}
                   {errors.map((err, idx) => (
                     <li key={idx}><a href={`#${err.field}`}>{err.message}</a></li>
                   ))}
