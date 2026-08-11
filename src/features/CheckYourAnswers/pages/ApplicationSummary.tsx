@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { ConsultationType } from "../../../constants/consultationType";
 import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
+import { useInvoiceStatus, buildInvoiceDownloadUrl } from "../../../hooks";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { applicationApiService } from "../../../services/applicationApiService";
@@ -162,8 +163,8 @@ const ApplicationSummary: React.FC = () => {
   const [applicationMetadata, setApplicationMetadata] = useState<ApplicationMetadata | null>(null);
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
-  const [invoiceNumber, setInvoiceNumber] = useState<string | null>(null);
-  
+  const invoiceStatus = useInvoiceStatus(applicationId);
+
   // Withdrawal request state
   const [withdrawalRequest, setWithdrawalRequest] = useState<{
     withdrawal_request_id: string;
@@ -233,12 +234,7 @@ const ApplicationSummary: React.FC = () => {
 
         // payment details
         if (data.sections?.payment) {
-          const payment = data.sections.payment;
-          setPaymentDetails(payment);
-
-          if (data.desnzRef) {
-            setInvoiceNumber(`INV01/${data.desnzRef}.pdf`);
-          }
+          setPaymentDetails(data.sections.payment);
         }
         // List of required sections
         const requiredSections = REQUIRED_SECTIONS;
@@ -611,25 +607,12 @@ const ApplicationSummary: React.FC = () => {
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">{FIELD_LABELS.INVOICE}</dt>
                       <dd className="govuk-summary-list__value">
-                        {invoiceNumber ? (
+                        {applicationId && invoiceStatus?.invoiceExists && invoiceStatus.invoiceNumber ? (
                           <a
-                            href="#"
+                            href={buildInvoiceDownloadUrl(applicationId, invoiceStatus.invoiceNumber)}
                             className="govuk-link"
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              try {
-                                // Calculate S3 key from invoice number
-                                // invoiceNumber format: INV01/S3700004.pdf
-                                const desnzRef = invoiceNumber.replace('.pdf', '').split('/')[1];
-                                const s3Key = `Section-37/${applicationId}/invoice/INV01/${desnzRef}.pdf`;
-
-                                await downloadS3FileOnSameTab(s3Key, undefined, applicationId);
-                              } catch (error) {
-                                logger.error('Failed to download invoice:', error);
-                              }
-                            }}
                           >
-                            {invoiceNumber}
+                            {invoiceStatus.invoiceNumber}
                           </a>
                         ) : (
                           '-'
