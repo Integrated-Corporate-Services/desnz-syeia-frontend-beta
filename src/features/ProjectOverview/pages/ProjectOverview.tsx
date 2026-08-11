@@ -321,8 +321,6 @@ const ProjectOverview = () => {
 							return;
 						}
 
-						// Track if we uploaded files in this submission
-						let filesWereUploaded = false;
 						let newlyUploadedFiles: UploadedFile[] = [];
 						let newlyUploadedDocuments: ApplicationDocument[] = [];
 
@@ -335,7 +333,6 @@ const ProjectOverview = () => {
 									window.scrollTo({ top: 0 });
 									return;
 								}
-								filesWereUploaded = result.uploadedFiles.length > 0; // Only mark as uploaded if files were actually uploaded
 								newlyUploadedFiles = result.uploadedFiles;
 								newlyUploadedDocuments = result.applicationDocuments;
 							} catch {
