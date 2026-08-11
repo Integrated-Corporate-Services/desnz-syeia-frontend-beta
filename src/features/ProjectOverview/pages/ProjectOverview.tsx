@@ -335,7 +335,7 @@ const ProjectOverview = () => {
 									window.scrollTo({ top: 0 });
 									return;
 								}
-								filesWereUploaded = true; // Mark that files were uploaded
+								filesWereUploaded = result.uploadedFiles.length > 0; // Only mark as uploaded if files were actually uploaded
 								newlyUploadedFiles = result.uploadedFiles;
 								newlyUploadedDocuments = result.applicationDocuments;
 							} catch {
@@ -514,8 +514,9 @@ const ProjectOverview = () => {
 								}
 							}
 						}
-						// Validate File Upload - skip if files were just uploaded (state update is async)
-						if (!filesWereUploaded && (!formState.uploadedFiles || formState.uploadedFiles.length === 0) && pendingFiles.length === 0) {
+						// Validate File Upload - ensure at least one file is present
+						const hasUploadedFiles = (formState.uploadedFiles && formState.uploadedFiles.length > 0) || newlyUploadedFiles.length > 0;
+						if (!hasUploadedFiles) {
 							newErrors.push(createErrorLink('planInformationDocuments', PROJECT_OVERVIEW_ERRORS.FILE_UPLOAD_REQUIRED));
 							newFieldErrors.uploadedFiles = PROJECT_OVERVIEW_ERRORS.FILE_UPLOAD_REQUIRED;
 						}
