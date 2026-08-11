@@ -1,12 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { SummaryCard } from '../../NWL/CheckYourAnswers/components';
 import { SummaryRow } from '../../NWL/CheckYourAnswers/types';
 import { formatDate } from '../../NWL/CheckYourAnswers/utils';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
 import { ReviewSummaryPayment } from '../types/reviewSummary';
 import { buildBackendUrl } from '../../../utils/apiConfig';
-import { getCsrfHeaders } from '../../../utils/csrf';
-import logger from '../../../logger';
 
 const L = CONSTANTS.REVIEW_LAYOUT;
 
@@ -29,94 +27,17 @@ const formatMethod = (kind: string | null | undefined): string => {
     return L.PAYMENT.METHODS[kind] || kind;
 };
 
-const fetchAndSaveInvoice = async (applicationId: string, invoiceNumber: string): Promise<void> => {
-    const response = await fetch(
-        buildBackendUrl(`/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(invoiceNumber)}`),
-        {
-            method: 'GET',
-            credentials: 'include',
-        }
-    );
+// Invoice is generated synchronously earlier in the payment flow (see
+// InvoiceGenerationPage.tsx), so by the time this link is rendered the file
+// already exists - this hits the download endpoint directly, no generate
+// fallback needed.
+const buildInvoiceDownloadUrl = (applicationId: string, invoiceNumber: string): string =>
+    buildBackendUrl(`/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(invoiceNumber)}`);
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to download invoice (HTTP ${response.status})`);
-    }
-
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = objectUrl;
-    link.download = `${invoiceNumber.replace('/', '_')}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(objectUrl);
-};
-
-const downloadInvoiceWithFallback = async (
-    invoiceNumber: string,
-    applicationId: string,
-    applicationType: 'NWL' | 'S37'
-): Promise<void> => {
-    try {
-        logger.info('[ReviewPaymentDetailsCard] Attempting to download invoice', { invoiceNumber, applicationId });
-
-        await fetchAndSaveInvoice(applicationId, invoiceNumber);
-        logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully');
-
-    } catch (downloadError) {
-        logger.warn('[ReviewPaymentDetailsCard] Invoice not found, attempting to generate', {
-            invoiceNumber,
-            applicationId,
-            error: downloadError
-        });
-
-        try {
-            const response = await fetch(
-                buildBackendUrl(`/api/invoice/${applicationId}/generate`),
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...getCsrfHeaders(),
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        applicationId,
-                        applicationType,
-                    }),
-                }
-            );
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Failed to generate invoice');
-            }
-
-            const result = await response.json();
-            logger.info('[ReviewPaymentDetailsCard] Invoice generated successfully', {
-                invoiceNumber: result.invoiceNumber,
-            });
-
-            await fetchAndSaveInvoice(applicationId, result.invoiceNumber || invoiceNumber);
-            logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully after generation');
-
-        } catch (generateError) {
-            logger.error('[ReviewPaymentDetailsCard] Failed to generate or download invoice', {
-                invoiceNumber,
-                applicationId,
-                error: generateError
-            });
-            throw generateError;
-        }
-    }
-};
-
-export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> = ({ 
-    payment, 
-    applicationId, 
-    applicationType, 
+export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> = ({
+    payment,
+    applicationId,
+    applicationType,
     desnzRef,
     applicationStatus
 }) => {
@@ -151,7 +72,7 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
                 key: { text: 'Invoice' },
                 value: {
                     text: '',
-                    html: `<a href="#" class="govuk-link invoice-download-link" data-invoice-number="${invoiceNumber}">${invoiceNumber}</a>`,
+                    html: `<a href="${buildInvoiceDownloadUrl(applicationId, invoiceNumber)}" class="govuk-link">${invoiceNumber}</a>`,
                 },
             });
         }
@@ -204,7 +125,7 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
                 key: { text: 'Invoice' },
                 value: {
                     text: '',
-                    html: `<a href="#" class="govuk-link invoice-download-link" data-invoice-number="${invoiceNumber}">${invoiceNumber}</a>`,
+                    html: `<a href="${buildInvoiceDownloadUrl(applicationId, invoiceNumber)}" class="govuk-link">${invoiceNumber}</a>`,
                 },
             });
         }
@@ -216,29 +137,6 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
             });
         }
     }
-    useEffect(() => {
-        const invoiceLink = document.querySelector('.invoice-download-link') as HTMLAnchorElement;
-        if (invoiceLink && applicationId && applicationType) {
-            const handleClick = async (e: Event) => {
-                e.preventDefault();
-                const invoiceNumber = invoiceLink.getAttribute('data-invoice-number');
-                if (invoiceNumber) {
-                    try {
-                        await downloadInvoiceWithFallback(invoiceNumber, applicationId, applicationType);
-                    } catch (error) {
-                        logger.error('[ReviewPaymentDetailsCard] Failed to download invoice:', error);
-
-                    }
-                }
-            };
-
-            invoiceLink.addEventListener('click', handleClick);
-
-            return () => {
-                invoiceLink.removeEventListener('click', handleClick);
-            };
-        }
-    }, [applicationId, applicationType, desnzRef]);
 
     return <SummaryCard title={L.PAYMENT.HEADING} rows={rows} />;
 };
