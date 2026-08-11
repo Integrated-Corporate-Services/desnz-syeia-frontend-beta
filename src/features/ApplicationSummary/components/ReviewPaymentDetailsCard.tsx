@@ -4,7 +4,6 @@ import { SummaryRow } from '../../NWL/CheckYourAnswers/types';
 import { formatDate } from '../../NWL/CheckYourAnswers/utils';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
 import { ReviewSummaryPayment } from '../types/reviewSummary';
-import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { getCsrfHeaders } from '../../../utils/csrf';
 import logger from '../../../logger';
@@ -30,24 +29,49 @@ const formatMethod = (kind: string | null | undefined): string => {
     return L.PAYMENT.METHODS[kind] || kind;
 };
 
+const fetchAndSaveInvoice = async (applicationId: string, invoiceNumber: string): Promise<void> => {
+    const response = await fetch(
+        buildBackendUrl(`/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(invoiceNumber)}`),
+        {
+            method: 'GET',
+            credentials: 'include',
+        }
+    );
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to download invoice (HTTP ${response.status})`);
+    }
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = `${invoiceNumber.replace('/', '_')}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
+};
+
 const downloadInvoiceWithFallback = async (
-    s3Key: string,
+    invoiceNumber: string,
     applicationId: string,
     applicationType: 'NWL' | 'S37'
 ): Promise<void> => {
     try {
-        logger.info('[ReviewPaymentDetailsCard] Attempting to download invoice', { s3Key, applicationId });
-        
-        await downloadS3FileOnSameTab(s3Key, undefined, applicationId);
-        logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully from S3');
-        
+        logger.info('[ReviewPaymentDetailsCard] Attempting to download invoice', { invoiceNumber, applicationId });
+
+        await fetchAndSaveInvoice(applicationId, invoiceNumber);
+        logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully');
+
     } catch (downloadError) {
-        logger.warn('[ReviewPaymentDetailsCard] Invoice not found in S3, attempting to generate', { 
-            s3Key, 
+        logger.warn('[ReviewPaymentDetailsCard] Invoice not found, attempting to generate', {
+            invoiceNumber,
             applicationId,
-            error: downloadError 
+            error: downloadError
         });
-        
+
         try {
             const response = await fetch(
                 buildBackendUrl(`/api/invoice/${applicationId}/generate`),
@@ -71,19 +95,18 @@ const downloadInvoiceWithFallback = async (
             }
 
             const result = await response.json();
-            logger.info('[ReviewPaymentDetailsCard] Invoice generated successfully', { 
+            logger.info('[ReviewPaymentDetailsCard] Invoice generated successfully', {
                 invoiceNumber: result.invoiceNumber,
-                s3Key: result.s3Key 
             });
 
-            await downloadS3FileOnSameTab(result.s3Key || s3Key, undefined, applicationId);
+            await fetchAndSaveInvoice(applicationId, result.invoiceNumber || invoiceNumber);
             logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully after generation');
-            
+
         } catch (generateError) {
-            logger.error('[ReviewPaymentDetailsCard] Failed to generate or download invoice', { 
-                s3Key,
+            logger.error('[ReviewPaymentDetailsCard] Failed to generate or download invoice', {
+                invoiceNumber,
                 applicationId,
-                error: generateError 
+                error: generateError
             });
             throw generateError;
         }
@@ -123,15 +146,12 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
 
         if (applicationId && (payment.invoice_number || desnzRef)) {
             const invoiceNumber = payment.invoice_number || `INV01/${desnzRef}.pdf`;
-            const folderName = invoiceNumber.includes('/') ? invoiceNumber.split('/')[0] : 'INV01';
-            const fileName = invoiceNumber.includes('/') ? invoiceNumber.split('/')[1] : invoiceNumber;
-            const s3Key = `NWL/${applicationId}/invoice/${folderName}/${fileName}`;
 
             rows.push({
                 key: { text: 'Invoice' },
                 value: {
                     text: '',
-                    html: `<a href="#" class="govuk-link invoice-download-link" data-s3-key="${s3Key}">${invoiceNumber}</a>`,
+                    html: `<a href="#" class="govuk-link invoice-download-link" data-invoice-number="${invoiceNumber}">${invoiceNumber}</a>`,
                 },
             });
         }
@@ -179,16 +199,12 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
 
         if (applicationId && applicationType && (payment.invoice_number || desnzRef)) {
             const invoiceNumber = payment.invoice_number || `INV01/${desnzRef}.pdf`;
-            const folderPrefix = 'Section-37';
-            const folderName = invoiceNumber.includes('/') ? invoiceNumber.split('/')[0] : 'INV01';
-            const fileName = invoiceNumber.includes('/') ? invoiceNumber.split('/')[1] : invoiceNumber;
-            const s3Key = `${folderPrefix}/${applicationId}/invoice/${folderName}/${fileName}`;
 
             rows.push({
                 key: { text: 'Invoice' },
                 value: {
                     text: '',
-                    html: `<a href="#" class="govuk-link invoice-download-link" data-s3-key="${s3Key}">${invoiceNumber}</a>`,
+                    html: `<a href="#" class="govuk-link invoice-download-link" data-invoice-number="${invoiceNumber}">${invoiceNumber}</a>`,
                 },
             });
         }
@@ -205,13 +221,13 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
         if (invoiceLink && applicationId && applicationType) {
             const handleClick = async (e: Event) => {
                 e.preventDefault();
-                const s3Key = invoiceLink.getAttribute('data-s3-key');
-                if (s3Key) {
+                const invoiceNumber = invoiceLink.getAttribute('data-invoice-number');
+                if (invoiceNumber) {
                     try {
-                        await downloadInvoiceWithFallback(s3Key, applicationId, applicationType);
+                        await downloadInvoiceWithFallback(invoiceNumber, applicationId, applicationType);
                     } catch (error) {
                         logger.error('[ReviewPaymentDetailsCard] Failed to download invoice:', error);
-                       
+
                     }
                 }
             };
