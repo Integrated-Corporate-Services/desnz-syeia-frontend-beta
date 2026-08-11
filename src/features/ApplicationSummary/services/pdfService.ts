@@ -35,7 +35,7 @@ export const downloadApplicationPdf = async (applicationId: string): Promise<voi
         'Content-Type': 'application/json',
         ...getCsrfHeaders(),
       },
-      body: JSON.stringify({ filename: s3Key }),
+      body: JSON.stringify({ filename: s3Key, applicationId }),
     });
 
     if (!presignedResponse.ok) {

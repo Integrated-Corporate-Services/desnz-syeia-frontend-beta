@@ -1,13 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SummaryCard } from '../../NWL/CheckYourAnswers/components';
 import { SummaryRow } from '../../NWL/CheckYourAnswers/types';
 import { formatDate } from '../../NWL/CheckYourAnswers/utils';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
 import { ReviewSummaryPayment } from '../types/reviewSummary';
-import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { buildBackendUrl } from '../../../utils/apiConfig';
-import { getCsrfHeaders } from '../../../utils/csrf';
-import logger from '../../../logger';
 
 const L = CONSTANTS.REVIEW_LAYOUT;
 
@@ -17,6 +14,11 @@ interface ReviewPaymentDetailsCardProps {
     applicationType?: 'NWL' | 'S37';
     desnzRef?: string | null;
     applicationStatus?: string | null;
+}
+
+interface InvoiceStatus {
+    invoiceExists: boolean;
+    invoiceNumber?: string;
 }
 
 const formatAmount = (payment: ReviewSummaryPayment): string => {
@@ -30,73 +32,53 @@ const formatMethod = (kind: string | null | undefined): string => {
     return L.PAYMENT.METHODS[kind] || kind;
 };
 
-const downloadInvoiceWithFallback = async (
-    s3Key: string,
-    applicationId: string,
-    applicationType: 'NWL' | 'S37'
-): Promise<void> => {
-    try {
-        logger.info('[ReviewPaymentDetailsCard] Attempting to download invoice', { s3Key, applicationId });
-        
-        await downloadS3FileOnSameTab(s3Key, undefined, applicationId);
-        logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully from S3');
-        
-    } catch (downloadError) {
-        logger.warn('[ReviewPaymentDetailsCard] Invoice not found in S3, attempting to generate', { 
-            s3Key, 
-            applicationId,
-            error: downloadError 
-        });
-        
-        try {
-            const response = await fetch(
-                buildBackendUrl(`/api/invoice/${applicationId}/generate`),
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...getCsrfHeaders(),
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        applicationId,
-                        applicationType,
-                    }),
-                }
-            );
+const buildInvoiceDownloadUrl = (applicationId: string, invoiceNumber: string): string =>
+    buildBackendUrl(`/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(invoiceNumber)}`);
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Failed to generate invoice');
-            }
+// Whether an invoice exists cannot be inferred from application status - a
+// successful payment returns the application to SUBMITTED rather than a
+// dedicated "paid" state, and there is no invoice_number column on the
+// payment table to check either. GET /api/invoice/:id/status is the actual
+// source of truth (does a real S3 existence check), and is safe to call
+// regardless of application state.
+const useInvoiceStatus = (applicationId?: string): InvoiceStatus | null => {
+    const [status, setStatus] = useState<InvoiceStatus | null>(null);
 
-            const result = await response.json();
-            logger.info('[ReviewPaymentDetailsCard] Invoice generated successfully', { 
-                invoiceNumber: result.invoiceNumber,
-                s3Key: result.s3Key 
-            });
-
-            await downloadS3FileOnSameTab(result.s3Key || s3Key, undefined, applicationId);
-            logger.info('[ReviewPaymentDetailsCard] Invoice downloaded successfully after generation');
-            
-        } catch (generateError) {
-            logger.error('[ReviewPaymentDetailsCard] Failed to generate or download invoice', { 
-                s3Key,
-                applicationId,
-                error: generateError 
-            });
-            throw generateError;
+    useEffect(() => {
+        if (!applicationId) {
+            setStatus(null);
+            return;
         }
-    }
+
+        let cancelled = false;
+        setStatus(null);
+
+        fetch(buildBackendUrl(`/api/invoice/${applicationId}/status`), { credentials: 'include' })
+            .then((res) => (res.ok ? res.json() : { invoiceExists: false }))
+            .then((data) => {
+                if (!cancelled) setStatus(data);
+            })
+            .catch(() => {
+                if (!cancelled) setStatus({ invoiceExists: false });
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [applicationId]);
+
+    return status;
 };
 
-export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> = ({ 
-    payment, 
-    applicationId, 
-    applicationType, 
+export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> = ({
+    payment,
+    applicationId,
+    applicationType,
     desnzRef,
     applicationStatus
 }) => {
+    const invoiceStatus = useInvoiceStatus(applicationId);
+
     if (!payment) {
         return null;
     }
@@ -105,6 +87,17 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
     const statusLabel = isPaid ? L.PAYMENT.STATUS_PAID : L.PAYMENT.STATUS_PENDING;
 
     const isProcessingPayment = applicationStatus?.toLowerCase().replace(/_/g, ' ').includes('processing payment') || false;
+
+    const invoiceRow: SummaryRow | null =
+        applicationId && invoiceStatus?.invoiceExists && invoiceStatus.invoiceNumber
+            ? {
+                key: { text: 'Invoice' },
+                value: {
+                    text: '',
+                    html: `<a href="${buildInvoiceDownloadUrl(applicationId, invoiceStatus.invoiceNumber)}" class="govuk-link">${invoiceStatus.invoiceNumber}</a>`,
+                },
+            }
+            : null;
 
     let rows: SummaryRow[] = [];
 
@@ -121,19 +114,8 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
             });
         }
 
-        if (applicationId && (payment.invoice_number || desnzRef)) {
-            const invoiceNumber = payment.invoice_number || `INV01/${desnzRef}.pdf`;
-            const folderName = invoiceNumber.includes('/') ? invoiceNumber.split('/')[0] : 'INV01';
-            const fileName = invoiceNumber.includes('/') ? invoiceNumber.split('/')[1] : invoiceNumber;
-            const s3Key = `NWL/${applicationId}/invoice/${folderName}/${fileName}`;
-
-            rows.push({
-                key: { text: 'Invoice' },
-                value: {
-                    text: '',
-                    html: `<a href="#" class="govuk-link invoice-download-link" data-s3-key="${s3Key}">${invoiceNumber}</a>`,
-                },
-            });
+        if (invoiceRow) {
+            rows.push(invoiceRow);
         }
 
         rows.push({
@@ -177,20 +159,8 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
         }
     }
 
-        if (applicationId && applicationType && (payment.invoice_number || desnzRef)) {
-            const invoiceNumber = payment.invoice_number || `INV01/${desnzRef}.pdf`;
-            const folderPrefix = 'Section-37';
-            const folderName = invoiceNumber.includes('/') ? invoiceNumber.split('/')[0] : 'INV01';
-            const fileName = invoiceNumber.includes('/') ? invoiceNumber.split('/')[1] : invoiceNumber;
-            const s3Key = `${folderPrefix}/${applicationId}/invoice/${folderName}/${fileName}`;
-
-            rows.push({
-                key: { text: 'Invoice' },
-                value: {
-                    text: '',
-                    html: `<a href="#" class="govuk-link invoice-download-link" data-s3-key="${s3Key}">${invoiceNumber}</a>`,
-                },
-            });
+        if (invoiceRow) {
+            rows.push(invoiceRow);
         }
 
         if (isProcessingPayment) {
@@ -200,29 +170,6 @@ export const ReviewPaymentDetailsCard: React.FC<ReviewPaymentDetailsCardProps> =
             });
         }
     }
-    useEffect(() => {
-        const invoiceLink = document.querySelector('.invoice-download-link') as HTMLAnchorElement;
-        if (invoiceLink && applicationId && applicationType) {
-            const handleClick = async (e: Event) => {
-                e.preventDefault();
-                const s3Key = invoiceLink.getAttribute('data-s3-key');
-                if (s3Key) {
-                    try {
-                        await downloadInvoiceWithFallback(s3Key, applicationId, applicationType);
-                    } catch (error) {
-                        logger.error('[ReviewPaymentDetailsCard] Failed to download invoice:', error);
-                       
-                    }
-                }
-            };
-
-            invoiceLink.addEventListener('click', handleClick);
-
-            return () => {
-                invoiceLink.removeEventListener('click', handleClick);
-            };
-        }
-    }, [applicationId, applicationType, desnzRef]);
 
     return <SummaryCard title={L.PAYMENT.HEADING} rows={rows} />;
 };
