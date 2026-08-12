@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import {
@@ -17,7 +17,6 @@ import SkipLink from '../../../components/SkipLink';
 const logger = createLogger('BankTransferSuccessPage');
 
 const BankTransferSuccessPage: React.FC = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const applicationId = useGetApplicationId();
 
@@ -58,14 +57,6 @@ const BankTransferSuccessPage: React.FC = () => {
 
   const displayTransactionNumber =
     transactionNumber?.trim() || BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT;
-
-  const handleGoToSummary = () => {
-    trackButtonClick('View application summary', location.pathname, {
-      application_id: applicationId,
-      desnz_ref: desnz_ref,
-    });
-    navigate(`${baseUrl}/${applicationId}/application-summary`);
-  };
 
   return (
     <>
@@ -159,15 +150,30 @@ const BankTransferSuccessPage: React.FC = () => {
                 : BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_S37}
             </p>
 
-            <div className="govuk-!-margin-top-6">
-              <button
-                type="button"
-                className="govuk-button govuk-button--secondary"
-                data-module="govuk-button"
-                onClick={handleGoToSummary}
+            <div className="govuk-button-group govuk-!-margin-top-6">
+              <Link
+                to={`${baseUrl}/${applicationId}/application-summary`}
+                className="govuk-button"
+                onClick={() => {
+                  trackButtonClick('View application summary', location.pathname, {
+                    application_id: applicationId,
+                    desnz_ref: desnz_ref,
+                  });
+                }}
               >
                 {PAYMENT_BUTTON_LABELS.VIEW_APPLICATION_SUMMARY}
-              </button>
+              </Link>
+              <Link
+                to={`${baseUrl}/${applicationId}/task-list`}
+                className="govuk-button govuk-button--secondary"
+                onClick={() => {
+                  trackButtonClick('Back to applications', location.pathname, {
+                    application_id: applicationId,
+                  });
+                }}
+              >
+                {PAYMENT_BUTTON_LABELS.BACK_TO_APPLICATIONS}
+              </Link>
             </div>
           </div>
         </div>
