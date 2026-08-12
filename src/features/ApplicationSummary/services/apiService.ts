@@ -59,6 +59,7 @@ const mapReviewResponse = (
         permissions: {
             canEdit: permissions.canEdit ?? false,
             canWithdraw: permissions.canWithdraw ?? false,
+            canDownload: permissions.canDownload !== false, // Default to true (allow downloads post-submission)
         },
     };
 };

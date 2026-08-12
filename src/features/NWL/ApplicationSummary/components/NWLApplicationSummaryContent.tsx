@@ -53,6 +53,24 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     const showWithdraw =
         data.permissions?.canWithdraw && !data.permissions?.canEdit && !withdrawalRequest;
 
+    // Downloads should ALWAYS be available post-submission, regardless of payment status
+    // Status check ensures downloads available for: SUBMITTED, PROCESSING_PAYMENT, UNDER_REVIEW, etc.
+    const postSubmissionStatuses = [
+        'SUBMITTED',
+        'PROCESSING_PAYMENT',
+        'UNDER_REVIEW',
+        'APPROVED',
+        'REJECTED',
+        'WITHDRAWN'
+    ];
+    const normalizedStatus = data.status?.toUpperCase() ?? '';
+    const isPostSubmission = postSubmissionStatuses.some(status =>
+        normalizedStatus.includes(status)
+    );
+    
+    // Enable downloads if post-submission OR if canDownload permission explicitly allows
+    const downloadEnabled = isPostSubmission || data.permissions?.canDownload !== false;
+
     const handleDownloadPdf = async () => {
         await downloadPdf(applicationId);
     };
@@ -124,11 +142,11 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                     className="govuk-button"
                     data-module="govuk-button"
                     onClick={() => {
-                        if (!isDownloading && data.permissions?.canDownload !== false) {
+                        if (!isDownloading && downloadEnabled) {
                             handleDownloadPackage();
                         }
                     }}
-                    disabled={isDownloading || data.permissions?.canDownload === false}
+                    disabled={isDownloading || !downloadEnabled}
                     aria-label="Download your application and attached documents as a ZIP"
                 >
                     {isDownloadingPackage ? 'Downloading ZIP...' : zipButtonLabel}
@@ -141,14 +159,14 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                     className="govuk-link"
                     onClick={(e) => {
                         e.preventDefault();
-                        if (!isDownloading && data.permissions?.canDownload !== false) {
+                        if (!isDownloading && downloadEnabled) {
                             handleDownloadPdf();
                         }
                     }}
-                    aria-disabled={isDownloading || data.permissions?.canDownload === false}
+                    aria-disabled={isDownloading || !downloadEnabled}
                     style={{
-                        pointerEvents: isDownloading || data.permissions?.canDownload === false ? 'none' : 'auto',
-                        opacity: isDownloading || data.permissions?.canDownload === false ? 0.5 : 1
+                        pointerEvents: isDownloading || !downloadEnabled ? 'none' : 'auto',
+                        opacity: isDownloading || !downloadEnabled ? 0.5 : 1
                     }}
                 >
                     {isDownloading ? 'Downloading...' : 'Download the application summary only (PDF)'}

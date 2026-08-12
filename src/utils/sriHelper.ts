@@ -106,8 +106,8 @@ function handleSRIError(url: string, integrity: string, event: Event): void {
     enforcing: isSRIEnforcing(),
   });
 
-  // Log to console for visibility
-  console.error(`[SRI] ${errorMessage}`, {
+  // Log using logger for visibility
+  logger.error('SRI error details', {
     url,
     solution: 'Run "npm run update-sri" to update SRI hashes',
     mode: SRI_MODE,

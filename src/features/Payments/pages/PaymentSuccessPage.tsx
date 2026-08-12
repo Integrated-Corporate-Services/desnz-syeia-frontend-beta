@@ -7,12 +7,14 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
 import { BANK_TRANSFER_SUCCESS_PAGE } from '../../../constants/payment';
 import SkipLink from '../../../components/SkipLink';
+import { usePdfDownload } from '../../ApplicationSummary/hooks';
 
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
   const applicationId = useGetApplicationId();
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
+  const isNwlRoute = baseUrl === NWL_BASE_URL;
   
   const { invoiceNumber, paymentId, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
 
@@ -20,6 +22,16 @@ const PaymentSuccessPage: React.FC = () => {
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
   const [loading, setLoading] = useState(!passedDesnzRef);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    isDownloading,
+    isDownloadingPackage,
+    error: pdfError,
+    downloadPdf,
+    downloadPackage,
+    packageSizeLabel,
+    clearError,
+  } = usePdfDownload();
 
   // Track payment success page load
   useEffect(() => {
@@ -116,6 +128,82 @@ const PaymentSuccessPage: React.FC = () => {
                 ? BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_NWL
                 : BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_S37}
             </p>
+
+            {isNwlRoute && (
+              <>
+                <h2 className="govuk-heading-m govuk-!-margin-top-6">
+                  Download and share a copy of your application
+                </h2>
+
+                <p className="govuk-body">
+                  You need to share a copy of this application with the objector or their
+                  representative within 7 days of submitting it.
+                </p>
+
+                {pdfError && (
+                  <div
+                    className="govuk-error-summary"
+                    role="alert"
+                    aria-labelledby="pdf-error-summary-title"
+                  >
+                    <h2 className="govuk-error-summary__title" id="pdf-error-summary-title">
+                      There is a problem
+                    </h2>
+                    <div className="govuk-error-summary__body">
+                      <p className="govuk-body">{pdfError}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="govuk-button govuk-button--secondary govuk-!-margin-top-2"
+                      onClick={clearError}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+
+                <div className="govuk-button-group govuk-!-margin-bottom-4">
+                  <button
+                    type="button"
+                    className="govuk-button"
+                    data-module="govuk-button"
+                    onClick={() => {
+                      if (!isDownloading) {
+                        downloadPackage(applicationId);
+                      }
+                    }}
+                    disabled={isDownloading}
+                    aria-label="Download your application and attached documents as a ZIP"
+                  >
+                    {isDownloadingPackage
+                      ? 'Downloading ZIP...'
+                      : packageSizeLabel
+                        ? `Download your application and attached documents (ZIP, ${packageSizeLabel})`
+                        : 'Download your application and attached documents (ZIP)'}
+                  </button>
+                </div>
+
+                <p className="govuk-body">
+                  <a
+                    href="#"
+                    className="govuk-link"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!isDownloading) {
+                        downloadPdf(applicationId);
+                      }
+                    }}
+                    aria-disabled={isDownloading}
+                    style={{
+                      pointerEvents: isDownloading ? 'none' : 'auto',
+                      opacity: isDownloading ? 0.5 : 1,
+                    }}
+                  >
+                    {isDownloading ? 'Downloading...' : 'Download the application summary only (PDF)'}
+                  </a>
+                </p>
+              </>
+            )}
 
             <div className="govuk-button-group">
               <Link
