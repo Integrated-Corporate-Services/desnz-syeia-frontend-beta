@@ -449,7 +449,15 @@ const AssetInformationForm: React.FC = () => {
                                         type="text"
                                         inputMode="decimal"
                                         value={form.lineLength}
-                                        onChange={handleChange}
+onChange={(e) => {
+                                            // Keep the stored value strictly numeric: digits + optional '.' + up to 2 dp.
+                                            const normalized = e.target.value.replace(',', '.');
+                                            const match = normalized.match(/^\d*(?:\.\d{0,2})?/);
+                                            const nextValue = match ? match[0] : '';
+
+                                            setForm((prev) => ({ ...prev, lineLength: nextValue }));
+                                            setErrors((prev) => clearFieldError(prev, 'lineLength'));
+                                        }}
                                         aria-describedby="lineLength-suffix"
                                         ref={!errors.referenceNumber && errors.lineLength ? firstErrorRef : undefined}
                                         disabled={isReadOnly}
