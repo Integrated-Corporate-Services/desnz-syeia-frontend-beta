@@ -79,6 +79,7 @@ export const LAND_DETAILS_VALIDATION = {
   HAS_LAND_REGISTRY_REQUIRED: 'Select whether the land is registered with the Land Registry',
   TITLE_NUMBER_REQUIRED: 'Enter the reference number',
   UNREGISTERED_LAND_REQUIRED: 'Enter details about why the land is not registered',
+  UNREGISTERED_LAND_DOCUMENT_REQUIRED: 'Upload a relevant document',
   IDENTIFYING_INFO_REQUIRED: 'Enter identifying information about the land',
   EQUIPMENT_VISIBILITY_REQUIRED: 'Select whether the equipment can be seen from a public road',
 };
