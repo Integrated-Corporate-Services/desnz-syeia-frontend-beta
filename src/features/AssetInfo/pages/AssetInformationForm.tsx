@@ -446,7 +446,8 @@ const AssetInformationForm: React.FC = () => {
                                         className={`govuk-input govuk-input--width-5${errors.lineLength ? ' govuk-input--error' : ''}`}
                                         id="lineLength"
                                         name="lineLength"
-                                        type="number"
+                                        type="text"
+                                        inputMode="decimal"
                                         value={form.lineLength}
                                         onChange={handleChange}
                                         aria-describedby="lineLength-suffix"
