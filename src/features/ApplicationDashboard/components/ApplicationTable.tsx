@@ -180,7 +180,6 @@ export const ApplicationTable: React.FC<Props> = ({
                       : 'application-summary'
                 )}
                 className="govuk-link"
-                aria-label={`View details for application ${app.desnz_ref || "with no reference"}, ${getCaseTypeLabel(app.type)}, ${activeTab !== "draft" ? app.status + " status, " : ""}submitted on ${formatDate(dateColumnConfig.getDate(app))}`}
                 onClick={(e) => handleApplicationClick(e, app)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -201,6 +200,7 @@ export const ApplicationTable: React.FC<Props> = ({
                 tabIndex={0}
               >
                 {app.desnz_ref || "N/A"}
+                <span className="govuk-visually-hidden"> - View application details</span>
               </a>
             </td>
 
@@ -266,6 +266,7 @@ export const ApplicationTable: React.FC<Props> = ({
                   onClick={(e) => handleApplicationClick(e, app)}
                 >
                   {app.desnz_ref || "N/A"}
+                  <span className="govuk-visually-hidden"> - View application details</span>
                 </a>
               </div>
               {activeTab !== "draft" && (
