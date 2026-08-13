@@ -70,6 +70,10 @@ const BankTransferSuccessPage: React.FC = () => {
   const displayTransactionNumber =
     transactionNumber?.trim() || BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT;
 
+  const zipSupportText = packageSizeLabel
+    ? `ZIP, about ${packageSizeLabel}. Includes your completed application form as a PDF and every document you uploaded.`
+    : 'ZIP, about 4 MB. Includes your completed application form as a PDF and every document you uploaded.';
+
   return (
     <>
       <SkipLink />
@@ -137,7 +141,6 @@ const BankTransferSuccessPage: React.FC = () => {
             </table>
 
             <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.PROCESSING_STATUS_INFO}</p>
-            <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.INVOICE_INFO}</p>
 
             {isNwlRoute && (
               <>
@@ -184,7 +187,7 @@ const BankTransferSuccessPage: React.FC = () => {
                       }
                     }}
                     disabled={isDownloading}
-                    aria-label="Download your application and attached documents as a ZIP"
+                    aria-label="Download your application and documents as a ZIP"
                   >
                     {isDownloadingPackage
                       ? 'Downloading ZIP...'
@@ -193,9 +196,7 @@ const BankTransferSuccessPage: React.FC = () => {
                 </div>
 
                 <p className="govuk-body govuk-!-margin-top-0 govuk-!-margin-bottom-6">
-                  {packageSizeLabel
-                    ? `ZIP, about ${packageSizeLabel}. Includes your completed application form as a PDF and every document you uploaded.`
-                    : 'ZIP file. Includes your completed application form as a PDF and every document you uploaded.'}
+                  {zipSupportText}
                 </p>
 
                 <p className="govuk-body">
