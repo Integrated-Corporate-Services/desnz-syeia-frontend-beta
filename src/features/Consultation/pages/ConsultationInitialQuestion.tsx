@@ -37,8 +37,7 @@ const ConsultationInitialQuestion: React.FC = () => {
         if (consultationDetails?.consultationType === ConsultationType.PUBLIC) {
           log.info('[ConsultationInitialQuestion] Redirecting to public notices page for PUBLIC consultation');
           navigate(
-            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`,
-            { replace: true }
+            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`
           );
           return;
         }
