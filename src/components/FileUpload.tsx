@@ -746,6 +746,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           fileInputRef.current?.click();
         }}
       >
+        <label htmlFor="file-upload-input" className="govuk-visually-hidden">
+          {title}
+        </label>
         <input
           type="file"
           multiple

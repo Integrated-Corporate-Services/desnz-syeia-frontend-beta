@@ -617,20 +617,27 @@ const ProjectOverview = () => {
 
 						{/* Project Name Section */}
 						<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project name</h2>
-						<div className="govuk-form-group govuk-!-width-two-thirds">
-							<TextInput
-								label=""
-								id="projectName-inputValue"
-								name="projectName.inputValue"
-								value={formState.projectName}
-								error={fieldErrors['projectName-inputValue']}
-								maxLength={4000}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-									setFormState(prev => ({ ...prev, projectName: e.target.value }));
-									clearFieldError('projectName-inputValue');
-								}}
-							/>
-						</div>
+					<div className={`govuk-form-group govuk-!-width-two-thirds${fieldErrors['projectName-inputValue'] ? ' govuk-form-group--error' : ''}`}>
+						<label className="govuk-label govuk-visually-hidden" htmlFor="projectName-inputValue">
+							Project name
+						</label>
+						{fieldErrors['projectName-inputValue'] && (
+							<p id="projectName-inputValue-error" className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {fieldErrors['projectName-inputValue']}
+							</p>
+						)}
+						<input
+							className={`govuk-input${fieldErrors['projectName-inputValue'] ? ' govuk-input--error' : ''}`}
+							id="projectName-inputValue"
+							name="projectName.inputValue"
+							type="text"
+							maxLength={4000}
+							value={formState.projectName}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+								setFormState(prev => ({ ...prev, projectName: e.target.value }));
+								clearFieldError('projectName-inputValue');
+							}}
+							aria-describedby={fieldErrors['projectName-inputValue'] ? 'projectName-inputValue-error' : undefined}
 
 						{/* Project Description Section */}
 						<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
