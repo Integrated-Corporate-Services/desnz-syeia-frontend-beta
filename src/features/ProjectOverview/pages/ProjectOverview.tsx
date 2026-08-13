@@ -638,9 +638,11 @@ const ProjectOverview = () => {
 								clearFieldError('projectName-inputValue');
 							}}
 							aria-describedby={fieldErrors['projectName-inputValue'] ? 'projectName-inputValue-error' : undefined}
+						/>
+					</div>
 
-						{/* Project Description Section */}
-						<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
+					{/* Project Description Section */}
+					<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 							<TextArea
 								label="Project description"
 								id="projectDescription-inputValue"
