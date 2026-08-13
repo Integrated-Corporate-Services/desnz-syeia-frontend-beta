@@ -538,7 +538,7 @@ const SupportingInfo: React.FC = () => {
         type="radio"
         value="true"
         aria-controls="hasSupportingDocuments-hidden"
-        aria-expanded="true"
+        aria-expanded={supportingDocs === "yes"}
         checked={supportingDocs === "yes"}
         onChange={() => {
           setSupportingDocs("yes");

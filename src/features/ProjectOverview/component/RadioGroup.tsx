@@ -58,7 +58,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 								checked={value === opt.value}
 								onChange={() => onChange(opt.value)}
 								aria-controls={ariaControls && ariaControls[idx] ? ariaControls[idx] : undefined}
-								aria-expanded={opt.conditionalRender ? (value === opt.value ? 'true' : 'false') : undefined}
+							aria-expanded={opt.conditionalRender ? value === opt.value : undefined}
 							/>
 							<label className="govuk-label govuk-radios__label" htmlFor={idx === 0 ? id : `${id}-${opt.value}`}>{opt.label}</label>
 						</div>
