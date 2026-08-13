@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import {
@@ -13,16 +13,17 @@ import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
 import { trackButtonClick } from '../../../utils/analytics';
 import SkipLink from '../../../components/SkipLink';
+import { usePdfDownload } from '../../ApplicationSummary/hooks';
 
 const logger = createLogger('BankTransferSuccessPage');
 
 const BankTransferSuccessPage: React.FC = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const applicationId = useGetApplicationId();
 
 
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
+  const isNwlRoute = baseUrl === NWL_BASE_URL;
 
   const {
     invoiceNumber,
@@ -34,6 +35,16 @@ const BankTransferSuccessPage: React.FC = () => {
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
   const [loading, setLoading] = useState(!passedDesnzRef);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    isDownloading,
+    isDownloadingPackage,
+    error: pdfError,
+    downloadPdf,
+    downloadPackage,
+    packageSizeLabel,
+    clearError,
+  } = usePdfDownload();
 
   useEffect(() => {
     if (!applicationId || passedDesnzRef) return;
@@ -59,34 +70,11 @@ const BankTransferSuccessPage: React.FC = () => {
   const displayTransactionNumber =
     transactionNumber?.trim() || BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT;
 
-  const handleGoToSummary = () => {
-    trackButtonClick('View application summary', location.pathname, {
-      application_id: applicationId,
-      desnz_ref: desnz_ref,
-    });
-    navigate(`${baseUrl}/${applicationId}/application-summary`);
-  };
-
   return (
     <>
       <SkipLink />
       <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
-                Pay and submit
-              </Link>
-            </li>
-          </ol>
-        </nav>
-
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
@@ -151,6 +139,87 @@ const BankTransferSuccessPage: React.FC = () => {
             <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.PROCESSING_STATUS_INFO}</p>
             <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.INVOICE_INFO}</p>
 
+            {isNwlRoute && (
+              <>
+                <h2 className="govuk-heading-m govuk-!-margin-top-6">
+                  Download your application
+                </h2>
+
+                <p className="govuk-body">
+                  You need to share a copy of this application with the relevant landowner,
+                  occupier or representative within 7 days of submitting it. Download it now to
+                  save it or send it on.
+                </p>
+
+                {pdfError && (
+                  <div
+                    className="govuk-error-summary"
+                    role="alert"
+                    aria-labelledby="pdf-error-summary-title"
+                  >
+                    <h2 className="govuk-error-summary__title" id="pdf-error-summary-title">
+                      There is a problem
+                    </h2>
+                    <div className="govuk-error-summary__body">
+                      <p className="govuk-body">{pdfError}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="govuk-button govuk-button--secondary govuk-!-margin-top-2"
+                      onClick={clearError}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+
+                <div className="govuk-button-group govuk-!-margin-bottom-4">
+                  <button
+                    type="button"
+                    className="govuk-button"
+                    data-module="govuk-button"
+                    onClick={() => {
+                      if (!isDownloading) {
+                        downloadPackage(applicationId);
+                      }
+                    }}
+                    disabled={isDownloading}
+                    aria-label="Download your application and attached documents as a ZIP"
+                  >
+                    {isDownloadingPackage
+                      ? 'Downloading ZIP...'
+                      : 'Download your application and documents (ZIP)'}
+                  </button>
+                </div>
+
+                <p className="govuk-body govuk-!-margin-top-0 govuk-!-margin-bottom-6">
+                  {packageSizeLabel
+                    ? `ZIP, about ${packageSizeLabel}. Includes your completed application form as a PDF and every document you uploaded.`
+                    : 'ZIP file. Includes your completed application form as a PDF and every document you uploaded.'}
+                </p>
+
+                <p className="govuk-body">
+                  <a
+                    href="#"
+                    className="govuk-link"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!isDownloading) {
+                        downloadPdf(applicationId);
+                      }
+                    }}
+                    aria-disabled={isDownloading}
+                    style={{
+                      pointerEvents: isDownloading ? 'none' : 'auto',
+                      opacity: isDownloading ? 0.5 : 1,
+                    }}
+                  >
+                    {isDownloading ? 'Downloading...' : 'Download the application form only (PDF)'}
+                  </a>
+                </p>
+              </>
+            )}
+
             <h2 className="govuk-heading-m">{BANK_TRANSFER_SUCCESS_PAGE.WHAT_HAPPENS_NEXT_HEADING}</h2>
             <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.EMAIL_CONFIRMATION}</p>
             <p className="govuk-body">
@@ -159,15 +228,19 @@ const BankTransferSuccessPage: React.FC = () => {
                 : BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_S37}
             </p>
 
-            <div className="govuk-!-margin-top-6">
-              <button
-                type="button"
+            <div className="govuk-button-group govuk-!-margin-top-6">
+              <Link
+                to={`${baseUrl}/${applicationId}/application-summary`}
                 className="govuk-button govuk-button--secondary"
-                data-module="govuk-button"
-                onClick={handleGoToSummary}
+                onClick={() => {
+                  trackButtonClick('View application summary', location.pathname, {
+                    application_id: applicationId,
+                    desnz_ref: desnz_ref,
+                  });
+                }}
               >
                 {PAYMENT_BUTTON_LABELS.VIEW_APPLICATION_SUMMARY}
-              </button>
+              </Link>
             </div>
           </div>
         </div>

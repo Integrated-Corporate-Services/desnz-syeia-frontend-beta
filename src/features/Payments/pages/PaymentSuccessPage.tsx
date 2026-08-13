@@ -5,9 +5,17 @@ import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
-import { BANK_TRANSFER_SUCCESS_PAGE } from '../../../constants/payment';
+import { BANK_TRANSFER_SUCCESS_PAGE, formatCurrency } from '../../../constants/payment';
 import SkipLink from '../../../components/SkipLink';
 import { usePdfDownload } from '../../ApplicationSummary/hooks';
+
+interface PaymentSuccessState {
+  invoiceNumber?: string;
+  paymentId?: string;
+  reference?: string;
+  desnz_ref?: string;
+  totalAmount?: number;
+}
 
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
@@ -16,7 +24,13 @@ const PaymentSuccessPage: React.FC = () => {
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
   const isNwlRoute = baseUrl === NWL_BASE_URL;
   
-  const { invoiceNumber, paymentId, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
+  const {
+    invoiceNumber,
+    paymentId,
+    reference,
+    desnz_ref: passedDesnzRef,
+    totalAmount,
+  } = (location.state as PaymentSuccessState | null) || {};
 
   // State for fetched desnz_ref if not passed
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
@@ -74,13 +88,14 @@ const PaymentSuccessPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <p className="govuk-body govuk-!-font-weight-bold govuk-!-font-size-24 govuk-!-margin-bottom-2">Application status</p>
             <div className="govuk-panel govuk-panel--confirmation">
-              <h1 className="govuk-panel__title">Application submitted</h1>
+              <h1 className="govuk-panel__title">{BANK_TRANSFER_SUCCESS_PAGE.PANEL_TITLE}</h1>
               <div className="govuk-panel__body">
-                Your application number is<br />
+                {BANK_TRANSFER_SUCCESS_PAGE.APPLICATION_NUMBER_TEXT}<br />
                 <strong>
-                  {loading ? 'Loading...' : desnz_ref || 'N/A'}
+                  {loading
+                    ? BANK_TRANSFER_SUCCESS_PAGE.LOADING_TEXT
+                    : desnz_ref || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT}
                 </strong>
               </div>
             </div>
@@ -98,46 +113,39 @@ const PaymentSuccessPage: React.FC = () => {
             
             <table className="govuk-table">
               <tbody className="govuk-table__body">
-                {paymentId && (
-                  <tr className="govuk-table__row">
-                    <th scope="row" className="govuk-table__header">Payment reference number</th>
-                    <td className="govuk-table__cell">{paymentId}</td>
-                  </tr>
-                )}
-                {invoiceNumber && (
-                  <tr className="govuk-table__row">
-                    <th scope="row" className="govuk-table__header">Payment for</th>
-                    <td className="govuk-table__cell">{invoiceNumber}</td>
-                  </tr>
-                )}
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">Reference number</th>
+                  <td className="govuk-table__cell">{reference || paymentId || 'N/A'}</td>
+                </tr>
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">Invoice number</th>
+                  <td className="govuk-table__cell">{invoiceNumber || 'N/A'}</td>
+                </tr>
                 <tr className="govuk-table__row">
                   <th scope="row" className="govuk-table__header">Total amount</th>
                   <td className="govuk-table__cell">
-                    {totalAmount ? `£${totalAmount.toFixed(2)}` : 'N/A'}
+                    {typeof totalAmount === 'number' ? formatCurrency(totalAmount) : 'N/A'}
                   </td>
+                </tr>
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">Application status</th>
+                  <td className="govuk-table__cell">{BANK_TRANSFER_SUCCESS_PAGE.APPLICATION_STATUS_PROCESSING}</td>
                 </tr>
               </tbody>
             </table>
 
-            <h2 className="govuk-heading-m">What happens next</h2>
-            <p className="govuk-body">
-              You will receive an email to confirm your application has been submitted.
-            </p>
-            <p className="govuk-body">
-              {baseUrl === NWL_BASE_URL
-                ? BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_NWL
-                : BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_S37}
-            </p>
+            <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.PROCESSING_STATUS_INFO}</p>
 
             {isNwlRoute && (
               <>
                 <h2 className="govuk-heading-m govuk-!-margin-top-6">
-                  Download and share a copy of your application
+                  Download your application
                 </h2>
 
                 <p className="govuk-body">
-                  You need to share a copy of this application with the objector or their
-                  representative within 7 days of submitting it.
+                  You need to share a copy of this application with the relevant landowner,
+                  occupier or representative within 7 days of submitting it. Download it now to
+                  save it or send it on.
                 </p>
 
                 {pdfError && (
@@ -177,11 +185,15 @@ const PaymentSuccessPage: React.FC = () => {
                   >
                     {isDownloadingPackage
                       ? 'Downloading ZIP...'
-                      : packageSizeLabel
-                        ? `Download your application and attached documents (ZIP, ${packageSizeLabel})`
-                        : 'Download your application and attached documents (ZIP)'}
+                      : 'Download your application and documents (ZIP)'}
                   </button>
                 </div>
+
+                <p className="govuk-body govuk-!-margin-top-0 govuk-!-margin-bottom-6">
+                  {packageSizeLabel
+                    ? `ZIP, about ${packageSizeLabel}. Includes your completed application form as a PDF and every document you uploaded.`
+                    : 'ZIP file. Includes your completed application form as a PDF and every document you uploaded.'}
+                </p>
 
                 <p className="govuk-body">
                   <a
@@ -199,16 +211,26 @@ const PaymentSuccessPage: React.FC = () => {
                       opacity: isDownloading ? 0.5 : 1,
                     }}
                   >
-                    {isDownloading ? 'Downloading...' : 'Download the application summary only (PDF)'}
+                    {isDownloading ? 'Downloading...' : 'Download the application form only (PDF)'}
                   </a>
                 </p>
               </>
             )}
 
+            <h2 className="govuk-heading-m">What happens next</h2>
+            <p className="govuk-body">
+              You will receive an email to confirm your application has been submitted.
+            </p>
+            <p className="govuk-body">
+              {baseUrl === NWL_BASE_URL
+                ? BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_NWL
+                : BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_S37}
+            </p>
+
             <div className="govuk-button-group">
               <Link
                 to={`${baseUrl}/${applicationId}/application-summary`}
-                className="govuk-button"
+                className="govuk-button govuk-button--secondary"
                 onClick={() => {
                   trackButtonClick('View application summary', location.pathname, {
                     application_id: applicationId,
@@ -218,17 +240,6 @@ const PaymentSuccessPage: React.FC = () => {
                 }}
               >
                 View application summary
-              </Link>
-              <Link
-                to={`${baseUrl}/${applicationId}/task-list`}
-                className="govuk-button govuk-button--secondary"
-                onClick={() => {
-                  trackButtonClick('Back to applications', location.pathname, {
-                    application_id: applicationId,
-                  });
-                }}
-              >
-                Back to applications
               </Link>
             </div>
           </div>
