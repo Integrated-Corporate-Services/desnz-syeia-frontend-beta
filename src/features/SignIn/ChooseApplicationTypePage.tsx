@@ -35,13 +35,12 @@ const ChooseApplicationTypePage: React.FC = () => {
       <SkipLink />
       <div className="govuk-width-container">
         <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        <h1 className="govuk-heading-l">Choose application type</h1>
-        
         <ErrorSummary errors={errors} />
 
         <form onSubmit={handleSubmitWithTracking} noValidate>
           <RadioGroup
             name="applicationType"
+            legend="Choose application type"
             options={filteredOptions}
             selectedValue={selectedType}
             onChange={handleChange}
