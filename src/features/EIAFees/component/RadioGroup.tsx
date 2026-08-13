@@ -38,8 +38,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							type="radio"
 							value="true"
 							checked={isEiaDevelopment === "true"}
-							aria-controls="isEiaDevelopment-hidden"
-							aria-expanded={isEiaDevelopment === "true"}
+
 							onChange={onChange}
 						/>
 						<label className="govuk-label govuk-radios__label" htmlFor="isEiaDevelopment">
@@ -107,8 +106,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							type="radio"
 							value="false"
 							checked={isEiaDevelopment === "false"}
-							aria-controls="isEiaDevelopment-no-hidden"
-							aria-expanded={isEiaDevelopment === "false"}
+
 							onChange={onChange}
 						/>
 						<label className="govuk-label govuk-radios__label" htmlFor="isEiaDevelopment-no">

@@ -739,7 +739,7 @@ const ProjectOverview = () => {
 										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} onChange={() => {
 											setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }));
 											clearFieldError('areWorkStartDatesKnown');
-										}} aria-controls="areWorkStartDatesKnown-hidden" aria-expanded={formState.areWorkStartDatesKnown === "true"} />
+										}} />
 										<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown">Yes</label>
 									</div>
 									{formState.areWorkStartDatesKnown === "true" && (
@@ -956,8 +956,6 @@ const ProjectOverview = () => {
 												setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
 												clearFieldError('hasRelatedApplications-inputValue');
 											}}
-											aria-controls="hasRelatedApplications-hidden"
-											aria-expanded={formState.hasRelatedApplications === "true"}
 										/>
 										<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 									</div>
