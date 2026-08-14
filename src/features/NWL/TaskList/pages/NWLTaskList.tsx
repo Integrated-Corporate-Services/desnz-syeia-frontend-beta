@@ -107,7 +107,7 @@ const NWLTaskList: React.FC = () => {
 
 						<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">1. Applicant details</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 						<table className="govuk-table">
 							<tbody className="govuk-table__body">
 								<tr className="govuk-table__row">
@@ -136,7 +136,7 @@ const NWLTaskList: React.FC = () => {
 
 <div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">2. Application details</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 						<table className="govuk-table">
 							<tbody className="govuk-table__body">
 								<tr className="govuk-table__row">
@@ -163,7 +163,7 @@ const NWLTaskList: React.FC = () => {
 
 <div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">3. Objector details</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 						<table className="govuk-table">
 							<tbody className="govuk-table__body">
 								<tr className="govuk-table__row">
@@ -196,7 +196,7 @@ const NWLTaskList: React.FC = () => {
 
 				<div className="govuk-!-margin-top-8">
 					<h2 className="govuk-heading-m govuk-!-margin-bottom-4">4. Land details</h2>
-					<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+					<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 					<table className="govuk-table">
 						<tbody className="govuk-table__body">
 							<tr className="govuk-table__row">
@@ -237,7 +237,7 @@ const NWLTaskList: React.FC = () => {
 
 					<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">5. Assets</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 						<table className="govuk-table">
 							<tbody className="govuk-table__body">
 								<tr className="govuk-table__row">
@@ -254,7 +254,7 @@ const NWLTaskList: React.FC = () => {
 
 					<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">6. Negotiations</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 						<table className="govuk-table">
 							<tbody className="govuk-table__body">
 								<tr className="govuk-table__row">
@@ -271,7 +271,7 @@ const NWLTaskList: React.FC = () => {
 
 					<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">7. Additional information</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 						<table className="govuk-table">
 							<tbody className="govuk-table__body">
 								<tr className="govuk-table__row">
@@ -288,7 +288,7 @@ const NWLTaskList: React.FC = () => {
 
 					<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">8. Pay and submit</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 						<table className="govuk-table">
 							<tbody className="govuk-table__body">
 								<tr className="govuk-table__row">

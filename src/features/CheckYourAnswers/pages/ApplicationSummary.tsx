@@ -647,7 +647,7 @@ const ApplicationSummary: React.FC = () => {
             )}
 
             {/* Horizontal separator */}
-            <hr className="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
+            <hr className="govuk-section-break govuk-section-break--l govuk-section-break--visible" aria-hidden="true" />
             {/* Applicant details summary card */}
             <h2 className="govuk-heading-m">{SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
             <div className="govuk-summary-card">

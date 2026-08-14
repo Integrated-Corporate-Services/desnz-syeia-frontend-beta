@@ -56,7 +56,7 @@ const RouteGuidancePage: React.FC = () => {
         >
           <img
             src={eipSimpleRoute}
-            alt="A simple route with multiple coordinates"
+            alt=""
             className="eip-guidance-image"
             style={{ maxWidth: '100%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
           />
@@ -88,7 +88,7 @@ const RouteGuidancePage: React.FC = () => {
         >
           <img
             src={eipMultipleRoutes}
-            alt="A route with two spurs, with one of the route spurs highlighted to show it's being edited"
+            alt=""
             className="eip-guidance-image"
             style={{ maxWidth: '100%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
           />
@@ -106,7 +106,7 @@ const RouteGuidancePage: React.FC = () => {
         >
           <img
             src={eipRouteOverview}
-            alt="Overview of routes, showing a route with two spurs and the coordinates of both routes"
+            alt=""
             className="eip-guidance-image"
             style={{ maxWidth: '100%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
           />

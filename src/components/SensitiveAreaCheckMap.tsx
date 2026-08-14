@@ -67,33 +67,23 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
       }).addTo(map);
       mapInstance.current = map;
       
-      // Fix accessibility: Add alt text and aria-hidden to map tiles
-      setTimeout(() => {
+      // Decorative map tiles must not be announced (WCAG 1.1.1)
+      const hideDecorativeTiles = (onlyMissingAlt = false) => {
         const mapContainer = mapRef.current;
-        if (mapContainer) {
-          const tileImages = mapContainer.querySelectorAll('.leaflet-tile-pane img');
-          tileImages.forEach((img: Element) => {
-            if (img instanceof HTMLImageElement) {
-              img.setAttribute('alt', 'Map tile');
-              img.setAttribute('role', 'presentation');
-            }
-          });
-        }
-      }, 100);
-      
-      // Continue fixing tiles as they load
-      map.on('tileload', () => {
-        const mapContainer = mapRef.current;
-        if (mapContainer) {
-          const tileImages = mapContainer.querySelectorAll('.leaflet-tile-pane img:not([alt])');
-          tileImages.forEach((img: Element) => {
-            if (img instanceof HTMLImageElement) {
-              img.setAttribute('alt', 'Map tile');
-              img.setAttribute('role', 'presentation');
-            }
-          });
-        }
-      });
+        if (!mapContainer) return;
+        const selector = onlyMissingAlt
+          ? '.leaflet-tile-pane img:not([alt])'
+          : '.leaflet-tile-pane img';
+        mapContainer.querySelectorAll(selector).forEach((img: Element) => {
+          if (img instanceof HTMLImageElement) {
+            img.setAttribute('alt', '');
+            img.setAttribute('aria-hidden', 'true');
+          }
+        });
+      };
+
+      setTimeout(() => hideDecorativeTiles(false), 100);
+      map.on('tileload', () => hideDecorativeTiles(true));
       
       map.on('click', function (e: L.LeafletMouseEvent) {
         if (selectedIdx !== null) {
