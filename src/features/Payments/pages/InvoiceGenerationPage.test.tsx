@@ -51,7 +51,7 @@ describe('InvoiceGenerationPage regressions', () => {
     fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
-      if (url.endsWith('/api/invoice/APP123/calculate-fees')) {
+      if (url.endsWith('/api/applications/APP123/fees')) {
         return {
           ok: true,
           json: async () => ({
