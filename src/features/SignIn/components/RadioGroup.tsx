@@ -51,7 +51,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
           </p>
         )}
 
-        <div className="govuk-radios govuk-radios--large">
+        <div className="govuk-radios govuk-radios--large" data-module="govuk-radios">
           {options.map((option) => (
             <div key={option.id} className="govuk-radios__item">
               <input
