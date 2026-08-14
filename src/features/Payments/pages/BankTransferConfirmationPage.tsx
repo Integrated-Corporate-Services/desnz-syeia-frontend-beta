@@ -99,7 +99,7 @@ const BankTransferConfirmationPage: React.FC = () => {
         resolvedTotalAmount == null
       ) {
         try {
-          const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+          const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/fees`), {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',

@@ -79,7 +79,7 @@ const BankTransferPaymentPage: React.FC = () => {
         sessionStorage.setItem('totalAmount', totalAmount.toString());
       } else if (resolvedTotalAmount == null && !sessionStorage.getItem('totalAmount')) {
         try {
-          const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/calculate-fees`), {
+          const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/fees`), {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
