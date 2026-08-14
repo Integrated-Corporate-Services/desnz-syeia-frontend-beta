@@ -488,9 +488,8 @@ const ApplicationSummary: React.FC = () => {
           </ol>
         </nav>
       )}
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">        
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-three-quarters">
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-three-quarters">
             
             {/* Withdrawal request notification banner */}
             {withdrawalRequest && withdrawalRequest.request_status === 'Requested' && (
@@ -1914,8 +1913,8 @@ const ApplicationSummary: React.FC = () => {
                           className="govuk-label govuk-checkboxes__label"
                           htmlFor="organisation"
                         >
-                          I confirm I’ve read and understood the information
-                          I’ve provided, and that it’s accurate to the best of
+                          I confirm Iï¿½ve read and understood the information
+                          Iï¿½ve provided, and that itï¿½s accurate to the best of
                           my knowledge.
                         </label>
                       </div>
@@ -1937,7 +1936,6 @@ const ApplicationSummary: React.FC = () => {
             )}
           </div>
         </div>
-      </main>
     </div>
     </>
   );

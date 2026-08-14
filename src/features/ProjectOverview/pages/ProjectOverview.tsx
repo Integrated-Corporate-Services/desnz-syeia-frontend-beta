@@ -273,8 +273,7 @@ const ProjectOverview = () => {
 						</li>
 					</ol>
 				</nav>
-				<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-					<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
+									<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
 					{errors.length > 0 && (
 						<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
 							<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
@@ -1066,8 +1065,7 @@ const ProjectOverview = () => {
 							{projectOverview.saveAndContinue}
 						</button>
 					</form>
-				</main>
-			</div>
+							</div>
 		</>
 	);
 }
