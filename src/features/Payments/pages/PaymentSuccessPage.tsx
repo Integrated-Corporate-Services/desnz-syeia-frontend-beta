@@ -5,7 +5,7 @@ import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
-import { BANK_TRANSFER_SUCCESS_PAGE } from '../../../constants/payment';
+import { BANK_TRANSFER_SUCCESS_PAGE, formatCurrency } from '../../../constants/payment';
 
 interface PaymentSuccessState {
   invoiceNumber?: string;
