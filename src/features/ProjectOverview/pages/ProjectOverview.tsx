@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 
-import TextInput from "../component/TextInput";
 import TextArea from "../component/TextArea";
 import NumberInput from "../component/NumberInput";
 import RadioGroup from "../component/RadioGroup";
