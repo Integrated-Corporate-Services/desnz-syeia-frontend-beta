@@ -7,13 +7,27 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
 import { BANK_TRANSFER_SUCCESS_PAGE } from '../../../constants/payment';
 
+interface PaymentSuccessState {
+  invoiceNumber?: string;
+  paymentId?: string;
+  reference?: string;
+  desnz_ref?: string;
+  totalAmount?: number;
+}
+
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
   const applicationId = useGetApplicationId();
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
   
-  const { invoiceNumber, paymentId, desnz_ref: passedDesnzRef, totalAmount } = location.state || {};
+  const {
+    invoiceNumber,
+    paymentId,
+    reference,
+    desnz_ref: passedDesnzRef,
+    totalAmount,
+  } = (location.state as PaymentSuccessState | null) || {};
 
   // State for fetched desnz_ref if not passed
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
@@ -60,7 +74,6 @@ const PaymentSuccessPage: React.FC = () => {
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <p className="govuk-body govuk-!-font-weight-bold govuk-!-font-size-24 govuk-!-margin-bottom-2">Application status</p>
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">Application submitted</h1>
               <div className="govuk-panel__body">
@@ -84,23 +97,23 @@ const PaymentSuccessPage: React.FC = () => {
             
             <table className="govuk-table">
               <tbody className="govuk-table__body">
-                {paymentId && (
-                  <tr className="govuk-table__row">
-                    <th scope="row" className="govuk-table__header">Payment reference number</th>
-                    <td className="govuk-table__cell">{paymentId}</td>
-                  </tr>
-                )}
-                {invoiceNumber && (
-                  <tr className="govuk-table__row">
-                    <th scope="row" className="govuk-table__header">Payment for</th>
-                    <td className="govuk-table__cell">{invoiceNumber}</td>
-                  </tr>
-                )}
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">Reference number</th>
+                  <td className="govuk-table__cell">{reference || paymentId || 'N/A'}</td>
+                </tr>
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">Invoice number</th>
+                  <td className="govuk-table__cell">{invoiceNumber || 'N/A'}</td>
+                </tr>
                 <tr className="govuk-table__row">
                   <th scope="row" className="govuk-table__header">Total amount</th>
                   <td className="govuk-table__cell">
-                    {totalAmount ? `£${totalAmount.toFixed(2)}` : 'N/A'}
+                    {typeof totalAmount === 'number' ? formatCurrency(totalAmount) : 'N/A'}
                   </td>
+                </tr>
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">Payment status</th>
+                  <td className="govuk-table__cell">Paid</td>
                 </tr>
               </tbody>
             </table>
@@ -118,7 +131,7 @@ const PaymentSuccessPage: React.FC = () => {
             <div className="govuk-button-group">
               <Link
                 to={`${baseUrl}/${applicationId}/application-summary`}
-                className="govuk-button"
+                className="govuk-button govuk-button--secondary"
                 onClick={() => {
                   trackButtonClick('View application summary', location.pathname, {
                     application_id: applicationId,
@@ -128,17 +141,6 @@ const PaymentSuccessPage: React.FC = () => {
                 }}
               >
                 View application summary
-              </Link>
-              <Link
-                to={`${baseUrl}/${applicationId}/task-list`}
-                className="govuk-button govuk-button--secondary"
-                onClick={() => {
-                  trackButtonClick('Back to applications', location.pathname, {
-                    application_id: applicationId,
-                  });
-                }}
-              >
-                Back to applications
               </Link>
             </div>
           </div>

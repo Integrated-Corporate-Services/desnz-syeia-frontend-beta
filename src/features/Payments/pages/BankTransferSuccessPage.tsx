@@ -61,21 +61,6 @@ const BankTransferSuccessPage: React.FC = () => {
     <>
             <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
-                Pay and submit
-              </Link>
-            </li>
-          </ol>
-        </nav>
-
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
@@ -151,7 +136,7 @@ const BankTransferSuccessPage: React.FC = () => {
             <div className="govuk-button-group govuk-!-margin-top-6">
               <Link
                 to={`${baseUrl}/${applicationId}/application-summary`}
-                className="govuk-button"
+                className="govuk-button govuk-button--secondary"
                 onClick={() => {
                   trackButtonClick('View application summary', location.pathname, {
                     application_id: applicationId,
@@ -160,17 +145,6 @@ const BankTransferSuccessPage: React.FC = () => {
                 }}
               >
                 {PAYMENT_BUTTON_LABELS.VIEW_APPLICATION_SUMMARY}
-              </Link>
-              <Link
-                to={`${baseUrl}/${applicationId}/task-list`}
-                className="govuk-button govuk-button--secondary"
-                onClick={() => {
-                  trackButtonClick('Back to applications', location.pathname, {
-                    application_id: applicationId,
-                  });
-                }}
-              >
-                {PAYMENT_BUTTON_LABELS.BACK_TO_APPLICATIONS}
               </Link>
             </div>
           </div>
