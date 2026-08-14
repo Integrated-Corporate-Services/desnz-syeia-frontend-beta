@@ -37,10 +37,10 @@ const Accordion: React.FC<AccordionProps> = ({ sections, heading }) => {
               <span className="govuk-accordion__section-heading-text">
                 {section.heading}
               </span>
-              <span className="govuk-accordion__section-toggle" data-nosnippet="">
-                <span className="govuk-accordion__section-toggle-focus">
-                  <span className={`govuk-accordion-nav__chevron${openSections[section.id] ? " govuk-accordion-nav__chevron--down" : ""}`}></span>
-                  <span className="govuk-accordion__section-toggle-text">
+              <span className="govuk-accordion__section-toggle" data-nosnippet="" aria-hidden="true">
+                <span className="govuk-accordion__section-toggle-focus" aria-hidden="true">
+                  <span className={`govuk-accordion-nav__chevron${openSections[section.id] ? " govuk-accordion-nav__chevron--down" : ""}`} aria-hidden="true"></span>
+                  <span className="govuk-accordion__section-toggle-text" aria-hidden="true">
                     {openSections[section.id] ? "Hide" : "Show"}
                   </span>
                 </span>

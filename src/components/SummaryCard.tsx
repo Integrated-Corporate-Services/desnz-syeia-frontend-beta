@@ -23,7 +23,9 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ sections, heading }) => (
           <h3 className="govuk-summary-card__title">{section.title}</h3>
           {section.changeUrl && (
             <div className="govuk-summary-card__actions">
-              <Link to={section.changeUrl} className="govuk-link">Change</Link>
+              <Link to={section.changeUrl} className="govuk-link">
+                Change<span className="govuk-visually-hidden"> {section.title}</span>
+              </Link>
             </div>
           )}
         </div>

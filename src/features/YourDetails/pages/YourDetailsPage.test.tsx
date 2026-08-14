@@ -51,7 +51,7 @@ describe('YourDetailsPage', () => {
     });
   });
 
-  it('renders user details with all profile change links', async () => {
+  it('renders user details with uniquely named change links', async () => {
     render(
       <MemoryRouter>
         <YourDetailsPage />
@@ -63,14 +63,17 @@ describe('YourDetailsPage', () => {
     });
 
     expect(screen.getByText('Ms Alex Smith')).toBeInTheDocument();
-    const changeLinks = screen.getAllByRole('link', { name: 'Change' });
-    expect(changeLinks.map((link) => link.getAttribute('href'))).toEqual([
-      '/your-details/change-full-name',
-      '/your-details/change-work-address',
-      '/your-details/change-agency-name',
-      '/your-details/change-organisations',
-    ]);
-    expect(screen.getByText('Fisher German')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Change full name/i })).toHaveAttribute(
+      'href',
+      '/your-details/change-full-name'
+    );
+    expect(screen.getByRole('link', { name: /Change work address/i })).toHaveAttribute(
+      'href',
+      '/your-details/change-work-address'
+    );
+    expect(screen.queryByRole('link', { name: /Change agency name/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Change organisations/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('Fisher German')).not.toBeInTheDocument();
     expect(screen.getByText('Electricity North West')).toBeInTheDocument();
     expect(screen.getByText('alex.smith@example.com')).toBeInTheDocument();
   });

@@ -104,7 +104,7 @@ const YourDetailsPage: React.FC = () => {
                 <dd className="govuk-summary-list__value">{fullName}</dd>
                 <dd className="govuk-summary-list__actions">
                   <Link className="govuk-link" to="/your-details/change-full-name">
-                    Change
+                    Change<span className="govuk-visually-hidden"> full name</span>
                   </Link>
                 </dd>
               </div>
@@ -120,7 +120,7 @@ const YourDetailsPage: React.FC = () => {
                 </dd>
                 <dd className="govuk-summary-list__actions">
                   <Link className="govuk-link" to="/your-details/change-work-address">
-                    Change
+                    Change<span className="govuk-visually-hidden"> work address</span>
                   </Link>
                 </dd>
               </div>
@@ -131,7 +131,7 @@ const YourDetailsPage: React.FC = () => {
                   <dd className="govuk-summary-list__value">{details.agencyName || '-'}</dd>
                   <dd className="govuk-summary-list__actions">
                     <Link className="govuk-link" to="/your-details/change-agency-name">
-                      Change
+                      Change<span className="govuk-visually-hidden"> agency name</span>
                     </Link>
                   </dd>
                 </div>
@@ -153,7 +153,7 @@ const YourDetailsPage: React.FC = () => {
                 <dd className="govuk-summary-list__actions">
                   {isAgent && (
                     <Link className="govuk-link" to="/your-details/change-organisations">
-                      Change
+                      Change<span className="govuk-visually-hidden"> organisations</span>
                     </Link>
                   )}
                 </dd>
