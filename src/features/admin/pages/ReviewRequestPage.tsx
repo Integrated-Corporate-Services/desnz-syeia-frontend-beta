@@ -65,15 +65,13 @@ const ReviewRequestPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <a href="#" className="govuk-back-link" onClick={handleBackClick}>
+                  <a href="#" className="govuk-back-link" onClick={handleBackClick}>
             Back
           </a>
           <div className="govuk-body">
             <p>Loading request details...</p>
           </div>
-        </main>
-      </div>
+              </div>
       </>
     );
   }
@@ -82,14 +80,12 @@ const ReviewRequestPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <a href="#" className="govuk-back-link" onClick={handleBackClick}>
+                      <a href="#" className="govuk-back-link" onClick={handleBackClick}>
               Back
             </a>
             <h1 className="govuk-heading-l">Request not found</h1>
             <p className="govuk-body">The requested access request could not be found.</p>
-          </main>
-        </div>
+                  </div>
       </>
     );
   }
@@ -97,8 +93,7 @@ const ReviewRequestPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-        <a href="#" className="govuk-back-link" onClick={handleBackClick}>
+                <a href="#" className="govuk-back-link" onClick={handleBackClick}>
           Back
         </a>
 
@@ -140,8 +135,7 @@ const ReviewRequestPage: React.FC = () => {
             <RelatedContentSidebar />
           </div> */}
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

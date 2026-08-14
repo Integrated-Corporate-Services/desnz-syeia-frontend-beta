@@ -172,8 +172,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
             <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} />
 
@@ -256,8 +255,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

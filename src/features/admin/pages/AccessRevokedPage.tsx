@@ -13,8 +13,7 @@ const AccessRevokedPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <a
+              <a
           href="#"
           className="govuk-back-link"
           onClick={(e) => {
@@ -65,8 +64,7 @@ const AccessRevokedPage: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

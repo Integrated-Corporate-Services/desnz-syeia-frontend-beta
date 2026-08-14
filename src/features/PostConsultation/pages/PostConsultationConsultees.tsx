@@ -33,10 +33,8 @@ const PostConsultationConsultees: React.FC = () => {
         return (
             <>
                                 <div className="govuk-width-container">
-                    <main className="govuk-main-wrapper" id="main-content">
-                    <p className="govuk-body">{POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}</p>
-                </main>
-                </div>
+                                        <p className="govuk-body">{POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}</p>
+                                </div>
             </>
         );
     }
@@ -56,8 +54,7 @@ const PostConsultationConsultees: React.FC = () => {
                     </li>
                 </ol>
             </nav>
-            <main className="govuk-main-wrapper" id="main-content">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <h1 className="govuk-heading-l">{POST_CONSULTATION_CONSTANTS.PAGE_TITLE}</h1>
 
@@ -104,8 +101,7 @@ const PostConsultationConsultees: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </main>
-            </div>
+                        </div>
         </>
     );
 };

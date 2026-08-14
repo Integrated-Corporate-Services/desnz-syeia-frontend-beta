@@ -17,8 +17,7 @@ const AccessDeniedPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        {/* GREEN CONFIRMATION PANEL - Access Rejected */}
+              {/* GREEN CONFIRMATION PANEL - Access Rejected */}
         <div className="govuk-panel govuk-panel--confirmation">
           <h1 className="govuk-panel__title">
             Access rejected
@@ -64,8 +63,7 @@ const AccessDeniedPage: React.FC = () => {
         >
           Return to dashboard
         </button>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

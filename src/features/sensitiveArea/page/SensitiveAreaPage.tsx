@@ -137,8 +137,7 @@ const SensitiveAreaPage: React.FC = () => {
                     </li>
                 </ol>
             </nav>
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-full">
                         {formError && (
                             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
@@ -274,8 +273,7 @@ const SensitiveAreaPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </main>
-            </div>
+                        </div>
         </>
     );
 };

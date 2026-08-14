@@ -33,8 +33,7 @@ const UserManagementDashboard: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container user-management-dashboard">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">
             <h1 className="govuk-heading-l">User Management Dashboard</h1>
             <p className="govuk-body-m">
@@ -85,8 +84,7 @@ const UserManagementDashboard: React.FC = () => {
             )}
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

@@ -163,8 +163,7 @@ const WithdrawApplicationPage: React.FC = () => {
       <Link to={`${baseUrl}/${applicationId}/application-summary`} className="govuk-back-link">
         Back
       </Link>
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        {error && (
+              {error && (
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"
             aria-labelledby="error-summary-title"
@@ -314,8 +313,7 @@ const WithdrawApplicationPage: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

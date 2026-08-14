@@ -19,8 +19,7 @@ const UserCreatedPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-
+      
         {/* TRUE PAGE HEADING for accessibility */}
         <h1 className="govuk-visually-hidden">User created successfully</h1>
 
@@ -145,8 +144,7 @@ const UserCreatedPage: React.FC = () => {
           </div>
         </div>
 
-      </main>
-    </div>
+          </div>
     </>
   );
 };

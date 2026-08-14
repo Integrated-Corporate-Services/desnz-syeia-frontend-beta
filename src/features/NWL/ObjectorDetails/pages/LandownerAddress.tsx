@@ -156,8 +156,7 @@ const LandownerAddress: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="true">Landowner details</li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.LANDOWNER_ADDRESS_TITLE}</h1>
             {saveError && (
@@ -225,8 +224,7 @@ const LandownerAddress: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

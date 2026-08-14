@@ -31,8 +31,7 @@ const CannotContinueApplication: React.FC = () => {
         Back
       </a>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
@@ -59,8 +58,7 @@ const CannotContinueApplication: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

@@ -36,10 +36,8 @@ const ManageTeamCoordinatorPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <LoadingSkeleton type="summary" />
-          </main>
-        </div>
+                      <LoadingSkeleton type="summary" />
+                  </div>
       </>
     );
   }
@@ -48,8 +46,7 @@ const ManageTeamCoordinatorPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-grid-row">
+                    <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <Link
                 to={`/admin/organisations/${organisationId}/team-coordinators`}
@@ -77,8 +74,7 @@ const ManageTeamCoordinatorPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
       </>
     );
   }
@@ -86,8 +82,7 @@ const ManageTeamCoordinatorPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+                <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <Link
               to={`/admin/organisations/${organisationId}/team-coordinators`}
@@ -208,8 +203,7 @@ const ManageTeamCoordinatorPage: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

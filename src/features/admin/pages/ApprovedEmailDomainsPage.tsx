@@ -72,10 +72,8 @@ const ApprovedEmailDomainsPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <LoadingSkeleton type="summary" />
-          </main>
-        </div>
+                      <LoadingSkeleton type="summary" />
+                  </div>
       </>
     );
   }
@@ -84,8 +82,7 @@ const ApprovedEmailDomainsPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <div className="govuk-grid-row">
+                      <div className="govuk-grid-row">
               <div className="govuk-grid-column-two-thirds">
                 <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
                   Back
@@ -100,8 +97,7 @@ const ApprovedEmailDomainsPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </main>
-        </div>
+                  </div>
       </>
     );
   }
@@ -109,8 +105,7 @@ const ApprovedEmailDomainsPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+                <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
               Back
@@ -242,8 +237,7 @@ const ApprovedEmailDomainsPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

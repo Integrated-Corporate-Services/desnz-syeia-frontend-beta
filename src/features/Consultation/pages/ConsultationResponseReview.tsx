@@ -124,8 +124,7 @@ const ConsultationResponse3: React.FC = () => {
                         </ol>
                     </nav>
 
-                    <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                        {isLoading ? (
+                                            {isLoading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : (
                             <>
@@ -246,8 +245,7 @@ const ConsultationResponse3: React.FC = () => {
                         </form>
                             </>
                         )}
-                    </main>
-                </div>
+                                    </div>
             </div>
         </div>
         </>

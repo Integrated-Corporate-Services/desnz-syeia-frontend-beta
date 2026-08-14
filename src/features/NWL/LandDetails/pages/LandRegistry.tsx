@@ -77,8 +77,7 @@ const LandRegistry: React.FC = () => {
           currentPage={labels.QUESTION_PAGE_TITLE}
         />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} errorFields={errorFields} />
 
@@ -138,8 +137,7 @@ const LandRegistry: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

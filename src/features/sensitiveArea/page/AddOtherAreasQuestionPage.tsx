@@ -83,7 +83,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
           }
         }
       } catch (err) {
-        // ignore — non-fatal for pre-fill
+        // ignore â€” non-fatal for pre-fill
       } finally {
         if (mounted) setLoading(false);
       }
@@ -178,14 +178,12 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   if (loading) {
     return (
       <div className="govuk-width-container">
-        <main className="govuk-main-wrapper">
-          <div className="govuk-grid-row">
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     );
   }
 

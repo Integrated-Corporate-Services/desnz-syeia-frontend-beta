@@ -57,8 +57,7 @@ const AddUserPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-
+      
         <a
           href="#"
           className="govuk-back-link"
@@ -127,8 +126,7 @@ const AddUserPage: React.FC = () => {
           </div>
 
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

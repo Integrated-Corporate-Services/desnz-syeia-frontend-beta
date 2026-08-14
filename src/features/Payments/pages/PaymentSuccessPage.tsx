@@ -71,8 +71,7 @@ const PaymentSuccessPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">Application submitted</h1>
@@ -145,8 +144,7 @@ const PaymentSuccessPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

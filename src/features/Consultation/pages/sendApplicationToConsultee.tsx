@@ -149,8 +149,7 @@ const SendApplicationToConsultee: React.FC = () => {
                  </ol>
                </nav> 
     
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        <h1 className="govuk-heading-xl">Summary of consultation request</h1>
+              <h1 className="govuk-heading-xl">Summary of consultation request</h1>
         {/* Build accordation sections array without nulls */}
         {(() => {
           const accordionSections = [];
@@ -188,8 +187,7 @@ const SendApplicationToConsultee: React.FC = () => {
             </button>
           </div>
         </form>
-      </main>
-      </div>
+            </div>
       </div>
     </div>
     </>

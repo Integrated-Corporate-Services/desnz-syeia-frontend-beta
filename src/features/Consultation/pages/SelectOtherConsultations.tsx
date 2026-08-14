@@ -214,8 +214,7 @@ const SelectOtherConsultations: React.FC = () => {
                         </ol>
                     </nav>
 
-                    <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                        <h1 className="govuk-heading-l">Select other consultations</h1>
+                                            <h1 className="govuk-heading-l">Select other consultations</h1>
 
                         <p className="govuk-body">You can add other consultations that are relevant to your application.</p>
 
@@ -347,8 +346,7 @@ const SelectOtherConsultations: React.FC = () => {
                                 </button> */}
                             </div>
                         </form>
-                    </main>
-                </div>
+                                    </div>
             </div>
         </div>
         </>

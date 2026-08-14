@@ -42,8 +42,7 @@ const ObjectorDetailsIntroduction: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.INTRODUCTION_TITLE}</h1>
 
@@ -65,8 +64,7 @@ const ObjectorDetailsIntroduction: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

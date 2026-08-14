@@ -22,8 +22,7 @@ const NWLGuidancePage = () => {
           text-decoration: underline;
         }
       `}</style>
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-      
+            
         <div className="govuk-grid-row">
         <div className="govuk-grid-column-full">
           <h1 className="govuk-heading-l">
@@ -148,8 +147,7 @@ const NWLGuidancePage = () => {
           </aside>
         </div>
       </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

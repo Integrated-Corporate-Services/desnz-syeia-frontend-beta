@@ -114,10 +114,8 @@ export const CheckYourAnswersPage: React.FC = () => {
             <>
                                 <div className="govuk-width-container">
                 <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
-                <main className="govuk-main-wrapper">
-                    <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
-                </main>
-            </div>
+                                    <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
+                            </div>
             </>
         );
     }
@@ -126,8 +124,7 @@ export const CheckYourAnswersPage: React.FC = () => {
         <>
                         <div className="govuk-width-container">
             <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {declarationError && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
@@ -237,8 +234,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                         )}
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

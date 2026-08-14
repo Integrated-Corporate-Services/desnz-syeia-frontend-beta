@@ -120,8 +120,7 @@ const RelatedApplications: React.FC = () => {
         currentPage={CONTENT.BREADCRUMBS.RELATED_APPLICATIONS}
       />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} />
 
@@ -241,8 +240,7 @@ const RelatedApplications: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>    </>  );
+          </div>    </>  );
 };
 
 export default RelatedApplications;

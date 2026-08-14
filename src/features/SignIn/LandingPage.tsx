@@ -15,8 +15,7 @@ const LandingPage = () => {
           text-decoration: underline;
         }
       `}</style>
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l" style={{ maxWidth: '520px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
               Submit your Energy Infrastructure Application
@@ -111,8 +110,7 @@ const LandingPage = () => {
             </aside>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

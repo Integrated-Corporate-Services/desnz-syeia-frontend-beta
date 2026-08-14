@@ -257,16 +257,14 @@ const Asset: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content">
-        <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
+                  <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl">{isEditMode ? LABELS.EDIT_ASSET_TITLE : LABELS.ADD_ASSET_TITLE}</h1>
             <p className="govuk-body">Loading...</p>
           </div>
         </div>
-      </main>
-        </div>
+              </div>
       </>
     );
   }
@@ -274,8 +272,7 @@ const Asset: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content">
-      <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
+              <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
       
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
@@ -343,8 +340,7 @@ const Asset: React.FC = () => {
           </form>
         </div>
       </div>
-    </main>
-    </div>
+        </div>
     </>
   );
 };

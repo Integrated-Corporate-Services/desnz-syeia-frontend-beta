@@ -130,8 +130,7 @@ const LandownerDetails: React.FC = () => {
           </li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.LANDOWNER_DETAILS_TITLE}</h1>
             
@@ -212,8 +211,7 @@ const LandownerDetails: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

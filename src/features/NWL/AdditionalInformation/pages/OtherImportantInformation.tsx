@@ -106,8 +106,7 @@ const OtherImportantInformation: React.FC = () => {
         currentPage={CONTENT.BREADCRUMBS.OTHER_IMPORTANT_INFORMATION}
       />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} />
 
@@ -172,8 +171,7 @@ const OtherImportantInformation: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>    </>  );
+          </div>    </>  );
 };
 
 export default OtherImportantInformation;

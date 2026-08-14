@@ -159,10 +159,10 @@ const EvidenceOfNegotiations: React.FC = () => {
       return;
     }
 
-    logger.debug('[EvidenceOfNegotiations] ✓ Validation passed');
+    logger.debug('[EvidenceOfNegotiations] âœ“ Validation passed');
 
     if (!appId) {
-      logger.error('[EvidenceOfNegotiations] ✗ No appId - cannot submit');
+      logger.error('[EvidenceOfNegotiations] âœ— No appId - cannot submit');
       return;
     }
 
@@ -221,8 +221,7 @@ const EvidenceOfNegotiations: React.FC = () => {
             <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.EVIDENCE_TITLE}</h1>
 
@@ -279,8 +278,7 @@ const EvidenceOfNegotiations: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

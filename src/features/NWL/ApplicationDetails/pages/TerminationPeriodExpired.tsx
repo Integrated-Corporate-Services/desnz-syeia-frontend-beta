@@ -81,8 +81,7 @@ const TerminationPeriodExpired: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
               <div
@@ -168,8 +167,7 @@ const TerminationPeriodExpired: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

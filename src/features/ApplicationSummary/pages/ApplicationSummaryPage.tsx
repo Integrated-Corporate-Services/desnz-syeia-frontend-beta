@@ -70,10 +70,8 @@ export const ApplicationSummaryPage: React.FC = () => {
                 ) : (
                     <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
                 )}
-                <main className="govuk-main-wrapper" id="main-content" role="main">
-                    <h1 className="govuk-heading-xl">{CONSTANTS.LOADING}</h1>
-                </main>
-            </div>
+                                    <h1 className="govuk-heading-xl">{CONSTANTS.LOADING}</h1>
+                            </div>
             </>
         );
     }
@@ -90,8 +88,7 @@ export const ApplicationSummaryPage: React.FC = () => {
                 ) : (
                     <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
                 )}
-                <main className="govuk-main-wrapper" id="main-content" role="main">
-                    <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
+                                    <div className="govuk-error-summary" role="alert" aria-labelledby="error-summary-title">
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem
                         </h2>
@@ -101,8 +98,7 @@ export const ApplicationSummaryPage: React.FC = () => {
                             </p>
                         </div>
                     </div>
-                </main>
-            </div>
+                            </div>
             </>
         );
     }
@@ -119,8 +115,7 @@ export const ApplicationSummaryPage: React.FC = () => {
                 <TaskListSummaryBreadcrumbs applicationId={applicationId!} />
             )}
 
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <ApplicationSummaryContent
                             data={data}
@@ -129,8 +124,7 @@ export const ApplicationSummaryPage: React.FC = () => {
                         />
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

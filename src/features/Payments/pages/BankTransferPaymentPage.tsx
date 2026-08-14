@@ -129,8 +129,7 @@ const BankTransferPaymentPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
               <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
@@ -236,8 +235,7 @@ const BankTransferPaymentPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

@@ -244,8 +244,7 @@ const ConsultationRequestPage: React.FC = () => {
             </ol>
           </nav>
           
-          <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-            {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
+                      {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
               <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                 <div role="alert">
                   <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -417,8 +416,7 @@ const ConsultationRequestPage: React.FC = () => {
                 </button> */}
               </div> 
             </form>
-          </main>
-        </div>
+                  </div>
       </div>
     </div>
     </>

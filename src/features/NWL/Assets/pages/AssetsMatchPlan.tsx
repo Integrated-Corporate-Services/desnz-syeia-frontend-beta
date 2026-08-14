@@ -165,8 +165,7 @@ const AssetsMatchPlan: React.FC = () => {
 
   return (
     <>
-            <main className="govuk-main-wrapper" id="main-content">
-      {/* Breadcrumbs */}
+                  {/* Breadcrumbs */}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -344,8 +343,7 @@ const AssetsMatchPlan: React.FC = () => {
           </form>
         </div>
       </div>
-    </main>
-    </>
+        </>
   );
 };
 

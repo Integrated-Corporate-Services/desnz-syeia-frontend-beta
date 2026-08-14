@@ -121,8 +121,7 @@ const RepresentativeDetails: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.REPRESENTATIVE_DETAILS_TITLE}</h1>
             {saveError && (
@@ -191,8 +190,7 @@ const RepresentativeDetails: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

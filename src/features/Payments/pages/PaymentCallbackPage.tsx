@@ -142,8 +142,7 @@ const PaymentCallbackPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {status === 'loading' && (
               <>
@@ -190,8 +189,7 @@ const PaymentCallbackPage: React.FC = () => {
             )}
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

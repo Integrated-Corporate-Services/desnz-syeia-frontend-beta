@@ -5,8 +5,7 @@ const ChangeOrganisationsConfirmationPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-panel govuk-panel--confirmation govuk-!-margin-bottom-8">
+              <div className="govuk-panel govuk-panel--confirmation govuk-!-margin-bottom-8">
           <h1 className="govuk-panel__title">Your changes have been saved</h1>
         </div>
 
@@ -28,8 +27,7 @@ const ChangeOrganisationsConfirmationPage: React.FC = () => {
             Return to dashboard
           </Link>
         </p>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

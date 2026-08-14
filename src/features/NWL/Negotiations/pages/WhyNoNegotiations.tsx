@@ -67,7 +67,7 @@ const WhyNoNegotiations: React.FC = () => {
         isUndefined: negotiationsData.no_negotiations_reason === undefined,
       });
       setReason(newReason);
-      logger.debug('[WhyNoNegotiations] ✓ State updated, reason set to:', newReason);
+      logger.debug('[WhyNoNegotiations] âœ“ State updated, reason set to:', newReason);
     } else {
       logger.debug('[WhyNoNegotiations] No negotiations data available (data is null/undefined)');
     }
@@ -94,19 +94,19 @@ const WhyNoNegotiations: React.FC = () => {
     });
 
     if (!isValid) {
-      logger.error('[WhyNoNegotiations] ❌ VALIDATION FAILED - stopping save');
+      logger.error('[WhyNoNegotiations] âŒ VALIDATION FAILED - stopping save');
       window.scrollTo(0, 0);
       return;
     }
 
-    logger.debug('[WhyNoNegotiations] ✓ Validation passed');
+    logger.debug('[WhyNoNegotiations] âœ“ Validation passed');
 
     if (!appId) {
-      logger.error('[WhyNoNegotiations] ❌ No appId available - stopping save');
+      logger.error('[WhyNoNegotiations] âŒ No appId available - stopping save');
       return;
     }
 
-    logger.debug('[WhyNoNegotiations] ✓ appId available:', appId);
+    logger.debug('[WhyNoNegotiations] âœ“ appId available:', appId);
     setIsSaving(true);
 
     try {
@@ -136,19 +136,19 @@ const WhyNoNegotiations: React.FC = () => {
       });
 
       if (!result) {
-        logger.error('[WhyNoNegotiations] ❌ No response from backend - save may have failed');
+        logger.error('[WhyNoNegotiations] âŒ No response from backend - save may have failed');
         alert('Failed to save data. Please try again.');
         return;
       }
 
       // Verify the saved data
       if (result.no_negotiations_reason !== reason) {
-        logger.error('[WhyNoNegotiations] ⚠️ WARNING: Saved data does not match input!', {
+        logger.error('[WhyNoNegotiations] âš ï¸ WARNING: Saved data does not match input!', {
           sent: reason,
           received: result.no_negotiations_reason,
         });
       } else {
-        logger.debug('[WhyNoNegotiations] ✓ Data saved correctly, matches input');
+        logger.debug('[WhyNoNegotiations] âœ“ Data saved correctly, matches input');
       }
 
       // Refetch data to ensure state is updated
@@ -180,8 +180,7 @@ const WhyNoNegotiations: React.FC = () => {
             <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} />
 
@@ -208,8 +207,7 @@ const WhyNoNegotiations: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

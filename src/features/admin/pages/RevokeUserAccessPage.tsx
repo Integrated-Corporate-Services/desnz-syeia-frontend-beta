@@ -30,10 +30,8 @@ const RevokeUserAccessPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <LoadingSkeleton type="default" />
-          </main>
-        </div>
+                      <LoadingSkeleton type="default" />
+                  </div>
       </>
     );
   }
@@ -63,8 +61,7 @@ const RevokeUserAccessPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
+                      <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
               <h2 className="govuk-error-summary__title" id="error-summary-title">
                 User not found
               </h2>
@@ -79,8 +76,7 @@ const RevokeUserAccessPage: React.FC = () => {
             >
               Return to user management
             </a>
-          </main>
-        </div>
+                  </div>
       </>
     );
   }
@@ -88,8 +84,7 @@ const RevokeUserAccessPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <a
+              <a
           href="#"
           className="govuk-back-link"
           onClick={handleBack}
@@ -169,8 +164,7 @@ const RevokeUserAccessPage: React.FC = () => {
             </p>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

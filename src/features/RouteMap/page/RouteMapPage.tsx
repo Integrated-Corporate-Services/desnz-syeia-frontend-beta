@@ -258,8 +258,7 @@ const RouteMapPage: React.FC = () => {
             </ul>
           </div>
         )}
-        <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-          <div className="govuk-grid-row">
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-full">
               <h1 className="govuk-heading-l">{routeName}</h1>
               <div className='govuk-grid-column-three-quarters'>  
@@ -373,8 +372,7 @@ const RouteMapPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     </>
   );
 };

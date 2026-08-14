@@ -152,8 +152,7 @@ const ChangeWorkAddressPage: React.FC = () => {
         Back
       </Link>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Change your work address</h1>
+              <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Change your work address</h1>
 
         {loading && <p className="govuk-body">Loading...</p>}
 
@@ -289,8 +288,7 @@ const ChangeWorkAddressPage: React.FC = () => {
             </form>
           </>
         )}
-      </main>
-    </div>
+          </div>
     </>
   );
 };

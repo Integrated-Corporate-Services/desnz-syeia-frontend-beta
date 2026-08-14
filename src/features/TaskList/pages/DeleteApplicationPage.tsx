@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -48,8 +48,7 @@ const DeleteApplicationPage: React.FC = () => {
 };
 
   return (
-    <main className="govuk-width-container" id="main-content" tabIndex={-1}>
-      <div className="govuk-grid-row">
+          <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           {isSubmitted && !isAdmin ? (
             <>
@@ -109,8 +108,7 @@ const DeleteApplicationPage: React.FC = () => {
           )}
         </div>
       </div>
-    </main>
-  );
+      );
 };
 
 export default DeleteApplicationPage;

@@ -91,8 +91,7 @@ const ApplicationLandDetails: React.FC = () => {
 
 	return (
 		<>
-						<main className="govuk-main-wrapper" id="main-content">
-				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+										<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 						<ol className="govuk-breadcrumbs__list">
 							<li className="govuk-breadcrumbs__list-item">
 								<Link
@@ -124,7 +123,7 @@ const ApplicationLandDetails: React.FC = () => {
 					<h2 className="govuk-heading-m">Application information</h2>
 					<form onSubmit={handleSubmit} noValidate>
 						<div className={`govuk-form-group${errors.networkOperatorReference ? ' govuk-form-group--error' : ''}`}>  
-							<label className="govuk-label govuk-label--s" htmlFor="NetworkOperatorReference">Applicant’s reference</label>
+							<label className="govuk-label govuk-label--s" htmlFor="NetworkOperatorReference">Applicantâ€™s reference</label>
 							{errors.networkOperatorReference && (
 								<p className="govuk-error-message" id="NetworkOperatorReference-error">{errors.networkOperatorReference}</p>
 							)}
@@ -293,8 +292,7 @@ const ApplicationLandDetails: React.FC = () => {
 					</form>
 				</div>
 			</div>
-		</main>
-		</>
+				</>
 	);
 };
 

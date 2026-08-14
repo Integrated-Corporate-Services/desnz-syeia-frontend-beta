@@ -152,8 +152,7 @@ const LPADetailsPage: React.FC = () => {
     return (
         <>
                         <div className="govuk-width-container">
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                {/* Breadcrumbs */}
+                            {/* Breadcrumbs */}
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">
                         <li className="govuk-breadcrumbs__list-item">
@@ -277,8 +276,7 @@ const LPADetailsPage: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

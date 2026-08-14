@@ -94,8 +94,7 @@ const WithdrawApplicationPage: React.FC = () => {
                 currentPage="withdraw"
             />
 
-            <main className="govuk-main-wrapper" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {hasErrors && (
                             <div
@@ -263,8 +262,7 @@ const WithdrawApplicationPage: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

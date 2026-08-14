@@ -27,8 +27,7 @@ const RouteGuidancePage: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="page">Route guidance</li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-      <div className="govuk-grid-row">
+            <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-l">Route guidance</h1>
 
@@ -118,8 +117,7 @@ const RouteGuidancePage: React.FC = () => {
         </button>
         </div>
       </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

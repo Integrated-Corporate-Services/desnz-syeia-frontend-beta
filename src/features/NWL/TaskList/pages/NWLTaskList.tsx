@@ -96,8 +96,7 @@ const NWLTaskList: React.FC = () => {
 	return (
 		<>
 						<div className="govuk-width-container">
-			<main className="govuk-main-wrapper" id="main-content">
-				<div className="govuk-grid-row">
+							<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">
 						<span className="govuk-caption-l">{orgName || 'Organisation'}</span>
 						<h1 className="govuk-heading-l">Necessary wayleave consent application</h1>
@@ -321,8 +320,7 @@ const NWLTaskList: React.FC = () => {
 					</div>
 					</div>
 				</div>
-			</main>
-		</div>	</>	);
+					</div>	</>	);
 };
 
 export default NWLTaskList;

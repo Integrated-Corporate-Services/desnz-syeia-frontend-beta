@@ -35,10 +35,8 @@ const ManageUserPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <LoadingSkeleton type="default" />
-          </main>
-        </div>
+                      <LoadingSkeleton type="default" />
+                  </div>
       </>
     );
   }
@@ -47,8 +45,7 @@ const ManageUserPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
+                    <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
             <h2 className="govuk-error-summary__title" id="error-summary-title">
               User not found
             </h2>
@@ -59,8 +56,7 @@ const ManageUserPage: React.FC = () => {
           <Link to="/admin/user-management" className="govuk-link">
             Return to user management
           </Link>
-        </main>
-      </div>
+              </div>
       </>
     );
   }
@@ -68,8 +64,7 @@ const ManageUserPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <Link to="/admin/user-management" className="govuk-back-link">
+              <Link to="/admin/user-management" className="govuk-back-link">
           Back
         </Link>
 
@@ -145,8 +140,7 @@ const ManageUserPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

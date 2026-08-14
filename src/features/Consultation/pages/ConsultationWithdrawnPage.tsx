@@ -35,8 +35,7 @@ const ConsultationWithdrawnPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl govuk-!-margin-bottom-6">
               Are you sure you want to withdraw this request?
@@ -62,8 +61,7 @@ const ConsultationWithdrawnPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

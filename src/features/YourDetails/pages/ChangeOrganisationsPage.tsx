@@ -126,8 +126,7 @@ const ChangeOrganisationsPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <Link className="govuk-back-link" to="/your-details">
+              <Link className="govuk-back-link" to="/your-details">
           Back
         </Link>
 
@@ -250,8 +249,7 @@ const ChangeOrganisationsPage: React.FC = () => {
             </form>
           </>
         )}
-      </main>
-    </div>
+          </div>
     </>
   );
 };

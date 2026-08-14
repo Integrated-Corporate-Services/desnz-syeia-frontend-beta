@@ -133,14 +133,12 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
           applicationId={applicationId} 
           currentPage="Site address"
         />
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-grid-row">
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p>Loading objector address...</p>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     );
   }
 
@@ -152,8 +150,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
           currentPage="Site address"
         />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {saveError && (
               <div
@@ -276,8 +273,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

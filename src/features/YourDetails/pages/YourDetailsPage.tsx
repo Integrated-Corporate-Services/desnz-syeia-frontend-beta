@@ -67,8 +67,7 @@ const YourDetailsPage: React.FC = () => {
         Back
       </a>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        {successFieldName && (
+              {successFieldName && (
           <div className="govuk-notification-banner govuk-notification-banner--success govuk-!-margin-bottom-6" role="alert">
             <div className="govuk-notification-banner__header">
               <h2 className="govuk-notification-banner__title">Success</h2>
@@ -194,8 +193,7 @@ const YourDetailsPage: React.FC = () => {
             </p>
           </>
         )}
-      </main>
-    </div>
+          </div>
     </>
   );
 };

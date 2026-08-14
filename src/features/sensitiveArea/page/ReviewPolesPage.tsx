@@ -98,14 +98,12 @@ const ReviewPolesPage: React.FC = () => {
   if (loading && !review) {
     return (
       <div className="govuk-width-container">
-        <main className="govuk-main-wrapper">
-          <div className="govuk-grid-row">
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     );
   }
 
@@ -124,8 +122,7 @@ const ReviewPolesPage: React.FC = () => {
         Back
       </a>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {/* Error Summary */}
             {formErrors.length > 0 && (
@@ -279,8 +276,7 @@ const ReviewPolesPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

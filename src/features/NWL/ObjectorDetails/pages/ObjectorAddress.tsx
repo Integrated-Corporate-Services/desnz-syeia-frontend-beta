@@ -183,8 +183,7 @@ const ObjectorAddress: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.OBJECTOR_ADDRESS_TITLE}</h1>
 
@@ -401,8 +400,7 @@ const ObjectorAddress: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

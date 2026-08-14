@@ -121,7 +121,7 @@ const BankTransferConfirmationPage: React.FC = () => {
     loadInvoiceAndAmountIfNeeded();
   }, [applicationId, invoiceNumber, totalAmount, resolvedInvoiceNumber, resolvedTotalAmount]);
 
-  // No on-mount create/upsert call — payment will be created/submitted when user clicks Submit.
+  // No on-mount create/upsert call â€” payment will be created/submitted when user clicks Submit.
 
   const handleSubmit = async () => {
     if (fileUploadRef.current?.isBusy()) {
@@ -160,7 +160,7 @@ const BankTransferConfirmationPage: React.FC = () => {
       return;
     }
 
-    // No explicit user confirmation required here — backend saves payment on page load
+    // No explicit user confirmation required here â€” backend saves payment on page load
 
     setLoading(true);
     setError('');
@@ -308,8 +308,7 @@ const BankTransferConfirmationPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
               <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
@@ -427,7 +426,7 @@ const BankTransferConfirmationPage: React.FC = () => {
             </div>
 
             <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
-              {/* No user-facing confirmation checkbox — backend-set PROCESSING_PAYMENT on entry */}
+              {/* No user-facing confirmation checkbox â€” backend-set PROCESSING_PAYMENT on entry */}
             </div>
 
             <div className="govuk-button-group">
@@ -453,8 +452,7 @@ const BankTransferConfirmationPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

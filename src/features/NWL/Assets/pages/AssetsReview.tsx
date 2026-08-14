@@ -105,8 +105,7 @@ const AssetsReview: React.FC = () => {
 
   return (
     <>
-            <main className="govuk-main-wrapper" id="main-content">
-      <AssetsBreadcrumbs applicationId={applicationId} currentPage="review" />
+                  <AssetsBreadcrumbs applicationId={applicationId} currentPage="review" />
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
@@ -158,8 +157,7 @@ const AssetsReview: React.FC = () => {
           />
         </div>
       </div>
-    </main>
-    </>
+        </>
   );
 };
 

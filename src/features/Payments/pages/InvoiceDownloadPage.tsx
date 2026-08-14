@@ -164,8 +164,7 @@ const InvoiceDownloadPage: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-
+      
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
@@ -210,8 +209,7 @@ const InvoiceDownloadPage: React.FC = () => {
             </div>  
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

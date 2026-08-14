@@ -158,12 +158,11 @@ const handleSaveAndContinue = async () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        <h2 className="govuk-caption-xl govuk-!-margin-top-0">
+              <h2 className="govuk-caption-xl govuk-!-margin-top-0">
         {lpaName}
         </h2>
         <h1 className="govuk-heading-l">
-          Consultation form for electric overhead lines – Part 1
+          Consultation form for electric overhead lines â€“ Part 1
         </h1>
 
         {errorMessage && (
@@ -226,8 +225,7 @@ const handleSaveAndContinue = async () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

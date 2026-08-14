@@ -32,8 +32,7 @@ const ChooseApplicationTypePage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-        <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        <ErrorSummary errors={errors} />
+                <ErrorSummary errors={errors} />
 
         <form onSubmit={handleSubmitWithTracking} noValidate>
           <RadioGroup
@@ -53,8 +52,7 @@ const ChooseApplicationTypePage: React.FC = () => {
             Continue
           </button>
         </form>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

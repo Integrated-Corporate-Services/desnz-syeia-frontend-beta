@@ -62,8 +62,7 @@ const AccessRequestIntroPage: React.FC = () => {
         Back
       </Link>
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">
               Submit a request to activate your SYEIA account
@@ -102,8 +101,7 @@ const AccessRequestIntroPage: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

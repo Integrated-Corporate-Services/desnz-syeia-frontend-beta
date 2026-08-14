@@ -61,8 +61,7 @@ const Parishes: React.FC = () => {
     return (
         <>
                         <div className="govuk-width-container">
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+                            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">
                         <li className="govuk-breadcrumbs__list-item" aria-current="false">
                             <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
@@ -122,8 +121,7 @@ const Parishes: React.FC = () => {
                         )}
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

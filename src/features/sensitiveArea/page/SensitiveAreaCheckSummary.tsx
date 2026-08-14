@@ -77,8 +77,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                 </ol>
             </nav>
 
-            <main className="govuk-main-wrapper" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {/* Warning banner */}
                         <div className="govuk-warning-text">
@@ -176,8 +175,7 @@ const SensitiveAreaCheckSummary: React.FC = () => {
                         </Link>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

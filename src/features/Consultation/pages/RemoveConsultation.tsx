@@ -89,8 +89,7 @@ const RemoveConsultation: React.FC = () => {
             </ol>
           </nav>
 
-          <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-            {isLoading ? (
+                      {isLoading ? (
               <div className="govuk-body">Loading...</div>
             ) : (
               <>
@@ -202,8 +201,7 @@ const RemoveConsultation: React.FC = () => {
                 </form>
               </>
             )}
-          </main>
-        </div>
+                  </div>
       </div>
     </div>
     </>

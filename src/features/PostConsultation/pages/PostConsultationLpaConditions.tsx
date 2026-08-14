@@ -42,12 +42,10 @@ const PostConsultationLpaConditions: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content">
-          <p className="govuk-body">
+                    <p className="govuk-body">
             {POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}
           </p>
-        </main>
-        </div>
+                </div>
       </>
     );
   }
@@ -67,8 +65,7 @@ const PostConsultationLpaConditions: React.FC = () => {
           </li>
         </ol>
       </nav>
-     <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+             <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(error || acceptConditionsError) && (
               <div
@@ -172,8 +169,7 @@ const PostConsultationLpaConditions: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

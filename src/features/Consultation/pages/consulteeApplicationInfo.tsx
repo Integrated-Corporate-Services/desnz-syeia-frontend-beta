@@ -271,8 +271,7 @@ useEffect(() => {
           </li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        
+              
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
 
@@ -502,8 +501,7 @@ useEffect(() => {
 </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

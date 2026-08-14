@@ -165,8 +165,7 @@ const UnregisteredLandDetails: React.FC = () => {
           currentPage={labels.PAGE_TITLE}
         />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary
               errors={{ ...errors, ...(fileUploadError ? { fileUpload: fileUploadError } : {}) }}
@@ -237,8 +236,7 @@ const UnregisteredLandDetails: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

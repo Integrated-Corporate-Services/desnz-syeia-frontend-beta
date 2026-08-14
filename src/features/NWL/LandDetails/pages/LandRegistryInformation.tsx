@@ -169,8 +169,7 @@ const LandRegistryInformation: React.FC = () => {
           currentPage={labels.INFO_PAGE_TITLE}
         />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary 
               errors={{ ...errors, ...(fileUploadError ? { fileUpload: fileUploadError } : {}) }} 
@@ -250,8 +249,7 @@ const LandRegistryInformation: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

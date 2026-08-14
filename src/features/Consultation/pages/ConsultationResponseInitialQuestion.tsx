@@ -48,8 +48,7 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
             </ol>
           </nav>
 
-          <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-            {error && (
+                      {error && (
               <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
@@ -131,8 +130,7 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
                 </button> */}
               </div>
             </form>
-          </main>
-        </div>
+                  </div>
       </div>
     </div>
     </>

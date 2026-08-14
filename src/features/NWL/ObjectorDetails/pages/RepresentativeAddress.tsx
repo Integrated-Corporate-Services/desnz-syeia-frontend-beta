@@ -157,8 +157,7 @@ const RepresentativeAddress: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.REPRESENTATIVE_ADDRESS_TITLE}</h1>
             {saveError && (
@@ -226,8 +225,7 @@ const RepresentativeAddress: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

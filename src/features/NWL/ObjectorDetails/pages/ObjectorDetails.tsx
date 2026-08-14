@@ -115,8 +115,7 @@ const ObjectorDetails: React.FC = () => {
             <div className="govuk-width-container">
       <ObjectorDetailsBreadcrumbs appId={appId} />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.OBJECTOR_DETAILS_TITLE}</h1>
 
@@ -174,8 +173,7 @@ const ObjectorDetails: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

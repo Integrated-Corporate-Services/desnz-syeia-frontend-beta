@@ -250,8 +250,7 @@ const LandownerOccupantDetails: React.FC = () => {
   // Extra null checks for robustness
   return (
     <>
-            <main className="govuk-main-wrapper" id="main-content">
-    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 			<ol className="govuk-breadcrumbs__list">
 				<li className="govuk-breadcrumbs__list-item">
 					<Link
@@ -303,7 +302,7 @@ const LandownerOccupantDetails: React.FC = () => {
             </div>
             <div className={`govuk-form-group${errors.fullAddress ? ' govuk-form-group--error' : ''}`}>  
               <label className="govuk-label govuk-label--s" htmlFor="fullAddress">Address</label>
-              <div className="govuk-hint">Include postcode. If you don’t have the full address, give as much as possible.</div>
+              <div className="govuk-hint">Include postcode. If you donâ€™t have the full address, give as much as possible.</div>
               {errors.fullAddress && (
                 <p className="govuk-error-message" id="fullAddress-error">{errors.fullAddress}</p>
               )}
@@ -349,7 +348,7 @@ const LandownerOccupantDetails: React.FC = () => {
                 </div>
                 <div className={`govuk-form-group${errors.grantorRepAddress ? ' govuk-form-group--error' : ''}`}>  
                   <label className="govuk-label govuk-label--s" htmlFor="grantorRepAddress">Representative address</label>
-                  <div className="govuk-hint">Include postcode. If you don’t have the full address, give as much as possible.</div>
+                  <div className="govuk-hint">Include postcode. If you donâ€™t have the full address, give as much as possible.</div>
                   {errors.grantorRepAddress && (
                     <p className="govuk-error-message" id="grantorRepAddress-error">{errors.grantorRepAddress}</p>
                   )}
@@ -378,8 +377,7 @@ const LandownerOccupantDetails: React.FC = () => {
           </form>
         </div>
       </div>
-    </main>
-    </>
+        </>
   );
 };
 

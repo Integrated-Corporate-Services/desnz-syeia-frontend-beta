@@ -65,8 +65,7 @@ const RouteSummary: React.FC = () => {
                 </ol>
             </nav>
 
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <h1 className="govuk-heading-l">Route overview</h1>
                         {/* Warning banner */}
@@ -155,8 +154,7 @@ const RouteSummary: React.FC = () => {
                         </Link>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

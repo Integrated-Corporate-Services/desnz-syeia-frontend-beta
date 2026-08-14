@@ -89,8 +89,7 @@ const EmailTemplate: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-      <div className="govuk-grid-row">
+            <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
@@ -161,8 +160,7 @@ const EmailTemplate: React.FC = () => {
           </form>
         </div>
       </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

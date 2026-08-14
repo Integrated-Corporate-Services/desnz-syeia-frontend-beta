@@ -51,8 +51,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">
@@ -94,8 +93,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
             </p>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

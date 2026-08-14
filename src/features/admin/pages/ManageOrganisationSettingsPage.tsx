@@ -19,10 +19,8 @@ const ManageOrganisationSettingsPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <LoadingSkeleton type="summary" />
-          </main>
-        </div>
+                      <LoadingSkeleton type="summary" />
+                  </div>
       </>
     );
   }
@@ -31,8 +29,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-grid-row">
+                    <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <Link to="/admin/user-management" className="govuk-back-link">Back</Link>
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
@@ -45,8 +42,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
       </>
     );
   }
@@ -54,8 +50,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
   return (
     <>
             <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+                <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <Link to="/admin/user-management" className="govuk-back-link">Back</Link>
 
@@ -156,8 +151,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

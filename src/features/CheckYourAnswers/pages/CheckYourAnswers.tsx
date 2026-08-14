@@ -401,8 +401,7 @@ const CheckYourAnswers: React.FC = () => {
           </ol>
         </nav>
       )}
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        {validationError && (
+              {validationError && (
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"
             aria-labelledby="error-summary-title"
@@ -1990,8 +1989,8 @@ const CheckYourAnswers: React.FC = () => {
                           className="govuk-label govuk-checkboxes__label"
                           htmlFor="organisation"
                         >
-                          I confirm I’ve read and understood the information
-                          I’ve provided, and that it’s accurate to the best of
+                          I confirm Iâ€™ve read and understood the information
+                          Iâ€™ve provided, and that itâ€™s accurate to the best of
                           my knowledge.
                         </label>
                       </div>
@@ -2013,8 +2012,7 @@ const CheckYourAnswers: React.FC = () => {
             )}
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

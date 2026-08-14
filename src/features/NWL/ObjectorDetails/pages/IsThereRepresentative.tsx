@@ -77,8 +77,7 @@ const IsThereRepresentative: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {saveError && (
               <div className="govuk-error-summary" data-module="govuk-error-summary" tabIndex={-1} role="alert">
@@ -123,8 +122,7 @@ const IsThereRepresentative: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

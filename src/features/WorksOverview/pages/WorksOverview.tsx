@@ -300,8 +300,7 @@ const WorksOverview: React.FC = () => {
           </ol>
         </nav>
 
-        <main className="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content" role="main">
-          {(errors.length > 0 || fileValidationErrors.length > 0) && (
+                  {(errors.length > 0 || fileValidationErrors.length > 0) && (
             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
               <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
               <div className="govuk-error-summary__body">
@@ -426,8 +425,7 @@ const WorksOverview: React.FC = () => {
               <button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
             </div>
           </form>
-        </main>
-      </div>
+              </div>
     </>
   );
 };
