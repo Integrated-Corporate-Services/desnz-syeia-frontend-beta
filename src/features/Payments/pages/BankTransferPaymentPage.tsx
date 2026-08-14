@@ -11,7 +11,6 @@ import {
 } from '../../../constants/payment';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import SkipLink from '../../../components/SkipLink';
 
 const BankTransferPaymentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -129,8 +128,7 @@ const BankTransferPaymentPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">

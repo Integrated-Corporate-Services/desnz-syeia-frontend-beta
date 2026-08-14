@@ -4,7 +4,6 @@ import { FEEDBACK_PATH } from '../../../constants/routes';
 import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
 
 import { WithdrawApplicationBreadcrumbs } from '../components';
-import SkipLink from '../../../components/SkipLink';
 
 import { formatDate, getCaseTypeLabel, getReasonLabel } from '../utils';
 
@@ -26,8 +25,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <WithdrawApplicationBreadcrumbs
                 applicationType={applicationType}
                 applicationId={applicationId!}

@@ -11,7 +11,6 @@ import {
 } from "../constants/uploadImpliedWayleaveConstants";
 import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
-import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Upload Implied Wayleave Page
@@ -168,8 +167,7 @@ const UploadImpliedWayleave: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">

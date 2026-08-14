@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useNavigate } from 'react-router-dom';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import SkipLink from '../../../components/SkipLink';
 
 const ConsultationRequestSent: React.FC = () => {
   const navigate = useNavigate();
@@ -24,8 +23,7 @@ const ConsultationRequestSent: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">

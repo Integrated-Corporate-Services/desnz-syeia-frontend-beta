@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import SkipLink from '../../../../components/SkipLink';
 import { LABELS } from '../constants/objectorDetailsConstants';
 import { useObjectorDetailsData, useFormValidation, useObjectorNavigation } from '../hooks';
 import { ObjectorDetailsBreadcrumbs, ErrorSummary, PersonDetailsForm, FormActions } from '../components';
@@ -113,8 +112,7 @@ const ObjectorDetails: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <ObjectorDetailsBreadcrumbs appId={appId} />
 
       <main className="govuk-main-wrapper" id="main-content">

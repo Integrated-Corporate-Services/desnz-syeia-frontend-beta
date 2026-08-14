@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getPaymentStatus } from '../../../services/govPayService';
 import '../../../styles/govuk.scss';
-import SkipLink from '../../../components/SkipLink';
 
 export default function PaymentCallback() {
   const [status, setStatus] = useState('');
@@ -67,8 +66,7 @@ export default function PaymentCallback() {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper govuk-!-padding-top-6" id="main-content">
         {loading ? (
           <div className="govuk-body">Loading payment status...</div>

@@ -8,7 +8,6 @@ import { useParishes } from '../hooks/useParishes';
 import { useParishSubmit } from '../hooks/useParishSubmit';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import ParishesSummary from './ParishesSummary';
-import SkipLink from '../../../components/SkipLink';
 
 const Parishes: React.FC = () => {
     const params = useParams();
@@ -45,8 +44,7 @@ const Parishes: React.FC = () => {
     if (consultationsLoading) {
         return (
             <>
-                <SkipLink />
-                <div className="govuk-width-container">
+                                <div className="govuk-width-container">
                 <div className="govuk-main-wrapper">
                     <p className="govuk-body">Loading...</p>
                 </div>
@@ -62,8 +60,7 @@ const Parishes: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">

@@ -1,5 +1,4 @@
 import React from "react";
-import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation } from "../hooks";
 import {
@@ -20,8 +19,7 @@ const CannotContinueApplication: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-    <div className="govuk-width-container">
+          <div className="govuk-width-container">
       <a
         href="#"
         className="govuk-back-link"

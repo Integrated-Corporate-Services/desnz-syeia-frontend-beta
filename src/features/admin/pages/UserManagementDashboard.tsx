@@ -5,7 +5,6 @@ import { OrganisationsTab } from "../components/OrganisationsTab";
 import { ActiveUsersTab } from "../components/ActiveUsersTab";
 import { PendingRequestsTab } from "../components/PendingRequestsTab";
 import "../../../styles/DashboardMobile.css";
-import SkipLink from '../../../components/SkipLink';
 
 const UserManagementDashboard: React.FC = () => {
   const {
@@ -33,8 +32,7 @@ const UserManagementDashboard: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container user-management-dashboard">
+            <div className="govuk-width-container user-management-dashboard">
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">

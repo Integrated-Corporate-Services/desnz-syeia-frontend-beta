@@ -7,7 +7,6 @@ import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { CONTENT } from "../../../constants/content";
 import { applicationApiService } from "../../../services/applicationApiService";
 import { WITHDRAWAL_LABELS, BUTTON_LABELS } from "../constants/applicationSummaryLabels";
-import SkipLink from "../../../components/SkipLink";
 
 interface WithdrawalLocationState {
   desnzRef?: string;
@@ -160,8 +159,7 @@ const WithdrawApplicationPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <Link to={`${baseUrl}/${applicationId}/application-summary`} className="govuk-back-link">
         Back
       </Link>

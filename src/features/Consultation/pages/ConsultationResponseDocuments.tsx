@@ -11,7 +11,6 @@ import { validateDateComponents } from '../../../utils/validation';
 import { ConsultationType } from '../../../constants/consultationType';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
-import SkipLink from '../../../components/SkipLink';
 
 const ConsultationResponse2: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -241,8 +240,7 @@ const ConsultationResponse2: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

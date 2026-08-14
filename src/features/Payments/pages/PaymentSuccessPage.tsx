@@ -6,7 +6,6 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
 import { BANK_TRANSFER_SUCCESS_PAGE } from '../../../constants/payment';
-import SkipLink from '../../../components/SkipLink';
 
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
@@ -57,8 +56,7 @@ const PaymentSuccessPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

@@ -6,7 +6,6 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
-import SkipLink from '../../../components/SkipLink';
 
 /**
  * Assets Summary Page
@@ -55,8 +54,7 @@ const AssetSummary: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">

@@ -5,7 +5,6 @@ import {
   getCurrentUserDetails,
   updateCurrentUserAgencyName,
 } from '../services/yourDetailsService';
-import SkipLink from '../../../components/SkipLink';
 
 type FormErrors = {
   agencyName?: string;
@@ -106,8 +105,7 @@ const ChangeAgencyNamePage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <Link className="govuk-back-link" to="/your-details">
         Back
       </Link>

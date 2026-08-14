@@ -4,7 +4,6 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Link, useParams } from "react-router-dom";
-import SkipLink from '../../../../components/SkipLink';
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
@@ -92,8 +91,7 @@ const ApplicationLandDetails: React.FC = () => {
 
 	return (
 		<>
-			<SkipLink />
-			<main className="govuk-main-wrapper" id="main-content">
+						<main className="govuk-main-wrapper" id="main-content">
 				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 						<ol className="govuk-breadcrumbs__list">
 							<li className="govuk-breadcrumbs__list-item">

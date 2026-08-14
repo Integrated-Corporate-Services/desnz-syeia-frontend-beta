@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { S37_BASE_URL } from '../../../constants/s37';
-import SkipLink from '../../../components/SkipLink';
 
 const ReviewPolesPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
@@ -112,8 +111,7 @@ const ReviewPolesPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
 
       <a
         href="#"

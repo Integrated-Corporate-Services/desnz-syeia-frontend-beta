@@ -1,12 +1,10 @@
 
-import SkipLink from '../../components/SkipLink';
 import { buildBackendUrl } from '../../utils/apiConfig';
 
 const LandingPage = () => {
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <style>{`
         .govuk-link,
         .govuk-link:visited,

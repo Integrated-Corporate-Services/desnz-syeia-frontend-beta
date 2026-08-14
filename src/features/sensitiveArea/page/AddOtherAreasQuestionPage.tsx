@@ -3,7 +3,6 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
-import SkipLink from '../../../components/SkipLink';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -192,8 +191,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       {/* Back Link - Always visible */}
       <Link 
         to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`} 

@@ -8,7 +8,6 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { getCardPaymentDescription } from '../../../constants/payment';
-import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentFailurePage');
 
@@ -153,8 +152,7 @@ const PaymentFailurePage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">

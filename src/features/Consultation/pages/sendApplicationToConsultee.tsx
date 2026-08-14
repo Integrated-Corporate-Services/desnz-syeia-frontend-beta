@@ -6,7 +6,6 @@ import { sendNotificationEmail } from '../../../services/notifyService';
 import SummaryCard from '../../../components/SummaryCard';
 import Accordion from '../../../components/Accordion';
 import { useAuthUser } from "../../../hooks/useAuthUser";
-import SkipLink from '../../../components/SkipLink';
 
 const SendApplicationToConsultee: React.FC = () => {
   const location = useLocation();
@@ -135,8 +134,7 @@ const SendApplicationToConsultee: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
      <div className="govuk-grid-row">
              <div className="govuk-grid-column-two-thirds">
                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

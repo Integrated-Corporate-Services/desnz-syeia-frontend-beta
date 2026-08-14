@@ -10,7 +10,6 @@ import {
   POST_CONSULTATION_QUESTIONS,
 } from "../constants";
 import { SaveType } from "../types";
-import SkipLink from "../../../components/SkipLink";
 
 const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
   const { applicationId, getTaskListUrl, navigateAfterCompletion } = usePostConsultationNavigation();
@@ -41,8 +40,7 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
   if (loading) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
+                <div className="govuk-width-container">
           <main className="govuk-main-wrapper" id="main-content">
           <p className="govuk-body">
             {POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}
@@ -55,8 +53,7 @@ const PostConsultationConsulteesRecommendationsReason: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">

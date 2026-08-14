@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { getConsultationDetailsById, removeConsultation } from '../../../services/consultationService';
 import { ConsultationDetails } from '../../../types/ConsultationDetails';
-import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('RemoveConsultation');
@@ -69,8 +68,7 @@ const RemoveConsultation: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

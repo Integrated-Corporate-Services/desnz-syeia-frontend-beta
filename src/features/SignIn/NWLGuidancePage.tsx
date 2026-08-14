@@ -1,13 +1,11 @@
 
-import SkipLink from '../../components/SkipLink';
 import { buildBackendUrl } from '../../utils/apiConfig';
 
 const NWLGuidancePage = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <a
           href="/landingPage"
           className="govuk-back-link"

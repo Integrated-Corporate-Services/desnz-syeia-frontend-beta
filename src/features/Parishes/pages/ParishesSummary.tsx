@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useParishes } from '../hooks/useParishes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import SkipLink from '../../../components/SkipLink';
 
 /**
  * Read-only Parishes Summary Page
@@ -15,8 +14,7 @@ const ParishesSummary: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">

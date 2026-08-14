@@ -4,7 +4,6 @@ import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
-import SkipLink from "../../components/SkipLink";
 
 const logger = createLogger('AccessRequestIntroPage');
 
@@ -58,8 +57,7 @@ const AccessRequestIntroPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <Link to="/landingPage" className="govuk-back-link">
         Back
       </Link>

@@ -4,7 +4,6 @@ import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import { getCurrentUserDetails, UserDetailsResponse } from '../services/yourDetailsService';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import { ROLES } from '../../../constants/roles';
-import SkipLink from '../../../components/SkipLink';
 
 const YourDetailsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -63,8 +62,7 @@ const YourDetailsPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <a href="#" className="govuk-back-link" onClick={handleBack}>
         Back
       </a>

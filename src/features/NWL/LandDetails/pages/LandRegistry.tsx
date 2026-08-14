@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
-import SkipLink from '../../../../components/SkipLink';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -72,8 +71,7 @@ const LandRegistry: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <LandDetailsBreadcrumbs 
           applicationId={applicationId} 
           currentPage={labels.QUESTION_PAGE_TITLE}

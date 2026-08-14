@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useTeamCoordinators, useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
-import SkipLink from '../../../components/SkipLink';
 
 const TeamCoordinatorsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -21,8 +20,7 @@ const TeamCoordinatorsPage: React.FC = () => {
   if (loading) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
+                <div className="govuk-width-container">
           <main className="govuk-main-wrapper" id="main-content" role="main">
             <LoadingSkeleton type="table" />
           </main>
@@ -34,8 +32,7 @@ const TeamCoordinatorsPage: React.FC = () => {
   if (error) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
+                <div className="govuk-width-container">
           <main className="govuk-main-wrapper" id="main-content" role="main">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
@@ -60,8 +57,7 @@ const TeamCoordinatorsPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">

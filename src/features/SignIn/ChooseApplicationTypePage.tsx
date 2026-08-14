@@ -4,7 +4,6 @@ import ErrorSummary from '../../components/commonFormFields/ErrorSummary';
 import { RadioGroup } from './components/RadioGroup';
 import { useApplicationTypeSelection } from './hooks/useApplicationTypeSelection';
 import { trackButtonClick } from '../../utils/analytics';
-import SkipLink from '../../components/SkipLink';
 
 import { APPLICATION_TYPE_OPTIONS } from './constants/applicationTypeOptions';
 import { getDisabledFormTypes } from '../../utils/disabledFormTypes';
@@ -32,8 +31,7 @@ const ChooseApplicationTypePage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         <ErrorSummary errors={errors} />
 

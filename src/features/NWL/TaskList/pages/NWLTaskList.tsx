@@ -1,11 +1,10 @@
-﻿import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes';
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
-import SkipLink from '../../../../components/SkipLink';
 
 const NWLTaskList: React.FC = () => {
 	const params = useParams();
@@ -96,8 +95,7 @@ const NWLTaskList: React.FC = () => {
 
 	return (
 		<>
-			<SkipLink />
-			<div className="govuk-width-container">
+						<div className="govuk-width-container">
 			<main className="govuk-main-wrapper" id="main-content">
 				<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">

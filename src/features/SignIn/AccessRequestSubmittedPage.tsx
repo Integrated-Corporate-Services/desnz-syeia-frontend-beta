@@ -5,7 +5,6 @@ import { useAccessRequestContext } from "../../context/AccessRequestContext";
 import { logout } from "../../services/authService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
-import SkipLink from "../../components/SkipLink";
 
 const logger = createLogger('AccessRequestSubmittedPage');
 
@@ -42,8 +41,7 @@ const AccessRequestSubmittedPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       
         <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">

@@ -7,7 +7,6 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { validateDateComponents } from '../../../utils/validation';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
-import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('ConsultationRequestPage');
@@ -230,8 +229,7 @@ const ConsultationRequestPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

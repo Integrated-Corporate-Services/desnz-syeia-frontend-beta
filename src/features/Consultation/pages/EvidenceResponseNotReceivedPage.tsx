@@ -12,7 +12,6 @@ import { saveConsultationResponse } from '../../../services/consultationResponse
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('EvidenceResponseNotReceivedPage');
 
@@ -302,8 +301,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 {/* Breadcrumbs */}
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

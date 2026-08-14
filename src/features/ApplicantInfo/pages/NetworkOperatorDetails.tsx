@@ -18,7 +18,6 @@ import {
   BREADCRUMBS,
   FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
-import SkipLink from "../../../components/SkipLink";
 
 /**
  * Network Operator Details Page
@@ -206,8 +205,7 @@ const NetworkOperatorDetails: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">

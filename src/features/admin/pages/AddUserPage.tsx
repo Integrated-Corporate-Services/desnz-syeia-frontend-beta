@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAddUser, useAddUserNavigation } from '../../../hooks';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
-import SkipLink from '../../../components/SkipLink';
 import {
   AddUserPersonalDetails,
   AddUserAdditionalDetails,
@@ -57,8 +56,7 @@ const AddUserPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
 
         <a

@@ -10,7 +10,6 @@ import { createLogger } from '../../../utils/logger';
 import { trackPaymentEvent } from '../../../utils/analytics';
 import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
 import { getCardPaymentDescription } from '../../../constants/payment';
-import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('PaymentMethodPage');
 
@@ -168,8 +167,7 @@ const handlePayByCard = async () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">

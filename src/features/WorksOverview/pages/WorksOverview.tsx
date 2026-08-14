@@ -11,7 +11,6 @@ import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../.
 import { WORKS_OVERVIEW_LABELS } from '../../../constants/worksOverviewLabels';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
-import SkipLink from '../../../components/SkipLink';
 import {
   validateWorksOverviewForm,
   getFieldErrorMessage,
@@ -291,8 +290,7 @@ const WorksOverview: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">

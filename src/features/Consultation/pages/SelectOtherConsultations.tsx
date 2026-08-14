@@ -9,7 +9,6 @@ import { progressApiService } from '../../../services/progressApiService';
 import log from '../../../logger';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { isWithinCharacterLimit } from '../../../utils/validation';
-import SkipLink from '../../../components/SkipLink';
 
 const OTHER_NAME_MAX_LENGTH = 4000;
 
@@ -199,8 +198,7 @@ const SelectOtherConsultations: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

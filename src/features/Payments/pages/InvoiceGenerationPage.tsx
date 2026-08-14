@@ -7,7 +7,6 @@ import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('InvoiceGenerationPage');
 
@@ -372,8 +371,7 @@ const InvoiceGenerationPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" aria-busy={loading}>
         {/* <div className="govuk-grid-row"> */}
           {/* <div className="govuk-grid-column-two-thirds"> */}

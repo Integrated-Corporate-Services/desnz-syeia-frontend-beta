@@ -8,7 +8,6 @@ import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
-import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('ReviewDocumentsPage');
 
@@ -221,8 +220,7 @@ const ReviewDocumentsPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <main className="govuk-main-wrapper govuk-!-padding-top-2">
+            <main className="govuk-main-wrapper govuk-!-padding-top-2">
      {/* <div className="govuk-width-container"> */}
       <a
         href="#"

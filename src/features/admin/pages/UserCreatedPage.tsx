@@ -1,7 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAddUserNavigation } from '../../../hooks';
-import SkipLink from '../../../components/SkipLink';
 
 const UserCreatedPage: React.FC = () => {
   const location = useLocation();
@@ -19,8 +18,7 @@ const UserCreatedPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
 
         {/* TRUE PAGE HEADING for accessibility */}

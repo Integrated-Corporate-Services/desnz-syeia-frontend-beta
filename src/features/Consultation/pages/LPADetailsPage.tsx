@@ -7,7 +7,6 @@ import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpa
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { isWithinCharacterLimit } from '../../../utils/validation';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
 
 const log = createLogger('LPADetailsPage');
 
@@ -152,8 +151,7 @@ const LPADetailsPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 {/* Breadcrumbs */}
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

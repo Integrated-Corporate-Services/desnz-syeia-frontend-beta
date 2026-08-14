@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
-import SkipLink from "../../components/SkipLink";
 
 const CompanyNamePage: React.FC = () => {
   const navigate = useNavigate();
@@ -57,8 +56,7 @@ const CompanyNamePage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <Link
           to="/request-access/agent-question"
           className="govuk-back-link"

@@ -10,7 +10,6 @@ import {
     ApplicationSummaryBreadcrumbs,
     ApplicationSummaryContent,
 } from '../components';
-import SkipLink from '../../../components/SkipLink';
 
 export const ApplicationSummaryPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -62,8 +61,7 @@ export const ApplicationSummaryPage: React.FC = () => {
     if (loading) {
         return (
             <>
-                <SkipLink />
-                <div className="govuk-width-container">
+                                <div className="govuk-width-container">
                 {isNWL ? (
                     <ApplicationSummaryBreadcrumbs
                         applicationType="NWL"
@@ -83,8 +81,7 @@ export const ApplicationSummaryPage: React.FC = () => {
     if (error || !data) {
         return (
             <>
-                <SkipLink />
-                <div className="govuk-width-container">
+                                <div className="govuk-width-container">
                 {isNWL ? (
                     <ApplicationSummaryBreadcrumbs
                         applicationType="NWL"
@@ -112,8 +109,7 @@ export const ApplicationSummaryPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             {isNWL ? (
                 <ApplicationSummaryBreadcrumbs
                     applicationType="NWL"

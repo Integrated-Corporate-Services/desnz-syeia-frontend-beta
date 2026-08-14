@@ -9,7 +9,6 @@ import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { createLogger } from '../../../../utils/logger';
 import { nwlAssetService } from '../services/nwlAssetService';
-import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('ProvideApplicationPlan');
 
@@ -156,8 +155,7 @@ const ProvideApplicationPlan: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <main className="govuk-main-wrapper" id="main-content">
+            <main className="govuk-main-wrapper" id="main-content">
       {/* Breadcrumbs */}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

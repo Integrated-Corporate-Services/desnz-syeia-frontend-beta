@@ -8,7 +8,6 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('BankTransferConfirmationPage');
 
@@ -308,8 +307,7 @@ const BankTransferConfirmationPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">

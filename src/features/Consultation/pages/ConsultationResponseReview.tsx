@@ -7,7 +7,6 @@ import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { ConsultationType } from '../../../constants/consultationType';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
-import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('ConsultationResponseReview');
@@ -110,8 +109,7 @@ const ConsultationResponse3: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

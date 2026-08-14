@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
-import SkipLink from '../../../../components/SkipLink';
 import { 
   LandDetailsBreadcrumbs, 
   AddressFormFields, 
@@ -97,8 +96,7 @@ const SiteAddress: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <LandDetailsBreadcrumbs 
         applicationId={applicationId} 
         currentPage={LAND_DETAILS_LABELS.SITE_ADDRESS.PAGE_TITLE}

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import logger from "../../../../logger";
-import SkipLink from "../../../../components/SkipLink";
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -251,8 +250,7 @@ const LandownerOccupantDetails: React.FC = () => {
   // Extra null checks for robustness
   return (
     <>
-      <SkipLink />
-      <main className="govuk-main-wrapper" id="main-content">
+            <main className="govuk-main-wrapper" id="main-content">
     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 			<ol className="govuk-breadcrumbs__list">
 				<li className="govuk-breadcrumbs__list-item">

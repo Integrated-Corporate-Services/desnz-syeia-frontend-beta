@@ -18,7 +18,6 @@ import {
 import { patchNegotiationsData } from '../services';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import { createLogger } from '../../../../utils/logger';
-import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('WhyNoNegotiations');
 
@@ -178,8 +177,7 @@ const WhyNoNegotiations: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 
       <main className="govuk-main-wrapper" id="main-content">

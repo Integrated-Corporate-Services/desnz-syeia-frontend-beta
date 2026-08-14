@@ -6,7 +6,6 @@ import { getConsultationPack } from '../../../services/consultationPackService';
 import { getFormMetadata, downloadConsultationForm } from '../../../services/consultationFormMetadataService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
 
 const log = createLogger('DownloadLpaConsultationFormPage');
 
@@ -181,8 +180,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         {/* Breadcrumbs */}
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

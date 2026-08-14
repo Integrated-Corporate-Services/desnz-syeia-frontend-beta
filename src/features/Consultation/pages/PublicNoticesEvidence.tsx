@@ -9,7 +9,6 @@ import { saveConsultationRequest, getConsultationRequest } from '../../../servic
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
-import SkipLink from '../../../components/SkipLink';
 
 interface FormErrors {
   firstDate?: string;
@@ -256,8 +255,7 @@ const PublicNoticesEvidence: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">

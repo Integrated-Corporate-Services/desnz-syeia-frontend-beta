@@ -22,7 +22,6 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
-import SkipLink from '../../../../components/SkipLink';
 
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 
@@ -145,8 +144,7 @@ const ImportantInformationDetails: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <AdditionalInformationBreadcrumbs 
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.IMPORTANT_INFORMATION_DETAILS}

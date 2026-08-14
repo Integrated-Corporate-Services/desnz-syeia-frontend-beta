@@ -9,7 +9,6 @@ import { getApplicationTypeFromLocation } from '../utils';
 import { submitWithdrawal, getWithdrawalReasons } from '../services';
 
 import { WithdrawApplicationBreadcrumbs, WithdrawalWarning } from '../components';
-import SkipLink from '../../../components/SkipLink';
 
 import { validateWithdrawalForm, getRemainingCharacters } from '../utils';
 import { clearFieldError as removeFieldError } from '../validations';
@@ -88,8 +87,7 @@ const WithdrawApplicationPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <div className="govuk-width-container">
             <WithdrawApplicationBreadcrumbs
                 applicationType={applicationType}
                 applicationId={applicationId!}

@@ -5,7 +5,6 @@ import {
   OrganisationOption,
   submitCurrentUserOrganisationRequest,
 } from '../services/yourDetailsService';
-import SkipLink from '../../../components/SkipLink';
 
 type FormErrors = {
   organisationIds?: string;
@@ -126,8 +125,7 @@ const ChangeOrganisationsPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <Link className="govuk-back-link" to="/your-details">
           Back

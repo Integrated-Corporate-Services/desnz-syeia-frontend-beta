@@ -23,7 +23,6 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { createLogger } from '../../../../utils/logger';
-import SkipLink from '../../../../components/SkipLink';
 
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 
@@ -219,8 +218,7 @@ const EvidenceOfNegotiations: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 
       <main className="govuk-main-wrapper" id="main-content">

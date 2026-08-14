@@ -12,7 +12,6 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
 import { trackButtonClick } from '../../../utils/analytics';
-import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('BankTransferSuccessPage');
 
@@ -60,8 +59,7 @@ const BankTransferSuccessPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">

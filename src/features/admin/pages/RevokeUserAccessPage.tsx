@@ -4,7 +4,6 @@ import { useManageUsers } from '../../../hooks/useManageUsers';
 import { useManageUsersNavigation } from '../../../hooks/useManageUsersNavigation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
-import SkipLink from '../../../components/SkipLink';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -30,8 +29,7 @@ const RevokeUserAccessPage: React.FC = () => {
   if (loading) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
+                <div className="govuk-width-container">
           <main className="govuk-main-wrapper" id="main-content" role="main">
             <LoadingSkeleton type="default" />
           </main>
@@ -64,8 +62,7 @@ const RevokeUserAccessPage: React.FC = () => {
   if (!user) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
+                <div className="govuk-width-container">
           <main className="govuk-main-wrapper" id="main-content" role="main">
             <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
               <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -90,8 +87,7 @@ const RevokeUserAccessPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <a
           href="#"

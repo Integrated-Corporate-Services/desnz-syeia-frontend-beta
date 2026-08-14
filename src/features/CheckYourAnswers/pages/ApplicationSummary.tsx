@@ -1,4 +1,4 @@
-ï»¿import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { ConsultationType } from "../../../constants/consultationType";
@@ -28,7 +28,6 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
-import SkipLink from "../../../components/SkipLink";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
 
 import {
@@ -466,8 +465,7 @@ const ApplicationSummary: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">
           Back
@@ -1916,8 +1914,8 @@ const ApplicationSummary: React.FC = () => {
                           className="govuk-label govuk-checkboxes__label"
                           htmlFor="organisation"
                         >
-                          I confirm Iâ€™ve read and understood the information
-                          Iâ€™ve provided, and that itâ€™s accurate to the best of
+                          I confirm I’ve read and understood the information
+                          I’ve provided, and that it’s accurate to the best of
                           my knowledge.
                         </label>
                       </div>

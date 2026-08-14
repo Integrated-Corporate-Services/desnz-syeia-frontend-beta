@@ -4,7 +4,6 @@ import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom"
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { getConsultationPack } from "../../../services/consultationPackService";
 import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService";
-import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('ConsultationRequestNotSent'); 
@@ -140,8 +139,7 @@ const handleSaveAndContinue = async () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
