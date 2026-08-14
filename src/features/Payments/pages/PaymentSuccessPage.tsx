@@ -9,6 +9,28 @@ import { BANK_TRANSFER_SUCCESS_PAGE, formatCurrency } from '../../../constants/p
 import SkipLink from '../../../components/SkipLink';
 import { usePdfDownload } from '../../ApplicationSummary/hooks';
 
+const CARD_PAYMENT_SUCCESS_CONTENT = {
+  PANEL_TITLE: 'Application submitted',
+  APPLICATION_NUMBER_TEXT: 'Your application number is',
+  LOADING_TEXT: 'Loading...',
+  NOT_AVAILABLE_TEXT: 'N/A',
+  PAYMENT_SUMMARY_HEADING: 'Payment Summary',
+  SUMMARY_LABELS: {
+    REFERENCE_NUMBER: 'Reference number',
+    INVOICE_NUMBER: 'Invoice number',
+    TOTAL_AMOUNT: 'Total amount',
+    PAYMENT_STATUS: 'Payment status',
+  },
+  PAYMENT_STATUS_PAID: 'Paid',
+  DOWNLOAD_HEADING: 'Download and share a copy of your application',
+  DOWNLOAD_INFO:
+    'You need to share a copy of this application with the objector or their representative within 7 days of submitting it.',
+  WHAT_HAPPENS_NEXT_HEADING: 'What happens next',
+  EMAIL_CONFIRMATION: 'You will receive an email to confirm your application has been submitted.',
+  INVOICE_INFO: 'You can find your invoice in the application summary.',
+  VIEW_APPLICATION_SUMMARY: 'View application summary',
+} as const;
+
 interface PaymentSuccessState {
   invoiceNumber?: string;
   paymentId?: string;
@@ -89,13 +111,13 @@ const PaymentSuccessPage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
-              <h1 className="govuk-panel__title">{BANK_TRANSFER_SUCCESS_PAGE.PANEL_TITLE}</h1>
+              <h1 className="govuk-panel__title">{CARD_PAYMENT_SUCCESS_CONTENT.PANEL_TITLE}</h1>
               <div className="govuk-panel__body">
-                {BANK_TRANSFER_SUCCESS_PAGE.APPLICATION_NUMBER_TEXT}<br />
+                {CARD_PAYMENT_SUCCESS_CONTENT.APPLICATION_NUMBER_TEXT}<br />
                 <strong>
                   {loading
-                    ? BANK_TRANSFER_SUCCESS_PAGE.LOADING_TEXT
-                    : desnz_ref || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT}
+                    ? CARD_PAYMENT_SUCCESS_CONTENT.LOADING_TEXT
+                    : desnz_ref || CARD_PAYMENT_SUCCESS_CONTENT.NOT_AVAILABLE_TEXT}
                 </strong>
               </div>
             </div>
@@ -109,43 +131,39 @@ const PaymentSuccessPage: React.FC = () => {
               </div>
             )}
 
-            <h2 className="govuk-heading-m">Payment Summary</h2>
+            <h2 className="govuk-heading-m">{CARD_PAYMENT_SUCCESS_CONTENT.PAYMENT_SUMMARY_HEADING}</h2>
             
             <table className="govuk-table">
               <tbody className="govuk-table__body">
                 <tr className="govuk-table__row">
-                  <th scope="row" className="govuk-table__header">Reference number</th>
+                  <th scope="row" className="govuk-table__header">{CARD_PAYMENT_SUCCESS_CONTENT.SUMMARY_LABELS.REFERENCE_NUMBER}</th>
                   <td className="govuk-table__cell">{reference || paymentId || 'N/A'}</td>
                 </tr>
                 <tr className="govuk-table__row">
-                  <th scope="row" className="govuk-table__header">Invoice number</th>
+                  <th scope="row" className="govuk-table__header">{CARD_PAYMENT_SUCCESS_CONTENT.SUMMARY_LABELS.INVOICE_NUMBER}</th>
                   <td className="govuk-table__cell">{invoiceNumber || 'N/A'}</td>
                 </tr>
                 <tr className="govuk-table__row">
-                  <th scope="row" className="govuk-table__header">Total amount</th>
+                  <th scope="row" className="govuk-table__header">{CARD_PAYMENT_SUCCESS_CONTENT.SUMMARY_LABELS.TOTAL_AMOUNT}</th>
                   <td className="govuk-table__cell">
                     {typeof totalAmount === 'number' ? formatCurrency(totalAmount) : 'N/A'}
                   </td>
                 </tr>
                 <tr className="govuk-table__row">
-                  <th scope="row" className="govuk-table__header">Application status</th>
-                  <td className="govuk-table__cell">{BANK_TRANSFER_SUCCESS_PAGE.APPLICATION_STATUS_PROCESSING}</td>
+                  <th scope="row" className="govuk-table__header">{CARD_PAYMENT_SUCCESS_CONTENT.SUMMARY_LABELS.PAYMENT_STATUS}</th>
+                  <td className="govuk-table__cell">{CARD_PAYMENT_SUCCESS_CONTENT.PAYMENT_STATUS_PAID}</td>
                 </tr>
               </tbody>
             </table>
 
-            <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.PROCESSING_STATUS_INFO}</p>
-
             {isNwlRoute && (
               <>
                 <h2 className="govuk-heading-m govuk-!-margin-top-6">
-                  Download your application
+                  {CARD_PAYMENT_SUCCESS_CONTENT.DOWNLOAD_HEADING}
                 </h2>
 
                 <p className="govuk-body">
-                  You need to share a copy of this application with the relevant landowner,
-                  occupier or representative within 7 days of submitting it. Download it now to
-                  save it or send it on.
+                  {CARD_PAYMENT_SUCCESS_CONTENT.DOWNLOAD_INFO}
                 </p>
 
                 {pdfError && (
@@ -185,15 +203,11 @@ const PaymentSuccessPage: React.FC = () => {
                   >
                     {isDownloadingPackage
                       ? 'Downloading ZIP...'
-                      : 'Download your application and documents (ZIP)'}
+                      : packageSizeLabel
+                        ? `Download your application and attached documents (ZIP, ${packageSizeLabel})`
+                        : 'Download your application and attached documents (ZIP)'}
                   </button>
                 </div>
-
-                <p className="govuk-body govuk-!-margin-top-0 govuk-!-margin-bottom-6">
-                  {packageSizeLabel
-                    ? `ZIP, about ${packageSizeLabel}. Includes your completed application form as a PDF and every document you uploaded.`
-                    : 'ZIP file. Includes your completed application form as a PDF and every document you uploaded.'}
-                </p>
 
                 <p className="govuk-body">
                   <a
@@ -211,16 +225,17 @@ const PaymentSuccessPage: React.FC = () => {
                       opacity: isDownloading ? 0.5 : 1,
                     }}
                   >
-                    {isDownloading ? 'Downloading...' : 'Download the application form only (PDF)'}
+                    {isDownloading ? 'Downloading...' : 'Download the application summary only (PDF)'}
                   </a>
                 </p>
               </>
             )}
 
-            <h2 className="govuk-heading-m">What happens next</h2>
+            <h2 className="govuk-heading-m">{CARD_PAYMENT_SUCCESS_CONTENT.WHAT_HAPPENS_NEXT_HEADING}</h2>
             <p className="govuk-body">
-              You will receive an email to confirm your application has been submitted.
+              {CARD_PAYMENT_SUCCESS_CONTENT.EMAIL_CONFIRMATION}
             </p>
+            <p className="govuk-body">{CARD_PAYMENT_SUCCESS_CONTENT.INVOICE_INFO}</p>
             <p className="govuk-body">
               {baseUrl === NWL_BASE_URL
                 ? BANK_TRANSFER_SUCCESS_PAGE.FOLLOW_UP_INFO_NWL
@@ -239,7 +254,7 @@ const PaymentSuccessPage: React.FC = () => {
                   });
                 }}
               >
-                View application summary
+                {CARD_PAYMENT_SUCCESS_CONTENT.VIEW_APPLICATION_SUMMARY}
               </Link>
             </div>
           </div>
