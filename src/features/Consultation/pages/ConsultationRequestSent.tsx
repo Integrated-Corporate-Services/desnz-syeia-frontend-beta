@@ -1,17 +1,25 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useNavigate } from 'react-router-dom';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import SkipLink from '../../../components/SkipLink';
 
+const CONFIRMATION_HEADING = 'Your consultation request has been sent';
+
 const ConsultationRequestSent: React.FC = () => {
   const navigate = useNavigate();
   // Get applicationId from query params or state
   const applicationId = useGetApplicationId();
+  const [statusAnnouncement, setStatusAnnouncement] = useState('');
 
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = `${CONFIRMATION_HEADING} - GOV.UK`;
+    const frame = window.requestAnimationFrame(() => {
+      setStatusAnnouncement(CONFIRMATION_HEADING);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const handleBack = () => {
@@ -29,8 +37,11 @@ const ConsultationRequestSent: React.FC = () => {
       <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
+            <div className="govuk-visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+              {statusAnnouncement}
+            </div>
             <div className="govuk-panel govuk-panel--confirmation" style={{ marginTop: 40 }}>
-              <h1 className="govuk-panel__title">Your consultation request has been sent</h1>
+              <h1 className="govuk-panel__title">{CONFIRMATION_HEADING}</h1>
             </div>
             <div className="govuk-body" style={{ marginTop: 32 }}>
               <h2>What happens next</h2>

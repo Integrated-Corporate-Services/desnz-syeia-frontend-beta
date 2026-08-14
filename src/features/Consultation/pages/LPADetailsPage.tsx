@@ -176,7 +176,7 @@ const LPADetailsPage: React.FC = () => {
 
                 {/* Error Summary */}
                 {submitted && Object.values(errors).some(Boolean) && (
-                    <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+                    <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-live="assertive" aria-atomic="true" aria-labelledby="error-summary-title" tabIndex={-1}>
                         <h2 className="govuk-error-summary__title" id="error-summary-title">
                             There is a problem
                         </h2>

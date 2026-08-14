@@ -99,6 +99,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
   const [rejectedFiles, setRejectedFiles] = useState<RejectedFile[]>([]); // Infected/failed-scan files - kept visible so the user can delete them
   const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [statusMessage, setStatusMessage] = useState<string>("");
 
   const files = internalFiles;
 
@@ -223,6 +224,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         // Store files for later upload
         const newPendingFiles = [...pendingFiles, ...result.validFiles];
         setPendingFiles(newPendingFiles);
+        setStatusMessage(
+          `${result.validFiles.length} ${result.validFiles.length === 1 ? "file" : "files"} ready to upload.`
+        );
         logger.info('Files validated and queued for upload on form submission', {
           newFilesCount: result.validFiles.length,
           totalPendingCount: newPendingFiles.length
@@ -306,6 +310,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         // Store files for later upload
         const newPendingFiles = [...pendingFiles, ...result.validFiles];
         setPendingFiles(newPendingFiles);
+        setStatusMessage(
+          `${result.validFiles.length} ${result.validFiles.length === 1 ? "file" : "files"} ready to upload.`
+        );
         logger.info('Files dropped, validated and queued for upload on form submission', {
           newFilesCount: result.validFiles.length,
           totalPendingCount: newPendingFiles.length
@@ -329,6 +336,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     }
     setIsScanning(true);
+    setStatusMessage("Scanning files for viruses. Please wait.");
 
     try {
       const fileMetas = uploadFiles.map((f) => ({
@@ -483,8 +491,20 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
+
+      if (scanErrors.length > 0 && uploadedFiles.length === 0) {
+        setStatusMessage("");
+      } else if (uploadedFiles.length > 0) {
+        setStatusMessage(
+          `${uploadedFiles.length} ${uploadedFiles.length === 1 ? "file" : "files"} uploaded.`
+        );
+      } else {
+        setStatusMessage("");
+      }
+
       return { uploadedFiles, applicationDocuments, scanErrors };
     } catch (err) {
+      setStatusMessage("File upload failed. Try again.");
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     } finally {
       setIsScanning(false);
@@ -562,165 +582,142 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   };
 
   return (
-    <div className="gds-upload-container" tabIndex={-1}>
+    <div className="gds-upload-container" tabIndex={-1} aria-busy={isScanning}>
+      <div className="govuk-visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        {statusMessage}
+      </div>
+
+      {isScanning && (
+        <p className="govuk-body">
+          Scanning files for viruses. Please wait.
+        </p>
+      )}
+
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
-          <table className="govuk-table">
-            <caption className="govuk-visually-hidden">Documents uploaded</caption>
-            <thead className="govuk-table__head">
-              <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
-              </tr>
-            </thead>
-            <tbody className="govuk-table__body">
-              {uploadedFiles.map((file: UploadedFile, idx: number) => (
-                <tr key={file.id} className="govuk-table__row">
-                  <td className="govuk-table__cell">
-                    <a
-                      href="#"
-                      className="govuk-link"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (file.s3Key) {
-                          try {
-                            await downloadS3FileOnSameTab(file.s3Key, file.id, applicationId);
-                          } catch (error) {
-                            logger.error('Failed to download file', {
-                              s3Key: file.s3Key,
-                              filename: file.filename,
-                              error
-                            });
-                          }
+          <h3 className="govuk-visually-hidden">Documents uploaded</h3>
+          <ul className="gds-upload-list govuk-list">
+            {uploadedFiles.map((file: UploadedFile, idx: number) => {
+              const displayName = file.filename ? file.filename.split("/").pop() : "";
+              return (
+                <li key={file.id} className="gds-upload-file-row">
+                  <a
+                    href="#"
+                    className="govuk-link gds-upload-file-link"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      if (file.s3Key) {
+                        try {
+                          await downloadS3FileOnSameTab(file.s3Key, file.id, applicationId);
+                        } catch (error) {
+                          logger.error('Failed to download file', {
+                            s3Key: file.s3Key,
+                            filename: file.filename,
+                            error
+                          });
                         }
-                      }}
-                    >
-                      {file.filename ? file.filename.split("/").pop() : ""}
-                    </a>
-                  </td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">
-                    <a
-                      href="#"
-                      className="govuk-link"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (onDeleteFile) {
-                          await handleDeleteFile(file.id, file.s3Key);
-                        } else if (onRemoveFile) {
-                          onRemoveFile(idx);
-                        }
-                      }}
-                    >
-                      Delete
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      }
+                    }}
+                  >
+                    {displayName}
+                  </a>
+                  <button
+                    type="button"
+                    className="gds-upload-remove"
+                    onClick={async () => {
+                      if (onDeleteFile) {
+                        await handleDeleteFile(file.id, file.s3Key);
+                      } else if (onRemoveFile) {
+                        onRemoveFile(idx);
+                      }
+                    }}
+                  >
+                    Delete<span className="govuk-visually-hidden"> {displayName}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
 
       {rejectedFiles.length > 0 && (
-        <div className="govuk-!-margin-bottom-6" role="status" aria-live="polite">
-          <table className="govuk-table">
-            <caption className="govuk-visually-hidden">Files that failed the virus scan</caption>
-            <thead className="govuk-table__head">
-              <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
-                <th scope="col" className="govuk-table__header govuk-visually-hidden">Status</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
-              </tr>
-            </thead>
-            <tbody className="govuk-table__body">
-              {rejectedFiles.map((file) => (
-                <tr key={file.id} className="govuk-table__row">
-                  <td className="govuk-table__cell">
-                    <span>{file.filename ? file.filename.split("/").pop() : ""}</span>
-                  </td>
-                  <td className="govuk-table__cell">
-                    <strong className="govuk-tag govuk-tag--red">
-                      {file.reason === 'INFECTED' ? 'Infected' : 'Scan failed'}
-                    </strong>
-                  </td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">
-                    <a
-                      href="#"
-                      className="govuk-link"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        await handleDeleteRejectedFile(file.id, file.s3Key);
-                      }}
-                    >
-                      Delete<span className="govuk-visually-hidden"> {file.filename ? file.filename.split("/").pop() : "file"}</span>
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="govuk-!-margin-bottom-6">
+          <h3 className="govuk-visually-hidden">Files that failed the virus scan</h3>
+          <ul className="gds-upload-list govuk-list">
+            {rejectedFiles.map((file) => {
+              const displayName = file.filename ? file.filename.split("/").pop() : "";
+              return (
+                <li key={file.id} className="gds-upload-file-row">
+                  <span className="gds-upload-file-link">{displayName}</span>
+                  <strong className="govuk-tag govuk-tag--red">
+                    {file.reason === 'INFECTED' ? 'Infected' : 'Scan failed'}
+                  </strong>
+                  <button
+                    type="button"
+                    className="gds-upload-remove"
+                    onClick={async () => {
+                      await handleDeleteRejectedFile(file.id, file.s3Key);
+                    }}
+                  >
+                    Delete<span className="govuk-visually-hidden"> {displayName || "file"}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
 
       {/* Pending Files Section - Show files waiting to be uploaded */}
       {pendingFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
-          <table className="govuk-table">
-            <caption className="govuk-visually-hidden">Files to be uploaded</caption>
-            <thead className="govuk-table__head">
-              <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
-              </tr>
-            </thead>
-            <tbody className="govuk-table__body">
-              {pendingFiles.map((file: File, idx: number) => (
-                <tr key={`pending-${idx}`} className="govuk-table__row">
-                  <td className="govuk-table__cell">
-                    <a
-                      href="#"
-                      className="govuk-link"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // Create a blob URL and open in new tab for viewing
-                        const blobUrl = URL.createObjectURL(file);
-                        const link = document.createElement('a');
-                        link.href = blobUrl;
-                        link.target = '_blank';
-                        link.click();
-                        // Clean up the blob URL after a delay
-                        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-                      }}
-                    >
-                      {file.name}
-                    </a>
-                  </td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">
-                    <a
-                      href="#"
-                      className="govuk-link"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
-                        setPendingFiles(updatedPendingFiles);
+          <h3 className="govuk-visually-hidden">Files to be uploaded</h3>
+          <ul className="gds-upload-list govuk-list">
+            {pendingFiles.map((file: File, idx: number) => (
+              <li key={`pending-${idx}`} className="gds-upload-file-row">
+                <a
+                  href="#"
+                  className="govuk-link gds-upload-file-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const blobUrl = URL.createObjectURL(file);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.target = '_blank';
+                    link.click();
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                  }}
+                >
+                  {file.name}
+                </a>
+                <button
+                  type="button"
+                  className="gds-upload-remove"
+                  onClick={() => {
+                    const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
+                    setPendingFiles(updatedPendingFiles);
+                    setStatusMessage(
+                      updatedPendingFiles.length === 0
+                        ? "File removed."
+                        : `${updatedPendingFiles.length} ${updatedPendingFiles.length === 1 ? "file" : "files"} ready to upload.`
+                    );
 
-                        if (onValidationErrors) {
-                          onValidationErrors([]);
-                        }
+                    if (onValidationErrors) {
+                      onValidationErrors([]);
+                    }
 
-                        if (onPendingFilesChange) {
-                          onPendingFilesChange(updatedPendingFiles);
-                        }
-                      }}
-                    >
-                      Remove
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    if (onPendingFilesChange) {
+                      onPendingFilesChange(updatedPendingFiles);
+                    }
+                  }}
+                >
+                  Remove<span className="govuk-visually-hidden"> {file.name}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

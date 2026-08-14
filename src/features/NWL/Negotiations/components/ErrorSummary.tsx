@@ -16,6 +16,8 @@ export const ErrorSummary: React.FC<ErrorSummaryProps> = ({ errors }) => {
       data-module="govuk-error-summary"
       tabIndex={-1}
       role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
     >
       <h2 className="govuk-error-summary__title">There is a problem</h2>
       <div className="govuk-error-summary__body">

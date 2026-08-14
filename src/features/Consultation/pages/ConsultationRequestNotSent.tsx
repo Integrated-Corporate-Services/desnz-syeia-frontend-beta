@@ -135,7 +135,7 @@ const handleSaveAndContinue = async () => {
   }
 };
 
-  if (loading) return <div className="govuk-body">Loading...</div>;
+  if (loading) return <div className="govuk-body" role="status" aria-live="polite">Loading...</div>;
   if (error) return <div className="govuk-error-message">Error: {error}</div>;
 
   return (
@@ -169,7 +169,7 @@ const handleSaveAndContinue = async () => {
         </h1>
 
         {errorMessage && (
-          <div className="govuk-error-summary govuk-!-width-two-thirds">
+          <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-live="assertive" aria-atomic="true">
             <h2 className="govuk-error-summary__title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">

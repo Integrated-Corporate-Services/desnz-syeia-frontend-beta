@@ -214,6 +214,8 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"
             role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
             aria-labelledby="error-summary-title"
             tabIndex={-1}
           >

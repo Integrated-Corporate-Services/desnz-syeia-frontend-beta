@@ -121,7 +121,7 @@ const ConsultationDetailsPage: React.FC = () => {
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     {error && (
-                        <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1} role="alert">
+                        <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1} role="alert" aria-live="assertive" aria-atomic="true">
                             <h2 className="govuk-error-summary__title">There is a problem</h2>
                             <div className="govuk-error-summary__body">
                                 <ul className="govuk-list govuk-error-summary__list">

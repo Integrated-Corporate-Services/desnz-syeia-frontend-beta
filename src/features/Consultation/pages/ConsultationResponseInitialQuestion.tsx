@@ -52,7 +52,7 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
 
           <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
             {error && (
-              <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+              <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" aria-live="assertive" aria-atomic="true" data-module="govuk-error-summary">
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
                 </h2>

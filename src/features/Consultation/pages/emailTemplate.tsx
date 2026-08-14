@@ -108,7 +108,14 @@ const EmailTemplate: React.FC = () => {
           <h1 className="govuk-hint govuk-!-margin-top-6">{orgname}</h1>
           <h1 className="govuk-heading-l">Create email to consultee</h1>
           <p className="govuk-body">Review the details you're about to send.</p>
-          {error && <div className="govuk-error-summary govuk-!-width-two-thirds">{error}</div>}
+          {error && (
+            <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-live="assertive" aria-atomic="true">
+              <h2 className="govuk-error-summary__title">There is a problem</h2>
+              <div className="govuk-error-summary__body">
+                <p>{error}</p>
+              </div>
+            </div>
+          )}
           <form>
             <div className="govuk-form-group">
               <h1 className="govuk-heading-s" >Applicant email address</h1>

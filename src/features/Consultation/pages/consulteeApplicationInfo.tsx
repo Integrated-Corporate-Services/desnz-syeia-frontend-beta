@@ -241,7 +241,7 @@ useEffect(() => {
  
 
   
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="govuk-body" role="status" aria-live="polite">Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
  
@@ -286,7 +286,7 @@ useEffect(() => {
             
             {/* Error Summary */}
             {(errorMessage || fileValidationErrors.length > 0) && (
-              <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+              <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" aria-live="assertive" aria-atomic="true" data-module="govuk-error-summary">
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
                 </h2>

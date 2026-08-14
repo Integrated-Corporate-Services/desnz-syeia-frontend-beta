@@ -213,6 +213,8 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"
             role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
             aria-labelledby="error-summary-title"
             tabIndex={-1}
           >
@@ -233,7 +235,7 @@ const handleSaveAndContinue = async (e: React.FormEvent) => {
 
         {/* Submit/Backend error */}
         {submitError && Object.keys(errors).length === 0 && (
-          <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" tabIndex={-1}>
+          <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-live="assertive" aria-atomic="true" tabIndex={-1}>
             <h2 className="govuk-error-summary__title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <p>{submitError}</p>

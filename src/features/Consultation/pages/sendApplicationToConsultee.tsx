@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import { getConsultationPack } from "../../../services/consultationPackService";
@@ -24,7 +25,6 @@ const SendApplicationToConsultee: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
-  const [sendSuccess, setSendSuccess] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [emailMessage, setEmailMessage] = useState("");
   const { user } = useAuthUser();
@@ -57,9 +57,10 @@ const SendApplicationToConsultee: React.FC = () => {
 
   const handleSendRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSending(true);
-    setSendError(null);
-    setSendSuccess(false);
+    flushSync(() => {
+      setSending(true);
+      setSendError(null);
+    });
     try {
          await sendNotificationEmail({
         to: orgEmail,
@@ -89,8 +90,8 @@ const SendApplicationToConsultee: React.FC = () => {
     navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="govuk-error-message">{error}</div>;
+  if (loading) return <div className="govuk-body" role="status" aria-live="polite">Loading...</div>;
+  if (error) return <div className="govuk-error-message" role="alert" aria-live="assertive">{error}</div>;
 
   // Prepare summary card sections
   const summarySections = [];
@@ -173,8 +174,10 @@ const SendApplicationToConsultee: React.FC = () => {
           return <Accordion sections={accordionSections} />;
         })()}
         <form className="govuk-!-margin-bottom-8" onSubmit={handleSendRequest}>
-          {sendError && <div className="govuk-error-message">{sendError}</div>}
-          {sendSuccess && <div className="govuk-notification-banner govuk-notification-banner--success"><div className="govuk-notification-banner__content">Email sent successfully!</div></div>}
+          {sendError && <div className="govuk-error-message" role="alert" aria-live="assertive" aria-atomic="true">{sendError}</div>}
+          <div className="govuk-visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+            {sending ? "Sending request. Please wait." : ""}
+          </div>
           <div className="govuk-checkboxes govuk-!-margin-bottom-6">
             <div className="govuk-checkboxes__item">
               <input className="govuk-checkboxes__input" id="confirm-send" type="checkbox" required onChange={e => setIsConfirmed(e.target.checked)} />
@@ -185,7 +188,7 @@ const SendApplicationToConsultee: React.FC = () => {
           </div>
           <div className="govuk-button-group govuk-!-margin-bottom-6">
             <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater}>Save for later</button>
-            <button type="submit" className="govuk-button" style={{ backgroundColor: '#00703c' }} disabled={sending || !isConfirmed}>
+            <button type="submit" className="govuk-button" style={{ backgroundColor: '#00703c' }} disabled={sending || !isConfirmed} aria-busy={sending}>
               {sending ? 'Sending...' : 'Send request'}
             </button>
           </div>

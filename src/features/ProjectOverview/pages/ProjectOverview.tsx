@@ -279,7 +279,7 @@ const ProjectOverview = () => {
 				<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
 					<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
 					{errors.length > 0 && (
-						<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
+						<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" aria-live="assertive" aria-atomic="true" tabIndex={-1}>
 							<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
 							<div className="govuk-error-summary__body">
 								<ul className="govuk-list govuk-error-summary__list">
@@ -1058,7 +1058,12 @@ const ProjectOverview = () => {
 							ariaControls={["hasRelatedCpo-hidden", "hasRelatedCpo-no-hidden"]}
 						/>
 
-						<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue" disabled={isSubmitting}>
+						{isSubmitting && (
+							<p className="govuk-visually-hidden" role="status" aria-live="polite">
+								Saving project overview. Please wait.
+							</p>
+						)}
+						<button type="submit" className="govuk-button" value="Save and continue" name="Save and continue" disabled={isSubmitting} aria-busy={isSubmitting}>
 							{projectOverview.saveAndContinue}
 						</button>
 					</form>

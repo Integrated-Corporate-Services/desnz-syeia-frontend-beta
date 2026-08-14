@@ -161,12 +161,12 @@ const ConsultationResponse: React.FC = () => {
 
                     <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                         {isLoading ? (
-                            <p className="govuk-body">Loading...</p>
+                            <p className="govuk-body" role="status" aria-live="polite">Loading...</p>
                         ) : (
                             <>
                         {Object.values(errors).some(Boolean) && (
                             <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
-                                <div role="alert">
+                                <div role="alert" aria-live="assertive" aria-atomic="true">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>
                                     <div className="govuk-error-summary__body">
                                         <ul className="govuk-list govuk-error-summary__list">

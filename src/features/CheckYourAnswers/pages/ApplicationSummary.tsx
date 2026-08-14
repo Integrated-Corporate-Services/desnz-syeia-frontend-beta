@@ -515,6 +515,9 @@ const ApplicationSummary: React.FC = () => {
                 className="govuk-error-summary govuk-!-width-two-thirds"
                 aria-labelledby="error-summary-title"
                 role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+                tabIndex={-1}
                 data-module="govuk-error-summary"
               >
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -995,10 +998,13 @@ const ApplicationSummary: React.FC = () => {
                     </div>
                     <div className="govuk-summary-card__content">
                       <table className="govuk-table govuk-!-margin-bottom-6">
+                        <caption className="govuk-table__caption govuk-visually-hidden">
+                          {`Grid coordinates for Route ${String.fromCharCode(65 + idx)}`}
+                        </caption>
                         <thead className="govuk-table__head">
                           <tr className="govuk-table__row">
-                            <th className="govuk-table__header">{FIELD_LABELS.EASTING}</th>
-                            <th className="govuk-table__header">{FIELD_LABELS.NORTHING}</th>
+                            <th scope="col" className="govuk-table__header">{FIELD_LABELS.EASTING}</th>
+                            <th scope="col" className="govuk-table__header">{FIELD_LABELS.NORTHING}</th>
                           </tr>
                         </thead>
                         <tbody className="govuk-table__body">
@@ -1042,10 +1048,13 @@ const ApplicationSummary: React.FC = () => {
                 </div>
                 <div className="govuk-summary-card__content">
                   <table className="govuk-table govuk-!-margin-bottom-6">
+                    <caption className="govuk-table__caption govuk-visually-hidden">
+                      {SECTION_HEADINGS.ROUTE} grid coordinates
+                    </caption>
                     <thead className="govuk-table__head">
                       <tr className="govuk-table__row">
-                        <th className="govuk-table__header">{FIELD_LABELS.EASTING}</th>
-                        <th className="govuk-table__header">{FIELD_LABELS.NORTHING}</th>
+                        <th scope="col" className="govuk-table__header">{FIELD_LABELS.EASTING}</th>
+                        <th scope="col" className="govuk-table__header">{FIELD_LABELS.NORTHING}</th>
                       </tr>
                     </thead>
                     <tbody className="govuk-table__body">
