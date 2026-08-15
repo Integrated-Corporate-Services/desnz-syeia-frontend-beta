@@ -137,4 +137,78 @@
   background: inherit;
 }
 
+/* ========================================================================
+   WCAG 2.1 AA - Issue #18: Reflow at 400% Zoom (320px viewport)
+   WCAG 1.4.10 Reflow (Level AA)
+   Ensures file upload reflows without horizontal scrolling
+   ======================================================================== */
+@media (max-width: 320px) {
+  .gds-upload-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .gds-upload-title {
+    font-size: 1rem;
+  }
+
+  .gds-upload-description {
+    font-size: 0.875rem;
+  }
+
+  .gds-upload-dropzone {
+    padding: 1rem;
+    min-height: 60px;
+  }
+
+  .gds-upload-dropzone-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .gds-upload-choose {
+    width: 100%;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .gds-upload-file-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .gds-upload-file-link,
+  .gds-upload-file-size,
+  .gds-upload-remove {
+    font-size: 0.875rem;
+  }
+
+  .gds-upload-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .gds-upload-save-later,
+  .gds-upload-save-continue {
+    width: 100%;
+    font-size: 0.875rem;
+  }
+}
+
+/* ========================================================================
+   WCAG 2.1 AA - Issue #21: Focus Indicator Enhancement
+   WCAG 2.4.7 Focus Visible (Level AA)
+   ======================================================================== */
+.gds-upload-dropzone:focus-within,
+.gds-upload-choose:focus,
+.gds-upload-remove:focus,
+.gds-upload-save-later:focus,
+.gds-upload-save-continue:focus {
+  outline: 3px solid #ffdd00 !important;
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+  scroll-margin-top: 100px;
+}
+
  

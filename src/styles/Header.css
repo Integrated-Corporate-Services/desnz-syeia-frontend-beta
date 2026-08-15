@@ -173,3 +173,47 @@ body {
     padding-left: 8px;
   }
 }
+
+/* ========================================================================
+   WCAG 2.1 AA - Issue #18: Reflow at 400% Zoom (320px viewport)
+   WCAG 1.4.10 Reflow (Level AA)
+   ======================================================================== */
+@media (max-width: 320px) {
+  .app-top-header__container {
+    padding-left: 10px;
+    padding-right: 10px;
+    gap: 6px;
+    min-height: 38px;
+  }
+
+  .app-top-header__logotype {
+    width: 100px;
+    height: 18px;
+  }
+
+  .app-header-auth__user {
+    max-width: 60px;
+    font-size: 0.75rem;
+  }
+
+  .app-header-auth__signout {
+    font-size: 0.75rem;
+    padding-left: 6px;
+  }
+
+  .app-header-auth {
+    gap: 3px;
+    padding-left: 4px;
+  }
+}
+
+/* ========================================================================
+   WCAG 2.1 AA - Issue #21: Focus Indicator Enhancement
+   WCAG 2.4.7 Focus Visible (Level AA)
+   ======================================================================== */
+.app-header-auth__signout:focus-visible {
+  outline: 3px solid #ffdd00 !important;
+  outline-offset: 0;
+  box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+  scroll-margin-top: 100px;
+}

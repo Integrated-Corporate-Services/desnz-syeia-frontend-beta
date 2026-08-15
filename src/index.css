@@ -89,3 +89,104 @@ body {
   display: flex;
   justify-content: center;
 }
+
+/* ========================================================================
+   WCAG 2.1 AA - Issue #21: Focus Indicator Enhancement
+   WCAG 2.4.7 Focus Visible (Level AA)
+   Ensures 3:1 contrast ratio and visibility across all interactive elements
+   ======================================================================== */
+
+/* Global focus styles - GOV.UK yellow (#ffdd00) with 3:1 contrast */
+*:focus {
+  outline: 3px solid #ffdd00 !important;
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure focus stays visible when scrolling - prevents hiding behind fixed headers */
+a:focus,
+button:focus,
+[tabindex]:focus {
+  scroll-margin-top: 100px;
+  scroll-margin-bottom: 20px;
+}
+
+/* Enhanced focus for interactive elements on complex backgrounds */
+.map-container:focus,
+.map-container *:focus {
+  outline: 3px solid #ffdd00 !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.3), 0 0 0 9px #ffdd00;
+}
+
+/* Dashboard links focus enhancement */
+.govuk-table a:focus,
+.application-card a:focus {
+  outline: 3px solid #ffdd00 !important;
+  outline-offset: 0;
+  background-color: #ffdd00;
+  color: #0b0c0c;
+  box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+}
+
+/* ========================================================================
+   WCAG 2.1 AA - Issue #18: Reflow at 400% Zoom
+   WCAG 1.4.10 Reflow (Level AA)
+   Ensures content reflows without horizontal scrolling at 320px viewport
+   ======================================================================== */
+
+/* 400% zoom breakpoint (320px viewport width) */
+@media (max-width: 320px) {
+  /* Ensure all containers use max-width instead of fixed width */
+  .govuk-width-container {
+    max-width: 100% !important;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Reduce font sizes to prevent text cutoff */
+  .govuk-heading-xl {
+    font-size: 1.5rem !important;
+  }
+
+  .govuk-heading-l {
+    font-size: 1.25rem !important;
+  }
+
+  .govuk-heading-m {
+    font-size: 1.125rem !important;
+  }
+
+  .govuk-body,
+  .govuk-body-m {
+    font-size: 0.875rem !important;
+  }
+
+  /* Ensure buttons don't overflow */
+  .govuk-button {
+    width: 100% !important;
+    padding: 8px 10px !important;
+    font-size: 0.875rem !important;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+
+  /* Ensure form inputs are fully responsive */
+  .govuk-input,
+  .govuk-textarea,
+  .govuk-select {
+    max-width: 100% !important;
+    width: 100% !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Ensure tables don't cause horizontal scroll */
+  .govuk-table {
+    font-size: 0.75rem !important;
+  }
+
+  .govuk-table th,
+  .govuk-table td {
+    padding: 6px 4px !important;
+  }
+}

@@ -449,6 +449,94 @@
   }
 }
 
+/* ========================================================================
+   WCAG 2.1 AA - Issue #18: Reflow at 400% Zoom (320px viewport)
+   WCAG 1.4.10 Reflow (Level AA)
+   Ensures mobile dashboard reflows without horizontal scrolling
+   ======================================================================== */
+@media (max-width: 320px) {
+  /* Application cards - reduced padding */
+  .application-card {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .application-card__header {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .application-card__reference {
+    font-size: 0.875rem;
+  }
+
+  .application-card__row {
+    font-size: 0.875rem;
+  }
+
+  .application-card__body {
+    gap: 4px;
+  }
+
+  /* User cards - reduced padding */
+  .user-card {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .user-card__name {
+    font-size: 0.875rem;
+  }
+
+  .user-card__row {
+    font-size: 0.875rem;
+  }
+
+  /* Tabs - smaller text */
+  .govuk-tabs__tab {
+    padding: 8px 12px !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Header buttons - smaller padding */
+  .application-dashboard-header-buttons .govuk-button {
+    padding: 8px 12px !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Filter panel - minimal padding */
+  .filter-panel .govuk-heading-m {
+    font-size: 1rem !important;
+    padding: 10px;
+  }
+
+  /* Pagination - compact */
+  .govuk-pagination__link {
+    padding: 6px 10px;
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 0.875rem;
+  }
+}
+
+/* ========================================================================
+   WCAG 2.1 AA - Issue #21: Focus Indicator Enhancement
+   WCAG 2.4.7 Focus Visible (Level AA)
+   Enhanced focus styles for mobile dashboard elements
+   ======================================================================== */
+.application-card a:focus,
+.user-card a:focus,
+.govuk-tabs__tab:focus,
+.filter-panel button:focus,
+.filter-pill button:focus {
+  outline: 3px solid #ffdd00 !important;
+  outline-offset: 0;
+  background-color: #ffdd00;
+  color: #0b0c0c;
+  box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+  scroll-margin-top: 100px;
+}
+
 /* ==========================================================================
    MOBILE USER MANAGEMENT DASHBOARD
    ========================================================================== */

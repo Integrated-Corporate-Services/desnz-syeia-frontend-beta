@@ -43,11 +43,33 @@
     color: #626a6b; /* GDS secondary text color */
   }
 
-  /* Map container styling - GDS compliant */
+  /* Map container styling - GDS compliant + responsive for Issue #18 */
   .map-container {
     width: 100%;
+    max-width: 100%; /* WCAG 1.4.10 - prevent horizontal scroll */
     height: 500px;
     border: 1px solid #b1b4b6; /* GDS border color */
     overflow: hidden;
     background: #ffffff;
+    box-sizing: border-box;
+  }
+
+  /* Map container responsive sizing for 400% zoom */
+  @media (max-width: 640px) {
+    .map-container {
+      height: 400px;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .map-container {
+      height: 300px;
+    }
+  }
+
+  /* Enhanced focus for map container - WCAG 2.4.7 Issue #21 */
+  .map-container:focus-within {
+    outline: 3px solid #ffdd00;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.2);
   }
