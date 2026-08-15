@@ -11,7 +11,10 @@ const SENSITIVE_PATTERNS = [
   'email', 'emailAddress',
   'ssn', 'socialSecurityNumber',
   'creditCard', 'cardNumber', 'cvv', 'cvc',
-  'accountNumber', 'payment'
+  'accountNumber', 'payment',
+  'name', 'phone', 'mobile', 'telephone',
+  'address', 'line1', 'line2', 'town', 'county', 'postcode',
+  'organisation', 'organization', 'company',
 ];
 
 const redactSensitiveData = (obj: any, depth = 0): any => {
