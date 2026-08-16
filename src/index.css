@@ -103,6 +103,19 @@ body {
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
+/*
+ * #main-content is focused programmatically on every route change
+ * (AutoScrollToTop.tsx) purely so screen readers announce the navigation -
+ * it isn't a real interactive control a sighted keyboard user tabs to, so
+ * showing the full-page yellow ring here on every navigation is noise, not
+ * a WCAG 2.4.7 requirement. This has to win against the !important rule
+ * above, so it needs matching specificity (id selector + !important).
+ */
+#main-content:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Ensure focus stays visible when scrolling - prevents hiding behind fixed headers */
 a:focus,
 button:focus,
