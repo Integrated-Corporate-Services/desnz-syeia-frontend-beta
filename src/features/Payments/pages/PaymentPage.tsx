@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPayment } from '../../../services/govPayService';
 import { useLocation } from 'react-router-dom';
 import '../../../styles/govuk.scss';
+import PageTitle from '../../../components/PageTitle';
 
 export default function PaymentPage() {
   const location = useLocation();
@@ -43,6 +44,7 @@ export default function PaymentPage() {
 
   return (
     <>
+            <PageTitle title="Make a payment" />
             <div className="govuk-width-container">
               <h1 className="govuk-heading-l">Make a payment</h1>
         {error && (

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useManageUsersNavigation } from '../../../hooks';
+import PageTitle from '../../../components/PageTitle';
 
 const AccessRevokedPage: React.FC = () => {
   const location = useLocation();
@@ -12,6 +13,7 @@ const AccessRevokedPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Access revoked" />
             <div className="govuk-width-container">
               <a
           href="#"

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useTeamCoordinators, useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
+import PageTitle from '../../../components/PageTitle';
 
 const TeamCoordinatorsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -53,6 +54,7 @@ const TeamCoordinatorsPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Team coordinators" />
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">

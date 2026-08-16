@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -63,6 +64,7 @@ const TerminationPeriodExpired: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Has the termination period expired?" />
           <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

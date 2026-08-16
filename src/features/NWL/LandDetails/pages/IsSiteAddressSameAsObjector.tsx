@@ -169,54 +169,59 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
             )}
             <ErrorSummary errors={errors} errorFields={errorFields} />
 
-            <h1 className="govuk-heading-l">
-              Is the site address the same as the objector's address?
-            </h1>
-
-            <div className="govuk-hint">
-              The site address is the location of the electric lines specified in the Notice Remove this application
-            </div>
-
             <form>
               {/* Radio Button Selection */}
               <div className={`govuk-form-group ${errors.isSameAddress ? 'govuk-form-group--error' : ''}`}>
-                {errors.isSameAddress && (
-                  <p className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span> {errors.isSameAddress}
-                  </p>
-                )}
-                <div className="govuk-radios" data-module="govuk-radios">
-                  <div className="govuk-radios__item">
-                    <input 
-                      className="govuk-radios__input" 
-                      id="is-same-address-yes" 
-                      name="isSameAddress" 
-                      type="radio" 
-                      value="yes" 
-                      checked={isSameAddress === "yes"} 
-                      onChange={(e) => handleRadioChange(e.target.value)}
-                      aria-describedby={errors.isSameAddress ? 'isSameAddress-error' : undefined}
-                    />
-                    <label className="govuk-label govuk-radios__label" htmlFor="is-same-address-yes">
-                      Yes
-                    </label>
+                <fieldset
+                  className="govuk-fieldset"
+                  aria-describedby={`is-same-address-hint${errors.isSameAddress ? ' is-same-address-error' : ''}`}
+                >
+                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    <h1 className="govuk-fieldset__heading">
+                      Is the site address the same as the objector's address?
+                    </h1>
+                  </legend>
+                  <div className="govuk-hint" id="is-same-address-hint">
+                    The site address is the location of the electric lines specified in the Notice Remove this application
                   </div>
-                  <div className="govuk-radios__item">
-                    <input 
-                      className="govuk-radios__input" 
-                      id="is-same-address-no" 
-                      name="isSameAddress" 
-                      type="radio" 
-                      value="no" 
-                      checked={isSameAddress === "no"} 
-                      onChange={(e) => handleRadioChange(e.target.value)}
-                      aria-describedby={errors.isSameAddress ? 'isSameAddress-error' : undefined}
-                    />
-                    <label className="govuk-label govuk-radios__label" htmlFor="is-same-address-no">
-                      No
-                    </label>
+                  {errors.isSameAddress && (
+                    <p className="govuk-error-message" id="is-same-address-error">
+                      <span className="govuk-visually-hidden">Error:</span> {errors.isSameAddress}
+                    </p>
+                  )}
+                  <div className="govuk-radios" data-module="govuk-radios">
+                    <div className="govuk-radios__item">
+                      <input
+                        className="govuk-radios__input"
+                        id="is-same-address-yes"
+                        name="isSameAddress"
+                        type="radio"
+                        value="yes"
+                        checked={isSameAddress === "yes"}
+                        onChange={(e) => handleRadioChange(e.target.value)}
+                        aria-describedby={errors.isSameAddress ? 'isSameAddress-error' : undefined}
+                      />
+                      <label className="govuk-label govuk-radios__label" htmlFor="is-same-address-yes">
+                        Yes
+                      </label>
+                    </div>
+                    <div className="govuk-radios__item">
+                      <input
+                        className="govuk-radios__input"
+                        id="is-same-address-no"
+                        name="isSameAddress"
+                        type="radio"
+                        value="no"
+                        checked={isSameAddress === "no"}
+                        onChange={(e) => handleRadioChange(e.target.value)}
+                        aria-describedby={errors.isSameAddress ? 'isSameAddress-error' : undefined}
+                      />
+                      <label className="govuk-label govuk-radios__label" htmlFor="is-same-address-no">
+                        No
+                      </label>
+                    </div>
                   </div>
-                </div>
+                </fieldset>
               </div>
 
               {/* Display Objector Address - Always visible */}

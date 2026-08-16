@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getPaymentStatus } from '../../../services/govPayService';
 import '../../../styles/govuk.scss';
+import PageTitle from '../../../components/PageTitle';
 
 export default function PaymentCallback() {
   const [status, setStatus] = useState('');
@@ -66,6 +67,7 @@ export default function PaymentCallback() {
 
   return (
     <>
+            <PageTitle title="Payment status" />
             <div className="govuk-width-container">
               {loading ? (
           <div className="govuk-body">Loading payment status...</div>

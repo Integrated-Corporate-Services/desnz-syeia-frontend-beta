@@ -5,6 +5,7 @@ import { OrganisationsTab } from "../components/OrganisationsTab";
 import { ActiveUsersTab } from "../components/ActiveUsersTab";
 import { PendingRequestsTab } from "../components/PendingRequestsTab";
 import "../../../styles/DashboardMobile.css";
+import PageTitle from "../../../components/PageTitle";
 
 const UserManagementDashboard: React.FC = () => {
   const {
@@ -32,6 +33,7 @@ const UserManagementDashboard: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="User management dashboard" />
             <div className="govuk-width-container user-management-dashboard">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { 
   useApplicationNavigation, 
@@ -100,6 +101,7 @@ const GroundsForApplication: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Grounds for application" />
           <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

@@ -188,8 +188,6 @@ const SensitiveAreaPage: React.FC = () => {
                                                         type="radio"
                                                         value="yes"
                                                         checked={toleranceRequired === 'yes'}
-                                                        aria-controls="routeToleranceRequired-hidden"
-                                                        aria-expanded={toleranceRequired === 'yes'}
                                                         onChange={() => setToleranceRequired('yes')}
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
                                                     />

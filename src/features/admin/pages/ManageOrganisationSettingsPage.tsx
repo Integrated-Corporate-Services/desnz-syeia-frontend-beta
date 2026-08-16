@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
+import PageTitle from '../../../components/PageTitle';
 
 const ManageOrganisationSettingsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -49,6 +50,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Manage organisation settings" />
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAddUserNavigation } from '../../../hooks';
+import PageTitle from '../../../components/PageTitle';
 
 const UserCreatedPage: React.FC = () => {
   const location = useLocation();
@@ -18,8 +19,9 @@ const UserCreatedPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="User created successfully" />
             <div className="govuk-width-container">
-      
+
         {/* TRUE PAGE HEADING for accessibility */}
         <h1 className="govuk-visually-hidden">User created successfully</h1>
 

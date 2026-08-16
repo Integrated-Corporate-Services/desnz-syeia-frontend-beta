@@ -7,6 +7,7 @@ import {
   RejectionReasonForm,
   ActionButtons,
 } from '../../../components/shared/ReviewRequestComponents';
+import PageTitle from '../../../components/PageTitle';
 
 const ReviewRequestPage: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
@@ -92,6 +93,7 @@ const ReviewRequestPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Review access request" />
             <div className="govuk-width-container">
                 <a href="#" className="govuk-back-link" onClick={handleBackClick}>
           Back

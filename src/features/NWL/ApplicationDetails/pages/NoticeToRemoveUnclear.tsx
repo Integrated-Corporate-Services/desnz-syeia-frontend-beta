@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -60,6 +61,7 @@ const NoticeToRemoveUnclear: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Why the notice is unclear" />
           <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

@@ -8,6 +8,7 @@ const logger = createLogger('PaymentCallbackPage');
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { applicationApiService } from '../../../services/applicationApiService';
+import PageTitle from '../../../components/PageTitle';
 
 const PaymentCallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -141,6 +142,7 @@ const PaymentCallbackPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Processing payment" />
             <div className="govuk-width-container">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

@@ -4,6 +4,7 @@ import { useManageUsers } from '../../../hooks/useManageUsers';
 import { useManageUsersNavigation } from '../../../hooks/useManageUsersNavigation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
+import PageTitle from '../../../components/PageTitle';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -83,6 +84,7 @@ const RevokeUserAccessPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Revoke access" />
             <div className="govuk-width-container">
               <a
           href="#"

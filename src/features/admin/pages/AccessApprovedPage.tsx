@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAccessConfirmationNavigation } from '../../../hooks';
+import PageTitle from '../../../components/PageTitle';
 
 const AccessApprovedPage: React.FC = () => {
   const location = useLocation();
@@ -16,6 +17,7 @@ const AccessApprovedPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Access granted" />
             <div className="govuk-width-container">
               <div className="govuk-panel govuk-panel--confirmation">
           <h1 className="govuk-panel__title">

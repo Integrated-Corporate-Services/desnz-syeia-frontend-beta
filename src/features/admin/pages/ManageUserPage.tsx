@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
+import PageTitle from '../../../components/PageTitle';
 
 const ManageUserPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -63,6 +64,7 @@ const ManageUserPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Manage user" />
             <div className="govuk-width-container">
               <Link to="/admin/user-management" className="govuk-back-link">
           Back

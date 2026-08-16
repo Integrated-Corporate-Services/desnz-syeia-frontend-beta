@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
@@ -85,6 +86,7 @@ const TypeOfUse: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="New or existing electric lines?" />
           <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

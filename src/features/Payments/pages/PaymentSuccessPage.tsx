@@ -6,6 +6,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
 import { BANK_TRANSFER_SUCCESS_PAGE, formatCurrency } from '../../../constants/payment';
+import PageTitle from '../../../components/PageTitle';
 
 interface PaymentSuccessState {
   invoiceNumber?: string;
@@ -70,6 +71,7 @@ const PaymentSuccessPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Application submitted" />
             <div className="govuk-width-container">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

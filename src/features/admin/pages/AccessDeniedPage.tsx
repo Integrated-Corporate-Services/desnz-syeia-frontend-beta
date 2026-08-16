@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAccessConfirmationNavigation } from '../../../hooks';
+import PageTitle from '../../../components/PageTitle';
 
 const AccessDeniedPage: React.FC = () => {
   const location = useLocation();
@@ -16,6 +17,7 @@ const AccessDeniedPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Access rejected" />
             <div className="govuk-width-container">
               {/* GREEN CONFIRMATION PANEL - Access Rejected */}
         <div className="govuk-panel govuk-panel--confirmation">

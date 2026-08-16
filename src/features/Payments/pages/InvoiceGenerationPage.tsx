@@ -7,6 +7,7 @@ import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('InvoiceGenerationPage');
 
@@ -371,6 +372,7 @@ const InvoiceGenerationPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Generate invoice" />
             <div className="govuk-width-container">
               {/* <div className="govuk-grid-row"> */}
           {/* <div className="govuk-grid-column-two-thirds"> */}

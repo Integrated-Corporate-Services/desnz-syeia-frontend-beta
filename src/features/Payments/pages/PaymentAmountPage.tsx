@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import PageTitle from '../../../components/PageTitle';
 
 const PaymentAmountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -116,6 +117,7 @@ const PaymentAmountPage: React.FC = () => {
   if (loading) {
     return (
       <div className="govuk-width-container">
+                  <PageTitle title="Payment required" />
                   <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading payment information...</p>
@@ -127,6 +129,7 @@ const PaymentAmountPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Payment required" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

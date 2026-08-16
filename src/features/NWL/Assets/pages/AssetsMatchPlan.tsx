@@ -268,8 +268,6 @@ const AssetsMatchPlan: React.FC = () => {
                       value="no"
                       checked={assetsMatch === 'no'}
                       onChange={(e) => handleRadioChange(e.target.value)}
-                      aria-controls="conditional-assets-match-2"
-                      aria-expanded={assetsMatch === 'no'}
                     />
                     <label className="govuk-label govuk-radios__label" htmlFor="assets-match-2">
                       {LABELS.NO}

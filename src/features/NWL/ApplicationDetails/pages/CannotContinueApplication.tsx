@@ -1,4 +1,5 @@
 import React from "react";
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation } from "../hooks";
 import {
@@ -19,6 +20,7 @@ const CannotContinueApplication: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Cannot continue application" />
           <div className="govuk-width-container">
       <a
         href="#"

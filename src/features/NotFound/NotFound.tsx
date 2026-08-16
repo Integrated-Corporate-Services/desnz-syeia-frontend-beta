@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import Header from "../../layouts/component/Header";
 import Footer from "../../layouts/component/Footer";
 import SkipLink from "../../components/SkipLink";
+import PageTitle from "../../components/PageTitle";
 
 const NotFound: React.FC = () => {
   const contentStartRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = "Page not found - DESNZ - GOV.UK";
     // Move focus to the heading for screen reader users
     if (contentStartRef.current) {
       contentStartRef.current.focus();
@@ -17,6 +17,9 @@ const NotFound: React.FC = () => {
 
   return (
     <>
+      {/* WCAG 2.4.2 Page Titled (Level A) - Issue #6 */}
+      <PageTitle title="Page not found" />
+      
       <SkipLink />
       <Header />
       <div className="govuk-width-container">

@@ -24,6 +24,7 @@ import ServiceNavigation from "../../../layouts/component/ServiceNavigation";
 import Footer from "../../../layouts/component/Footer";
 import PhaseBanner from "../../../layouts/component/PhaseBanner";
 import SkipLink from "../../../components/SkipLink";
+import PageTitle from "../../../components/PageTitle";
 import { trackButtonClick } from "../../../utils/analytics";
 import "../../../styles/ApplicationDashboard.css";
 
@@ -95,24 +96,37 @@ const ApplicationDashboard: React.FC = () => {
 
   return (
     <div className="application-dashboard-shell">
+      {/* WCAG 2.4.2 Page Titled (Level A) - Issue #6 */}
+      <PageTitle 
+        title="Your Applications" 
+        description="View and manage your energy infrastructure applications"
+      />
+      
       <SkipLink />
       <Header />
       <ServiceNavigation />
       <PhaseBanner />
 
       <div className="application-dashboard-shell-content">
+      {/*
+        WCAG 1.3.1 Info and Relationships (Level A) - Issue #7.
+        <main> now wraps the whole dashboard (header through pagination),
+        not just the hero header - previously the applications table and
+        filters rendered outside the landmark entirely, so screen reader
+        users navigating by landmark (e.g. NVDA Insert+F7) could reach the
+        header but not the table that is the actual point of this page.
+      */}
+      <main className="govuk-main-wrapper" id="main-content" role="main">
 
       <div className="app-wide-container">
         <div className="app-your-applications-section">
           <div className="govuk-width-container">
-            <main className="govuk-main-wrapper" id="main-content" role="main">
-              {/* Hero section - Your applications header */}
-              <ApplicationDashboardHeader
-                onToggleFilters={() => setShowFilters(!showFilters)}
-                showFilters={showFilters}
-                onStartNewApplication={handleStart}
-              />
-            </main>
+            {/* Hero section - Your applications header */}
+            <ApplicationDashboardHeader
+              onToggleFilters={() => setShowFilters(!showFilters)}
+              showFilters={showFilters}
+              onStartNewApplication={handleStart}
+            />
           </div>
         </div>
       </div>
@@ -201,6 +215,8 @@ const ApplicationDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      </main>
 
       </div>
 

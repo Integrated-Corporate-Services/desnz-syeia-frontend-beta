@@ -9,6 +9,7 @@ import {
   AddUserActions,
   AddUserSidebar
 } from '../../../components/shared/AddUserComponents';
+import PageTitle from '../../../components/PageTitle';
 
 const AddUserPage: React.FC = () => {
   const {
@@ -56,8 +57,9 @@ const AddUserPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Add user manually" />
             <div className="govuk-width-container">
-      
+
         <a
           href="#"
           className="govuk-back-link"

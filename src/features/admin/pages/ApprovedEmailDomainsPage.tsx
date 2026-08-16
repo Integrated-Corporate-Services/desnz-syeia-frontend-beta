@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useApprovedDomains } from '../../../hooks';
 import { Domain } from '../../../types/organisation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
+import PageTitle from '../../../components/PageTitle';
 
 const ApprovedEmailDomainsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -104,6 +105,7 @@ const ApprovedEmailDomainsPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Approved email domains" />
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

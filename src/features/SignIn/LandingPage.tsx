@@ -1,9 +1,15 @@
-
 import { buildBackendUrl } from '../../utils/apiConfig';
+import PageTitle from '../../components/PageTitle';
 
 const LandingPage = () => {
   return (
     <>
+      {/* WCAG 2.4.2 Page Titled (Level A) - Issue #6 */}
+      <PageTitle 
+        title="Submit your Energy Infrastructure Application" 
+        description="Apply for energy infrastructure consents under the Electricity Act 1989"
+      />
+      
             <div className="govuk-width-container">
         <style>{`
         .govuk-link,

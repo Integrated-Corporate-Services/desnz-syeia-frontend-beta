@@ -8,6 +8,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { getCardPaymentDescription } from '../../../constants/payment';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('PaymentFailurePage');
 
@@ -152,6 +153,7 @@ const PaymentFailurePage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Payment unsuccessful" />
             <div className="govuk-width-container">
               <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
