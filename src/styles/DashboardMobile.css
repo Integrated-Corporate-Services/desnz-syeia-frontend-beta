@@ -449,13 +449,7 @@
   }
 }
 
-/* ========================================================================
-   WCAG 2.1 AA - Issue #18: Reflow at 400% Zoom (320px viewport)
-   WCAG 1.4.10 Reflow (Level AA)
-   Ensures mobile dashboard reflows without horizontal scrolling
-   ======================================================================== */
 @media (max-width: 320px) {
-  /* Application cards - reduced padding */
   .application-card {
     padding: 10px;
     margin-bottom: 10px;
@@ -478,7 +472,6 @@
     gap: 4px;
   }
 
-  /* User cards - reduced padding */
   .user-card {
     padding: 10px;
     margin-bottom: 10px;
@@ -498,19 +491,16 @@
     font-size: 0.875rem !important;
   }
 
-  /* Header buttons - smaller padding */
   .application-dashboard-header-buttons .govuk-button {
     padding: 8px 12px !important;
     font-size: 0.875rem !important;
   }
 
-  /* Filter panel - minimal padding */
   .filter-panel .govuk-heading-m {
     font-size: 1rem !important;
     padding: 10px;
   }
 
-  /* Pagination - compact */
   .govuk-pagination__link {
     padding: 6px 10px;
     min-width: 36px;
@@ -519,11 +509,6 @@
   }
 }
 
-/* ========================================================================
-   WCAG 2.1 AA - Issue #21: Focus Indicator Enhancement
-   WCAG 2.4.7 Focus Visible (Level AA)
-   Enhanced focus styles for mobile dashboard elements
-   ======================================================================== */
 .application-card a:focus,
 .user-card a:focus,
 .govuk-tabs__tab:focus,

@@ -102,8 +102,6 @@ const handleConsentChange: ConsentChangeCallback = (prefs, source) => {
   consentLogger.info('Consent changed', { source, preferencesCount: Object.keys(prefs).length });
 };
 
-// WCAG 2.4.2 Page Titled (Level A) - Issue #6
-// HelmetProvider enables dynamic page title management for all pages
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <HelmetProvider>

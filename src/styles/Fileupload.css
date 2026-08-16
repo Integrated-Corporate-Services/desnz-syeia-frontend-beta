@@ -137,11 +137,6 @@
   background: inherit;
 }
 
-/* ========================================================================
-   WCAG 2.1 AA - Issue #18: Reflow at 400% Zoom (320px viewport)
-   WCAG 1.4.10 Reflow (Level AA)
-   Ensures file upload reflows without horizontal scrolling
-   ======================================================================== */
 @media (max-width: 320px) {
   .gds-upload-container {
     max-width: 100%;
@@ -196,10 +191,6 @@
   }
 }
 
-/* ========================================================================
-   WCAG 2.1 AA - Issue #21: Focus Indicator Enhancement
-   WCAG 2.4.7 Focus Visible (Level AA)
-   ======================================================================== */
 .gds-upload-dropzone:focus-within,
 .gds-upload-choose:focus,
 .gds-upload-remove:focus,

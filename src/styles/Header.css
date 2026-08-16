@@ -174,10 +174,6 @@ body {
   }
 }
 
-/* ========================================================================
-   WCAG 2.1 AA - Issue #18: Reflow at 400% Zoom (320px viewport)
-   WCAG 1.4.10 Reflow (Level AA)
-   ======================================================================== */
 @media (max-width: 320px) {
   .app-top-header__container {
     padding-left: 10px;
@@ -207,10 +203,6 @@ body {
   }
 }
 
-/* ========================================================================
-   WCAG 2.1 AA - Issue #21: Focus Indicator Enhancement
-   WCAG 2.4.7 Focus Visible (Level AA)
-   ======================================================================== */
 .app-header-auth__signout:focus-visible {
   outline: 3px solid #ffdd00 !important;
   outline-offset: 0;

@@ -55,11 +55,11 @@
 
 .application-dashboard-two-column-layout {
   display: grid;
-  grid-template-columns: minmax(300px, 340px) 1fr; /* WCAG 1.4.10 - flexible grid Issue #18 */
+  grid-template-columns: minmax(300px, 340px) 1fr; 
   gap: 24px; /* compact gutter */
   align-items: start;
   width: 100%;
-  max-width: 100%; /* WCAG 1.4.10 - prevent horizontal scroll */
+  max-width: 100%; 
   margin: 0 auto;
   margin-top: 0;
   margin-bottom: 20px;
@@ -405,8 +405,8 @@
   border: 1px solid #b1b4b6;
   padding: 0;
   background-color: #ffffff;
-  width: 100%; /* WCAG 1.4.10 - responsive width Issue #18 */
-  max-width: 380px; /* Maximum width on larger screens */
+  width: 100%;
+  max-width: 380px; 
   box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle depth */
   margin-bottom: 40px; /* space from footer */
@@ -817,13 +817,7 @@
   }
 }
 
-/* ========================================================================
-   WCAG 2.1 AA - Issue #18: Reflow at 400% Zoom (320px viewport)
-   WCAG 1.4.10 Reflow (Level AA)
-   Ensures dashboard reflows without horizontal scrolling
-   ======================================================================== */
 @media (max-width: 320px) {
-  /* Dashboard layout - single column only */
   .application-dashboard-two-column-layout {
     grid-template-columns: 1fr !important;
     padding-left: 10px;
@@ -831,7 +825,6 @@
     gap: 15px;
   }
 
-  /* Filter panel - full width */
   .filter-panel {
     max-width: 100%;
     width: 100%;
@@ -843,19 +836,16 @@
     height: auto;
   }
 
-  /* Dashboard table wrapper */
   .application-dashboard-table-wrapper {
     padding: 8px;
   }
 
-  /* Table text sizing */
   .application-dashboard-results-column .govuk-table__cell,
   .application-dashboard-results-column .govuk-table__header {
     font-size: 0.75rem !important;
     padding: 6px 4px !important;
   }
 
-  /* Buttons full width */
   .application-dashboard-header-buttons .govuk-button {
     width: 100% !important;
     font-size: 0.875rem !important;
@@ -867,12 +857,10 @@
     font-size: 1.25rem !important;
   }
 
-  /* Items count */
   .application-dashboard-items-count {
     font-size: 0.75rem !important;
   }
 
-  /* Filter pills */
   .filter-pill {
     font-size: 0.75rem !important;
     padding: 4px 6px;
