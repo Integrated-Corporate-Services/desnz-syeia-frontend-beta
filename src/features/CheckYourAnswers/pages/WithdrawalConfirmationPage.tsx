@@ -4,6 +4,7 @@ import { S37_BASE_URL } from "../../../constants/s37";
 import { NWL_BASE_URL } from "../../../constants/nwl";
 import { TLP_BASE_URL } from "../../../constants/tlp";
 import { WITHDRAWAL_LABELS } from "../constants/applicationSummaryLabels";
+import PageTitle from "../../../components/PageTitle";
 
 interface ConfirmationLocationState {
   desnzRef?: string;
@@ -50,6 +51,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Withdrawal request submitted" />
             <div className="govuk-width-container">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

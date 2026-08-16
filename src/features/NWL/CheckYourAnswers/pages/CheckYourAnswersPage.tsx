@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
@@ -112,6 +113,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     if (loading) {
         return (
             <>
+                <PageTitle title="Check your answers" />
                                 <div className="govuk-width-container">
                 <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
                                     <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
@@ -122,6 +124,7 @@ export const CheckYourAnswersPage: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Check your answers" />
                         <div className="govuk-width-container">
             <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
                             <div className="govuk-grid-row">

@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
 import { useAuthUser } from "../../../hooks/useAuthUser";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { getConsultationDetailsById, saveConsultationMessage } from "../../../services/consultationService";
+import PageTitle from "../../../components/PageTitle";
 
 const EmailTemplate: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -88,6 +89,7 @@ const EmailTemplate: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Create email to consultee" />
             <div className="govuk-width-container">
             <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">

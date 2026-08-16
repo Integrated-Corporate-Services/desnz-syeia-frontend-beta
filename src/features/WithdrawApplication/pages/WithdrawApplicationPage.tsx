@@ -12,6 +12,7 @@ import { WithdrawApplicationBreadcrumbs, WithdrawalWarning } from '../components
 
 import { validateWithdrawalForm, getRemainingCharacters } from '../utils';
 import { clearFieldError as removeFieldError } from '../validations';
+import PageTitle from '../../../components/PageTitle';
 
 const WithdrawApplicationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -87,6 +88,7 @@ const WithdrawApplicationPage: React.FC = () => {
 
     return (
         <>
+                        <PageTitle title="Withdraw application" />
                         <div className="govuk-width-container">
             <WithdrawApplicationBreadcrumbs
                 applicationType={applicationType}

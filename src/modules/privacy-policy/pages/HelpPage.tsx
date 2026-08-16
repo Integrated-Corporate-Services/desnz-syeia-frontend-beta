@@ -1,9 +1,11 @@
 import { PageFeedback, RelatedContent } from '../components';
 import { HELP, RELATED_LINKS } from '../constants';
+import PageTitle from '../../../components/PageTitle';
 
 export function HelpPage() {
   return (
     <div className="govuk-width-container">
+      <PageTitle title="Help" />
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

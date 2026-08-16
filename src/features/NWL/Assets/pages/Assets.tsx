@@ -1,4 +1,5 @@
 import React from "react";
+import PageTitle from '../../../../components/PageTitle';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
@@ -256,6 +257,7 @@ const Asset: React.FC = () => {
   if (checkingAssets || loadingAsset) {
     return (
       <>
+        <PageTitle title="Add an asset" />
                 <div className="govuk-width-container">
                   <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
         <div className="govuk-grid-row">
@@ -271,6 +273,7 @@ const Asset: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Add an asset" />
             <div className="govuk-width-container">
               <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
       

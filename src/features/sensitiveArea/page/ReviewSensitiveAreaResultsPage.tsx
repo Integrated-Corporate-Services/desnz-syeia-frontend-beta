@@ -4,6 +4,7 @@ import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckIt
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import SensitiveAreaReviewSummaryPage from './SensitiveAreaReviewSummary';
+import PageTitle from '../../../components/PageTitle';
 
 /**
  * ReviewSensitiveAreaResultsPage Component
@@ -164,6 +165,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     if (consultationsLoading) {
         return (
             <div className="govuk-width-container">
+                <PageTitle title="Sensitive area review" />
                 <div className="govuk-main-wrapper">
                     <p className="govuk-body">Loading...</p>
                 </div>
@@ -185,6 +187,7 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
 
     return (
         <>
+                        <PageTitle title="Sensitive area review" />
                         <div className="govuk-width-container">
             {/* Breadcrumb Navigation - Always visible */}
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

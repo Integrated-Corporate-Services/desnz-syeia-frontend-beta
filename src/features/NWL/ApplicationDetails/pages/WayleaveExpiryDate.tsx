@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
@@ -226,6 +227,7 @@ const WayleaveExpiryDate: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Confirm the expiry date" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

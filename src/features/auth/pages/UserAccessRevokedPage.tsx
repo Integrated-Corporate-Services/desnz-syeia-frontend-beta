@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import PageTitle from '../../../components/PageTitle';
 /**
  * Page shown to users whose access has been revoked (status = INACTIVE)
  * This is different from AccessRevokedPage which is shown to admins after they revoke someone's access
@@ -15,7 +16,9 @@ const UserAccessRevokedPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="govuk-grid-row">
+    <>
+      <PageTitle title="No access to service" />
+      <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
         <h1 className="govuk-heading-xl">You do not have access to this service</h1>
         
@@ -51,6 +54,7 @@ const UserAccessRevokedPage: React.FC = () => {
             </button>
       </div>
     </div>
+    </>
 
   );
 };

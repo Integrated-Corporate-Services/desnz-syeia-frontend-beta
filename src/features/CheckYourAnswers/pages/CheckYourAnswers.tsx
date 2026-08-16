@@ -30,6 +30,7 @@ import {
   SECTION_HEADINGS,
   POST_CONSULTATION_QUESTIONS,
 } from '../constants/applicationSummaryLabels';
+import PageTitle from '../../../components/PageTitle';
 
 
 const CheckYourAnswers: React.FC = () => {
@@ -378,6 +379,7 @@ const CheckYourAnswers: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Check your answers" />
             <div className="govuk-width-container">
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">

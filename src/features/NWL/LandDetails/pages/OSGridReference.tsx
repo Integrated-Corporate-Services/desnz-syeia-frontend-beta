@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -94,8 +95,9 @@ const OSGridReference: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Enter the OS Grid Reference" />
             <div className="govuk-width-container">
-      <LandDetailsBreadcrumbs 
+      <LandDetailsBreadcrumbs
         applicationId={applicationId} 
         currentPage={labels.PAGE_TITLE}
       />

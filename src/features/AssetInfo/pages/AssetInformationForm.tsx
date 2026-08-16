@@ -22,6 +22,7 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import AssetSummary from './AssetSummary';
+import PageTitle from '../../../components/PageTitle';
 
 interface AssetFormState {
     assetId: string;
@@ -326,6 +327,7 @@ const AssetInformationForm: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Assets" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

@@ -14,6 +14,7 @@ import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
 import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
 import { createLogger } from "../../../../utils/logger";
+import PageTitle from "../../../../components/PageTitle";
 
 const logger = createLogger('NetworkOperatorDetails');
 
@@ -201,6 +202,7 @@ const NetworkOperatorDetails: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Applicant details" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

@@ -10,6 +10,7 @@ import {
   POST_CONSULTATION_QUESTIONS,
 } from "../constants";
 import { SaveType } from "../types";
+import PageTitle from "../../../components/PageTitle";
 
 const PostConsultationConsulteesRecommendations: React.FC = () => {
   const { applicationId, getTaskListUrl, navigateAfterCompletion } = usePostConsultationNavigation();
@@ -41,6 +42,7 @@ const PostConsultationConsulteesRecommendations: React.FC = () => {
   if (loading) {
     return (
       <>
+                <PageTitle title="Consultees' recommendations" />
                 <div className="govuk-width-container">
                     <p className="govuk-body">
             {POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}
@@ -52,6 +54,7 @@ const PostConsultationConsulteesRecommendations: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Consultees' recommendations" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

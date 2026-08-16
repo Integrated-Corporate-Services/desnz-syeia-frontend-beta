@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -71,8 +72,9 @@ const LandRegistry: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Is the land registered?" />
             <div className="govuk-width-container">
-        <LandDetailsBreadcrumbs 
+        <LandDetailsBreadcrumbs
           applicationId={applicationId} 
           currentPage={labels.QUESTION_PAGE_TITLE}
         />

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import PageTitle from '../../../../components/PageTitle';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 // Use the advanced FileUpload component from ProjectOverview
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
@@ -91,6 +92,7 @@ const ApplicationLandDetails: React.FC = () => {
 
 	return (
 		<>
+			<PageTitle title="Application and land details" />
 										<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 						<ol className="govuk-breadcrumbs__list">
 							<li className="govuk-breadcrumbs__list-item">

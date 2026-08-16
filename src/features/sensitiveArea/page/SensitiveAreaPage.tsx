@@ -10,6 +10,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
+import PageTitle from '../../../components/PageTitle';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -96,6 +97,7 @@ const SensitiveAreaPage: React.FC = () => {
     if (consultationsLoading) {
         return (
             <div className="govuk-width-container">
+                <PageTitle title="Sensitive area check" />
                 <div className="govuk-main-wrapper">
                     <p className="govuk-body">Loading...</p>
                 </div>
@@ -110,6 +112,7 @@ const SensitiveAreaPage: React.FC = () => {
 
     return (
         <>
+                        <PageTitle title="Sensitive area check" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 {error && (

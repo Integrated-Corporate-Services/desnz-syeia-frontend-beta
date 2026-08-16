@@ -11,6 +11,7 @@ import { validateDateComponents } from '../../../utils/validation';
 import { ConsultationType } from '../../../constants/consultationType';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationResponse2: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -240,6 +241,7 @@ const ConsultationResponse2: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Consultation response documents" />
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">

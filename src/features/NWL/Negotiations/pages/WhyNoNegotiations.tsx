@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import {
   LABELS,
   CHARACTER_LIMITS,
@@ -177,6 +178,7 @@ const WhyNoNegotiations: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Why are there no negotiations?" />
             <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 

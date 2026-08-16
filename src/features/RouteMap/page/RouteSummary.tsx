@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
+import PageTitle from '../../../components/PageTitle';
 
 /**
  * Read-only Route Summary Page
@@ -51,6 +52,7 @@ const RouteSummary: React.FC = () => {
 
     return (
         <>
+                        <PageTitle title="Route overview" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

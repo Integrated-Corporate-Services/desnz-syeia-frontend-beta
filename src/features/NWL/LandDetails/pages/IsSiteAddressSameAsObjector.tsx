@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { 
   LandDetailsBreadcrumbs, 
@@ -144,9 +145,10 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Is the site address the same as the objector's address?" />
             <div className="govuk-width-container">
-        <LandDetailsBreadcrumbs 
-          applicationId={applicationId} 
+        <LandDetailsBreadcrumbs
+          applicationId={applicationId}
           currentPage="Site address"
         />
 

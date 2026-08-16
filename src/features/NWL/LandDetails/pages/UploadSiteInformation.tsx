@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import {
   LandDetailsBreadcrumbs,
@@ -95,8 +96,9 @@ const UploadSiteInformation: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Provide site information" />
             <div className="govuk-width-container">
-        <LandDetailsBreadcrumbs 
+        <LandDetailsBreadcrumbs
           applicationId={applicationId} 
           currentPage={labels.PAGE_TITLE}
         />

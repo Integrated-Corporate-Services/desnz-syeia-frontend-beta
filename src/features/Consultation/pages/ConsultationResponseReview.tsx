@@ -8,6 +8,7 @@ import { fetchConsultationDetails } from '../../../services/consultationService'
 import { ConsultationType } from '../../../constants/consultationType';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ConsultationResponseReview');
 
@@ -109,6 +110,7 @@ const ConsultationResponse3: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Review consultation response" />
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">

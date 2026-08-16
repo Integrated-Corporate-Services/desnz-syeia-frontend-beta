@@ -6,6 +6,7 @@ import {
   updateCurrentUserFullName,
   UpdateFullNamePayload,
 } from '../services/yourDetailsService';
+import PageTitle from '../../../components/PageTitle';
 
 type FormErrors = {
   title?: string;
@@ -131,6 +132,7 @@ const ChangeFullNamePage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Change your full name" />
             <div className="govuk-width-container">
       <Link className="govuk-back-link" to="/your-details">
         Back

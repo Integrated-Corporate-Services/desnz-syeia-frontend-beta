@@ -20,6 +20,7 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import PageTitle from '../../../components/PageTitle';
 
 // Exact set of anchor ids this page's createErrorLink() calls can produce - used to validate
 // the href extracted back out of an error string before it's rendered, since error text can
@@ -257,6 +258,7 @@ const ProjectOverview = () => {
 
 	return (
 		<>
+						<PageTitle title="Project overview" />
 						<div className="govuk-width-container">
 				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 					<ol className="govuk-breadcrumbs__list">

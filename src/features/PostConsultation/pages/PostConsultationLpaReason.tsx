@@ -10,6 +10,7 @@ import {
   POST_CONSULTATION_QUESTIONS,
 } from "../constants";
 import { SaveType } from "../types";
+import PageTitle from "../../../components/PageTitle";
 
 const PostConsultationLpaReason: React.FC = () => {
   const { applicationId, getTaskListUrl, getConsulteesRecommendationsUrl } =
@@ -39,6 +40,7 @@ const PostConsultationLpaReason: React.FC = () => {
   if (loading) {
     return (
       <>
+                <PageTitle title="Reason for disagreeing with LPA" />
                 <div className="govuk-width-container">
                     <p className="govuk-body">
             {POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}
@@ -50,6 +52,7 @@ const PostConsultationLpaReason: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Reason for disagreeing with LPA" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

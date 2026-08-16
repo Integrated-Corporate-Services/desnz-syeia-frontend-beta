@@ -8,6 +8,7 @@ import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ReviewDocumentsPage');
 
@@ -207,6 +208,7 @@ const ReviewDocumentsPage: React.FC = () => {
   if (loading && !review) {
     return (
       <div className="govuk-width-container">
+                  <PageTitle title="Upload sensitive area documents" />
                   <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
@@ -218,6 +220,7 @@ const ReviewDocumentsPage: React.FC = () => {
 
   return (
     <>
+                 <PageTitle title="Upload sensitive area documents" />
                  {/* <div className="govuk-width-container"> */}
       <a
         href="#"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import PageTitle from "../../../../components/PageTitle";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import logger from "../../../../logger";
 
@@ -250,6 +251,7 @@ const LandownerOccupantDetails: React.FC = () => {
   // Extra null checks for robustness
   return (
     <>
+      <PageTitle title="Landowner or occupant details" />
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 			<ol className="govuk-breadcrumbs__list">
 				<li className="govuk-breadcrumbs__list-item">

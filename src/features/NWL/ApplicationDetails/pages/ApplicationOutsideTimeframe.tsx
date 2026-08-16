@@ -6,6 +6,7 @@ import {
   LABELS,
 } from "../constants/applicationOutsideTimeframeConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import PageTitle from "../../../../components/PageTitle";
 
 /**
  * Application Outside Timeframe Page
@@ -60,6 +61,7 @@ const ApplicationOutsideTimeframe: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Application outside timeframe" />
           <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import PageTitle from '../../../../components/PageTitle';
 
 /**
  * Other Important Information Page
@@ -100,8 +101,9 @@ const OtherImportantInformation: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Other important information" />
             <div className="govuk-width-container">
-        <AdditionalInformationBreadcrumbs 
+        <AdditionalInformationBreadcrumbs
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.OTHER_IMPORTANT_INFORMATION}
       />

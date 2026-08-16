@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { 
   LandDetailsBreadcrumbs, 
@@ -96,8 +97,9 @@ const SiteAddress: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Enter the site address" />
             <div className="govuk-width-container">
-      <LandDetailsBreadcrumbs 
+      <LandDetailsBreadcrumbs
         applicationId={applicationId} 
         currentPage={LAND_DETAILS_LABELS.SITE_ADDRESS.PAGE_TITLE}
       />

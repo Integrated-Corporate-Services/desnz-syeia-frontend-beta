@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useEiaFees } from '../../../hooks/useEiaFees';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import PageTitle from '../../../components/PageTitle';
 
 /**
  * Read-only EIA Fees Summary Page
@@ -19,6 +20,7 @@ const EIAFeesSummary: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="EIA fees summary" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

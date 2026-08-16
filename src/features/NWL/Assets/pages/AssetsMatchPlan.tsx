@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { useApplicationId, useAssetsData } from '../hooks';
@@ -165,6 +166,7 @@ const AssetsMatchPlan: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Do assets match the plan?" />
                   {/* Breadcrumbs */}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

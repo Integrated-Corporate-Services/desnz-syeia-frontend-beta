@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { LABELS } from '../constants/objectorDetailsConstants';
 import { useObjectorDetailsData, useFormValidation, useObjectorNavigation } from '../hooks';
 import { ObjectorDetailsBreadcrumbs, ErrorSummary, PersonDetailsForm, FormActions } from '../components';
@@ -112,6 +113,7 @@ const ObjectorDetails: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Enter the objector's details" />
             <div className="govuk-width-container">
       <ObjectorDetailsBreadcrumbs appId={appId} />
 

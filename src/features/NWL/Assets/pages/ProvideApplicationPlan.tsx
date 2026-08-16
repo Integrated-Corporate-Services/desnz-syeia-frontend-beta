@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { useApplicationId, useAssetsData } from '../hooks';
@@ -155,6 +156,7 @@ const ProvideApplicationPlan: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Provide an application plan" />
                   {/* Breadcrumbs */}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

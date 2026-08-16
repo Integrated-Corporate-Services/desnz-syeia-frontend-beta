@@ -9,6 +9,7 @@ import { progressApiService } from '../../../services/progressApiService';
 import log from '../../../logger';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { isWithinCharacterLimit } from '../../../utils/validation';
+import PageTitle from '../../../components/PageTitle';
 
 const OTHER_NAME_MAX_LENGTH = 4000;
 
@@ -198,6 +199,7 @@ const SelectOtherConsultations: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Select other consultations" />
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">

@@ -10,6 +10,7 @@ import {
     ApplicationSummaryBreadcrumbs,
     ApplicationSummaryContent,
 } from '../components';
+import PageTitle from '../../../components/PageTitle';
 
 export const ApplicationSummaryPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -105,6 +106,7 @@ export const ApplicationSummaryPage: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Application summary" />
                         <div className="govuk-width-container">
             {isNWL ? (
                 <ApplicationSummaryBreadcrumbs

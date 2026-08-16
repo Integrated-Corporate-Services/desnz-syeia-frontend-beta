@@ -4,6 +4,7 @@ import { ConsulteesRecommendationsQuestion, FormButtons } from '../components';
 import { usePostConsultationData, usePostConsultationNavigation } from '../hooks';
 import { POST_CONSULTATION_CONSTANTS } from '../constants';
 import { SaveType } from '../types';
+import PageTitle from '../../../components/PageTitle';
 
 const PostConsultationConsultees: React.FC = () => {
     const { applicationId, getTaskListUrl, handleNavigationAfterSaveConsultees } = usePostConsultationNavigation();
@@ -32,6 +33,7 @@ const PostConsultationConsultees: React.FC = () => {
     if (loading) {
         return (
             <>
+                                <PageTitle title="Post consultation actions" />
                                 <div className="govuk-width-container">
                                         <p className="govuk-body">{POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}</p>
                                 </div>
@@ -41,6 +43,7 @@ const PostConsultationConsultees: React.FC = () => {
 
     return (
         <>
+                        <PageTitle title="Post consultation actions" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

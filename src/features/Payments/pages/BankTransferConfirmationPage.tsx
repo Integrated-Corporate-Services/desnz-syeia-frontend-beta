@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { buildBackendUrl } from '../../../utils/apiConfig';
@@ -307,6 +308,7 @@ const BankTransferConfirmationPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Provide proof of payment" />
             <div className="govuk-width-container">
               <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">

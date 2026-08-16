@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
@@ -30,6 +31,7 @@ const InvoiceGenerationErrorPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Sorry, there is a problem" />
             <div className="govuk-width-container">
               <h1 className="govuk-heading-xl">Sorry, there is a problem with the service</h1>
         <p className="govuk-body">You can return to the application and try again later.</p>

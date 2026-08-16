@@ -6,6 +6,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
+import PageTitle from '../../../components/PageTitle';
 
 /**
  * Assets Summary Page
@@ -54,6 +55,7 @@ const AssetSummary: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Asset summary" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

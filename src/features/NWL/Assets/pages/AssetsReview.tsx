@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import PageTitle from '../../../../components/PageTitle';
 import { useNavigate } from "react-router-dom";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { AssetsBreadcrumbs, AssetSummaryCard, FormActions } from '../components';
@@ -105,6 +106,7 @@ const AssetsReview: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Review your assets" />
                   <AssetsBreadcrumbs applicationId={applicationId} currentPage="review" />
 
       <div className="govuk-grid-row">

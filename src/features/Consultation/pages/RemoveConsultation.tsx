@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { getConsultationDetailsById, removeConsultation } from '../../../services/consultationService';
 import { ConsultationDetails } from '../../../types/ConsultationDetails';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('RemoveConsultation');
 
@@ -68,6 +69,7 @@ const RemoveConsultation: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Remove consultation" />
             <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import {
   LABELS,
   FORM_LABELS,
@@ -218,6 +219,7 @@ const EvidenceOfNegotiations: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Provide evidence of negotiations" />
             <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 

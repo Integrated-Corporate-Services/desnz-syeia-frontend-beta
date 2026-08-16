@@ -14,6 +14,7 @@ const logger = createLogger('ConsultationRequestPage');
 import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationRequestPage: React.FC = () => {
   // Get params from route and query string
@@ -229,6 +230,7 @@ const ConsultationRequestPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Provide evidence of consultation request" />
             <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">

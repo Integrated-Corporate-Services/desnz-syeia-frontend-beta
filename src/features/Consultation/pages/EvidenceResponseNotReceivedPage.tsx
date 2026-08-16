@@ -12,6 +12,7 @@ import { saveConsultationResponse } from '../../../services/consultationResponse
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('EvidenceResponseNotReceivedPage');
 
@@ -301,6 +302,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Evidence response not received" />
                         <div className="govuk-width-container">
                             {/* Breadcrumbs */}
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

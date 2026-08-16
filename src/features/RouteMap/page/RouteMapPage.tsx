@@ -9,6 +9,7 @@ import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
+import PageTitle from '../../../components/PageTitle';
 
 // Validation function for a single point using centralized error messages
 function getPointError(easting: string, northing: string, routeName: string, idx: number) {
@@ -231,6 +232,7 @@ const RouteMapPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Add or edit route" />
             <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">

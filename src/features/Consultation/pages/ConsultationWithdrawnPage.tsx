@@ -4,6 +4,7 @@ import { S37_BASE_URL } from "../../../constants/s37";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { withdrawConsultationRequest } from "../../../services/consultationService";
 import { useAuthUser } from "../../../hooks/useAuthUser";
+import PageTitle from "../../../components/PageTitle";
 
 const ConsultationWithdrawnPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const ConsultationWithdrawnPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Withdraw consultation request" />
             <div className="govuk-width-container">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

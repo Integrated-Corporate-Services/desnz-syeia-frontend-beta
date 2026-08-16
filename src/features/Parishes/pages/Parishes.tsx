@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import ParishesTable from '../components/ParishesTable';
 import ParishSearch from '../components/ParishSearch';
@@ -44,6 +45,7 @@ const Parishes: React.FC = () => {
     if (consultationsLoading) {
         return (
             <>
+                <PageTitle title="Parishes" />
                                 <div className="govuk-width-container">
                 <div className="govuk-main-wrapper">
                     <p className="govuk-body">Loading...</p>
@@ -60,6 +62,7 @@ const Parishes: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Parishes" />
                         <div className="govuk-width-container">
                             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">

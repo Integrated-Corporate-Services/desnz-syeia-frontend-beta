@@ -48,6 +48,7 @@ import {
   BANK_TRANSFER_SUCCESS_PAGE,
   PAYMENT_METHOD,
 } from '../../../constants/payment';
+import PageTitle from '../../../components/PageTitle';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -465,6 +466,7 @@ const ApplicationSummary: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Application summary" />
             <div className="govuk-width-container">
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">

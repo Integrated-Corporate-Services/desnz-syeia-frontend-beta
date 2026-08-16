@@ -20,6 +20,7 @@ import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import PageTitle from '../../../../components/PageTitle';
 
 const logger = createLogger('RelatedApplications');
 
@@ -114,8 +115,9 @@ const RelatedApplications: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Related applications" />
             <div className="govuk-width-container">
-        <AdditionalInformationBreadcrumbs 
+        <AdditionalInformationBreadcrumbs
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.RELATED_APPLICATIONS}
       />

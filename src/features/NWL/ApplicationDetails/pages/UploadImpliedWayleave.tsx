@@ -168,6 +168,7 @@ const UploadImpliedWayleave: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Evidence of implied wayleave" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

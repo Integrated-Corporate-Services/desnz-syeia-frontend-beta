@@ -6,6 +6,7 @@ import {
   UpdateWorkAddressPayload,
   updateCurrentUserWorkAddress,
 } from '../services/yourDetailsService';
+import PageTitle from '../../../components/PageTitle';
 
 type FormErrors = {
   line1?: string;
@@ -147,6 +148,7 @@ const ChangeWorkAddressPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Change your work address" />
             <div className="govuk-width-container">
       <Link className="govuk-back-link" to="/your-details">
         Back

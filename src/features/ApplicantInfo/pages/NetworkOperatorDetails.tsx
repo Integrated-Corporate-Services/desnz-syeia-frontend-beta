@@ -18,6 +18,7 @@ import {
   BREADCRUMBS,
   FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
+import PageTitle from "../../../components/PageTitle";
 
 /**
  * Network Operator Details Page
@@ -205,6 +206,7 @@ const NetworkOperatorDetails: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Applicant details" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

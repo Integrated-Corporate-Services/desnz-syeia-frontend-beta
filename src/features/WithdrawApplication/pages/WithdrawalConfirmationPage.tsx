@@ -6,6 +6,7 @@ import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
 import { WithdrawApplicationBreadcrumbs } from '../components';
 
 import { formatDate, getCaseTypeLabel, getReasonLabel } from '../utils';
+import PageTitle from '../../../components/PageTitle';
 
 const WithdrawalConfirmationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -25,6 +26,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
 
     return (
         <>
+                        <PageTitle title="Application withdrawn" />
                         <div className="govuk-width-container">
             <WithdrawApplicationBreadcrumbs
                 applicationType={applicationType}

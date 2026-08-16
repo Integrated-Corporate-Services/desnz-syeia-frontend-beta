@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import PageTitle from '../../../../components/PageTitle';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes';
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
@@ -95,6 +96,7 @@ const NWLTaskList: React.FC = () => {
 
 	return (
 		<>
+			<PageTitle title="Necessary wayleave consent application" />
 						<div className="govuk-width-container">
 							<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">

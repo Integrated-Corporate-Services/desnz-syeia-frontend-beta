@@ -10,6 +10,7 @@ import { ConsultationType, isOtherConsultation } from '../../../constants/consul
 import { progressApiService } from '../../../services/progressApiService';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ConsultationDetailsPage');
 
@@ -102,6 +103,7 @@ const ConsultationDetailsPage: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Manage consultations" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

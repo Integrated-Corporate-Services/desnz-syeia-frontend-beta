@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
@@ -77,8 +78,9 @@ const EquipmentVisibility: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Equipment visible from public road?" />
             <div className="govuk-width-container">
-      <LandDetailsBreadcrumbs 
+      <LandDetailsBreadcrumbs
         applicationId={applicationId} 
         currentPage={labels.PAGE_TITLE}
       />

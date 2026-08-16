@@ -8,6 +8,7 @@ import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { isWithinCharacterLimit } from '../../../utils/validation';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
@@ -179,6 +180,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 
 	return (
 		<>
+			<PageTitle title="Consultation not required" />
 						<div className="govuk-width-container">
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">

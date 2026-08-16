@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import {
   LABELS,
   HINTS,
@@ -169,6 +170,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Any negotiations in progress?" />
             <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 

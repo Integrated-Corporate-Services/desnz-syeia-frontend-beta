@@ -5,6 +5,7 @@ import {
   getCurrentUserDetails,
   updateCurrentUserAgencyName,
 } from '../services/yourDetailsService';
+import PageTitle from '../../../components/PageTitle';
 
 type FormErrors = {
   agencyName?: string;
@@ -105,6 +106,7 @@ const ChangeAgencyNamePage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Change your agency name" />
             <div className="govuk-width-container">
       <Link className="govuk-back-link" to="/your-details">
         Back

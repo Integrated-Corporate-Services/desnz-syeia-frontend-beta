@@ -8,6 +8,7 @@ import { formatContactDetails } from "../utils/contactDetailsFormatter";
 import { ContactDetailsSummary } from "../components/ContactDetailsSummary";
 import { ContactConfirmationRadios } from "../components/ContactConfirmationRadios";
 import { BREADCRUMBS, LABELS } from "../constants/contactDetailsConstants";
+import PageTitle from "../../../../components/PageTitle";
 
 const NWL_BASE_URL = "/nwl";
 
@@ -40,7 +41,9 @@ const NetworkOperatorContactDetails: React.FC = () => {
   // Format contact details for display
   const contactDetails = formatContactDetails(party);
 return (
-    <div className="govuk-grid-row">
+    <>
+      <PageTitle title="Check applicant contact details" />
+      <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
@@ -97,6 +100,7 @@ return (
         </form>
       </div>
     </div>
+    </>
   );
 };
 

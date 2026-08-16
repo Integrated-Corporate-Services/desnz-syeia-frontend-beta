@@ -9,6 +9,7 @@ import { saveConsultationRequest, getConsultationRequest } from '../../../servic
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
+import PageTitle from '../../../components/PageTitle';
 
 interface FormErrors {
   firstDate?: string;
@@ -255,6 +256,7 @@ const PublicNoticesEvidence: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Public notices evidence" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

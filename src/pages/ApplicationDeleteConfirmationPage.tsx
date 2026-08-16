@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { applicationApiService } from '../services/applicationApiService';
 import { createLogger } from '../utils/logger';
+import PageTitle from '../components/PageTitle';
 
 const logger = createLogger('ApplicationDeleteConfirmationPage');
 
@@ -69,10 +70,11 @@ export const ApplicationDeleteConfirmationPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      <PageTitle title="Delete application" />
       <div className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <a 
+            <a
               href="#" 
               className="govuk-back-link" 
               onClick={(e) => {

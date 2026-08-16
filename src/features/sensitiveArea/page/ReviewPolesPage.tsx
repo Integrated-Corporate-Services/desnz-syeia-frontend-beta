@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { S37_BASE_URL } from '../../../constants/s37';
+import PageTitle from '../../../components/PageTitle';
 
 const ReviewPolesPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
@@ -98,6 +99,7 @@ const ReviewPolesPage: React.FC = () => {
   if (loading && !review) {
     return (
       <div className="govuk-width-container">
+                  <PageTitle title="Poles in sensitive areas" />
                   <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
@@ -109,6 +111,7 @@ const ReviewPolesPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Poles in sensitive areas" />
             <div className="govuk-width-container">
 
       <a

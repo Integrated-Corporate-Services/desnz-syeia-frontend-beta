@@ -6,6 +6,7 @@ import { getConsultationPack } from '../../../services/consultationPackService';
 import { getFormMetadata, downloadConsultationForm } from '../../../services/consultationFormMetadataService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const log = createLogger('DownloadLpaConsultationFormPage');
 
@@ -180,6 +181,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Download LPA consultation form" />
             <div className="govuk-width-container">
               {/* Breadcrumbs */}
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">

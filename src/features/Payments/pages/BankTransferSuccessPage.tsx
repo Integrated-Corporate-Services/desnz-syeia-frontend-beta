@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import {
@@ -59,6 +60,7 @@ const BankTransferSuccessPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Application submitted" />
             <div className="govuk-width-container">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

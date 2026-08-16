@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckItem, updateManuallySelectedLayers } from '../../../services/sensitiveAreaService';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ReviewManualPage');
 
@@ -200,10 +201,11 @@ const ReviewManualPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Review areas we could not check" />
             <div className="govuk-width-container">
       {/* Back Link - Always visible */}
-      <Link 
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`} 
+      <Link
+        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`}
         className="govuk-back-link"
       >
         Back

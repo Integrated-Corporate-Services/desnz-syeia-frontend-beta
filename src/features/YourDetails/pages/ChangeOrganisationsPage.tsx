@@ -5,6 +5,7 @@ import {
   OrganisationOption,
   submitCurrentUserOrganisationRequest,
 } from '../services/yourDetailsService';
+import PageTitle from '../../../components/PageTitle';
 
 type FormErrors = {
   organisationIds?: string;
@@ -125,6 +126,7 @@ const ChangeOrganisationsPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Change organisations" />
             <div className="govuk-width-container">
               <Link className="govuk-back-link" to="/your-details">
           Back

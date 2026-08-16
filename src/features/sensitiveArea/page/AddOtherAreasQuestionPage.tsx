@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
+import PageTitle from '../../../components/PageTitle';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -178,6 +179,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   if (loading) {
     return (
       <div className="govuk-width-container">
+                  <PageTitle title="Add other sensitive areas?" />
                   <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
@@ -189,10 +191,11 @@ const AddOtherAreasQuestionPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Add other sensitive areas?" />
             <div className="govuk-width-container">
       {/* Back Link - Always visible */}
-      <Link 
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`} 
+      <Link
+        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`}
         className="govuk-back-link"
       >
         Back

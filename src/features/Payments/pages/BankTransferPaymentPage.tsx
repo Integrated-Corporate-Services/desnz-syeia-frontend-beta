@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import {
@@ -128,6 +129,7 @@ const BankTransferPaymentPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Pay by bank transfer" />
             <div className="govuk-width-container">
               <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">

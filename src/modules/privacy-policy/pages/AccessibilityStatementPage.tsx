@@ -1,9 +1,11 @@
 import { PageFeedback, RelatedContent } from '../components';
 import { ACCESSIBILITY, RELATED_LINKS } from '../constants';
+import PageTitle from '../../../components/PageTitle';
 
 export function AccessibilityStatementPage() {
   return (
     <div className="govuk-width-container">
+      <PageTitle title="Accessibility statement" />
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

@@ -7,6 +7,7 @@ import {
   OPTIONS,
 } from "../constants/applicationWithinThreeMonthsConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import PageTitle from "../../../../components/PageTitle";
 
 /**
  * Application Within Three Months Page
@@ -90,6 +91,7 @@ const ApplicationWithinThreeMonths: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Application within three months" />
           <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

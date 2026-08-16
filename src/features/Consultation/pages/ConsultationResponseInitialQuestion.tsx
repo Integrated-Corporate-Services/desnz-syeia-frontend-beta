@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationResponseInitialQuestion: React.FC = () => {
   const { applicationId, consultationId } = useParams();
@@ -27,6 +28,7 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Consultation response received" />
             <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">

@@ -6,6 +6,7 @@ import { useApplication } from '../../../hooks/useApplication';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { ROLES } from '../../../constants/roles';
+import PageTitle from '../../../components/PageTitle';
 
 const DeleteApplicationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ const DeleteApplicationPage: React.FC = () => {
 
   return (
           <div className="govuk-grid-row">
+        <PageTitle title="Delete application" />
         <div className="govuk-grid-column-two-thirds">
           {isSubmitted && !isAdmin ? (
             <>

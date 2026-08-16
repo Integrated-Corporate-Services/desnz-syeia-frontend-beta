@@ -9,6 +9,7 @@ import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCa
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 import log from '../../../logger';
+import PageTitle from '../../../components/PageTitle';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
@@ -247,6 +248,7 @@ useEffect(() => {
 
   return (
     <>
+      <PageTitle title="Share application details" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

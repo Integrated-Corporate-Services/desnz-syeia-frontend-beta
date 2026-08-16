@@ -10,6 +10,7 @@ import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted'
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import EIAFeesSummary from './EIAFeesSummary';
+import PageTitle from '../../../components/PageTitle';
 import {
     validateEiaFeesForm,
     hasFieldError,
@@ -188,6 +189,7 @@ const EIAFeesForm: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="EIA fees" />
                         <div className="govuk-width-container">
             {success && (
                 <div className="govuk-notification-banner govuk-notification-banner--success" role="alert">

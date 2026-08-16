@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 
 const ChangeOrganisationsConfirmationPage: React.FC = () => {
   return (
     <>
+            <PageTitle title="Changes saved" />
             <div className="govuk-width-container">
               <div className="govuk-panel govuk-panel--confirmation govuk-!-margin-bottom-8">
           <h1 className="govuk-panel__title">Your changes have been saved</h1>

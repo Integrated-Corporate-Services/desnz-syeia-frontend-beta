@@ -8,6 +8,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('SensitiveAreaReviewSummary');
 
@@ -40,6 +41,7 @@ const SensitiveAreaReviewSummary: React.FC = () => {
 
     return (
         <>
+                        <PageTitle title="Sensitive area review" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

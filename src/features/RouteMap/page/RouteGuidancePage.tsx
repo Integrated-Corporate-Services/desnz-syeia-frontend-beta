@@ -6,6 +6,7 @@ import eipSimpleRoute from '../../../assets/eip_simple_route-1.png';
 import eipMultipleRoutes from '../../../assets/eip_multiple_routes-2.png';
 import eipRouteOverview from '../../../assets/eip_route_overview-3.png';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import PageTitle from '../../../components/PageTitle';
 
 const RouteGuidancePage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const RouteGuidancePage: React.FC = () => {
   
   return (
     <>
+            <PageTitle title="Route guidance" />
             <div className="govuk-width-container">
       <nav
         className="govuk-breadcrumbs"

@@ -24,6 +24,7 @@ import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import PageTitle from '../../../../components/PageTitle';
 
 /**
  * Important Information Details Page
@@ -144,8 +145,9 @@ const ImportantInformationDetails: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Provide important information" />
             <div className="govuk-width-container">
-      <AdditionalInformationBreadcrumbs 
+      <AdditionalInformationBreadcrumbs
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.IMPORTANT_INFORMATION_DETAILS}
       />

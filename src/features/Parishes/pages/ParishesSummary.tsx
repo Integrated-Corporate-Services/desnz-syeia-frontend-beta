@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useParishes } from '../hooks/useParishes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
@@ -14,6 +15,7 @@ const ParishesSummary: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Parishes summary" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

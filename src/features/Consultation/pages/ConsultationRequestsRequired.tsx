@@ -9,6 +9,7 @@ import { progressApiService } from '../../../services/progressApiService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ConsultationRequestsRequired');
 
@@ -121,6 +122,7 @@ const ConsultationRequestsRequired: React.FC = () => {
 
     return (
         <>
+            <PageTitle title="Consultation requests required" />
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">

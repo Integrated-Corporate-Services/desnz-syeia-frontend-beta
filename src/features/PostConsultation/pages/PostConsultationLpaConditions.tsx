@@ -11,6 +11,7 @@ import {
 } from "../constants";
 import { SaveType } from "../types";
 import { useNavigate } from "react-router-dom";
+import PageTitle from "../../../components/PageTitle";
 
 const PostConsultationLpaConditions: React.FC = () => {
   const { applicationId, getTaskListUrl, navigateAfterCompletion } = usePostConsultationNavigation();
@@ -41,6 +42,7 @@ const PostConsultationLpaConditions: React.FC = () => {
   if (loading) {
     return (
       <>
+                <PageTitle title="Accept LPA conditions" />
                 <div className="govuk-width-container">
                     <p className="govuk-body">
             {POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}
@@ -52,6 +54,7 @@ const PostConsultationLpaConditions: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Accept LPA conditions" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

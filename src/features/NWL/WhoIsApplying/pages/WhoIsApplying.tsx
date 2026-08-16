@@ -1,4 +1,5 @@
 import React from "react";
+import PageTitle from "../../../../components/PageTitle";
 import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import { useNetworkOperators } from "../hooks/useNetworkOperators";
 import { useWhoIsApplyingForm } from "../hooks/useWhoIsApplyingForm";
@@ -25,6 +26,7 @@ const WhoIsApplying: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Who is applying?" />
             <div className="govuk-width-container">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

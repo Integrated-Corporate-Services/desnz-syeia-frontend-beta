@@ -11,6 +11,7 @@ import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import RouteSummary from './RouteSummary';
+import PageTitle from '../../../components/PageTitle';
 export const RouteOverviewPage: React.FC = () => {
     const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
     const [details, setDetails] = React.useState('');
@@ -97,6 +98,7 @@ export const RouteOverviewPage: React.FC = () => {
 
     return (
         <>
+                        <PageTitle title="Route overview" />
                         <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">

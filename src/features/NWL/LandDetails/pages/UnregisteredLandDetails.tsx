@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
@@ -159,8 +160,9 @@ const UnregisteredLandDetails: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Unregistered land details" />
             <div className="govuk-width-container">
-        <LandDetailsBreadcrumbs 
+        <LandDetailsBreadcrumbs
           applicationId={applicationId} 
           currentPage={labels.PAGE_TITLE}
         />

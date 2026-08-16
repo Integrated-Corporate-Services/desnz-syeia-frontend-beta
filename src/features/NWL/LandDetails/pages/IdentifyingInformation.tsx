@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
@@ -72,8 +73,9 @@ const IdentifyingInformation: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Identify the land" />
             <div className="govuk-width-container">
-      <LandDetailsBreadcrumbs 
+      <LandDetailsBreadcrumbs
         applicationId={applicationId} 
         currentPage={labels.PAGE_TITLE}
       />

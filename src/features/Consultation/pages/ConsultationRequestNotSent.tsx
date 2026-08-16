@@ -5,8 +5,9 @@ import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { getConsultationPack } from "../../../services/consultationPackService";
 import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService";
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
-const logger = createLogger('ConsultationRequestNotSent'); 
+const logger = createLogger('ConsultationRequestNotSent');
 
 const ConsultationRequestNotSent: React.FC = () => {
   const params = useParams();
@@ -139,6 +140,7 @@ const handleSaveAndContinue = async () => {
 
   return (
     <>
+      <PageTitle title="Consultation form" />
             <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">

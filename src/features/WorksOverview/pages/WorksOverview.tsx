@@ -19,6 +19,7 @@ import {
 } from '../validations';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import PageTitle from '../../../components/PageTitle';
 
 const initialState = {
   addingOrReplacingPoles: '',
@@ -290,6 +291,7 @@ const WorksOverview: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Works overview" />
             <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">

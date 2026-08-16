@@ -6,6 +6,7 @@ import { sendNotificationEmail } from '../../../services/notifyService';
 import SummaryCard from '../../../components/SummaryCard';
 import Accordion from '../../../components/Accordion';
 import { useAuthUser } from "../../../hooks/useAuthUser";
+import PageTitle from "../../../components/PageTitle";
 
 const SendApplicationToConsultee: React.FC = () => {
   const location = useLocation();
@@ -134,6 +135,7 @@ const SendApplicationToConsultee: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Summary of consultation request" />
             <div className="govuk-width-container">
      <div className="govuk-grid-row">
              <div className="govuk-grid-column-two-thirds">

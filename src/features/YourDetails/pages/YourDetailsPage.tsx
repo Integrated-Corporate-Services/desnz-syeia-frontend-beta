@@ -4,6 +4,7 @@ import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import { getCurrentUserDetails, UserDetailsResponse } from '../services/yourDetailsService';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import { ROLES } from '../../../constants/roles';
+import PageTitle from '../../../components/PageTitle';
 
 const YourDetailsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ const YourDetailsPage: React.FC = () => {
 
   return (
     <>
+            <PageTitle title="Your details" />
             <div className="govuk-width-container">
       <a href="#" className="govuk-back-link" onClick={handleBack}>
         Back

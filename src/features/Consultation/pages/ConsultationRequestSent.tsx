@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useNavigate } from 'react-router-dom';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationRequestSent: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const ConsultationRequestSent: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Consultation request sent" />
             <div className="govuk-width-container">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
