@@ -758,7 +758,7 @@ const ProjectOverview = () => {
 																	value={formState.earliestWorkStartDateMonth || ""}
 																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
 																		setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }));
-																		clearFieldError('earliestWorkStartDate-month');
+																		clearFieldError('earliestWorkStartDate');
 																	}}
 																>
 																	<option value="" disabled>Select one...</option>
@@ -780,7 +780,7 @@ const ProjectOverview = () => {
 																	value={formState.earliestWorkStartDateYear || ""}
 																	onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 																		setFormState(prev => ({ ...prev, earliestWorkStartDateYear: e.target.value }));
-																		clearFieldError('earliestWorkStartDate-year');
+																		clearFieldError('earliestWorkStartDate');
 																	}}
 																/>
 															</div>
@@ -811,7 +811,7 @@ const ProjectOverview = () => {
 																	value={formState.latestWorkStartDateMonth || ""}
 																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
 																		setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }));
-																		clearFieldError('latestWorkStartDate-month');
+																		clearFieldError('latestWorkStartDate');
 																	}}
 																>
 																	<option value="" disabled>Select one...</option>
@@ -833,7 +833,7 @@ const ProjectOverview = () => {
 																	value={formState.latestWorkStartDateYear || ""}
 																	onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 																		setFormState(prev => ({ ...prev, latestWorkStartDateYear: e.target.value }));
-																		clearFieldError('latestWorkStartDate-year');
+																		clearFieldError('latestWorkStartDate');
 																	}}
 																/>
 															</div>
