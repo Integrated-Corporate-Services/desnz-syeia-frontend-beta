@@ -83,7 +83,7 @@ const ConsultationDetailsPage: React.FC = () => {
         try {
             setIsSubmitting(true);
             // Mark consultations as completed
-            await progressApiService.updateApplicationProgress(applicationId, 'Consultations', 'Completed');
+            await progressApiService.updateApplicationProgress(applicationId, 'Consultations', 'Completed', 'S37');
 
             // Navigate to next page
             const nextPageUrl = getNextPageUrl(TASK_NAMES.CONSULTATIONS, applicationId);
