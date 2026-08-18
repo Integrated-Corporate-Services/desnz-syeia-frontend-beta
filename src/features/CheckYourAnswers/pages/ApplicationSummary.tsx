@@ -7,8 +7,6 @@ import { useInvoiceStatus, buildInvoiceDownloadUrl } from "../../../hooks";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { applicationApiService } from "../../../services/applicationApiService";
-import { isAccessDeniedError } from "../../../utils/errorMapper";
-import NotFound from "../../NotFound/NotFound";
 import { StatusBadge } from "../../../components/shared/StatusBadge";
 import {
   NetworkOperatorDetails,
@@ -150,7 +148,6 @@ const ApplicationSummary: React.FC = () => {
   const [postConsultationOutcome, setPostConsultationOutcome] = useState<PostConsultationOutcome | null>(null);
 
   const [allSectionsCompleted, setAllSectionsCompleted] = useState(false);
-  const [accessDenied, setAccessDenied] = useState(false);
 
   const [permissions, setPermissions] = useState<{
     canView: boolean;
@@ -412,7 +409,6 @@ const ApplicationSummary: React.FC = () => {
         setProjectDetails(null);
         setPlanDocuments([]);
         setPermissions(null);
-        if (isAccessDeniedError(err)) setAccessDenied(true);
       });
   }, [applicationId, logger]);
 
@@ -467,10 +463,6 @@ const ApplicationSummary: React.FC = () => {
       withdrawalRequestId: withdrawalRequest?.withdrawal_request_id
     });
   }, [withdrawalRequest, logger]);
-
-  if (accessDenied) {
-    return <NotFound />;
-  }
 
   return (
     <>

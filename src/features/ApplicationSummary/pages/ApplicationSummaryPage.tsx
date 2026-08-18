@@ -11,8 +11,6 @@ import {
     ApplicationSummaryContent,
 } from '../components';
 import SkipLink from '../../../components/SkipLink';
-import NotFound from '../../NotFound/NotFound';
-import { isAccessDeniedError } from '../../../utils/errorMapper';
 
 export const ApplicationSummaryPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -25,7 +23,6 @@ export const ApplicationSummaryPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<ApplicationReviewSummaryData | null>(null);
-    const [accessDenied, setAccessDenied] = useState(false);
 
     useEffect(() => {
         if (!applicationId) {
@@ -40,18 +37,13 @@ export const ApplicationSummaryPage: React.FC = () => {
             try {
                 setLoading(true);
                 setError(null);
-                setAccessDenied(false);
                 const result = await fetchApplicationReviewSummary(applicationId);
                 if (isMounted) {
                     setData(result);
                 }
             } catch (err: unknown) {
                 if (isMounted) {
-                    if (isAccessDeniedError(err)) {
-                        setAccessDenied(true);
-                    } else {
-                        setError(err instanceof Error ? err.message : CONSTANTS.ERROR);
-                    }
+                    setError(err instanceof Error ? err.message : CONSTANTS.ERROR);
                 }
             } finally {
                 if (isMounted) {
@@ -66,10 +58,6 @@ export const ApplicationSummaryPage: React.FC = () => {
             isMounted = false;
         };
     }, [applicationId]);
-
-    if (accessDenied) {
-        return <NotFound />;
-    }
 
     if (loading) {
         return (
