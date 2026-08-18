@@ -10,9 +10,21 @@ import { createLogger } from '../utils/logger';
 const logger = createLogger('useTaskListData');
 
 export function useTaskListData() {
-    const { application, fetchApplication, submitApplication: submitApp } = useApplication();
+    const {
+        application,
+        fetchApplication,
+        submitApplication: submitApp,
+        accessDenied: applicationAccessDenied,
+    } = useApplication();
     const { applicationId } = useParams();
-    const { progress, loading: progressLoading, error: progressError, fetchProgress } = useProgress();
+    const {
+        progress,
+        loading: progressLoading,
+        error: progressError,
+        fetchProgress,
+        accessDenied: progressAccessDenied,
+    } = useProgress();
+    const accessDenied = applicationAccessDenied || progressAccessDenied;
     const [assetInformationStatus, setAssetInformationStatus] = useState<string>('Incomplete');
     const [sections, setSections] = useState(getInitialSections(applicationId || application?.application_id, assetInformationStatus));
     const [submitting, setSubmitting] = useState(false);
@@ -177,5 +189,6 @@ export function useTaskListData() {
         statusClass,
         progressLoading,
         progressError,
+        accessDenied,
     };
 }

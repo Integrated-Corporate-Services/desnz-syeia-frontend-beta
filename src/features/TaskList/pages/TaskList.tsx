@@ -10,6 +10,7 @@ import { ROLES } from '../../../constants/roles';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createLogger } from '../../../utils/logger';
 import SkipLink from '../../../components/SkipLink';
+import NotFound from '../../NotFound/NotFound';
 
 const logger = createLogger('TaskList');
 
@@ -30,7 +31,12 @@ const TaskList: React.FC = () => {
     sensitiveAreaStatus,
     showSensitiveAreaPopup,
     statusClass,
+    accessDenied,
   } = useTaskListData();
+
+  if (accessDenied) {
+    return <NotFound />;
+  }
 
   // Determine the base URL from the current path
   const getBaseUrl = () => {

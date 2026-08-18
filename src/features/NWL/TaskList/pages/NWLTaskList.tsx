@@ -5,7 +5,12 @@ import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
+import { isAccessDeniedError } from '../../../../utils/errorMapper';
+import { createLogger } from '../../../../utils/logger';
 import SkipLink from '../../../../components/SkipLink';
+import NotFound from '../../../NotFound/NotFound';
+
+const logger = createLogger('NWLTaskList');
 
 const NWLTaskList: React.FC = () => {
 	const params = useParams();
@@ -15,6 +20,7 @@ const NWLTaskList: React.FC = () => {
 	const [progress, setProgress] = useState<any>(null);
 	const [orgName, setOrgName] = useState('');
 	const [submitting] = useState(false);
+	const [accessDenied, setAccessDenied] = useState(false);
 	const lastFetchedAppId = useRef<string | null>(null);
 
 	// Get applicationId from params, query, or application state
@@ -36,6 +42,7 @@ const NWLTaskList: React.FC = () => {
 	useEffect(() => {
 		if (!appId || lastFetchedAppId.current === appId) return;
 		lastFetchedAppId.current = appId;
+		setAccessDenied(false);
 		// Fetch application
 		applicationApiService.getApplicationById(appId)
 			.then(app => {
@@ -45,11 +52,23 @@ const NWLTaskList: React.FC = () => {
 				} else {
 					setOrgName('');
 				}
+			})
+			.catch(err => {
+				logger.error('Failed to fetch application', { appId, error: err });
+				if (isAccessDeniedError(err)) setAccessDenied(true);
 			});
 		// Fetch progress
 		progressApiService.fetchApplicationProgress(appId)
-			.then(data => setProgress(data));
+			.then(data => setProgress(data))
+			.catch(err => {
+				logger.error('Failed to fetch application progress', { appId, error: err });
+				if (isAccessDeniedError(err)) setAccessDenied(true);
+			});
 	}, [appId]);
+
+	if (accessDenied) {
+		return <NotFound />;
+	}
 
 	// Helper to get status for a subsection, always based on current progress and appId
 	const getStatus = (subsectionName: string) => {

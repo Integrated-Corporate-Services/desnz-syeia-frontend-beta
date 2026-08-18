@@ -72,7 +72,9 @@ export const fetchApplicationReviewSummary = async (
 
     if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to fetch application summary: ${response.status} ${errorText}`);
+        const error = new Error(`Failed to fetch application summary: ${response.status} ${errorText}`) as Error & { status?: number };
+        error.status = response.status;
+        throw error;
     }
 
     const data = await response.json();
@@ -108,7 +110,9 @@ export const fetchApplicationSummary = async (
 
     if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to fetch application summary: ${response.status} ${errorText}`);
+        const error = new Error(`Failed to fetch application summary: ${response.status} ${errorText}`) as Error & { status?: number };
+        error.status = response.status;
+        throw error;
     }
 
     const data = await response.json();
