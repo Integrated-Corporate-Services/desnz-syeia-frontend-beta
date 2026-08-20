@@ -7,6 +7,7 @@ import { buildBackendUrl } from '../../../../utils/apiConfig';
 
 export interface NWLCheckYourAnswersResponse {
     applicationId: string;
+    declarationConfirmed?: boolean;
     applicantDetails: any;
     applicationDetails: any;
     noticeCompliance: any;
@@ -68,6 +69,7 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
     // Transform API response to match expected structure if needed
     return {
         applicationId,
+        declarationConfirmed: data.declarationConfirmed || false,
         applicantDetails: data.sections?.applicantDetails || null,
         applicationDetails: data.sections?.applicationDetails || null,
         noticeCompliance: data.sections?.noticeCompliance || null,
@@ -81,4 +83,30 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
         additionalInformation: data.sections?.additionalInformation || null,
         permissions: data.permissions || { canEdit: true },
     };
+};
+
+/**
+ * Update declaration confirmation status
+ * This will trigger backend to mark progress as completed only when declaration is confirmed
+ */
+export const updateDeclarationConfirmation = async (
+    applicationId: string,
+    declarationConfirmed: boolean
+): Promise<void> => {
+    const response = await fetch(
+        buildBackendUrl(`/api/applications/${applicationId}/declaration`),
+        {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ declaration_confirmed: declarationConfirmed }),
+        }
+    );
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update declaration confirmation: ${response.status} ${errorText}`);
+    }
 };

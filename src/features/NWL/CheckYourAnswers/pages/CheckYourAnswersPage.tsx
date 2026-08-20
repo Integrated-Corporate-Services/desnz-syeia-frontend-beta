@@ -7,7 +7,7 @@ import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('CheckYourAnswersPage');
 
-import { fetchCheckYourAnswersData } from '../services';
+import { fetchCheckYourAnswersData, updateDeclarationConfirmation } from '../services';
 import { useDocumentDownload } from '../hooks';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 
@@ -37,6 +37,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [submitting, setSubmitting] = useState(false);
     const [declarationConfirmed, setDeclarationConfirmed] = useState(false);
     const [declarationError, setDeclarationError] = useState(false);
+    const [updatingDeclaration, setUpdatingDeclaration] = useState(false);
 
     const [applicantDetails, setApplicantDetails] = useState<any>(null);
     const [applicationDetails, setApplicationDetails] = useState<any>(null);
@@ -73,19 +74,11 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setNegotiations(data.negotiations);
                 setAdditionalInformation(data.additionalInformation);
                 setPermissions(data.permissions);
+                
+                // Load existing declaration status from backend
+                setDeclarationConfirmed(data.declarationConfirmed || false);
 
                 setLoading(false);
-
-                // Mark "Check your answers" section as completed when page loads successfully
-                // Only update progress if user has edit permissions (avoids 403 for read-only users)
-                if (data.permissions.canEdit) {
-                    try {
-                        await updateProgress('Check your answers', 'Completed');
-                    } catch (progressError) {
-                        logger.error('Failed to update Check your answers progress:', progressError);
-                        // Don't block the user from viewing the page if progress update fails
-                    }
-                }
             } catch {
                 setLoading(false);
             }
@@ -96,6 +89,34 @@ export const CheckYourAnswersPage: React.FC = () => {
 
     // Use custom hook for document downloads
     useDocumentDownload(applicationId);
+
+    const handleDeclarationChange = async (checked: boolean) => {
+        // Update local state immediately for better UX
+        setDeclarationConfirmed(checked);
+        if (checked) {
+            setDeclarationError(false);
+        }
+
+        // Only call backend if user has edit permissions
+        if (!permissions.canEdit) {
+            return;
+        }
+
+        try {
+            setUpdatingDeclaration(true);
+            await updateDeclarationConfirmation(applicationId!, checked);
+            logger.info('Declaration confirmation updated successfully', {
+                applicationId,
+                declarationConfirmed: checked,
+            });
+        } catch (error) {
+            logger.error('Failed to update declaration confirmation:', error);
+            // Revert local state on error
+            setDeclarationConfirmed(!checked);
+        } finally {
+            setUpdatingDeclaration(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -213,12 +234,8 @@ export const CheckYourAnswersPage: React.FC = () => {
                                                 name="declaration" 
                                                 type="checkbox" 
                                                 checked={declarationConfirmed} 
-                                                onChange={(e) => {
-                                                    setDeclarationConfirmed(e.target.checked);
-                                                    if (e.target.checked) {
-                                                        setDeclarationError(false);
-                                                    }
-                                                }}
+                                                onChange={(e) => handleDeclarationChange(e.target.checked)}
+                                                disabled={updatingDeclaration}
                                                 aria-describedby={declarationError ? 'declaration-error' : undefined}
                                             />
                                             <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">

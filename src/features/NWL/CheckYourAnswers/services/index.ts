@@ -4,4 +4,4 @@
  * Exports API service for fetching Check Your Answers data
  */
 
-export { fetchCheckYourAnswersData } from './apiService';
+export { fetchCheckYourAnswersData, updateDeclarationConfirmation } from './apiService';
