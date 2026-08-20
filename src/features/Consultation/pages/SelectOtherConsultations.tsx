@@ -183,7 +183,7 @@ const SelectOtherConsultations: React.FC = () => {
 
             // Update consultation task progress as in progress
             try {
-                await progressApiService.updateApplicationProgress(applicationId, 'CONSULTATION', 'IN_PROGRESS');
+                await progressApiService.updateApplicationProgress(applicationId, 'CONSULTATION', 'IN_PROGRESS', 'S37');
                 log.debug('[SelectOtherConsultations] Consultation task progress updated to IN_PROGRESS');
             } catch (progressError) {
                 log.error('[SelectOtherConsultations] Error updating consultation progress:', progressError);

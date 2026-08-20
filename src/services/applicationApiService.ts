@@ -56,6 +56,12 @@ export const applicationApiService = {
       credentials: "include",
       headers,
     });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(errorData.message || errorData.error || "Failed to fetch application") as Error & { status?: number };
+      error.status = response.status;
+      throw error;
+    }
     return response.json();
   },
 
@@ -278,9 +284,12 @@ getApplicationReview: async (applicationId: string, correlationId?: string) => {
   );
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch application review: ${response.statusText}`,
-    );
+    const errorData = await response.json().catch(() => ({}));
+    const error = new Error(
+      errorData.message || errorData.error || `Failed to fetch application review: ${response.statusText}`,
+    ) as Error & { status?: number };
+    error.status = response.status;
+    throw error;
   }
 
   return response.json();

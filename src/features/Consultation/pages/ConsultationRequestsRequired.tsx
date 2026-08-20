@@ -81,7 +81,8 @@ const ConsultationRequestsRequired: React.FC = () => {
                 await progressApiService.updateApplicationProgress(
                     applicationId,
                     'Consultations',
-                    'In progress'
+                    'In progress',
+                    'S37'
                 );
                 log.debug('[ConsultationRequestsRequired] Updated consultation status to "In progress"');
             }
