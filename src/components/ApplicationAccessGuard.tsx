@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { applicationApiService } from '../services/applicationApiService';
 import { isAccessDeniedError } from '../utils/errorMapper';
-import NotFound from '../features/NotFound/NotFound';
+import NotFoundContent from '../features/NotFound/NotFoundContent';
 
 interface ApplicationAccessGuardProps {
   children: React.ReactNode;
@@ -51,7 +51,7 @@ const ApplicationAccessGuard: React.FC<ApplicationAccessGuardProps> = ({ childre
   }
 
   if (status === 'denied') {
-    return <NotFound />;
+    return <NotFoundContent />;
   }
 
   return <>{children}</>;
