@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { applicationApiService } from '../services/applicationApiService';
+import { isAccessDeniedError } from '../utils/errorMapper';
 import type { Application, NewApplication } from '../types/application';
 
 export function useApplication() {
@@ -7,16 +8,19 @@ export function useApplication() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   const fetchApplication = useCallback(async (applicationId: string) => {
     setLoading(true);
     setError(null);
+    setAccessDenied(false);
     try {
       const data = await applicationApiService.getApplicationById(applicationId);
       setApplication(data);
       return data;
     } catch (err: any) {
       setError(err.message || 'Failed to fetch application');
+      if (isAccessDeniedError(err)) setAccessDenied(true);
       throw err;
     } finally {
       setLoading(false);
@@ -76,6 +80,7 @@ export function useApplication() {
     applications,
     loading,
     error,
+    accessDenied,
     fetchApplication,
     fetchApplications,
     createNewApplication,

@@ -5,7 +5,10 @@ import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
+import { createLogger } from '../../../../utils/logger';
 import SkipLink from '../../../../components/SkipLink';
+
+const logger = createLogger('NWLTaskList');
 
 const NWLTaskList: React.FC = () => {
 	const params = useParams();
@@ -45,10 +48,16 @@ const NWLTaskList: React.FC = () => {
 				} else {
 					setOrgName('');
 				}
+			})
+			.catch(err => {
+				logger.error('Failed to fetch application', { appId, error: err });
 			});
 		// Fetch progress
 		progressApiService.fetchApplicationProgress(appId)
-			.then(data => setProgress(data));
+			.then(data => setProgress(data))
+			.catch(err => {
+				logger.error('Failed to fetch application progress', { appId, error: err });
+			});
 	}, [appId]);
 
 	// Helper to get status for a subsection, always based on current progress and appId
