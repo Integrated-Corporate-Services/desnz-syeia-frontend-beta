@@ -100,14 +100,17 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
     const responsePath = isLpaJourney ? 'response-initial' : 'response';
     const responseUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/${responsePath}`;
     
-    let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question`;
+    // URL encode the display name for query parameters
+    const encodedName = encodeURIComponent(displayName);
+    
+    let requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question?consultationName=${encodedName}`;
     
     if (consultationType === ConsultationType.PUBLIC) {
-        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`;
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices?consultationName=${encodedName}`;
     } else if (isLpaJourney) {
-        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question`;
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/initial-question?consultationName=${encodedName}`;
     } else if (statusDisplay === ConsultationStatus.DRAFT) {
-        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request`;
+        requestUrlWithParams = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request?consultationName=${encodedName}`;
     }
 
     const notRequiredPageUrl = `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/not-required`;
