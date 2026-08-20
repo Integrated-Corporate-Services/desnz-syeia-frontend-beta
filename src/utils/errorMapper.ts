@@ -1,12 +1,3 @@
-/**
- * Error Message Mapper
- * 
- * Security: Sanitizes error messages to prevent information disclosure
- * - Maps technical errors to user-friendly messages
- * - Prevents exposure of: stack traces, API endpoints, validation rules, DB details
- * - Logs full technical details for debugging (not shown to users)
- */
-
 import { createLogger } from './logger';
 
 const logger = createLogger('ErrorMapper');
@@ -252,6 +243,11 @@ export const ErrorMessages = {
  */
 export function isApiError(error: any): error is { status: number; message: string } {
   return error && typeof error === 'object' && 'status' in error;
+}
+
+export function isAccessDeniedError(error: any): boolean {
+  const status = error?.status || error?.response?.status;
+  return status === 403 || status === 404;
 }
 
 /**

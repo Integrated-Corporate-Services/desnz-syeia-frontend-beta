@@ -37,7 +37,7 @@ const ConsultationInitialQuestion: React.FC = () => {
         if (consultationDetails?.consultationType === ConsultationType.PUBLIC) {
           log.info('[ConsultationInitialQuestion] Redirecting to public notices page for PUBLIC consultation');
           navigate(
-            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices`
+            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/public-notices?consultationName=${encodeURIComponent(consultationName)}`
           );
           return;
         }
@@ -46,7 +46,7 @@ const ConsultationInitialQuestion: React.FC = () => {
         if (!isLpaJourney(consultationDetails?.consultationType || '')) {
           log.info('[ConsultationInitialQuestion] Redirecting to consultation request page for non-LPA consultation');
           navigate(
-            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request`
+            `${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/consultation-request?consultationName=${encodeURIComponent(consultationName)}`
           );
           return;
         }

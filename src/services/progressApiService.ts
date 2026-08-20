@@ -9,7 +9,12 @@ export const progressApiService = {
     const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/progress`), {
       credentials: 'include'
     });
-    if (!response.ok) throw new Error('Failed to fetch application progress');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(errorData.message || errorData.error || 'Failed to fetch application progress') as Error & { status?: number };
+      error.status = response.status;
+      throw error;
+    }
     return response.json();
   },
 

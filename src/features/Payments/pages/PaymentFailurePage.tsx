@@ -176,46 +176,18 @@ const PaymentFailurePage: React.FC = () => {
 
             {showBanner && (
               <div
+                className="govuk-notification-banner"
                 role="region"
                 aria-labelledby="payment-failure-banner-title"
-                style={{
-                  border: '3px solid #1d70b8',
-                  marginBottom: '30px',
-                }}
+                data-module="govuk-notification-banner"
               >
-                <div
-                  style={{
-                    backgroundColor: '#1d70b8',
-                    padding: '10px 15px',
-                  }}
-                >
-                  <h2
-                    id="payment-failure-banner-title"
-                    style={{
-                      color: '#ffffff',
-                      margin: 0,
-                      fontSize: '19px',
-                      fontWeight: 700,
-                    }}
-                  >
+                <div className="govuk-notification-banner__header">
+                  <h2 className="govuk-notification-banner__title" id="payment-failure-banner-title">
                     Important
                   </h2>
                 </div>
-                <div
-                  style={{
-                    backgroundColor: '#ffffff',
-                    padding: '15px',
-                  }}
-                >
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: '36px',
-                      lineHeight: '1.2',
-                      fontWeight: 700,
-                      color: '#0b0c0c',
-                    }}
-                  >
+                <div className="govuk-notification-banner__content">
+                  <p className="govuk-notification-banner__heading">
                     The payment was unsuccessful and your application has not been submitted.
                   </p>
                 </div>
@@ -271,10 +243,6 @@ const PaymentFailurePage: React.FC = () => {
                 Return to application
               </Link>
             </div>
-
-            {state.errorMessage && (
-              <p className="govuk-body-s govuk-!-margin-top-3">{state.errorMessage}</p>
-            )}
           </div>
         </div>
           </div>

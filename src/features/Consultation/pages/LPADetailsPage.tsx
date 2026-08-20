@@ -120,7 +120,7 @@ const LPADetailsPage: React.FC = () => {
             await saveLpaDetails(applicationId!, consultationId!, formData);
             setErrors({});
             setSubmitted(false);
-            navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development`);
+            navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(consultationName)}`);
         } catch (error) {
             log.error('Error saving LPA details:', error);
             setErrors((prev) => ({

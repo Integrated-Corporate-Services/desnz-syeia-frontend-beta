@@ -53,7 +53,7 @@ const ConsultationDetailsPage: React.FC = () => {
 
     const handleRemoveConsultation = (consultationId: string, consultationName: string) => {
         // Navigate to the Remove Consultation page
-        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/remove`);
+        navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/remove?consultationName=${encodeURIComponent(consultationName)}`);
     };
 
     const handleSaveAndContinue = async () => {
@@ -83,7 +83,7 @@ const ConsultationDetailsPage: React.FC = () => {
         try {
             setIsSubmitting(true);
             // Mark consultations as completed
-            await progressApiService.updateApplicationProgress(applicationId, 'Consultations', 'Completed');
+            await progressApiService.updateApplicationProgress(applicationId, 'Consultations', 'Completed', 'S37');
 
             // Navigate to next page
             const nextPageUrl = getNextPageUrl(TASK_NAMES.CONSULTATIONS, applicationId);

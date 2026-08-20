@@ -12,6 +12,7 @@ import { useAuthUserContext } from "./context/AuthUserContext";
 import { AutoScrollToTop } from "./components/shared/AutoScrollToTop";
 import LandingPage from "./features/SignIn/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ApplicationAccessGuard from "./components/ApplicationAccessGuard";
 import { createLogger } from "./utils/logger";
 import { CookieBanner, CookieConsentProvider } from "./modules/cookie-consent";
 import { usePageTracking } from "./lib/analytics";
@@ -103,13 +104,18 @@ const AppContent = () => {
                     <Route key={path} path={path} element={<LandingPage />} />
                   );
                 }
-                const element = auth ? (
-                  <ProtectedRoute>
-                    <Component />
-                  </ProtectedRoute>
-                ) : (
-                  <Component />
-                );
+                const isApplicationScoped = path.includes(":applicationId");
+                let element = <Component />;
+                if (isApplicationScoped) {
+                  element = (
+                    <ApplicationAccessGuard>
+                      <Component />
+                    </ApplicationAccessGuard>
+                  );
+                }
+                if (auth) {
+                  element = <ProtectedRoute>{element}</ProtectedRoute>;
+                }
                 return <Route key={path} path={path} element={element} />;
               })}
             </Routes>
@@ -123,13 +129,18 @@ const AppContent = () => {
                   <Route key={path} path={path} element={<LandingPage />} />
                 );
               }
-              const element = auth ? (
-                <ProtectedRoute>
-                  <Component />
-                </ProtectedRoute>
-              ) : (
-                <Component />
-              );
+              const isApplicationScoped = path.includes(":applicationId");
+              let element = <Component />;
+              if (isApplicationScoped) {
+                element = (
+                  <ApplicationAccessGuard>
+                    <Component />
+                  </ApplicationAccessGuard>
+                );
+              }
+              if (auth) {
+                element = <ProtectedRoute>{element}</ProtectedRoute>;
+              }
               return <Route key={path} path={path} element={element} />;
             })}
           </Routes>
