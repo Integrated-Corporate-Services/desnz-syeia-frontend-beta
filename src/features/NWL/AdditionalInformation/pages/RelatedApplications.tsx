@@ -79,23 +79,9 @@ const RelatedApplications: React.FC = () => {
         other_information_details: additionalInformationData?.other_information_details || undefined,
       });
 
-      // If "no", update progress to Completed (the flow is done)
-      if (hasRelatedApplications === 'no') {
-        try {
-          await updateProgress('Additional information', 'Completed');
-          logger.info('[RelatedApplications] Progress updated for Additional information section');
-        } catch (progressError) {
-          logger.error('[RelatedApplications] Error updating progress', progressError);
-          // Continue even if progress update fails
-        }
-      }
-
-      // Navigate based on response
-      if (hasRelatedApplications === 'yes') {
-        navigateToOtherImportantInformation();
-      } else {
-        navigateToTaskList();
-      }
+      // Always navigate to OtherImportantInformation page regardless of Yes/No
+      // Both questions must be answered before completing the section
+      navigateToOtherImportantInformation();
     } catch (error: unknown) {
       logger.error('Error saving related applications:', error);
       const errorMessage = error && typeof error === 'object' && 'response' in error && 
