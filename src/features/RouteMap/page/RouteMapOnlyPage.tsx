@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import SensitiveAreaCheckMap from '../../../components/SensitiveAreaCheckMap';
 import { useRoutes } from '../../../hooks/useRoutes';
+import PageTitle from '../../../components/PageTitle';
 
 const RouteMapOnlyPage: React.FC = () => {
   const { applicationId } = useParams();
@@ -27,6 +28,7 @@ const RouteMapOnlyPage: React.FC = () => {
 
   return (
     <div style={{ width: 960, height: 510, background: "#fff" }}>
+      <PageTitle title="Route map" />
       <SensitiveAreaCheckMap
         routes={transformedRoutes}
         mode="overview"

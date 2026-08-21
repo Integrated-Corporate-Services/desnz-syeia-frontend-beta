@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
-import SkipLink from "../../components/SkipLink";
 
 const WorkAddressPage: React.FC = () => {
   const navigate = useNavigate();
@@ -118,8 +117,7 @@ const WorkAddressPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <Link
           to="/request-access/contact-details"
           className="govuk-back-link"
@@ -127,8 +125,7 @@ const WorkAddressPage: React.FC = () => {
         Back
       </Link>
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
             
@@ -194,8 +191,7 @@ const WorkAddressPage: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

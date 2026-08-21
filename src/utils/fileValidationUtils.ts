@@ -4,7 +4,8 @@ import {
   ALLOWED_FILE_EXTENSIONS,
   BIFF_RECORD_CONSTANTS,
   PASSWORD_PROTECTION_SIGNATURES,
-  PASSWORD_DETECTION_READ_SIZES
+  PASSWORD_DETECTION_READ_SIZES,
+  EXTENSION_TO_MIME_TYPE
 } from './fileValidationConstants';
 import { UploadedFile } from '../types/fileUpload';
 import { createLogger } from './logger';
@@ -348,4 +349,19 @@ export const findWordEncryptionFlag = (
   });
 
   return false;
+};
+
+export const getMimeType = (file: File): string => {
+  // If browser detected a valid MIME type, use it
+  if (file.type && file.type !== 'application/octet-stream') {
+    return file.type;
+  }
+  
+  // Otherwise, map from extension
+  const ext = file.name.toLowerCase().match(/\.[^.]+$/)?.[0];
+  if (ext && EXTENSION_TO_MIME_TYPE[ext]) {
+    return EXTENSION_TO_MIME_TYPE[ext];
+  }
+  
+  return 'application/octet-stream';
 };

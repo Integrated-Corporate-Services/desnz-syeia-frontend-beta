@@ -4,7 +4,7 @@ import { useManageUsers } from '../../../hooks/useManageUsers';
 import { useManageUsersNavigation } from '../../../hooks/useManageUsersNavigation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -30,12 +30,9 @@ const RevokeUserAccessPage: React.FC = () => {
   if (loading) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <LoadingSkeleton type="default" />
-          </main>
-        </div>
+                <div className="govuk-width-container">
+                      <LoadingSkeleton type="default" />
+                  </div>
       </>
     );
   }
@@ -64,10 +61,8 @@ const RevokeUserAccessPage: React.FC = () => {
   if (!user) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
+                <div className="govuk-width-container">
+                      <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
               <h2 className="govuk-error-summary__title" id="error-summary-title">
                 User not found
               </h2>
@@ -82,18 +77,16 @@ const RevokeUserAccessPage: React.FC = () => {
             >
               Return to user management
             </a>
-          </main>
-        </div>
+                  </div>
       </>
     );
   }
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <a
+      <PageTitle title="Revoke access" />
+            <div className="govuk-width-container">
+              <a
           href="#"
           className="govuk-back-link"
           onClick={handleBack}
@@ -173,8 +166,7 @@ const RevokeUserAccessPage: React.FC = () => {
             </p>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

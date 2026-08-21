@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import {
   LABELS,
   FORM_LABELS,
@@ -23,7 +24,6 @@ import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload'
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { createLogger } from '../../../../utils/logger';
-import SkipLink from '../../../../components/SkipLink';
 
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 
@@ -160,10 +160,10 @@ const EvidenceOfNegotiations: React.FC = () => {
       return;
     }
 
-    logger.debug('[EvidenceOfNegotiations] ✓ Validation passed');
+    logger.debug('[EvidenceOfNegotiations] âœ“ Validation passed');
 
     if (!appId) {
-      logger.error('[EvidenceOfNegotiations] ✗ No appId - cannot submit');
+      logger.error('[EvidenceOfNegotiations] âœ— No appId - cannot submit');
       return;
     }
 
@@ -219,12 +219,11 @@ const EvidenceOfNegotiations: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Provide evidence of negotiations" />
+            <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.EVIDENCE_TITLE}</h1>
 
@@ -281,8 +280,7 @@ const EvidenceOfNegotiations: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

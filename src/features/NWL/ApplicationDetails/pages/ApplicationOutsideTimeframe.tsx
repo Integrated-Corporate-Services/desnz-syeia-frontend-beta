@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -7,6 +6,7 @@ import {
   LABELS,
 } from "../constants/applicationOutsideTimeframeConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import PageTitle from "../../../../components/PageTitle";
 
 /**
  * Application Outside Timeframe Page
@@ -61,8 +61,8 @@ const ApplicationOutsideTimeframe: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-    <div className="govuk-width-container">
+      <PageTitle title="Application outside timeframe" />
+          <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -80,8 +80,7 @@ const ApplicationOutsideTimeframe: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
               <div
@@ -159,8 +158,7 @@ const ApplicationOutsideTimeframe: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

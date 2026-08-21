@@ -1,9 +1,11 @@
 import { ContactInfo, PageFeedback, RelatedContent } from '../components';
 import { CONTACT, RELATED_LINKS } from '../constants';
+import PageTitle from '../../../components/PageTitle';
 
 export function ContactPage() {
   return (
     <div className="govuk-width-container">
+      <PageTitle title="Contact us" />
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

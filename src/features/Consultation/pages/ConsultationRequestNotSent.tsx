@@ -4,10 +4,10 @@ import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom"
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { getConsultationPack } from "../../../services/consultationPackService";
 import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService";
-import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
-const logger = createLogger('ConsultationRequestNotSent'); 
+const logger = createLogger('ConsultationRequestNotSent');
 
 const ConsultationRequestNotSent: React.FC = () => {
   const params = useParams();
@@ -140,8 +140,8 @@ const handleSaveAndContinue = async () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Consultation form" />
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -160,12 +160,11 @@ const handleSaveAndContinue = async () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        <h2 className="govuk-caption-xl govuk-!-margin-top-0">
+              <h2 className="govuk-caption-xl govuk-!-margin-top-0">
         {lpaName}
         </h2>
         <h1 className="govuk-heading-l">
-          Consultation form for electric overhead lines – Part 1
+          Consultation form for electric overhead lines â€“ Part 1
         </h1>
 
         {errorMessage && (
@@ -228,8 +227,7 @@ const handleSaveAndContinue = async () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

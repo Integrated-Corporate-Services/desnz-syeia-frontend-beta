@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { S37_BASE_URL } from '../../../constants/s37';
@@ -6,6 +6,7 @@ import { useApplication } from '../../../hooks/useApplication';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import { ROLES } from '../../../constants/roles';
+import PageTitle from '../../../components/PageTitle';
 
 const DeleteApplicationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -48,8 +49,8 @@ const DeleteApplicationPage: React.FC = () => {
 };
 
   return (
-    <main className="govuk-width-container" id="main-content" tabIndex={-1}>
-      <div className="govuk-grid-row">
+          <div className="govuk-grid-row">
+        <PageTitle title="Delete application" />
         <div className="govuk-grid-column-two-thirds">
           {isSubmitted && !isAdmin ? (
             <>
@@ -109,8 +110,7 @@ const DeleteApplicationPage: React.FC = () => {
           )}
         </div>
       </div>
-    </main>
-  );
+      );
 };
 
 export default DeleteApplicationPage;

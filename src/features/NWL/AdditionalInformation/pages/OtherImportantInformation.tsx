@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
-import SkipLink from '../../../../components/SkipLink';
+import PageTitle from '../../../../components/PageTitle';
 
 /**
  * Other Important Information Page
@@ -101,15 +101,14 @@ const OtherImportantInformation: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-        <AdditionalInformationBreadcrumbs 
+      <PageTitle title="Other important information" />
+            <div className="govuk-width-container">
+        <AdditionalInformationBreadcrumbs
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.OTHER_IMPORTANT_INFORMATION}
       />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} />
 
@@ -174,8 +173,7 @@ const OtherImportantInformation: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>    </>  );
+          </div>    </>  );
 };
 
 export default OtherImportantInformation;

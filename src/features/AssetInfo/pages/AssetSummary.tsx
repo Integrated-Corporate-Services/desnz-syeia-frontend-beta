@@ -6,7 +6,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 /**
  * Assets Summary Page
@@ -55,8 +55,8 @@ const AssetSummary: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Asset summary" />
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -70,8 +70,7 @@ const AssetSummary: React.FC = () => {
                 </ol>
             </nav>
 
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {/* Warning banner */}
                         <div className="govuk-warning-text">
@@ -180,8 +179,7 @@ const AssetSummary: React.FC = () => {
                         </Link>
                     </div>
                 </div>
-            </main>
-            </div>
+                        </div>
         </>
     );
 };

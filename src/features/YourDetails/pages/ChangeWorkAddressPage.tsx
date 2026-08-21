@@ -6,7 +6,7 @@ import {
   UpdateWorkAddressPayload,
   updateCurrentUserWorkAddress,
 } from '../services/yourDetailsService';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 type FormErrors = {
   line1?: string;
@@ -148,14 +148,13 @@ const ChangeWorkAddressPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Change your work address" />
+            <div className="govuk-width-container">
       <Link className="govuk-back-link" to="/your-details">
         Back
       </Link>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Change your work address</h1>
+              <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Change your work address</h1>
 
         {loading && <p className="govuk-body">Loading...</p>}
 
@@ -291,8 +290,7 @@ const ChangeWorkAddressPage: React.FC = () => {
             </form>
           </>
         )}
-      </main>
-    </div>
+          </div>
     </>
   );
 };

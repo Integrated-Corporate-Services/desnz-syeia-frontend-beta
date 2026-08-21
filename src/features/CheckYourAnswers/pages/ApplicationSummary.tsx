@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { ConsultationType } from "../../../constants/consultationType";
@@ -28,7 +28,6 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
-import SkipLink from "../../../components/SkipLink";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
 
 import {
@@ -49,6 +48,7 @@ import {
   BANK_TRANSFER_SUCCESS_PAGE,
   PAYMENT_METHOD,
 } from '../../../constants/payment';
+import PageTitle from '../../../components/PageTitle';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -466,8 +466,8 @@ const ApplicationSummary: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Application summary" />
+            <div className="govuk-width-container">
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">
           Back
@@ -490,9 +490,8 @@ const ApplicationSummary: React.FC = () => {
           </ol>
         </nav>
       )}
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">        
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-three-quarters">
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-three-quarters">
             
             {/* Withdrawal request notification banner */}
             {withdrawalRequest && withdrawalRequest.request_status === 'Requested' && (
@@ -1916,8 +1915,8 @@ const ApplicationSummary: React.FC = () => {
                           className="govuk-label govuk-checkboxes__label"
                           htmlFor="organisation"
                         >
-                          I confirm I’ve read and understood the information
-                          I’ve provided, and that it’s accurate to the best of
+                          I confirm I�ve read and understood the information
+                          I�ve provided, and that it�s accurate to the best of
                           my knowledge.
                         </label>
                       </div>
@@ -1939,7 +1938,6 @@ const ApplicationSummary: React.FC = () => {
             )}
           </div>
         </div>
-      </main>
     </div>
     </>
   );

@@ -10,6 +10,7 @@ import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted'
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import EIAFeesSummary from './EIAFeesSummary';
+import PageTitle from '../../../components/PageTitle';
 import {
     validateEiaFeesForm,
     hasFieldError,
@@ -18,7 +19,6 @@ import {
     type ValidationError,
     EIA_FEES_ERROR_MESSAGES,
 } from '../validations';
-import SkipLink from '../../../components/SkipLink';
 
 const EIAFeesForm: React.FC = () => {
     const navigate = useNavigate();
@@ -189,8 +189,8 @@ const EIAFeesForm: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="EIA fees" />
+                        <div className="govuk-width-container">
             {success && (
                 <div className="govuk-notification-banner govuk-notification-banner--success" role="alert">
                     <div className="govuk-notification-banner__header">
@@ -233,8 +233,7 @@ const EIAFeesForm: React.FC = () => {
                     </div>
                 </div>
             )}
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <h1 className="govuk-heading-l">EIA fees</h1>
 
@@ -283,8 +282,7 @@ const EIAFeesForm: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

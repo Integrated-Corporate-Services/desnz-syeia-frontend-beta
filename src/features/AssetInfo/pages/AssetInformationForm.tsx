@@ -22,7 +22,7 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import AssetSummary from './AssetSummary';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 interface AssetFormState {
     assetId: string;
@@ -327,8 +327,8 @@ const AssetInformationForm: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Assets" />
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -372,8 +372,7 @@ const AssetInformationForm: React.FC = () => {
                         </div>
                     </div>
                 )}
-                <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-                    <div className="govuk-grid-row">
+                <div className="govuk-grid-row">
                         <div className="govuk-grid-column-two-thirds">
                             <h1 className="govuk-heading-l">Assets</h1>
 
@@ -475,7 +474,6 @@ onChange={(e) => {
                             )}
                         </div>
                     </div>
-                </main>
             </form>
             </div>
         </>

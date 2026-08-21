@@ -8,7 +8,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { createLogger } from '../../../utils/logger';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { getCardPaymentDescription } from '../../../constants/payment';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('PaymentFailurePage');
 
@@ -153,10 +153,9 @@ const PaymentFailurePage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <PageTitle title="Payment unsuccessful" />
+            <div className="govuk-width-container">
+              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
               <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
@@ -246,8 +245,7 @@ const PaymentFailurePage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

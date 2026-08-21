@@ -38,8 +38,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							type="radio"
 							value="true"
 							checked={isEiaDevelopment === "true"}
-							aria-controls="isEiaDevelopment-hidden"
-							aria-expanded={isEiaDevelopment === "true"}
+
 							onChange={onChange}
 						/>
 						<label className="govuk-label govuk-radios__label" htmlFor="isEiaDevelopment">
@@ -107,8 +106,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							type="radio"
 							value="false"
 							checked={isEiaDevelopment === "false"}
-							aria-controls="isEiaDevelopment-no-hidden"
-							aria-expanded={isEiaDevelopment === "false"}
+
 							onChange={onChange}
 						/>
 						<label className="govuk-label govuk-radios__label" htmlFor="isEiaDevelopment-no">
@@ -116,7 +114,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 						</label>
 					</div>
 					{isEiaDevelopment === "false" && (
-						<div className="govuk-radios__conditional govuk-radios__conditional--hidden" id="isEiaDevelopment-no-hidden">
+						<div className="govuk-radios__conditional" id="isEiaDevelopment-no-hidden">
 							<p className="govuk-body">
 								Please note, a mandatory EIA screening will be carried out for this application due to at least one of the following reasons:
 							</p>

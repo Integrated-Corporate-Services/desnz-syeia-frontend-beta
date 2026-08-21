@@ -6,7 +6,7 @@ import { getConsultationPack } from '../../../services/consultationPackService';
 import { getFormMetadata, downloadConsultationForm } from '../../../services/consultationFormMetadataService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const log = createLogger('DownloadLpaConsultationFormPage');
 
@@ -181,10 +181,9 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        {/* Breadcrumbs */}
+      <PageTitle title="Download LPA consultation form" />
+            <div className="govuk-width-container">
+              {/* Breadcrumbs */}
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
@@ -358,8 +357,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

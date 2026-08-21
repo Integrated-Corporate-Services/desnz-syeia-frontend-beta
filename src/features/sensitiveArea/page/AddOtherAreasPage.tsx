@@ -10,7 +10,7 @@ import {
 } from '../../../services/sensitiveAreaReviewService';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('AddOtherAreasPage');
 
@@ -233,8 +233,9 @@ const AddOtherAreasPage: React.FC = () => {
   if (loading) {
     return (
       <div className="govuk-width-container">
-        <Link 
-          to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`} 
+        <PageTitle title="Add other sensitive areas" />
+        <Link
+          to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`}
           className="govuk-back-link"
         >
           Back
@@ -251,11 +252,11 @@ const AddOtherAreasPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Add other sensitive areas" />
+            <div className="govuk-width-container">
       {/* Back Link - Always visible */}
-      <Link 
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`} 
+      <Link
+        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`}
         className="govuk-back-link"
       >
         Back

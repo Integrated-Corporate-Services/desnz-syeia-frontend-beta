@@ -5,7 +5,7 @@ import {
   OrganisationOption,
   submitCurrentUserOrganisationRequest,
 } from '../services/yourDetailsService';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 type FormErrors = {
   organisationIds?: string;
@@ -126,10 +126,9 @@ const ChangeOrganisationsPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <Link className="govuk-back-link" to="/your-details">
+            <PageTitle title="Change organisations" />
+            <div className="govuk-width-container">
+              <Link className="govuk-back-link" to="/your-details">
           Back
         </Link>
 
@@ -252,8 +251,7 @@ const ChangeOrganisationsPage: React.FC = () => {
             </form>
           </>
         )}
-      </main>
-    </div>
+          </div>
     </>
   );
 };

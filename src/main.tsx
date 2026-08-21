@@ -6,6 +6,7 @@ import "./App.css";
 import App from "./App";
 import React from "react";
 import axios from "axios";
+import { HelmetProvider } from "react-helmet-async";
 import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/cookie-consent";
 import { createLogger } from "./utils/logger";
 import { fetchCsrfToken, getCsrfToken } from "./utils/csrf";
@@ -102,7 +103,11 @@ const handleConsentChange: ConsentChangeCallback = (prefs, source) => {
 };
 
 createRoot(document.getElementById("root")!).render(
-  <CookieConsentProvider onConsentChange={handleConsentChange}>
-    <App />
-  </CookieConsentProvider>
+  <React.StrictMode>
+    <HelmetProvider>
+      <CookieConsentProvider onConsentChange={handleConsentChange}>
+        <App />
+      </CookieConsentProvider>
+    </HelmetProvider>
+  </React.StrictMode>
 );

@@ -4,7 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { getConsultationDetailsById } from '../../../services/consultationService';
 import { ConsultationType, isLpaJourney } from '../../../constants/consultationType';
 import log from '../../../logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationInitialQuestion: React.FC = () => {
   const { applicationId, consultationId } = useParams();
@@ -82,8 +82,8 @@ const ConsultationInitialQuestion: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Consultation request" />
+            <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -104,8 +104,7 @@ const ConsultationInitialQuestion: React.FC = () => {
             </ol>
           </nav>
 
-          <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-            {isLoading ? (
+                      {isLoading ? (
               <div className="govuk-body">Loading...</div>
             ) : (
               <>
@@ -203,8 +202,7 @@ const ConsultationInitialQuestion: React.FC = () => {
             </form>
             </>
             )}
-          </main>
-        </div>
+                  </div>
       </div>
     </div>
     </>

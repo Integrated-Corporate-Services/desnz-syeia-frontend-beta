@@ -1,5 +1,6 @@
 import React from 'react';
 import { buildBackendUrl } from '../utils/apiConfig';
+import PageTitle from '../components/PageTitle';
 
 const SignedOutPage: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -21,6 +22,7 @@ const SignedOutPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      <PageTitle title="You have been signed out" />
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

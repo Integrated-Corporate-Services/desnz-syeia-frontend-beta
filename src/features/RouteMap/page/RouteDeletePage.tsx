@@ -3,6 +3,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import PageTitle from '../../../components/PageTitle';
 
 const RouteDeletePage: React.FC = () => {
   const location = useLocation();
@@ -44,6 +45,7 @@ const RouteDeletePage: React.FC = () => {
 
   return (
     <div className="govuk-grid-row">
+      <PageTitle title="Delete route" />
       <div className="govuk-grid-column-two-thirds">
         <form onSubmit={handleDelete} data-module="fds-html-form">
           <h2 className="govuk-heading-l">Are you sure you want to delete {routeName}?</h2>

@@ -7,8 +7,8 @@ import type { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { ConsultationType } from '../../../constants/consultationType';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
-import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ConsultationResponse');
 
@@ -143,8 +143,8 @@ const ConsultationResponse: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Provide consultation response" />
+                        <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -159,8 +159,7 @@ const ConsultationResponse: React.FC = () => {
                         </ol>
                     </nav>
 
-                    <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                        {isLoading ? (
+                                            {isLoading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : (
                             <>
@@ -331,8 +330,7 @@ const ConsultationResponse: React.FC = () => {
                         </form>
                             </>
                         )}
-                    </main>
-                </div>
+                                    </div>
             </div>
         </div>
         </>

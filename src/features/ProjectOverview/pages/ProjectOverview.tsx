@@ -1,6 +1,5 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect, useRef } from "react";
-import SkipLink from '../../../components/SkipLink';
 import { useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
@@ -9,7 +8,6 @@ import { Link } from "react-router-dom";
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 
-import TextInput from "../component/TextInput";
 import TextArea from "../component/TextArea";
 import NumberInput from "../component/NumberInput";
 import RadioGroup from "../component/RadioGroup";
@@ -22,6 +20,7 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import PageTitle from '../../../components/PageTitle';
 
 // Exact set of anchor ids this page's createErrorLink() calls can produce - used to validate
 // the href extracted back out of an error string before it's rendered, since error text can
@@ -259,8 +258,8 @@ const ProjectOverview = () => {
 
 	return (
 		<>
-			<SkipLink />
-			<div className="govuk-width-container">
+						<PageTitle title="Project overview" />
+						<div className="govuk-width-container">
 				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 					<ol className="govuk-breadcrumbs__list">
 						<li className="govuk-breadcrumbs__list-item">
@@ -276,8 +275,7 @@ const ProjectOverview = () => {
 						</li>
 					</ol>
 				</nav>
-				<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-					<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
+									<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
 					{errors.length > 0 && (
 						<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
 							<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
@@ -617,23 +615,32 @@ const ProjectOverview = () => {
 
 						{/* Project Name Section */}
 						<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project name</h2>
-						<div className="govuk-form-group govuk-!-width-two-thirds">
-							<TextInput
-								label=""
-								id="projectName-inputValue"
-								name="projectName.inputValue"
-								value={formState.projectName}
-								error={fieldErrors['projectName-inputValue']}
-								maxLength={4000}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-									setFormState(prev => ({ ...prev, projectName: e.target.value }));
-									clearFieldError('projectName-inputValue');
-								}}
-							/>
-						</div>
+					<div className={`govuk-form-group govuk-!-width-two-thirds${fieldErrors['projectName-inputValue'] ? ' govuk-form-group--error' : ''}`}>
+						<label className="govuk-label govuk-visually-hidden" htmlFor="projectName-inputValue">
+							Project name
+						</label>
+						{fieldErrors['projectName-inputValue'] && (
+							<p id="projectName-inputValue-error" className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {fieldErrors['projectName-inputValue']}
+							</p>
+						)}
+						<input
+							className={`govuk-input${fieldErrors['projectName-inputValue'] ? ' govuk-input--error' : ''}`}
+							id="projectName-inputValue"
+							name="projectName.inputValue"
+							type="text"
+							maxLength={4000}
+							value={formState.projectName}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+								setFormState(prev => ({ ...prev, projectName: e.target.value }));
+								clearFieldError('projectName-inputValue');
+							}}
+							aria-describedby={fieldErrors['projectName-inputValue'] ? 'projectName-inputValue-error' : undefined}
+						/>
+					</div>
 
-						{/* Project Description Section */}
-						<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
+					{/* Project Description Section */}
+					<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 							<TextArea
 								label="Project description"
 								id="projectDescription-inputValue"
@@ -730,7 +737,7 @@ const ProjectOverview = () => {
 										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} onChange={() => {
 											setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }));
 											clearFieldError('areWorkStartDatesKnown');
-										}} aria-controls="areWorkStartDatesKnown-hidden" aria-expanded={formState.areWorkStartDatesKnown === "true" ? "true" : "false"} />
+										}} />
 										<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown">Yes</label>
 									</div>
 									{formState.areWorkStartDatesKnown === "true" && (
@@ -947,8 +954,6 @@ const ProjectOverview = () => {
 												setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
 												clearFieldError('hasRelatedApplications-inputValue');
 											}}
-											aria-controls="hasRelatedApplications-hidden"
-											aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"}
 										/>
 										<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 									</div>
@@ -1062,8 +1067,7 @@ const ProjectOverview = () => {
 							{projectOverview.saveAndContinue}
 						</button>
 					</form>
-				</main>
-			</div>
+							</div>
 		</>
 	);
 }

@@ -14,6 +14,7 @@ import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
 import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
 import { createLogger } from "../../../../utils/logger";
+import PageTitle from "../../../../components/PageTitle";
 
 const logger = createLogger('NetworkOperatorDetails');
 
@@ -24,7 +25,6 @@ import {
   BREADCRUMBS,
   FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
-import SkipLink from '../../../../components/SkipLink';
 
 const NetworkOperatorDetails: React.FC = () => {
   const { user } = useAuthUserContext();
@@ -202,8 +202,8 @@ const NetworkOperatorDetails: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Applicant details" />
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -221,8 +221,7 @@ const NetworkOperatorDetails: React.FC = () => {
           </li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Applicant details</h1>
             {(showErrorSummary || emailInputError) && (
@@ -489,8 +488,7 @@ const NetworkOperatorDetails: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

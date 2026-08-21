@@ -2,11 +2,14 @@ import React from "react";
 import Header from "../../layouts/component/Header";
 import Footer from "../../layouts/component/Footer";
 import SkipLink from "../../components/SkipLink";
+import PageTitle from "../../components/PageTitle";
 import NotFoundContent from "./NotFoundContent";
 
 const NotFound: React.FC = () => {
   return (
     <>
+      <PageTitle title="Page not found" />
+      
       <SkipLink />
       <Header />
       <div className="govuk-width-container">

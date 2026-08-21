@@ -20,7 +20,7 @@ import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
-import SkipLink from '../../../../components/SkipLink';
+import PageTitle from '../../../../components/PageTitle';
 
 const logger = createLogger('RelatedApplications');
 
@@ -115,15 +115,14 @@ const RelatedApplications: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-        <AdditionalInformationBreadcrumbs 
+      <PageTitle title="Related applications" />
+            <div className="govuk-width-container">
+        <AdditionalInformationBreadcrumbs
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.RELATED_APPLICATIONS}
       />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} />
 
@@ -243,8 +242,7 @@ const RelatedApplications: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>    </>  );
+          </div>    </>  );
 };
 
 export default RelatedApplications;

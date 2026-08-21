@@ -4,7 +4,6 @@ import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
-import SkipLink from "../../components/SkipLink";
 
 const logger = createLogger('AccessRequestIntroPage');
 
@@ -58,14 +57,12 @@ const AccessRequestIntroPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <Link to="/landingPage" className="govuk-back-link">
         Back
       </Link>
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">
               Submit a request to activate your SYEIA account
@@ -104,8 +101,7 @@ const AccessRequestIntroPage: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -11,7 +12,6 @@ import {
   WAYLEAVE_TERMINATED_DETAILS,
 } from "../constants/wayleaveTypeConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
-import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Wayleave Type Page
@@ -109,8 +109,8 @@ const WayleaveType: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="What type of wayleave existed?" />
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -128,8 +128,7 @@ const WayleaveType: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
               <div
@@ -242,8 +241,7 @@ const WayleaveType: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

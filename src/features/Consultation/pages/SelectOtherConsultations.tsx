@@ -9,7 +9,7 @@ import { progressApiService } from '../../../services/progressApiService';
 import log from '../../../logger';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { isWithinCharacterLimit } from '../../../utils/validation';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const OTHER_NAME_MAX_LENGTH = 4000;
 
@@ -199,8 +199,8 @@ const SelectOtherConsultations: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Select other consultations" />
+                        <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -216,8 +216,7 @@ const SelectOtherConsultations: React.FC = () => {
                         </ol>
                     </nav>
 
-                    <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                        <h1 className="govuk-heading-l">Select other consultations</h1>
+                                            <h1 className="govuk-heading-l">Select other consultations</h1>
 
                         <p className="govuk-body">You can add other consultations that are relevant to your application.</p>
 
@@ -349,8 +348,7 @@ const SelectOtherConsultations: React.FC = () => {
                                 </button> */}
                             </div>
                         </form>
-                    </main>
-                </div>
+                                    </div>
             </div>
         </div>
         </>

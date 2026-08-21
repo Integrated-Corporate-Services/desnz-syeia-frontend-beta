@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAddUser, useAddUserNavigation } from '../../../hooks';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
-import SkipLink from '../../../components/SkipLink';
 import {
   AddUserPersonalDetails,
   AddUserAdditionalDetails,
@@ -10,6 +9,7 @@ import {
   AddUserActions,
   AddUserSidebar
 } from '../../../components/shared/AddUserComponents';
+import PageTitle from '../../../components/PageTitle';
 
 const AddUserPage: React.FC = () => {
   const {
@@ -57,9 +57,8 @@ const AddUserPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <PageTitle title="Add user manually" />
+            <div className="govuk-width-container">
 
         <a
           href="#"
@@ -129,8 +128,7 @@ const AddUserPage: React.FC = () => {
           </div>
 
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

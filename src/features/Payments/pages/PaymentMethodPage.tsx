@@ -10,7 +10,7 @@ import { createLogger } from '../../../utils/logger';
 import { trackPaymentEvent } from '../../../utils/analytics';
 import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
 import { getCardPaymentDescription } from '../../../constants/payment';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('PaymentMethodPage');
 
@@ -168,8 +168,8 @@ const handlePayByCard = async () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Choose payment method" />
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -183,8 +183,7 @@ const handlePayByCard = async () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-
+      
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
@@ -203,7 +202,7 @@ const handlePayByCard = async () => {
             <h1 className="govuk-heading-xl">{PAYMENT_PAGE_TEXT.pageTitle}</h1>
 
             <p className="govuk-body">
-              You must pay <strong>£{effectiveTotalAmount?.toFixed(2) ?? '0.00'}</strong> to submit this application.
+              You must pay <strong>Â£{effectiveTotalAmount?.toFixed(2) ?? '0.00'}</strong> to submit this application.
             </p>
 
             <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardRedirect}</p>
@@ -259,8 +258,7 @@ const handlePayByCard = async () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

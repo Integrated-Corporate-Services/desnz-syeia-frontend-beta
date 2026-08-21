@@ -13,6 +13,7 @@ import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
 import { clearKeyedErrors } from '../validations';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('SupportingInfo');
 
@@ -315,6 +316,7 @@ const SupportingInfo: React.FC = () => {
 
   return (
   <div className="govuk-body" style={{ maxWidth: 700, fontSize: '19px', lineHeight: '1.31579' }}>
+  <PageTitle title="Supporting information" />
   <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
   <ol className="govuk-breadcrumbs__list">
     <li className="govuk-breadcrumbs__list-item">
@@ -537,8 +539,6 @@ const SupportingInfo: React.FC = () => {
         name="hasSupportingDocuments"
         type="radio"
         value="true"
-        aria-controls="hasSupportingDocuments-hidden"
-        aria-expanded="true"
         checked={supportingDocs === "yes"}
         onChange={() => {
           setSupportingDocs("yes");

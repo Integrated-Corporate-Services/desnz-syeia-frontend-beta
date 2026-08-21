@@ -24,7 +24,8 @@ export {
   hasAllowedExtension,
   findFilePassRecord,
   findWordEncryptionFlag,
-  getOptimalReadSize
+  getOptimalReadSize,
+  getMimeType
 } from './fileValidationUtils';
 export { 
   ALLOWED_FILE_TYPES, 

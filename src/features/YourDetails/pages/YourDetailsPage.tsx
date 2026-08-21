@@ -4,7 +4,7 @@ import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import { getCurrentUserDetails, UserDetailsResponse } from '../services/yourDetailsService';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import { ROLES } from '../../../constants/roles';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const YourDetailsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -63,14 +63,13 @@ const YourDetailsPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Your details" />
+            <div className="govuk-width-container">
       <a href="#" className="govuk-back-link" onClick={handleBack}>
         Back
       </a>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        {successFieldName && (
+              {successFieldName && (
           <div className="govuk-notification-banner govuk-notification-banner--success govuk-!-margin-bottom-6" role="alert">
             <div className="govuk-notification-banner__header">
               <h2 className="govuk-notification-banner__title">Success</h2>
@@ -196,8 +195,7 @@ const YourDetailsPage: React.FC = () => {
             </p>
           </>
         )}
-      </main>
-    </div>
+          </div>
     </>
   );
 };
