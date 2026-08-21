@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import PageTitle from '../../../components/PageTitle';
 /**
@@ -11,13 +11,10 @@ const UserAccessRevokedPage: React.FC = () => {
     const handleSignOut = () => {
     window.location.href = buildBackendUrl('/auth/logout');
   };
-  useEffect(() => {
-    document.title = 'You do not have access to this service - GOV.UK';
-  }, []);
 
   return (
     <>
-      <PageTitle title="No access to service" />
+      <PageTitle title="You do not have access to this service" />
       <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
         <h1 className="govuk-heading-xl">You do not have access to this service</h1>

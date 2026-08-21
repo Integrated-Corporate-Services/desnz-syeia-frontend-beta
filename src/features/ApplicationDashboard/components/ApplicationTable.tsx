@@ -181,23 +181,6 @@ export const ApplicationTable: React.FC<Props> = ({
                 )}
                 className="govuk-link"
                 onClick={(e) => handleApplicationClick(e, app)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    const isDraft = app.status?.toLowerCase() === 'draft';
-                    const destination = app.permissions?.canEdit
-                      ? "task-list"
-                      : isDraft && app.permissions?.canView
-                        ? "check-your-answers"
-                        : "application-summary";
-                    navigateToApplication(
-                      app.type,
-                      app.application_id,
-                      destination,
-                    );
-                  }
-                }}
-                tabIndex={0}
               >
                 {app.desnz_ref || "N/A"}
                 <span className="govuk-visually-hidden"> - View application details</span>
