@@ -114,7 +114,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 						</label>
 					</div>
 					{isEiaDevelopment === "false" && (
-						<div className="govuk-radios__conditional govuk-radios__conditional--hidden" id="isEiaDevelopment-no-hidden">
+						<div className="govuk-radios__conditional" id="isEiaDevelopment-no-hidden">
 							<p className="govuk-body">
 								Please note, a mandatory EIA screening will be carried out for this application due to at least one of the following reasons:
 							</p>

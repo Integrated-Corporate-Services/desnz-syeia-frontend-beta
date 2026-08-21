@@ -5,7 +5,7 @@ const NotFoundContent: React.FC = () => {
   const contentStartRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = "Page not found - DESNZ - GOV.UK";
+    // Focus management for screen reader users
     if (contentStartRef.current) {
       contentStartRef.current.focus();
     }
