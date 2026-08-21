@@ -304,6 +304,16 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         <>
             <SkipLink />
             <div className="govuk-width-container">
+            <a 
+              href="#" 
+              className="govuk-back-link"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
+              }}
+            >
+              Back
+            </a>
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
                 {/* Breadcrumbs */}
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
