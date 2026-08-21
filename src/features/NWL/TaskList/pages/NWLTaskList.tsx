@@ -7,7 +7,6 @@ import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } f
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
 import { createLogger } from '../../../../utils/logger';
-import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('NWLTaskList');
 

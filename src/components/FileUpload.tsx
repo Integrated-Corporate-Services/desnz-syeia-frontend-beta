@@ -8,7 +8,7 @@ import {
   confirmUpload,
 } from "../services/s3ApiService";
 import { createLogger } from "../utils/logger";
-import { validateFiles, } from "../utils/fileUploadValidation";
+import { validateFiles, getMimeType } from "../utils/fileUploadValidation";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
 import { waitForScanResult } from "../utils/fileScanPolling";
@@ -333,7 +333,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     try {
       const fileMetas = uploadFiles.map((f) => ({
         filename: prefix ? `${prefix}/${f.name}` : f.name,
-        contentType: f.type || "application/octet-stream",
+        contentType: getMimeType(f),
       }));
 
       const data = await getPresignedUrls(fileMetas, applicationId);
@@ -370,7 +370,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             const confirmResponse = await confirmUpload({
               s3Key,
               fileName: uploadFiles[i].name,
-              contentType: uploadFiles[i].type || 'application/octet-stream',
+              contentType: getMimeType(uploadFiles[i]),
               fileSize: uploadFiles[i].size,
               etag: etag || undefined,
               applicationId: applicationId || '',

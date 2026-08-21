@@ -152,3 +152,15 @@ export const PASSWORD_DETECTION_READ_SIZES = {
   IMAGES: 512,
   DEFAULT: 1536,
 } as const;
+
+export const EXTENSION_TO_MIME_TYPE: Record<string, string> = {
+  '.pdf': 'application/pdf',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.doc': 'application/msword',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.xls': 'application/vnd.ms-excel',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  '.msg': 'application/vnd.ms-outlook',
+};
