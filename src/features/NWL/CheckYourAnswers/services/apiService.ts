@@ -4,10 +4,11 @@
  * Fetches comprehensive application data for the Check Your Answers review page.
  */
 import { buildBackendUrl } from '../../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../../utils/csrf';
+import { generateCorrelationId } from '../../../../utils/correlationId';
 
 export interface NWLCheckYourAnswersResponse {
     applicationId: string;
-    declarationConfirmed?: boolean;
     applicantDetails: any;
     applicationDetails: any;
     noticeCompliance: any;
@@ -22,6 +23,7 @@ export interface NWLCheckYourAnswersResponse {
     permissions: {
         canEdit: boolean;
     };
+    declarationConfirmed?: boolean;
 }
 
 const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | null> => {
@@ -69,7 +71,6 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
     // Transform API response to match expected structure if needed
     return {
         applicationId,
-        declarationConfirmed: data.declarationConfirmed || false,
         applicantDetails: data.sections?.applicantDetails || null,
         applicationDetails: data.sections?.applicationDetails || null,
         noticeCompliance: data.sections?.noticeCompliance || null,
@@ -82,31 +83,39 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
         negotiations: data.sections?.negotiations || null,
         additionalInformation: data.sections?.additionalInformation || null,
         permissions: data.permissions || { canEdit: true },
+        declarationConfirmed: data.application?.declaration_confirmed || false,
     };
 };
 
 /**
- * Update declaration confirmation status
- * This will trigger backend to mark progress as completed only when declaration is confirmed
+ * Save declaration confirmation to database
+ * @param applicationId - Application ID
+ * @param isConfirmed - Whether declaration is confirmed
  */
-export const updateDeclarationConfirmation = async (
+export const saveDeclarationConfirmation = async (
     applicationId: string,
-    declarationConfirmed: boolean
+    isConfirmed: boolean
 ): Promise<void> => {
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'X-Correlation-ID': generateCorrelationId(),
+        ...getCsrfHeaders(),
+    };
+
     const response = await fetch(
         buildBackendUrl(`/api/applications/${applicationId}/declaration`),
         {
             method: 'PATCH',
+            headers,
             credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ declaration_confirmed: declarationConfirmed }),
+            body: JSON.stringify({
+                declaration_confirmed: isConfirmed,
+            }),
         }
     );
 
     if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to update declaration confirmation: ${response.status} ${errorText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to save declaration');
     }
 };

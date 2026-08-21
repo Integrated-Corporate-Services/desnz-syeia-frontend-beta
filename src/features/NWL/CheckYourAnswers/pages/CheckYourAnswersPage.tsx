@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
@@ -7,7 +7,7 @@ import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('CheckYourAnswersPage');
 
-import { fetchCheckYourAnswersData, updateDeclarationConfirmation } from '../services';
+import { fetchCheckYourAnswersData, saveDeclarationConfirmation } from '../services';
 import { useDocumentDownload } from '../hooks';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 
@@ -32,12 +32,13 @@ export const CheckYourAnswersPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const navigate = useNavigate();
     const { updateProgress } = useNWLProgress(applicationId);
+    const saveDeclarationTimeout = useRef<number | null>(null);
 
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [declarationConfirmed, setDeclarationConfirmed] = useState(false);
     const [declarationError, setDeclarationError] = useState(false);
-    const [updatingDeclaration, setUpdatingDeclaration] = useState(false);
+    const [savingDeclaration, setSavingDeclaration] = useState(false);
 
     const [applicantDetails, setApplicantDetails] = useState<any>(null);
     const [applicationDetails, setApplicationDetails] = useState<any>(null);
@@ -75,7 +76,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setAdditionalInformation(data.additionalInformation);
                 setPermissions(data.permissions);
                 
-                // Load existing declaration status from backend
+                // Load declaration state from backend
                 setDeclarationConfirmed(data.declarationConfirmed || false);
 
                 setLoading(false);
@@ -90,33 +91,45 @@ export const CheckYourAnswersPage: React.FC = () => {
     // Use custom hook for document downloads
     useDocumentDownload(applicationId);
 
+    /**
+     * Handle declaration checkbox change with debounced save
+     */
     const handleDeclarationChange = async (checked: boolean) => {
-        // Update local state immediately for better UX
         setDeclarationConfirmed(checked);
         if (checked) {
             setDeclarationError(false);
         }
 
-        // Only call backend if user has edit permissions
-        if (!permissions.canEdit) {
-            return;
+        if (!applicationId) return;
+
+        // Clear previous timeout
+        if (saveDeclarationTimeout.current) {
+            clearTimeout(saveDeclarationTimeout.current);
         }
 
-        try {
-            setUpdatingDeclaration(true);
-            await updateDeclarationConfirmation(applicationId!, checked);
-            logger.info('Declaration confirmation updated successfully', {
-                applicationId,
-                declarationConfirmed: checked,
-            });
-        } catch (error) {
-            logger.error('Failed to update declaration confirmation:', error);
-            // Revert local state on error
-            setDeclarationConfirmed(!checked);
-        } finally {
-            setUpdatingDeclaration(false);
-        }
+        // Debounce the save operation (500ms)
+        saveDeclarationTimeout.current = setTimeout(async () => {
+            try {
+                setSavingDeclaration(true);
+                await saveDeclarationConfirmation(applicationId, checked);
+                logger.info('[CheckYourAnswersPage] Declaration saved:', checked);
+            } catch (error) {
+                logger.error('[CheckYourAnswersPage] Failed to save declaration:', error);
+                // Don't show error to user - just log it
+            } finally {
+                setSavingDeclaration(false);
+            }
+        }, 500);
     };
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (saveDeclarationTimeout.current) {
+                clearTimeout(saveDeclarationTimeout.current);
+            }
+        };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -127,6 +140,14 @@ export const CheckYourAnswersPage: React.FC = () => {
         }
         setDeclarationError(false);
         setSubmitting(true);
+        
+        // Mark "Check your answers" as completed only when user submits after confirming declaration
+        try {
+            await updateProgress('Check your answers', 'Completed');
+        } catch (progressError) {
+            logger.error('Failed to update Check your answers progress:', progressError);
+            // Continue navigation even if progress update fails
+        }
         
         navigate(`${NWL_BASE_URL}/${applicationId}/pay-and-submit`);
     };
@@ -235,7 +256,6 @@ export const CheckYourAnswersPage: React.FC = () => {
                                                 type="checkbox" 
                                                 checked={declarationConfirmed} 
                                                 onChange={(e) => handleDeclarationChange(e.target.checked)}
-                                                disabled={updatingDeclaration}
                                                 aria-describedby={declarationError ? 'declaration-error' : undefined}
                                             />
                                             <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
