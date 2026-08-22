@@ -232,16 +232,12 @@ const ConsultationRequestPage: React.FC = () => {
     <>
       <SkipLink />
       <div className="govuk-width-container">
-      <a 
-        href="#" 
+      <Link
+        to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
         className="govuk-back-link"
-        onClick={(e) => {
-          e.preventDefault();
-          navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-        }}
       >
         Back
-      </a>
+      </Link>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
