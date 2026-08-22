@@ -230,18 +230,17 @@ const ConsultationRequestPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <Link
-        to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
-        className="govuk-back-link"
-      >
-        Back
-      </Link>
+      
       <PageTitle title="Provide evidence of consultation request" />
-            <div className="govuk-width-container">
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
+      <div className="govuk-width-container">
+        <Link
+          to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
+          className="govuk-back-link"
+        >
+          Back
+        </Link>
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
                 <li className="govuk-breadcrumbs__list-item">

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import React, { useEffect, useState } from 'react';
 import PageTitle from '../../../../components/PageTitle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
