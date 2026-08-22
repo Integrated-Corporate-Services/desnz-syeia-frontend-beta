@@ -38,7 +38,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     const [submitting, setSubmitting] = useState(false);
     const [declarationConfirmed, setDeclarationConfirmed] = useState(false);
     const [declarationError, setDeclarationError] = useState(false);
-    const [savingDeclaration, setSavingDeclaration] = useState(false);
+    const [, setSavingDeclaration] = useState(false);
 
     const [applicantDetails, setApplicantDetails] = useState<any>(null);
     const [applicationDetails, setApplicationDetails] = useState<any>(null);
