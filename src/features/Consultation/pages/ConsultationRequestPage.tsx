@@ -233,12 +233,6 @@ const ConsultationRequestPage: React.FC = () => {
       
       <PageTitle title="Provide evidence of consultation request" />
       <div className="govuk-width-container">
-        {/* <Link
-          to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
-          className="govuk-back-link"
-        >
-          Back
-        </Link> */}
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
