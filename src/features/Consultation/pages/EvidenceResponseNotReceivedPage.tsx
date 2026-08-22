@@ -291,12 +291,6 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
             <PageTitle title="Evidence response not received" />
             <div className="govuk-width-container">
-                {/* <Link
-              to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
-              className="govuk-back-link"
-            >
-              Back
-            </Link> */}
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">
                         <li className="govuk-breadcrumbs__list-item">
