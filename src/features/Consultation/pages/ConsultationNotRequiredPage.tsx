@@ -183,12 +183,12 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			
 			<PageTitle title="Consultation not required" />
 						<div className="govuk-width-container">
-			<Link
+			{/* <Link
 				to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
 				className="govuk-back-link"
 			>
 				Back
-			</Link>
+			</Link> */}
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
 					<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
