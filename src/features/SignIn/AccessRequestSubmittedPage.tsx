@@ -5,7 +5,6 @@ import { useAccessRequestContext } from "../../context/AccessRequestContext";
 import { logout } from "../../services/authService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
-import SkipLink from "../../components/SkipLink";
 
 const logger = createLogger('AccessRequestSubmittedPage');
 
@@ -42,11 +41,9 @@ const AccessRequestSubmittedPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
       
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+                <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">
@@ -67,7 +64,7 @@ const AccessRequestSubmittedPage: React.FC = () => {
             <h2 className="govuk-heading-m">If you need help</h2>
 
             <p className="govuk-body">
-              If you have any questions about your request, contact the team coordinator of your organisation or the organisation you’ll be submitting applications for.
+              If you have any questions about your request, contact the team coordinator of your organisation or the organisation youâ€™ll be submitting applications for.
             </p>
 
             <p className="govuk-body">
@@ -91,8 +88,7 @@ const AccessRequestSubmittedPage: React.FC = () => {
             </p>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

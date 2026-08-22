@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { S37_BASE_URL } from '../../../constants/s37';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const ReviewPolesPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
@@ -99,21 +99,20 @@ const ReviewPolesPage: React.FC = () => {
   if (loading && !review) {
     return (
       <div className="govuk-width-container">
-        <main className="govuk-main-wrapper">
-          <div className="govuk-grid-row">
+                  <PageTitle title="Poles in sensitive areas" />
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     );
   }
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Poles in sensitive areas" />
+            <div className="govuk-width-container">
 
       <a
         href="#"
@@ -126,8 +125,7 @@ const ReviewPolesPage: React.FC = () => {
         Back
       </a>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {/* Error Summary */}
             {formErrors.length > 0 && (
@@ -281,8 +279,7 @@ const ReviewPolesPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

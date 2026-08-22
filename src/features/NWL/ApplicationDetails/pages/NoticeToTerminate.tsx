@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import SkipLink from '../../../../components/SkipLink';
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
@@ -229,8 +229,8 @@ const NoticeToTerminate: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-    <div className="govuk-width-container">
+      <PageTitle title="Notice to terminate" />
+          <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -248,8 +248,7 @@ const NoticeToTerminate: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
@@ -453,8 +452,7 @@ const NoticeToTerminate: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

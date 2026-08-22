@@ -9,7 +9,7 @@ import { useRoutes } from '../../../hooks/useRoutes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 // Validation function for a single point using centralized error messages
 function getPointError(easting: string, northing: string, routeName: string, idx: number) {
@@ -232,8 +232,8 @@ const RouteMapPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Add or edit route" />
+            <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
@@ -260,8 +260,7 @@ const RouteMapPage: React.FC = () => {
             </ul>
           </div>
         )}
-        <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-          <div className="govuk-grid-row">
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-full">
               <h1 className="govuk-heading-l">{routeName}</h1>
               <div className='govuk-grid-column-three-quarters'>  
@@ -375,8 +374,7 @@ const RouteMapPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     </>
   );
 };

@@ -13,6 +13,7 @@ import {
   TABLE_HEADERS,
   CONFIRMATION_MESSAGES,
 } from '../constants';
+import PageTitle from '../../../components/PageTitle';
 
 export function CookiesSettingsPage() {
   const { analytics, monitoring, updatePreferences, withdraw } = useCookieConsent();
@@ -108,6 +109,7 @@ export function CookiesSettingsPage() {
 
   return (
     <div className="govuk-width-container">
+      <PageTitle title="Cookie settings" />
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

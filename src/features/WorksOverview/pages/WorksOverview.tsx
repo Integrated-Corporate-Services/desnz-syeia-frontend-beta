@@ -11,7 +11,6 @@ import { createWorksOverview, updateWorksOverview, getWorksOverview } from '../.
 import { WORKS_OVERVIEW_LABELS } from '../../../constants/worksOverviewLabels';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
-import SkipLink from '../../../components/SkipLink';
 import {
   validateWorksOverviewForm,
   getFieldErrorMessage,
@@ -20,6 +19,7 @@ import {
 } from '../validations';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import PageTitle from '../../../components/PageTitle';
 
 const initialState = {
   addingOrReplacingPoles: '',
@@ -291,8 +291,8 @@ const WorksOverview: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Works overview" />
+            <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
@@ -302,8 +302,7 @@ const WorksOverview: React.FC = () => {
           </ol>
         </nav>
 
-        <main className="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content" role="main">
-          {(errors.length > 0 || fileValidationErrors.length > 0) && (
+                  {(errors.length > 0 || fileValidationErrors.length > 0) && (
             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
               <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
               <div className="govuk-error-summary__body">
@@ -428,8 +427,7 @@ const WorksOverview: React.FC = () => {
               <button type="submit" className="govuk-button" data-module="govuk-button">Save and continue</button>
             </div>
           </form>
-        </main>
-      </div>
+              </div>
     </>
   );
 };

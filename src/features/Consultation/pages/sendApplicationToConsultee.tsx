@@ -6,7 +6,7 @@ import { sendNotificationEmail } from '../../../services/notifyService';
 import SummaryCard from '../../../components/SummaryCard';
 import Accordion from '../../../components/Accordion';
 import { useAuthUser } from "../../../hooks/useAuthUser";
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from "../../../components/PageTitle";
 
 const SendApplicationToConsultee: React.FC = () => {
   const location = useLocation();
@@ -135,8 +135,8 @@ const SendApplicationToConsultee: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Summary of consultation request" />
+            <div className="govuk-width-container">
      <div className="govuk-grid-row">
              <div className="govuk-grid-column-two-thirds">
                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -151,8 +151,7 @@ const SendApplicationToConsultee: React.FC = () => {
                  </ol>
                </nav> 
     
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        <h1 className="govuk-heading-xl">Summary of consultation request</h1>
+              <h1 className="govuk-heading-xl">Summary of consultation request</h1>
         {/* Build accordation sections array without nulls */}
         {(() => {
           const accordionSections = [];
@@ -190,8 +189,7 @@ const SendApplicationToConsultee: React.FC = () => {
             </button>
           </div>
         </form>
-      </main>
-      </div>
+            </div>
       </div>
     </div>
     </>

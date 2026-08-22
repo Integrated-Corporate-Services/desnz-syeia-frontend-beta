@@ -9,7 +9,7 @@ import type { AuthUser } from '../../../types/auth';
 import { ROLES } from '../../../constants/roles';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('TaskList');
 
@@ -49,8 +49,13 @@ const TaskList: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      {/* WCAG 2.4.2 Page Titled (Level A) - Issue #6 */}
+      <PageTitle 
+        title="Task List" 
+        description="Complete all required sections to submit your application"
+      />
+      
+            <div className="govuk-width-container">
       {application?.status?.toLowerCase() === 'submitted' && (
         <div className="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
           <div className="govuk-notification-banner__header">

@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
-import SkipLink from '../../../../components/SkipLink';
 import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('CheckYourAnswersPage');
@@ -155,24 +156,21 @@ export const CheckYourAnswersPage: React.FC = () => {
     if (loading) {
         return (
             <>
-                <SkipLink />
-                <div className="govuk-width-container">
+                <PageTitle title="Check your answers" />
+                                <div className="govuk-width-container">
                 <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
-                <main className="govuk-main-wrapper">
-                    <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
-                </main>
-            </div>
+                                    <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
+                            </div>
             </>
         );
     }
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Check your answers" />
+                        <div className="govuk-width-container">
             <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {declarationError && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
@@ -277,8 +275,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                         )}
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

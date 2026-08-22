@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import SkipLink from '../../../../components/SkipLink';
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -8,6 +7,7 @@ import {
   OPTIONS,
 } from "../constants/applicationWithinThreeMonthsConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import PageTitle from "../../../../components/PageTitle";
 
 /**
  * Application Within Three Months Page
@@ -91,8 +91,8 @@ const ApplicationWithinThreeMonths: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-    <div className="govuk-width-container">
+      <PageTitle title="Application within three months" />
+          <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -110,8 +110,7 @@ const ApplicationWithinThreeMonths: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
               <div
@@ -199,8 +198,7 @@ const ApplicationWithinThreeMonths: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

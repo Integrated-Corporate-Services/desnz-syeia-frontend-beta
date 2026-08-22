@@ -9,7 +9,7 @@ import { saveConsultationRequest, getConsultationRequest } from '../../../servic
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 interface FormErrors {
   firstDate?: string;
@@ -264,6 +264,8 @@ const PublicNoticesEvidence: React.FC = () => {
       >
         Back
       </Link>
+      <PageTitle title="Public notices evidence" />
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -288,8 +290,7 @@ const PublicNoticesEvidence: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
               <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
@@ -595,8 +596,7 @@ const PublicNoticesEvidence: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

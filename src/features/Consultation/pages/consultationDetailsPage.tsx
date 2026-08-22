@@ -10,7 +10,7 @@ import { ConsultationType, isOtherConsultation } from '../../../constants/consul
 import { progressApiService } from '../../../services/progressApiService';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ConsultationDetailsPage');
 
@@ -103,8 +103,8 @@ const ConsultationDetailsPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Manage consultations" />
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -117,8 +117,7 @@ const ConsultationDetailsPage: React.FC = () => {
                     </li>
                 </ol>
             </nav>
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-            <div className="govuk-grid-row">
+                        <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     {error && (
                         <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1} role="alert">
@@ -294,8 +293,7 @@ const ConsultationDetailsPage: React.FC = () => {
                     </div>
                 </div>
             </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

@@ -8,7 +8,7 @@ import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ReviewDocumentsPage');
 
@@ -208,22 +208,20 @@ const ReviewDocumentsPage: React.FC = () => {
   if (loading && !review) {
     return (
       <div className="govuk-width-container">
-        <main className="govuk-main-wrapper">
-          <div className="govuk-grid-row">
+                  <PageTitle title="Upload sensitive area documents" />
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     );
   }
 
   return (
     <>
-      <SkipLink />
-      <main className="govuk-main-wrapper govuk-!-padding-top-2">
-     {/* <div className="govuk-width-container"> */}
+                 <PageTitle title="Upload sensitive area documents" />
+                 {/* <div className="govuk-width-container"> */}
       <a
         href="#"
         onClick={(e) => {
@@ -414,8 +412,7 @@ const ReviewDocumentsPage: React.FC = () => {
           </div>
         </div>
     {/* </div> */}
-    </main>
-    </>
+        </>
   );
 };
 

@@ -1,10 +1,10 @@
-﻿import React, { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { NWL_BASE_URL } from "../../../constants/nwl";
 import { TLP_BASE_URL } from "../../../constants/tlp";
 import { WITHDRAWAL_LABELS } from "../constants/applicationSummaryLabels";
-import SkipLink from "../../../components/SkipLink";
+import PageTitle from "../../../components/PageTitle";
 
 interface ConfirmationLocationState {
   desnzRef?: string;
@@ -51,10 +51,9 @@ const WithdrawalConfirmationPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+      <PageTitle title="Withdrawal request submitted" />
+            <div className="govuk-width-container">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">
@@ -96,8 +95,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
             </p>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

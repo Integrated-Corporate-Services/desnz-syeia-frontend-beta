@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -84,7 +84,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
           }
         }
       } catch (err) {
-        // ignore — non-fatal for pre-fill
+        // ignore â€” non-fatal for pre-fill
       } finally {
         if (mounted) setLoading(false);
       }
@@ -179,24 +179,23 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   if (loading) {
     return (
       <div className="govuk-width-container">
-        <main className="govuk-main-wrapper">
-          <div className="govuk-grid-row">
+                  <PageTitle title="Add other sensitive areas?" />
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     );
   }
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Add other sensitive areas?" />
+            <div className="govuk-width-container">
       {/* Back Link - Always visible */}
-      <Link 
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`} 
+      <Link
+        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`}
         className="govuk-back-link"
       >
         Back

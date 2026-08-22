@@ -6,7 +6,7 @@ import eipSimpleRoute from '../../../assets/eip_simple_route-1.png';
 import eipMultipleRoutes from '../../../assets/eip_multiple_routes-2.png';
 import eipRouteOverview from '../../../assets/eip_route_overview-3.png';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const RouteGuidancePage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,8 +14,8 @@ const RouteGuidancePage: React.FC = () => {
   
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Route guidance" />
+            <div className="govuk-width-container">
       <nav
         className="govuk-breadcrumbs"
         aria-label="Breadcrumb"
@@ -29,8 +29,7 @@ const RouteGuidancePage: React.FC = () => {
           <li className="govuk-breadcrumbs__list-item" aria-current="page">Route guidance</li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-      <div className="govuk-grid-row">
+            <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-l">Route guidance</h1>
 
@@ -53,12 +52,20 @@ const RouteGuidancePage: React.FC = () => {
             textAlign: 'center'
           }}
           className="govuk-!-margin-bottom-4"
+          role="img"
+          aria-label="Example showing a simple route with 5 coordinate points marked on a map. Points are numbered 1 through 5, showing where the overhead line changes direction."
         >
+          <div className="govuk-visually-hidden">
+            <h3>Route A Example</h3>
+            <p>This example shows how to enter coordinates for points where the route changes direction. You only need to enter coordinates at direction changes, not at every pole location.</p>
+            <p>The example shows 5 points with their Easting and Northing coordinates displayed in a form on the left, with the corresponding route visualized on a map on the right.</p>
+          </div>
           <img
             src={eipSimpleRoute}
-            alt="A simple route with multiple coordinates"
+            alt=""
             className="eip-guidance-image"
             style={{ maxWidth: '100%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
+            aria-hidden="true"
           />
         </div>
 
@@ -85,12 +92,20 @@ const RouteGuidancePage: React.FC = () => {
             textAlign: 'center'
           }}
           className="govuk-!-margin-bottom-8"
+          role="img"
+          aria-label="Example showing how to create route spurs. Route B connects to Route A at a shared coordinate point. The image demonstrates that you join routes by using the same coordinate in both route lines."
         >
+          <div className="govuk-visually-hidden">
+            <h3>Route B with Spur Example</h3>
+            <p>This example shows Route B (the spur) highlighted on the map, indicating it is currently being edited. Route B starts at a coordinate that already exists in Route A, creating a connection point.</p>
+            <p>The form shows 3 points for Route B with their Easting and Northing coordinates. On the map, you can see how Route B branches off from Route A at a shared coordinate point.</p>
+          </div>
           <img
             src={eipMultipleRoutes}
-            alt="A route with two spurs, with one of the route spurs highlighted to show it's being edited"
+            alt=""
             className="eip-guidance-image"
             style={{ maxWidth: '100%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
+            aria-hidden="true"
           />
         </div>
         <div
@@ -103,12 +118,30 @@ const RouteGuidancePage: React.FC = () => {
             textAlign: 'center'
           }}
           className="govuk-!-margin-bottom-8"
+          role="img"
+          aria-label="Route overview page showing both Route A and Route B with all coordinate points listed in tables. The map displays how both routes connect at a shared coordinate."
         >
+          <div className="govuk-visually-hidden">
+            <h3>Route Overview Example</h3>
+            <p>Important: Any changes made to the route will require you to:</p>
+            <ol>
+              <li>Run the sensitive area checks again</li>
+              <li>Upload new plan information</li>
+              <li>Reconsult or provide updated information to consultees if consultations are open</li>
+            </ol>
+            <p>The overview shows two sections:</p>
+            <ul>
+              <li>Route A: Lists all coordinate points with Easting and Northing values, with Edit and Delete options</li>
+              <li>Route B: Lists all coordinate points with Easting and Northing values, with Edit and Delete options</li>
+            </ul>
+            <p>The map on the right visualizes both routes and their connection point.</p>
+          </div>
           <img
             src={eipRouteOverview}
-            alt="Overview of routes, showing a route with two spurs and the coordinates of both routes"
+            alt=""
             className="eip-guidance-image"
             style={{ maxWidth: '100%', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
+            aria-hidden="true"
           />
         </div>
         <button
@@ -120,8 +153,7 @@ const RouteGuidancePage: React.FC = () => {
         </button>
         </div>
       </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

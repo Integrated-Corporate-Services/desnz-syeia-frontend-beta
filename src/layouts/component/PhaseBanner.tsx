@@ -11,7 +11,7 @@ import '../../styles/PhaseBanner.css';
 
 export default function PhaseBanner() {
     return (
-        <div className="govuk-phase-banner phase-banner-wrapper">
+        <div className="govuk-phase-banner phase-banner-wrapper" role="complementary">
             <div className="govuk-width-container phase-banner-container">
                 <p className="govuk-phase-banner__content phase-banner-content">
                 <strong className="govuk-tag govuk-phase-banner__content__tag phase-banner-tag">

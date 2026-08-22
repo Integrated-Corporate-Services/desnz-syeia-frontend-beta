@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import {
   LABELS,
   HINTS,
@@ -19,7 +20,6 @@ import {
 import { updateNegotiationsData } from '../services';
 import { NegotiationsData } from '../types/negotiations';
 import { createLogger } from '../../../../utils/logger';
-import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('TellUsAboutExistingNegotiations');
 
@@ -170,12 +170,11 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Any negotiations in progress?" />
+            <div className="govuk-width-container">
       <NegotiationsBreadcrumbs appId={appId} />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} />
 
@@ -258,8 +257,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

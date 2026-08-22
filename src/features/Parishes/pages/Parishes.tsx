@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import ParishesTable from '../components/ParishesTable';
 import ParishSearch from '../components/ParishSearch';
@@ -8,7 +9,6 @@ import { useParishes } from '../hooks/useParishes';
 import { useParishSubmit } from '../hooks/useParishSubmit';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import ParishesSummary from './ParishesSummary';
-import SkipLink from '../../../components/SkipLink';
 
 const Parishes: React.FC = () => {
     const params = useParams();
@@ -45,8 +45,8 @@ const Parishes: React.FC = () => {
     if (consultationsLoading) {
         return (
             <>
-                <SkipLink />
-                <div className="govuk-width-container">
+                <PageTitle title="Parishes" />
+                                <div className="govuk-width-container">
                 <div className="govuk-main-wrapper">
                     <p className="govuk-body">Loading...</p>
                 </div>
@@ -62,10 +62,9 @@ const Parishes: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <PageTitle title="Parishes" />
+                        <div className="govuk-width-container">
+                            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">
                         <li className="govuk-breadcrumbs__list-item" aria-current="false">
                             <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
@@ -125,8 +124,7 @@ const Parishes: React.FC = () => {
                         )}
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

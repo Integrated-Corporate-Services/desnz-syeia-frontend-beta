@@ -2,12 +2,14 @@ import { PRIVACY_CONFIG } from '../config/privacy.config';
 import { renderSectionContent } from '../utils/renderContent';
 import { PageFeedback, RelatedContent } from '../components';
 import { RELATED_LINKS } from '../constants';
+import PageTitle from '../../../components/PageTitle';
 
 export function PrivacyNoticePage() {
   const config = PRIVACY_CONFIG;
 
   return (
     <div className="govuk-width-container">
+      <PageTitle title="Privacy notice" />
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

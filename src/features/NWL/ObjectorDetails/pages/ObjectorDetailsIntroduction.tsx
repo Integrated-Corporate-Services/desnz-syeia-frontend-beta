@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import SkipLink from '../../../../components/SkipLink';
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import {
@@ -26,8 +26,8 @@ const ObjectorDetailsIntroduction: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Objector and other parties' details" />
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -44,8 +44,7 @@ const ObjectorDetailsIntroduction: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.INTRODUCTION_TITLE}</h1>
 
@@ -67,8 +66,7 @@ const ObjectorDetailsIntroduction: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

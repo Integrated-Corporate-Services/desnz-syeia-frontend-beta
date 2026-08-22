@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAccessConfirmationNavigation } from '../../../hooks';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const AccessDeniedPage: React.FC = () => {
   const location = useLocation();
@@ -17,10 +17,9 @@ const AccessDeniedPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        {/* GREEN CONFIRMATION PANEL - Access Rejected */}
+      <PageTitle title="Access rejected" />
+            <div className="govuk-width-container">
+              {/* GREEN CONFIRMATION PANEL - Access Rejected */}
         <div className="govuk-panel govuk-panel--confirmation">
           <h1 className="govuk-panel__title">
             Access rejected
@@ -66,8 +65,7 @@ const AccessDeniedPage: React.FC = () => {
         >
           Return to dashboard
         </button>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

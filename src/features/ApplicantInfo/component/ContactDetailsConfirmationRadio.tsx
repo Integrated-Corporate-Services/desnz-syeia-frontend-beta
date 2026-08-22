@@ -37,8 +37,6 @@ const ContactDetailsConfirmationRadio: React.FC<Props> = ({ value, onChange }) =
             name="contactDetailsConfirmed"
             type="radio"
             value="false"
-            aria-controls="contactDetailsConfirmed-no-hidden"
-            aria-expanded={value === 'false'}
             checked={value === 'false'}
             onChange={() => onChange('false')}
           />

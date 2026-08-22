@@ -1,12 +1,12 @@
-﻿import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import PageTitle from '../../../../components/PageTitle';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { NWL_TASK_LIST_ROUTES, buildNwlRoute } from '../constants/taskListRoutes';
 import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } from '../utils/nwlProgressUtils';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
 import { createLogger } from '../../../../utils/logger';
-import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('NWLTaskList');
 
@@ -105,10 +105,9 @@ const NWLTaskList: React.FC = () => {
 
 	return (
 		<>
-			<SkipLink />
-			<div className="govuk-width-container">
-			<main className="govuk-main-wrapper" id="main-content">
-				<div className="govuk-grid-row">
+			<PageTitle title="Necessary wayleave consent application" />
+						<div className="govuk-width-container">
+							<div className="govuk-grid-row">
 					<div className="govuk-grid-column-two-thirds">
 						<span className="govuk-caption-l">{orgName || 'Organisation'}</span>
 						<h1 className="govuk-heading-l">Necessary wayleave consent application</h1>
@@ -332,8 +331,7 @@ const NWLTaskList: React.FC = () => {
 					</div>
 					</div>
 				</div>
-			</main>
-		</div>	</>	);
+					</div>	</>	);
 };
 
 export default NWLTaskList;

@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import PageTitle from '../components/PageTitle';
 
 export const ApplicationDeleteSuccessPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export const ApplicationDeleteSuccessPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
+      <PageTitle title="Application deleted" />
       <div className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

@@ -4,7 +4,7 @@ import { ConsulteesRecommendationsQuestion, FormButtons } from '../components';
 import { usePostConsultationData, usePostConsultationNavigation } from '../hooks';
 import { POST_CONSULTATION_CONSTANTS } from '../constants';
 import { SaveType } from '../types';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const PostConsultationConsultees: React.FC = () => {
     const { applicationId, getTaskListUrl, handleNavigationAfterSaveConsultees } = usePostConsultationNavigation();
@@ -33,20 +33,18 @@ const PostConsultationConsultees: React.FC = () => {
     if (loading) {
         return (
             <>
-                <SkipLink />
-                <div className="govuk-width-container">
-                    <main className="govuk-main-wrapper" id="main-content">
-                    <p className="govuk-body">{POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}</p>
-                </main>
-                </div>
+                                <PageTitle title="Post consultation actions" />
+                                <div className="govuk-width-container">
+                                        <p className="govuk-body">{POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}</p>
+                                </div>
             </>
         );
     }
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <PageTitle title="Post consultation actions" />
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -59,8 +57,7 @@ const PostConsultationConsultees: React.FC = () => {
                     </li>
                 </ol>
             </nav>
-            <main className="govuk-main-wrapper" id="main-content">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <h1 className="govuk-heading-l">{POST_CONSULTATION_CONSTANTS.PAGE_TITLE}</h1>
 
@@ -107,8 +104,7 @@ const PostConsultationConsultees: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </main>
-            </div>
+                        </div>
         </>
     );
 };

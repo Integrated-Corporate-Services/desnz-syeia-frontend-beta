@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getPaymentStatus } from '../../../services/govPayService';
 import '../../../styles/govuk.scss';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 export default function PaymentCallback() {
   const [status, setStatus] = useState('');
@@ -36,7 +36,7 @@ export default function PaymentCallback() {
         .then(data => {
           setStatus(data.state?.status || '');
           setReference(data.reference || paymentId);
-          setAmount(data.amount ? `£${(data.amount / 100).toFixed(2)}` : '');
+          setAmount(data.amount ? `Â£${(data.amount / 100).toFixed(2)}` : '');
           setDescription(data.description || '');
           if (["success", "failed", "cancelled"].includes(data.state?.status)) {
             // Final status, stop polling
@@ -67,10 +67,9 @@ export default function PaymentCallback() {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper govuk-!-padding-top-6" id="main-content">
-        {loading ? (
+            <PageTitle title="Payment status" />
+            <div className="govuk-width-container">
+              {loading ? (
           <div className="govuk-body">Loading payment status...</div>
         ) : error ? (
           <div className="govuk-error-summary" role="alert">
@@ -125,8 +124,7 @@ export default function PaymentCallback() {
             </div>
           </>
         )}
-      </main>
-    </div>
+          </div>
     </>
   );
 }

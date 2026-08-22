@@ -8,8 +8,8 @@ import { updateAllConsultations, createLpaConsultations } from '../../../service
 import { progressApiService } from '../../../services/progressApiService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import log from '../../../logger';
-import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('ConsultationRequestsRequired');
 
@@ -123,8 +123,8 @@ const ConsultationRequestsRequired: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Consultation requests required" />
+                        <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -140,8 +140,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                         </ol>
                     </nav>
 
-                    <main id="main-content" className="govuk-main-wrapper govuk-!-padding-top-2">
-                        {Object.values(errors).some(Boolean) && (
+                                            {Object.values(errors).some(Boolean) && (
                             <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
                                     <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -239,8 +238,7 @@ const ConsultationRequestsRequired: React.FC = () => {
                                 </button>*/}
                             </div>
                         </form>
-                    </main>
-                </div>
+                                    </div>
             </div>
         </div>
         </>

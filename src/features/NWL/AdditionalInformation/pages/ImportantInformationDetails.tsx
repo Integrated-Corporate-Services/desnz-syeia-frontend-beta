@@ -22,9 +22,9 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
-import SkipLink from '../../../../components/SkipLink';
 
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import PageTitle from '../../../../components/PageTitle';
 
 /**
  * Important Information Details Page
@@ -145,15 +145,14 @@ const ImportantInformationDetails: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <AdditionalInformationBreadcrumbs 
+      <PageTitle title="Provide important information" />
+            <div className="govuk-width-container">
+      <AdditionalInformationBreadcrumbs
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.IMPORTANT_INFORMATION_DETAILS}
       />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.IMPORTANT_INFORMATION_TITLE}</h1>
 
@@ -232,8 +231,7 @@ const ImportantInformationDetails: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>    </>  );
+          </div>    </>  );
 };
 
 export default ImportantInformationDetails;

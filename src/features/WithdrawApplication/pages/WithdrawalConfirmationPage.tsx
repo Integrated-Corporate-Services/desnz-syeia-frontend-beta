@@ -4,9 +4,9 @@ import { FEEDBACK_PATH } from '../../../constants/routes';
 import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
 
 import { WithdrawApplicationBreadcrumbs } from '../components';
-import SkipLink from '../../../components/SkipLink';
 
 import { formatDate, getCaseTypeLabel, getReasonLabel } from '../utils';
+import PageTitle from '../../../components/PageTitle';
 
 const WithdrawalConfirmationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -26,16 +26,15 @@ const WithdrawalConfirmationPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <PageTitle title="Application withdrawn" />
+                        <div className="govuk-width-container">
             <WithdrawApplicationBreadcrumbs
                 applicationType={applicationType}
                 applicationId={applicationId!}
                 currentPage="confirmation"
             />
 
-            <main className="govuk-main-wrapper" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <div className="govuk-panel govuk-panel--confirmation">
                             <h1 className="govuk-panel__title">{CONSTANTS.CONFIRMATION_PAGE.PANEL_TITLE}</h1>
@@ -120,8 +119,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
                         </p>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

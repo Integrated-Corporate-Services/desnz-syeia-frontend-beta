@@ -1,10 +1,10 @@
 import React, { useRef, useState } from "react";
+import PageTitle from '../../../../components/PageTitle';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 // Use the advanced FileUpload component from ProjectOverview
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Link, useParams } from "react-router-dom";
-import SkipLink from '../../../../components/SkipLink';
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
@@ -92,9 +92,8 @@ const ApplicationLandDetails: React.FC = () => {
 
 	return (
 		<>
-			<SkipLink />
-			<main className="govuk-main-wrapper" id="main-content">
-				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<PageTitle title="Application and land details" />
+										<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 						<ol className="govuk-breadcrumbs__list">
 							<li className="govuk-breadcrumbs__list-item">
 								<Link
@@ -126,7 +125,7 @@ const ApplicationLandDetails: React.FC = () => {
 					<h2 className="govuk-heading-m">Application information</h2>
 					<form onSubmit={handleSubmit} noValidate>
 						<div className={`govuk-form-group${errors.networkOperatorReference ? ' govuk-form-group--error' : ''}`}>  
-							<label className="govuk-label govuk-label--s" htmlFor="NetworkOperatorReference">Applicant’s reference</label>
+							<label className="govuk-label govuk-label--s" htmlFor="NetworkOperatorReference">Applicantâ€™s reference</label>
 							{errors.networkOperatorReference && (
 								<p className="govuk-error-message" id="NetworkOperatorReference-error">{errors.networkOperatorReference}</p>
 							)}
@@ -295,8 +294,7 @@ const ApplicationLandDetails: React.FC = () => {
 					</form>
 				</div>
 			</div>
-		</main>
-		</>
+				</>
 	);
 };
 

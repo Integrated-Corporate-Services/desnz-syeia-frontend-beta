@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationResponseInitialQuestion: React.FC = () => {
   const { applicationId, consultationId } = useParams();
@@ -28,8 +28,8 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Consultation response received" />
+            <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -50,8 +50,7 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
             </ol>
           </nav>
 
-          <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-            {error && (
+                      {error && (
               <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
@@ -133,8 +132,7 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
                 </button> */}
               </div>
             </form>
-          </main>
-        </div>
+                  </div>
       </div>
     </div>
     </>

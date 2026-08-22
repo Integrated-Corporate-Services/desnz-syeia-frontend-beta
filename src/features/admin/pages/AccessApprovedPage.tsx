@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAccessConfirmationNavigation } from '../../../hooks';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const AccessApprovedPage: React.FC = () => {
   const location = useLocation();
@@ -17,10 +17,9 @@ const AccessApprovedPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-panel govuk-panel--confirmation">
+      <PageTitle title="Access granted" />
+            <div className="govuk-width-container">
+              <div className="govuk-panel govuk-panel--confirmation">
           <h1 className="govuk-panel__title">
             Access granted
           </h1>
@@ -54,8 +53,7 @@ const AccessApprovedPage: React.FC = () => {
         >
           Return to dashboard
         </button>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

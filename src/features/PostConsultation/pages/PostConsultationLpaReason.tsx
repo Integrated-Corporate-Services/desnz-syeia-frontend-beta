@@ -10,7 +10,7 @@ import {
   POST_CONSULTATION_QUESTIONS,
 } from "../constants";
 import { SaveType } from "../types";
-import SkipLink from "../../../components/SkipLink";
+import PageTitle from "../../../components/PageTitle";
 
 const PostConsultationLpaReason: React.FC = () => {
   const { applicationId, getTaskListUrl, getConsulteesRecommendationsUrl } =
@@ -40,22 +40,20 @@ const PostConsultationLpaReason: React.FC = () => {
   if (loading) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content">
-          <p className="govuk-body">
+                <PageTitle title="Reason for disagreeing with LPA" />
+                <div className="govuk-width-container">
+                    <p className="govuk-body">
             {POST_CONSULTATION_CONSTANTS.LOADING_MESSAGE}
           </p>
-        </main>
-        </div>
+                </div>
       </>
     );
   }
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Reason for disagreeing with LPA" />
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -68,8 +66,7 @@ const PostConsultationLpaReason: React.FC = () => {
           </li>
         </ol>
       </nav>
-     <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+             <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(error || explanationError || hasExceededLimit) && (
               <div
@@ -155,8 +152,7 @@ const PostConsultationLpaReason: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

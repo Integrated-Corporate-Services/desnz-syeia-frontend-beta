@@ -1,5 +1,5 @@
 import React from "react";
-import SkipLink from '../../../../components/SkipLink';
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation } from "../hooks";
 import {
@@ -20,8 +20,8 @@ const CannotContinueApplication: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-    <div className="govuk-width-container">
+      <PageTitle title="Cannot continue application" />
+          <div className="govuk-width-container">
       <a
         href="#"
         className="govuk-back-link"
@@ -33,8 +33,7 @@ const CannotContinueApplication: React.FC = () => {
         Back
       </a>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
@@ -61,8 +60,7 @@ const CannotContinueApplication: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

@@ -5,7 +5,6 @@ import { usePublicOrganisations } from "../../hooks/usePublicOrganisations";
 import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
-import SkipLink from "../../components/SkipLink";
 
 const SelectOrganisationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -100,8 +99,7 @@ const SelectOrganisationsPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <Link
           to={isAgent ? "/request-access/company-name" : "/request-access/agent-question"}
           className="govuk-back-link"
@@ -109,8 +107,7 @@ const SelectOrganisationsPage: React.FC = () => {
         Back
       </Link>
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />
             
@@ -208,8 +205,7 @@ const SelectOrganisationsPage: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };
