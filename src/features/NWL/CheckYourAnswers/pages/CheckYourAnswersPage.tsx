@@ -32,7 +32,7 @@ export const CheckYourAnswersPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const navigate = useNavigate();
     const { updateProgress } = useNWLProgress(applicationId);
-    const saveDeclarationTimeout = useRef<number | null>(null);
+    const saveDeclarationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
