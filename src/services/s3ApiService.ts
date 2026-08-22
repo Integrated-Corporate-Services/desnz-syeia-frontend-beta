@@ -60,9 +60,15 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
 }
 
 export async function uploadFileToS3(url: string, file: File) {
+  const isBackendProxyUpload = url.includes('/api/upload/stream/');
+
   const res = await fetch(url, {
     method: 'PUT',
-    headers: { 'Content-Type': file.type || 'application/octet-stream' },
+    headers: {
+      'Content-Type': file.type || 'application/octet-stream',
+      ...(isBackendProxyUpload ? getCsrfHeaders() : {})
+    },
+    ...(isBackendProxyUpload ? { credentials: 'include' as RequestCredentials } : {}),
     body: file
   });
   return res;
