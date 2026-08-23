@@ -28,8 +28,6 @@ export const createPayment = async (
       metadata
     };
 
-    log.debug('[createPayment] Creating payment', { applicationId, amount, reference });
-
     const response = await fetch(buildBackendUrl(`/api/gov-pay/applications/${applicationId}/payments`), {
       method: 'POST',
       headers: { 
@@ -42,11 +40,9 @@ export const createPayment = async (
 
     if (!response.ok) {
       const errorData = await response.json();
-      log.error('[createPayment] Payment creation failed:', errorData);
       throw new Error(errorData.error || 'Failed to create payment');
     }
 
-    log.info('[createPayment] Payment created successfully');
     return await response.json();
   } catch (error) {
     log.error('[createPayment] Error creating payment:', error);
@@ -64,12 +60,6 @@ export const submitApplicationWithBankTransfer = async (
   application_documents?: any[]
 ) => {
   try {
-    log.debug('[submitApplicationWithBankTransfer] Submitting application', {
-      applicationId,
-      invoiceNumber,
-      transactionNumber
-    });
-
     // Build payload using snake_case keys for file/document entries to match backend expectations
     const payload: any = {
       paymentMethod: 'bank_transfer',
@@ -125,12 +115,7 @@ export const submitApplicationWithBankTransfer = async (
       if (contentType?.includes('application/json')) {
         const errorData = await response.json();
         errorMessage = errorData.error || errorData.message || errorMessage;
-        log.error('[submitApplicationWithBankTransfer] Submission failed:', errorData);
       } else {
-        log.error('[submitApplicationWithBankTransfer] Non-JSON response:', {
-          status: response.status,
-          statusText: response.statusText,
-        });
         if (response.status === 401) {
           errorMessage = 'Session expired. Please log in again.';
         } else if (response.status === 403) {
@@ -141,7 +126,6 @@ export const submitApplicationWithBankTransfer = async (
       throw new Error(errorMessage);
     }
 
-    log.info('[submitApplicationWithBankTransfer] Application submitted successfully');
     return await response.json();
   } catch (error) {
     log.error('[submitApplicationWithBankTransfer] Error submitting application:', error);
@@ -151,7 +135,6 @@ export const submitApplicationWithBankTransfer = async (
 
 export const getPaymentStatus = async (applicationId: string, paymentId: string) => {
   try {
-    log.debug('[getPaymentStatus] Fetching payment status', { applicationId, paymentId });
     const response = await fetch(buildBackendUrl(`/api/gov-pay/applications/${applicationId}/payments/${paymentId}/status`), {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },

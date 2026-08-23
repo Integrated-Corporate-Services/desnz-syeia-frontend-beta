@@ -41,8 +41,6 @@ export async function signOut(): Promise<void> {
  */
 export async function keepAlive(): Promise<boolean> {
   try {
-    logger.info('Calling backend keep-alive endpoint to refresh session');
-    
     const response = await fetch(buildBackendUrl('/auth/keep-alive'), {
       method: 'POST',
       credentials: 'include',
@@ -53,10 +51,7 @@ export async function keepAlive(): Promise<boolean> {
     });
 
     if (!response.ok) {
-      logger.error('Backend keep-alive failed', {
-        status: response.status,
-        statusText: response.statusText,
-      });
+      logger.error('Backend keep-alive failed');
       
       // If session is already expired on backend, return false
       if (response.status === 401) {
@@ -67,8 +62,6 @@ export async function keepAlive(): Promise<boolean> {
       throw new Error(`Failed to refresh session: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    logger.info('Backend session refreshed successfully', data);
     return true;
   } catch (error) {
     logger.error('Error calling keep-alive endpoint', error);
