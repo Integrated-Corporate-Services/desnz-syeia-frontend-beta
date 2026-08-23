@@ -89,7 +89,6 @@ class UserService {
     organisationId?: string
   ): Promise<ServiceResponse<void>> {
     try {
-      logger.debug("Suspending user:", { userId, reason, organisationId });
       const requestBody: { reason: string; organisationId?: string } = { reason };
       if (organisationId) {
         requestBody.organisationId = organisationId;
@@ -114,8 +113,6 @@ class UserService {
           message: errorData.error || "Failed to suspend user",
         };
       }
-      const data = await response.json();
-      logger.debug("Suspend user response:", data);
       return {
         success: true,
         message: "User access revoked successfully",

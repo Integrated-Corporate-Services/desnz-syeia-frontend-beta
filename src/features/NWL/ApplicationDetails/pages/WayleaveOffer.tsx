@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
@@ -19,7 +20,6 @@ import {
 } from "../constants/wayleaveOfferConstants";
 import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
-import SkipLink from "../../../../components/SkipLink";
 
 /**
  * Wayleave Notice Page (New Lines)
@@ -245,8 +245,8 @@ const WayleaveOffer: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Wayleave notice" />
+            <div className="govuk-width-container">
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -264,8 +264,7 @@ const WayleaveOffer: React.FC = () => {
           </ol>
         </nav>
 
-        <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-          <div className="govuk-grid-row">
+                  <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
@@ -468,8 +467,7 @@ const WayleaveOffer: React.FC = () => {
               </form>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     </>
   );
 };

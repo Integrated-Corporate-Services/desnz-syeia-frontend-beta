@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
-import SkipLink from '../../../../components/SkipLink';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -73,15 +73,14 @@ const IdentifyingInformation: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <LandDetailsBreadcrumbs 
+      <PageTitle title="Identify the land" />
+            <div className="govuk-width-container">
+      <LandDetailsBreadcrumbs
         applicationId={applicationId} 
         currentPage={labels.PAGE_TITLE}
       />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} errorFields={errorFields} />
 
@@ -109,8 +108,7 @@ const IdentifyingInformation: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

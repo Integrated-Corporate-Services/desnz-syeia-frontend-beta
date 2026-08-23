@@ -3,8 +3,8 @@ import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { getConsultationDetailsById, removeConsultation } from '../../../services/consultationService';
 import { ConsultationDetails } from '../../../types/ConsultationDetails';
-import SkipLink from '../../../components/SkipLink';
 import { createLogger } from '../../../utils/logger';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('RemoveConsultation');
 
@@ -69,8 +69,8 @@ const RemoveConsultation: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Remove consultation" />
+            <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -91,8 +91,7 @@ const RemoveConsultation: React.FC = () => {
             </ol>
           </nav>
 
-          <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-            {isLoading ? (
+                      {isLoading ? (
               <div className="govuk-body">Loading...</div>
             ) : (
               <>
@@ -204,8 +203,7 @@ const RemoveConsultation: React.FC = () => {
                 </form>
               </>
             )}
-          </main>
-        </div>
+                  </div>
       </div>
     </div>
     </>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
-import SkipLink from '../../../../components/SkipLink';
 import { 
   LandDetailsBreadcrumbs, 
   AddressFormFields, 
@@ -97,15 +97,14 @@ const SiteAddress: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <LandDetailsBreadcrumbs 
+      <PageTitle title="Enter the site address" />
+            <div className="govuk-width-container">
+      <LandDetailsBreadcrumbs
         applicationId={applicationId} 
         currentPage={LAND_DETAILS_LABELS.SITE_ADDRESS.PAGE_TITLE}
       />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {saveError && (
               <div
@@ -144,8 +143,7 @@ const SiteAddress: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

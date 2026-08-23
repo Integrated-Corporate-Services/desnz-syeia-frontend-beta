@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
-import SkipLink from '../../../../components/SkipLink';
 import { createLogger } from '../../../../utils/logger';
 
 const logger = createLogger('CheckYourAnswersPage');
 
-import { fetchCheckYourAnswersData } from '../services';
+import { fetchCheckYourAnswersData, saveDeclarationConfirmation } from '../services';
 import { useDocumentDownload } from '../hooks';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 
@@ -32,11 +32,13 @@ export const CheckYourAnswersPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const navigate = useNavigate();
     const { updateProgress } = useNWLProgress(applicationId);
+    const saveDeclarationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [declarationConfirmed, setDeclarationConfirmed] = useState(false);
     const [declarationError, setDeclarationError] = useState(false);
+    const [, setSavingDeclaration] = useState(false);
 
     const [applicantDetails, setApplicantDetails] = useState<any>(null);
     const [applicationDetails, setApplicationDetails] = useState<any>(null);
@@ -73,19 +75,11 @@ export const CheckYourAnswersPage: React.FC = () => {
                 setNegotiations(data.negotiations);
                 setAdditionalInformation(data.additionalInformation);
                 setPermissions(data.permissions);
+                
+                // Load declaration state from backend
+                setDeclarationConfirmed(data.declarationConfirmed || false);
 
                 setLoading(false);
-
-                // Mark "Check your answers" section as completed when page loads successfully
-                // Only update progress if user has edit permissions (avoids 403 for read-only users)
-                if (data.permissions.canEdit) {
-                    try {
-                        await updateProgress('Check your answers', 'Completed');
-                    } catch (progressError) {
-                        logger.error('Failed to update Check your answers progress:', progressError);
-                        // Don't block the user from viewing the page if progress update fails
-                    }
-                }
             } catch {
                 setLoading(false);
             }
@@ -97,6 +91,46 @@ export const CheckYourAnswersPage: React.FC = () => {
     // Use custom hook for document downloads
     useDocumentDownload(applicationId);
 
+    /**
+     * Handle declaration checkbox change with debounced save
+     */
+    const handleDeclarationChange = async (checked: boolean) => {
+        setDeclarationConfirmed(checked);
+        if (checked) {
+            setDeclarationError(false);
+        }
+
+        if (!applicationId) return;
+
+        // Clear previous timeout
+        if (saveDeclarationTimeout.current) {
+            clearTimeout(saveDeclarationTimeout.current);
+        }
+
+        // Debounce the save operation (500ms)
+        saveDeclarationTimeout.current = setTimeout(async () => {
+            try {
+                setSavingDeclaration(true);
+                await saveDeclarationConfirmation(applicationId, checked);
+                logger.info('[CheckYourAnswersPage] Declaration saved:', checked);
+            } catch (error) {
+                logger.error('[CheckYourAnswersPage] Failed to save declaration:', error);
+                // Don't show error to user - just log it
+            } finally {
+                setSavingDeclaration(false);
+            }
+        }, 500);
+    };
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (saveDeclarationTimeout.current) {
+                clearTimeout(saveDeclarationTimeout.current);
+            }
+        };
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!declarationConfirmed) {
@@ -107,30 +141,35 @@ export const CheckYourAnswersPage: React.FC = () => {
         setDeclarationError(false);
         setSubmitting(true);
         
+        // Mark "Check your answers" as completed only when user submits after confirming declaration
+        try {
+            await updateProgress('Check your answers', 'Completed');
+        } catch (progressError) {
+            logger.error('Failed to update Check your answers progress:', progressError);
+            // Continue navigation even if progress update fails
+        }
+        
         navigate(`${NWL_BASE_URL}/${applicationId}/pay-and-submit`);
     };
 
     if (loading) {
         return (
             <>
-                <SkipLink />
-                <div className="govuk-width-container">
+                <PageTitle title="Check your answers" />
+                                <div className="govuk-width-container">
                 <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
-                <main className="govuk-main-wrapper">
-                    <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
-                </main>
-            </div>
+                                    <h1 className="govuk-heading-l">{CONSTANTS.LOADING}</h1>
+                            </div>
             </>
         );
     }
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Check your answers" />
+                        <div className="govuk-width-container">
             <CheckYourAnswersBreadcrumbs applicationId={applicationId!} canEdit={permissions.canEdit} />
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {declarationError && (
                             <div className="govuk-error-summary" data-module="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
@@ -213,12 +252,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                                                 name="declaration" 
                                                 type="checkbox" 
                                                 checked={declarationConfirmed} 
-                                                onChange={(e) => {
-                                                    setDeclarationConfirmed(e.target.checked);
-                                                    if (e.target.checked) {
-                                                        setDeclarationError(false);
-                                                    }
-                                                }}
+                                                onChange={(e) => handleDeclarationChange(e.target.checked)}
                                                 aria-describedby={declarationError ? 'declaration-error' : undefined}
                                             />
                                             <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
@@ -240,8 +274,7 @@ export const CheckYourAnswersPage: React.FC = () => {
                         )}
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

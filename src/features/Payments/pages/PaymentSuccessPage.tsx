@@ -30,6 +30,7 @@ const CARD_PAYMENT_SUCCESS_CONTENT = {
   INVOICE_INFO: 'You can find your invoice in the application summary.',
   VIEW_APPLICATION_SUMMARY: 'View application summary',
 } as const;
+import PageTitle from '../../../components/PageTitle';
 
 interface PaymentSuccessState {
   invoiceNumber?: string;
@@ -105,10 +106,9 @@ const PaymentSuccessPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+            <PageTitle title="Application submitted" />
+            <div className="govuk-width-container">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">{CARD_PAYMENT_SUCCESS_CONTENT.PANEL_TITLE}</h1>
@@ -135,6 +135,14 @@ const PaymentSuccessPage: React.FC = () => {
             
             <table className="govuk-table">
               <tbody className="govuk-table__body">
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">Reference number</th>
+                  <td className="govuk-table__cell">{reference || paymentId || 'N/A'}</td>
+                </tr>
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">Invoice number</th>
+                  <td className="govuk-table__cell">{invoiceNumber || 'N/A'}</td>
+                </tr>
                 <tr className="govuk-table__row">
                   <th scope="row" className="govuk-table__header">{CARD_PAYMENT_SUCCESS_CONTENT.SUMMARY_LABELS.REFERENCE_NUMBER}</th>
                   <td className="govuk-table__cell">{reference || paymentId || 'N/A'}</td>
@@ -259,8 +267,7 @@ const PaymentSuccessPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { buildBackendUrl } from '../../../utils/apiConfig';
@@ -8,7 +9,6 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
 
 const logger = createLogger('BankTransferConfirmationPage');
 
@@ -122,7 +122,7 @@ const BankTransferConfirmationPage: React.FC = () => {
     loadInvoiceAndAmountIfNeeded();
   }, [applicationId, invoiceNumber, totalAmount, resolvedInvoiceNumber, resolvedTotalAmount]);
 
-  // No on-mount create/upsert call — payment will be created/submitted when user clicks Submit.
+  // No on-mount create/upsert call â€” payment will be created/submitted when user clicks Submit.
 
   const handleSubmit = async () => {
     if (fileUploadRef.current?.isBusy()) {
@@ -161,7 +161,7 @@ const BankTransferConfirmationPage: React.FC = () => {
       return;
     }
 
-    // No explicit user confirmation required here — backend saves payment on page load
+    // No explicit user confirmation required here â€” backend saves payment on page load
 
     setLoading(true);
     setError('');
@@ -308,10 +308,9 @@ const BankTransferConfirmationPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <PageTitle title="Provide proof of payment" />
+            <div className="govuk-width-container">
+              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
               <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
@@ -429,7 +428,7 @@ const BankTransferConfirmationPage: React.FC = () => {
             </div>
 
             <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
-              {/* No user-facing confirmation checkbox — backend-set PROCESSING_PAYMENT on entry */}
+              {/* No user-facing confirmation checkbox â€” backend-set PROCESSING_PAYMENT on entry */}
             </div>
 
             <div className="govuk-button-group">
@@ -455,8 +454,7 @@ const BankTransferConfirmationPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

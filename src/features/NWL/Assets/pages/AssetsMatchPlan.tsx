@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useNavigate, Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { useApplicationId, useAssetsData } from '../hooks';
@@ -6,7 +7,6 @@ import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '..
 import nwlAssetService from '../services/nwlAssetService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
-import SkipLink from '../../../../components/SkipLink';
 
 const logger = createLogger('AssetsMatchPlan');
 
@@ -166,9 +166,8 @@ const AssetsMatchPlan: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <main className="govuk-main-wrapper" id="main-content">
-      {/* Breadcrumbs */}
+      <PageTitle title="Do assets match the plan?" />
+                  {/* Breadcrumbs */}
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -271,8 +270,6 @@ const AssetsMatchPlan: React.FC = () => {
                       value="no"
                       checked={assetsMatch === 'no'}
                       onChange={(e) => handleRadioChange(e.target.value)}
-                      aria-controls="conditional-assets-match-2"
-                      aria-expanded={assetsMatch === 'no'}
                     />
                     <label className="govuk-label govuk-radios__label" htmlFor="assets-match-2">
                       {LABELS.NO}
@@ -346,8 +343,7 @@ const AssetsMatchPlan: React.FC = () => {
           </form>
         </div>
       </div>
-    </main>
-    </>
+        </>
   );
 };
 

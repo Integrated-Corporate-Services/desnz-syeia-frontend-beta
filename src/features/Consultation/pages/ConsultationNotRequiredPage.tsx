@@ -8,7 +8,7 @@ import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { isWithinCharacterLimit } from '../../../utils/validation';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
@@ -180,8 +180,9 @@ const ConsultationNotRequiredPage: React.FC = () => {
 
 	return (
 		<>
-			<SkipLink />
-			<div className="govuk-width-container">
+			
+			<PageTitle title="Consultation not required" />
+						<div className="govuk-width-container">
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
 					<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -195,8 +196,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 							<li className="govuk-breadcrumbs__list-item" aria-current="page">Consultation not required</li>
 						</ol>
 					</nav>
-					<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-					{/* Error Summary */}
+										{/* Error Summary */}
 					{(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
 						<div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
 							<h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -237,7 +237,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 						<h1 className="govuk-heading-l govuk-!-margin-bottom-6">Consultation not required</h1>
 						<div className="govuk-!-margin-bottom-6">
 							<h2 className="govuk-heading-m govuk-!-margin-bottom-2">Sites of Special Scientific Interest (SSSI) assent</h2>
-							<p className="govuk-body">You do not need to request Natural England’s assent for activities you believe would not disturb or damage the special features of an SSSI.</p>
+							<p className="govuk-body">You do not need to request Natural Englandâ€™s assent for activities you believe would not disturb or damage the special features of an SSSI.</p>
 							<p className="govuk-body">You must provide appropriate evidence here to demonstrate this.</p>
 							<p className="govuk-body">Here are some examples of appropriate evidence (this list is not exhaustive):</p>
 							<ul className="govuk-list govuk-list--bullet">
@@ -246,7 +246,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								<li>details of proposed working methods that would minimise impact on the protected site, e.g. only accessing the site on foot</li>
 							</ul>
 							<h3 className="govuk-heading-s govuk-!-margin-bottom-1">SSSI Impact Risk Zones (IRZs)</h3>
-							<p className="govuk-body">You can use DEFRA’s <a href="https://magic.defra.gov.uk" className="govuk-link" target="_blank" rel="noopener noreferrer">Magic Maps</a> or <a href="https://designatedsites.naturalengland.org.uk/IRZStart.aspx" className="govuk-link" target="_blank" rel="noopener noreferrer">Natural England’s IRZ tool</a> to check the types of project Natural England have requested consultations for.</p>
+							<p className="govuk-body">You can use DEFRAâ€™s <a href="https://magic.defra.gov.uk" className="govuk-link" target="_blank" rel="noopener noreferrer">Magic Maps</a> or <a href="https://designatedsites.naturalengland.org.uk/IRZStart.aspx" className="govuk-link" target="_blank" rel="noopener noreferrer">Natural Englandâ€™s IRZ tool</a> to check the types of project Natural England have requested consultations for.</p>
 							<p className="govuk-body">If a consultation is not required, you must provide appropriate evidence here to demonstrate this.</p>
 							<p className="govuk-body">Please note that the upgrade and refurbishment of existing overhead lines within IRZs do not usually require consultation with Natural England.</p>
 						</div>
@@ -327,8 +327,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 								</button>
 							</div> 
 						</form>
-					</main>
-				</div>
+									</div>
 			</div>
 		</div>
 		</>

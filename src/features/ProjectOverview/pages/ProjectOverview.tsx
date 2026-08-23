@@ -1,6 +1,5 @@
 import { S37_BASE_URL } from '../../../constants/s37';
 import React, { useState, useEffect, useRef } from "react";
-import SkipLink from '../../../components/SkipLink';
 import { useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
 import { CONTENT } from "../../../constants/content";
@@ -9,7 +8,6 @@ import { Link } from "react-router-dom";
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 
 
-import TextInput from "../component/TextInput";
 import TextArea from "../component/TextArea";
 import NumberInput from "../component/NumberInput";
 import RadioGroup from "../component/RadioGroup";
@@ -22,6 +20,7 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import PageTitle from '../../../components/PageTitle';
 
 // Exact set of anchor ids this page's createErrorLink() calls can produce - used to validate
 // the href extracted back out of an error string before it's rendered, since error text can
@@ -259,8 +258,8 @@ const ProjectOverview = () => {
 
 	return (
 		<>
-			<SkipLink />
-			<div className="govuk-width-container">
+						<PageTitle title="Project overview" />
+						<div className="govuk-width-container">
 				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
 					<ol className="govuk-breadcrumbs__list">
 						<li className="govuk-breadcrumbs__list-item">
@@ -276,8 +275,7 @@ const ProjectOverview = () => {
 						</li>
 					</ol>
 				</nav>
-				<main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-					<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
+									<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
 					{errors.length > 0 && (
 						<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
 							<h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
@@ -321,8 +319,6 @@ const ProjectOverview = () => {
 							return;
 						}
 
-						// Track if we uploaded files in this submission
-						let filesWereUploaded = false;
 						let newlyUploadedFiles: UploadedFile[] = [];
 						let newlyUploadedDocuments: ApplicationDocument[] = [];
 
@@ -335,7 +331,6 @@ const ProjectOverview = () => {
 									window.scrollTo({ top: 0 });
 									return;
 								}
-								filesWereUploaded = true; // Mark that files were uploaded
 								newlyUploadedFiles = result.uploadedFiles;
 								newlyUploadedDocuments = result.applicationDocuments;
 							} catch {
@@ -514,8 +509,9 @@ const ProjectOverview = () => {
 								}
 							}
 						}
-						// Validate File Upload - skip if files were just uploaded (state update is async)
-						if (!filesWereUploaded && (!formState.uploadedFiles || formState.uploadedFiles.length === 0) && pendingFiles.length === 0) {
+						// Validate File Upload - ensure at least one file is present
+						const hasUploadedFiles = (formState.uploadedFiles && formState.uploadedFiles.length > 0) || newlyUploadedFiles.length > 0;
+						if (!hasUploadedFiles) {
 							newErrors.push(createErrorLink('planInformationDocuments', PROJECT_OVERVIEW_ERRORS.FILE_UPLOAD_REQUIRED));
 							newFieldErrors.uploadedFiles = PROJECT_OVERVIEW_ERRORS.FILE_UPLOAD_REQUIRED;
 						}
@@ -619,23 +615,32 @@ const ProjectOverview = () => {
 
 						{/* Project Name Section */}
 						<h2 className="govuk-heading-s govuk-!-margin-bottom-2">Project name</h2>
-						<div className="govuk-form-group govuk-!-width-two-thirds">
-							<TextInput
-								label=""
-								id="projectName-inputValue"
-								name="projectName.inputValue"
-								value={formState.projectName}
-								error={fieldErrors['projectName-inputValue']}
-								maxLength={4000}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-									setFormState(prev => ({ ...prev, projectName: e.target.value }));
-									clearFieldError('projectName-inputValue');
-								}}
-							/>
-						</div>
+					<div className={`govuk-form-group govuk-!-width-two-thirds${fieldErrors['projectName-inputValue'] ? ' govuk-form-group--error' : ''}`}>
+						<label className="govuk-label govuk-visually-hidden" htmlFor="projectName-inputValue">
+							Project name
+						</label>
+						{fieldErrors['projectName-inputValue'] && (
+							<p id="projectName-inputValue-error" className="govuk-error-message">
+								<span className="govuk-visually-hidden">Error:</span> {fieldErrors['projectName-inputValue']}
+							</p>
+						)}
+						<input
+							className={`govuk-input${fieldErrors['projectName-inputValue'] ? ' govuk-input--error' : ''}`}
+							id="projectName-inputValue"
+							name="projectName.inputValue"
+							type="text"
+							maxLength={4000}
+							value={formState.projectName}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+								setFormState(prev => ({ ...prev, projectName: e.target.value }));
+								clearFieldError('projectName-inputValue');
+							}}
+							aria-describedby={fieldErrors['projectName-inputValue'] ? 'projectName-inputValue-error' : undefined}
+						/>
+					</div>
 
-						{/* Project Description Section */}
-						<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
+					{/* Project Description Section */}
+					<div className="govuk-form-group govuk-character-count govuk-!-width-two-thirds govuk-!-margin-bottom-2" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 							<TextArea
 								label="Project description"
 								id="projectDescription-inputValue"
@@ -732,7 +737,7 @@ const ProjectOverview = () => {
 										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} onChange={() => {
 											setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }));
 											clearFieldError('areWorkStartDatesKnown');
-										}} aria-controls="areWorkStartDatesKnown-hidden" aria-expanded={formState.areWorkStartDatesKnown === "true" ? "true" : "false"} />
+										}} />
 										<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown">Yes</label>
 									</div>
 									{formState.areWorkStartDatesKnown === "true" && (
@@ -760,7 +765,7 @@ const ProjectOverview = () => {
 																	value={formState.earliestWorkStartDateMonth || ""}
 																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
 																		setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }));
-																		clearFieldError('earliestWorkStartDate-month');
+																		clearFieldError('earliestWorkStartDate');
 																	}}
 																>
 																	<option value="" disabled>Select one...</option>
@@ -782,7 +787,7 @@ const ProjectOverview = () => {
 																	value={formState.earliestWorkStartDateYear || ""}
 																	onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 																		setFormState(prev => ({ ...prev, earliestWorkStartDateYear: e.target.value }));
-																		clearFieldError('earliestWorkStartDate-year');
+																		clearFieldError('earliestWorkStartDate');
 																	}}
 																/>
 															</div>
@@ -813,7 +818,7 @@ const ProjectOverview = () => {
 																	value={formState.latestWorkStartDateMonth || ""}
 																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
 																		setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }));
-																		clearFieldError('latestWorkStartDate-month');
+																		clearFieldError('latestWorkStartDate');
 																	}}
 																>
 																	<option value="" disabled>Select one...</option>
@@ -835,7 +840,7 @@ const ProjectOverview = () => {
 																	value={formState.latestWorkStartDateYear || ""}
 																	onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 																		setFormState(prev => ({ ...prev, latestWorkStartDateYear: e.target.value }));
-																		clearFieldError('latestWorkStartDate-year');
+																		clearFieldError('latestWorkStartDate');
 																	}}
 																/>
 															</div>
@@ -949,8 +954,6 @@ const ProjectOverview = () => {
 												setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
 												clearFieldError('hasRelatedApplications-inputValue');
 											}}
-											aria-controls="hasRelatedApplications-hidden"
-											aria-expanded={formState.hasRelatedApplications === "true" ? "true" : "false"}
 										/>
 										<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 									</div>
@@ -1064,8 +1067,7 @@ const ProjectOverview = () => {
 							{projectOverview.saveAndContinue}
 						</button>
 					</form>
-				</main>
-			</div>
+							</div>
 		</>
 	);
 }

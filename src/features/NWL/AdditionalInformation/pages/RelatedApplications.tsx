@@ -20,7 +20,7 @@ import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
-import SkipLink from '../../../../components/SkipLink';
+import PageTitle from '../../../../components/PageTitle';
 
 const logger = createLogger('RelatedApplications');
 
@@ -79,23 +79,9 @@ const RelatedApplications: React.FC = () => {
         other_information_details: additionalInformationData?.other_information_details || undefined,
       });
 
-      // If "no", update progress to Completed (the flow is done)
-      if (hasRelatedApplications === 'no') {
-        try {
-          await updateProgress('Additional information', 'Completed');
-          logger.info('[RelatedApplications] Progress updated for Additional information section');
-        } catch (progressError) {
-          logger.error('[RelatedApplications] Error updating progress', progressError);
-          // Continue even if progress update fails
-        }
-      }
-
-      // Navigate based on response
-      if (hasRelatedApplications === 'yes') {
-        navigateToOtherImportantInformation();
-      } else {
-        navigateToTaskList();
-      }
+      // Always navigate to OtherImportantInformation page regardless of Yes/No
+      // Both questions must be answered before completing the section
+      navigateToOtherImportantInformation();
     } catch (error: unknown) {
       logger.error('Error saving related applications:', error);
       const errorMessage = error && typeof error === 'object' && 'response' in error && 
@@ -115,15 +101,14 @@ const RelatedApplications: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-        <AdditionalInformationBreadcrumbs 
+      <PageTitle title="Related applications" />
+            <div className="govuk-width-container">
+        <AdditionalInformationBreadcrumbs
         appId={appId} 
         currentPage={CONTENT.BREADCRUMBS.RELATED_APPLICATIONS}
       />
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary errors={errors} />
 
@@ -243,8 +228,7 @@ const RelatedApplications: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>    </>  );
+          </div>    </>  );
 };
 
 export default RelatedApplications;

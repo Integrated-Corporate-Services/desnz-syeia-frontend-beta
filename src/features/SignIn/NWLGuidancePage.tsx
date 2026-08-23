@@ -1,13 +1,11 @@
 
-import SkipLink from '../../components/SkipLink';
 import { buildBackendUrl } from '../../utils/apiConfig';
 
 const NWLGuidancePage = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <a
           href="/landingPage"
           className="govuk-back-link"
@@ -24,8 +22,7 @@ const NWLGuidancePage = () => {
           text-decoration: underline;
         }
       `}</style>
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-      
+            
         <div className="govuk-grid-row">
         <div className="govuk-grid-column-full">
           <h1 className="govuk-heading-l">
@@ -150,8 +147,7 @@ const NWLGuidancePage = () => {
           </aside>
         </div>
       </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

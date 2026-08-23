@@ -1,4 +1,5 @@
 import React from "react";
+import PageTitle from '../../../../components/PageTitle';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { VOLTAGE_CLASS_OPTIONS } from '../../../../constants/asset';
 import { NWL_BASE_URL } from "../../../../constants/nwl";
@@ -17,7 +18,6 @@ import {
 } from '../constants';
 import nwlAssetService, { CreateAssetsPayload } from '../services/nwlAssetService';
 import { ASSETS_PAGE_IDS } from '../constants/pageNames';
-import SkipLink from '../../../../components/SkipLink';
 
 const voltageOptions: string[] = Array.isArray(VOLTAGE_CLASS_OPTIONS)
   ? VOLTAGE_CLASS_OPTIONS.map((opt: { label: string }) => opt.label)
@@ -257,28 +257,25 @@ const Asset: React.FC = () => {
   if (checkingAssets || loadingAsset) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content">
-        <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
+        <PageTitle title="Add an asset" />
+                <div className="govuk-width-container">
+                  <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl">{isEditMode ? LABELS.EDIT_ASSET_TITLE : LABELS.ADD_ASSET_TITLE}</h1>
             <p className="govuk-body">Loading...</p>
           </div>
         </div>
-      </main>
-        </div>
+              </div>
       </>
     );
   }
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content">
-      <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
+      <PageTitle title="Add an asset" />
+            <div className="govuk-width-container">
+              <AssetsBreadcrumbs applicationId={applicationId} currentPage={isEditMode ? "edit" : "add"} />
       
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
@@ -346,8 +343,7 @@ const Asset: React.FC = () => {
           </form>
         </div>
       </div>
-    </main>
-    </div>
+        </div>
     </>
   );
 };

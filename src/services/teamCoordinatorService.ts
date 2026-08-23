@@ -22,14 +22,10 @@ export const getTeamCoordinators = async (
   organisationId?: string,
 ): Promise<TeamCoordinator[]> => {
   try {
-    logger.debug("Fetching team coordinators", { organisationId });
     const url = organisationId
       ? `/api/team-coordinators?organisation_id=${organisationId}`
       : `/api/team-coordinators`;
     const response = await axios.get(url);
-    logger.debug("Team coordinators fetched successfully", {
-      count: response.data.length,
-    });
     return response.data;
   } catch (error: any) {
     logger.error("Failed to fetch team coordinators", {
@@ -47,15 +43,8 @@ export const getTeamCoordinatorById = async (
   coordinatorId: string,
 ): Promise<TeamCoordinator> => {
   try {
-    logger.debug("Fetching team coordinator", {
-      organisationId,
-      coordinatorId,
-    });
     const url = `/api/admin/organisations/${organisationId}/team-coordinators/${coordinatorId}`;
     const response = await axios.get(url);
-    logger.debug("Team coordinator fetched successfully", {
-      data: response.data,
-    });
     return response.data;
   } catch (error: any) {
     logger.error("Failed to fetch team coordinator", {
@@ -78,16 +67,10 @@ export const updateTeamCoordinator = async (
   updates: UpdateTeamCoordinatorData,
 ): Promise<TeamCoordinator> => {
   try {
-    logger.debug("Updating team coordinator", {
-      organisationId,
-      coordinatorId,
-      updates,
-    });
     const response = await axios.put(
       `/api/admin/organisations/${organisationId}/team-coordinators/${coordinatorId}`,
       updates,
     );
-    logger.debug("Team coordinator updated successfully");
     return response.data;
   } catch (error: any) {
     logger.error("Failed to update team coordinator", {

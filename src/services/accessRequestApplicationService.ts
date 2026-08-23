@@ -32,8 +32,6 @@ class RequestAccessService {
         applyingOnBehalf: data.applyingOnBehalf,
       };
 
-      logger.debug('Submitting access request with payload:', payload);
-
       const response = await axios.post(`/api/access-requests`, payload);
 
       return {

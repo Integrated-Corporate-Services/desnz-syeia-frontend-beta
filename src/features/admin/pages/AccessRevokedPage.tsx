@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useManageUsersNavigation } from '../../../hooks';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const AccessRevokedPage: React.FC = () => {
   const location = useLocation();
@@ -13,10 +13,9 @@ const AccessRevokedPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <a
+      <PageTitle title="Access revoked" />
+            <div className="govuk-width-container">
+              <a
           href="#"
           className="govuk-back-link"
           onClick={(e) => {
@@ -67,8 +66,7 @@ const AccessRevokedPage: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

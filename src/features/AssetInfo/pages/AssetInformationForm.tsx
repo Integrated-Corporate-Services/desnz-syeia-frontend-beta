@@ -22,7 +22,7 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import AssetSummary from './AssetSummary';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 interface AssetFormState {
     assetId: string;
@@ -327,8 +327,8 @@ const AssetInformationForm: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Assets" />
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -372,8 +372,7 @@ const AssetInformationForm: React.FC = () => {
                         </div>
                     </div>
                 )}
-                <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-                    <div className="govuk-grid-row">
+                <div className="govuk-grid-row">
                         <div className="govuk-grid-column-two-thirds">
                             <h1 className="govuk-heading-l">Assets</h1>
 
@@ -446,9 +445,18 @@ const AssetInformationForm: React.FC = () => {
                                         className={`govuk-input govuk-input--width-5${errors.lineLength ? ' govuk-input--error' : ''}`}
                                         id="lineLength"
                                         name="lineLength"
-                                        type="number"
+                                        type="text"
+                                        inputMode="decimal"
                                         value={form.lineLength}
-                                        onChange={handleChange}
+onChange={(e) => {
+                                            // Keep the stored value strictly numeric: digits + optional '.' + up to 2 dp.
+                                            const normalized = e.target.value.replace(',', '.');
+                                            const match = normalized.match(/^\d*(?:\.\d{0,2})?/);
+                                            const nextValue = match ? match[0] : '';
+
+                                            setForm((prev) => ({ ...prev, lineLength: nextValue }));
+                                            setErrors((prev) => clearFieldError(prev, 'lineLength'));
+                                        }}
                                         aria-describedby="lineLength-suffix"
                                         ref={!errors.referenceNumber && errors.lineLength ? firstErrorRef : undefined}
                                         disabled={isReadOnly}
@@ -466,7 +474,6 @@ const AssetInformationForm: React.FC = () => {
                             )}
                         </div>
                     </div>
-                </main>
             </form>
             </div>
         </>

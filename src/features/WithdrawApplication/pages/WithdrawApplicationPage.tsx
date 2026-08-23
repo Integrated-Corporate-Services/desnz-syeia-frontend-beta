@@ -9,10 +9,10 @@ import { getApplicationTypeFromLocation } from '../utils';
 import { submitWithdrawal, getWithdrawalReasons } from '../services';
 
 import { WithdrawApplicationBreadcrumbs, WithdrawalWarning } from '../components';
-import SkipLink from '../../../components/SkipLink';
 
 import { validateWithdrawalForm, getRemainingCharacters } from '../utils';
 import { clearFieldError as removeFieldError } from '../validations';
+import PageTitle from '../../../components/PageTitle';
 
 const WithdrawApplicationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
@@ -88,16 +88,15 @@ const WithdrawApplicationPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <PageTitle title="Withdraw application" />
+                        <div className="govuk-width-container">
             <WithdrawApplicationBreadcrumbs
                 applicationType={applicationType}
                 applicationId={applicationId!}
                 currentPage="withdraw"
             />
 
-            <main className="govuk-main-wrapper" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {hasErrors && (
                             <div
@@ -265,8 +264,7 @@ const WithdrawApplicationPage: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

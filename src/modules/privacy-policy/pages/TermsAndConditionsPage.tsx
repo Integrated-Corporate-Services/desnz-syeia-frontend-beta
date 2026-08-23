@@ -1,9 +1,11 @@
 import { PageFeedback, RelatedContent } from '../components';
 import { TERMS, RELATED_LINKS } from '../constants';
+import PageTitle from '../../../components/PageTitle';
 
 export function TermsAndConditionsPage() {
   return (
     <div className="govuk-width-container">
+      <PageTitle title="Terms and conditions" />
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

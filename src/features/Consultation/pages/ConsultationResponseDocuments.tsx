@@ -11,7 +11,7 @@ import { validateDateComponents } from '../../../utils/validation';
 import { ConsultationType } from '../../../constants/consultationType';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const ConsultationResponse2: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -241,8 +241,8 @@ const ConsultationResponse2: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="Consultation response documents" />
+                        <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -257,8 +257,7 @@ const ConsultationResponse2: React.FC = () => {
                         </ol>
                     </nav>
 
-                    <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                        {isLoading ? (
+                                            {isLoading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : (
                             <>
@@ -441,8 +440,7 @@ const ConsultationResponse2: React.FC = () => {
                         </form>
                             </>
                         )}
-                    </main>
-                </div>
+                                    </div>
             </div>
         </div>
         </>

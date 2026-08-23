@@ -7,7 +7,7 @@ import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { CONTENT } from "../../../constants/content";
 import { applicationApiService } from "../../../services/applicationApiService";
 import { WITHDRAWAL_LABELS, BUTTON_LABELS } from "../constants/applicationSummaryLabels";
-import SkipLink from "../../../components/SkipLink";
+import PageTitle from "../../../components/PageTitle";
 
 interface WithdrawalLocationState {
   desnzRef?: string;
@@ -160,13 +160,12 @@ const WithdrawApplicationPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Withdraw your application" />
+            <div className="govuk-width-container">
       <Link to={`${baseUrl}/${applicationId}/application-summary`} className="govuk-back-link">
         Back
       </Link>
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        {error && (
+              {error && (
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"
             aria-labelledby="error-summary-title"
@@ -316,8 +315,7 @@ const WithdrawApplicationPage: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

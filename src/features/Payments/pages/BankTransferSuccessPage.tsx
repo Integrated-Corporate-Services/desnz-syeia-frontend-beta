@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import {
@@ -12,8 +13,6 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
 import { trackButtonClick } from '../../../utils/analytics';
-import SkipLink from '../../../components/SkipLink';
-import { usePdfDownload } from '../../ApplicationSummary/hooks';
 
 const logger = createLogger('BankTransferSuccessPage');
 
@@ -245,8 +244,7 @@ const BankTransferSuccessPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

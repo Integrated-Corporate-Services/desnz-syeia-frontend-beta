@@ -52,23 +52,32 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
     }
   };
 
+  const legendId = `${id}-legend`;
+  const hintId = `${id}-hint`;
+  const errorId = error ? `${id}-error` : undefined;
+  
+  const describedBy = [
+    hintId,
+    errorId,
+  ].filter(Boolean).join(' ') || undefined;
+
   return (
     <div
       className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}
       ref={dropdownRef}
       style={{ maxWidth: 320 }}
     >
-      <fieldset className="govuk-fieldset" aria-describedby={`${id}-hint`}>
+      <fieldset className="govuk-fieldset" aria-describedby={describedBy}>
         {label && (
-          <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+          <legend id={legendId} className="govuk-fieldset__legend govuk-fieldset__legend--s">
             {label}
           </legend>
         )}
-        <div id={`${id}-hint`} className="govuk-hint">
+        <div id={hintId} className="govuk-hint">
           Select all that apply
         </div>
         {error && (
-          <span className="govuk-error-message">
+          <span id={errorId} className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span> {error}
           </span>
         )}
@@ -88,6 +97,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
             disabled={disabled}
             aria-haspopup="listbox"
             aria-expanded={open}
+            aria-labelledby={legendId}
             id={id}
           >
             {selected.length > 0

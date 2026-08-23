@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import {
@@ -11,7 +12,6 @@ import {
 } from '../../../constants/payment';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import SkipLink from '../../../components/SkipLink';
 
 const BankTransferPaymentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -129,10 +129,9 @@ const BankTransferPaymentPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <PageTitle title="Pay by bank transfer" />
+            <div className="govuk-width-container">
+              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
           <ol className="govuk-breadcrumbs__list">
             <li className="govuk-breadcrumbs__list-item">
               <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
@@ -238,8 +237,7 @@ const BankTransferPaymentPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

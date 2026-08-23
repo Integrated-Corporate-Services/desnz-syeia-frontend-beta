@@ -60,9 +60,15 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
 }
 
 export async function uploadFileToS3(url: string, file: File) {
+  const isBackendProxyUpload = url.includes('/api/upload/stream/');
+
   const res = await fetch(url, {
     method: 'PUT',
-    headers: { 'Content-Type': file.type || 'application/octet-stream' },
+    headers: {
+      'Content-Type': file.type || 'application/octet-stream',
+      ...(isBackendProxyUpload ? getCsrfHeaders() : {})
+    },
+    ...(isBackendProxyUpload ? { credentials: 'include' } : {}),
     body: file
   });
   return res;
@@ -177,6 +183,19 @@ export async function deleteFileCompletely(fileId: string, key: string, applicat
   if (!res.ok) {
     const errorResponse = await res.json();
     throw new Error(errorResponse.error || 'Failed to delete file completely');
+  }
+  return await res.json();
+}
+
+export async function deleteDocument(documentId: string) {
+  const res = await fetch(buildBackendUrl(`/api/documents/${encodeURIComponent(documentId)}`), {
+    method: 'DELETE',
+    headers: { ...getCsrfHeaders() },
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorResponse = await res.json();
+    throw new Error(errorResponse.message || errorResponse.error || 'Failed to delete document');
   }
   return await res.json();
 }

@@ -12,7 +12,7 @@ import { saveConsultationResponse } from '../../../services/consultationResponse
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const logger = createLogger('EvidenceResponseNotReceivedPage');
 
@@ -285,27 +285,12 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         }
     };
 
-    // const handleSaveForLater = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-
-    //     setLoading(true);
-    //     try {
-    //         // TODO: Implement API call to save evidence for later
-    //         // Navigate back to consultation details
-    //         navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
-    //     } catch (error) {
-    //         // Error handling removed
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            
             <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                {/* Breadcrumbs */}
+            <PageTitle title="Evidence response not received" />
+            <div className="govuk-width-container">
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">
                         <li className="govuk-breadcrumbs__list-item">
@@ -440,22 +425,15 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
                             {/* Buttons */}
                             <div className="govuk-button-group">
-                                {/* <button type="button" className="govuk-button" data-module="govuk-button" onClick={handleCloseConsultation}>
-                                    Close consultation
-                                </button> */}
-
                                 <button type="submit" className="govuk-button" data-module="govuk-button" disabled={loading}>
                                     {loading ? 'Closing...' : 'Close consultation'}
                                 </button>
-                                {/* <button type="button" className="govuk-button govuk-button--secondary" onClick={handleSaveForLater} disabled={loading}>
-                                    Save for later
-                                </button> */}
                             </div>
                         </form>
                     </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
         </>
     );
 };

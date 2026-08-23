@@ -7,7 +7,7 @@ import { getLpaDetails, saveLpaDetails } from '../../../services/consultationLpa
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { isWithinCharacterLimit } from '../../../utils/validation';
 import { createLogger } from '../../../utils/logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const log = createLogger('LPADetailsPage');
 
@@ -120,7 +120,7 @@ const LPADetailsPage: React.FC = () => {
             await saveLpaDetails(applicationId!, consultationId!, formData);
             setErrors({});
             setSubmitted(false);
-            navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development`);
+            navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/proposed-development?consultationName=${encodeURIComponent(consultationName)}`);
         } catch (error) {
             log.error('Error saving LPA details:', error);
             setErrors((prev) => ({
@@ -152,10 +152,9 @@ const LPADetailsPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                {/* Breadcrumbs */}
+            <PageTitle title="LPA details" />
+                        <div className="govuk-width-container">
+                            {/* Breadcrumbs */}
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                     <ol className="govuk-breadcrumbs__list">
                         <li className="govuk-breadcrumbs__list-item">
@@ -279,8 +278,7 @@ const LPADetailsPage: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

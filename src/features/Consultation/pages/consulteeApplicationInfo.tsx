@@ -9,7 +9,7 @@ import { FILE_CATEGORIES, FILE_CATEGORY_LABELS } from '../../../constants/fileCa
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 import log from '../../../logger';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
@@ -248,8 +248,8 @@ useEffect(() => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Share application details" />
+            <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item">
@@ -273,8 +273,7 @@ useEffect(() => {
           </li>
         </ol>
       </nav>
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        
+              
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
 
@@ -504,8 +503,7 @@ useEffect(() => {
 </div>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

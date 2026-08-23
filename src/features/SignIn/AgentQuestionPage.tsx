@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
-import SkipLink from "../../components/SkipLink";
 
 const AgentQuestionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,8 +37,7 @@ const AgentQuestionPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <div className="govuk-width-container">
         <Link
           to="/request-access/work-address"
           className="govuk-back-link"
@@ -47,8 +45,7 @@ const AgentQuestionPage: React.FC = () => {
         Back
       </Link>
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <form onSubmit={handleSubmit} noValidate>
               <div
@@ -134,8 +131,7 @@ const AgentQuestionPage: React.FC = () => {
             </form>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
     </>
   );
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useTeamCoordinators, useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const TeamCoordinatorsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -21,12 +21,9 @@ const TeamCoordinatorsPage: React.FC = () => {
   if (loading) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-            <LoadingSkeleton type="table" />
-          </main>
-        </div>
+                <div className="govuk-width-container">
+                      <LoadingSkeleton type="table" />
+                  </div>
       </>
     );
   }
@@ -34,10 +31,8 @@ const TeamCoordinatorsPage: React.FC = () => {
   if (error) {
     return (
       <>
-        <SkipLink />
-        <div className="govuk-width-container">
-          <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-grid-row">
+                <div className="govuk-width-container">
+                    <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
                 Back
@@ -52,18 +47,16 @@ const TeamCoordinatorsPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
-      </div>
+              </div>
       </>
     );
   }
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+      <PageTitle title="Team coordinators" />
+            <div className="govuk-width-container">
+                <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">
             <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
               Back
@@ -133,8 +126,7 @@ const TeamCoordinatorsPage: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useEiaFees } from '../../../hooks/useEiaFees';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 /**
  * Read-only EIA Fees Summary Page
@@ -20,8 +20,8 @@ const EIAFeesSummary: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+            <PageTitle title="EIA fees summary" />
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -35,8 +35,7 @@ const EIAFeesSummary: React.FC = () => {
                 </ol>
             </nav>
 
-            <main className="govuk-main-wrapper" id="main-content">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {/* Warning banner */}
                         <div className="govuk-warning-text">
@@ -78,8 +77,7 @@ const EIAFeesSummary: React.FC = () => {
                         </Link>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

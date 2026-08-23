@@ -4,6 +4,8 @@
  * Fetches comprehensive application data for the Check Your Answers review page.
  */
 import { buildBackendUrl } from '../../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../../utils/csrf';
+import { generateCorrelationId } from '../../../../utils/correlationId';
 
 export interface NWLCheckYourAnswersResponse {
     applicationId: string;
@@ -21,6 +23,7 @@ export interface NWLCheckYourAnswersResponse {
     permissions: {
         canEdit: boolean;
     };
+    declarationConfirmed?: boolean;
 }
 
 const fetchNwlAssetsMetadata = async (applicationId: string): Promise<unknown | null> => {
@@ -80,5 +83,39 @@ export const fetchCheckYourAnswersData = async (applicationId: string): Promise<
         negotiations: data.sections?.negotiations || null,
         additionalInformation: data.sections?.additionalInformation || null,
         permissions: data.permissions || { canEdit: true },
+        declarationConfirmed: data.application?.declaration_confirmed || false,
     };
+};
+
+/**
+ * Save declaration confirmation to database
+ * @param applicationId - Application ID
+ * @param isConfirmed - Whether declaration is confirmed
+ */
+export const saveDeclarationConfirmation = async (
+    applicationId: string,
+    isConfirmed: boolean
+): Promise<void> => {
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'X-Correlation-ID': generateCorrelationId(),
+        ...getCsrfHeaders(),
+    };
+
+    const response = await fetch(
+        buildBackendUrl(`/api/applications/${applicationId}/declaration`),
+        {
+            method: 'PATCH',
+            headers,
+            credentials: 'include',
+            body: JSON.stringify({
+                declaration_confirmed: isConfirmed,
+            }),
+        }
+    );
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to save declaration');
+    }
 };

@@ -5,7 +5,7 @@ import {
   getCurrentUserDetails,
   updateCurrentUserAgencyName,
 } from '../services/yourDetailsService';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 type FormErrors = {
   agencyName?: string;
@@ -106,14 +106,13 @@ const ChangeAgencyNamePage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+            <PageTitle title="Change your agency name" />
+            <div className="govuk-width-container">
       <Link className="govuk-back-link" to="/your-details">
         Back
       </Link>
 
-      <main className="govuk-main-wrapper" id="main-content">
-        <h1 className="govuk-heading-l govuk-!-margin-bottom-4">Change your agency name</h1>
+              <h1 className="govuk-heading-l govuk-!-margin-bottom-4">Change your agency name</h1>
 
         <p className="govuk-body govuk-!-margin-bottom-6">e.g. Fisher German</p>
 
@@ -169,8 +168,7 @@ const ChangeAgencyNamePage: React.FC = () => {
             </form>
           </>
         )}
-      </main>
-    </div>
+          </div>
     </>
   );
 };

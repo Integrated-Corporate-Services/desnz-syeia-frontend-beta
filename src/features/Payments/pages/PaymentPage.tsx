@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createPayment } from '../../../services/govPayService';
 import { useLocation } from 'react-router-dom';
 import '../../../styles/govuk.scss';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 export default function PaymentPage() {
   const location = useLocation();
@@ -44,10 +44,9 @@ export default function PaymentPage() {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content">
-        <h1 className="govuk-heading-l">Make a payment</h1>
+            <PageTitle title="Make a payment" />
+            <div className="govuk-width-container">
+              <h1 className="govuk-heading-l">Make a payment</h1>
         {error && (
           <div className="govuk-error-summary govuk-!-margin-bottom-6" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
             <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
@@ -113,8 +112,7 @@ export default function PaymentPage() {
             {loading ? 'Processing...' : 'Continue to payment'}
           </button>
         </form>
-      </main>
-    </div>
+          </div>
     </>
   );
 }

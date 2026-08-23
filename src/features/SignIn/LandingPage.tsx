@@ -1,12 +1,16 @@
-
-import SkipLink from '../../components/SkipLink';
 import { buildBackendUrl } from '../../utils/apiConfig';
+import PageTitle from '../../components/PageTitle';
 
 const LandingPage = () => {
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      {/* WCAG 2.4.2 Page Titled (Level A) - Issue #6 */}
+      <PageTitle 
+        title="Submit your Energy Infrastructure Application" 
+        description="Apply for energy infrastructure consents under the Electricity Act 1989"
+      />
+      
+            <div className="govuk-width-container">
         <style>{`
         .govuk-link,
         .govuk-link:visited,
@@ -17,8 +21,7 @@ const LandingPage = () => {
           text-decoration: underline;
         }
       `}</style>
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l" style={{ maxWidth: '520px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
               Submit your Energy Infrastructure Application
@@ -113,8 +116,7 @@ const LandingPage = () => {
             </aside>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

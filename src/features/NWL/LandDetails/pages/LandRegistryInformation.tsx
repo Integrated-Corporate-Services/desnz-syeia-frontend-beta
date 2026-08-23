@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
-import SkipLink from '../../../../components/SkipLink';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -164,15 +164,14 @@ const LandRegistryInformation: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-        <LandDetailsBreadcrumbs 
+      <PageTitle title="Land registry information" />
+            <div className="govuk-width-container">
+        <LandDetailsBreadcrumbs
           applicationId={applicationId} 
           currentPage={labels.INFO_PAGE_TITLE}
         />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary 
               errors={{ ...errors, ...(fileUploadError ? { fileUpload: fileUploadError } : {}) }} 
@@ -252,8 +251,7 @@ const LandRegistryInformation: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

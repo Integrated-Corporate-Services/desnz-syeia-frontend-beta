@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAddUserNavigation } from '../../../hooks';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const UserCreatedPage: React.FC = () => {
   const location = useLocation();
@@ -19,9 +19,8 @@ const UserCreatedPage: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <PageTitle title="User created successfully" />
+            <div className="govuk-width-container">
 
         {/* TRUE PAGE HEADING for accessibility */}
         <h1 className="govuk-visually-hidden">User created successfully</h1>
@@ -147,8 +146,7 @@ const UserCreatedPage: React.FC = () => {
           </div>
         </div>
 
-      </main>
-    </div>
+          </div>
     </>
   );
 };

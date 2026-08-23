@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { buildBackendUrl } from '../../../utils/apiConfig';
@@ -24,13 +24,13 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
-import SkipLink from "../../../components/SkipLink";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
 
 import {
   SECTION_HEADINGS,
   POST_CONSULTATION_QUESTIONS,
 } from '../constants/applicationSummaryLabels';
+import PageTitle from '../../../components/PageTitle';
 
 
 const CheckYourAnswers: React.FC = () => {
@@ -379,8 +379,8 @@ const CheckYourAnswers: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Check your answers" />
+            <div className="govuk-width-container">
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">
           Application Dashboard
@@ -403,8 +403,7 @@ const CheckYourAnswers: React.FC = () => {
           </ol>
         </nav>
       )}
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-        {validationError && (
+              {validationError && (
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"
             aria-labelledby="error-summary-title"
@@ -764,7 +763,7 @@ const CheckYourAnswers: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId, doc.document_id);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1197,7 +1196,7 @@ const CheckYourAnswers: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId, doc.document_id);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1336,7 +1335,7 @@ const CheckYourAnswers: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId, doc.document_id);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1454,7 +1453,7 @@ const CheckYourAnswers: React.FC = () => {
                                       e.preventDefault();
                                       const key = doc.key || doc.url;
                                       try {
-                                        await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                        await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                       } catch (error) {
                                         // Optionally show error to user
                                         logger.error('Failed to download file:', { error });
@@ -1546,7 +1545,7 @@ const CheckYourAnswers: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                             } catch (error) {
                                               logger.error('Failed to download file:', { error });
                                             }
@@ -1588,7 +1587,7 @@ const CheckYourAnswers: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                             } catch (error) {
                                               logger.error('Failed to download file:', { error });
                                             }
@@ -1633,7 +1632,7 @@ const CheckYourAnswers: React.FC = () => {
                                               e.preventDefault();
                                               const key = doc.url;
                                               try {
-                                                await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                                await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                               } catch (error) {
                                                 logger.error('Failed to download file:', error);
                                               }
@@ -1677,7 +1676,7 @@ const CheckYourAnswers: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                             } catch (error) {
                                               logger.error('Failed to download file:', error);
                                             }
@@ -1750,7 +1749,7 @@ const CheckYourAnswers: React.FC = () => {
                                                 e.preventDefault();
                                                 const key = doc.url;
                                                 try {
-                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                                 } catch (error) {
                                                   logger.error('Failed to download file:', { error });
                                                 }
@@ -1803,7 +1802,7 @@ const CheckYourAnswers: React.FC = () => {
                                                 e.preventDefault();
                                                 const key = doc.url;
                                                 try {
-                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                                 } catch (error) {
                                                   logger.error('Failed to download file:', { error });
                                                 }
@@ -2015,8 +2014,7 @@ const CheckYourAnswers: React.FC = () => {
             )}
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };

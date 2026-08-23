@@ -13,7 +13,6 @@ class RequestService {
   async getPendingRequests(): Promise<ServiceResponse<AccessRequest[]>> {
     try {
       const response = await axios.get('/api/access-requests');
-      logger.debug('Fetched pending requests:', response.data?.length);
       return {
         success: true,
         data: response.data
@@ -29,10 +28,8 @@ class RequestService {
    */
   async getRequestById(requestId: string): Promise<ServiceResponse<AccessRequest>> {
     try {
-      logger.debug('Fetching request by ID:', requestId);
       const url = `/api/access-requests/${requestId}`;
       const response = await axios.get(url);
-      logger.debug('Request fetched successfully:', response.data?.access_request_id);
       return {
         success: true,
         data: response.data
@@ -57,7 +54,6 @@ class RequestService {
   async approveRequest(requestId: string): Promise<ServiceResponse<null>> {
     try {
       const response = await axios.post(`/api/access-requests/${requestId}/approve`);
-      logger.info('Request approved:', requestId);
       return {
         success: true,
         message: response.data.message || 'Request approved successfully'
@@ -80,7 +76,6 @@ class RequestService {
       const response = await axios.post(`/api/access-requests/${requestId}/reject`, {
         reason
       });
-      logger.info('Request rejected:', requestId);
       return {
         success: true,
         message: response.data.message || 'Request rejected successfully'

@@ -1,8 +1,9 @@
-﻿import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { ConsultationType } from "../../../constants/consultationType";
 import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
+import { useInvoiceStatus, buildInvoiceDownloadUrl } from "../../../hooks";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { applicationApiService } from "../../../services/applicationApiService";
@@ -27,7 +28,6 @@ import {
 } from "../component/ApplicationSubmit.types";
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
-import SkipLink from "../../../components/SkipLink";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
 
 import {
@@ -48,6 +48,7 @@ import {
   BANK_TRANSFER_SUCCESS_PAGE,
   PAYMENT_METHOD,
 } from '../../../constants/payment';
+import PageTitle from '../../../components/PageTitle';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -162,8 +163,8 @@ const ApplicationSummary: React.FC = () => {
   const [applicationMetadata, setApplicationMetadata] = useState<ApplicationMetadata | null>(null);
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
-  const [invoiceNumber, setInvoiceNumber] = useState<string | null>(null);
-  
+  const invoiceStatus = useInvoiceStatus(applicationId);
+
   // Withdrawal request state
   const [withdrawalRequest, setWithdrawalRequest] = useState<{
     withdrawal_request_id: string;
@@ -233,12 +234,7 @@ const ApplicationSummary: React.FC = () => {
 
         // payment details
         if (data.sections?.payment) {
-          const payment = data.sections.payment;
-          setPaymentDetails(payment);
-
-          if (data.desnzRef) {
-            setInvoiceNumber(`INV01/${data.desnzRef}.pdf`);
-          }
+          setPaymentDetails(data.sections.payment);
         }
         // List of required sections
         const requiredSections = REQUIRED_SECTIONS;
@@ -470,8 +466,8 @@ const ApplicationSummary: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
+      <PageTitle title="Application summary" />
+            <div className="govuk-width-container">
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">
           Back
@@ -494,9 +490,8 @@ const ApplicationSummary: React.FC = () => {
           </ol>
         </nav>
       )}
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">        
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-three-quarters">
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-three-quarters">
             
             {/* Withdrawal request notification banner */}
             {withdrawalRequest && withdrawalRequest.request_status === 'Requested' && (
@@ -611,25 +606,12 @@ const ApplicationSummary: React.FC = () => {
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">{FIELD_LABELS.INVOICE}</dt>
                       <dd className="govuk-summary-list__value">
-                        {invoiceNumber ? (
+                        {applicationId && invoiceStatus?.invoiceExists && invoiceStatus.invoiceNumber ? (
                           <a
-                            href="#"
+                            href={buildInvoiceDownloadUrl(applicationId, invoiceStatus.invoiceNumber)}
                             className="govuk-link"
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              try {
-                                // Calculate S3 key from invoice number
-                                // invoiceNumber format: INV01/S3700004.pdf
-                                const desnzRef = invoiceNumber.replace('.pdf', '').split('/')[1];
-                                const s3Key = `Section-37/${applicationId}/invoice/INV01/${desnzRef}.pdf`;
-
-                                await downloadS3FileOnSameTab(s3Key, undefined, applicationId);
-                              } catch (error) {
-                                logger.error('Failed to download invoice:', error);
-                              }
-                            }}
                           >
-                            {invoiceNumber}
+                            {invoiceStatus.invoiceNumber}
                           </a>
                         ) : (
                           '-'
@@ -848,7 +830,7 @@ const ApplicationSummary: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId, doc.document_id);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1181,7 +1163,7 @@ const ApplicationSummary: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId, doc.document_id);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1331,7 +1313,7 @@ const ApplicationSummary: React.FC = () => {
                                   const key = doc.s3_key || doc.file_id;
                                   if (key) {
                                     try {
-                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                      await downloadS3FileOnSameTab(key, doc.file_id, applicationId, doc.document_id);
                                     } catch (error) {
                                       logger.error('Failed to download file:', { error });
                                     }
@@ -1441,7 +1423,7 @@ const ApplicationSummary: React.FC = () => {
                                       e.preventDefault();
                                       const key = doc.key || doc.url;
                                       try {
-                                        await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                        await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                       } catch (error) {
                                         // Optionally show error to user
                                         logger.error('Failed to download file:', { error });
@@ -1536,7 +1518,7 @@ const ApplicationSummary: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                             } catch (error) {
                                               logger.error('Failed to download file:', { error });
                                             }
@@ -1578,7 +1560,7 @@ const ApplicationSummary: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                             } catch (error) {
                                               logger.error('Failed to download file:', { error });
                                             }
@@ -1633,7 +1615,7 @@ const ApplicationSummary: React.FC = () => {
                                             e.preventDefault();
                                             const key = doc.url;
                                             try {
-                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                              await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                             } catch (error) {
                                               logger.error('Failed to download file:', { error });
                                             }
@@ -1706,7 +1688,7 @@ const ApplicationSummary: React.FC = () => {
                                                 e.preventDefault();
                                                 const key = doc.url;
                                                 try {
-                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                                 } catch (error) {
                                                   logger.error('Failed to download file:', error);
                                                 }
@@ -1759,7 +1741,7 @@ const ApplicationSummary: React.FC = () => {
                                                 e.preventDefault();
                                                 const key = doc.url;
                                                 try {
-                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                                                  await downloadS3FileOnSameTab(key, doc.file_id, applicationId, (doc as any)?.document_id);
                                                 } catch (error) {
                                                   logger.error('Failed to download file:', { error });
                                                 }
@@ -1933,8 +1915,8 @@ const ApplicationSummary: React.FC = () => {
                           className="govuk-label govuk-checkboxes__label"
                           htmlFor="organisation"
                         >
-                          I confirm I’ve read and understood the information
-                          I’ve provided, and that it’s accurate to the best of
+                          I confirm I�ve read and understood the information
+                          I�ve provided, and that it�s accurate to the best of
                           my knowledge.
                         </label>
                       </div>
@@ -1956,7 +1938,6 @@ const ApplicationSummary: React.FC = () => {
             )}
           </div>
         </div>
-      </main>
     </div>
     </>
   );

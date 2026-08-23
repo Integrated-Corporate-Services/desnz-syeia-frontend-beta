@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
-import SkipLink from '../../../../components/SkipLink';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -13,7 +13,7 @@ import {
   useFormValidation,
   useLandNavigation,
 } from '../hooks';
-import { LAND_DETAILS_LABELS } from '../constants';
+import { LAND_DETAILS_LABELS, LAND_DETAILS_VALIDATION } from '../constants';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { LAND_DETAILS_SUBCATEGORIES } from '../constants';
@@ -37,13 +37,27 @@ const UnregisteredLandDetails: React.FC = () => {
     setExplanation(landDetails.unregistered_land_explanation || '');
   }, [landDetails.unregistered_land_explanation]);
   const [isSaving, setIsSaving] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [fileUploadError, setFileUploadError] = useState<string>('');
 
   const maxCharacters = 4000;
+
+  // Files/documents only for this page's subCategory
+  const pageSubCategory = LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND;
+  const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase()) === pageSubCategory);
+  const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
 
   const handleExplanationChange = (value: string) => {
     setExplanation(value);
     clearError('unregisteredLand');
+  };
+
+  const handlePendingFilesChange = (files: File[]) => {
+    setPendingFiles(files);
+    if (files && files.length > 0) {
+      setFileUploadError('');
+    }
   };
 
   const handleDeleteFile = (fileId: string) => {
@@ -77,9 +91,19 @@ const UnregisteredLandDetails: React.FC = () => {
       return;
     }
 
-    const isValid = validateUnregisteredLand(explanation);
+    const explanationValid = validateUnregisteredLand(explanation);
 
-    if (!isValid) {
+    const hasUploadedFiles = pageUploadedFiles && pageUploadedFiles.length > 0;
+    const hasPendingFiles = pendingFiles && pendingFiles.length > 0;
+    const fileUploadValid = hasUploadedFiles || hasPendingFiles;
+
+    if (!fileUploadValid) {
+      setFileUploadError(LAND_DETAILS_VALIDATION.UNREGISTERED_LAND_DOCUMENT_REQUIRED);
+    } else {
+      setFileUploadError('');
+    }
+
+    if (!explanationValid || !fileUploadValid) {
       window.scrollTo(0, 0);
       return;
     }
@@ -129,23 +153,26 @@ const UnregisteredLandDetails: React.FC = () => {
 
   const errorFields = {
     unregisteredLand: 'unregistered-land-explanation',
+    fileUpload: 'file-upload-error',
   };
 
   const labels = LAND_DETAILS_LABELS.UNREGISTERED_LAND;
 
   return (
     <>
-      <SkipLink />
-      <div className="govuk-width-container">
-        <LandDetailsBreadcrumbs 
+      <PageTitle title="Unregistered land details" />
+            <div className="govuk-width-container">
+        <LandDetailsBreadcrumbs
           applicationId={applicationId} 
           currentPage={labels.PAGE_TITLE}
         />
 
-      <main className="govuk-main-wrapper" id="main-content" role="main">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <ErrorSummary errors={errors} errorFields={errorFields} />
+            <ErrorSummary
+              errors={{ ...errors, ...(fileUploadError ? { fileUpload: fileUploadError } : {}) }}
+              errorFields={errorFields}
+            />
 
             <h1 className="govuk-heading-l">{labels.PAGE_TITLE}</h1>
 
@@ -162,50 +189,46 @@ const UnregisteredLandDetails: React.FC = () => {
                 showLabel={true}
               />
 
-              <div className={`govuk-form-group${fileValidationErrors.length > 0 ? ' govuk-form-group--error' : ''}`}>
+              <div className={`govuk-form-group${fileValidationErrors.length > 0 || fileUploadError ? ' govuk-form-group--error' : ''}`}>
                 {fileValidationErrors.length > 0 && fileValidationErrors.map((error, index) => (
                   <p key={index} id={`fileValidation-error-${index}`} className="govuk-error-message">
                     <span className="govuk-visually-hidden">Error:</span> {error}
                   </p>
                 ))}
-                
-                  {/* Files/documents only for this page's subCategory */}
-                  {(() => {
-                    const pageSubCategory = LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND;
-                    const pageApplicationDocuments = (landDetails.applicationDocuments || []).filter(doc => ((doc.subCategory || (doc as any).sub_category || '').toString().toUpperCase()) === pageSubCategory);
-                    const pageUploadedFiles = (landDetails.uploadedFiles || []).filter(file => pageApplicationDocuments.some(doc => doc.fileId === file.id));
+                {fileUploadError && (
+                  <p id="file-upload-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {fileUploadError}
+                  </p>
+                )}
 
-                    return (
-                      <>
-                        {pageUploadedFiles && pageUploadedFiles.length > 0 && (
-                          <div className="govuk-!-margin-top-2">
-                            <h3 className="govuk-heading-s">{LAND_DETAILS_LABELS.UNREGISTERED_LAND.DOCUMENTS_UPLOADED}</h3>
-                          </div>
-                        )}
-                        <FileUpload
+                {pageUploadedFiles && pageUploadedFiles.length > 0 && (
+                  <div className="govuk-!-margin-top-2">
+                    <h3 className="govuk-heading-s">{labels.DOCUMENTS_UPLOADED}</h3>
+                  </div>
+                )}
+                <FileUpload
                   ref={fileUploadRef}
                   title={labels.UPLOAD_SECTION_TITLE}
                   showTitle={false}
-                    prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_UNREGISTERED_LAND}`}
+                  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_UNREGISTERED_LAND}`}
                   applicationId={applicationId}
                   category={NWL_FILE_CATEGORIES.NWL_UNREGISTERED_LAND}
-                    subCategory="UNREGISTERED_LAND"
-                    addedBy={userId}
-                    uploadedFiles={pageUploadedFiles}
-                    applicationDocuments={pageApplicationDocuments}
-                    uploadImmediately={true}
+                  subCategory="UNREGISTERED_LAND"
+                  addedBy={userId}
+                  uploadedFiles={pageUploadedFiles}
+                  applicationDocuments={pageApplicationDocuments}
+                  uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
+                  onPendingFilesChange={handlePendingFilesChange}
                   onValidationErrors={setFileValidationErrors}
                   onUploaded={(newUploadedFiles: UploadedFile[], newDocs: ApplicationDocument[]) => {
+                    setFileUploadError('');
                     updateLandDetails({
                       uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
                       applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
                     });
                   }}
-                        />
-                      </>
-                    );
-                  })()}
+                />
               </div>
 
               <FormActions
@@ -215,8 +238,7 @@ const UnregisteredLandDetails: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-      </div>
+            </div>
     </>
   );
 };

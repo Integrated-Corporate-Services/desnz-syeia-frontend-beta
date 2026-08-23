@@ -11,7 +11,7 @@ import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import RouteSummary from './RouteSummary';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 export const RouteOverviewPage: React.FC = () => {
     const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
     const [details, setDetails] = React.useState('');
@@ -98,8 +98,8 @@ export const RouteOverviewPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <PageTitle title="Route overview" />
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 <ol className="govuk-breadcrumbs__list">
                     <li className="govuk-breadcrumbs__list-item">
@@ -119,8 +119,7 @@ export const RouteOverviewPage: React.FC = () => {
                     </li>
                 </ol>
             </nav>
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                {showBanner && <RouteDeletedBanner routeName={showBanner.routeName} />}
+                            {showBanner && <RouteDeletedBanner routeName={showBanner.routeName} />}
                 <h1 className="govuk-heading-l">Route overview</h1>
                 <p className="govuk-body" style={{ maxWidth: 700 }}>
                     Any changes to the route will require you to run the sensitive area checks again, upload new plan information, and reconsult or provide updated information to consultees if consultations are open.
@@ -347,8 +346,7 @@ export const RouteOverviewPage: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </main>
-        </div>
+                    </div>
         </>
     );
 };

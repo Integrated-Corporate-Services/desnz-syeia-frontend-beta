@@ -10,7 +10,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
-import SkipLink from '../../../components/SkipLink';
+import PageTitle from '../../../components/PageTitle';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -97,6 +97,7 @@ const SensitiveAreaPage: React.FC = () => {
     if (consultationsLoading) {
         return (
             <div className="govuk-width-container">
+                <PageTitle title="Sensitive area check" />
                 <div className="govuk-main-wrapper">
                     <p className="govuk-body">Loading...</p>
                 </div>
@@ -111,8 +112,8 @@ const SensitiveAreaPage: React.FC = () => {
 
     return (
         <>
-            <SkipLink />
-            <div className="govuk-width-container">
+                        <PageTitle title="Sensitive area check" />
+                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 {error && (
                     <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
@@ -139,8 +140,7 @@ const SensitiveAreaPage: React.FC = () => {
                     </li>
                 </ol>
             </nav>
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
-                <div className="govuk-grid-row">
+                            <div className="govuk-grid-row">
                     <div className="govuk-grid-column-full">
                         {formError && (
                             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
@@ -191,8 +191,6 @@ const SensitiveAreaPage: React.FC = () => {
                                                         type="radio"
                                                         value="yes"
                                                         checked={toleranceRequired === 'yes'}
-                                                        aria-controls="routeToleranceRequired-hidden"
-                                                        aria-expanded={toleranceRequired === 'yes'}
                                                         onChange={() => setToleranceRequired('yes')}
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
                                                     />
@@ -276,8 +274,7 @@ const SensitiveAreaPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </main>
-            </div>
+                        </div>
         </>
     );
 };

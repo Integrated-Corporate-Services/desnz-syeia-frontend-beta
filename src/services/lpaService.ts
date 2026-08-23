@@ -34,25 +34,17 @@ class LpaService {
   async getAllLpas(): Promise<Lpa[]> {
     try {
       const url = this.baseUrl;
-      log.debug("Fetching all LPAs from:", url);
-      log.debug("VITE_API_URL env var:", import.meta.env.VITE_API_URL);
       const response = await fetch(url, {
         credentials: "include"
       });
-      log.debug("Response status:", response.status, "Content-Type:", response.headers.get('content-type'));
       if (!response.ok) {
-        const text = await response.text();
-        log.error("Bad response:", response.status, text.substring(0, 200));
         throw new Error(`HTTP ${response.status}`);
       }
       const contentType = response.headers.get('content-type');
       if (!contentType?.includes('application/json')) {
-        const text = await response.text();
-        log.error("Expected JSON but got:", contentType, "Body:", text.substring(0, 500));
         throw new Error("Server returned HTML instead of JSON. Check backend URL configuration.");
       }
       const data: LpaApiResponse = await response.json();
-      log.debug("Fetched LPAs:", data?.data?.length || 0);
       return data?.data || [];
     } catch (error) {
       log.error("Failed to fetch LPAs:", error);

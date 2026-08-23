@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import SkipLink from '../../../../components/SkipLink';
+import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
@@ -104,8 +104,8 @@ const StandardTerm: React.FC = () => {
 
   return (
     <>
-      <SkipLink />
-    <div className="govuk-width-container">
+      <PageTitle title="Standard term of 15 years" />
+          <div className="govuk-width-container">
       <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
         <ol className="govuk-breadcrumbs__list">
           <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -123,8 +123,7 @@ const StandardTerm: React.FC = () => {
         </ol>
       </nav>
 
-      <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-        <div className="govuk-grid-row">
+              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(error || explanationError) && (
               <div
@@ -251,8 +250,7 @@ const StandardTerm: React.FC = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+          </div>
     </>
   );
 };
