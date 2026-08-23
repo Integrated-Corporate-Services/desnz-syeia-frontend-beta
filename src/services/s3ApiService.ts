@@ -68,7 +68,7 @@ export async function uploadFileToS3(url: string, file: File) {
       'Content-Type': file.type || 'application/octet-stream',
       ...(isBackendProxyUpload ? getCsrfHeaders() : {})
     },
-    ...(isBackendProxyUpload ? { credentials: 'include' as RequestCredentials } : {}),
+    ...(isBackendProxyUpload ? { credentials: 'include' } : {}),
     body: file
   });
   return res;

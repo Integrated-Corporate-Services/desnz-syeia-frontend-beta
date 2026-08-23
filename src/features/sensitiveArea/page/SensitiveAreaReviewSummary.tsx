@@ -131,10 +131,10 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                                                         className="govuk-link"
                                                                         onClick={async (e) => {
                                                                             e.preventDefault();
-                                                                            const key = doc.s3_key || doc.file_id;
-                                                                            if (key) {
+                                                                            const key = doc.fileId;
+                                                                            if (key || doc.documentId) {
                                                                                 try {
-                                                                                    await downloadS3FileOnSameTab(key, undefined, applicationId, doc.documentId);
+                                                                                    await downloadS3FileOnSameTab(key, doc.fileId, applicationId, doc.documentId);
                                                                                 } catch (error) {
                                                                                     logger.error('Failed to download file:', { error });
                                                                                 }
