@@ -14,14 +14,15 @@ export const useDocumentDownload = (applicationId?: string) => {
 
                 const fileKey = target.getAttribute('data-file-key');
                 const fileId = target.getAttribute('data-file-id') || undefined;
+                const documentId = target.getAttribute('data-document-id') || undefined;
 
                 if (fileKey) {
                     try {
-                        logger.info('Downloading document via presigned URL', { fileKey, fileId });
-                        await downloadS3FileOnSameTab(fileKey, fileId, applicationId);
-                        logger.info('Document download initiated successfully', { fileKey, fileId });
+                        logger.info('Downloading document', { fileKey, fileId, documentId });
+                        await downloadS3FileOnSameTab(fileKey, fileId, applicationId, documentId);
+                        logger.info('Document download initiated successfully', { fileKey, fileId, documentId });
                     } catch (error) {
-                        logger.error('Failed to download document', { error, fileKey, fileId });
+                        logger.error('Failed to download document', { error, fileKey, fileId, documentId });
                     }
                 }
             }
