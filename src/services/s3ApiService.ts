@@ -187,6 +187,19 @@ export async function deleteFileCompletely(fileId: string, key: string, applicat
   return await res.json();
 }
 
+export async function deleteDocument(documentId: string) {
+  const res = await fetch(buildBackendUrl(`/api/documents/${encodeURIComponent(documentId)}`), {
+    method: 'DELETE',
+    headers: { ...getCsrfHeaders() },
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorResponse = await res.json();
+    throw new Error(errorResponse.message || errorResponse.error || 'Failed to delete document');
+  }
+  return await res.json();
+}
+
 export interface FileScanStatusEntry {
   fileId: string;
   scanStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null;

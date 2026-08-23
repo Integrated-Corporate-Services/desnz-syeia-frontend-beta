@@ -5,6 +5,7 @@ import {
   getPresignedUrls,
   uploadFileToS3,
   deleteFileCompletely,
+  deleteDocument,
   confirmUpload,
 } from "../services/s3ApiService";
 import { createLogger } from "../utils/logger";
@@ -500,7 +501,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         logger.error(msg, { fileId, s3Key });
         return;
       }
-      await deleteFileCompletely(fileId, s3Key, applicationId);
+      const documentId = applicationDocuments?.find((doc) => doc.fileId === fileId)?.documentId;
+      if (documentId) {
+        await deleteDocument(documentId);
+      } else {
+        await deleteFileCompletely(fileId, s3Key, applicationId);
+      }
       if (onDeleteFile) {
         onDeleteFile(fileId);
       }
@@ -585,7 +591,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                         e.preventDefault();
                         if (file.s3Key) {
                           try {
-                            await downloadS3FileOnSameTab(file.s3Key, file.id, applicationId);
+                            const documentId = applicationDocuments?.find((doc) => doc.fileId === file.id)?.documentId;
+                            await downloadS3FileOnSameTab(file.s3Key, file.id, applicationId, documentId);
                           } catch (error) {
                             logger.error('Failed to download file', {
                               s3Key: file.s3Key,

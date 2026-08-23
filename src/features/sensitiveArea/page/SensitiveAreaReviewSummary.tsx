@@ -134,7 +134,7 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                                                                             const key = doc.s3_key || doc.file_id;
                                                                             if (key) {
                                                                                 try {
-                                                                                    await downloadS3FileOnSameTab(key, undefined, applicationId);
+                                                                                    await downloadS3FileOnSameTab(key, undefined, applicationId, doc.documentId);
                                                                                 } catch (error) {
                                                                                     logger.error('Failed to download file:', { error });
                                                                                 }
