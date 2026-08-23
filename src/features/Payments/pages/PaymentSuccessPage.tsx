@@ -6,7 +6,6 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
 import { BANK_TRANSFER_SUCCESS_PAGE, formatCurrency } from '../../../constants/payment';
-import SkipLink from '../../../components/SkipLink';
 import { usePdfDownload } from '../../ApplicationSummary/hooks';
 
 const CARD_PAYMENT_SUCCESS_CONTENT = {
