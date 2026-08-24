@@ -4,6 +4,7 @@ import "../styles/Fileupload.css";
 import {
   getPresignedUrls,
   uploadFileToS3,
+  extractUploadEtag,
   deleteFileCompletely,
   deleteDocument,
   confirmUpload,
@@ -370,7 +371,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               ? `${prefix}/${uploadFiles[i].name}`
               : uploadFiles[i].name;
 
-            const etag = uploadRes.headers.get('etag');
+            const etag = await extractUploadEtag(uploadRes);
 
             logger.info('S3 upload successful, calling confirm endpoint', {
               s3Key,

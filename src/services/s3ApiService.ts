@@ -81,6 +81,18 @@ export async function uploadFileToS3(url: string, file: File) {
   return res;
 }
 
+export async function extractUploadEtag(response: Response): Promise<string | null> {
+  try {
+    const body = await response.clone().json();
+    if (body && typeof body.etag === 'string') {
+      return body.etag;
+    }
+  } catch {
+    // Not a JSON body - fall through to the header.
+  }
+  return response.headers.get('etag');
+}
+
 export async function confirmUpload(params: {
   s3Key: string;
   fileName: string;
