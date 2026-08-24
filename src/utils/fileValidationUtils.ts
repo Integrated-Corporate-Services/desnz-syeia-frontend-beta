@@ -145,6 +145,9 @@ export const isImageFile = (filename: string): boolean =>
 export const isPdfFile = (filename: string): boolean =>
   isFileInCategory(filename, FILE_TYPE_CATEGORIES.DOCUMENTS);
 
+export const isMsgFile = (filename: string): boolean =>
+  isFileInCategory(filename, FILE_TYPE_CATEGORIES.OUTLOOK_MESSAGES);
+
 export const hasAllowedExtension = (filename: string): boolean =>
   isFileInCategory(filename, ALLOWED_FILE_EXTENSIONS);
 

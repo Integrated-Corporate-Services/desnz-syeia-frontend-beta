@@ -1,10 +1,11 @@
 import { PASSWORD_PROTECTION_SIGNATURES } from './fileValidationConstants';
-import { 
-  readFileHeader, 
-  uint8ArrayToHex, 
+import {
+  readFileHeader,
+  uint8ArrayToHex,
   isLegacyOfficeFile,
   isExcelFile,
   isWordFile,
+  isMsgFile,
   getOptimalReadSize,
   findFilePassRecord,
   findWordEncryptionFlag
@@ -269,6 +270,11 @@ const detectPasswordProtectionByFormat = async (
     if (legacyEncrypted) {
       logger.info('ENCRYPTED legacy Office file', { filename: file.name });
       return true;
+    }
+
+    if (isMsgFile(file.name)) {
+      logger.info('MSG file passed OLE2 stream checks - skipping generic fallback (unreliable for MSG content)', { filename: file.name });
+      return false;
     }
 
     logger.info('OLE file passed specific checks, trying generic fallback', { filename: file.name });
