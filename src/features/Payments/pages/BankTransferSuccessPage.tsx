@@ -13,6 +13,7 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
 import { trackButtonClick } from '../../../utils/analytics';
+import { usePdfDownload } from '../../ApplicationSummary/hooks';
 
 const logger = createLogger('BankTransferSuccessPage');
 
@@ -22,6 +23,7 @@ const BankTransferSuccessPage: React.FC = () => {
 
 
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
+  const isNwlRoute = baseUrl === NWL_BASE_URL;
 
   const {
     invoiceNumber,
@@ -33,6 +35,16 @@ const BankTransferSuccessPage: React.FC = () => {
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
   const [loading, setLoading] = useState(!passedDesnzRef);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    isDownloading,
+    isDownloadingPackage,
+    error: pdfError,
+    downloadPdf,
+    downloadPackage,
+    packageSizeLabel,
+    clearError,
+  } = usePdfDownload();
 
   useEffect(() => {
     if (!applicationId || passedDesnzRef) return;
@@ -58,11 +70,15 @@ const BankTransferSuccessPage: React.FC = () => {
   const displayTransactionNumber =
     transactionNumber?.trim() || BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT;
 
+  const zipSupportText = packageSizeLabel
+    ? `ZIP, about ${packageSizeLabel}. Includes your completed application form as a PDF and every document you uploaded.`
+    : 'ZIP, about 4 MB. Includes your completed application form as a PDF and every document you uploaded.';
+
   return (
     <>
-      <PageTitle title="Application submitted" />
-            <div className="govuk-width-container">
-              <div className="govuk-grid-row">
+      <PageTitle title={BANK_TRANSFER_SUCCESS_PAGE.PANEL_TITLE} />
+      <div className="govuk-width-container">
+        <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">
               <h1 className="govuk-panel__title">{BANK_TRANSFER_SUCCESS_PAGE.PANEL_TITLE}</h1>
@@ -124,7 +140,85 @@ const BankTransferSuccessPage: React.FC = () => {
             </table>
 
             <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.PROCESSING_STATUS_INFO}</p>
-            <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.INVOICE_INFO}</p>
+
+            {isNwlRoute && (
+              <>
+                <h2 className="govuk-heading-m govuk-!-margin-top-6">
+                  Download your application
+                </h2>
+
+                <p className="govuk-body">
+                  You need to share a copy of this application with the relevant landowner,
+                  occupier or representative within 7 days of submitting it. Download it now to
+                  save it or send it on.
+                </p>
+
+                {pdfError && (
+                  <div
+                    className="govuk-error-summary"
+                    role="alert"
+                    aria-labelledby="pdf-error-summary-title"
+                  >
+                    <h2 className="govuk-error-summary__title" id="pdf-error-summary-title">
+                      There is a problem
+                    </h2>
+                    <div className="govuk-error-summary__body">
+                      <p className="govuk-body">{pdfError}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="govuk-button govuk-button--secondary govuk-!-margin-top-2"
+                      onClick={clearError}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+
+                <div className="govuk-button-group govuk-!-margin-bottom-4">
+                  <button
+                    type="button"
+                    className="govuk-button"
+                    data-module="govuk-button"
+                    onClick={() => {
+                      if (!isDownloading) {
+                        downloadPackage(applicationId);
+                      }
+                    }}
+                    disabled={isDownloading}
+                    aria-label="Download your application and documents as a ZIP"
+                  >
+                    {isDownloadingPackage
+                      ? 'Downloading ZIP...'
+                      : 'Download your application and documents (ZIP)'}
+                  </button>
+                </div>
+
+                <p className="govuk-body govuk-!-margin-top-0 govuk-!-margin-bottom-6">
+                  {zipSupportText}
+                </p>
+
+                <p className="govuk-body">
+                  <a
+                    href="#"
+                    className="govuk-link"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!isDownloading) {
+                        downloadPdf(applicationId);
+                      }
+                    }}
+                    aria-disabled={isDownloading}
+                    style={{
+                      pointerEvents: isDownloading ? 'none' : 'auto',
+                      opacity: isDownloading ? 0.5 : 1,
+                    }}
+                  >
+                    {isDownloading ? 'Downloading...' : 'Download the application form only (PDF)'}
+                  </a>
+                </p>
+              </>
+            )}
 
             <h2 className="govuk-heading-m">{BANK_TRANSFER_SUCCESS_PAGE.WHAT_HAPPENS_NEXT_HEADING}</h2>
             <p className="govuk-body">{BANK_TRANSFER_SUCCESS_PAGE.EMAIL_CONFIRMATION}</p>

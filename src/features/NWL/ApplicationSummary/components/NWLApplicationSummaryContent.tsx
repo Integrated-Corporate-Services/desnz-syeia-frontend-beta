@@ -40,14 +40,46 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     withdrawalRequest,
 }) => {
     const navigate = useNavigate();
-    const { isDownloading, error: pdfError, downloadPdf, clearError } = usePdfDownload();
+    const {
+        isDownloading,
+        isDownloadingPackage,
+        error: pdfError,
+        downloadPdf,
+        downloadPackage,
+        packageSizeLabel,
+        clearError,
+    } = usePdfDownload();
 
     const showWithdraw =
         data.permissions?.canWithdraw && !data.permissions?.canEdit && !withdrawalRequest;
 
+    // Downloads should ALWAYS be available post-submission, regardless of payment status
+    // Status check ensures downloads available for: SUBMITTED, PROCESSING_PAYMENT, UNDER_REVIEW, etc.
+    const postSubmissionStatuses = [
+        'SUBMITTED',
+        'PROCESSING_PAYMENT',
+        'UNDER_REVIEW',
+        'APPROVED',
+        'REJECTED',
+        'WITHDRAWN'
+    ];
+    const normalizedStatus = data.status?.toUpperCase() ?? '';
+    const isPostSubmission = postSubmissionStatuses.includes(normalizedStatus);
+    
+    // Enable downloads if post-submission OR if canDownload permission explicitly allows
+    const downloadEnabled = isPostSubmission || data.permissions?.canDownload !== false;
+
     const handleDownloadPdf = async () => {
         await downloadPdf(applicationId);
     };
+
+    const handleDownloadPackage = async () => {
+        await downloadPackage(applicationId);
+    };
+
+    const zipButtonLabel = packageSizeLabel
+        ? `Download your application and attached documents (ZIP, ${packageSizeLabel})`
+        : 'Download your application and attached documents (ZIP)';
 
     return (
         <>
@@ -102,20 +134,37 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 representative within 7 days of submitting it.
             </p>
 
+            <div className="govuk-button-group govuk-!-margin-bottom-4">
+                <button
+                    type="button"
+                    className="govuk-button"
+                    data-module="govuk-button"
+                    onClick={() => {
+                        if (!isDownloading && downloadEnabled) {
+                            handleDownloadPackage();
+                        }
+                    }}
+                    disabled={isDownloading || !downloadEnabled}
+                    aria-label="Download your application and attached documents as a ZIP"
+                >
+                    {isDownloadingPackage ? 'Downloading ZIP...' : zipButtonLabel}
+                </button>
+            </div>
+
             <p className="govuk-body">
                 <a
                     href="#"
                     className="govuk-link"
                     onClick={(e) => {
                         e.preventDefault();
-                        if (!isDownloading && data.permissions?.canDownload !== false) {
+                        if (!isDownloading && downloadEnabled) {
                             handleDownloadPdf();
                         }
                     }}
-                    aria-disabled={isDownloading || data.permissions?.canDownload === false}
+                    aria-disabled={isDownloading || !downloadEnabled}
                     style={{
-                        pointerEvents: isDownloading || data.permissions?.canDownload === false ? 'none' : 'auto',
-                        opacity: isDownloading || data.permissions?.canDownload === false ? 0.5 : 1
+                        pointerEvents: isDownloading || !downloadEnabled ? 'none' : 'auto',
+                        opacity: isDownloading || !downloadEnabled ? 0.5 : 1
                     }}
                 >
                     {isDownloading ? 'Downloading...' : 'Download the application summary only (PDF)'}

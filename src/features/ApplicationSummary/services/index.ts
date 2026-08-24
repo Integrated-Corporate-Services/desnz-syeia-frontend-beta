@@ -1,2 +1,2 @@
 export { fetchApplicationSummary, fetchApplicationReviewSummary } from './apiService';
-export { downloadApplicationPdf } from './pdfService';
+export { downloadApplicationPdf, downloadApplicationPackage } from './pdfService';
