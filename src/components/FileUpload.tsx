@@ -211,19 +211,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       }
 
       if (uploadImmediately) {
-        // Upload immediately (original behavior)
         setTimeout(() => {
-          const newFileIndices = allFiles
-            .map((file, idx) => ({ file, idx }))
-            .filter(({ file }) =>
-              result.validFiles.some(
-                (nf) => nf.name === file.name && nf.size === file.size
-              )
-            )
-            .map(({ idx }) => idx);
-          if (newFileIndices.length > 0) {
-            uploadFiles(newFileIndices.map((i) => allFiles[i]));
-          }
+          uploadFiles(result.validFiles);
         }, 0);
       } else {
         // Store files for later upload
@@ -296,19 +285,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       }
 
       if (uploadImmediately) {
-        // Upload immediately (original behavior)
         setTimeout(() => {
-          const newFileIndices = allFiles
-            .map((file, idx) => ({ file, idx }))
-            .filter(({ file }) =>
-              result.validFiles.some(
-                (df) => df.name === file.name && df.size === file.size
-              )
-            )
-            .map(({ idx }) => idx);
-          if (newFileIndices.length > 0) {
-            uploadFiles(newFileIndices.map((i) => allFiles[i]));
-          }
+          uploadFiles(result.validFiles);
         }, 0);
       } else {
         // Store files for later upload
@@ -498,6 +476,18 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
       return { uploadedFiles, applicationDocuments, scanErrors };
     } catch (err) {
+      logger.error('[FileUpload.tsx][uploadFiles] Upload batch failed', { error: err });
+
+      const failedFileKeys = new Set(uploadFiles.map((f) => `${f.name}:${f.size}`));
+      setInternalFiles((prevFiles: File[]) =>
+        prevFiles.filter((file) => !failedFileKeys.has(`${file.name}:${file.size}`))
+      );
+
+      if (onValidationErrors) {
+        const message = err instanceof Error ? err.message : 'Failed to upload files. Please try again.';
+        onValidationErrors([message]);
+      }
+
       logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     } finally {

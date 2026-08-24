@@ -1,7 +1,8 @@
-import { 
-  ALLOWED_FILE_TYPES, 
-  ALLOWED_FILE_EXTENSIONS, 
+import {
+  ALLOWED_FILE_TYPES,
+  ALLOWED_FILE_EXTENSIONS,
   FILE_SIZE_LIMITS,
+  MAX_FILES_PER_UPLOAD_BATCH,
   VALIDATION_ERROR_MESSAGES
 } from './fileValidationConstants';
 import { 
@@ -19,7 +20,7 @@ const logger = createLogger('fileValidator');
 
 export interface FileValidationError {
   filename: string;
-  errorType: 'INVALID_TYPE' | 'SIZE_EXCEEDED' | 'TOTAL_SIZE_EXCEEDED' | 'PASSWORD_PROTECTED' | 'DUPLICATE' | 'EMPTY_FILE' | 'UNKNOWN';
+  errorType: 'INVALID_TYPE' | 'SIZE_EXCEEDED' | 'TOTAL_SIZE_EXCEEDED' | 'PASSWORD_PROTECTED' | 'DUPLICATE' | 'EMPTY_FILE' | 'TOO_MANY_FILES' | 'UNKNOWN';
   message: string;
 }
 
@@ -30,6 +31,17 @@ export interface FileValidationResult {
   remainingSpace: number;
 }
 
+
+const validateBatchFileCount = (filesToCheck: File[]): FileValidationError | null => {
+  if (filesToCheck.length <= MAX_FILES_PER_UPLOAD_BATCH) {
+    return null;
+  }
+  return {
+    filename: `${filesToCheck.length} files selected`,
+    errorType: 'TOO_MANY_FILES',
+    message: VALIDATION_ERROR_MESSAGES.TOO_MANY_FILES_IN_BATCH
+  };
+};
 
 const validateFileBasics = (file: File): FileValidationError | null => {
   logger.debug('[fileValidator.ts][validateFileBasics] STARTs');
@@ -208,10 +220,25 @@ export const validateFiles = async (
     newFilesSize: formatFileSize(calculateTotalSize(newFiles)),
     existingFilesSize: formatFileSize(calculateTotalSize(existingFiles))
   });
-  
+
+  const batchCountError = validateBatchFileCount(newFiles);
+  if (batchCountError) {
+    logger.warn('Selection rejected - exceeds max files per batch', {
+      selectedCount: newFiles.length,
+      maxAllowed: MAX_FILES_PER_UPLOAD_BATCH
+    });
+    logger.debug('[fileValidator.ts][validateFiles] ENDs');
+    return {
+      validFiles: [],
+      errors: [batchCountError],
+      totalSize: calculateTotalSize(existingFiles),
+      remainingSpace: FILE_SIZE_LIMITS.MAX_TOTAL_SIZE - calculateTotalSize(existingFiles)
+    };
+  }
+
   const allErrors: FileValidationError[] = [];
   let validFiles: File[] = [];
-  
+
   for (const file of newFiles) {
     const basicError = validateFileBasics(file);
     if (basicError) {
@@ -291,9 +318,20 @@ export const quickValidateFiles = (
   newFiles: File[], 
   existingFiles: FileOrMetadata[] = []
 ): Omit<FileValidationResult, 'validFiles'> & { potentiallyValidFiles: File[] } => {
+  const batchCountError = validateBatchFileCount(newFiles);
+  if (batchCountError) {
+    const existingSize = calculateTotalSize(existingFiles);
+    return {
+      potentiallyValidFiles: [],
+      errors: [batchCountError],
+      totalSize: existingSize,
+      remainingSpace: FILE_SIZE_LIMITS.MAX_TOTAL_SIZE - existingSize
+    };
+  }
+
   const errors: FileValidationError[] = [];
   let potentiallyValidFiles: File[] = [];
-  
+
   // Step 1: Basic validation
   for (const file of newFiles) {
     const basicError = validateFileBasics(file);

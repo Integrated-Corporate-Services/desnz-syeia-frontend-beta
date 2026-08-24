@@ -80,7 +80,7 @@ export async function uploadFileToS3(url: string, file: File) {
   logger.debug('[s3ApiService.ts][uploadFileToS3] ENDs');
   return res;
 }
-
+ 
 export async function extractUploadEtag(response: Response): Promise<string | null> {
   try {
     const body = await response.clone().json();
