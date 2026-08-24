@@ -87,12 +87,17 @@ const isOfficeXmlPasswordProtected = (uint8Array: Uint8Array, filename: string):
   }
 };
 
-const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: string): boolean => {
+interface LegacyOfficeCheckResult {
+  isProtected: boolean;
+  hasMsgStreamMarkers: boolean;
+}
+
+const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: string): LegacyOfficeCheckResult => {
   try {
     const headerHex = uint8ArrayToHex(uint8Array.slice(0, 32));
     const contentHex = uint8ArrayToHex(uint8Array);
     const { OFFICE_LEGACY } = PASSWORD_PROTECTION_SIGNATURES;
-    
+
     const hasOleHeader = headerHex.startsWith(OFFICE_LEGACY.OLE_HEADER);
     logger.info('LEGACY OFFICE CHECK START', {
       filename,
@@ -104,7 +109,7 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
     });
     if (!hasOleHeader) {
       logger.info('Not an OLE file - no Legacy Office encryption', { filename });
-      return false;
+      return { isProtected: false, hasMsgStreamMarkers: false };
     }
     
     const hasEncryptedObject = contentHex.includes(OFFICE_LEGACY.ENCRYPTED_OBJECT);
@@ -156,7 +161,17 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
     }else {
       logger.info('Word FIB encryption skipped (not a Word file)', { filename });
     }
-    
+
+    const hasMsgStreamMarkers =
+      contentHex.includes(OFFICE_LEGACY.MSG_PROPERTIES) ||
+      contentHex.includes(OFFICE_LEGACY.MSG_NAMEID) ||
+      contentHex.includes(OFFICE_LEGACY.MSG_RECIPIENTS) ||
+      contentHex.includes(OFFICE_LEGACY.MSG_ATTACHMENTS);
+    logger.info('MSG stream markers check (content-based, not filename-based)', {
+      filename,
+      found: hasMsgStreamMarkers,
+    });
+
     const hasExplicitEncryption = hasEncryptedObject || hasEncryptionInfo || hasFilePassRecord || hasWordEncryption;
     const isProtected = hasExplicitEncryption;
 
@@ -169,13 +184,14 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
         '3_RC4CryptoApi':    hasRc4CryptoApi,
         '4_BiffFilePass':    hasFilePassRecord,
         '5_WordFibFlags':    hasWordEncryption,
+        '6_MsgStreamMarkers': hasMsgStreamMarkers,
       },
       RESULT: isProtected
         ? 'PROTECTED — at least one marker found'
         : 'NOT PROTECTED — no markers found',
     });
 
-  
+
     if (!isProtected) {
       const searchWindow = contentHex.substring(0, 512);
       logger.info('First 256 bytes hex (check manually for encryption bytes)', {
@@ -187,10 +203,10 @@ const isOfficeLegacyPasswordProtected = (uint8Array: Uint8Array, filename: strin
       });
     }
 
-    return isProtected;
+    return { isProtected, hasMsgStreamMarkers };
   } catch (error) {
     logger.warn('Legacy Office check error', { filename, error });
-    return false;
+    return { isProtected: false, hasMsgStreamMarkers: false };
   }
 };
 
@@ -266,14 +282,14 @@ const detectPasswordProtectionByFormat = async (
       return true;
     }
 
-    const legacyEncrypted = isOfficeLegacyPasswordProtected(uint8Array, file.name);
-    if (legacyEncrypted) {
+    const legacyCheck = isOfficeLegacyPasswordProtected(uint8Array, file.name);
+    if (legacyCheck.isProtected) {
       logger.info('ENCRYPTED legacy Office file', { filename: file.name });
       return true;
     }
 
-    if (isMsgFile(file.name)) {
-      logger.info('MSG file passed OLE2 stream checks - skipping generic fallback (unreliable for MSG content)', { filename: file.name });
+    if (isMsgFile(file.name) && legacyCheck.hasMsgStreamMarkers) {
+      logger.info('Genuine MSG content confirmed via stream markers - skipping generic fallback', { filename: file.name });
       return false;
     }
 
