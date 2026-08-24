@@ -32,35 +32,41 @@ export interface FileValidationResult {
 
 
 const validateFileBasics = (file: File): FileValidationError | null => {
+  logger.debug('[fileValidator.ts][validateFileBasics] STARTs');
   if (file.size === 0) {
+    logger.debug('[fileValidator.ts][validateFileBasics] ENDs');
     return {
       filename: file.name,
       errorType: 'EMPTY_FILE',
       message: VALIDATION_ERROR_MESSAGES.EMPTY_FILE
     };
   }
-  
+
   if (!isValidFileType(file, ALLOWED_FILE_TYPES, ALLOWED_FILE_EXTENSIONS)) {
+    logger.debug('[fileValidator.ts][validateFileBasics] ENDs');
     return {
       filename: file.name,
       errorType: 'INVALID_TYPE',
       message: VALIDATION_ERROR_MESSAGES.INVALID_FILE_TYPE
     };
   }
-  
+
   if (file.size > FILE_SIZE_LIMITS.MAX_INDIVIDUAL_FILE_SIZE) {
+    logger.debug('[fileValidator.ts][validateFileBasics] ENDs');
     return {
       filename: file.name,
       errorType: 'SIZE_EXCEEDED',
       message: VALIDATION_ERROR_MESSAGES.FILE_SIZE_EXCEEDED
     };
   }
-  
+
+  logger.debug('[fileValidator.ts][validateFileBasics] ENDs');
   return null;
 };
 
 
 const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: FileOrMetadata[] = []): FileValidationError[] => {
+  logger.debug('[fileValidator.ts][validateTotalSizeConstraints] STARTs');
   const errors: FileValidationError[] = [];
   const existingFilesSize = calculateTotalSize(existingFiles);
   const currentTotalSize = existingFilesSize;
@@ -114,11 +120,13 @@ const validateTotalSizeConstraints = (filesToCheck: File[], existingFiles: FileO
       });
     }
   }
-  
+
+  logger.debug('[fileValidator.ts][validateTotalSizeConstraints] ENDs');
   return errors;
 };
 
 const validateForDuplicates = (filesToCheck: File[], existingFiles: FileOrMetadata[] = []): FileValidationError[] => {
+  logger.debug('[fileValidator.ts][validateForDuplicates] STARTs');
   const errors: FileValidationError[] = [];
   
   for (const file of filesToCheck) {
@@ -144,11 +152,13 @@ const validateForDuplicates = (filesToCheck: File[], existingFiles: FileOrMetada
     }
     fileNames.set(file.name, count + 1);
   }
-  
+
+  logger.debug('[fileValidator.ts][validateForDuplicates] ENDs');
   return errors;
 };
 
 const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileValidationError[]> => {
+  logger.debug('[fileValidator.ts][validatePasswordProtection] STARTs');
   const errors: FileValidationError[] = [];
   
   logger.info('Starting password protection validation', {
@@ -182,14 +192,16 @@ const validatePasswordProtection = async (filesToCheck: File[]): Promise<FileVal
     errorsFound: errors.length,
     errors: errors.map(e => ({ filename: e.filename, errorType: e.errorType }))
   });
-  
+
+  logger.debug('[fileValidator.ts][validatePasswordProtection] ENDs');
   return errors;
 };
 
 export const validateFiles = async (
-  newFiles: File[], 
+  newFiles: File[],
   existingFiles: FileOrMetadata[] = []
 ): Promise<FileValidationResult> => {
+  logger.debug('[fileValidator.ts][validateFiles] STARTs');
   logValidationEvent('validation started', 'batch', {
     newFilesCount: newFiles.length,
     existingFilesCount: existingFiles.length,
@@ -257,7 +269,8 @@ export const validateFiles = async (
     remainingSpace: formatFileSize(remainingSpace),
     errorTypes: allErrors.map(e => e.errorType)
   });
-  
+
+  logger.debug('[fileValidator.ts][validateFiles] ENDs');
   return result;
 };
 
