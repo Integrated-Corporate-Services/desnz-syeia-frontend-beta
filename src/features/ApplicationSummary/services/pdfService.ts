@@ -117,7 +117,8 @@ export const downloadApplicationPackage = async (applicationId: string): Promise
 
     const disposition = response.headers.get('content-disposition');
     const fallbackName = `NWL_${applicationId}_Complete_Application.zip`;
-    const filename = parseFilenameFromContentDisposition(disposition) || fallbackName;
+    const rawFilename = parseFilenameFromContentDisposition(disposition) || fallbackName;
+    const filename = rawFilename.replace(/[/\\\r\n]/g, '_');
     const blob = await response.blob();
 
     triggerBrowserDownload(blob, filename);
