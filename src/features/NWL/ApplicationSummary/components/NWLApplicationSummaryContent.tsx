@@ -64,9 +64,7 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
         'WITHDRAWN'
     ];
     const normalizedStatus = data.status?.toUpperCase() ?? '';
-    const isPostSubmission = postSubmissionStatuses.some(status =>
-        normalizedStatus.includes(status)
-    );
+    const isPostSubmission = postSubmissionStatuses.includes(normalizedStatus);
     
     // Enable downloads if post-submission OR if canDownload permission explicitly allows
     const downloadEnabled = isPostSubmission || data.permissions?.canDownload !== false;
