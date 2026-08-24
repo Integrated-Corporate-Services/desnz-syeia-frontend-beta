@@ -67,8 +67,9 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
 export async function uploadFileToS3(url: string, file: File) {
   logger.debug('[s3ApiService.ts][uploadFileToS3] STARTs');
   const isBackendProxyUpload = url.includes('/api/upload/stream/');
+  const resolvedUrl = isBackendProxyUpload ? buildBackendUrl(url) : url;
 
-  const res = await fetch(url, {
+  const res = await fetch(resolvedUrl, {
     method: 'PUT',
     headers: {
       'Content-Type': file.type || 'application/octet-stream',
