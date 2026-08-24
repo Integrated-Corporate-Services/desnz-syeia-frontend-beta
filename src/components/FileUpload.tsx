@@ -4,6 +4,7 @@ import "../styles/Fileupload.css";
 import {
   getPresignedUrls,
   uploadFileToS3,
+  extractUploadEtag,
   deleteFileCompletely,
   deleteDocument,
   confirmUpload,
@@ -140,7 +141,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   }, [pendingFiles, onPendingFilesChange]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
+    logger.debug('[FileUpload.tsx][handleFileChange] STARTs');
+    if (!e.target.files) {
+      logger.debug('[FileUpload.tsx][handleFileChange] ENDs');
+      return;
+    }
 
     const newFiles = Array.from(e.target.files);
 
@@ -206,19 +211,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       }
 
       if (uploadImmediately) {
-        // Upload immediately (original behavior)
         setTimeout(() => {
-          const newFileIndices = allFiles
-            .map((file, idx) => ({ file, idx }))
-            .filter(({ file }) =>
-              result.validFiles.some(
-                (nf) => nf.name === file.name && nf.size === file.size
-              )
-            )
-            .map(({ idx }) => idx);
-          if (newFileIndices.length > 0) {
-            uploadFiles(newFileIndices.map((i) => allFiles[i]));
-          }
+          uploadFiles(result.validFiles);
         }, 0);
       } else {
         // Store files for later upload
@@ -232,9 +226,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
 
     e.target.value = "";
+    logger.debug('[FileUpload.tsx][handleFileChange] ENDs');
   };
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    logger.debug('[FileUpload.tsx][handleDrop] STARTs');
     e.preventDefault();
 
     const droppedFiles = Array.from(e.dataTransfer.files);
@@ -289,19 +285,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       }
 
       if (uploadImmediately) {
-        // Upload immediately (original behavior)
         setTimeout(() => {
-          const newFileIndices = allFiles
-            .map((file, idx) => ({ file, idx }))
-            .filter(({ file }) =>
-              result.validFiles.some(
-                (df) => df.name === file.name && df.size === file.size
-              )
-            )
-            .map(({ idx }) => idx);
-          if (newFileIndices.length > 0) {
-            uploadFiles(newFileIndices.map((i) => allFiles[i]));
-          }
+          uploadFiles(result.validFiles);
         }, 0);
       } else {
         // Store files for later upload
@@ -313,6 +298,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         });
       }
     }
+    logger.debug('[FileUpload.tsx][handleDrop] ENDs');
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -325,8 +311,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     applicationDocuments: ApplicationDocument[];
     scanErrors: string[];
   }> => {
+    logger.debug('[FileUpload.tsx][uploadFiles] STARTs');
 
     if (uploadFiles.length === 0) {
+      logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     }
     setIsScanning(true);
@@ -340,6 +328,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       const data = await getPresignedUrls(fileMetas, applicationId);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
+        logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
         return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
       }
       const uploadedFiles: UploadedFile[] = [];
@@ -360,7 +349,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               ? `${prefix}/${uploadFiles[i].name}`
               : uploadFiles[i].name;
 
-            const etag = uploadRes.headers.get('etag');
+            const etag = await extractUploadEtag(uploadRes);
 
             logger.info('S3 upload successful, calling confirm endpoint', {
               s3Key,
@@ -484,8 +473,22 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
+      logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
       return { uploadedFiles, applicationDocuments, scanErrors };
     } catch (err) {
+      logger.error('[FileUpload.tsx][uploadFiles] Upload batch failed', { error: err });
+
+      const failedFileKeys = new Set(uploadFiles.map((f) => `${f.name}:${f.size}`));
+      setInternalFiles((prevFiles: File[]) =>
+        prevFiles.filter((file) => !failedFileKeys.has(`${file.name}:${file.size}`))
+      );
+
+      if (onValidationErrors) {
+        const message = err instanceof Error ? err.message : 'Failed to upload files. Please try again.';
+        onValidationErrors([message]);
+      }
+
+      logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     } finally {
       setIsScanning(false);
