@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import type { ApplicationParty } from "../../../../types/application";
 import type { TeamCoordinator } from "../../../../types/organisation";
+import { createLogger } from "../../../../utils/logger";
+
+const logger = createLogger("useCoordinatorOptions-NWL");
 
 interface UseCoordinatorOptionsParams {
   coordinators: TeamCoordinator[];
@@ -10,7 +13,7 @@ interface UseCoordinatorOptionsParams {
 
 /**
  * Custom hook to map team coordinators to dropdown options
- * Memoized for performance
+ * Filters coordinators by organization ID and memoized for performance
  */
 export const useCoordinatorOptions = ({
   coordinators,
@@ -19,10 +22,20 @@ export const useCoordinatorOptions = ({
 }: UseCoordinatorOptionsParams): ApplicationParty[] => {
   return useMemo(() => {
     if (!organisationId || !coordinators.length) {
+      logger.debug("No organisation ID provided or no coordinators available", {
+        organisationId,
+        coordinatorsCount: coordinators.length,
+      });
       return [];
     }
 
-    return coordinators.map((coord: TeamCoordinator) => ({
+    // Filter coordinators to only include those from the selected organization
+    const filteredCoordinators = coordinators.filter(
+      (coord: TeamCoordinator) => coord.organisation_id === organisationId
+    );
+
+
+    return filteredCoordinators.map((coord: TeamCoordinator) => ({
       organisation_id: organisationId,
       organisation_name: organisationName,
       // IMPORTANT: Use person_id (not user_id) - person is core identity, user is auth layer
