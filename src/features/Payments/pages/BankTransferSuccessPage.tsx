@@ -13,6 +13,7 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
 import { trackButtonClick } from '../../../utils/analytics';
+import { usePdfDownload } from '../../ApplicationSummary/hooks';
 
 const logger = createLogger('BankTransferSuccessPage');
 
