@@ -27,6 +27,8 @@ export const FILE_SIZE_LIMITS = {
   MAX_TOTAL_SIZE: 500 * 1024 * 1024,
 } as const;
 
+export const MAX_FILES_PER_UPLOAD_BATCH = 10;
+
 export const FILE_SIZE_UNITS = ['Bytes', 'KB', 'MB', 'GB'] as const;
 
 export const SUPPORTED_FORMATS_DISPLAY = "PDF, JPG, JPEG, PNG, DOCX, XLSX, MSG";
@@ -38,6 +40,7 @@ export const VALIDATION_ERROR_MESSAGES = {
   INVALID_FILE_TYPE: "You can only upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files",
   DUPLICATE_FILE: "A file with the same name and size already exists.",
   TOTAL_SIZE_EXCEEDED: "Adding this file would exceed the total 500MB limit",
+  TOO_MANY_FILES_IN_BATCH: `You can only select up to ${MAX_FILES_PER_UPLOAD_BATCH} files at a time. Select ${MAX_FILES_PER_UPLOAD_BATCH} files or fewer and try again.`,
 } as const;
 
 export const PASSWORD_PROTECTION_SIGNATURES = {
@@ -143,6 +146,7 @@ export const FILE_TYPE_CATEGORIES = {
   WORD_FILES: ['.doc', '.docx'],
   IMAGES: ['.jpg', '.jpeg', '.png'],
   DOCUMENTS: ['.pdf'],
+  OUTLOOK_MESSAGES: ['.msg'],
 } as const;
 
 export const PASSWORD_DETECTION_READ_SIZES = {
