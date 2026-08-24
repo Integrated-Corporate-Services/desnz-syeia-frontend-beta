@@ -143,6 +143,7 @@ export const FILE_TYPE_CATEGORIES = {
   WORD_FILES: ['.doc', '.docx'],
   IMAGES: ['.jpg', '.jpeg', '.png'],
   DOCUMENTS: ['.pdf'],
+  OUTLOOK_MESSAGES: ['.msg'],
 } as const;
 
 export const PASSWORD_DETECTION_READ_SIZES = {
