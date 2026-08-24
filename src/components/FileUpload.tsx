@@ -140,7 +140,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   }, [pendingFiles, onPendingFilesChange]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
+    logger.debug('[FileUpload.tsx][handleFileChange] STARTs');
+    if (!e.target.files) {
+      logger.debug('[FileUpload.tsx][handleFileChange] ENDs');
+      return;
+    }
 
     const newFiles = Array.from(e.target.files);
 
@@ -232,9 +236,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
 
     e.target.value = "";
+    logger.debug('[FileUpload.tsx][handleFileChange] ENDs');
   };
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    logger.debug('[FileUpload.tsx][handleDrop] STARTs');
     e.preventDefault();
 
     const droppedFiles = Array.from(e.dataTransfer.files);
@@ -313,6 +319,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         });
       }
     }
+    logger.debug('[FileUpload.tsx][handleDrop] ENDs');
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -325,8 +332,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     applicationDocuments: ApplicationDocument[];
     scanErrors: string[];
   }> => {
+    logger.debug('[FileUpload.tsx][uploadFiles] STARTs');
 
     if (uploadFiles.length === 0) {
+      logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     }
     setIsScanning(true);
@@ -340,6 +349,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       const data = await getPresignedUrls(fileMetas, applicationId);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
+        logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
         return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
       }
       const uploadedFiles: UploadedFile[] = [];
@@ -484,8 +494,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       if (onUploaded) {
         onUploaded(uploadedFiles, applicationDocuments);
       }
+      logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
       return { uploadedFiles, applicationDocuments, scanErrors };
     } catch (err) {
+      logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     } finally {
       setIsScanning(false);

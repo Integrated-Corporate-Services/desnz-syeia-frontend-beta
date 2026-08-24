@@ -4,6 +4,9 @@
 
 import { buildBackendUrl } from '../utils/apiConfig';
 import { getCsrfHeaders } from '../utils/csrf';
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('s3ApiService');
 
 
 interface UrlCacheEntry {
@@ -28,6 +31,7 @@ export function clearPresignedUrlCache(filename?: string) {
 }
 
 export async function getPresignedUrls(files: { filename: string; contentType: string }[], applicationId?: string) {
+  logger.debug('[s3ApiService.ts][getPresignedUrls] STARTs');
   const body: any = { files };
   if (applicationId) {
     body.applicationId = applicationId;
@@ -56,10 +60,12 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
     }
   }
 
+  logger.debug('[s3ApiService.ts][getPresignedUrls] ENDs');
   return await res.json();
 }
 
 export async function uploadFileToS3(url: string, file: File) {
+  logger.debug('[s3ApiService.ts][uploadFileToS3] STARTs');
   const isBackendProxyUpload = url.includes('/api/upload/stream/');
 
   const res = await fetch(url, {
@@ -71,6 +77,7 @@ export async function uploadFileToS3(url: string, file: File) {
     ...(isBackendProxyUpload ? { credentials: 'include' } : {}),
     body: file
   });
+  logger.debug('[s3ApiService.ts][uploadFileToS3] ENDs');
   return res;
 }
 
@@ -98,6 +105,7 @@ export async function confirmUpload(params: {
   status: string;
   etag?: string;
 }> {
+  logger.debug('[s3ApiService.ts][confirmUpload] STARTs');
   const res = await fetch(buildBackendUrl('/api/upload/confirm'), {
     method: 'POST',
     headers: {
@@ -117,6 +125,7 @@ export async function confirmUpload(params: {
     }
   }
 
+  logger.debug('[s3ApiService.ts][confirmUpload] ENDs');
   return await res.json();
 }
 
@@ -208,7 +217,9 @@ export interface FileScanStatusEntry {
 }
 
 export async function getFileScanStatuses(fileIds: string[]): Promise<{ statuses: FileScanStatusEntry[] }> {
+  logger.debug('[s3ApiService.ts][getFileScanStatuses] STARTs');
   if (fileIds.length === 0) {
+    logger.debug('[s3ApiService.ts][getFileScanStatuses] ENDs');
     return { statuses: [] };
   }
 
@@ -221,6 +232,7 @@ export async function getFileScanStatuses(fileIds: string[]): Promise<{ statuses
     throw new Error('Failed to fetch file scan statuses');
   }
 
+  logger.debug('[s3ApiService.ts][getFileScanStatuses] ENDs');
   return await res.json();
 }
 
