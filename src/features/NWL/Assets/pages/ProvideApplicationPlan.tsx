@@ -243,7 +243,7 @@ const ProvideApplicationPlan: React.FC = () => {
                   ref={fileUploadRef}
                   title={LABELS.UPLOAD_SECTION_TITLE}
                   showTitle={true}
-                  prefix={`${applicationId}/application-plan`}
+                  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_PLAN_INFO}`}
                   applicationId={applicationId}
                   category={NWL_FILE_CATEGORIES.NWL_PLAN_INFO}
                   addedBy={userId}
