@@ -13,7 +13,7 @@ import { createLogger } from "../utils/logger";
 import { validateFiles, getMimeType } from "../utils/fileUploadValidation";
 
 import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
-import { waitForScanResult } from "../utils/fileScanPolling";
+import { waitForScanResults } from "../utils/fileScanPolling";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { DEMO_USER_ID } from "../constants/demo";
@@ -34,6 +34,30 @@ function getRejectedFileMessage(file: RejectedFile): string {
   return file.reason === 'INFECTED'
     ? `${displayName} contains a virus${file.virusName ? ` (${file.virusName})` : ''} and could not be uploaded. Remove the file and try again.`
     : `${displayName} could not be checked for viruses. Try uploading it again.`;
+}
+
+const UPLOAD_CONCURRENCY = 10;
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let nextIndex = 0;
+
+  async function runNext(): Promise<void> {
+    const currentIndex = nextIndex++;
+    if (currentIndex >= items.length) {
+      return;
+    }
+    results[currentIndex] = await worker(items[currentIndex], currentIndex);
+    return runNext();
+  }
+
+  const workerCount = Math.min(concurrency, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => runNext()));
+  return results;
 }
 
 export interface FileUploadProps {
@@ -328,138 +352,217 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       const data = await getPresignedUrls(fileMetas, applicationId);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
+        logger.error('[FileUpload.tsx][uploadFiles] Presigned URL response count mismatch', {
+          expectedCount: uploadFiles.length,
+          actualCount: data.urls?.length ?? 0,
+        });
         logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
-        return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
+        return {
+          uploadedFiles: [],
+          applicationDocuments: [],
+          scanErrors: ['Failed to upload files. Please try again.'],
+        };
       }
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];
       const scanErrors: string[] = [];
       const newRejectedFiles: RejectedFile[] = [];
 
-      for (let i = 0; i < uploadFiles.length; i++) {
-        const urlObj = data.urls[i];
+      type ConfirmResponse = Awaited<ReturnType<typeof confirmUpload>>;
+      interface UploadConfirmOutcome {
+        file: File;
+        confirmResponse?: ConfirmResponse;
+        error?: string;
+      }
+
+      const uploadAndConfirm = async (file: File, index: number): Promise<UploadConfirmOutcome> => {
+        const urlObj = data.urls[index];
         if (!urlObj.url) {
-          continue;
+          logger.warn('Missing presigned upload URL', { fileName: file.name, index });
+          return { file, error: `Failed to upload ${file.name}. Please try again.` };
         }
+
+        const phaseStartedAt = Date.now();
+        logger.debug('[FileUpload.tsx][uploadFiles] Upload phase starting', {
+          fileName: file.name,
+          index,
+          startedAt: phaseStartedAt,
+        });
+
         try {
-          const uploadRes = await uploadFileToS3(urlObj.url, uploadFiles[i]);
+          const uploadRes = await uploadFileToS3(urlObj.url, file, getMimeType(file));
 
-          if (uploadRes.ok) {
-            const s3Key = prefix
-              ? `${prefix}/${uploadFiles[i].name}`
-              : uploadFiles[i].name;
-
-            const etag = await extractUploadEtag(uploadRes);
-
-            logger.info('S3 upload successful, calling confirm endpoint', {
-              s3Key,
-              etag,
-              fileName: uploadFiles[i].name
-            });
-
-            const confirmResponse = await confirmUpload({
-              s3Key,
-              fileName: uploadFiles[i].name,
-              contentType: getMimeType(uploadFiles[i]),
-              fileSize: uploadFiles[i].size,
-              etag: etag || undefined,
-              applicationId: applicationId || '',
-              category: category || '',
-              addedBy: userId,
-              subCategory: subCategory,
-              consultationId: consultationId
-            });
-
-            logger.info('Upload confirmed by server', {
-              documentId: confirmResponse.documentId,
-              fileId: confirmResponse.fileId,
-              s3Key: confirmResponse.s3Key
-            });
-
-            const scanOutcome = await waitForScanResult(confirmResponse.fileId);
-
-            if (scanOutcome.scanStatus === 'COMPLETED' && scanOutcome.scanResult === 'INFECTED') {
-              logger.warn('Uploaded file failed virus scan', {
-                fileId: confirmResponse.fileId,
-                fileName: confirmResponse.fileName,
-                virusName: scanOutcome.virusName,
-              });
-              const rejectedFile: RejectedFile = {
-                id: confirmResponse.fileId,
-                s3Key: confirmResponse.s3Key,
-                filename: confirmResponse.fileName,
-                reason: 'INFECTED',
-                virusName: scanOutcome.virusName,
-              };
-              scanErrors.push(getRejectedFileMessage(rejectedFile));
-              newRejectedFiles.push(rejectedFile);
-            } else if (scanOutcome.scanStatus !== 'COMPLETED') {
-              logger.warn('Uploaded file scan did not complete', {
-                fileName: confirmResponse.fileName,
-                scanStatus: scanOutcome.scanStatus,
-              });
-              const rejectedFile: RejectedFile = {
-                id: confirmResponse.fileId,
-                s3Key: confirmResponse.s3Key,
-                filename: confirmResponse.fileName,
-                reason: 'FAILED',
-              };
-              scanErrors.push(getRejectedFileMessage(rejectedFile));
-              newRejectedFiles.push(rejectedFile);
-            } else {
-              const uploadedFile: UploadedFile = {
-                id: confirmResponse.fileId,
-                storageProvider: "aws_s3",
-                s3Key: confirmResponse.s3Key,
-                bucketName: confirmResponse.bucketName,
-                virtualFolder: confirmResponse.virtualFolder,
-                filename: confirmResponse.fileName,
-                fileContentType: confirmResponse.contentType,
-                fileSizeBytes: confirmResponse.fileSizeBytes,
-                uploadedAtTimestamp: confirmResponse.uploadedAt,
-                scanStatus: scanOutcome.scanStatus,
-                scanResult: scanOutcome.scanResult,
-                virusName: scanOutcome.virusName,
-              };
-              uploadedFiles.push(uploadedFile);
-
-              const applicationDocument: ApplicationDocument = {
-                documentId: confirmResponse.documentId,
-                applicationId: applicationId || "",
-                fileId: confirmResponse.fileId,
-                category: category || "",
-                subCategory: subCategory || "",
-                title: confirmResponse.fileName,
-                virtualFolder: confirmResponse.virtualFolder,
-                addedBy: userId,
-                addedAt: confirmResponse.uploadedAt,
-                consultationId: consultationId || undefined,
-              };
-              applicationDocuments.push(applicationDocument);
-
-            }
-            setInternalFiles((prevFiles: File[]) => {
-              const idxToRemove = prevFiles.findIndex(
-                (file: File) =>
-                  file.name === uploadFiles[i].name &&
-                  file.size === uploadFiles[i].size
-              );
-              if (idxToRemove !== -1) {
-                return prevFiles.filter(
-                  (_, idx: number) => idx !== idxToRemove
-                );
-              }
-              return prevFiles;
-            });
-          } else {
-            // Upload failed
+          if (!uploadRes.ok) {
+            logger.warn('Upload failed', { fileName: file.name, index });
+            return { file, error: `Failed to upload ${file.name}. Please try again.` };
           }
+
+          const s3Key = prefix ? `${prefix}/${file.name}` : file.name;
+          const etag = await extractUploadEtag(uploadRes);
+
+          logger.info('S3 upload successful, calling confirm endpoint', {
+            s3Key,
+            etag,
+            fileName: file.name
+          });
+
+          const confirmResponse = await confirmUpload({
+            s3Key,
+            fileName: file.name,
+            contentType: getMimeType(file),
+            fileSize: file.size,
+            etag: etag || undefined,
+            applicationId: applicationId || '',
+            category: category || '',
+            addedBy: userId,
+            subCategory: subCategory,
+            consultationId: consultationId
+          });
+
+          logger.info('Upload confirmed by server', {
+            documentId: confirmResponse.documentId,
+            fileId: confirmResponse.fileId,
+            s3Key: confirmResponse.s3Key
+          });
+
+          logger.debug('[FileUpload.tsx][uploadFiles] Upload phase completed', {
+            fileName: file.name,
+            index,
+            uploadPhaseDurationMs: Date.now() - phaseStartedAt,
+          });
+
+          return { file, confirmResponse };
         } catch (err) {
           logger.error('Upload or confirm failed', {
-            fileName: uploadFiles[i].name,
+            fileName: file.name,
             error: err
           });
+          return { file, error: `Failed to upload ${file.name}. Please try again.` };
         }
+      };
+
+      const uploadOutcomes = await mapWithConcurrency(
+        uploadFiles,
+        UPLOAD_CONCURRENCY,
+        uploadAndConfirm
+      );
+
+      const confirmedOutcomes = uploadOutcomes.filter(
+        (outcome): outcome is UploadConfirmOutcome & { confirmResponse: ConfirmResponse } =>
+          !!outcome.confirmResponse
+      );
+
+      const failedOutcomes = uploadOutcomes.filter((outcome) => !outcome.confirmResponse);
+      if (failedOutcomes.length > 0) {
+        failedOutcomes.forEach((outcome) => {
+          scanErrors.push(outcome.error || `Failed to upload ${outcome.file.name}. Please try again.`);
+        });
+        setInternalFiles((prevFiles: File[]) =>
+          prevFiles.filter(
+            (prevFile) =>
+              !failedOutcomes.some(
+                (outcome) => outcome.file.name === prevFile.name && outcome.file.size === prevFile.size
+              )
+          )
+        );
+      }
+
+      const scanWaitStartedAt = Date.now();
+      logger.debug('[FileUpload.tsx][uploadFiles] Scan wait phase starting', {
+        fileCount: confirmedOutcomes.length,
+        startedAt: scanWaitStartedAt,
+      });
+
+      const scanOutcomes = await waitForScanResults(
+        confirmedOutcomes.map(({ confirmResponse }) => confirmResponse.fileId)
+      );
+
+      logger.debug('[FileUpload.tsx][uploadFiles] Scan wait phase completed', {
+        fileCount: confirmedOutcomes.length,
+        scanWaitDurationMs: Date.now() - scanWaitStartedAt,
+      });
+
+      for (const { file, confirmResponse } of confirmedOutcomes) {
+        const scanOutcome = scanOutcomes.get(confirmResponse.fileId) ?? {
+          fileId: confirmResponse.fileId,
+          scanStatus: 'TIMED_OUT' as const,
+          scanResult: null,
+          virusName: null,
+        };
+
+        if (scanOutcome.scanStatus === 'COMPLETED' && scanOutcome.scanResult === 'INFECTED') {
+          logger.warn('Uploaded file failed virus scan', {
+            fileId: confirmResponse.fileId,
+            fileName: confirmResponse.fileName,
+            virusName: scanOutcome.virusName,
+          });
+          const rejectedFile: RejectedFile = {
+            id: confirmResponse.fileId,
+            s3Key: confirmResponse.s3Key,
+            filename: confirmResponse.fileName,
+            reason: 'INFECTED',
+            virusName: scanOutcome.virusName,
+          };
+          scanErrors.push(getRejectedFileMessage(rejectedFile));
+          newRejectedFiles.push(rejectedFile);
+        } else if (scanOutcome.scanStatus !== 'COMPLETED') {
+          logger.warn('Uploaded file scan did not complete', {
+            fileName: confirmResponse.fileName,
+            scanStatus: scanOutcome.scanStatus,
+          });
+          const rejectedFile: RejectedFile = {
+            id: confirmResponse.fileId,
+            s3Key: confirmResponse.s3Key,
+            filename: confirmResponse.fileName,
+            reason: 'FAILED',
+          };
+          scanErrors.push(getRejectedFileMessage(rejectedFile));
+          newRejectedFiles.push(rejectedFile);
+        } else {
+          const uploadedFile: UploadedFile = {
+            id: confirmResponse.fileId,
+            storageProvider: "aws_s3",
+            s3Key: confirmResponse.s3Key,
+            bucketName: confirmResponse.bucketName,
+            virtualFolder: confirmResponse.virtualFolder,
+            filename: confirmResponse.fileName,
+            fileContentType: confirmResponse.contentType,
+            fileSizeBytes: confirmResponse.fileSizeBytes,
+            uploadedAtTimestamp: confirmResponse.uploadedAt,
+            scanStatus: scanOutcome.scanStatus,
+            scanResult: scanOutcome.scanResult,
+            virusName: scanOutcome.virusName,
+          };
+          uploadedFiles.push(uploadedFile);
+
+          const applicationDocument: ApplicationDocument = {
+            documentId: confirmResponse.documentId,
+            applicationId: applicationId || "",
+            fileId: confirmResponse.fileId,
+            category: category || "",
+            subCategory: subCategory || "",
+            title: confirmResponse.fileName,
+            virtualFolder: confirmResponse.virtualFolder,
+            addedBy: userId,
+            addedAt: confirmResponse.uploadedAt,
+            consultationId: consultationId || undefined,
+          };
+          applicationDocuments.push(applicationDocument);
+        }
+
+        setInternalFiles((prevFiles: File[]) => {
+          const idxToRemove = prevFiles.findIndex(
+            (prevFile: File) =>
+              prevFile.name === file.name &&
+              prevFile.size === file.size
+          );
+          if (idxToRemove !== -1) {
+            return prevFiles.filter(
+              (_, idx: number) => idx !== idxToRemove
+            );
+          }
+          return prevFiles;
+        });
       }
 
       if (newRejectedFiles.length > 0) {

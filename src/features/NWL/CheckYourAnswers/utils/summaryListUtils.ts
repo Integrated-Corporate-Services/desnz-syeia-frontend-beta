@@ -105,10 +105,28 @@ export const formatEmail = (email: string | null | undefined): string => {
 };
 
 
-export const buildDocumentLinkHtml = (doc: { file_id?: string; fileUrl?: string; s3_key?: string; filename: string }): string => {
+/**
+ * Escape a value for safe interpolation into an HTML attribute or text node.
+ * Filenames and file keys are user-controlled (uploaded filenames), so raw
+ * interpolation can break out of attributes (e.g. a `"` in the filename) and
+ * corrupt the data-* attributes the download click-handler reads.
+ */
+export const escapeHtml = (value: string): string =>
+    String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+export const buildDocumentLinkHtml = (doc: { file_id?: string; fileUrl?: string; s3_key?: string; filename: string; document_id?: string }): string => {
     const fileKey = doc.fileUrl || doc.s3_key || doc.file_id || '';
     const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-    return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-file-id="${doc.file_id || ''}" data-filename="${doc.filename}">${doc.filename}</a>`;
+    const safeFileKey = escapeHtml(fileKey);
+    const safeFileId = escapeHtml(doc.file_id || '');
+    const safeDocumentId = escapeHtml(doc.document_id || '');
+    const safeFilename = escapeHtml(doc.filename);
+    return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${safeFileKey}" data-file-id="${safeFileId}" data-document-id="${safeDocumentId}" data-filename="${safeFilename}">${safeFilename}</a>`;
 };
 
 export const getNestedProperty = (obj: any, path: string, defaultValue: any = ''): any => {

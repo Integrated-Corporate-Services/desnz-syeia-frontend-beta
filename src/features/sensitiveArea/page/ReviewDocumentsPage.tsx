@@ -165,6 +165,11 @@ const ReviewDocumentsPage: React.FC = () => {
         application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
       };
 
+     
+      if (saveType === 'continue') {
+        payload.is_review_complete = true;
+      }
+
       // Save the review
       await saveSensitiveReview(payload);
 
