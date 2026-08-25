@@ -1,28 +1,11 @@
-/**
- * Check Your Answers Types
- * Aggregated data from all NWL sections
- */
 
-// Import types from each section
-// TODO: Update these imports when section types are finalized
-// For now, using any to allow compilation
-// import { ApplicationDetailsData } from '../../ApplicationDetails/types';
-// import { ObjectorDetailsData } from '../../ObjectorDetails/types';
-// import { LandDetailsData } from '../../LandDetails/types';
-// import { NegotiationsData } from '../../Negotiations/types';
-// import { AdditionalInformationData } from '../../AdditionalInformation/types';
-// import { AssetsData } from '../../Assets/types';
-
-/**
- * Aggregated application data for Check Your Answers page
- */
 export interface CheckYourAnswersData {
-    applicationDetails?: any; // TODO: Replace with ApplicationDetailsData
-    objectorDetails?: any; // TODO: Replace with ObjectorDetailsData
-    landDetails?: any; // TODO: Replace with LandDetailsData
-    assets?: any; // TODO: Replace with AssetsData
-    negotiations?: any; // TODO: Replace with NegotiationsData
-    additionalInformation?: any; // TODO: Replace with AdditionalInformationData
+    applicationDetails?: any;
+    objectorDetails?: any; 
+    landDetails?: any; 
+    assets?: any; 
+    negotiations?: any; 
+    additionalInformation?: any; 
     applicationId: string;
     lastUpdated?: string;
 }
@@ -34,6 +17,7 @@ export interface CheckYourAnswersData {
 export interface DocumentLink {
     fileKey: string;
     fileId?: string;
+    documentId?: string;
     filename: string;
     downloadUrl: string;
 }

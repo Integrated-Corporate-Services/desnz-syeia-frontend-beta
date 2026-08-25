@@ -28,6 +28,7 @@ export const SummaryList: React.FC<SummaryListProps> = ({ rows, classes = '' }) 
                                             className="govuk-link"
                                             data-file-key={doc.fileKey}
                                             data-file-id={doc.fileId}
+                                            data-document-id={doc.documentId}
                                             data-filename={doc.filename}
                                         >
                                             {doc.filename}

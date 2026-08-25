@@ -149,7 +149,7 @@ const ReviewDocumentsPage: React.FC = () => {
 
     try {
       // Build payload - preserve all existing data
-      const payload: SensitiveAreaReview = {
+      const payload: SensitiveAreaReview & { is_review_complete?: boolean } = {
         id: review?.id || '',
         application_id: applicationId || '',
         route_id: review?.route_id || '',
@@ -164,6 +164,11 @@ const ReviewDocumentsPage: React.FC = () => {
         uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
         application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
       };
+
+     
+      if (saveType === 'continue') {
+        payload.is_review_complete = true;
+      }
 
       // Save the review
       await saveSensitiveReview(payload);
