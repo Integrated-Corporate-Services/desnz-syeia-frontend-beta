@@ -364,12 +364,14 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       interface UploadConfirmOutcome {
         file: File;
         confirmResponse?: ConfirmResponse;
+        error?: string;
       }
 
       const uploadAndConfirm = async (file: File, index: number): Promise<UploadConfirmOutcome> => {
         const urlObj = data.urls[index];
         if (!urlObj.url) {
-          return { file };
+          logger.warn('Missing presigned upload URL', { fileName: file.name, index });
+          return { file, error: `Failed to upload ${file.name}. Please try again.` };
         }
 
         const phaseStartedAt = Date.now();
@@ -384,7 +386,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
           if (!uploadRes.ok) {
             logger.warn('Upload failed', { fileName: file.name, index });
-            return { file };
+            return { file, error: `Failed to upload ${file.name}. Please try again.` };
           }
 
           const s3Key = prefix ? `${prefix}/${file.name}` : file.name;
@@ -427,7 +429,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             fileName: file.name,
             error: err
           });
-          return { file };
+          return { file, error: `Failed to upload ${file.name}. Please try again.` };
         }
       };
 
@@ -441,6 +443,21 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         (outcome): outcome is UploadConfirmOutcome & { confirmResponse: ConfirmResponse } =>
           !!outcome.confirmResponse
       );
+
+      const failedOutcomes = uploadOutcomes.filter((outcome) => !outcome.confirmResponse);
+      if (failedOutcomes.length > 0) {
+        failedOutcomes.forEach((outcome) => {
+          scanErrors.push(outcome.error || `Failed to upload ${outcome.file.name}. Please try again.`);
+        });
+        setInternalFiles((prevFiles: File[]) =>
+          prevFiles.filter(
+            (prevFile) =>
+              !failedOutcomes.some(
+                (outcome) => outcome.file.name === prevFile.name && outcome.file.size === prevFile.size
+              )
+          )
+        );
+      }
 
       const scanWaitStartedAt = Date.now();
       logger.debug('[FileUpload.tsx][uploadFiles] Scan wait phase starting', {
