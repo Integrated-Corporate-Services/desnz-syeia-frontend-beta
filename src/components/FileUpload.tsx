@@ -36,7 +36,7 @@ function getRejectedFileMessage(file: RejectedFile): string {
     : `${displayName} could not be checked for viruses. Try uploading it again.`;
 }
 
-const UPLOAD_CONCURRENCY = 4;
+const UPLOAD_CONCURRENCY = 10;
 
 async function mapWithConcurrency<T, R>(
   items: T[],
