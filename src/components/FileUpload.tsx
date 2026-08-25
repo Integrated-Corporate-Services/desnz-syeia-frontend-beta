@@ -380,7 +380,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         });
 
         try {
-          const uploadRes = await uploadFileToS3(urlObj.url, file);
+          const uploadRes = await uploadFileToS3(urlObj.url, file, getMimeType(file));
 
           if (!uploadRes.ok) {
             logger.warn('Upload failed', { fileName: file.name, index });
