@@ -202,7 +202,7 @@ const handlePayByCard = async () => {
             <h1 className="govuk-heading-xl">{PAYMENT_PAGE_TEXT.pageTitle}</h1>
 
             <p className="govuk-body">
-              You must pay <strong>Â£{effectiveTotalAmount?.toFixed(2) ?? '0.00'}</strong> to submit this application.
+              You must pay <strong>£{effectiveTotalAmount?.toFixed(2) ?? '0.00'}</strong> to submit this application.
             </p>
 
             <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardRedirect}</p>
