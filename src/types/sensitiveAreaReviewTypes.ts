@@ -13,4 +13,5 @@ export interface SensitiveAreaReview {
   updated_at?: string;
   application_documents?: ApplicationDocument[];
   uploaded_files?: UploadedFile[];
+  is_review_complete?: boolean;
 }

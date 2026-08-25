@@ -352,8 +352,16 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       const data = await getPresignedUrls(fileMetas, applicationId);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
+        logger.error('[FileUpload.tsx][uploadFiles] Presigned URL response count mismatch', {
+          expectedCount: uploadFiles.length,
+          actualCount: data.urls?.length ?? 0,
+        });
         logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
-        return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
+        return {
+          uploadedFiles: [],
+          applicationDocuments: [],
+          scanErrors: ['Failed to upload files. Please try again.'],
+        };
       }
       const uploadedFiles: UploadedFile[] = [];
       const applicationDocuments: ApplicationDocument[] = [];

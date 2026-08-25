@@ -1,7 +1,7 @@
 import React from 'react';
 import { SummaryCard } from './SummaryCard';
 import { SummaryRow } from '../types';
-import { createSummaryRow, formatBoolean } from '../utils';
+import { createSummaryRow, formatBoolean, escapeHtml } from '../utils';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CONSTANTS } from '../constants';
 
 interface Props {
@@ -49,12 +49,16 @@ export const NWLAdditionalInformationSummaryCard: React.FC<Props> = ({ data, app
             })
             .map((doc: any) => {
                 if (typeof doc === 'string') {
-                    return `<span>${doc}</span>`;
+                    return `<span>${escapeHtml(doc)}</span>`;
                 }
                 const fileKey = doc.fileUrl || doc.s3_key || doc.file_id;
                 const filename = doc.filename || doc.title;
                 const downloadUrl = `/api/file/download?key=${encodeURIComponent(fileKey)}`;
-                return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${fileKey}" data-file-id="${doc.file_id || ''}" data-document-id="${doc.document_id || ''}" data-filename="${filename}">${filename}</a>`;
+                const safeFileKey = escapeHtml(fileKey || '');
+                const safeFileId = escapeHtml(doc.file_id || '');
+                const safeDocumentId = escapeHtml(doc.document_id || '');
+                const safeFilename = escapeHtml(filename || '');
+                return `<a href="${downloadUrl}" class="govuk-link" data-file-key="${safeFileKey}" data-file-id="${safeFileId}" data-document-id="${safeDocumentId}" data-filename="${safeFilename}">${safeFilename}</a>`;
             })
             .join('<br>');
 

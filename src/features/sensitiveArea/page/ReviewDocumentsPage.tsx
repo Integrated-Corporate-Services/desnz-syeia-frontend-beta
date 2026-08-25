@@ -149,7 +149,7 @@ const ReviewDocumentsPage: React.FC = () => {
 
     try {
       // Build payload - preserve all existing data
-      const payload: SensitiveAreaReview & { is_review_complete?: boolean } = {
+      const payload: SensitiveAreaReview = {
         id: review?.id || '',
         application_id: applicationId || '',
         route_id: review?.route_id || '',
