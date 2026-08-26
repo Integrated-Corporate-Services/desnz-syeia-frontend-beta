@@ -397,7 +397,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             return { file, error: `Failed to upload ${file.name}. Please try again.` };
           }
 
-          const s3Key = prefix ? `${prefix}/${file.name}` : file.name;
+          const s3Key = urlObj.s3Key;
           const etag = await extractUploadEtag(uploadRes);
 
           logger.info('S3 upload successful, calling confirm endpoint', {
