@@ -9,6 +9,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
+import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
 
 const logger = createLogger('BankTransferConfirmationPage');
 
@@ -75,17 +76,10 @@ const BankTransferConfirmationPage: React.FC = () => {
 
       if (!invoiceNumber && !resolvedInvoiceNumber) {
         try {
-          const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-          });
-          if (response.ok) {
-            const result = await response.json();
-            if (result.invoiceExists && result.invoiceNumber) {
-              setResolvedInvoiceNumber(result.invoiceNumber);
-              sessionStorage.setItem('invoiceNumber', result.invoiceNumber);
-            }
+          const invoiceNumberFromApi = await fetchInvoiceNumber(applicationId);
+          if (invoiceNumberFromApi) {
+            setResolvedInvoiceNumber(invoiceNumberFromApi);
+            sessionStorage.setItem('invoiceNumber', invoiceNumberFromApi);
           }
         } catch (err) {
           logger.error('Failed to load invoice status', err);
@@ -99,17 +93,10 @@ const BankTransferConfirmationPage: React.FC = () => {
         resolvedTotalAmount == null
       ) {
         try {
-          const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/fees`), {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-          });
-          if (response.ok) {
-            const result = await response.json();
-            if (typeof result.totalAmount === 'number' && result.totalAmount > 0) {
-              setResolvedTotalAmount(result.totalAmount);
-              sessionStorage.setItem('totalAmount', result.totalAmount.toString());
-            }
+          const feeTotal = await fetchFeeTotal(applicationId);
+          if (feeTotal != null) {
+            setResolvedTotalAmount(feeTotal);
+            sessionStorage.setItem('totalAmount', feeTotal.toString());
           }
         } catch (err) {
           logger.error('Failed to load payment amount', err);

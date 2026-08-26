@@ -10,8 +10,8 @@ import {
   PAYMENT_ERROR_MESSAGES,
   PAYMENT_BUTTON_LABELS,
 } from '../../../constants/payment';
-import { buildBackendUrl } from '../../../utils/apiConfig';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
 
 const BankTransferPaymentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -58,17 +58,10 @@ const BankTransferPaymentPage: React.FC = () => {
         sessionStorage.setItem('invoiceNumber', invoiceNumber);
       } else if (!resolvedInvoiceNumber && !sessionStorage.getItem('invoiceNumber')) {
         try {
-          const response = await fetch(buildBackendUrl(`/backend/api/invoice/${applicationId}/status`), {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-          });
-          if (response.ok) {
-            const result = await response.json();
-            if (result.invoiceExists && result.invoiceNumber) {
-              setResolvedInvoiceNumber(result.invoiceNumber);
-              sessionStorage.setItem('invoiceNumber', result.invoiceNumber);
-            }
+          const invoiceNumberFromApi = await fetchInvoiceNumber(applicationId);
+          if (invoiceNumberFromApi) {
+            setResolvedInvoiceNumber(invoiceNumberFromApi);
+            sessionStorage.setItem('invoiceNumber', invoiceNumberFromApi);
           }
         } catch {
           // Keep page usable; submission validation will surface if invoice is missing.
@@ -79,17 +72,10 @@ const BankTransferPaymentPage: React.FC = () => {
         sessionStorage.setItem('totalAmount', totalAmount.toString());
       } else if (resolvedTotalAmount == null && !sessionStorage.getItem('totalAmount')) {
         try {
-          const response = await fetch(buildBackendUrl(`/backend/api/applications/${applicationId}/fees`), {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-          });
-          if (response.ok) {
-            const result = await response.json();
-            if (typeof result.totalAmount === 'number' && result.totalAmount > 0) {
-              setResolvedTotalAmount(result.totalAmount);
-              sessionStorage.setItem('totalAmount', result.totalAmount.toString());
-            }
+          const feeTotal = await fetchFeeTotal(applicationId);
+          if (feeTotal != null) {
+            setResolvedTotalAmount(feeTotal);
+            sessionStorage.setItem('totalAmount', feeTotal.toString());
           }
         } catch {
           // Keep page usable; next step validates amount.
@@ -180,7 +166,7 @@ const BankTransferPaymentPage: React.FC = () => {
                 <strong>Account Number:</strong> {BANK_DETAILS.ACCOUNT_NUMBER}
               </li>
               <li>
-                <strong>Payment reference:</strong> {effectiveInvoiceNumber || '[invoice number]'}
+                <strong>Payment reference:</strong> {effectiveInvoiceNumber || 'Loading...'}
               </li>
             </ul>
 

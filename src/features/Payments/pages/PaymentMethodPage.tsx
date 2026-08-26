@@ -62,7 +62,7 @@ const PaymentMethodPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/fees`), {
+        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

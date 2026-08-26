@@ -70,7 +70,7 @@ const PaymentAmountPage: React.FC = () => {
         }
 
         // Call backend API to calculate fees
-        const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/fees`), {
+        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
