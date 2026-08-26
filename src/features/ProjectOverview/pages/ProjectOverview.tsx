@@ -405,25 +405,39 @@ const ProjectOverview = () => {
 						// Helper: Validate month/year pair
 						function validateMonthYear(month: string, year: string, fieldPrefix: string, options?: { mustBeFuture?: boolean }) {
 							const errors: string[] = [];
-							let fieldError = "";
-							let yearInvalid = false;
+							const fieldErrors: Record<string, string> = {};
 
 							// Determine which error messages to use based on fieldPrefix
 							const isEarliest = fieldPrefix === "earliestWorkStartDate";
-							const requiredMsg = isEarliest ? PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_REQUIRED : PROJECT_OVERVIEW_ERRORS.LATEST_DATE_REQUIRED;
+							const requiredMonthMsg = isEarliest ? "Select the earliest expected start month" : "Select the latest expected start month";
+							const requiredYearMsg = isEarliest ? "Enter the earliest expected start year" : "Enter the latest expected start year";
 							const invalidYearMsg = isEarliest ? PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_INVALID_YEAR : PROJECT_OVERVIEW_ERRORS.LATEST_DATE_INVALID_YEAR;
 							const monthAnchor = `${fieldPrefix}-month`;
 							const yearAnchor = `${fieldPrefix}-year`;
 
-							if (!month || !year?.trim()) {
-								errors.push(createErrorLink(monthAnchor, requiredMsg));
-								fieldError = requiredMsg;
-								if (!year?.trim()) yearInvalid = true;
-							} else if (!/^\d{4}$/.test(year.trim())) {
-								yearInvalid = true;
-							} else {
+							const monthMissing = !month || month.trim() === '';
+							const yearMissing = !year || year.trim() === '';
+							const yearInvalid = year && year.trim() !== '' && !/^\d{4}$/.test(year.trim());
+
+							// Validate month
+							if (monthMissing) {
+								errors.push(createErrorLink(monthAnchor, requiredMonthMsg));
+								fieldErrors[monthAnchor] = requiredMonthMsg;
+							}
+
+							// Validate year
+							if (yearMissing) {
+								errors.push(createErrorLink(yearAnchor, requiredYearMsg));
+								fieldErrors[yearAnchor] = requiredYearMsg;
+							} else if (yearInvalid) {
+								errors.push(createErrorLink(yearAnchor, invalidYearMsg));
+								fieldErrors[yearAnchor] = invalidYearMsg;
+							}
+
+							// If both are present and valid, check future date requirement
+							if (!monthMissing && !yearMissing && !yearInvalid && options?.mustBeFuture) {
 								const monthNum = months.findIndex(m => m.toLowerCase() === month.toLowerCase()) + 1;
-								if (monthNum > 0 && options?.mustBeFuture) {
+								if (monthNum > 0) {
 									const today = new Date();
 									today.setHours(0, 0, 0, 0);
 									const currentYear = today.getFullYear();
@@ -432,15 +446,14 @@ const ProjectOverview = () => {
 										Number(year) < currentYear ||
 										(Number(year) === currentYear && monthNum < currentMonth)
 									) {
-										errors.push(createErrorLink(monthAnchor, PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_MUST_BE_FUTURE));
-										fieldError = PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_MUST_BE_FUTURE;
+										const futureMsg = PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_MUST_BE_FUTURE;
+										errors.push(createErrorLink(monthAnchor, futureMsg));
+										fieldErrors[monthAnchor] = futureMsg;
 									}
 								}
 							}
-							if (yearInvalid) {
-								errors.push(createErrorLink(yearAnchor, invalidYearMsg));
-							}
-							return { errors, fieldError, yearInvalid };
+
+							return { errors, fieldErrors };
 						}
 
 						// Helper: Compare two month/year pairs
@@ -473,8 +486,9 @@ const ProjectOverview = () => {
 							);
 							if (earliest.errors.length > 0) {
 								newErrors.push(...earliest.errors);
-								newFieldErrors.earliestWorkStartDate = earliest.fieldError;
+								Object.assign(newFieldErrors, earliest.fieldErrors);
 							}
+
 							// Latest expected start date
 							const latest = validateMonthYear(
 								formState.latestWorkStartDateMonth,
@@ -483,10 +497,16 @@ const ProjectOverview = () => {
 							);
 							if (latest.errors.length > 0) {
 								newErrors.push(...latest.errors);
-								newFieldErrors.latestWorkStartDate = latest.fieldError;
+								Object.assign(newFieldErrors, latest.fieldErrors);
 							}
-							// Compare earliest and latest
-							if (!earliest.yearInvalid && !latest.yearInvalid) {
+
+							// Compare earliest and latest (only if both have valid years)
+							const earliestYearValid = formState.earliestWorkStartDateYear && /^\d{4}$/.test(formState.earliestWorkStartDateYear.trim());
+							const latestYearValid = formState.latestWorkStartDateYear && /^\d{4}$/.test(formState.latestWorkStartDateYear.trim());
+							const earliestMonthValid = formState.earliestWorkStartDateMonth && formState.earliestWorkStartDateMonth.trim() !== '';
+							const latestMonthValid = formState.latestWorkStartDateMonth && formState.latestWorkStartDateMonth.trim() !== '';
+
+							if (earliestYearValid && latestYearValid && earliestMonthValid && latestMonthValid) {
 								const compareResult = compareMonthYear(
 									formState.earliestWorkStartDateMonth,
 									formState.earliestWorkStartDateYear,
@@ -495,17 +515,18 @@ const ProjectOverview = () => {
 								);
 								if (compareResult) {
 									newErrors.push(compareResult.error);
-									newFieldErrors.latestWorkStartDate = compareResult.fieldError;
+									newFieldErrors['latestWorkStartDate-month'] = compareResult.fieldError;
 								}
 							}
+
 							// Additional business logic: restrict latest year to reasonable future (e.g., max current year + 50)
-							if (!latest.yearInvalid && /^\d{4}$/.test(formState.latestWorkStartDateYear)) {
+							if (latestYearValid && /^\d{4}$/.test(formState.latestWorkStartDateYear)) {
 								const maxYear = new Date().getFullYear() + 50;
 								const enteredLatestYear = parseInt(formState.latestWorkStartDateYear, 10);
 								if (enteredLatestYear > maxYear) {
 									const maxYearError = createMaxYearError(maxYear);
 									newErrors.push(createErrorLink('latestWorkStartDate-year', maxYearError));
-									newFieldErrors.latestWorkStartDate = maxYearError;
+									newFieldErrors['latestWorkStartDate-year'] = maxYearError;
 								}
 							}
 						}
@@ -743,29 +764,34 @@ const ProjectOverview = () => {
 									{formState.areWorkStartDatesKnown === "true" && (
 										<div className="govuk-radios__conditional" id="areWorkStartDatesKnown-hidden">
 											{/* Earliest Start Date */}
-											<div className={`govuk-form-group${fieldErrors?.earliestWorkStartDate ? " govuk-form-group--error" : ""}`}>
+											<div className={`govuk-form-group${(fieldErrors?.['earliestWorkStartDate-month'] || fieldErrors?.['earliestWorkStartDate-year']) ? " govuk-form-group--error" : ""}`}>
 												<fieldset className="govuk-fieldset">
 													<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 														<h2 className="govuk-fieldset__heading">{projectOverview.earliestWorkStartDate}</h2>
 													</legend>
-													{fieldErrors?.earliestWorkStartDate && (
-														<p id="earliestWorkStartDate-error" className="govuk-error-message">
-															<span className="govuk-visually-hidden">Error:</span> {fieldErrors.earliestWorkStartDate}
+													{fieldErrors?.['earliestWorkStartDate-month'] && (
+														<p id="earliestWorkStartDate-month-error" className="govuk-error-message">
+															<span className="govuk-visually-hidden">Error:</span> {fieldErrors['earliestWorkStartDate-month']}
+														</p>
+													)}
+													{fieldErrors?.['earliestWorkStartDate-year'] && (
+														<p id="earliestWorkStartDate-year-error" className="govuk-error-message">
+															<span className="govuk-visually-hidden">Error:</span> {fieldErrors['earliestWorkStartDate-year']}
 														</p>
 													)}
 													<div className="govuk-date-input">
 														<div className="govuk-date-input__item">
-															<div className={`govuk-form-group${fieldErrors?.earliestWorkStartDate ? " govuk-form-group--error" : ""}`}>
+															<div className={`govuk-form-group${fieldErrors?.['earliestWorkStartDate-month'] ? " govuk-form-group--error" : ""}`}>
 																<label className="govuk-label" htmlFor="earliestWorkStartDate-month">Month</label>
 																<select
-																	className={`govuk-select${fieldErrors?.earliestWorkStartDate ? " govuk-select--error" : ""}`}
+																	className={`govuk-select${fieldErrors?.['earliestWorkStartDate-month'] ? " govuk-select--error" : ""}`}
 																	id="earliestWorkStartDate-month"
 																	name="earliestWorkStartDate.month"
-																	aria-describedby={fieldErrors?.earliestWorkStartDate ? "earliestWorkStartDate-error" : undefined}
+																	aria-describedby={fieldErrors?.['earliestWorkStartDate-month'] ? "earliestWorkStartDate-month-error" : undefined}
 																	value={formState.earliestWorkStartDateMonth || ""}
 																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
 																		setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }));
-																		clearFieldError('earliestWorkStartDate');
+																		clearFieldError('earliestWorkStartDate-month');
 																	}}
 																>
 																	<option value="" disabled>Select one...</option>
@@ -776,18 +802,18 @@ const ProjectOverview = () => {
 															</div>
 														</div>
 														<div className="govuk-date-input__item">
-															<div className={`govuk-form-group${fieldErrors?.earliestWorkStartDate ? " govuk-form-group--error" : ""}`}>
+															<div className={`govuk-form-group${fieldErrors?.['earliestWorkStartDate-year'] ? " govuk-form-group--error" : ""}`}>
 																<label className="govuk-label govuk-date-input__label" htmlFor="earliestWorkStartDate-year">Year</label>
 																<input
-																	className={`govuk-input govuk-date-input__input govuk-input--width-4${fieldErrors?.earliestWorkStartDate ? " govuk-input--error" : ""}`}
+																	className={`govuk-input govuk-date-input__input govuk-input--width-4${fieldErrors?.['earliestWorkStartDate-year'] ? " govuk-input--error" : ""}`}
 																	id="earliestWorkStartDate-year"
 																	name="earliestWorkStartDate.year"
 																	type="text"
-																	aria-describedby={fieldErrors?.earliestWorkStartDate ? "earliestWorkStartDate-error" : undefined}
+																	aria-describedby={fieldErrors?.['earliestWorkStartDate-year'] ? "earliestWorkStartDate-year-error" : undefined}
 																	value={formState.earliestWorkStartDateYear || ""}
 																	onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 																		setFormState(prev => ({ ...prev, earliestWorkStartDateYear: e.target.value }));
-																		clearFieldError('earliestWorkStartDate');
+																		clearFieldError('earliestWorkStartDate-year');
 																	}}
 																/>
 															</div>
@@ -796,29 +822,34 @@ const ProjectOverview = () => {
 												</fieldset>
 											</div>
 											{/* Latest Start Date */}
-											<div className={`govuk-form-group${fieldErrors?.latestWorkStartDate ? " govuk-form-group--error" : ""}`}>
+											<div className={`govuk-form-group${(fieldErrors?.['latestWorkStartDate-month'] || fieldErrors?.['latestWorkStartDate-year']) ? " govuk-form-group--error" : ""}`}>
 												<fieldset className="govuk-fieldset">
 													<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
 														<h2 className="govuk-fieldset__heading">{projectOverview.latestWorkStartDate}</h2>
 													</legend>
-													{fieldErrors?.latestWorkStartDate && (
-														<p id="latestWorkStartDate-error" className="govuk-error-message">
-															<span className="govuk-visually-hidden">Error:</span> {fieldErrors.latestWorkStartDate}
+													{fieldErrors?.['latestWorkStartDate-month'] && (
+														<p id="latestWorkStartDate-month-error" className="govuk-error-message">
+															<span className="govuk-visually-hidden">Error:</span> {fieldErrors['latestWorkStartDate-month']}
+														</p>
+													)}
+													{fieldErrors?.['latestWorkStartDate-year'] && (
+														<p id="latestWorkStartDate-year-error" className="govuk-error-message">
+															<span className="govuk-visually-hidden">Error:</span> {fieldErrors['latestWorkStartDate-year']}
 														</p>
 													)}
 													<div className="govuk-date-input">
 														<div className="govuk-date-input__item">
-															<div className={`govuk-form-group${fieldErrors?.latestWorkStartDate ? " govuk-form-group--error" : ""}`}>
+															<div className={`govuk-form-group${fieldErrors?.['latestWorkStartDate-month'] ? " govuk-form-group--error" : ""}`}>
 																<label className="govuk-label" htmlFor="latestWorkStartDate-month">Month</label>
 																<select
-																	className={`govuk-select${fieldErrors?.latestWorkStartDate ? " govuk-select--error" : ""}`}
+																	className={`govuk-select${fieldErrors?.['latestWorkStartDate-month'] ? " govuk-select--error" : ""}`}
 																	id="latestWorkStartDate-month"
 																	name="latestWorkStartDate.month"
-																	aria-describedby={fieldErrors?.latestWorkStartDate ? "latestWorkStartDate-error" : undefined}
+																	aria-describedby={fieldErrors?.['latestWorkStartDate-month'] ? "latestWorkStartDate-month-error" : undefined}
 																	value={formState.latestWorkStartDateMonth || ""}
 																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
 																		setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }));
-																		clearFieldError('latestWorkStartDate');
+																		clearFieldError('latestWorkStartDate-month');
 																	}}
 																>
 																	<option value="" disabled>Select one...</option>
@@ -829,18 +860,18 @@ const ProjectOverview = () => {
 															</div>
 														</div>
 														<div className="govuk-date-input__item">
-															<div className={`govuk-form-group${fieldErrors?.latestWorkStartDate ? " govuk-form-group--error" : ""}`}>
+															<div className={`govuk-form-group${fieldErrors?.['latestWorkStartDate-year'] ? " govuk-form-group--error" : ""}`}>
 																<label className="govuk-label govuk-date-input__label" htmlFor="latestWorkStartDate-year">Year</label>
 																<input
-																	className={`govuk-input govuk-date-input__input govuk-input--width-4${fieldErrors?.latestWorkStartDate ? " govuk-input--error" : ""}`}
+																	className={`govuk-input govuk-date-input__input govuk-input--width-4${fieldErrors?.['latestWorkStartDate-year'] ? " govuk-input--error" : ""}`}
 																	id="latestWorkStartDate-year"
 																	name="latestWorkStartDate.year"
 																	type="text"
-																	aria-describedby={fieldErrors?.latestWorkStartDate ? "latestWorkStartDate-error" : undefined}
+																	aria-describedby={fieldErrors?.['latestWorkStartDate-year'] ? "latestWorkStartDate-year-error" : undefined}
 																	value={formState.latestWorkStartDateYear || ""}
 																	onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 																		setFormState(prev => ({ ...prev, latestWorkStartDateYear: e.target.value }));
-																		clearFieldError('latestWorkStartDate');
+																		clearFieldError('latestWorkStartDate-year');
 																	}}
 																/>
 															</div>
