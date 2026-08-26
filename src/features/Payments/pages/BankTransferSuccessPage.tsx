@@ -13,6 +13,7 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import type { BankTransferSuccessState } from '../../../types/payment';
 import { createLogger } from '../../../utils/logger';
 import { trackButtonClick } from '../../../utils/analytics';
+import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
 
 const logger = createLogger('BankTransferSuccessPage');
 
@@ -24,36 +25,60 @@ const BankTransferSuccessPage: React.FC = () => {
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
 
   const {
-    invoiceNumber,
-    totalAmount,
+    invoiceNumber: passedInvoiceNumber,
+    totalAmount: passedTotalAmount,
     desnz_ref: passedDesnzRef,
     transactionNumber,
   } = (location.state as BankTransferSuccessState | null) || {};
 
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
-  const [loading, setLoading] = useState(!passedDesnzRef);
+  const [invoiceNumber, setInvoiceNumber] = useState<string | undefined>(passedInvoiceNumber);
+  const [totalAmount, setTotalAmount] = useState<number | undefined>(
+    typeof passedTotalAmount === 'number' ? passedTotalAmount : undefined
+  );
+  const [loading, setLoading] = useState(!passedDesnzRef || !passedInvoiceNumber || passedTotalAmount == null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!applicationId || passedDesnzRef) return;
+    if (!applicationId) return;
+
+    const needsDesnzRef = !passedDesnzRef;
+    const needsInvoiceNumber = !passedInvoiceNumber;
+    const needsAmount = passedTotalAmount == null;
+
+    if (!needsDesnzRef && !needsInvoiceNumber && !needsAmount) return;
 
     const fetchMissingData = async () => {
       try {
         setLoading(true);
-        const data = await applicationApiService.fetchApplicationDetails(applicationId);
-        setDesnzRef(data.desnz_ref || applicationId);
+        const [data, invoiceFromApi, feeTotal] = await Promise.all([
+          needsDesnzRef ? applicationApiService.fetchApplicationDetails(applicationId) : Promise.resolve(null),
+          needsInvoiceNumber ? fetchInvoiceNumber(applicationId) : Promise.resolve(null),
+          needsAmount ? fetchFeeTotal(applicationId) : Promise.resolve(null),
+        ]);
+        if (data) {
+          setDesnzRef(data.desnz_ref || applicationId);
+        }
+        if (invoiceFromApi) {
+          setInvoiceNumber(invoiceFromApi);
+        }
+        if (typeof feeTotal === 'number') {
+          setTotalAmount(feeTotal);
+        }
         setError(null);
       } catch (err) {
         logger.error('Error fetching bank transfer success data:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch application details');
-        setDesnzRef(applicationId);
+        if (!passedDesnzRef) {
+          setDesnzRef(applicationId);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchMissingData();
-  }, [applicationId, passedDesnzRef]);
+  }, [applicationId, passedDesnzRef, passedInvoiceNumber, passedTotalAmount]);
 
   const displayTransactionNumber =
     transactionNumber?.trim() || BANK_TRANSFER_SUCCESS_PAGE.NOT_PROVIDED_TEXT;
@@ -101,7 +126,9 @@ const BankTransferSuccessPage: React.FC = () => {
                     {BANK_TRANSFER_SUCCESS_PAGE.SUMMARY_LABELS.INVOICE_NUMBER}
                   </th>
                   <td className="govuk-table__cell">
-                    {invoiceNumber || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT}
+                    {loading && !invoiceNumber
+                      ? BANK_TRANSFER_SUCCESS_PAGE.LOADING_TEXT
+                      : invoiceNumber || BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT}
                   </td>
                 </tr>
                 <tr className="govuk-table__row">
@@ -109,7 +136,11 @@ const BankTransferSuccessPage: React.FC = () => {
                     {BANK_TRANSFER_SUCCESS_PAGE.SUMMARY_LABELS.TOTAL_AMOUNT}
                   </th>
                   <td className="govuk-table__cell">
-                    {totalAmount != null ? formatCurrency(totalAmount) : BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT}
+                    {totalAmount != null
+                      ? formatCurrency(totalAmount)
+                      : loading
+                        ? BANK_TRANSFER_SUCCESS_PAGE.LOADING_TEXT
+                        : BANK_TRANSFER_SUCCESS_PAGE.NOT_AVAILABLE_TEXT}
                   </td>
                 </tr>
                 <tr className="govuk-table__row">

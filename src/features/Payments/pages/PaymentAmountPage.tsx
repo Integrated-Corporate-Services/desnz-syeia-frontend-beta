@@ -70,7 +70,7 @@ const PaymentAmountPage: React.FC = () => {
         }
 
         // Call backend API to calculate fees
-        const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/fees`), {
+        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ const PaymentAmountPage: React.FC = () => {
             </h1>
 
             <p className="govuk-body">
-              You must pay <strong>Â£{totalAmount.toFixed(2)}</strong> to submit this application.
+              You must pay <strong>£{totalAmount.toFixed(2)}</strong> to submit this application.
             </p>
             <p className="govuk-body">
               Here is the breakdown of your payment:
@@ -182,7 +182,7 @@ const PaymentAmountPage: React.FC = () => {
                   <td className="govuk-table__cell"><strong>
                     {feeBreakdown?.baseDescription || (baseUrl === NWL_BASE_URL ? 'Application for a necessary wayleave' : 'Overhead Lines (Section 37): Consent Application')}
                   </strong></td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">Â£{consentFee.toFixed(2)}</td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">£{consentFee.toFixed(2)}</td>
                 </tr>
                 
                 {/* Screening fee - only show if applicable */}
@@ -192,7 +192,7 @@ const PaymentAmountPage: React.FC = () => {
                       {feeBreakdown?.screeningDescription || 'Overhead Lines (Section 37): EIA Screening'}
                       </strong>
                     </td>
-                    <td className="govuk-table__cell govuk-table__cell--numeric">Â£{screeningFee.toFixed(2)}</td>
+                    <td className="govuk-table__cell govuk-table__cell--numeric">£{screeningFee.toFixed(2)}</td>
                   </tr>
                 )}
 
@@ -202,14 +202,14 @@ const PaymentAmountPage: React.FC = () => {
                     <td className="govuk-table__cell"><strong>
                       {feeBreakdown?.eiaDescription || 'Overhead Lines (Section 37): Full EIA Process with Environmental Statement'}
                     </strong></td>
-                    <td className="govuk-table__cell govuk-table__cell--numeric">Â£{eiaFee.toFixed(2)}</td>
+                    <td className="govuk-table__cell govuk-table__cell--numeric">£{eiaFee.toFixed(2)}</td>
                   </tr>
                 )}
 
                 {/* Total */}
                 <tr className="govuk-table__row">
                   <td className="govuk-table__cell"><strong>TOTAL</strong></td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">Â£{totalAmount.toFixed(2)}</td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">£{totalAmount.toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>

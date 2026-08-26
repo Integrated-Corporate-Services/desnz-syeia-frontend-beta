@@ -36,7 +36,7 @@ export default function PaymentCallback() {
         .then(data => {
           setStatus(data.state?.status || '');
           setReference(data.reference || paymentId);
-          setAmount(data.amount ? `Â£${(data.amount / 100).toFixed(2)}` : '');
+          setAmount(data.amount ? `£${(data.amount / 100).toFixed(2)}` : '');
           setDescription(data.description || '');
           if (["success", "failed", "cancelled"].includes(data.state?.status)) {
             // Final status, stop polling
