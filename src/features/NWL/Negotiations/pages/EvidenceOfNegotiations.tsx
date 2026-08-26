@@ -22,7 +22,7 @@ import { patchNegotiationsData } from '../services';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
-import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { createLogger } from '../../../../utils/logger';
 
 import { useNWLProgress } from '../../hooks/useNWLProgress';
@@ -260,9 +260,9 @@ const EvidenceOfNegotiations: React.FC = () => {
                   ref={fileUploadRef}
                   title={FORM_LABELS.UPLOAD_EVIDENCE}
                   showTitle={true}
-                  prefix={`${appId}/${FILE_CATEGORIES.NEGOTIATIONS}`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_NEGOTIATIONS}`}
                   applicationId={appId}
-                  category={FILE_CATEGORIES.NEGOTIATIONS}
+                  category={NWL_FILE_CATEGORIES.NWL_NEGOTIATIONS}
                   addedBy={userId}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
