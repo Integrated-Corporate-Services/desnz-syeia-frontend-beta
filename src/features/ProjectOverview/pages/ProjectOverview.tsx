@@ -409,53 +409,52 @@ const ProjectOverview = () => {
 
 							// Determine which error messages to use based on fieldPrefix
 							const isEarliest = fieldPrefix === "earliestWorkStartDate";
-							const requiredMonthMsg = isEarliest ? "Select the earliest expected start month" : "Select the latest expected start month";
-							const requiredYearMsg = isEarliest ? "Enter the earliest expected start year" : "Enter the latest expected start year";
-							const invalidYearMsg = isEarliest ? PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_INVALID_YEAR : PROJECT_OVERVIEW_ERRORS.LATEST_DATE_INVALID_YEAR;
-							const monthAnchor = `${fieldPrefix}-month`;
-							const yearAnchor = `${fieldPrefix}-year`;
+						const requiredMonthMsg = isEarliest ? PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_MONTH_REQUIRED : PROJECT_OVERVIEW_ERRORS.LATEST_DATE_MONTH_REQUIRED;
+						const requiredYearMsg = isEarliest ? PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_YEAR_REQUIRED : PROJECT_OVERVIEW_ERRORS.LATEST_DATE_YEAR_REQUIRED;
+						const invalidYearMsg = isEarliest ? PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_INVALID_YEAR : PROJECT_OVERVIEW_ERRORS.LATEST_DATE_INVALID_YEAR;
+						const monthAnchor = `${fieldPrefix}-month`;
+						const yearAnchor = `${fieldPrefix}-year`;
 
-							const monthMissing = !month || month.trim() === '';
-							const yearMissing = !year || year.trim() === '';
-							const yearInvalid = year && year.trim() !== '' && !/^\d{4}$/.test(year.trim());
+						const monthMissing = !month || month.trim() === '';
+						const yearMissing = !year || year.trim() === '';
+						const yearInvalid = year && year.trim() !== '' && !/^\d{4}$/.test(year.trim());
 
-							// Validate month
-							if (monthMissing) {
-								errors.push(createErrorLink(monthAnchor, requiredMonthMsg));
-								fieldErrors[monthAnchor] = requiredMonthMsg;
-							}
-
-							// Validate year
-							if (yearMissing) {
-								errors.push(createErrorLink(yearAnchor, requiredYearMsg));
-								fieldErrors[yearAnchor] = requiredYearMsg;
-							} else if (yearInvalid) {
-								errors.push(createErrorLink(yearAnchor, invalidYearMsg));
-								fieldErrors[yearAnchor] = invalidYearMsg;
-							}
-
-							// If both are present and valid, check future date requirement
-							if (!monthMissing && !yearMissing && !yearInvalid && options?.mustBeFuture) {
-								const monthNum = months.findIndex(m => m.toLowerCase() === month.toLowerCase()) + 1;
-								if (monthNum > 0) {
-									const today = new Date();
-									today.setHours(0, 0, 0, 0);
-									const currentYear = today.getFullYear();
-									const currentMonth = today.getMonth() + 1;
-									if (
-										Number(year) < currentYear ||
-										(Number(year) === currentYear && monthNum < currentMonth)
-									) {
-										const futureMsg = PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_MUST_BE_FUTURE;
-										errors.push(createErrorLink(monthAnchor, futureMsg));
-										fieldErrors[monthAnchor] = futureMsg;
-									}
-								}
-							}
-
-							return { errors, fieldErrors };
+						// Validate month
+						if (monthMissing) {
+							errors.push(createErrorLink(monthAnchor, requiredMonthMsg));
+							fieldErrors[monthAnchor] = requiredMonthMsg;
 						}
 
+						// Validate year
+						if (yearMissing) {
+							errors.push(createErrorLink(yearAnchor, requiredYearMsg));
+							fieldErrors[yearAnchor] = requiredYearMsg;
+						} else if (yearInvalid) {
+							errors.push(createErrorLink(yearAnchor, invalidYearMsg));
+							fieldErrors[yearAnchor] = invalidYearMsg;
+						}
+
+						// If both are present and valid, check future date requirement
+					if (!monthMissing && !yearMissing && !yearInvalid && options?.mustBeFuture) {
+						const monthNum = months.findIndex(m => m.toLowerCase() === month.toLowerCase()) + 1;
+						if (monthNum > 0) {
+							const today = new Date();
+							today.setHours(0, 0, 0, 0);
+							const currentYear = today.getFullYear();
+							const currentMonth = today.getMonth() + 1;
+							if (
+								Number(year) < currentYear ||
+								(Number(year) === currentYear && monthNum < currentMonth)
+							) {
+								const futureMsg = PROJECT_OVERVIEW_ERRORS.EARLIEST_DATE_MUST_BE_FUTURE;
+								errors.push(createErrorLink(monthAnchor, futureMsg));
+								fieldErrors[monthAnchor] = futureMsg;
+							}
+						}
+					}
+
+					return { errors, fieldErrors };
+				}
 						// Helper: Compare two month/year pairs
 						function compareMonthYear(earliestMonth: string, earliestYear: string, latestMonth: string, latestYear: string) {
 							const earliestMonthNum = months.findIndex(m => m.toLowerCase() === earliestMonth.toLowerCase()) + 1;
