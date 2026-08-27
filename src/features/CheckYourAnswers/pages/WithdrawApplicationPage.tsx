@@ -81,14 +81,13 @@ const WithdrawApplicationPage: React.FC = () => {
   const getBaseUrl = () => {
     const type = formType.toUpperCase();
     if (type === 'NWL') return NWL_BASE_URL;
-    if (type === 'TLP' || type === 'TL') return TLP_BASE_URL;
     return S37_BASE_URL;
   };
 
-  // Check if application requires voluntary agreement question (NWL and TLP)
+  // Check if application requires voluntary agreement question (NWL only)
   const requiresVoluntaryAgreement = () => {
     const type = formType.toUpperCase();
-    return type === 'NWL' || type === 'TLP' || type === 'TL';
+    return type === 'NWL';
   };
 
   const handleWithdraw = async (e: React.FormEvent) => {
@@ -97,7 +96,7 @@ const WithdrawApplicationPage: React.FC = () => {
     // Validation
     const errors: Record<string, string> = {};
     
-    // For NWL and TLP, voluntary agreement is required
+    // For NWL, voluntary agreement is required
     if (requiresVoluntaryAgreement() && !voluntaryAgreement) {
       errors.voluntaryAgreement = "Select yes or no";
     }

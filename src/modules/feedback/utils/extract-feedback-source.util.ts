@@ -37,7 +37,6 @@ function detectApplicationType(normalizedPath: string): string {
 
   if (firstSegment === 's-37') return 'S37';
   if (firstSegment === 'nwl') return 'NWL';
-  if (firstSegment === 'tlp') return 'TLP';
 
   return 'Common';
 }

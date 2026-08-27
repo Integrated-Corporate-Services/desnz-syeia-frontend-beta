@@ -6,7 +6,7 @@ export enum WithdrawalStatus {
 
 export interface WithdrawalRequest {
     applicationId: string;
-    applicationType: 'NWL' | 'S37' | 'TLP';
+    applicationType: 'NWL' | 'S37';
     reason: string;
     additionalComments?: string;
     requestedBy: string;
@@ -23,7 +23,7 @@ export interface WithdrawalResponse {
 export interface WithdrawalConfirmationData {
     withdrawalId: string;
     applicationId: string;
-    applicationType: 'NWL' | 'S37' | 'TLP';
+    applicationType: 'NWL' | 'S37';
     desnzRef?: string;
     withdrawnDate: string;
     reason: string;

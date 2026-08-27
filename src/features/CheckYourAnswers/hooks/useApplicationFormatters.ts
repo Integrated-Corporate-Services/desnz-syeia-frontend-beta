@@ -14,8 +14,7 @@ export const useApplicationFormatters = () => {
     const typeMap: Record<string, string> = {
       'S37': 'Overhead lines (S37)',
       's37': 'Overhead lines (S37)',
-      'NWL': 'Necessary wayleaves',
-      'TLP': 'Tree lopping'
+      'NWL': 'Necessary wayleaves'
     };
     return typeMap[formType || 'S37'] || 'Overhead lines (S37)';
   }, []);
