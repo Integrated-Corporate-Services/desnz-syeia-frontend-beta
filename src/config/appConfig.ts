@@ -42,7 +42,8 @@ class ConfigService {
     'dev.syeia.energysecurity.gov.uk',
     'staging.syeia.energysecurity.gov.uk',
     'syeia.energysecurity.gov.uk',
-    'submit-your-energy-infrastructure-application.service.gov.uk'
+    'submit-your-energy-infrastructure-application.service.gov.uk',
+    'www.submit-your-energy-infrastructure-application.service.gov.uk'
   ];
 
   private constructor() {
