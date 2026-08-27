@@ -40,53 +40,27 @@ export const downloadApplicationPdf = async (applicationId: string): Promise<voi
   try {
     logger.info('Initiating PDF download', { applicationId });
 
-    const generateUrl = buildBackendUrl(`/api/nwl/${applicationId}/download-pdf`);
+    const downloadUrl = buildBackendUrl(`/api/nwl/${applicationId}/download-pdf`);
 
-    const generateResponse = await fetch(generateUrl, {
+    const response = await fetch(downloadUrl, {
       method: 'GET',
       credentials: 'include',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/pdf, application/json',
       },
     });
 
-    if (!generateResponse.ok) {
-      const errorData = await generateResponse.json().catch(() => ({ error: 'Failed to generate PDF' }));
-      throw new Error(errorData.error || `HTTP ${generateResponse.status}: ${generateResponse.statusText}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Failed to download PDF' }));
+      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const { s3Key, filename } = await generateResponse.json();
-    logger.info('PDF S3 key received', { s3Key, filename });
+    const disposition = response.headers.get('content-disposition');
+    const fallbackName = `NWL_${applicationId}.pdf`;
+    const filename = parseFilenameFromContentDisposition(disposition) || fallbackName;
+    const blob = await response.blob();
 
-    const presignedUrl = buildBackendUrl('/api/file/presigned-url/download');
-
-    const presignedResponse = await fetch(presignedUrl, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getCsrfHeaders(),
-      },
-      body: JSON.stringify({
-        filename: s3Key,
-        applicationId,
-      }),
-    });
-
-    if (!presignedResponse.ok) {
-      const errorData = await presignedResponse.json().catch(() => ({ error: 'Failed to get download URL' }));
-      throw new Error(errorData.error || `HTTP ${presignedResponse.status}: ${presignedResponse.statusText}`);
-    }
-
-    const { url } = await presignedResponse.json();
-    logger.info('Presigned URL received', { url: url.substring(0, 100) + '...' });
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    triggerBrowserDownload(blob, filename);
 
     logger.info('PDF download initiated successfully', { applicationId, filename });
   } catch (error) {
