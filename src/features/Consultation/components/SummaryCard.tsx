@@ -17,6 +17,7 @@ interface DocumentType {
     filename?: string;
     fileName?: string;
     file_id?: string;
+    document_id?: string;
 }
 
 interface ConsultationSummaryCardProps {
@@ -143,7 +144,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         const key = doc.key || doc.url;
                         // const filename = doc.filename || doc.name || doc.fileName;
                         try {
-                            await downloadS3FileOnSameTab(key, doc.file_id, applicationId);
+                            await downloadS3FileOnSameTab(key, doc.file_id, applicationId, doc.document_id);
                         } catch (error) {
                             logger.error('Failed to download file:', error);
                         }

@@ -9,6 +9,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
+import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
 
 const logger = createLogger('BankTransferConfirmationPage');
@@ -393,9 +394,9 @@ const BankTransferConfirmationPage: React.FC = () => {
               <FileUpload
                 ref={fileUploadRef}
                 showTitle={false}
-                prefix={`${applicationId}/PAYMENT_PROOF`}
+                prefix={`${applicationId}/${FILE_CATEGORIES.PAYMENT_PROOF}`}
                 applicationId={applicationId}
-                category={'PAYMENT_PROOF'}
+                category={FILE_CATEGORIES.PAYMENT_PROOF}
                 addedBy={user?.user_id}
                 uploadedFiles={uploadedFiles}
                 applicationDocuments={applicationDocuments}
