@@ -7,7 +7,7 @@ import { useCallback } from "react";
 export const useApplicationFormatters = () => {
   /**
    * Formats case type string into human-readable form
-   * @param formType - The form type identifier (e.g., 'S37', 'NWL', 'TLP')
+   * @param formType - The form type identifier (e.g., 'S37', 'NWL')
    * @returns Formatted case type string
    */
   const formatCaseType = useCallback((formType?: string): string => {

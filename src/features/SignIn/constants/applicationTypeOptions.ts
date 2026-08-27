@@ -25,5 +25,4 @@ export const APPLICATION_TYPE_OPTIONS: ApplicationTypeOption[] = [
 export const ROUTES = {
   section37: '/s-37/who-is-applying',
   wayleaves: '/nwl/who-is-applying',
-  treefelling: '/tlp/who-is-applying',
 } as const;

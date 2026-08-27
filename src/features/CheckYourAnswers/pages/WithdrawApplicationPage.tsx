@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { NWL_BASE_URL } from "../../../constants/nwl";
-import { TLP_BASE_URL } from "../../../constants/tlp";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { CONTENT } from "../../../constants/content";
 import { applicationApiService } from "../../../services/applicationApiService";
@@ -23,7 +22,7 @@ const WithdrawApplicationPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [withdrawalReason, setWithdrawalReason] = useState<string>("");
-  const [voluntaryAgreement, setVoluntaryAgreement] = useState<string>(""); // "yes" or "no" for NWL/TLP
+  const [voluntaryAgreement, setVoluntaryAgreement] = useState<string>(""); // "yes" or "no" for NWL
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [applicationData, setApplicationData] = useState<{ desnzRef: string; formType: string } | null>(null);
   
@@ -201,7 +200,7 @@ const WithdrawApplicationPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleWithdraw}>
-              {/* NWL and TLP show voluntary agreement question */}
+              {/* NWL shows voluntary agreement question */}
               {requiresVoluntaryAgreement() && (
                 <div className={`govuk-form-group ${validationErrors.voluntaryAgreement ? 'govuk-form-group--error' : ''}`}>
                   <fieldset className="govuk-fieldset" aria-describedby="voluntary-agreement-hint">
