@@ -9,7 +9,7 @@ export interface FeedbackSourceMetadata {
   fullPath: string;
   /** Last route segment, e.g. project-overview */
   pageSlug: string;
-  /** Application type derived from path, e.g. S37, NWL, Common */
+  /** Application type derived from path: S37, NWL, or Common */
   applicationType: string;
 }
 

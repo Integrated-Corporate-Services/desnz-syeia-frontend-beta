@@ -15,11 +15,6 @@ export const APPLICATION_TYPE_OPTIONS: ApplicationTypeOption[] = [
     label: 'Necessary wayleaves',
     id: 'applicationType-2',
   },
-  // {
-  //   value: 'treefelling',
-  //   label: 'Tree felling or lopping',
-  //   id: 'applicationType-3',
-  // },
 ];
 
 export const ROUTES = {

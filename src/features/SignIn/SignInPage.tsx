@@ -22,7 +22,7 @@ const SignInPage: React.FC = () => {
         </div>
       </div>
 
-            <div className="govuk-grid-row">
+      <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <hr style={{ margin: '2rem 0' }} />
           <h2 className="govuk-heading-l">Apply for a Necessary Wayleave</h2>

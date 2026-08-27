@@ -75,7 +75,6 @@ export const WITHDRAWAL_CONSTANTS = {
     CASE_TYPES: {
         NWL: 'Notice of Wayleave',
         S37: 'Section 37 Consent',
-        TLP: 'Temporary Land Possession',
     },
 
     ROUTES: {
