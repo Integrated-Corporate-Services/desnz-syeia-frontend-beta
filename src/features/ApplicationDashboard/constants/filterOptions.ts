@@ -1,7 +1,6 @@
 export const CASE_TYPE_OPTIONS = [
   { value: "overhead-lines", label: "Overhead Lines (S37)" },
   { value: "necessary-wayleaves", label: "Necessary Wayleaves" },
-  { value: "tree-lopping", label: "Tree Lopping and Felling" },
 ];
 
 export const STATUS_OPTIONS = [

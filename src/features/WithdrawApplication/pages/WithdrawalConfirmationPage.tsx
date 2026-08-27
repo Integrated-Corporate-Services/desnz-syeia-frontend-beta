@@ -12,10 +12,8 @@ const WithdrawalConfirmationPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const location = useLocation();
 
-    const applicationType: 'NWL' | 'S37' | 'TLP' = location.pathname.includes('/nwl/') 
+    const applicationType: 'NWL' | 'S37' = location.pathname.includes('/nwl/') 
         ? 'NWL' 
-        : location.pathname.includes('/tlp/')
-        ? 'TLP'
         : 'S37';
 
     const { desnzRef, withdrawalDate, reason } = (location.state as any) || {};

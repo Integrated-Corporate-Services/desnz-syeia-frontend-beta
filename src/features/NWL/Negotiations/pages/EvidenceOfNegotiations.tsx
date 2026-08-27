@@ -273,7 +273,12 @@ const EvidenceOfNegotiations: React.FC = () => {
               />
 
               {/* File Upload Section */}
-              <div className="govuk-form-group" id="file-upload">
+              <div className={`govuk-form-group ${fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
+                {fileValidationErrors.length > 0 && (
+                  <p id="file-upload-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {fileValidationErrors[0]}
+                  </p>
+                )}
                 {uploadedFiles && uploadedFiles.length > 0 && (
                   <div className="govuk-!-margin-top-2">
                     <h3 className="govuk-heading-s">{FORM_LABELS.DOCUMENTS_UPLOADED}</h3>

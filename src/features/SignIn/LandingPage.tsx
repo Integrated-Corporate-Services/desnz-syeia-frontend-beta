@@ -44,7 +44,6 @@ const LandingPage = () => {
               <ul className="govuk-list govuk-list--bullet">
                 <li><a className="govuk-link" href="/s37-guidance">Overhead lines (Section 37)</a></li>
                 <li><a className="govuk-link" href="/nwl-guidance">Necessary wayleaves</a></li>
-                <li><a className="govuk-link" href="#">Tree felling or lopping</a></li>
               </ul>
               <p className="govuk-body">
                 Your application must meet the requirements of the <a className="govuk-link" href="https://www.legislation.gov.uk/ukpga/1989/29/contents" target="_blank" rel="noopener noreferrer">Electricity Act 1989<span className="govuk-visually-hidden"> (opens in new tab)</span></a> and include all required documents and the correct fee.

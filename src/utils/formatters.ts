@@ -39,9 +39,6 @@ const TYPE_MAP: Record<string, string> = {
   'overhead-lines': 'overhead-lines',
   'nwl': 'necessary-wayleaves',
   'necessary-wayleaves': 'necessary-wayleaves',
-  'tlp': 'tree-lopping',
-  'tree-lopping': 'tree-lopping',
-  'tree-lopping-and-felling': 'tree-lopping',
 } as const;
 
 /**
@@ -82,7 +79,6 @@ export const getApplicationTypeLabel = (appType: string): string => {
   const labels: Record<string, string> = {
     'overhead-lines': 'Overhead Lines (S37)',
     'necessary-wayleaves': 'Necessary Wayleaves',
-    'tree-lopping': 'Tree Lopping and Felling',
   };
 
   return labels[normalized] || appType;
