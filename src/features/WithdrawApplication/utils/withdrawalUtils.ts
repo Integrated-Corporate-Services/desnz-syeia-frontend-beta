@@ -12,11 +12,11 @@ export const formatDate = (date: string | Date | null | undefined): string => {
     });
 };
 
-export const getCaseTypeLabel = (applicationType: 'NWL' | 'S37' | 'TLP'): string => {
+export const getCaseTypeLabel = (applicationType: 'NWL' | 'S37'): string => {
     return CONSTANTS.CASE_TYPES[applicationType] || applicationType;
 };
 
-export const getReasonLabel = (applicationType: 'NWL' | 'S37' | 'TLP', reasonValue: string): string => {
+export const getReasonLabel = (applicationType: 'NWL' | 'S37', reasonValue: string): string => {
     const reasons = CONSTANTS.REASONS[applicationType] || CONSTANTS.REASONS.NWL;
     const reason = reasons.find((r) => r.value === reasonValue);
     return reason?.label || reasonValue;

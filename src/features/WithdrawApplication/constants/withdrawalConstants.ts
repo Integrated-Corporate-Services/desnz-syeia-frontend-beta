@@ -49,14 +49,6 @@ export const WITHDRAWAL_CONSTANTS = {
             { value: 'project_cancelled', label: 'Project has been cancelled' },
             { value: 'other', label: 'Other reason' },
         ],
-        TLP: [
-            { value: 'no_longer_required', label: 'Land possession no longer required' },
-            { value: 'submitted_in_error', label: 'Application submitted in error' },
-            { value: 'voluntary_agreement', label: 'Voluntary agreement reached' },
-            { value: 'alternative_arrangement', label: 'Alternative arrangement made' },
-            { value: 'project_cancelled', label: 'Project has been cancelled' },
-            { value: 'other', label: 'Other reason' },
-        ],
     },
 
     CONFIRMATION_PAGE: {
@@ -83,7 +75,6 @@ export const WITHDRAWAL_CONSTANTS = {
     CASE_TYPES: {
         NWL: 'Notice of Wayleave',
         S37: 'Section 37 Consent',
-        TLP: 'Temporary Land Possession',
     },
 
     ROUTES: {

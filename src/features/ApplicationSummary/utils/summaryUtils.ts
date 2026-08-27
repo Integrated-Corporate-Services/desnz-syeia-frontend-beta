@@ -18,7 +18,7 @@ export const formatCurrency = (amount: number | null | undefined): string => {
     return `£${amount.toFixed(2)}`;
 };
 
-export const getCaseTypeLabel = (applicationType: 'NWL' | 'S37' | 'TLP'): string => {
+export const getCaseTypeLabel = (applicationType: 'NWL' | 'S37'): string => {
     return CONSTANTS.CASE_TYPES[applicationType] || applicationType;
 };
 

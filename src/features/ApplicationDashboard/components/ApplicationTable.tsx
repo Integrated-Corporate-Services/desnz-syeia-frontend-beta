@@ -34,10 +34,8 @@ const getCaseTypeLabel = (type: string): string => {
     s37: "Overhead lines (S37)",
     "s-37": "Overhead lines (S37)",
     nwl: "Necessary wayleaves",
-    tlp: "Tree lopping and felling",
     "overhead-lines": "Overhead lines (S37)",
     "necessary-wayleaves": "Necessary wayleaves",
-    "tree-lopping": "Tree lopping and felling",
   };
   const label = typeMap[type.toLowerCase()] || type;
   return label.replace(/\s*\(.*\)\s*$/, "");

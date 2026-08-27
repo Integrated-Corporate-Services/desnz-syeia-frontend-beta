@@ -26,7 +26,6 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
     CASE_TYPES: {
         NWL: 'Necessary Wayleave (NWL)',
         S37: 'Section 37 Consent',
-        TLP: 'Temporary Land Possession',
     },
 
     PAYMENT_METHODS: {
