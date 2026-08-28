@@ -51,9 +51,18 @@ const ProvideApplicationPlan: React.FC = () => {
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
+    // Clear validation errors when file is deleted
+    setFileValidationErrors([]);
+    setError('');
+    setShowErrorSummary(false);
   };
 
   const handleSubmit = async () => {
+    // Clear any stale validation errors before starting
+    setFileValidationErrors([]);
+    setError('');
+    setShowErrorSummary(false);
+
     if (fileUploadRef.current?.isBusy()) {
       const scanInProgressMessage = 'File scan is in progress. Wait for the scan to finish before continuing.';
       setFileValidationErrors([scanInProgressMessage]);
@@ -82,6 +91,7 @@ const ProvideApplicationPlan: React.FC = () => {
           setFileValidationErrors(result.scanErrors);
           setError(result.scanErrors[0]);
           setShowErrorSummary(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
         if (result && result.uploadedFiles.length > 0) {
@@ -96,6 +106,7 @@ const ProvideApplicationPlan: React.FC = () => {
         logger.error('[handleSubmit] Error uploading files to S3', { error: uploadError });
         setError(FORM_ERRORS.FILE_UPLOAD_FAILED);
         setShowErrorSummary(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
     }
@@ -109,14 +120,7 @@ const ProvideApplicationPlan: React.FC = () => {
       logger.warn('[handleSubmit] No files to save');
       setError(FORM_ERRORS.MISSING_FILE);
       setShowErrorSummary(true);
-      return;
-    }
-
-    // Check for file validation errors
-    if (fileValidationErrors.length > 0) {
-      logger.warn('[handleSubmit] File validation errors', { errors: fileValidationErrors });
-      setError(fileValidationErrors[0]);
-      setShowErrorSummary(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -257,11 +261,20 @@ const ProvideApplicationPlan: React.FC = () => {
                     setFileValidationErrors(errors);
                     if (errors.length > 0) {
                       setShowErrorSummary(true);
+                      setError(errors[0]);
+                    } else {
+                      // Clear all error states when validation passes
+                      setShowErrorSummary(false);
+                      setError('');
                     }
                   }}
                   onUploaded={(newUploadedFiles, newProjectDocuments) => {
                     setUploadedFiles(prev => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments(prev => [...prev, ...newProjectDocuments]);
+                    // Clear validation errors after successful upload
+                    setFileValidationErrors([]);
+                    setError('');
+                    setShowErrorSummary(false);
                   }}
                 />
               </div>
