@@ -23,6 +23,7 @@ const ServiceNavigation = () => {
         "/landingPage",
         "/s37-guidance",
         "/nwl-guidance",
+        "/cookies",
         "/access-revoked",
         "/signed-out",
     ];
