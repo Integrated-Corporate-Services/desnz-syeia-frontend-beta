@@ -6,7 +6,6 @@ import {
   PrivacyNoticePage,
   TermsAndConditionsPage,
   AccessibilityStatementPage,
-  HelpPage,
   ContactPage
 } from '../modules/privacy-policy';
 import { CookiesSettingsPage } from '../modules/cookie-consent';
@@ -186,12 +185,6 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/accessibility',
         component: AccessibilityStatementPage,
-        auth: false,
-        layout: true,
-    },
-    {
-        path: '/help',
-        component: HelpPage,
         auth: false,
         layout: true,
     },

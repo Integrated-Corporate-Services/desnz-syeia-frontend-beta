@@ -10,6 +10,10 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
+import {
+  isValidTransactionNumber,
+  PAYMENT_ERROR_MESSAGES,
+} from '../../../constants/payment';
 import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
 
 const logger = createLogger('BankTransferConfirmationPage');
@@ -20,6 +24,7 @@ const BankTransferConfirmationPage: React.FC = () => {
   const applicationId = useGetApplicationId();
   const { user } = useAuthUser();
   const [transactionNumber, setTransactionNumber] = useState('');
+  const [transactionNumberError, setTransactionNumberError] = useState('');
   const [error, setError] = useState('');
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -130,6 +135,20 @@ const BankTransferConfirmationPage: React.FC = () => {
     }
 
     // Transaction number is optional; invoice number and amount come from the payment journey
+    const trimmedTransactionNumber = transactionNumber.trim();
+    if (trimmedTransactionNumber && !isValidTransactionNumber(trimmedTransactionNumber)) {
+      setTransactionNumberError(PAYMENT_ERROR_MESSAGES.TRANSACTION_NUMBER_INVALID);
+      setError('');
+      setTimeout(() => {
+        const errorSummary = document.querySelector('.govuk-error-summary');
+        if (errorSummary) {
+          (errorSummary as HTMLElement).focus?.();
+          errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 0);
+      return;
+    }
+    setTransactionNumberError('');
 
     if (!effectiveInvoiceNumber) {
       setError('Invoice number is not available. Please return to Pay and submit and try again.');
@@ -315,7 +334,7 @@ const BankTransferConfirmationPage: React.FC = () => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            {(error || fileValidationErrors.length > 0) && (
+            {(error || transactionNumberError || fileValidationErrors.length > 0) && (
               <div
                 className="govuk-error-summary"
                 role="alert"
@@ -335,6 +354,11 @@ const BankTransferConfirmationPage: React.FC = () => {
                         ) : (
                           <a href="#transaction-number">{error}</a>
                         )}
+                      </li>
+                    )}
+                    {transactionNumberError && (
+                      <li>
+                        <a href="#transaction-number">{transactionNumberError}</a>
                       </li>
                     )}
                     {fileValidationErrors.map((validationError, index) => (
@@ -360,21 +384,28 @@ const BankTransferConfirmationPage: React.FC = () => {
               <li><strong>Document showing the bank transfer</strong> - this could be a remittance advice note or transfer receipt showing all the details of the transaction</li>
             </ul>
 
-            <div className="govuk-form-group">
+            <div className={`govuk-form-group${transactionNumberError ? ' govuk-form-group--error' : ''}`}>
               <label className="govuk-label govuk-label--m" htmlFor="transaction-number">
                 Transaction number (optional)
               </label>
               <input
-                className="govuk-input govuk-input--width-20"
+                className={`govuk-input govuk-input--width-20${transactionNumberError ? ' govuk-input--error' : ''}`}
                 id="transaction-number"
                 name="transaction-number"
                 type="text"
+                aria-describedby={transactionNumberError ? 'transaction-number-error' : undefined}
                 value={transactionNumber}
                 onChange={(e) => {
                   setTransactionNumber(e.target.value);
+                  setTransactionNumberError('');
                   setError('');
                 }}
               />
+              {transactionNumberError && (
+                <p id="transaction-number-error" className="govuk-error-message">
+                  <span className="govuk-visually-hidden">Error:</span> {transactionNumberError}
+                </p>
+              )}
             </div>
 
             <div

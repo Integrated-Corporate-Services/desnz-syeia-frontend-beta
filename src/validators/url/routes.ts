@@ -8,7 +8,6 @@ export const ALLOWED_ROUTES = [
   '/privacy',
   '/terms',
   '/accessibility',
-  '/help',
   '/contact',
   '/feedback',
   '/signed-out',
