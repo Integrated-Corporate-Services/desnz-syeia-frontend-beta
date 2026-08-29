@@ -114,7 +114,7 @@ export const CONTACT = {
   
   CONTACTS: {
     GENERAL_NAME: "General Enquiries",
-    GENERAL_EMAIL: "syeia.support@energysecurity.gov.uk",
+    GENERAL_EMAIL: "SYEIA.enquiries@energysecurity.gov.uk",
     SUPPORT_NAME: "Support Line",
     SUPPORT_PHONE: "0300 123 4567",
     SUPPORT_HOURS: "Monday to Friday, 9am to 5pm",
