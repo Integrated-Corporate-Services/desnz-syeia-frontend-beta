@@ -2,7 +2,6 @@ export {
   PrivacyNoticePage,
   TermsAndConditionsPage,
   AccessibilityStatementPage,
-  HelpPage,
   ContactPage
 } from './pages';
 

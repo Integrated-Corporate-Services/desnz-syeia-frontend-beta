@@ -112,7 +112,6 @@ export function ContactPage() {
 
             <RelatedContent
               links={[
-                RELATED_LINKS.HELP,
                 RELATED_LINKS.PRIVACY,
                 RELATED_LINKS.ACCESSIBILITY
               ]}
