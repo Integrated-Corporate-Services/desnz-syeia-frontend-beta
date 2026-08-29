@@ -83,10 +83,10 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
           items: [
             'how well the pages performed on your device',
             'performance bottlenecks your device experienced',
-          'We make sure you cannot be directly identified from analytics data by:',
+            'JavaScript errors your device encountered'
           ]
         },
-        'We make sure you cannot be directly identified from analytics data. We do this by:',
+        'We make sure you cannot be directly identified from analytics data by:',
         {
           type: 'list',
           items: [

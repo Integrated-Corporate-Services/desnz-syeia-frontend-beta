@@ -136,7 +136,7 @@ const BankTransferConfirmationPage: React.FC = () => {
 
     // Transaction number is optional; invoice number and amount come from the payment journey
     const trimmedTransactionNumber = transactionNumber.trim();
-    if (trimmedTransactionNumber && !isValidTransactionNumber(transactionNumber)) {
+    if (trimmedTransactionNumber && !isValidTransactionNumber(trimmedTransactionNumber)) {
       setTransactionNumberError(PAYMENT_ERROR_MESSAGES.TRANSACTION_NUMBER_INVALID);
       setError('');
       setTimeout(() => {
@@ -384,7 +384,7 @@ const BankTransferConfirmationPage: React.FC = () => {
               <li><strong>Document showing the bank transfer</strong> - this could be a remittance advice note or transfer receipt showing all the details of the transaction</li>
             </ul>
 
-            <div className="govuk-form-group">
+            <div className={`govuk-form-group${transactionNumberError ? ' govuk-form-group--error' : ''}`}>
               <label className="govuk-label govuk-label--m" htmlFor="transaction-number">
                 Transaction number (optional)
               </label>
