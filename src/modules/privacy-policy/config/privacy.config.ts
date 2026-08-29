@@ -1,10 +1,7 @@
 import type { PrivacyNoticeConfig } from '../types';
-import { getRuntimeEnv } from '../../../config/runtimeEnv';
-
-const SERVICE_NAME = getRuntimeEnv('VITE_SERVICE_NAME', 'SYEIA');
 
 export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
-  serviceName: 'SYEIA (Submit Your Energy Infrastructure Application)',
+  serviceName: 'SYEIA (Submit Your Energy Application)',
   organisation: 'Department for Energy Security and Net Zero',
   organisationAcronym: 'DESNZ',
   dataController: 'Department for Energy Security and Net Zero (DESNZ)',
@@ -40,16 +37,16 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
     ]
   },
 
-  lastUpdated: '5 May 2026',
+  lastUpdated: '16 July 2026',
 
   sections: [
     {
       id: 'introduction',
       title: 'Introduction',
       content: [
-        `The ${SERVICE_NAME} service is provided by the Department for Energy Security and Net Zero (DESNZ).`,
+        'The Submit Your Energy Application (SYEIA) service is provided by the Department for Energy Security and Net Zero (DESNZ).',
         'DESNZ is the data controller for pages starting with this domain. This means DESNZ determines how and why your personal data is processed.',
-        'This privacy notice explains what personal data we collect, how we use it, how long we keep it, and your rights under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.'
+        'This privacy notice explains what personal data we collect, how we use it, how long we keep it and your rights under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.'
       ]
     },
     {
@@ -60,7 +57,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
         {
           type: 'list',
           items: [
-            'your name, email address, and contact details when you register for an account',
+            'your name, email address and contact details when you register for an account',
             'your organisation details including company registration number and address',
             'project information and application details you submit',
             'documents and files you upload to support your application',
@@ -69,8 +66,8 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
             'information on how you use the site, using cookies and page tagging techniques'
           ]
         },
-        'Where you provide your consent, we use Google Analytics (GA4), Google Tag Manager (GTM), and AWS CloudWatch Real User Monitoring (RUM) to collect information about how you use this service.',
-        'Google Analytics and Google Tag Manager process information about:',
+        'Where you provide your consent, we use Google Analytics cookies and AWS CloudWatch Real User Monitoring (RUM) to collect information about how you use this service.',
+        'Google Analytics processes information about:',
         {
           type: 'list',
           items: [
@@ -86,7 +83,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
           items: [
             'how well the pages performed on your device',
             'performance bottlenecks your device experienced',
-            'JavaScript errors your device encountered'
+          'We make sure you cannot be directly identified from analytics data by:',
           ]
         },
         'We make sure you cannot be directly identified from analytics data. We do this by:',
@@ -94,7 +91,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
           type: 'list',
           items: [
             'removing or reducing personal information in analytics data (for example from page titles or URLs)',
-            'hashing IP addresses, session IDs, and user agent strings before storing them',
+            'hashing IP addresses, session IDs and user agent strings before storing them',
             'not combining analytics information with other datasets in a way that would directly identify you'
           ]
         }
@@ -118,7 +115,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
             'respond to your queries and provide support'
           ]
         },
-        'We use the information we collect through Google Analytics, Google Tag Manager, and CloudWatch RUM to:',
+        'We use the information we collect through Google Analytics and CloudWatch RUM to:',
         {
           type: 'list',
           items: [
@@ -135,14 +132,14 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
       id: 'legal-basis',
       title: 'Our legal basis for processing your data',
       content: [
-        'The legal basis for processing personal data in relation to:',
+        'Here is the legal basis for processing personal data in relation to:',
         {
           type: 'list',
           items: [
-            'Application processing: necessary for the performance of a task carried out in the public interest (UK GDPR Article 6(1)(e))',
-            'Site security: our legitimate interests and those of our users in ensuring the security and integrity of the service (UK GDPR Article 6(1)(f))',
-            'Analytics (Google Analytics, Google Tag Manager, and CloudWatch RUM): your consent (UK GDPR Article 6(1)(a))',
-            'Statutory consultations: compliance with legal obligations (UK GDPR Article 6(1)(c))'
+            'application processing: necessary for the performance of a task carried out in the public interest or in the exercise of official authority vested in the controller (UK GDPR Article 6(1)(e))',
+            'statutory consultations: compliance with legal obligations (UK GDPR Article 6(1)(c))',
+            'site security: our legitimate interests and those of our users in ensuring the security and integrity of the service (UK GDPR Article 6(1)(f))',
+            'analytics (Google Analytics and CloudWatch RUM): your consent (UK GDPR Article 6(1)(a))'
           ]
         },
         'Processing of special category data (if applicable) is carried out under UK GDPR Article 9(2)(g) - substantial public interest.'
@@ -158,13 +155,12 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
           items: [
             'other government departments and agencies involved in the application review process',
             'statutory consultees as required by legislation',
-            'local planning authorities',
-            'our technology suppliers (for example, hosting providers, email service providers)',
+            'our technology suppliers (for example, web hosting providers and email service providers)',
             'professional advisers (such as lawyers and auditors)'
           ]
         },
         'We will share your data if we are required to do so by law, for example by court order, or to prevent fraud or other crime.',
-        'The data we collect with Google Analytics and Google Tag Manager cookies is transferred and stored with Google where we analyse it with Google Analytics software (GA4) and Google Tag Manager. We do not allow Google to use or share this data for their own purposes.',
+        'The data we collect with Google Analytics cookies is transferred and stored with Google where we analyse it with Google Analytics software (GA4). We do not allow Google to use or share this data for their own purposes.',
         'CloudWatch RUM data is processed and stored by Amazon Web Services in accordance with their data processing terms.',
         'We will not:',
         {
@@ -187,7 +183,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
           type: 'list',
           items: [
             'keep application data for 7 years after the decision or withdrawal of the application',
-            'keep account data until you request deletion or the account is inactive for 3 years',
+            'keep account data until the account has been inactive for 3 years',
             'keep consent audit logs for up to 90 days',
             'delete analytics data after 26 months',
             'delete access logs containing IP addresses after 120 days',
@@ -212,7 +208,7 @@ export const PRIVACY_CONFIG: PrivacyNoticeConfig = {
       content: [
         'We design, build and run our systems to make sure that your data is as safe as possible at all stages, both while it\'s processed and when it\'s stored.',
         'All personal data is stored in the United Kingdom.',
-        'Data collected by Google Analytics and Google Tag Manager may be transferred outside the UK for processing. Google has certified compliance with the UK-US Data Bridge, facilitating lawful data transfers.',
+        'Data collected by Google Analytics may be transferred outside the UK for processing. Google has certified compliance with the UK-US Data Bridge, facilitating lawful data transfers.',
         'AWS CloudWatch RUM data is stored in the EU (Ireland) region and may be processed in accordance with AWS\'s UK GDPR compliance framework.'
       ]
     },
