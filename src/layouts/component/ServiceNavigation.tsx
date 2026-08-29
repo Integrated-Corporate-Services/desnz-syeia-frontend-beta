@@ -47,7 +47,7 @@ const ServiceNavigation = () => {
         location.pathname.includes("/admin/") ||
         location.pathname.includes("/user-management");
 
-    if (hideNavPaths.includes(location.pathname)) return null;
+    if (!user || hideNavPaths.includes(location.pathname)) return null;
 
     if (location.pathname === "/feedback" && (!user || (user as AuthUser)?.role === "pending")) return null;
 
