@@ -63,7 +63,7 @@ const LandingPage = () => {
               </p>
               <ul className="govuk-list govuk-list--bullet">
                 <li><a className="govuk-link" href="https://www.gov.uk/guidance/overhead-lines-applying-for-consent" target="_blank" rel="noopener noreferrer">Overhead lines (Section 37)<span className="govuk-visually-hidden"> (opens in new tab)</span></a></li>
-                <li><a className="govuk-link" href="https://www.gov.uk/guidance/necessary-wayleaves-and-tree-felling-or-lopping-applying-for-consent" target="_blank" rel="noopener noreferrer">Necessary wayleaves and tree felling or lopping<span className="govuk-visually-hidden"> (opens in new tab)</span></a></li>
+                <li><a className="govuk-link" href="https://www.gov.uk/guidance/necessary-wayleaves-and-tree-felling-or-lopping-applying-for-consent" target="_blank" rel="noopener noreferrer">Necessary wayleaves<span className="govuk-visually-hidden"> (opens in new tab)</span></a></li>
               </ul>
             </section>
 
