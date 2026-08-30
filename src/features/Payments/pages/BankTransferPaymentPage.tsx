@@ -166,7 +166,7 @@ const BankTransferPaymentPage: React.FC = () => {
                 <strong>Account Number:</strong> {BANK_DETAILS.ACCOUNT_NUMBER}
               </li>
               <li>
-                <strong>Payment reference:</strong> {effectiveInvoiceNumber || 'Loading...'}
+                <strong>DESNZ Reference:</strong> {effectiveInvoiceNumber || 'Loading...'}
               </li>
             </ul>
 
