@@ -114,7 +114,7 @@ export const CONTACT = {
   
   CONTACTS: {
     GENERAL_NAME: "General Enquiries",
-    GENERAL_EMAIL: "syeia.support@energysecurity.gov.uk",
+    GENERAL_EMAIL: "SYEIA.enquiries@energysecurity.gov.uk",
     SUPPORT_NAME: "Support Line",
     SUPPORT_PHONE: "0300 123 4567",
     SUPPORT_HOURS: "Monday to Friday, 9am to 5pm",
@@ -133,56 +133,6 @@ export const CONTACT = {
     FEEDBACK_EMAIL: "syeia.feedback@energysecurity.gov.uk",
     PRIVACY_NAME: "Privacy Team",
     PRIVACY_EMAIL: "privacy@energysecurity.gov.uk",
-  },
-} as const;
-
-export const HELP = {
-  PAGE_TITLE: "Help",
-  INTRO: "Get help using the Submit Your Energy Infrastructure Application (SYEIA) service.",
-  
-  SECTIONS: {
-    GETTING_STARTED: "Getting started",
-    TECHNICAL_REQUIREMENTS: "Technical requirements",
-    COMMON_QUESTIONS: "Common questions",
-  },
-  
-  GETTING_STARTED: {
-    INTRO: "To use this service, you will need:",
-    ITEMS: [
-      "an account with appropriate permissions",
-      "details about your energy infrastructure project",
-      "relevant supporting documents",
-    ],
-  },
-  
-  TECHNICAL_REQUIREMENTS: {
-    INTRO: "This service works with the latest versions of modern browsers including:",
-    BROWSERS: [
-      "Google Chrome",
-      "Microsoft Edge",
-      "Mozilla Firefox",
-      "Apple Safari",
-    ],
-    JAVASCRIPT: "JavaScript must be enabled for the service to work.",
-  },
-  
-  QUESTIONS: {
-    ACCOUNT: {
-      QUESTION: "How do I create an account?",
-      ANSWER: "You need to request access through your organisation administrator. If you are the first user from your organisation, you can submit an access request form.",
-    },
-    SUBMIT: {
-      QUESTION: "How do I submit an application?",
-      ANSWER: "Once you have an account, you can start a new application from your dashboard. Follow the task list to complete all required sections before submitting.",
-    },
-    DOCUMENTS: {
-      QUESTION: "What documents do I need to upload?",
-      ANSWER: "Required documents vary depending on your application type. The service will guide you through the specific requirements for your application.",
-    },
-    TIMELINE: {
-      QUESTION: "How long does the application process take?",
-      ANSWER: "Processing times vary depending on the complexity of your application and statutory consultation requirements. You will be notified of progress via email.",
-    },
   },
 } as const;
 
@@ -275,5 +225,4 @@ export const RELATED_LINKS = {
   ACCESSIBILITY: { to: "/accessibility", label: "Accessibility statement" },
   TERMS: { to: "/terms", label: "Terms and conditions" },
   CONTACT: { to: "/contact", label: "Contact us" },
-  HELP: { to: "/help", label: "Help" },
 } as const;

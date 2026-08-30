@@ -28,9 +28,6 @@ export function categorizeUrl(pathname: string): UrlMetadata {
   if (path.includes('accessibility')) {
     return { applicationType: COMMON_APP_TYPE, category: 'Site Settings' };
   }
-  if (path.includes('help')) {
-    return { applicationType: COMMON_APP_TYPE, category: 'Site Settings' };
-  }
   if (path.includes('contact')) {
     return { applicationType: COMMON_APP_TYPE, category: 'Site Settings' };
   }
