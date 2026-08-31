@@ -147,9 +147,11 @@ import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganis
 import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
 import { isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
 
-const yourDetailsFeatureDisabled = isYourDetailsFeatureDisabled();
-
-export const ROUTE_CONFIG: RouteConfig[] = [
+// Function to generate routes dynamically based on runtime configuration
+function getRouteConfig(): RouteConfig[] {
+  const yourDetailsFeatureDisabled = isYourDetailsFeatureDisabled();
+  
+  return [
     // UAT Invite System Routes
     {
         path: '/access-denied',
@@ -998,7 +1000,11 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: false,
         layout: true,
     },
-];
+  ];
+}
+
+// Export routes - evaluated when first accessed to ensure runtime config is loaded
+export const ROUTE_CONFIG: RouteConfig[] = getRouteConfig();
 
 export const SANDBOX_ROUTE_CONFIG = [];
 
