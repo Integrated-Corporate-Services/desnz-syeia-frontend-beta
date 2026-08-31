@@ -71,6 +71,12 @@ export default defineConfig(({ mode }) => {
             },
             sourcemap: isProduction ? false : true,
             chunkSizeWarningLimit: 1000,
+            rollupOptions: {
+                output: {
+                    sourcemap: false,
+                    manualChunks: undefined,
+                },
+            },
         },
         test: {
             environment: 'jsdom',
