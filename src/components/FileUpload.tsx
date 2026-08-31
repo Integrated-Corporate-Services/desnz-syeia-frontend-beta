@@ -126,6 +126,17 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [rejectedFiles, setRejectedFiles] = useState<RejectedFile[]>([]); // Infected/failed-scan files - kept visible so the user can delete them
   const [isScanning, setIsScanning] = useState<boolean>(false);
 
+  const onValidationErrorsRef = useRef(onValidationErrors);
+  const onPendingFilesChangeRef = useRef(onPendingFilesChange);
+
+  useEffect(() => {
+    onValidationErrorsRef.current = onValidationErrors;
+  }, [onValidationErrors]);
+
+  useEffect(() => {
+    onPendingFilesChangeRef.current = onPendingFilesChange;
+  }, [onPendingFilesChange]);
+
   const files = internalFiles;
 
   // Expose methods to parent component via ref
@@ -143,8 +154,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
         const result = await uploadFiles(pendingFiles);
         setPendingFiles([]); // Clear pending files after upload
-        if (onPendingFilesChange) {
-          onPendingFilesChange([]);
+        if (onPendingFilesChangeRef.current) {
+          onPendingFilesChangeRef.current([]);
         }
         return {
           ...result,
@@ -159,10 +170,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
   // Notify parent when pending files change
   useEffect(() => {
-    if (onPendingFilesChange) {
-      onPendingFilesChange(pendingFiles);
+    if (onPendingFilesChangeRef.current) {
+      onPendingFilesChangeRef.current(pendingFiles);
     }
-  }, [pendingFiles, onPendingFilesChange]);
+  }, [pendingFiles]);
 
   useEffect(() => {
     const infectedFiles: RejectedFile[] = (uploadedFiles || [])
@@ -175,15 +186,21 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         virusName: f.virusName,
       }));
 
-    setRejectedFiles((prev) => [
-      ...prev.filter((f) => f.reason !== 'INFECTED'),
-      ...infectedFiles,
-    ]);
+    let failedFiles: RejectedFile[] = [];
+    setRejectedFiles((prev) => {
+      failedFiles = prev.filter((f) => f.reason === 'FAILED');
+      return [...failedFiles, ...infectedFiles];
+    });
     
-    if (onValidationErrors) {
-      onValidationErrors(infectedFiles.map(getRejectedFileMessage));
+    if (onValidationErrorsRef.current) {
+      const failedMessages = failedFiles.map(getRejectedFileMessage);
+      const infectedMessages = infectedFiles.map(getRejectedFileMessage);
+      const allErrors = [...failedMessages, ...infectedMessages];
+      if (allErrors.length > 0) {
+        onValidationErrorsRef.current(allErrors);
+      }
     }
-  }, [uploadedFiles, onValidationErrors]);
+  }, [uploadedFiles]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     logger.debug('[FileUpload.tsx][handleFileChange] STARTs');
@@ -194,8 +211,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
     const newFiles = Array.from(e.target.files);
 
-    if (onValidationErrors) {
-      onValidationErrors([]);
+    if (onValidationErrorsRef.current) {
+      onValidationErrorsRef.current([]);
     }
 
     const fileIdsForThisCategory = applicationDocuments
@@ -237,12 +254,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
-      if (onValidationErrors) {
-        onValidationErrors(errorMessages);
+      if (onValidationErrorsRef.current) {
+        onValidationErrorsRef.current(errorMessages);
       }
     } else {
-      if (onValidationErrors) {
-        onValidationErrors([]);
+      if (onValidationErrorsRef.current) {
+        onValidationErrorsRef.current([]);
       }
     }
 
@@ -281,8 +298,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     const droppedFiles = Array.from(e.dataTransfer.files);
 
     // Immediately clear parent errors when validation starts
-    if (onValidationErrors) {
-      onValidationErrors([]);
+    if (onValidationErrorsRef.current) {
+      onValidationErrorsRef.current([]);
     }
 
     const fileIdsForThisCategory = applicationDocuments
@@ -311,12 +328,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     // Handle validation errors
     if (result.errors.length > 0) {
       const errorMessages = result.errors.map(error => error.message);
-      if (onValidationErrors) {
-        onValidationErrors(errorMessages);
+      if (onValidationErrorsRef.current) {
+        onValidationErrorsRef.current(errorMessages);
       }
     } else {
-      if (onValidationErrors) {
-        onValidationErrors([]);
+      if (onValidationErrorsRef.current) {
+        onValidationErrorsRef.current([]);
       }
     }
 
@@ -590,8 +607,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         setRejectedFiles((prev) => [...prev, ...newRejectedFiles]);
       }
 
-      if (onValidationErrors) {
-        onValidationErrors(scanErrors);
+      if (onValidationErrorsRef.current) {
+        onValidationErrorsRef.current(scanErrors);
       }
 
       if (onUploaded) {
@@ -607,9 +624,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         prevFiles.filter((file) => !failedFileKeys.has(`${file.name}:${file.size}`))
       );
 
-      if (onValidationErrors) {
+      if (onValidationErrorsRef.current) {
         const message = err instanceof Error ? err.message : 'Failed to upload files. Please try again.';
-        onValidationErrors([message]);
+        onValidationErrorsRef.current([message]);
       }
 
       logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
@@ -638,8 +655,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         onDeleteFile(fileId);
       }
 
-      if (onValidationErrors) {
-        onValidationErrors([]);
+      if (onValidationErrorsRef.current) {
+        onValidationErrorsRef.current([]);
       }
 
     } catch (error) {
@@ -673,15 +690,15 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     try {
       if (!applicationId) {
         const msg = 'Application ID is required to delete files';
-        onValidationErrors?.([msg]);
+        onValidationErrorsRef.current?.([msg]);
         logger.error(msg, { fileId, s3Key });
         return;
       }
       await deleteFileCompletely(fileId, s3Key, applicationId);
       setRejectedFiles((prev) => prev.filter((f) => f.id !== fileId));
 
-      if (onValidationErrors) {
-        onValidationErrors([]);
+      if (onValidationErrorsRef.current) {
+        onValidationErrorsRef.current([]);
       }
     } catch (error) {
       const err = error as Error;
@@ -839,12 +856,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                         const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
                         setPendingFiles(updatedPendingFiles);
 
-                        if (onValidationErrors) {
-                          onValidationErrors([]);
+                        if (onValidationErrorsRef.current) {
+                          onValidationErrorsRef.current([]);
                         }
 
-                        if (onPendingFilesChange) {
-                          onPendingFilesChange(updatedPendingFiles);
+                        if (onPendingFilesChangeRef.current) {
+                          onPendingFilesChangeRef.current(updatedPendingFiles);
                         }
                       }}
                     >
@@ -874,8 +891,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={() => {
-          if (onValidationErrors) {
-            onValidationErrors([]);
+          if (onValidationErrorsRef.current) {
+            onValidationErrorsRef.current([]);
           }
           fileInputRef.current?.click();
         }}

@@ -77,7 +77,7 @@ export const PAYMENT_ERROR_MESSAGES = {
  */
 export const PAYMENT_INFO_MESSAGES = {
   BANK_TRANSFER_INFO: 'You should only pay by bank transfer if you cannot pay by credit or debit card.',
-  PAYMENT_REFERENCE_INFO: 'You must use your DESNZ Reference as the payment reference to help us match your payment to this application.',
+  PAYMENT_REFERENCE_INFO: 'You must use your invoice number as the payment reference to help us match your payment to this application.',
   CARD_PAYMENT_INFO: 'This is the fastest way to pay and helps avoid any delays when processing your application.',
   BANK_TRANSFER_DELAY_INFO: 'We can only start processing your submitted application after we receive your payment.',
   PAYMENT_PENDING_INFO: 'Your payment has not been received yet',
