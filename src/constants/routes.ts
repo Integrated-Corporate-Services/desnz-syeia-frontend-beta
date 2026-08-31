@@ -139,15 +139,12 @@ import DownloadLpaConsultationFormPage from '../features/Consultation/pages/Down
 import ClosedPage from '../pages/ClosedPage';
 import StartRedirect from '../components/StartRedirect';
 import { FeedbackPage } from '../modules/feedback';
-import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
-import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
-import ChangeWorkAddressPage from '../features/YourDetails/pages/ChangeWorkAddressPage';
-import ChangeAgencyNamePage from '../features/YourDetails/pages/ChangeAgencyNamePage';
-import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
-import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
-import { isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
-
-const yourDetailsFeatureDisabled = isYourDetailsFeatureDisabled();
+// import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
+// import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
+// import ChangeWorkAddressPage from '../features/YourDetails/pages/ChangeWorkAddressPage';
+// import ChangeAgencyNamePage from '../features/YourDetails/pages/ChangeAgencyNamePage';
+// import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
+// import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
 
 export const ROUTE_CONFIG: RouteConfig[] = [
     // UAT Invite System Routes
@@ -486,6 +483,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: false,
     },
+    /* Your details routes are temporarily hidden from the UI.
     ...(!yourDetailsFeatureDisabled
         ? [
             {
@@ -526,6 +524,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
             },
         ]
         : []),
+    */
     {
         path: `${NWL_BASE_URL}/who-is-applying`,
         component: NWLWhoIsApplying,
