@@ -186,22 +186,21 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         virusName: f.virusName,
       }));
 
+    let failedFiles: RejectedFile[] = [];
     setRejectedFiles((prev) => {
-      const failedFiles = prev.filter((f) => f.reason === 'FAILED');
+      failedFiles = prev.filter((f) => f.reason === 'FAILED');
       return [...failedFiles, ...infectedFiles];
     });
     
     if (onValidationErrorsRef.current) {
-      const failedMessages = rejectedFiles
-        .filter((f) => f.reason === 'FAILED')
-        .map(getRejectedFileMessage);
+      const failedMessages = failedFiles.map(getRejectedFileMessage);
       const infectedMessages = infectedFiles.map(getRejectedFileMessage);
       const allErrors = [...failedMessages, ...infectedMessages];
       if (allErrors.length > 0) {
         onValidationErrorsRef.current(allErrors);
       }
     }
-  }, [uploadedFiles, rejectedFiles]);
+  }, [uploadedFiles]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     logger.debug('[FileUpload.tsx][handleFileChange] STARTs');

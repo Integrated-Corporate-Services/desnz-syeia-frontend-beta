@@ -29,10 +29,6 @@ const BankTransferPaymentPage: React.FC = () => {
     [invoiceNumber, resolvedInvoiceNumber]
   );
 
-  const displayedDesnzReference = useMemo(
-    () => effectiveInvoiceNumber.split('/').pop() || effectiveInvoiceNumber,
-    [effectiveInvoiceNumber]
-  );
 
   const effectiveTotalAmount = useMemo(() => {
     if (typeof totalAmount === 'number' && !Number.isNaN(totalAmount)) {
@@ -171,7 +167,7 @@ const BankTransferPaymentPage: React.FC = () => {
                 <strong>Account Number:</strong> {BANK_DETAILS.ACCOUNT_NUMBER}
               </li>
               <li>
-                <strong>DESNZ Reference:</strong> {displayedDesnzReference || 'Loading...'}
+                  <strong>Payment reference:</strong> {effectiveInvoiceNumber || 'Loading...'}
               </li>
             </ul>
 
