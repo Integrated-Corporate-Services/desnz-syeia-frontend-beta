@@ -114,7 +114,7 @@ const Section37GuidancePage = () => {
             style={{ display: "flex", alignItems: "center", gap: "8px" }}
             aria-describedby="start-button-description"
           >
-            Start now
+            Sign in
             <svg
               className="govuk-button__start-icon"
               xmlns="http://www.w3.org/2000/svg"

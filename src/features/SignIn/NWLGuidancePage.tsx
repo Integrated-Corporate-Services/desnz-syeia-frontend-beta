@@ -85,7 +85,7 @@ const NWLGuidancePage = () => {
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             aria-label="Sign in to submit your application"
           >
-            Start now
+            Sign in
             <svg
               className="govuk-button__start-icon"
               xmlns="http://www.w3.org/2000/svg"
