@@ -76,6 +76,21 @@ export default defineConfig(({ mode }) => {
                     sourcemap: false,
                     manualChunks: undefined,
                 },
+                plugins: [
+                    {
+                        name: 'strip-sourcemap-urls',
+                        generateBundle(options, bundle) {
+                            for (const fileName in bundle) {
+                                const chunk = bundle[fileName];
+                                if (chunk.type === 'chunk' && fileName.endsWith('.js')) {
+                                    chunk.code = chunk.code
+                                        .replace(/\/\/# sourceMappingURL=.*/g, '')
+                                        .replace(/\/\*# sourceMappingURL=.*\*\//g, '');
+                                }
+                            }
+                        },
+                    },
+                ],
             },
         },
         test: {
