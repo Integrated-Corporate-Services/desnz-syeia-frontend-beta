@@ -3,14 +3,12 @@ import { useLocation, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
-import { isYourDetailsFeatureDisabled } from "../../utils/disabledFormTypes";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const location = useLocation();
     const { user } = useAuthUserContext();
-    const yourDetailsFeatureDisabled = isYourDetailsFeatureDisabled();
 
     // Handle all possible application dashboard paths
     const applicationDashboardPaths = ["/", "/application-dashboard"];
@@ -113,6 +111,7 @@ const ServiceNavigation = () => {
                                     Applications
                                 </Link>
                             </li>
+                            {/* Your details navigation is temporarily hidden from the UI.
                             {!yourDetailsFeatureDisabled && (
                                 <li
                                     className={`rcc-service-nav__item${
@@ -127,7 +126,7 @@ const ServiceNavigation = () => {
                                         Your details
                                     </Link>
                                 </li>
-                            )}
+                            )} */}
                         </>
                     )}
                 </ul>
