@@ -175,14 +175,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         virusName: f.virusName,
       }));
 
-    if (infectedFiles.length > 0) {
-      setRejectedFiles(infectedFiles);
-      
-      // Also set validation errors for infected files
-      const errors = infectedFiles.map(getRejectedFileMessage);
-      if (onValidationErrors && errors.length > 0) {
-        onValidationErrors(errors);
-      }
+    setRejectedFiles((prev) => [
+      ...prev.filter((f) => f.reason !== 'INFECTED'),
+      ...infectedFiles,
+    ]);
+    
+    if (onValidationErrors) {
+      onValidationErrors(infectedFiles.map(getRejectedFileMessage));
     }
   }, [uploadedFiles, onValidationErrors]);
 
