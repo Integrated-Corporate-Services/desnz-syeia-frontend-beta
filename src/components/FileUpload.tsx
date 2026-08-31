@@ -164,6 +164,27 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
   }, [pendingFiles, onPendingFilesChange]);
 
+  useEffect(() => {
+    const infectedFiles: RejectedFile[] = (uploadedFiles || [])
+      .filter((f: UploadedFile) => f.scanResult === 'INFECTED')
+      .map((f: UploadedFile) => ({
+        id: f.id,
+        s3Key: f.s3Key,
+        filename: f.filename,
+        reason: 'INFECTED' as const,
+        virusName: f.virusName,
+      }));
+
+    setRejectedFiles((prev) => [
+      ...prev.filter((f) => f.reason !== 'INFECTED'),
+      ...infectedFiles,
+    ]);
+    
+    if (onValidationErrors) {
+      onValidationErrors(infectedFiles.map(getRejectedFileMessage));
+    }
+  }, [uploadedFiles, onValidationErrors]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     logger.debug('[FileUpload.tsx][handleFileChange] STARTs');
     if (!e.target.files) {
