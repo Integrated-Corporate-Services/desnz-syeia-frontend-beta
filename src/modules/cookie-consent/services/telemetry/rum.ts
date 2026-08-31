@@ -1,5 +1,5 @@
 import type { AwsRum, AwsRumConfig } from 'aws-rum-web';
-import { getRuntimeEnv } from '@/config/runtimeEnv';
+import { getRuntimeEnv } from '../../../../config/runtimeEnv';
 
 const getAppMonitorId = (): string => getRuntimeEnv('VITE_RUM_APP_MONITOR_ID', '');
 const getIdentityPoolId = (): string => getRuntimeEnv('VITE_RUM_IDENTITY_POOL_ID', '');
