@@ -12,10 +12,10 @@ function redirectToSignedOut(reason: string): void {
   window.location.href = target;
 }
 
-export function redirectToProblemWithService(correlationId?: string): void {
+export function redirectToThereIsAProblem(correlationId?: string): void {
   const target = correlationId
-    ? `/problem-with-service?ref=${encodeURIComponent(correlationId)}`
-    : '/problem-with-service';
+    ? `/there-is-a-problem?ref=${encodeURIComponent(correlationId)}`
+    : '/there-is-a-problem';
   window.location.href = target;
 }
 
@@ -95,12 +95,12 @@ export async function handleApiError(response: Response): Promise<never> {
   }
 
   if (response.status >= 500) {
-    logger.error('Server error, redirecting to problem-with-service page', {
+    logger.error('Server error, redirecting to there-is-a-problem page', {
       status: response.status,
       correlationId: (errorData as ErrorResponseData & { correlationId?: string }).correlationId,
       url: response.url,
     });
-    redirectToProblemWithService(
+    redirectToThereIsAProblem(
       (errorData as ErrorResponseData & { correlationId?: string }).correlationId
     );
     throw error;
