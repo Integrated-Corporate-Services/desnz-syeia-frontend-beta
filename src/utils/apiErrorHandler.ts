@@ -12,6 +12,13 @@ function redirectToSignedOut(reason: string): void {
   window.location.href = target;
 }
 
+export function redirectToProblemWithService(correlationId?: string): void {
+  const target = correlationId
+    ? `/problem-with-service?ref=${encodeURIComponent(correlationId)}`
+    : '/problem-with-service';
+  window.location.href = target;
+}
+
 export interface ApiError extends Error {
   status?: number;
   code?: string;
@@ -85,6 +92,18 @@ export async function handleApiError(response: Response): Promise<never> {
     });
     // Could redirect to an "Access Denied" page
     // For now, just throw the error
+  }
+
+  if (response.status >= 500) {
+    logger.error('Server error, redirecting to problem-with-service page', {
+      status: response.status,
+      correlationId: (errorData as ErrorResponseData & { correlationId?: string }).correlationId,
+      url: response.url,
+    });
+    redirectToProblemWithService(
+      (errorData as ErrorResponseData & { correlationId?: string }).correlationId
+    );
+    throw error;
   }
 
   // Log other errors
