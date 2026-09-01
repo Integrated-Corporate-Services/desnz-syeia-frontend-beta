@@ -185,7 +185,7 @@ const ConsultationResponse2: React.FC = () => {
             const newErrors: { [key: string]: string } = {};
             
             if (consultationType !== ConsultationType.PUBLIC) {
-                const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: true });
+                const dateValidation = validateDateComponents(responseDate, 'the consultation response was received', { required: true });
                 if (!dateValidation.isValid) {
                     newErrors.responseDate = dateValidation.error!;
                 }
@@ -323,6 +323,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     type="text"
                                                     inputMode="numeric"
                                                     autoComplete="off"
+                                                    maxLength={2}
                                                     value={responseDate.day}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, day: e.target.value });
@@ -344,6 +345,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     type="text"
                                                     inputMode="numeric"
                                                     autoComplete="off"
+                                                    maxLength={2}
                                                     value={responseDate.month}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, month: e.target.value });
@@ -365,6 +367,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     type="text"
                                                     inputMode="numeric"
                                                     autoComplete="off"
+                                                    maxLength={4}
                                                     value={responseDate.year}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, year: e.target.value });
