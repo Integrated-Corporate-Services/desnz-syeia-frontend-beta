@@ -118,8 +118,11 @@ jobs:
               echo "$(basename "$file") has $lines lines (should be 1-2)"
               failed=1
             fi
-            if grep -q "sourceMappingURL=" "$file"; then
-              echo " $(basename "$file") contains sourceMappingURL comment"
+            # Only flag a REAL source map directive at end of line, not a bare substring match
+            # (avoids false positives from third-party code, e.g. rrweb via aws-rum-web).
+            map_ref=$(grep -oE '//# sourceMappingURL=[^ ]+\.map[[:space:]]*$' "$file" || true)
+            if [ -n "$map_ref" ]; then
+              echo " $(basename "$file") contains a source map directive: $map_ref"
               failed=1
             fi
           done
