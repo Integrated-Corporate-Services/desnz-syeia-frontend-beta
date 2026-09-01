@@ -3,11 +3,12 @@ import { useEffect, useRef } from "react";
 import { getAuthUser, AuthUserResponse } from "../services/authService";
 import { useAuth } from "./useAuth";
 import { createLogger } from "../utils/logger";
+import { getRuntimeEnv, parseEnvBoolean } from "../config/runtimeEnv";
 
 const logger = createLogger('useAuthUser');
 
-// Read from environment variable for flexibility (works with OneLogin simulator too)
-const LOGIN_DISABLED = import.meta.env.VITE_LOGIN_DISABLED === "true";
+// Read from runtime config for flexibility (works with OneLogin simulator too)
+const LOGIN_DISABLED = parseEnvBoolean(getRuntimeEnv('VITE_LOGIN_DISABLED'));
 
 export function useAuthUser() {
   const { setAuth, setError, setLoading, user, loading, error, authenticated } =

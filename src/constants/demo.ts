@@ -1,5 +1,6 @@
 // Dummy user types matching backend system
 // Change VITE_DUMMY_USER_TYPE in run-frontend.ps1 to switch users
+import { getRuntimeEnv } from '../config/runtimeEnv';
 
 interface DummyUser {
   user_id: string;
@@ -221,10 +222,8 @@ const DUMMY_USERS: Record<string, DummyUser> = {
   },
 };
 
-// Get user type from environment variable (defaults to APPLICANT_TEAM_COORDINATOR_NG)
-const DUMMY_USER_TYPE =
-  (import.meta.env.VITE_DUMMY_USER_TYPE as string) ||
-  "APPLICANT_TEAM_COORDINATOR_NG";
+// Get user type from runtime config (defaults to APPLICANT_TEAM_COORDINATOR_NG)
+const DUMMY_USER_TYPE = getRuntimeEnv('VITE_DUMMY_USER_TYPE') || "APPLICANT_TEAM_COORDINATOR_NG";
 const currentDummyUser =
   DUMMY_USERS[DUMMY_USER_TYPE] || DUMMY_USERS.APPLICANT_TEAM_COORDINATOR_NG;
 
