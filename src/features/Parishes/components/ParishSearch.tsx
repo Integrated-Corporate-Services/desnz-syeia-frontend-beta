@@ -26,7 +26,7 @@ const ParishSearch: React.FC<ParishSearchProps> = ({
         Add parish
       </label>
       <div id="parish-search-hint" className="govuk-hint">
-        Find parishes by name, county or local planning authority
+        Find parishes by name
       </div>
       {error && (
         <p id="parish-search-error" className="govuk-error-message">
