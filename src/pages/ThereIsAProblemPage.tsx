@@ -1,7 +1,7 @@
 import React from 'react';
 import PageTitle from '../components/PageTitle';
 
-const ProblemWithServicePage: React.FC = () => {
+const ThereIsAProblemPage: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const reference = searchParams.get('ref');
 
@@ -11,11 +11,11 @@ const ProblemWithServicePage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <PageTitle title="Sorry, there is a problem with the service" />
+      <PageTitle title="There is a problem" />
       <main className="govuk-main-wrapper" id="main-content" role="main">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-xl">Sorry, there is a problem with the service</h1>
+            <h1 className="govuk-heading-xl">There is a problem</h1>
 
             <p className="govuk-body">Try again later.</p>
 
@@ -48,4 +48,4 @@ const ProblemWithServicePage: React.FC = () => {
   );
 };
 
-export default ProblemWithServicePage;
+export default ThereIsAProblemPage;
