@@ -8,7 +8,10 @@ import { getRuntimeEnv, parseEnvBoolean } from "../config/runtimeEnv";
 const logger = createLogger('useAuthUser');
 
 // Read from runtime config for flexibility (works with OneLogin simulator too)
-const LOGIN_DISABLED = parseEnvBoolean(getRuntimeEnv('VITE_LOGIN_DISABLED'));
+// In dev, prefer Vite env so .env overrides aren't masked by runtimeEnv.ts defaults
+const LOGIN_DISABLED = parseEnvBoolean(
+  import.meta.env.DEV ? import.meta.env.VITE_LOGIN_DISABLED : getRuntimeEnv('VITE_LOGIN_DISABLED')
+);
 
 export function useAuthUser() {
   const { setAuth, setError, setLoading, user, loading, error, authenticated } =
