@@ -125,7 +125,7 @@ const ApplicationLandDetails: React.FC = () => {
 					<h2 className="govuk-heading-m">Application information</h2>
 					<form onSubmit={handleSubmit} noValidate>
 						<div className={`govuk-form-group${errors.networkOperatorReference ? ' govuk-form-group--error' : ''}`}>  
-							<label className="govuk-label govuk-label--s" htmlFor="NetworkOperatorReference">Applicantâ€™s reference</label>
+							<label className="govuk-label govuk-label--s" htmlFor="NetworkOperatorReference">Applicant reference</label>
 							{errors.networkOperatorReference && (
 								<p className="govuk-error-message" id="NetworkOperatorReference-error">{errors.networkOperatorReference}</p>
 							)}
