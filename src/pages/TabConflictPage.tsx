@@ -14,7 +14,7 @@ const TabConflictPage: React.FC = () => (
           </p>
           <p className="govuk-body">Close this tab and continue in the tab where the service is already open.</p>
           <p className="govuk-body">
-            <a className="govuk-link" href={buildBackendUrl('/auth/logout?redirectTo=/landingPage')}>
+            <a className="govuk-link" href={buildBackendUrl(`/auth/logout?redirectTo=${encodeURIComponent('/landingPage')}`)}>
               Sign out
             </a>
           </p>
