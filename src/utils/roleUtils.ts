@@ -12,8 +12,7 @@ export const NETWORK_OPERATOR = 'Network operator' as const;
 export const CONTACT = 'Contact' as const;
 export const CONSULTANT = 'Consultant' as const;
 export const REVIEWER = 'Reviewer' as const;
-export const DESNZ_ADMIN = 'DESNZ_ADMIN' as const;
-export const DESNZ_CASEWORKER = 'DESNZ_CASEWORKER' as const;
+export const SUPERUSER = 'SUPERUSER' as const;
 export const APPLICANT_TEAM_COORDINATOR = 'APPLICANT_TEAM_COORDINATOR' as const;
 export const APPLICANT_USER = 'APPLICANT_USER' as const;
 export const APPLICANT_AGENT = 'APPLICANT_AGENT' as const;
@@ -22,14 +21,13 @@ export const BUSINESS_ADMIN = 'BUSINESS_ADMIN' as const;
 export const TECH_ADMIN = 'TECH_ADMIN' as const;
 
 export const ADMIN_ROLES = [
-  DESNZ_ADMIN,
+  SUPERUSER,
   BUSINESS_ADMIN,
   TECH_ADMIN,
   APPLICANT_TEAM_COORDINATOR,
 ] as const;
 
 export type AdminRole = (typeof ADMIN_ROLES)[number];
-export const SUPERUSER = DESNZ_ADMIN;
 
 export type UserRole = 
   | typeof APPLICANT
@@ -37,8 +35,7 @@ export type UserRole =
   | typeof CONTACT
   | typeof CONSULTANT
   | typeof REVIEWER
-  | typeof DESNZ_ADMIN
-  | typeof DESNZ_CASEWORKER
+  | typeof SUPERUSER
   | typeof APPLICANT_TEAM_COORDINATOR
   | typeof APPLICANT_USER
   | typeof APPLICANT_AGENT
@@ -59,8 +56,7 @@ export const getDefaultSubmittedBy = (role?: UserRole): 'me' | 'all' => {
 
   switch (role) {
     case APPLICANT_TEAM_COORDINATOR:
-    case DESNZ_ADMIN:
-    case DESNZ_CASEWORKER:
+    case SUPERUSER:
     case BUSINESS_ADMIN:
     case TECH_ADMIN:
     case REVIEWER:
@@ -104,8 +100,7 @@ export const hasElevatedPermissions = (role?: UserRole): boolean => {
   if (!role) return false;
   
   return role === APPLICANT_TEAM_COORDINATOR || 
-         role === DESNZ_ADMIN || 
-         role === DESNZ_CASEWORKER ||
+         role === SUPERUSER || 
          role === BUSINESS_ADMIN || 
          role === TECH_ADMIN ||
          role === REVIEWER;
@@ -118,8 +113,7 @@ export default {
   CONTACT,
   CONSULTANT,
   REVIEWER,
-  DESNZ_ADMIN,
-  DESNZ_CASEWORKER,
+  SUPERUSER,
   APPLICANT_TEAM_COORDINATOR,
   APPLICANT_USER,
   APPLICANT_AGENT,
@@ -127,5 +121,4 @@ export default {
   BUSINESS_ADMIN,
   TECH_ADMIN,
   ADMIN_ROLES,
-  SUPERUSER,
 };

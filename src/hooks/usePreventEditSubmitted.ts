@@ -13,7 +13,7 @@ export const useApplicationReadOnly = (
   user: AuthUser | null | undefined
 ): boolean => {
   const isSubmitted = application?.status?.toLowerCase() === 'submitted';
-  const isAdmin = user?.role === ROLES.DESNZ_ADMIN;
+  const isAdmin = user?.role === ROLES.SUPERUSER;
   
   // Application is read-only if submitted AND user is not an admin
   return isSubmitted && !isAdmin;

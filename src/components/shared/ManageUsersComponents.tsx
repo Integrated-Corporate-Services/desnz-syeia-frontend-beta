@@ -50,13 +50,13 @@ interface UserRowProps {
 
 /**
  * Add user button positioned with page heading (GDS primary action pattern)
- * Only visible to admin users (APPLICANT_TEAM_COORDINATOR, TECH_ADMIN, or DESNZ_ADMIN)
+ * Only visible to admin users (APPLICANT_TEAM_COORDINATOR, TECH_ADMIN, or SUPERUSER)
  */
 export const AddUserButton: React.FC<AddUserButtonProps> = ({ onAddUser }) => {
   const { user } = useAuthUserContext();
   const isAdmin =
     user &&
-    ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+    ((user as AuthUser)?.role === ROLES.SUPERUSER ||
       (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
       (user as AuthUser)?.role === ROLES.TECH_ADMIN);
   return isAdmin ? (
@@ -108,17 +108,17 @@ export const EmptyUsersState: React.FC<EmptyUsersStateProps> = ({
   userOrganisation,
 }) => {
   const { user } = useAuthUserContext();
-  const isDesnzAdmin = user?.role === ROLES.DESNZ_ADMIN;
+  const isSuperUser = user?.role === ROLES.SUPERUSER;
   const isAdmin =
     user &&
-    ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+    ((user as AuthUser)?.role === ROLES.SUPERUSER ||
       (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
       (user as AuthUser)?.role === ROLES.TECH_ADMIN);
   return (
     <div className="govuk-inset-text">
       <p className="govuk-body govuk-!-margin-bottom-3">
         There are no users for{" "}
-        {isDesnzAdmin
+        {isSuperUser
           ? "any organisation"
           : userOrganisation || "your organisation"}{" "}
         yet.
@@ -146,7 +146,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   userOrganisation,
 }) => {
   const { user } = useAuthUserContext();
-  const isDesnzAdmin = user?.role === ROLES.DESNZ_ADMIN;
+  const isSuperUser = user?.role === ROLES.SUPERUSER;
   // Handle empty state
   if (filteredUsers.length === 0) {
     return (
@@ -164,7 +164,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
           <th scope="col" className="govuk-table__header">
             Name
           </th>
-          {isDesnzAdmin && (
+          {isSuperUser && (
             <th scope="col" className="govuk-table__header">
               Organisation
             </th>
@@ -213,14 +213,14 @@ export const UserRow: React.FC<UserRowProps> = ({
   onCancelRevoke,
 }) => {
   const { user: currentUser } = useAuthUserContext();
-  const isDesnzAdmin = currentUser?.role === ROLES.DESNZ_ADMIN;
+  const isSuperUser = currentUser?.role === ROLES.SUPERUSER;
   return (
     <>
       <tr className="govuk-table__row">
         <td className="govuk-table__cell">
           <strong>{user.fullName}</strong>
         </td>
-        {isDesnzAdmin && (
+        {isSuperUser && (
           <td className="govuk-table__cell">{user.organisation}</td>
         )}
         {/* <td className="govuk-table__cell">{user.email}</td> */}
@@ -229,7 +229,7 @@ export const UserRow: React.FC<UserRowProps> = ({
             className="govuk-tag"
             style={{
               backgroundColor:
-                user.role === ROLES.DESNZ_ADMIN
+                user.role === ROLES.SUPERUSER
                   ? "#4c2c92"
                   : user.role === ROLES.APPLICANT_TEAM_COORDINATOR
                     ? "#1d70b8"
@@ -239,7 +239,7 @@ export const UserRow: React.FC<UserRowProps> = ({
               color: "#ffffff",
             }}
           >
-            {user.role === ROLES.DESNZ_ADMIN
+            {user.role === ROLES.SUPERUSER
               ? "DESNZ Admin"
               : user.role === ROLES.APPLICANT_TEAM_COORDINATOR
                 ? "DNO Team Coordinator"
@@ -262,7 +262,7 @@ export const UserRow: React.FC<UserRowProps> = ({
         <td className="govuk-table__cell">{user.lastLogin || "Never"}</td>
         {/* Action column disabled
       <td className="govuk-table__cell">
-        {user.status === 'ACTIVE' && user.role !== 'SYSTEM' && isDesnzAdmin && (
+        {user.status === 'ACTIVE' && user.role !== 'SYSTEM' && isSuperUser && (
           <a
             className="govuk-link"
             href="#"

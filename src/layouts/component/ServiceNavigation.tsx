@@ -53,7 +53,7 @@ const ServiceNavigation = () => {
     // Check if user has admin role (DTC, Tech Admin, or DESNZ Admin)
     const isAdmin =
         user &&
-        ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+        ((user as AuthUser)?.role === ROLES.SUPERUSER ||
             (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
             (user as AuthUser)?.role === ROLES.TECH_ADMIN);
 
