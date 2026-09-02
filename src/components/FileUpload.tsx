@@ -142,10 +142,16 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
     triggerUpload: async () => {
-      const staleInfectedFiles: RejectedFile[] = (uploadedFiles || [])
-        .filter((f: UploadedFile) => f.scanResult === 'INFECTED')
-        .map((f: UploadedFile) => ({ id: f.id, s3Key: f.s3Key, filename: f.filename, reason: 'INFECTED' as const, virusName: f.virusName }));
-      const unresolvedRejectedErrors = [...rejectedFiles, ...staleInfectedFiles].map(getRejectedFileMessage);
+      const persistedRejectedFiles: RejectedFile[] = (uploadedFiles || [])
+        .filter((f: UploadedFile) => f.scanStatus === 'FAILED' || f.scanResult === 'INFECTED')
+        .map((f: UploadedFile) => ({
+          id: f.id,
+          s3Key: f.s3Key,
+          filename: f.filename,
+          reason: f.scanResult === 'INFECTED' ? 'INFECTED' : 'FAILED',
+          virusName: f.virusName,
+        }));
+      const unresolvedRejectedErrors = [...rejectedFiles, ...persistedRejectedFiles].map(getRejectedFileMessage);
 
       if (pendingFiles.length > 0) {
         logger.info('Manually triggering upload for pending files', {
@@ -176,26 +182,26 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   }, [pendingFiles]);
 
   useEffect(() => {
-    const infectedFiles: RejectedFile[] = (uploadedFiles || [])
-      .filter((f: UploadedFile) => f.scanResult === 'INFECTED')
+    const failedScanFiles: RejectedFile[] = (uploadedFiles || [])
+      .filter((f: UploadedFile) => f.scanStatus === 'FAILED' || f.scanResult === 'INFECTED')
       .map((f: UploadedFile) => ({
         id: f.id,
         s3Key: f.s3Key,
         filename: f.filename,
-        reason: 'INFECTED' as const,
+        reason: f.scanResult === 'INFECTED' ? 'INFECTED' : 'FAILED',
         virusName: f.virusName,
       }));
 
     let failedFiles: RejectedFile[] = [];
     setRejectedFiles((prev) => {
       failedFiles = prev.filter((f) => f.reason === 'FAILED');
-      return [...failedFiles, ...infectedFiles];
+      return [...failedFiles, ...failedScanFiles];
     });
-    
+
     if (onValidationErrorsRef.current) {
       const failedMessages = failedFiles.map(getRejectedFileMessage);
-      const infectedMessages = infectedFiles.map(getRejectedFileMessage);
-      const allErrors = [...failedMessages, ...infectedMessages];
+      const persistedRejectedMessages = failedScanFiles.map(getRejectedFileMessage);
+      const allErrors = [...failedMessages, ...persistedRejectedMessages];
       if (allErrors.length > 0) {
         onValidationErrorsRef.current(allErrors);
       }
