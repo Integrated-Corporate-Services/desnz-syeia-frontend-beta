@@ -1,0 +1,1 @@
+export const TAB_ID_STORAGE_KEY = 'syeia.active-tab-id';

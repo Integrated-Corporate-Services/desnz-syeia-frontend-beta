@@ -5,10 +5,11 @@
 
 import { createLogger } from './logger';
 import { buildBackendUrl } from './apiConfig';
+import { TAB_ID_STORAGE_KEY } from '../constants/tabSession';
 const logger = createLogger('ApiErrorHandler');
 
 const getTabHeaders = (): { 'X-Tab-Id'?: string } => {
-  const tabId = sessionStorage.getItem('syeia.active-tab-id');
+  const tabId = sessionStorage.getItem(TAB_ID_STORAGE_KEY);
   return tabId ? { 'X-Tab-Id': tabId } : {};
 };
 
@@ -112,12 +113,13 @@ export async function apiFetch<T = unknown>(
   options?: RequestInit
 ): Promise<T> {
   try {
+    const headers = new Headers(options?.headers);
+    const tabHeaders = getTabHeaders();
+    Object.entries(tabHeaders).forEach(([name, value]) => headers.set(name, value));
+
     const response = await fetch(url, {
       ...options,
-      headers: {
-        ...getTabHeaders(),
-        ...options?.headers,
-      },
+      headers,
       credentials: options?.credentials || 'include', // Always include credentials for session cookies
     });
 

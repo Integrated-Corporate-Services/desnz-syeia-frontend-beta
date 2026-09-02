@@ -4,9 +4,9 @@ import { useAuthUserContext } from '../context/AuthUserContext';
 import { buildBackendUrl } from '../utils/apiConfig';
 import { getCsrfHeaders } from '../utils/csrf';
 import { createLogger } from '../utils/logger';
+import { TAB_ID_STORAGE_KEY } from '../constants/tabSession';
 
 const logger = createLogger('SingleActiveTabGuard');
-const TAB_ID_STORAGE_KEY = 'syeia.active-tab-id';
 const HEARTBEAT_INTERVAL_MS = 15_000;
 
 function getTabId(): string {
@@ -30,7 +30,11 @@ async function sendHeartbeat(tabId: string): Promise<boolean> {
     body: JSON.stringify({ tabId }),
   });
 
-  return response.status !== 409;
+  if (response.status === 409) return false;
+  if (!response.ok) {
+    throw new Error(`Tab heartbeat failed: ${response.status}`);
+  }
+  return true;
 }
 
 function releaseTab(tabId: string): void {
@@ -58,11 +62,17 @@ const SingleActiveTabGuard = () => {
     const tabId = getTabId();
     tabIdRef.current = tabId;
     let stopped = false;
+    let intervalId: number | undefined;
+
+    const handlePageHide = () => releaseTab(tabId);
 
     const checkTab = async () => {
       try {
         const allowed = await sendHeartbeat(tabId);
         if (!allowed && !stopped) {
+          stopped = true;
+          if (intervalId !== undefined) window.clearInterval(intervalId);
+          window.removeEventListener('pagehide', handlePageHide);
           navigate('/tab-conflict', { replace: true });
         }
       } catch (error) {
@@ -71,8 +81,7 @@ const SingleActiveTabGuard = () => {
     };
 
     void checkTab();
-    const intervalId = window.setInterval(() => void checkTab(), HEARTBEAT_INTERVAL_MS);
-    const handlePageHide = () => releaseTab(tabId);
+  intervalId = window.setInterval(() => void checkTab(), HEARTBEAT_INTERVAL_MS);
     window.addEventListener('pagehide', handlePageHide);
 
     return () => {
