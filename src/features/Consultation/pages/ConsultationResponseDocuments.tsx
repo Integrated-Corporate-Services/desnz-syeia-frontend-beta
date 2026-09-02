@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
+import { getConsultationRequest } from '../../../services/consultationRequestService';
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
@@ -29,6 +30,7 @@ const ConsultationResponse2: React.FC = () => {
     const [consultationName, setConsultationName] = useState<string>('');
     const [consultationType, setConsultationType] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [requestSentDate, setRequestSentDate] = useState<Date | null>(null);
     const fileUploadRef = useRef<FileUploadHandle>(null);
 
     // Scroll to top on mount
@@ -54,6 +56,20 @@ const ConsultationResponse2: React.FC = () => {
                     setUploadedFileObjs(data.uploaded_files || []);
                     setApplicationDocuments(data.application_documents || []);
                     setResponseId(data.response_id || '');
+
+                    // Fetch the consultation request's sent date, so the response date can be validated against it
+                    try {
+                        const requestData = await getConsultationRequest(applicationId!, consultationId);
+                        if (requestData?.sentDate) {
+                            // Normalise to a local calendar-date (matching how day/month/year fields are populated elsewhere),
+                            // so timezone offsets in the stored timestamp don't shift the comparison to the wrong day
+                            const sentAt = new Date(requestData.sentDate);
+                            setRequestSentDate(new Date(sentAt.getFullYear(), sentAt.getMonth(), sentAt.getDate()));
+                        }
+                    } catch (requestErr) {
+                        // Consultation request may not exist yet (e.g. offline consultations) - skip cross-date validation
+                    }
+
                     // Fetch all consultations to get the organization name
                     const consultations = await fetchConsultationDetails(applicationId!, user?.user_id!);
 
@@ -188,6 +204,15 @@ const ConsultationResponse2: React.FC = () => {
                 const dateValidation = validateDateComponents(responseDate, 'the consultation response was received', { required: true });
                 if (!dateValidation.isValid) {
                     newErrors.responseDate = dateValidation.error!;
+                } else if (requestSentDate) {
+                    const responseDateValue = new Date(
+                        parseInt(responseDate.year, 10),
+                        parseInt(responseDate.month, 10) - 1,
+                        parseInt(responseDate.day, 10)
+                    );
+                    if (responseDateValue.getTime() < requestSentDate.getTime()) {
+                        newErrors.responseDate = CONSULTATION_VALIDATION_MESSAGES.consultationResponseDate.beforeRequestDate;
+                    }
                 }
             }
 
