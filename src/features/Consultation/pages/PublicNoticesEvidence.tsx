@@ -8,6 +8,7 @@ import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { saveConsultationRequest, getConsultationRequest } from '../../../services/consultationRequestService';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
+import { validateDateComponents } from '../../../utils/validation';
 import log from '../../../logger';
 import PageTitle from '../../../components/PageTitle';
 
@@ -136,39 +137,30 @@ const PublicNoticesEvidence: React.FC = () => {
   const validateForm = () => {
     const newErrors: FormErrors = {};
 
-    // Validate first date
-    if (!firstDateDay && !firstDateMonth && !firstDateYear) {
-      newErrors.firstDate = CONSULTATION_VALIDATION_MESSAGES.firstDatePublished.empty;
-    } else if (!firstDateDay || !firstDateMonth || !firstDateYear) {
-      // Check for incomplete date (some fields filled, some not)
-      newErrors.firstDate = CONSULTATION_VALIDATION_MESSAGES.firstDatePublished.incomplete;
-    } else {
-      const day = parseInt(firstDateDay);
-      const month = parseInt(firstDateMonth);
-      const year = parseInt(firstDateYear);
-      
-      // Validate that it's a real date
-      if (isNaN(day) || isNaN(month) || isNaN(year) ||
-          day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
-        newErrors.firstDate = CONSULTATION_VALIDATION_MESSAGES.firstDatePublished.incomplete;
-      }
+    const firstDateValidation = validateDateComponents(
+      { day: firstDateDay, month: firstDateMonth, year: firstDateYear },
+      'the first public notice was published',
+      { required: true, allowFutureDate: true }
+    );
+    if (!firstDateValidation.isValid) {
+      newErrors.firstDate = firstDateValidation.error!;
     }
 
-    // Validate second date
-    if (!secondDateDay && !secondDateMonth && !secondDateYear) {
-      newErrors.secondDate = CONSULTATION_VALIDATION_MESSAGES.secondDatePublished.empty;
-    } else if (!secondDateDay || !secondDateMonth || !secondDateYear) {
-      // Check for incomplete date (some fields filled, some not)
-      newErrors.secondDate = CONSULTATION_VALIDATION_MESSAGES.secondDatePublished.incomplete;
-    } else {
-      const day = parseInt(secondDateDay);
-      const month = parseInt(secondDateMonth);
-      const year = parseInt(secondDateYear);
-      
-      // Validate that it's a real date
-      if (isNaN(day) || isNaN(month) || isNaN(year) ||
-          day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
-        newErrors.secondDate = CONSULTATION_VALIDATION_MESSAGES.secondDatePublished.incomplete;
+    const secondDateValidation = validateDateComponents(
+      { day: secondDateDay, month: secondDateMonth, year: secondDateYear },
+      'the second public notice was published',
+      { required: true, allowFutureDate: true }
+    );
+    if (!secondDateValidation.isValid) {
+      newErrors.secondDate = secondDateValidation.error!;
+    }
+
+    // The second notice must not be published before the first
+    if (!newErrors.firstDate && !newErrors.secondDate) {
+      const firstDateValue = new Date(parseInt(firstDateYear, 10), parseInt(firstDateMonth, 10) - 1, parseInt(firstDateDay, 10));
+      const secondDateValue = new Date(parseInt(secondDateYear, 10), parseInt(secondDateMonth, 10) - 1, parseInt(secondDateDay, 10));
+      if (secondDateValue.getTime() < firstDateValue.getTime()) {
+        newErrors.secondDate = 'The second date published must be on or after the first date published';
       }
     }
 
@@ -376,6 +368,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           name="first-date-day"
                           type="text"
                           inputMode="numeric"
+                          maxLength={2}
                           value={firstDateDay}
                           onChange={(e) => {
                             setFirstDateDay(e.target.value);
@@ -399,6 +392,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           name="first-date-month"
                           type="text"
                           inputMode="numeric"
+                          maxLength={2}
                           value={firstDateMonth}
                           onChange={(e) => {
                             setFirstDateMonth(e.target.value);
@@ -422,6 +416,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           name="first-date-year"
                           type="text"
                           inputMode="numeric"
+                          maxLength={4}
                           value={firstDateYear}
                           onChange={(e) => {
                             setFirstDateYear(e.target.value);
@@ -461,6 +456,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           name="second-date-day"
                           type="text"
                           inputMode="numeric"
+                          maxLength={2}
                           value={secondDateDay}
                           onChange={(e) => {
                             setSecondDateDay(e.target.value);
@@ -484,6 +480,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           name="second-date-month"
                           type="text"
                           inputMode="numeric"
+                          maxLength={2}
                           value={secondDateMonth}
                           onChange={(e) => {
                             setSecondDateMonth(e.target.value);
@@ -507,6 +504,7 @@ const PublicNoticesEvidence: React.FC = () => {
                           name="second-date-year"
                           type="text"
                           inputMode="numeric"
+                          maxLength={4}
                           value={secondDateYear}
                           onChange={(e) => {
                             setSecondDateYear(e.target.value);

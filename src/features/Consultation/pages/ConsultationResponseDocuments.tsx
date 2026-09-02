@@ -29,6 +29,7 @@ const ConsultationResponse2: React.FC = () => {
     const [consultationName, setConsultationName] = useState<string>('');
     const [consultationType, setConsultationType] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [requestSentDate, setRequestSentDate] = useState<Date | null>(null);
     const fileUploadRef = useRef<FileUploadHandle>(null);
 
     // Scroll to top on mount
@@ -65,6 +66,11 @@ const ConsultationResponse2: React.FC = () => {
                         const orgName = currentConsultation.consulteeOrganisationName || currentConsultation.otherConsultee || 'Consultation';
                         setConsultationName(orgName);
                         setConsultationType(currentConsultation.consultationType || '');
+
+                        if (currentConsultation.sentAt) {
+                            const sentDate = new Date(currentConsultation.sentAt);
+                            setRequestSentDate(new Date(sentDate.getFullYear(), sentDate.getMonth(), sentDate.getDate()));
+                        }
                     }
                 } catch (err) {
                     // Error fetching consultation response
@@ -185,9 +191,21 @@ const ConsultationResponse2: React.FC = () => {
             const newErrors: { [key: string]: string } = {};
             
             if (consultationType !== ConsultationType.PUBLIC) {
-                const dateValidation = validateDateComponents(responseDate, 'consultation response was received', { required: true });
+                const dateValidation = validateDateComponents(responseDate, 'the consultation response was received', {
+                    required: true,
+                    allowFutureDate: true,
+                });
                 if (!dateValidation.isValid) {
                     newErrors.responseDate = dateValidation.error!;
+                } else if (requestSentDate) {
+                    const responseDateValue = new Date(
+                        parseInt(responseDate.year, 10),
+                        parseInt(responseDate.month, 10) - 1,
+                        parseInt(responseDate.day, 10)
+                    );
+                    if (responseDateValue.getTime() < requestSentDate.getTime()) {
+                        newErrors.responseDate = CONSULTATION_VALIDATION_MESSAGES.consultationResponseDate.beforeRequestDate;
+                    }
                 }
             }
 
@@ -323,6 +341,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     type="text"
                                                     inputMode="numeric"
                                                     autoComplete="off"
+                                                    maxLength={2}
                                                     value={responseDate.day}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, day: e.target.value });
@@ -344,6 +363,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     type="text"
                                                     inputMode="numeric"
                                                     autoComplete="off"
+                                                    maxLength={2}
                                                     value={responseDate.month}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, month: e.target.value });
@@ -365,6 +385,7 @@ const ConsultationResponse2: React.FC = () => {
                                                     type="text"
                                                     inputMode="numeric"
                                                     autoComplete="off"
+                                                    maxLength={4}
                                                     value={responseDate.year}
                                                     onChange={e => {
                                                         setResponseDate({ ...responseDate, year: e.target.value });

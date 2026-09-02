@@ -75,6 +75,7 @@ export const CONSULTATION_VALIDATION_MESSAGES = {
   },
   consultationResponseDate: {
     incomplete: 'The date the consultation response was received must include a (day/month/year)',
+    beforeRequestDate: 'The date the consultation response was received must be on or after the date the consultation request was sent',
   },
 
   // Consultation Response Review

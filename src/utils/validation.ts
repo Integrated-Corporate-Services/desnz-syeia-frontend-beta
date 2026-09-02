@@ -95,24 +95,26 @@ export interface DateValidationResult {
 /**
  * Validate a date from day, month, year components
  * @param dateComponents - Object containing day, month, year strings
- * @param fieldName - Name of the field for error messages (e.g., "consultation request", "consultation response")
+ * @param dateDescription - Full phrase describing the date for error messages, e.g. "the consultation request was sent"
  * @param options - Validation options
  * @returns Validation result with error message if invalid
  */
 export const validateDateComponents = (
   dateComponents: DateComponents,
-  fieldName: string,
-  options: { required?: boolean } = { required: true }
+  dateDescription: string,
+  options: { required?: boolean; allowFutureDate?: boolean } = { required: true }
 ): DateValidationResult => {
-  const { day, month, year } = dateComponents;
-  const { required = true } = options;
+  const day = dateComponents.day.trim();
+  const month = dateComponents.month.trim();
+  const year = dateComponents.year.trim();
+  const { required = true, allowFutureDate = false } = options;
 
   // Check if all fields are empty
   if (!day && !month && !year) {
     if (required) {
       return {
         isValid: false,
-        error: `Enter the date the ${fieldName} was sent`
+        error: `Enter the date ${dateDescription}`
       };
     }
     return { isValid: true };
@@ -126,24 +128,32 @@ export const validateDateComponents = (
     if (!year) missing.push('year');
     return {
       isValid: false,
-      error: `The date the ${fieldName} was sent must include a ${missing.join(', ')}`
+      error: `The date ${dateDescription} must include a ${missing.join(', ')}`
     };
   }
 
-  // Parse numeric values
-  const dayNum = parseInt(day);
-  const monthNum = parseInt(month);
-  const yearNum = parseInt(year);
-
-  // Check if values are numeric
-  if (isNaN(dayNum) || isNaN(monthNum) || isNaN(yearNum)) {
+  // Reject non-numeric input (e.g. "12a") that parseInt would otherwise silently accept
+  const isDigitsOnly = (value: string) => /^\d+$/.test(value);
+  if (!isDigitsOnly(day) || !isDigitsOnly(month) || !isDigitsOnly(year)) {
     return {
       isValid: false,
-      error: `The date the ${fieldName} was sent must be a real date`
+      error: `The date ${dateDescription} must be a real date`
     };
   }
 
-  // Validate the date is real
+  // Require a full 4-digit year so e.g. "26" isn't silently read as year 26
+  if (year.length !== 4) {
+    return {
+      isValid: false,
+      error: `The date ${dateDescription} must include a year made of 4 numbers`
+    };
+  }
+
+  const dayNum = parseInt(day, 10);
+  const monthNum = parseInt(month, 10);
+  const yearNum = parseInt(year, 10);
+
+  // Validate the date is real (catches e.g. 31 February, month 13, day 0)
   const dateValue = new Date(yearNum, monthNum - 1, dayNum);
   if (
     isNaN(dateValue.getTime()) ||
@@ -153,8 +163,19 @@ export const validateDateComponents = (
   ) {
     return {
       isValid: false,
-      error: `The date the ${fieldName} was sent must be a real date`
+      error: `The date ${dateDescription} must be a real date`
     };
+  }
+
+  if (!allowFutureDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (dateValue.getTime() > today.getTime()) {
+      return {
+        isValid: false,
+        error: `The date ${dateDescription} must be today or in the past`
+      };
+    }
   }
 
   return { isValid: true };

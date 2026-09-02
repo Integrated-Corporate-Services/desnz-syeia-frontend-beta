@@ -180,7 +180,10 @@ const ConsultationRequestPage: React.FC = () => {
 
       const totalUploadedFiles = uploadedFileObjs.length + newlyUploadedFiles.length;
       
-      const dateValidation = validateDateComponents(responseDate, 'consultation request', { required: true });
+      const dateValidation = validateDateComponents(responseDate, 'the consultation request was sent', {
+        required: true,
+        allowFutureDate: true,
+      });
       const newErrors: { [key: string]: string } = {};
       
       if (!dateValidation.isValid) {
@@ -305,6 +308,7 @@ const ConsultationRequestPage: React.FC = () => {
                           type="text" 
                           inputMode="numeric" 
                           autoComplete="off" 
+                          maxLength={2}
                           value={responseDate.day} 
                           onChange={e => {
                             setResponseDate({ ...responseDate, day: e.target.value });
@@ -327,6 +331,7 @@ const ConsultationRequestPage: React.FC = () => {
                           type="text" 
                           inputMode="numeric" 
                           autoComplete="off" 
+                          maxLength={2}
                           value={responseDate.month} 
                           onChange={e => {
                             setResponseDate({ ...responseDate, month: e.target.value });
@@ -349,6 +354,7 @@ const ConsultationRequestPage: React.FC = () => {
                           type="text" 
                           inputMode="numeric" 
                           autoComplete="off" 
+                          maxLength={4}
                           value={responseDate.year} 
                           onChange={e => {
                             setResponseDate({ ...responseDate, year: e.target.value });
