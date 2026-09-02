@@ -8,9 +8,11 @@ import { buildBackendUrl } from './apiConfig';
 import { TAB_ID_STORAGE_KEY } from '../constants/tabSession';
 const logger = createLogger('ApiErrorHandler');
 
-const getTabHeaders = (): { 'X-Tab-Id'?: string } => {
-  const tabId = sessionStorage.getItem(TAB_ID_STORAGE_KEY);
-  return tabId ? { 'X-Tab-Id': tabId } : {};
+const getTabHeaders = (): { 'X-Tab-Id': string } => {
+  const existingTabId = sessionStorage.getItem(TAB_ID_STORAGE_KEY);
+  const tabId = existingTabId ?? crypto.randomUUID();
+  if (!existingTabId) sessionStorage.setItem(TAB_ID_STORAGE_KEY, tabId);
+  return { 'X-Tab-Id': tabId };
 };
 
 function redirectToSignedOut(reason: string): void {
