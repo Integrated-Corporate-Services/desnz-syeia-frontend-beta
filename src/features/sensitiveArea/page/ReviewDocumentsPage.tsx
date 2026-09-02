@@ -112,7 +112,9 @@ const ReviewDocumentsPage: React.FC = () => {
       return;
     }
 
+    // Clear previous errors at the start
     setFormErrors([]);
+    setFileValidationErrors([]);
     setApiError(null);
 
     let newlyUploadedFiles: UploadedFile[] = [];
@@ -139,7 +141,7 @@ const ReviewDocumentsPage: React.FC = () => {
     if (saveType === 'continue') {
       const errors = validateForm(newlyUploadedFiles);
 
-      if (errors.length > 0 || fileValidationErrors.length > 0) {
+      if (errors.length > 0) {
         setFormErrors(errors);
         // Scroll to error summary
         document.getElementById('error-summary')?.focus();

@@ -75,10 +75,10 @@ if (typeof window !== 'undefined' && !window._env_) {
  */
 export function getRuntimeEnv(key: keyof RuntimeEnv, defaultValue: string = ''): string {
   if (typeof window === 'undefined') {
-    return defaultValue;
+    return import.meta.env[key] || defaultValue;
   }
   
-  return window._env_?.[key] || defaultValue;
+  return window._env_?.[key] || import.meta.env[key] || defaultValue;
 }
 
 /**

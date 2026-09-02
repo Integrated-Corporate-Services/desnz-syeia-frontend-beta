@@ -9,9 +9,7 @@ export const CASE_TYPE_MAP: Record<string, string> = {
   'S37': 'Overhead lines (S37)',
   's37': 'Overhead lines (S37)',
   'NWL': 'Necessary wayleaves',
-  'nwl': 'Necessary wayleaves',
-  'TLP': 'Tree lopping',
-  'tlp': 'Tree lopping'
+  'nwl': 'Necessary wayleaves'
 } as const;
 
 export const DEFAULT_CASE_TYPE = 'Overhead lines (S37)';

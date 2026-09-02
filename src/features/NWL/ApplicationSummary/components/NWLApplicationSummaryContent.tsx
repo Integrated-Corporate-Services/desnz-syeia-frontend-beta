@@ -59,6 +59,11 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
         'SUBMITTED',
         'PROCESSING_PAYMENT',
         'UNDER_REVIEW',
+        'IN_PROGRESS',
+        'IN_ABEYANCE',
+        'FURTHER_INFORMATION_REQUESTED',
+        'REPRESENTATION_STAGE',
+        'DECISION_ISSUED',
         'APPROVED',
         'REJECTED',
         'WITHDRAWN'

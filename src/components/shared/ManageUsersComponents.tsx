@@ -50,14 +50,15 @@ interface UserRowProps {
 
 /**
  * Add user button positioned with page heading (GDS primary action pattern)
- * Only visible to admin users (APPLICANT_TEAM_COORDINATOR or DESNZ_ADMIN)
+ * Only visible to admin users (APPLICANT_TEAM_COORDINATOR, TECH_ADMIN, or DESNZ_ADMIN)
  */
 export const AddUserButton: React.FC<AddUserButtonProps> = ({ onAddUser }) => {
   const { user } = useAuthUserContext();
   const isAdmin =
     user &&
     ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
-      (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
+      (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
+      (user as AuthUser)?.role === ROLES.TECH_ADMIN);
   return isAdmin ? (
     <button type="button" className="govuk-button" onClick={onAddUser}>
       Add user
@@ -111,7 +112,8 @@ export const EmptyUsersState: React.FC<EmptyUsersStateProps> = ({
   const isAdmin =
     user &&
     ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
-      (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
+      (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
+      (user as AuthUser)?.role === ROLES.TECH_ADMIN);
   return (
     <div className="govuk-inset-text">
       <p className="govuk-body govuk-!-margin-bottom-3">
@@ -231,7 +233,9 @@ export const UserRow: React.FC<UserRowProps> = ({
                   ? "#4c2c92"
                   : user.role === ROLES.APPLICANT_TEAM_COORDINATOR
                     ? "#1d70b8"
-                    : "#505a5f",
+                    : user.role === ROLES.TECH_ADMIN
+                      ? "#0b0c0c"
+                      : "#505a5f",
               color: "#ffffff",
             }}
           >
@@ -239,7 +243,9 @@ export const UserRow: React.FC<UserRowProps> = ({
               ? "DESNZ Admin"
               : user.role === ROLES.APPLICANT_TEAM_COORDINATOR
                 ? "DNO Team Coordinator"
-                : user.role}
+                : user.role === ROLES.TECH_ADMIN
+                  ? "Tech Admin"
+                  : user.role}
           </strong>
         </td>
         <td className="govuk-table__cell">

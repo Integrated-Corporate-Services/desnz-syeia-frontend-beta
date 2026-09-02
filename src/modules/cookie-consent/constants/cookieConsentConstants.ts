@@ -1,5 +1,5 @@
 export const PAGE_HEADINGS = {
-  SETTINGS: "Cookies on Submit your Energy Infrastructure Application",
+  SETTINGS: "Cookies on the Submit your Energy Infrastructure Application service",
   ESSENTIAL: "Essential cookies",
   ANALYTICS: "Analytics cookies (optional)",
   MONITORING: "Monitoring cookies (optional)",
@@ -20,7 +20,7 @@ export const ERROR_MESSAGES = {
 
 export const CONTENT = {
   INTRO_DESCRIPTION: "Cookies are small files saved on your phone, tablet or computer when you visit a website.",
-  USAGE_DESCRIPTION: "We use cookies to make this service work and collect information about how you use our service.",
+  USAGE_DESCRIPTION: "We use cookies to make this service work and collect information about how you use it to help us make improvements.",
   PRIVACY_NOTICE_TEXT: "Read our privacy notice to find out more about how we collect, use and store your personal information.",
   
   ESSENTIAL_DESCRIPTION: "Essential cookies keep your information secure while you use this service. We do not need to ask permission to use them.",
@@ -37,8 +37,8 @@ export const CONTENT = {
 } as const;
 
 export const FORM_LABELS = {
-  ANALYTICS_QUESTION: "Do you want to accept analytics cookies?",
-  MONITORING_QUESTION: "Do you want to accept monitoring cookies?",
+  ANALYTICS_QUESTION: "Do you accept analytics cookies?",
+  MONITORING_QUESTION: "Do you accept monitoring cookies?",
   YES: "Yes",
   NO: "No",
 } as const;

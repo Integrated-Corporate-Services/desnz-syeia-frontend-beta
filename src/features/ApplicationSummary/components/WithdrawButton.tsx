@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
 
 interface WithdrawButtonProps {
-    applicationType: 'NWL' | 'S37' | 'TLP';
+    applicationType: 'NWL' | 'S37';
     applicationId: string;
     disabled?: boolean;
-    onWithdraw?: (applicationType: 'NWL' | 'S37' | 'TLP', applicationId: string) => void;
+    onWithdraw?: (applicationType: 'NWL' | 'S37', applicationId: string) => void;
 }
 
 export const WithdrawButton: React.FC<WithdrawButtonProps> = ({

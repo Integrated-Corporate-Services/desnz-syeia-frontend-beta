@@ -49,7 +49,7 @@ export const submitWithdrawal = async (request: WithdrawalRequest): Promise<With
 };
 
 export const getWithdrawalReasons = (
-    applicationType: 'NWL' | 'S37' | 'TLP'
+    applicationType: 'NWL' | 'S37'
 ): Array<{ value: string; label: string }> => {
     return CONSTANTS.REASONS[applicationType] || CONSTANTS.REASONS.NWL;
 };

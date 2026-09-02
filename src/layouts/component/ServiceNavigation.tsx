@@ -3,14 +3,12 @@ import { useLocation, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
-import { isYourDetailsFeatureDisabled } from "../../utils/disabledFormTypes";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const location = useLocation();
     const { user } = useAuthUserContext();
-    const yourDetailsFeatureDisabled = isYourDetailsFeatureDisabled();
 
     // Handle all possible application dashboard paths
     const applicationDashboardPaths = ["/", "/application-dashboard"];
@@ -23,7 +21,7 @@ const ServiceNavigation = () => {
         "/landingPage",
         "/s37-guidance",
         "/nwl-guidance",
-        "/tlp-guidance",
+        "/cookies",
         "/access-revoked",
         "/signed-out",
     ];
@@ -48,15 +46,16 @@ const ServiceNavigation = () => {
         location.pathname.includes("/admin/") ||
         location.pathname.includes("/user-management");
 
-    if (hideNavPaths.includes(location.pathname)) return null;
+    if (!user || hideNavPaths.includes(location.pathname)) return null;
 
-    if (location.pathname === "/feedback" && (!user || (user as AuthUser)?.role === "pending")) return null;
+    if (location.pathname === "/feedback" && (user as AuthUser)?.role === "pending") return null;
 
-    // Check if user has admin role (DTC or DESNZ Admin)
+    // Check if user has admin role (DTC, Tech Admin, or DESNZ Admin)
     const isAdmin =
         user &&
         ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
-            (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR);
+            (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
+            (user as AuthUser)?.role === ROLES.TECH_ADMIN);
 
     return (
         <nav className="rcc-service-nav" aria-label="Service navigation">
@@ -112,6 +111,7 @@ const ServiceNavigation = () => {
                                     Applications
                                 </Link>
                             </li>
+                            {/* Your details navigation is temporarily hidden from the UI.
                             {!yourDetailsFeatureDisabled && (
                                 <li
                                     className={`rcc-service-nav__item${
@@ -126,7 +126,7 @@ const ServiceNavigation = () => {
                                         Your details
                                     </Link>
                                 </li>
-                            )}
+                            )} */}
                         </>
                     )}
                 </ul>

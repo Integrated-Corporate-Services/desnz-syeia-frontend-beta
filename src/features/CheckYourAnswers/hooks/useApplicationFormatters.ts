@@ -7,15 +7,16 @@ import { useCallback } from "react";
 export const useApplicationFormatters = () => {
   /**
    * Formats case type string into human-readable form
-   * @param formType - The form type identifier (e.g., 'S37', 'NWL', 'TLP')
+   * @param formType - The form type identifier ('S37' or 'NWL')
    * @returns Formatted case type string
    */
   const formatCaseType = useCallback((formType?: string): string => {
     const typeMap: Record<string, string> = {
       'S37': 'Overhead lines (S37)',
       's37': 'Overhead lines (S37)',
+      's-37': 'Overhead lines (S37)',
       'NWL': 'Necessary wayleaves',
-      'TLP': 'Tree lopping'
+      'nwl': 'Necessary wayleaves'
     };
     return typeMap[formType || 'S37'] || 'Overhead lines (S37)';
   }, []);

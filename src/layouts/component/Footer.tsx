@@ -34,11 +34,6 @@ const Footer = () => {
 
                         <ul className="govuk-footer__inline-list">
                             <li className="govuk-footer__inline-list-item">
-                                <Link className="govuk-footer__link" to="/help">
-                                    Help
-                                </Link>
-                            </li>
-                            <li className="govuk-footer__inline-list-item">
                                 <Link className="govuk-footer__link" to="/cookies">
                                     Cookies
                                 </Link>

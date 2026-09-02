@@ -22,7 +22,7 @@ import { patchNegotiationsData } from '../services';
 import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload';
 import { UploadedFile, ApplicationDocument } from '../../../../types/fileUpload';
 import { useAuthUserContext } from '../../../../context/AuthUserContext';
-import { FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
+import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { createLogger } from '../../../../utils/logger';
 
 import { useNWLProgress } from '../../hooks/useNWLProgress';
@@ -47,6 +47,8 @@ const EvidenceOfNegotiations: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [isFormDirty, setIsFormDirty] = useState(false); // Track if user has modified the form
+  const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
+  const [showErrorSummary, setShowErrorSummary] = useState(false);
 
   const handleDeleteFile = (fileId: string) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
@@ -227,6 +229,27 @@ const EvidenceOfNegotiations: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.EVIDENCE_TITLE}</h1>
 
+            {/* File Validation Error Summary */}
+            {showErrorSummary && fileValidationErrors.length > 0 && (
+              <div
+                className="govuk-error-summary"
+                data-module="govuk-error-summary"
+                tabIndex={-1}
+                role="alert"
+              >
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <ul className="govuk-list govuk-error-summary__list">
+                    {fileValidationErrors.map((error, index) => (
+                      <li key={index}>
+                        <a href="#file-upload">{error}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
             <ErrorSummary errors={errors} />
 
             <form onSubmit={handleSubmit} noValidate>
@@ -250,7 +273,12 @@ const EvidenceOfNegotiations: React.FC = () => {
               />
 
               {/* File Upload Section */}
-              <div className="govuk-form-group">
+              <div className={`govuk-form-group ${fileValidationErrors.length > 0 ? 'govuk-form-group--error' : ''}`} id="file-upload">
+                {fileValidationErrors.length > 0 && (
+                  <p id="file-upload-error" className="govuk-error-message">
+                    <span className="govuk-visually-hidden">Error:</span> {fileValidationErrors[0]}
+                  </p>
+                )}
                 {uploadedFiles && uploadedFiles.length > 0 && (
                   <div className="govuk-!-margin-top-2">
                     <h3 className="govuk-heading-s">{FORM_LABELS.DOCUMENTS_UPLOADED}</h3>
@@ -260,14 +288,20 @@ const EvidenceOfNegotiations: React.FC = () => {
                   ref={fileUploadRef}
                   title={FORM_LABELS.UPLOAD_EVIDENCE}
                   showTitle={true}
-                  prefix={`${appId}/${FILE_CATEGORIES.NEGOTIATIONS}`}
+                  prefix={`${appId}/${NWL_FILE_CATEGORIES.NWL_NEGOTIATIONS}`}
                   applicationId={appId}
-                  category={FILE_CATEGORIES.NEGOTIATIONS}
+                  category={NWL_FILE_CATEGORIES.NWL_NEGOTIATIONS}
                   addedBy={userId}
                   uploadedFiles={uploadedFiles}
                   applicationDocuments={applicationDocuments}
                   uploadImmediately={true}
                   onDeleteFile={handleDeleteFile}
+                  onValidationErrors={(errors) => {
+                    setFileValidationErrors(errors);
+                    if (errors.length > 0) {
+                      setShowErrorSummary(true);
+                    }
+                  }}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
                     setApplicationDocuments((prev) => [...prev, ...newDocuments]);

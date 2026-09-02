@@ -49,7 +49,7 @@ const InvoiceDownloadPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/calculate-fees`), {
+        const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/fees`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -121,15 +121,27 @@ const InvoiceDownloadPage: React.FC = () => {
       setLoading(true);
       setError('');
 
-      // Use backend download endpoint with invoice number as query param
       const downloadUrl = buildBackendUrl(`/api/invoice/${applicationId}/download?invoiceNumber=${encodeURIComponent(effectiveInvoiceNumber)}`);
 
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to download invoice');
+      }
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `Invoice_${effectiveInvoiceNumber}.pdf`;
+      link.href = objectUrl;
+      link.download = `Invoice_${effectiveInvoiceNumber.replace(/\//g, '_')}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
 
       setLoading(false);
     } catch (err: any) {

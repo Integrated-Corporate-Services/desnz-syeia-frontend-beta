@@ -7,6 +7,8 @@ import { applicationApiService } from '../../../services/applicationApiService';
 import { trackPaymentEvent, trackButtonClick } from '../../../utils/analytics';
 import { BANK_TRANSFER_SUCCESS_PAGE, formatCurrency } from '../../../constants/payment';
 import { usePdfDownload } from '../../ApplicationSummary/hooks';
+import PageTitle from '../../../components/PageTitle';
+import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
 
 const CARD_PAYMENT_SUCCESS_CONTENT = {
   PANEL_TITLE: 'Application submitted',
@@ -29,7 +31,6 @@ const CARD_PAYMENT_SUCCESS_CONTENT = {
   INVOICE_INFO: 'You can find your invoice in the application summary.',
   VIEW_APPLICATION_SUMMARY: 'View application summary',
 } as const;
-import PageTitle from '../../../components/PageTitle';
 
 interface PaymentSuccessState {
   invoiceNumber?: string;
@@ -42,21 +43,23 @@ interface PaymentSuccessState {
 const PaymentSuccessPage: React.FC = () => {
   const location = useLocation();
   const applicationId = useGetApplicationId();
-  
+
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
   const isNwlRoute = baseUrl === NWL_BASE_URL;
-  
+
   const {
-    invoiceNumber,
+    invoiceNumber: passedInvoiceNumber,
     paymentId,
-    reference,
+    reference: passedReference,
     desnz_ref: passedDesnzRef,
-    totalAmount,
+    totalAmount: passedTotalAmount,
   } = (location.state as PaymentSuccessState | null) || {};
 
-  // State for fetched desnz_ref if not passed
   const [desnz_ref, setDesnzRef] = useState<string | undefined>(passedDesnzRef);
-  const [loading, setLoading] = useState(!passedDesnzRef);
+  const [invoiceNumber, setInvoiceNumber] = useState<string | undefined>(passedInvoiceNumber);
+  const [reference, setReference] = useState<string | undefined>(passedReference || paymentId);
+  const [totalAmount, setTotalAmount] = useState<number | undefined>(passedTotalAmount);
+  const [loading, setLoading] = useState(!passedDesnzRef || !passedInvoiceNumber || passedTotalAmount == null);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -69,39 +72,73 @@ const PaymentSuccessPage: React.FC = () => {
     clearError,
   } = usePdfDownload();
 
-  // Track payment success page load
   useEffect(() => {
     trackPaymentEvent('payment_success_page_loaded', {
       page_path: location.pathname,
       application_id: applicationId,
-      invoice_number: invoiceNumber,
+      invoice_number: passedInvoiceNumber,
       payment_id: paymentId,
       desnz_ref: passedDesnzRef,
-      total_amount: totalAmount,
+      total_amount: passedTotalAmount,
     });
   }, []);
 
-  // Fetch desnz_ref from backend if not provided in navigation state
   useEffect(() => {
-    if (!passedDesnzRef && applicationId) {
-      const fetchDesnzRef = async () => {
-        try {
-          setLoading(true);
-          const data = await applicationApiService.fetchApplicationDetails(applicationId);
-          setDesnzRef(data.desnz_ref || applicationId);
-          setError(null);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch DESNZ reference');
-          // Fallback to applicationId if fetch fails
-          setDesnzRef(applicationId);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchDesnzRef();
+    if (!applicationId) {
+      return;
     }
-  }, [applicationId, passedDesnzRef]);
+
+    const needsDesnzRef = !passedDesnzRef;
+    const needsInvoiceNumber = !passedInvoiceNumber;
+    const needsAmount = passedTotalAmount == null;
+    const needsReference = !passedReference && !paymentId;
+
+    if (!needsDesnzRef && !needsInvoiceNumber && !needsAmount && !needsReference) {
+      return;
+    }
+
+    const fetchMissingData = async () => {
+      try {
+        setLoading(true);
+        const [appDetails, invoiceFromApi, feeTotal, review] = await Promise.all([
+          needsDesnzRef ? applicationApiService.fetchApplicationDetails(applicationId) : Promise.resolve(null),
+          needsInvoiceNumber ? fetchInvoiceNumber(applicationId) : Promise.resolve(null),
+          needsAmount ? fetchFeeTotal(applicationId) : Promise.resolve(null),
+          needsReference ? applicationApiService.getApplicationReview(applicationId).catch(() => null) : Promise.resolve(null),
+        ]);
+
+        if (appDetails) {
+          setDesnzRef(appDetails.desnz_ref || applicationId);
+        }
+        if (invoiceFromApi) {
+          setInvoiceNumber(invoiceFromApi);
+        }
+        if (typeof feeTotal === 'number') {
+          setTotalAmount(feeTotal);
+        }
+        if (review) {
+          const payment = (review as {
+            payment?: { payment_id?: string; reference?: string; transaction_number?: string };
+            sections?: { payment?: { payment_id?: string; reference?: string; transaction_number?: string } };
+          }).payment || (review as { sections?: { payment?: { payment_id?: string; reference?: string; transaction_number?: string } } }).sections?.payment;
+          const paymentRef = payment?.payment_id || payment?.reference || payment?.transaction_number;
+          if (paymentRef) {
+            setReference(paymentRef);
+          }
+        }
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch payment details');
+        if (!passedDesnzRef) {
+          setDesnzRef(applicationId);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMissingData();
+  }, [applicationId, passedDesnzRef, passedInvoiceNumber, passedReference, passedTotalAmount, paymentId]);
 
   return (
     <>
@@ -131,29 +168,33 @@ const PaymentSuccessPage: React.FC = () => {
             )}
 
             <h2 className="govuk-heading-m">{CARD_PAYMENT_SUCCESS_CONTENT.PAYMENT_SUMMARY_HEADING}</h2>
-            
+
             <table className="govuk-table">
               <tbody className="govuk-table__body">
                 <tr className="govuk-table__row">
-                  <th scope="row" className="govuk-table__header">Reference number</th>
-                  <td className="govuk-table__cell">{reference || paymentId || 'N/A'}</td>
-                </tr>
-                <tr className="govuk-table__row">
-                  <th scope="row" className="govuk-table__header">Invoice number</th>
-                  <td className="govuk-table__cell">{invoiceNumber || 'N/A'}</td>
-                </tr>
-                <tr className="govuk-table__row">
                   <th scope="row" className="govuk-table__header">{CARD_PAYMENT_SUCCESS_CONTENT.SUMMARY_LABELS.REFERENCE_NUMBER}</th>
-                  <td className="govuk-table__cell">{reference || paymentId || 'N/A'}</td>
+                  <td className="govuk-table__cell">
+                    {loading && !reference
+                      ? CARD_PAYMENT_SUCCESS_CONTENT.LOADING_TEXT
+                      : reference || CARD_PAYMENT_SUCCESS_CONTENT.NOT_AVAILABLE_TEXT}
+                  </td>
                 </tr>
                 <tr className="govuk-table__row">
                   <th scope="row" className="govuk-table__header">{CARD_PAYMENT_SUCCESS_CONTENT.SUMMARY_LABELS.INVOICE_NUMBER}</th>
-                  <td className="govuk-table__cell">{invoiceNumber || 'N/A'}</td>
+                  <td className="govuk-table__cell">
+                    {loading && !invoiceNumber
+                      ? CARD_PAYMENT_SUCCESS_CONTENT.LOADING_TEXT
+                      : invoiceNumber || CARD_PAYMENT_SUCCESS_CONTENT.NOT_AVAILABLE_TEXT}
+                  </td>
                 </tr>
                 <tr className="govuk-table__row">
                   <th scope="row" className="govuk-table__header">{CARD_PAYMENT_SUCCESS_CONTENT.SUMMARY_LABELS.TOTAL_AMOUNT}</th>
                   <td className="govuk-table__cell">
-                    {typeof totalAmount === 'number' ? formatCurrency(totalAmount) : 'N/A'}
+                    {typeof totalAmount === 'number'
+                      ? formatCurrency(totalAmount)
+                      : loading
+                        ? CARD_PAYMENT_SUCCESS_CONTENT.LOADING_TEXT
+                        : CARD_PAYMENT_SUCCESS_CONTENT.NOT_AVAILABLE_TEXT}
                   </td>
                 </tr>
                 <tr className="govuk-table__row">
