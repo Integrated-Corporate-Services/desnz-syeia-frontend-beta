@@ -4,7 +4,6 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { getConsultationResponse, saveConsultationResponse } from '../../../services/consultationResponseService';
-import { getConsultationRequest } from '../../../services/consultationRequestService';
 import { ConsultationResponse } from '../../../types/ConsultationResponse';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
@@ -56,20 +55,6 @@ const ConsultationResponse2: React.FC = () => {
                     setUploadedFileObjs(data.uploaded_files || []);
                     setApplicationDocuments(data.application_documents || []);
                     setResponseId(data.response_id || '');
-
-                    // Fetch the consultation request's sent date, so the response date can be validated against it
-                    try {
-                        const requestData = await getConsultationRequest(applicationId!, consultationId);
-                        if (requestData?.sentDate) {
-                            // Normalise to a local calendar-date (matching how day/month/year fields are populated elsewhere),
-                            // so timezone offsets in the stored timestamp don't shift the comparison to the wrong day
-                            const sentAt = new Date(requestData.sentDate);
-                            setRequestSentDate(new Date(sentAt.getFullYear(), sentAt.getMonth(), sentAt.getDate()));
-                        }
-                    } catch (requestErr) {
-                        // Consultation request may not exist yet (e.g. offline consultations) - skip cross-date validation
-                    }
-
                     // Fetch all consultations to get the organization name
                     const consultations = await fetchConsultationDetails(applicationId!, user?.user_id!);
 
@@ -81,6 +66,11 @@ const ConsultationResponse2: React.FC = () => {
                         const orgName = currentConsultation.consulteeOrganisationName || currentConsultation.otherConsultee || 'Consultation';
                         setConsultationName(orgName);
                         setConsultationType(currentConsultation.consultationType || '');
+
+                        if (currentConsultation.sentAt) {
+                            const sentDate = new Date(currentConsultation.sentAt);
+                            setRequestSentDate(new Date(sentDate.getFullYear(), sentDate.getMonth(), sentDate.getDate()));
+                        }
                     }
                 } catch (err) {
                     // Error fetching consultation response
@@ -201,7 +191,10 @@ const ConsultationResponse2: React.FC = () => {
             const newErrors: { [key: string]: string } = {};
             
             if (consultationType !== ConsultationType.PUBLIC) {
-                const dateValidation = validateDateComponents(responseDate, 'the consultation response was received', { required: true });
+                const dateValidation = validateDateComponents(responseDate, 'the consultation response was received', {
+                    required: true,
+                    allowFutureDate: true,
+                });
                 if (!dateValidation.isValid) {
                     newErrors.responseDate = dateValidation.error!;
                 } else if (requestSentDate) {

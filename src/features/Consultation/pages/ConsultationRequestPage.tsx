@@ -180,7 +180,10 @@ const ConsultationRequestPage: React.FC = () => {
 
       const totalUploadedFiles = uploadedFileObjs.length + newlyUploadedFiles.length;
       
-      const dateValidation = validateDateComponents(responseDate, 'the consultation request was sent', { required: true });
+      const dateValidation = validateDateComponents(responseDate, 'the consultation request was sent', {
+        required: true,
+        allowFutureDate: true,
+      });
       const newErrors: { [key: string]: string } = {};
       
       if (!dateValidation.isValid) {
