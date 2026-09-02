@@ -6,7 +6,7 @@ import { ROLES } from '../constants/roles';
 
 /**
  * Hook to determine if application should be read-only
- * Returns true if application is submitted AND user is not a DESNZ admin
+ * Returns true if application is submitted AND user is not a Superuser
  */
 export const useApplicationReadOnly = (
   application: Application | null | undefined,

@@ -240,7 +240,7 @@ export const UserRow: React.FC<UserRowProps> = ({
             }}
           >
             {user.role === ROLES.SUPERUSER
-              ? "DESNZ Admin"
+              ? "Superuser"
               : user.role === ROLES.APPLICANT_TEAM_COORDINATOR
                 ? "DNO Team Coordinator"
                 : user.role === ROLES.TECH_ADMIN

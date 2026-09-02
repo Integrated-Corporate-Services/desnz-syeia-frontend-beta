@@ -26,7 +26,7 @@ const ManageUserPage: React.FC = () => {
   };
 
   const formatRole = (role: string) => {
-    if (role === ROLES.SUPERUSER) return 'DESNZ Admin';
+    if (role === ROLES.SUPERUSER) return 'Superuser';
     if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
     if (role === ROLES.TECH_ADMIN) return 'Tech Admin';
     if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';

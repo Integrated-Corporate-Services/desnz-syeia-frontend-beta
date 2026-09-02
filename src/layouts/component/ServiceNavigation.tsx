@@ -50,7 +50,7 @@ const ServiceNavigation = () => {
 
     if (location.pathname === "/feedback" && (user as AuthUser)?.role === "pending") return null;
 
-    // Check if user has admin role (DTC, Tech Admin, or DESNZ Admin)
+    // Check if user has admin role (DTC, Tech Admin, or Superuser)
     const isAdmin =
         user &&
         ((user as AuthUser)?.role === ROLES.SUPERUSER ||
