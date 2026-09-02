@@ -18,6 +18,8 @@ import { CookieBanner, CookieConsentProvider } from "./modules/cookie-consent";
 import { usePageTracking } from "./lib/analytics";
 import { getAuthLoginUrl } from "./utils/apiConfig";
 import { parseEnvBoolean, getRuntimeEnv } from "./config/runtimeEnv";
+import SingleActiveTabGuard from "./components/SingleActiveTabGuard";
+import TabConflictPage from "./pages/TabConflictPage";
 
 const logger = createLogger("App");
 
@@ -59,6 +61,7 @@ const AppContent = () => {
   }, []);
 
   const validPaths = [...ROUTE_CONFIG.map((route) => route.path)];
+  validPaths.push('/tab-conflict');
   const isNotFound =
     location.pathname &&
     !validPaths.some((path) => {
@@ -91,12 +94,14 @@ const AppContent = () => {
     <>
       <CookieBanner />
       <SessionTimeout />
+      <SingleActiveTabGuard />
       <AutoScrollToTop />
       {isNotFound ? (
         <NotFound />
       ) : useLayout ? (
           <MainLayout>
             <Routes>
+              <Route path="/tab-conflict" element={<TabConflictPage />} />
               {ROUTE_CONFIG.filter((r) => r.layout !== false).map((route) => {
                 const { path, component: Component, auth } = route;
                 if (path === "/" || path === "/landingPage") {
@@ -122,6 +127,7 @@ const AppContent = () => {
           </MainLayout>
         ) : (
           <Routes>
+            <Route path="/tab-conflict" element={<TabConflictPage />} />
             {ROUTE_CONFIG.filter((r) => r.layout === false).map((route) => {
               const { path, component: Component, auth } = route;
               if (path === "/" || path === "/landingPage") {

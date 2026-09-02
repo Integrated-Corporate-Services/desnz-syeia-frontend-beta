@@ -7,6 +7,11 @@ import { createLogger } from './logger';
 import { buildBackendUrl } from './apiConfig';
 const logger = createLogger('ApiErrorHandler');
 
+const getTabHeaders = (): { 'X-Tab-Id'?: string } => {
+  const tabId = sessionStorage.getItem('syeia.active-tab-id');
+  return tabId ? { 'X-Tab-Id': tabId } : {};
+};
+
 function redirectToSignedOut(reason: string): void {
   const target = `/signed-out?reason=${encodeURIComponent(reason)}`;
   window.location.href = target;
@@ -109,6 +114,10 @@ export async function apiFetch<T = unknown>(
   try {
     const response = await fetch(url, {
       ...options,
+      headers: {
+        ...getTabHeaders(),
+        ...options?.headers,
+      },
       credentials: options?.credentials || 'include', // Always include credentials for session cookies
     });
 
