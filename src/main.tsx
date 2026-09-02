@@ -11,6 +11,7 @@ import { CookieConsentProvider, type ConsentChangeCallback } from "./modules/coo
 import { createLogger } from "./utils/logger";
 import { fetchCsrfToken, getCsrfToken } from "./utils/csrf";
 import { getApiBaseUrl } from "./utils/apiConfig";
+import { getOrCreateTabId } from "./constants/tabSession";
 
 const logger = createLogger('axios-interceptor');
 const csrfLogger = createLogger('csrf');
@@ -24,6 +25,16 @@ fetchCsrfToken().then(() => {
 
 axios.interceptors.request.use(
   async (config) => {
+    const requestUrl = config.url || '';
+    const backendBaseUrl = getApiBaseUrl();
+    const isBackendRequest = backendBaseUrl
+      ? requestUrl.startsWith(backendBaseUrl) || requestUrl.startsWith('/')
+      : requestUrl.startsWith('/');
+
+    if (isBackendRequest) {
+      config.headers.set('X-Tab-Id', getOrCreateTabId());
+    }
+
     let csrfToken = getCsrfToken();
     
     if (!csrfToken && ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
