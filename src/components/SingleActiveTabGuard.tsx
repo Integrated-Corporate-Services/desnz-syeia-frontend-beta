@@ -73,7 +73,7 @@ const SingleActiveTabGuard = () => {
     };
 
     void checkTab();
-  intervalId = window.setInterval(() => void checkTab(), HEARTBEAT_INTERVAL_MS);
+    intervalId = window.setInterval(() => void checkTab(), HEARTBEAT_INTERVAL_MS);
     window.addEventListener('pagehide', handlePageHide);
 
     return () => {
