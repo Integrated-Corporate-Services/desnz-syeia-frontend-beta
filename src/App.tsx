@@ -61,7 +61,6 @@ const AppContent = () => {
   }, []);
 
   const validPaths = [...ROUTE_CONFIG.map((route) => route.path)];
-  validPaths.push('/tab-conflict');
   const isNotFound =
     location.pathname &&
     !validPaths.some((path) => {
@@ -101,7 +100,6 @@ const AppContent = () => {
       ) : useLayout ? (
           <MainLayout>
             <Routes>
-              <Route path="/tab-conflict" element={<TabConflictPage />} />
               {ROUTE_CONFIG.filter((r) => r.layout !== false).map((route) => {
                 const { path, component: Component, auth } = route;
                 if (path === "/" || path === "/landingPage") {
@@ -127,7 +125,6 @@ const AppContent = () => {
           </MainLayout>
         ) : (
           <Routes>
-            <Route path="/tab-conflict" element={<TabConflictPage />} />
             {ROUTE_CONFIG.filter((r) => r.layout === false).map((route) => {
               const { path, component: Component, auth } = route;
               if (path === "/" || path === "/landingPage") {

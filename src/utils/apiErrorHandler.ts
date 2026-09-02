@@ -5,12 +5,11 @@
 
 import { createLogger } from './logger';
 import { buildBackendUrl } from './apiConfig';
-import { TAB_ID_STORAGE_KEY } from '../constants/tabSession';
+import { getOrCreateTabId } from '../constants/tabSession';
 const logger = createLogger('ApiErrorHandler');
 
 const getTabHeaders = (): { 'X-Tab-Id'?: string } => {
-  const tabId = sessionStorage.getItem(TAB_ID_STORAGE_KEY);
-  return tabId ? { 'X-Tab-Id': tabId } : {};
+  return { 'X-Tab-Id': getOrCreateTabId() };
 };
 
 function redirectToSignedOut(reason: string): void {

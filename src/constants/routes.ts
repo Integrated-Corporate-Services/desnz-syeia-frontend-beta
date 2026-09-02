@@ -137,6 +137,7 @@ import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesE
 import SignedOutPage from '../pages/SignedOutPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
 import ClosedPage from '../pages/ClosedPage';
+import TabConflictPage from '../pages/TabConflictPage';
 import StartRedirect from '../components/StartRedirect';
 import { FeedbackPage } from '../modules/feedback';
 // import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
@@ -194,6 +195,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/signed-out',
         component: SignedOutPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/tab-conflict',
+        component: TabConflictPage,
         auth: false,
         layout: true,
     },

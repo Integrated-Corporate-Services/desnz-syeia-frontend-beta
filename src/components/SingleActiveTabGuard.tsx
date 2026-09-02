@@ -1,22 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthUserContext } from '../context/AuthUserContext';
-import { buildBackendUrl } from '../utils/apiConfig';
+import { buildBackendUrl, getApiBaseUrl } from '../utils/apiConfig';
 import { getCsrfHeaders } from '../utils/csrf';
 import { createLogger } from '../utils/logger';
-import { TAB_ID_STORAGE_KEY } from '../constants/tabSession';
+import { getOrCreateTabId, installTabIdFetchInterceptor } from '../constants/tabSession';
 
 const logger = createLogger('SingleActiveTabGuard');
 const HEARTBEAT_INTERVAL_MS = 15_000;
-
-function getTabId(): string {
-  const existingTabId = sessionStorage.getItem(TAB_ID_STORAGE_KEY);
-  if (existingTabId) return existingTabId;
-
-  const tabId = crypto.randomUUID();
-  sessionStorage.setItem(TAB_ID_STORAGE_KEY, tabId);
-  return tabId;
-}
 
 async function sendHeartbeat(tabId: string): Promise<boolean> {
   const response = await fetch(buildBackendUrl('/session/tab/heartbeat'), {
@@ -59,7 +50,8 @@ const SingleActiveTabGuard = () => {
   useEffect(() => {
     if (loading || !authenticated) return undefined;
 
-    const tabId = getTabId();
+    installTabIdFetchInterceptor(getApiBaseUrl());
+    const tabId = getOrCreateTabId();
     tabIdRef.current = tabId;
     let stopped = false;
     let intervalId: number | undefined;
