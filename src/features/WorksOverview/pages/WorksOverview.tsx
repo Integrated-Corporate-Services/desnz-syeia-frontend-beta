@@ -111,6 +111,7 @@ const WorksOverview: React.FC = () => {
       try {
         const data = await getWorksOverview(effectiveApplicationId);
         if (data && (data.application_id === effectiveApplicationId || data.applicationId === effectiveApplicationId)) {
+          const hasSavedWorksOverview = data.hasSavedWorksOverview !== false;
           setForm({
             addingOrReplacingPoles: data.addingOrReplacingPoles != null ? (data.addingOrReplacingPoles ? 'yes' : 'no') : '',
             poleMaterial: data.poleMaterial || '',
@@ -134,7 +135,7 @@ const WorksOverview: React.FC = () => {
             removingExistingEquipment: data.removingExistingEquipment != null ? (data.removingExistingEquipment ? 'yes' : 'no') : '',
             removalDescription: data.removalDescription || '',
           });
-          setIsEditMode(true);
+          setIsEditMode(hasSavedWorksOverview);
           setRoadClosureFiles(mapUploadedFiles(data.roadClosureUploadedFiles));
           setRoadClosureDocuments(mapApplicationDocuments(data.roadClosureApplicationDocuments));
         } else {

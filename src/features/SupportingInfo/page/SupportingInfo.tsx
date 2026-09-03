@@ -96,6 +96,7 @@ const SupportingInfo: React.FC = () => {
     
     if (applicationId && supportingInfo.application_id === applicationId) {
       hasBindDataRef.current = true;
+      const hasSavedSupportingInfo = supportingInfo.has_saved_supporting_info !== false;
       const {
         wayleaves_obtained,
         esqcr_2002_compliance_confirmed,
@@ -105,11 +106,21 @@ const SupportingInfo: React.FC = () => {
         application_documents
       } = supportingInfo;
 
-      setWayleaves(wayleaves_obtained ? "yes" : "no");
-      setRegulations(esqcr_2002_compliance_confirmed);
-      setWayleavesReason(supportingInfo.wayleaves_not_obtained_reason || "");
-      setSupportingDocs(has_additional_supporting_documents ? "yes" : "no");
-      setComments(applicant_supporting_comments || "");
+      if (hasSavedSupportingInfo) {
+        setWayleaves(wayleaves_obtained ? "yes" : "no");
+        setRegulations(esqcr_2002_compliance_confirmed);
+        setWayleavesReason(supportingInfo.wayleaves_not_obtained_reason || "");
+        setSupportingDocs(has_additional_supporting_documents ? "yes" : "no");
+        setComments(applicant_supporting_comments || "");
+      } else {
+        setWayleaves("");
+        setRegulations(false);
+        setWayleavesReason("");
+        setSupportingDocs(
+          Array.isArray(application_documents) && application_documents.length > 0 ? "yes" : ""
+        );
+        setComments("");
+      }
 
       // If uploaded_files is already in UploadedFile[] format, set it directly (with bounds check)
       if (
