@@ -13,11 +13,12 @@ export function useSupportingInfo() {
     setSupportingInfo(null);
     try {
       const response = await SupportingInfoService.getSupportingInfo(applicationId);
-      const firstRecord = response.supportingInfo[0] || null;
-      if (firstRecord) {
+      const supportingInfoRecord = response.supportingInfo[0] || null;
+      const isSupportingInfoSaved = response.hasSavedSupportingInfo ?? (response.supportingInfo.length > 0);
+      if (supportingInfoRecord) {
         setSupportingInfo({
-          ...firstRecord,
-          has_saved_supporting_info: response.hasSavedSupportingInfo !== false,
+          ...supportingInfoRecord,
+          has_saved_supporting_info: isSupportingInfoSaved,
         });
       } else {
         setSupportingInfo(null);
@@ -38,9 +39,10 @@ export function useSupportingInfo() {
       }
 
       const response = await SupportingInfoService.getSupportingInfo(data.application_id);
+      const isSupportingInfoSaved = response.hasSavedSupportingInfo ?? (response.supportingInfo.length > 0);
       let result;
 
-      if (response.hasSavedSupportingInfo) {
+      if (isSupportingInfoSaved) {
         result = await SupportingInfoService.updateSupportingInfo(data);
       } else {
         result = await SupportingInfoService.createSupportingInfo(data);

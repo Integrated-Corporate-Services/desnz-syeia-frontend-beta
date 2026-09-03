@@ -9,8 +9,8 @@ export interface SupportingInfo {
   applicant_supporting_comments?: string;
   has_additional_supporting_documents: boolean;
   has_saved_supporting_info?: boolean;
-  uploaded_files?: FileList | null;
-  application_documents?: any[];
+  uploaded_files?: UploadedFile[] | null;
+  application_documents?: ApplicationDocument[];
   created_at?: string;
   updated_at?: string;
 }
