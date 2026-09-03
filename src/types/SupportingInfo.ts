@@ -8,6 +8,7 @@ export interface SupportingInfo {
   esqcr_2002_compliance_confirmed: boolean;
   applicant_supporting_comments?: string;
   has_additional_supporting_documents: boolean;
+  has_saved_supporting_info?: boolean;
   uploaded_files?: FileList | null;
   application_documents?: any[];
   created_at?: string;
@@ -17,6 +18,7 @@ export interface SupportingInfo {
 export interface SupportingInfoResponse {
   supportingInfo: SupportingInfo[];
   applicationId: string;
+  hasSavedSupportingInfo?: boolean;
 }
 
 export interface SupportingInfoRequest {

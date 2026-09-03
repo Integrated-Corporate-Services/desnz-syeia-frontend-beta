@@ -13,7 +13,15 @@ export function useSupportingInfo() {
     setSupportingInfo(null);
     try {
       const response = await SupportingInfoService.getSupportingInfo(applicationId);
-      setSupportingInfo(response.supportingInfo[0] || null);
+      const firstRecord = response.supportingInfo[0] || null;
+      if (firstRecord) {
+        setSupportingInfo({
+          ...firstRecord,
+          has_saved_supporting_info: response.hasSavedSupportingInfo !== false,
+        });
+      } else {
+        setSupportingInfo(null);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch supporting info.');
     } finally {
@@ -32,7 +40,7 @@ export function useSupportingInfo() {
       const response = await SupportingInfoService.getSupportingInfo(data.application_id);
       let result;
 
-      if (response.supportingInfo.length > 0) {
+      if (response.hasSavedSupportingInfo) {
         result = await SupportingInfoService.updateSupportingInfo(data);
       } else {
         result = await SupportingInfoService.createSupportingInfo(data);
