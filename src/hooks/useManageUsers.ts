@@ -18,7 +18,7 @@ export const useManageUsers = () => {
   const userOrganisation = user?.organisation_name;
   const userOrganisationId = user?.organisation_id;
   const currentUserId = user?.user_id;
-  const isDesnzAdminRole = user?.role === ROLES.DESNZ_ADMIN;
+  const isSuperUserRole = user?.role === ROLES.SUPERUSER;
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ export const useManageUsers = () => {
         setLoading(true);
         setError("");
         const response = await userService.getUsers(
-          isDesnzAdminRole ? null : userOrganisation || null
+          isSuperUserRole ? null : userOrganisation || null
         );
         if (response.success && response.data) {
           setUsers(response.data);
@@ -55,7 +55,7 @@ export const useManageUsers = () => {
     } else {
       logger.debug("User not loaded yet, skipping API call");
     }
-  }, [user, userOrganisation, isDesnzAdminRole]);
+  }, [user, userOrganisation, isSuperUserRole]);
 
   // Computed values - Filter out current user and apply organisation filter if needed
   const filteredUsers = users.filter((u) => u.id !== currentUserId);
@@ -64,7 +64,7 @@ export const useManageUsers = () => {
   const inactiveCount = filteredUsers.filter(
     (u) => u.status === "SUSPENDED" || u.status === "INACTIVE"
   ).length;
-  const actionColumnCount = isDesnzAdminRole ? 7 : 6;
+  const actionColumnCount = isSuperUserRole ? 7 : 6;
 
   // Handler functions
   const handleRevokeAccess = (userId: string) => {
@@ -86,7 +86,7 @@ export const useManageUsers = () => {
         if (response.success) {
           // Reload users to reflect the change
           const usersResponse = await userService.getUsers(
-            isDesnzAdminRole ? null : userOrganisation || null
+            isSuperUserRole ? null : userOrganisation || null
           );
           if (usersResponse.success && usersResponse.data) {
             setUsers(usersResponse.data);

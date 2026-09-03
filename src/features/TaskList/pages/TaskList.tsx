@@ -17,7 +17,7 @@ const TaskList: React.FC = () => {
   const { user } = useAuthUserContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
+  const isAdmin = (user as AuthUser)?.role === ROLES.SUPERUSER;
   const applicationId = useGetApplicationId();
 
   // Use the hook to get sections from useTaskListData
