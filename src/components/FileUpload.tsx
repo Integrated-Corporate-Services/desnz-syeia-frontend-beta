@@ -16,7 +16,6 @@ import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
 import { waitForScanResults } from "../utils/fileScanPolling";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
-import { DEMO_USER_ID } from "../constants/demo";
 
 const logger = createLogger('FileUpload');
 
@@ -119,7 +118,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const userId =
     (user as AuthUser)?.user_id ||
     (user as AuthUser)?.person_id ||
-    DEMO_USER_ID;
+    "";
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload

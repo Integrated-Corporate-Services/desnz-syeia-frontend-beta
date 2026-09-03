@@ -14,7 +14,6 @@ import { ApplicationDashboardFilters } from "../components/ApplicationDashboardF
 import { ApplicationDashboardHeader } from "../components/ApplicationDashboardHeader";
 import { ApplicationDashboardTabs } from "../components/ApplicationDashboardTabs";
 import { Pagination } from "../components/Pagination";
-import { DEMO_USER_ID } from "../../../constants/demo";
 import {
   shouldShowSubmittedByFilter,
   getUserRole,
@@ -30,7 +29,7 @@ import "../../../styles/ApplicationDashboard.css";
 
 const ApplicationDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
-  const created_by = (user as AuthUser)?.user_id || DEMO_USER_ID;
+  const created_by = (user as AuthUser)?.user_id || (user as AuthUser)?.person_id || "";
   const { applications, fetchApplications, setApplication } = useApplication();
   const navigate = useNavigate();
 
