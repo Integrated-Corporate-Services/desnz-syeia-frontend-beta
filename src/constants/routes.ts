@@ -135,6 +135,7 @@ import EvidenceResponseNotReceivedPage from '../features/Consultation/pages/Evid
 import RemoveConsultation from '../features/Consultation/pages/RemoveConsultation';
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
 import SignedOutPage from '../pages/SignedOutPage';
+import ThereIsAProblemPage from '../pages/ThereIsAProblemPage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
 import ClosedPage from '../pages/ClosedPage';
 import StartRedirect from '../components/StartRedirect';
@@ -194,6 +195,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/signed-out',
         component: SignedOutPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/there-is-a-problem',
+        component: ThereIsAProblemPage,
         auth: false,
         layout: true,
     },

@@ -12,6 +12,13 @@ function redirectToSignedOut(reason: string): void {
   window.location.href = target;
 }
 
+export function redirectToThereIsAProblem(correlationId?: string): void {
+  const target = correlationId
+    ? `/there-is-a-problem?ref=${encodeURIComponent(correlationId)}`
+    : '/there-is-a-problem';
+  window.location.href = target;
+}
+
 export interface ApiError extends Error {
   status?: number;
   code?: string;
@@ -85,6 +92,18 @@ export async function handleApiError(response: Response): Promise<never> {
     });
     // Could redirect to an "Access Denied" page
     // For now, just throw the error
+  }
+
+  if (response.status >= 500) {
+    logger.error('Server error, redirecting to there-is-a-problem page', {
+      status: response.status,
+      correlationId: (errorData as ErrorResponseData & { correlationId?: string }).correlationId,
+      url: response.url,
+    });
+    redirectToThereIsAProblem(
+      (errorData as ErrorResponseData & { correlationId?: string }).correlationId
+    );
+    throw error;
   }
 
   // Log other errors
