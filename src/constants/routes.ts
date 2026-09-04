@@ -95,6 +95,8 @@ import UserAccessRevokedPage from '../features/auth/pages/UserAccessRevokedPage'
 import ManageUserPage from '../features/admin/pages/ManageUserPage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
+import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
+import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
@@ -363,12 +365,24 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    // {
-    //     path: '/admin/organisation/:organisationId/settings',
-    //     component: ManageOrganisationSettingsPage,
-    //     auth: true,
-    //     layout: true,
-    // },
+    {
+        path: '/admin/organisation/:organisationId/settings',
+        component: ManageOrganisationSettingsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/admin/organisations/:organisationId/change-name',
+        component: ChangeOrganisationNamePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/admin/organisations/:organisationId/change-address',
+        component: ChangeOrganisationAddressPage,
+        auth: true,
+        layout: true,
+    },
     // {
     //     path: '/admin/organisations/:organisationId/team-coordinators',
     //     component: TeamCoordinatorsPage,

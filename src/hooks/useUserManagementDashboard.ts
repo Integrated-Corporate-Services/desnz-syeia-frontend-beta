@@ -14,7 +14,7 @@ export const useUserManagementDashboard = () => {
 
   const [activeTab, setActiveTab] = useState<
     "organisations" | "active-users" | "pending-requests"
-  >("pending-requests");
+  >("organisations");
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;

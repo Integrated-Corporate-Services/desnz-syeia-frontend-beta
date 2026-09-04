@@ -9,6 +9,7 @@ import PageTitle from "../../../components/PageTitle";
 
 const UserManagementDashboard: React.FC = () => {
   const {
+    isDesnzAdmin,
     activeTab,
     // showFilters,
     currentPage,
@@ -39,8 +40,9 @@ const UserManagementDashboard: React.FC = () => {
           <div className="govuk-grid-column-full">
             <h1 className="govuk-heading-l">User Management Dashboard</h1>
             <p className="govuk-body-m">
-              Manage access request and users across all Distribution Network
-              Operators.
+              {isDesnzAdmin
+                ? "Manage access requests and users across all Distribution Network Operators."
+                : "Manage access requests and users for your organisation."}
             </p>
 
             <TabNavigation
@@ -50,14 +52,13 @@ const UserManagementDashboard: React.FC = () => {
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
-            
-            {/* {activeTab === "organisations" && (
+            {activeTab === "organisations" && (
               <OrganisationsTab
                 organisations={organisations}
                 loading={organisationsLoading}
                 error={organisationsError}
               />
-            )} */}
+            )}
 
             {activeTab === "active-users" && (
               <ActiveUsersTab

@@ -5,6 +5,7 @@ export interface Organisation {
   organisation_name: string;
   organisation_type?: string;
   team_coordinators: string[];
+  team_coordinator_emails?: string[];
   approved_domains: string[];
   address_line1?: string;
   address_line2?: string;
