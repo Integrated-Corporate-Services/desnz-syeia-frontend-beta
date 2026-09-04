@@ -107,6 +107,11 @@ class OrganisationService {
       });
       return { success: true, data: response.data };
     } catch (error: any) {
+      logger.error('Failed to update organisation name:', {
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
       return {
         success: false,
         message: error.response?.data?.error || 'Failed to update organisation name',
