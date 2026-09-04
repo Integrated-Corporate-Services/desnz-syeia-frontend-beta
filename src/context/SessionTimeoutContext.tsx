@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback, useMemo } from 'react';
-import { logout } from '../services/authService';
+import { logout } from '../services/auth/logoutService';
 import { useAuthUserContext } from './AuthUserContext';
 import { createLogger } from '../utils/logger';
 import { SESSION_TIMEOUT, SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuthUserContext } from '../context/AuthUserContext';
-import { logout } from '../services/authService';
+import { logout } from '../services/auth/logoutService';
 
 const SignOutButton: React.FC = () => {
   const { user, loading } = useAuthUserContext();

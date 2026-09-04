@@ -3,7 +3,8 @@ import { useSessionTimeout } from '../context/SessionTimeoutContext';
 import { useAuthUserContext } from '../context/AuthUserContext';
 import { createLogger } from '../utils/logger';
 import '../styles/SessionTimeout.css'
-import { logout, keepAlive } from '../services/authService';
+import { logout } from '../services/auth/logoutService';
+import { keepAlive } from '../services/auth/keepAliveService';
 import { SESSION_WARNING, SIGNED_OUT_PAGE } from '../constants/sessionTimeout';
 
 const logger = createLogger('SessionTimeoutModal');

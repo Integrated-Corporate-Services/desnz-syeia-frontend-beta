@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import { useEffect, useRef } from "react";
-import { getAuthUser, AuthUserResponse } from "../services/authService";
+import { getAuthUser } from "../services/auth/sessionService";
+import type { AuthUserResponse } from "../services/auth/types";
 import { useAuth } from "./useAuth";
 import { createLogger } from "../utils/logger";
 import { getRuntimeEnv, parseEnvBoolean } from "../config/runtimeEnv";

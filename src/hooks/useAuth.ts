@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { AuthUser } from '../types/auth';
-import type { AuthUserResponse } from '../services/authService';
-import { signOut as signOutService } from '../services/authService';
+import type { AuthUserResponse } from '../services/auth/types';
+import { signOut as signOutService } from '../services/auth/signOutService';
 
 export function useAuth() {
   const [authenticated, setAuthenticated] = useState(false);

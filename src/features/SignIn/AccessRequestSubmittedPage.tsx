@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { useAccessRequestContext } from "../../context/AccessRequestContext";
-import { logout } from "../../services/authService";
+import { logout } from "../../services/auth/logoutService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
 
