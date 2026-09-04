@@ -128,6 +128,11 @@ class OrganisationService {
       const response = await axios.put(`/api/admin/organisations/${id}/address`, address);
       return { success: true, data: response.data };
     } catch (error: any) {
+      logger.error('Failed to update organisation address:', {
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
       return {
         success: false,
         message: error.response?.data?.error || 'Failed to update organisation address',
