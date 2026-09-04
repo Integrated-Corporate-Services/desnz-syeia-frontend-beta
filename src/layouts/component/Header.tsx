@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useAuthUserContext } from '../../context/AuthUserContext';
-import { logout } from '../../services/authService';
+import { logout } from '../../services/auth/logoutService';
 import type { AuthUser } from '../../types/auth';
 import '../../styles/Header.css';
 
