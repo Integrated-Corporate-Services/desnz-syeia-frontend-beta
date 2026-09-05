@@ -9,6 +9,7 @@ import PageTitle from "../../../components/PageTitle";
 
 const UserManagementDashboard: React.FC = () => {
   const {
+    isDesnzAdmin,
     activeTab,
     // showFilters,
     currentPage,
@@ -29,6 +30,9 @@ const UserManagementDashboard: React.FC = () => {
     organisations,
     organisationsLoading,
     organisationsError,
+    organisationSearchInput,
+    setOrganisationSearchInput,
+    handleOrganisationSearch,
   } = useUserManagementDashboard();
 
   return (
@@ -39,9 +43,42 @@ const UserManagementDashboard: React.FC = () => {
           <div className="govuk-grid-column-full">
             <h1 className="govuk-heading-l">User Management Dashboard</h1>
             <p className="govuk-body-m">
-              Manage access request and users across all Distribution Network
-              Operators.
+              {isDesnzAdmin
+                ? "Manage access requests and users across all Distribution Network Operators."
+                : "Manage access requests and users for your organisation."}
             </p>
+
+            {activeTab === "organisations" && (
+              <form
+                className="govuk-!-margin-top-6 govuk-!-margin-bottom-6"
+                role="search"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleOrganisationSearch();
+                }}
+              >
+                <h2 className="govuk-heading-s govuk-!-margin-bottom-3">
+                  Search for a user
+                </h2>
+                <div className="govuk-form-group govuk-!-margin-bottom-3">
+                  <label className="govuk-visually-hidden" htmlFor="organisation-search">
+                    Organisation name
+                  </label>
+                  <input
+                    className="govuk-input govuk-input--width-20"
+                    id="organisation-search"
+                    name="organisationSearch"
+                    type="search"
+                    placeholder="Organisation name"
+                    value={organisationSearchInput}
+                    onChange={(event) => setOrganisationSearchInput(event.target.value)}
+                  />
+                </div>
+                <button className="govuk-button govuk-!-margin-bottom-0" type="submit">
+                  Search
+                </button>
+              </form>
+            )}
 
             <TabNavigation
               activeTab={activeTab}
@@ -50,14 +87,13 @@ const UserManagementDashboard: React.FC = () => {
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
-            
-            {/* {activeTab === "organisations" && (
+            {activeTab === "organisations" && (
               <OrganisationsTab
                 organisations={organisations}
                 loading={organisationsLoading}
                 error={organisationsError}
               />
-            )} */}
+            )}
 
             {activeTab === "active-users" && (
               <ActiveUsersTab

@@ -1,20 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
 
 const ManageOrganisationSettingsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
+  const location = useLocation();
   const { organisation, loading, error } = useOrganisation(organisationId);
-
-  const [hasChanges, setHasChanges] = useState(false);
-
-  const handleSaveChanges = () => {
-    // TODO: Implement save functionality
-    setHasChanges(false);
-    // Show success message or navigate
-  };
+  const updatedSection = (location.state as { updatedSection?: string } | null)?.updatedSection;
 
   if (loading) {
     return (
@@ -50,13 +44,26 @@ const ManageOrganisationSettingsPage: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="Manage organisation settings" />
+      <PageTitle title="Manage organisation" />
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <Link to="/admin/user-management" className="govuk-back-link">Back</Link>
 
-            <h1 className="govuk-heading-l govuk-!-margin-top-6">Manage organisation settings</h1>
+            <h1 className="govuk-heading-l govuk-!-margin-top-6">Manage organisation</h1>
+
+            {updatedSection && (
+              <div className="govuk-notification-banner govuk-notification-banner--success" role="alert">
+                <div className="govuk-notification-banner__header">
+                  <h2 className="govuk-notification-banner__title">Success</h2>
+                </div>
+                <div className="govuk-notification-banner__content">
+                  <p className="govuk-notification-banner__heading">
+                    Organisation {updatedSection} updated
+                  </p>
+                </div>
+              </div>
+            )}
 
             <h2 className="govuk-heading-m govuk-!-margin-top-6">Organisation details</h2>
 
@@ -67,6 +74,11 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 </dt>
                 <dd className="govuk-summary-list__value">
                   {organisation.organisation_name}
+                </dd>
+                <dd className="govuk-summary-list__actions">
+                  <Link className="govuk-link" to={`/admin/organisations/${organisationId}/change-name`}>
+                    Change<span className="govuk-visually-hidden"> organisation name</span>
+                  </Link>
                 </dd>
               </div>
 
@@ -79,12 +91,18 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                     <>
                       {organisation.address_line1}<br />
                       {organisation.address_line2 && <>{organisation.address_line2}<br /></>}
-                      {organisation.town_city}<br />
+                      {organisation.town_city && <>{organisation.town_city}<br /></>}
+                      {organisation.county && <>{organisation.county}<br /></>}
                       {organisation.postcode}
                     </>
                   ) : (
                     'Not available'
                   )}
+                </dd>
+                <dd className="govuk-summary-list__actions">
+                  <Link className="govuk-link" to={`/admin/organisations/${organisationId}/change-address`}>
+                    Change<span className="govuk-visually-hidden"> organisation address</span>
+                  </Link>
                 </dd>
               </div>
 
@@ -93,11 +111,11 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                   Team coordinators
                 </dt>
                 <dd className="govuk-summary-list__value">
-                  {organisation.team_coordinators && organisation.team_coordinators.length > 0 ? (
-                    organisation.team_coordinators.map((email, index) => (
+                  {organisation.team_coordinator_emails?.length ? (
+                    organisation.team_coordinator_emails.map((email, index) => (
                       <React.Fragment key={email}>
                         {email}
-                        {index < organisation.team_coordinators.length - 1 && ','}
+                        {index < organisation.team_coordinator_emails!.length - 1 && ','}
                         <br />
                       </React.Fragment>
                     ))
@@ -105,52 +123,12 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                     'No team coordinators'
                   )}
                 </dd>
-                <dd className="govuk-summary-list__actions">
-                  <Link 
-                    className="govuk-link" 
-                    to={`/admin/organisations/${organisationId}/team-coordinators`}
-                  >
-                    Change
-                  </Link>
-                </dd>
-              </div>
-
-              <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">
-                  Approved domains
-                </dt>
-                <dd className="govuk-summary-list__value">
-                  {organisation.approved_domains && organisation.approved_domains.length > 0 ? (
-                    organisation.approved_domains.map((domain, index) => (
-                      <React.Fragment key={domain}>
-                        {domain}
-                        {index < organisation.approved_domains.length - 1 && ','}
-                        <br />
-                      </React.Fragment>
-                    ))
-                  ) : (
-                    'No approved domains'
-                  )}
-                </dd>
-                <dd className="govuk-summary-list__actions">
-                  <Link 
-                    className="govuk-link" 
-                    to={`/admin/organisations/${organisationId}/approved-domains`}
-                  >
-                    Change
-                  </Link>
-                </dd>
               </div>
             </dl>
 
-            <button
-              type="button"
-              className="govuk-button govuk-!-margin-top-6"
-              onClick={handleSaveChanges}
-              disabled={!hasChanges}
-            >
-              Save changes
-            </button>
+            <Link to="/admin/user-management" className="govuk-link">
+              Return to dashboard
+            </Link>
           </div>
         </div>
           </div>
