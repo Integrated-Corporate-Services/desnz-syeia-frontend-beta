@@ -569,10 +569,15 @@ const ProjectOverview = () => {
 						// If applicationFormId is empty string, set to null for backend
 						// Always ensure applicationId is set (from store or URL param)
 						const applicationIdForSave = applicationId;
+						const {
+							uploadedFiles: _existingUploadedFiles,
+							applicationDocuments: _existingApplicationDocuments,
+							...formStateWithoutFileCollections
+						} = formState;
 						// If areWorkStartDatesKnown is 'false', clear the month/year fields
 						const shouldClearDates = formState.areWorkStartDatesKnown === "false";
-						const payload = {
-							...formState,
+						const projectOverviewPayload = {
+							...formStateWithoutFileCollections,
 							applicationId: applicationIdForSave,
 							createdBy: userId || '',
 							applicationFormId: formState.applicationFormId === '' ? undefined : formState.applicationFormId,
@@ -589,10 +594,8 @@ const ProjectOverview = () => {
 							// Send relatedApplicationsDetails as string, clear if hasRelatedApplications is false
 							relatedApplicationsDetails: formState.hasRelatedApplications === "false" ? '' : (formState.relatedApplicationsDetails || ''),
 						};
-						delete (payload as { uploadedFiles?: unknown }).uploadedFiles;
-						delete (payload as { applicationDocuments?: unknown }).applicationDocuments;
 
-						saveProject(payload)
+						saveProject(projectOverviewPayload)
 							.then((response: { project?: { application_id: string }; application_overview?: { application_id: string } }) => {
 								const redirectId =
 									response?.project?.application_id ||
