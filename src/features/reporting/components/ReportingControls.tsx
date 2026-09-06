@@ -45,11 +45,6 @@ export const ReportingFilters: React.FC<ReportingFiltersProps> = ({
           <select className="govuk-select" id="report-range" value={preset} onChange={(event) => onPresetChange(event.target.value as DateRangePreset)}>
             {DATE_RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value} disabled={option.value === "available-data" ? !availabilityLoaded || !availableDateRange : availabilityLoaded && !isPresetAvailable(option.value)}>{option.label}</option>)}
           </select>
-          {availabilityLoaded && availableDateRange && (
-            <p className="govuk-hint reporting-availability" id="reporting-availability">
-              Completed reporting data is available from {formatReportDate(availableDateRange.startDate)} to {formatReportDate(availableDateRange.endDate)}.
-            </p>
-          )}
         </div>
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="report-start-date">Start date</label>
@@ -61,6 +56,11 @@ export const ReportingFilters: React.FC<ReportingFiltersProps> = ({
         </div>
         <button className="govuk-button reporting-filter-button" type="submit" disabled={loading}>{loading ? "Loading" : "Update"}</button>
       </div>
+      {availabilityLoaded && availableDateRange && (
+        <p className="govuk-hint reporting-availability" id="reporting-availability">
+          Completed reporting data is available from {formatReportDate(availableDateRange.startDate)} to {formatReportDate(availableDateRange.endDate)}.
+        </p>
+      )}
     </fieldset>
   </form>
 );

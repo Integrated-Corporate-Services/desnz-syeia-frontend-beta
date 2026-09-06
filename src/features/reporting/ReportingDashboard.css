@@ -23,6 +23,10 @@
   margin: 0 0 2px;
 }
 
+.reporting-availability {
+  margin: 20px 0 0;
+}
+
 .reporting-content {
   min-width: 0;
 }
@@ -131,18 +135,6 @@
 .reporting-category-bar {
   background: #1d70b8;
   height: 100%;
-}
-
-.reporting-category-bar--green {
-  background: #00703c;
-}
-
-.reporting-category-bar--yellow {
-  background: #ffdd00;
-}
-
-.reporting-category-bar--grey {
-  background: #505a5f;
 }
 
 .reporting-category-row strong {
