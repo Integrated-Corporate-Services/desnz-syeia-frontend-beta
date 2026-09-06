@@ -71,9 +71,6 @@ const applyApplicationDocuments = (backendData: any, frontendData: Partial<LandD
   const siteInfoDocs = snakeDocs.filter((d) => subcategoryOf(d) === LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION);
   const unregisteredDocs = snakeDocs.filter((d) => subcategoryOf(d) === LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND);
 
-  backendData.land_registry_application_documents = landRegistryDocs;
-  backendData.site_information_application_documents = siteInfoDocs;
-  backendData.unregistered_land_application_documents = unregisteredDocs;
   backendData.land_registry_document_ids = landRegistryDocs.map((d) => d.document_id).filter(Boolean);
   backendData.site_information_document_ids = siteInfoDocs.map((d) => d.document_id).filter(Boolean);
   backendData.unregistered_land_document_ids = unregisteredDocs.map((d) => d.document_id).filter(Boolean);
