@@ -150,7 +150,6 @@ const ReviewDocumentsPage: React.FC = () => {
     }
 
     try {
-      // Build payload - preserve all existing data
       const payload: SensitiveAreaReview = {
         id: review?.id || '',
         application_id: applicationId || '',
@@ -163,8 +162,6 @@ const ReviewDocumentsPage: React.FC = () => {
         reviewed_at: review?.reviewed_at || '',
         created_at: review?.created_at || '',
         updated_at: review?.updated_at || '',
-        uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
-        application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
       };
 
      
