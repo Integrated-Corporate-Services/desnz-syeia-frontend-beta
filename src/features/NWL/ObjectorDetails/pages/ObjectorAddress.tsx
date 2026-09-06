@@ -69,8 +69,6 @@ const ObjectorAddress: React.FC = () => {
 
     if (!postcode.trim()) {
       newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
-    } else if (postcode.length > VALIDATION_LIMITS.POSTCODE_MAX_LENGTH) {
-      newErrors.postcode = FORM_ERRORS.POSTCODE_TOO_LONG;
     } else {
       // Postcode is provided, validate format
       const postcodeError = validatePostcode(postcode);
@@ -400,7 +398,6 @@ const ObjectorAddress: React.FC = () => {
                   name="postcode"
                   type="text"
                   value={postcode}
-                  maxLength={VALIDATION_LIMITS.POSTCODE_MAX_LENGTH}
                   onChange={(e) => {
                     setPostcode(e.target.value);
                     handleClearFieldError('postcode');

@@ -69,7 +69,7 @@ export const useFormValidation = () => {
     return null;
   };
 
-  const validatePersonDetails = (fullName: string, email: string, phone: string = ''): boolean => {
+  const validatePersonDetails = (fullName: string, email: string, phone: string = '', organisation: string = ''): boolean => {
     const newErrors: FormErrors = {};
 
     // Full name is mandatory
@@ -77,6 +77,11 @@ export const useFormValidation = () => {
       newErrors.fullName = FORM_ERRORS.MISSING_FULL_NAME;
     } else if (fullName.length > VALIDATION_LIMITS.FULL_NAME_MAX_LENGTH) {
       newErrors.fullName = FORM_ERRORS.FULL_NAME_TOO_LONG;
+    }
+
+    // Organisation is optional, but validate length if provided
+    if (organisation.length > VALIDATION_LIMITS.ORGANISATION_MAX_LENGTH) {
+      newErrors.organisation = FORM_ERRORS.ORGANISATION_TOO_LONG;
     }
 
     // Email is optional, but validate format if provided
@@ -126,8 +131,6 @@ export const useFormValidation = () => {
 
     if (!postcode.trim()) {
       newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
-    } else if (postcode.length > VALIDATION_LIMITS.POSTCODE_MAX_LENGTH) {
-      newErrors.postcode = FORM_ERRORS.POSTCODE_TOO_LONG;
     } else {
       // Postcode is provided, validate format
       const postcodeError = validatePostcode(postcode);

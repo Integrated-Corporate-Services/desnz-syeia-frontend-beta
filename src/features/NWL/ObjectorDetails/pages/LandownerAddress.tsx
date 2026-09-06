@@ -53,8 +53,6 @@ const LandownerAddress: React.FC = () => {
     }
     if (!postcode.trim()) {
       newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
-    } else if (postcode.length > VALIDATION_LIMITS.POSTCODE_MAX_LENGTH) {
-      newErrors.postcode = FORM_ERRORS.POSTCODE_TOO_LONG;
     } else {
       // Postcode is provided, validate format
       const postcodeError = validatePostcode(postcode);
@@ -231,7 +229,7 @@ const LandownerAddress: React.FC = () => {
               <div className={`govuk-form-group ${errors.postcode ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="postcode">{FORM_LABELS.POSTCODE}</label>
                 {errors.postcode && <p id="postcode-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.postcode}</p>}
-                <input className={`govuk-input ${errors.postcode ? "govuk-input--error" : ""}`} id="postcode" name="postcode" type="text" value={postcode} maxLength={VALIDATION_LIMITS.POSTCODE_MAX_LENGTH} onChange={(e) => {
+                <input className={`govuk-input ${errors.postcode ? "govuk-input--error" : ""}`} id="postcode" name="postcode" type="text" value={postcode} onChange={(e) => {
                   setPostcode(e.target.value);
                   handleClearFieldError('postcode');
                 }} aria-describedby={errors.postcode ? "postcode-error" : undefined} />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageTitle from "../../../../components/PageTitle";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { BREADCRUMBS, LABELS, FORM_LABELS, TITLE_OPTIONS } from "../constants/objectorDetailsConstants";
+import { BREADCRUMBS, LABELS, FORM_LABELS, TITLE_OPTIONS, VALIDATION_LIMITS } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { saveRepresentativeDetails } from "../services/objectorDetailsService";

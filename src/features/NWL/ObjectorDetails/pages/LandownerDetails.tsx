@@ -79,7 +79,7 @@ const LandownerDetails: React.FC = () => {
     setSaveError("");
 
     // Client-side validation (includes optional field format validation)
-    if (!validatePersonDetails(fullName, email, phone)) {
+    if (!validatePersonDetails(fullName, email, phone, organisation)) {
       window.scrollTo(0, 0);
       return;
     }
