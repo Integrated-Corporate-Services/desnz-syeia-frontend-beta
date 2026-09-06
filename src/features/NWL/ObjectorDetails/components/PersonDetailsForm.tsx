@@ -100,6 +100,7 @@ export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
           name="organisation"
           type="text"
           value={organisation}
+          maxLength={VALIDATION_LIMITS.ORGANISATION_MAX_LENGTH}
           onChange={(e) => onOrganisationChange(e.target.value)}
           aria-describedby={errors.organisation ? 'organisation-error' : undefined}
         />
