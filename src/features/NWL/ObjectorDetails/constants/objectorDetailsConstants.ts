@@ -29,13 +29,28 @@ export const INTRODUCTION_CONTENT = {
   ],
 } as const;
 
+export const VALIDATION_LIMITS = {
+  FULL_NAME_MAX_LENGTH: 70,
+  ORGANISATION_MAX_LENGTH: 160,
+  ADDRESS_LINE1_MAX_LENGTH: 150,
+  ADDRESS_LINE2_MAX_LENGTH: 150,
+  TOWN_MAX_LENGTH: 100,
+  COUNTY_MAX_LENGTH: 100,
+} as const;
+
 export const FORM_ERRORS = {
   MISSING_TITLE: "Select a title",
   MISSING_FULL_NAME: "Enter a full name",
+  FULL_NAME_TOO_LONG: `Full name must be ${VALIDATION_LIMITS.FULL_NAME_MAX_LENGTH} characters or less`,
+  ORGANISATION_TOO_LONG: `Organisation must be ${VALIDATION_LIMITS.ORGANISATION_MAX_LENGTH} characters or less`,
   INVALID_EMAIL: "Enter a valid email address",
   INVALID_PHONE: "Enter a valid phone number",
   MISSING_ADDRESS_LINE1: "Enter address line 1",
+  ADDRESS_LINE1_TOO_LONG: `Address line 1 must be ${VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH} characters or less`,
+  ADDRESS_LINE2_TOO_LONG: `Address line 2 must be ${VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH} characters or less`,
   MISSING_TOWN: "Enter a town or city",
+  TOWN_TOO_LONG: `Town or city must be ${VALIDATION_LIMITS.TOWN_MAX_LENGTH} characters or less`,
+  COUNTY_TOO_LONG: `County must be ${VALIDATION_LIMITS.COUNTY_MAX_LENGTH} characters or less`,
   MISSING_POSTCODE: "Enter a postcode",
   MISSING_RADIO_SELECTION: "Select an option",
 } as const;

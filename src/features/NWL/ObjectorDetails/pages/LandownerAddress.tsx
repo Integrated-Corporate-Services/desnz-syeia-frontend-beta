@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageTitle from "../../../../components/PageTitle";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
-import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/objectorDetailsConstants";
+import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS, VALIDATION_LIMITS } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { saveLandownerAddress } from "../services/objectorDetailsService";
@@ -35,8 +35,22 @@ const LandownerAddress: React.FC = () => {
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
-    if (!addressLine1.trim()) newErrors.addressLine1 = FORM_ERRORS.MISSING_ADDRESS_LINE1;
-    if (!town.trim()) newErrors.town = FORM_ERRORS.MISSING_TOWN;
+    if (!addressLine1.trim()) {
+      newErrors.addressLine1 = FORM_ERRORS.MISSING_ADDRESS_LINE1;
+    } else if (addressLine1.length > VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH) {
+      newErrors.addressLine1 = FORM_ERRORS.ADDRESS_LINE1_TOO_LONG;
+    }
+    if (addressLine2.length > VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH) {
+      newErrors.addressLine2 = FORM_ERRORS.ADDRESS_LINE2_TOO_LONG;
+    }
+    if (!town.trim()) {
+      newErrors.town = FORM_ERRORS.MISSING_TOWN;
+    } else if (town.length > VALIDATION_LIMITS.TOWN_MAX_LENGTH) {
+      newErrors.town = FORM_ERRORS.TOWN_TOO_LONG;
+    }
+    if (county.length > VALIDATION_LIMITS.COUNTY_MAX_LENGTH) {
+      newErrors.county = FORM_ERRORS.COUNTY_TOO_LONG;
+    }
     if (!postcode.trim()) {
       newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
     } else {
@@ -183,7 +197,7 @@ const LandownerAddress: React.FC = () => {
               <div className={`govuk-form-group ${errors.addressLine1 ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="addressLine1">{FORM_LABELS.ADDRESS_LINE1}</label>
                 {errors.addressLine1 && <p id="addressLine1-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.addressLine1}</p>}
-                <input className={`govuk-input ${errors.addressLine1 ? "govuk-input--error" : ""}`} id="addressLine1" name="addressLine1" type="text" value={addressLine1} onChange={(e) => {
+                <input className={`govuk-input ${errors.addressLine1 ? "govuk-input--error" : ""}`} id="addressLine1" name="addressLine1" type="text" value={addressLine1} maxLength={VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH} onChange={(e) => {
                   setAddressLine1(e.target.value);
                   handleClearFieldError('addressLine1');
                 }} aria-describedby={errors.addressLine1 ? "addressLine1-error" : undefined} />
@@ -191,7 +205,7 @@ const LandownerAddress: React.FC = () => {
               <div className={`govuk-form-group ${errors.addressLine2 ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="addressLine2">{FORM_LABELS.ADDRESS_LINE2}</label>
                 {errors.addressLine2 && <p id="addressLine2-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.addressLine2}</p>}
-                <input className={`govuk-input ${errors.addressLine2 ? "govuk-input--error" : ""}`} id="addressLine2" name="addressLine2" type="text" value={addressLine2} onChange={(e) => {
+                <input className={`govuk-input ${errors.addressLine2 ? "govuk-input--error" : ""}`} id="addressLine2" name="addressLine2" type="text" value={addressLine2} maxLength={VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH} onChange={(e) => {
                   setAddressLine2(e.target.value);
                   handleClearFieldError('addressLine2');
                 }} aria-describedby={errors.addressLine2 ? "addressLine2-error" : undefined} />
@@ -199,7 +213,7 @@ const LandownerAddress: React.FC = () => {
               <div className={`govuk-form-group ${errors.town ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="town">{FORM_LABELS.TOWN}</label>
                 {errors.town && <p id="town-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.town}</p>}
-                <input className={`govuk-input ${errors.town ? "govuk-input--error" : ""}`} id="town" name="town" type="text" value={town} onChange={(e) => {
+                <input className={`govuk-input ${errors.town ? "govuk-input--error" : ""}`} id="town" name="town" type="text" value={town} maxLength={VALIDATION_LIMITS.TOWN_MAX_LENGTH} onChange={(e) => {
                   setTown(e.target.value);
                   handleClearFieldError('town');
                 }} aria-describedby={errors.town ? "town-error" : undefined} />
@@ -207,7 +221,7 @@ const LandownerAddress: React.FC = () => {
               <div className={`govuk-form-group ${errors.county ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="county">{FORM_LABELS.COUNTY}</label>
                 {errors.county && <p id="county-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors.county}</p>}
-                <input className={`govuk-input ${errors.county ? "govuk-input--error" : ""}`} id="county" name="county" type="text" value={county} onChange={(e) => {
+                <input className={`govuk-input ${errors.county ? "govuk-input--error" : ""}`} id="county" name="county" type="text" value={county} maxLength={VALIDATION_LIMITS.COUNTY_MAX_LENGTH} onChange={(e) => {
                   setCounty(e.target.value);
                   handleClearFieldError('county');
                 }} aria-describedby={errors.county ? "county-error" : undefined} />
