@@ -226,11 +226,15 @@ const ConsultationResponse2: React.FC = () => {
                 return;
             }
 
+            if (!consultationId || !applicationId) {
+                throw new Error('Missing consultation or application reference. Please reload the page and try again.');
+            }
+
             let receivedAt;
             if (consultationType !== ConsultationType.PUBLIC && responseDate.year && responseDate.month && responseDate.day) {
                 receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
             }
-            
+
             const payload: Partial<ConsultationResponse> = {
                 consultation_id: consultationId,
                 response_id: responseId || undefined,
