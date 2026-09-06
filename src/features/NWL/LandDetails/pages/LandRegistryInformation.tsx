@@ -125,20 +125,16 @@ const LandRegistryInformation: React.FC = () => {
 
         const { uploadedFiles: newUploadedFiles, applicationDocuments: newDocs } = result;
 
-        if (newUploadedFiles.length > 0) {
-          await updateLandDetails({
-            land_registry_title_number: titleNumber,
-            uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
-          });
-        } else {
-          await updateLandDetails({
-            land_registry_title_number: titleNumber,
-          });
-        }
+        await updateLandDetails({
+          land_registry_title_number: titleNumber,
+          uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
+          applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs],
+        });
       } else {
         await updateLandDetails({
           land_registry_title_number: titleNumber,
+          uploadedFiles: landDetails.uploadedFiles || [],
+          applicationDocuments: landDetails.applicationDocuments || [],
         });
       }
 
