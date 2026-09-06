@@ -7,6 +7,7 @@ export const DATE_RANGE_OPTIONS: Array<{ value: DateRangePreset; label: string }
   { value: "previous-30-days", label: "Previous 30 days" },
   { value: "last-month", label: "Last month" },
   { value: "last-12-months", label: "Last 12 months" },
+  { value: "available-data", label: "All available reporting data" },
   { value: "custom", label: "Between two dates" },
 ];
 
@@ -30,6 +31,7 @@ export const APPLICATION_STATUS_ROWS: Array<[string, StatusColour, string, strin
 
 export const REPORTING_MESSAGES = {
   LOAD_FAILED: "The report could not be loaded. Try again shortly.",
+  SNAPSHOTS_UNAVAILABLE: "Reporting data is not yet available for every day in this date range.",
   NO_DATA_AVAILABLE: "No data is available for the selected date range.",
   INVALID_DATE_RANGE: "End date must be on or after the start date.",
 } as const;

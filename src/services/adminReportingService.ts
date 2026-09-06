@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { AdminReport } from "../features/reporting/types";
+import type { AdminReport, ReportingAvailability } from "../features/reporting/types";
 import { getApiUrl } from "../utils/apiConfig";
 
 export type { AdminReport, OrganisationReportRow, ReportMetric } from "../features/reporting/types";
@@ -10,5 +10,10 @@ export async function getAdminReport(startDate: string, endDate: string): Promis
     params: { startDate, endDate },
   });
 
+  return response.data;
+}
+
+export async function getReportingAvailability(): Promise<ReportingAvailability> {
+  const response = await axios.get<ReportingAvailability>(getApiUrl("/admin/reports/availability"));
   return response.data;
 }

@@ -28,23 +28,35 @@
 }
 
 .reporting-contents {
+  font-family: Arial, sans-serif;
   margin-bottom: 30px;
 }
 
-.reporting-contents ul {
+.reporting-contents__list {
   border-left: 4px solid #b1b4b6;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.reporting-contents li {
+.reporting-contents__item {
   margin: 0;
 }
 
-.reporting-contents a {
+.reporting-contents__link {
+  color: #1d70b8;
   display: block;
+  font-family: Arial, sans-serif;
+  font-size: 19px;
+  line-height: 1.31579;
   padding: 8px 0 8px 14px;
+  text-decoration: underline;
+}
+
+.reporting-contents__link:focus {
+  background: #ffdd00;
+  color: #0b0c0c;
+  outline: 3px solid #0b0c0c;
 }
 
 .reporting-section {
