@@ -12,6 +12,7 @@ import {
   ReportingSummary,
 } from "./components/ReportingSections";
 import { ReportingContents, ReportingFilters } from "./components/ReportingControls";
+import { REPORTING_MESSAGES } from "./constants";
 import { useReportingDashboard } from "./useReportingDashboard";
 import "./ReportingDashboard.css";
 
@@ -26,6 +27,11 @@ const ReportingDashboard: React.FC = () => {
 
   const metrics = new Map(
     dashboard.report?.metrics.map((metric) => [metric.key, metric.value]) || []
+  );
+  const hasReportData = Boolean(
+    dashboard.report &&
+      (dashboard.report.organisations.length > 0 ||
+        dashboard.report.metrics.some((metric) => metric.value > 0))
   );
 
   return (
@@ -50,7 +56,13 @@ const ReportingDashboard: React.FC = () => {
           </div>
         )}
 
-        {dashboard.report && !dashboard.loading && (
+        {dashboard.report && !dashboard.loading && !hasReportData && (
+          <p className="govuk-inset-text" role="status">
+            {REPORTING_MESSAGES.NO_DATA_AVAILABLE}
+          </p>
+        )}
+
+        {dashboard.report && !dashboard.loading && hasReportData && (
           <div className="govuk-grid-row">
             <ReportingContents />
             <div className="govuk-grid-column-two-thirds reporting-content">

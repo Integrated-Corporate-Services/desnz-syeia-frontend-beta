@@ -41,11 +41,11 @@ export const ReportingFilters: React.FC<ReportingFiltersProps> = ({
         </div>
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="report-start-date">Start date</label>
-          <input className="govuk-input reporting-date-input" id="report-start-date" type="date" value={startDate} onChange={(event) => onStartDateChange(event.target.value)} />
+          <input className="govuk-input reporting-date-input" id="report-start-date" type="date" value={startDate} max={endDate || undefined} onChange={(event) => onStartDateChange(event.target.value)} />
         </div>
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="report-end-date">End date</label>
-          <input className="govuk-input reporting-date-input" id="report-end-date" type="date" value={endDate} onChange={(event) => onEndDateChange(event.target.value)} />
+          <input className="govuk-input reporting-date-input" id="report-end-date" type="date" value={endDate} min={startDate || undefined} onChange={(event) => onEndDateChange(event.target.value)} />
         </div>
         <button className="govuk-button reporting-filter-button" type="submit" disabled={loading}>{loading ? "Loading" : "Update"}</button>
       </div>

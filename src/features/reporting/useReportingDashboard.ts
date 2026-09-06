@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { getAdminReport } from "../../services/adminReportingService";
 import { REPORTING_MESSAGES } from "./constants";
 import { downloadOrganisationCsv, getPresetDates } from "./reportingUtils";
@@ -14,13 +15,23 @@ export const useReportingDashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   const loadReport = async () => {
+    if (!startDate || !endDate || endDate < startDate) {
+      setReport(null);
+      setError(REPORTING_MESSAGES.INVALID_DATE_RANGE);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
       setReport(await getAdminReport(startDate, endDate));
-    } catch {
+    } catch (requestError) {
       setReport(null);
-      setError(REPORTING_MESSAGES.LOAD_FAILED);
+      setError(
+        axios.isAxiosError(requestError) && requestError.response?.status === 404
+          ? REPORTING_MESSAGES.NO_DATA_AVAILABLE
+          : REPORTING_MESSAGES.LOAD_FAILED
+      );
     } finally {
       setLoading(false);
     }

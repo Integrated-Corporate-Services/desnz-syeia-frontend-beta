@@ -30,4 +30,6 @@ export const APPLICATION_STATUS_ROWS: Array<[string, StatusColour, string, strin
 
 export const REPORTING_MESSAGES = {
   LOAD_FAILED: "The report could not be loaded. Try again shortly.",
+  NO_DATA_AVAILABLE: "No data is available for the selected date range.",
+  INVALID_DATE_RANGE: "End date must be on or after the start date.",
 } as const;
