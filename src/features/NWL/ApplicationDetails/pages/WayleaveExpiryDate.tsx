@@ -211,8 +211,6 @@ const WayleaveExpiryDate: React.FC = () => {
         type_of_use: 'existing_lines',
         wayleave_expiry_date: formattedDate,
         implied_wayleave_document_ids: documentIds,
-        implied_wayleave_uploaded_files: allUploadedFiles,
-        implied_wayleave_application_documents: allDocuments,
       }, APPLICATION_DETAILS_PAGE_IDS.WAYLEAVE_EXPIRY_DATE);
 
       navigateToNoticeToRemove();
