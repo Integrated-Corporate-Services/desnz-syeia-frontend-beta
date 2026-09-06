@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FORM_ERRORS } from '../constants/objectorDetailsConstants';
+import { FORM_ERRORS, VALIDATION_LIMITS } from '../constants/objectorDetailsConstants';
 import type { FormErrors } from '../types';
 
 export const useFormValidation = () => {
@@ -75,6 +75,8 @@ export const useFormValidation = () => {
     // Full name is mandatory
     if (!fullName.trim()) {
       newErrors.fullName = FORM_ERRORS.MISSING_FULL_NAME;
+    } else if (fullName.length > VALIDATION_LIMITS.FULL_NAME_MAX_LENGTH) {
+      newErrors.fullName = FORM_ERRORS.FULL_NAME_TOO_LONG;
     }
 
     // Email is optional, but validate format if provided
@@ -96,20 +98,36 @@ export const useFormValidation = () => {
   const validateAddress = (
     addressLine1: string,
     town: string,
-    postcode: string
+    postcode: string,
+    addressLine2: string = '',
+    county: string = ''
   ): boolean => {
     const newErrors: FormErrors = {};
 
     if (!addressLine1.trim()) {
       newErrors.addressLine1 = FORM_ERRORS.MISSING_ADDRESS_LINE1;
+    } else if (addressLine1.length > VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH) {
+      newErrors.addressLine1 = FORM_ERRORS.ADDRESS_LINE1_TOO_LONG;
+    }
+
+    if (addressLine2.length > VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH) {
+      newErrors.addressLine2 = FORM_ERRORS.ADDRESS_LINE2_TOO_LONG;
     }
 
     if (!town.trim()) {
       newErrors.town = FORM_ERRORS.MISSING_TOWN;
+    } else if (town.length > VALIDATION_LIMITS.TOWN_MAX_LENGTH) {
+      newErrors.town = FORM_ERRORS.TOWN_TOO_LONG;
+    }
+
+    if (county.length > VALIDATION_LIMITS.COUNTY_MAX_LENGTH) {
+      newErrors.county = FORM_ERRORS.COUNTY_TOO_LONG;
     }
 
     if (!postcode.trim()) {
       newErrors.postcode = FORM_ERRORS.MISSING_POSTCODE;
+    } else if (postcode.length > VALIDATION_LIMITS.POSTCODE_MAX_LENGTH) {
+      newErrors.postcode = FORM_ERRORS.POSTCODE_TOO_LONG;
     } else {
       // Postcode is provided, validate format
       const postcodeError = validatePostcode(postcode);

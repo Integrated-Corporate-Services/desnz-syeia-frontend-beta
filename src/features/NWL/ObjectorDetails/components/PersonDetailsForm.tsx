@@ -1,5 +1,5 @@
 import React from 'react';
-import { FORM_LABELS, TITLE_OPTIONS } from '../constants/objectorDetailsConstants';
+import { FORM_LABELS, TITLE_OPTIONS, VALIDATION_LIMITS } from '../constants/objectorDetailsConstants';
 import type { FormErrors } from '../types';
 
 interface PersonDetailsFormProps {
@@ -72,6 +72,7 @@ export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
           name="fullName"
           type="text"
           value={fullName}
+          maxLength={VALIDATION_LIMITS.FULL_NAME_MAX_LENGTH}
           onChange={(e) => onFullNameChange(e.target.value)}
           aria-describedby={errors.fullName ? 'fullName-error' : undefined}
         />
