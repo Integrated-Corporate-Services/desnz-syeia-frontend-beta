@@ -150,8 +150,6 @@ const UploadWrittenWayleave: React.FC = () => {
       await updateFields({
         type_of_use: 'existing_lines',
         implied_wayleave_document_ids: documentIds,
-        implied_wayleave_uploaded_files: allUploadedFiles,
-        implied_wayleave_application_documents: allDocuments,
       }, APPLICATION_DETAILS_PAGE_IDS.UPLOAD_WRITTEN_WAYLEAVE);
 
       navigateToNoticeToTerminate();

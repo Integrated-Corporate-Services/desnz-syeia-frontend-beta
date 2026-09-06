@@ -250,17 +250,12 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                 return;
             }
 
-            const existingData = await getConsultationResponse(consultationId!, applicationId);
-
             const payload: Partial<ConsultationResponse> = {
-                ...existingData,
                 consultation_id: consultationId,
                 response_id: responseId || undefined,
                 response_comments: comments,
                 last_updated_by: user?.user_id,
                 has_all_documents_uploaded: formData.declarationAccepted,
-                   uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
-                application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
                 response_full_name: undefined,
                 response_email_address: undefined,
                 has_objection: undefined,
