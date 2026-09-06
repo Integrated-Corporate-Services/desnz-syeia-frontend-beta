@@ -23,6 +23,10 @@ export interface AdminReport {
   organisations: OrganisationReportRow[];
 }
 
+export interface ReportingAvailability {
+  availableDates: string[];
+}
+
 export type DateRangePreset =
   | "today"
   | "yesterday"
@@ -30,6 +34,7 @@ export type DateRangePreset =
   | "previous-30-days"
   | "last-month"
   | "last-12-months"
+  | "available-data"
   | "custom";
 
 export type MetricValues = Map<string, number>;

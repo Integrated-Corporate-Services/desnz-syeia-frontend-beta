@@ -1,5 +1,6 @@
 import React from "react";
 import { DATE_RANGE_OPTIONS, REPORT_SECTION_LINKS } from "../constants";
+import { formatReportDate } from "../reportingUtils";
 import type { DateRangePreset } from "../types";
 
 interface ReportingFiltersProps {
@@ -7,6 +8,9 @@ interface ReportingFiltersProps {
   startDate: string;
   endDate: string;
   loading: boolean;
+  availableDateRange: { startDate: string; endDate: string } | null;
+  availabilityLoaded: boolean;
+  isPresetAvailable: (preset: DateRangePreset) => boolean;
   onPresetChange: (preset: DateRangePreset) => void;
   onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
@@ -18,6 +22,9 @@ export const ReportingFilters: React.FC<ReportingFiltersProps> = ({
   startDate,
   endDate,
   loading,
+  availableDateRange,
+  availabilityLoaded,
+  isPresetAvailable,
   onPresetChange,
   onStartDateChange,
   onEndDateChange,
@@ -36,8 +43,13 @@ export const ReportingFilters: React.FC<ReportingFiltersProps> = ({
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="report-range">Date filters</label>
           <select className="govuk-select" id="report-range" value={preset} onChange={(event) => onPresetChange(event.target.value as DateRangePreset)}>
-            {DATE_RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            {DATE_RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value} disabled={option.value === "available-data" ? !availabilityLoaded || !availableDateRange : availabilityLoaded && !isPresetAvailable(option.value)}>{option.label}</option>)}
           </select>
+          {availabilityLoaded && availableDateRange && (
+            <p className="govuk-hint reporting-availability" id="reporting-availability">
+              Completed reporting data is available from {formatReportDate(availableDateRange.startDate)} to {formatReportDate(availableDateRange.endDate)}.
+            </p>
+          )}
         </div>
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="report-start-date">Start date</label>
@@ -57,7 +69,13 @@ export const ReportingContents = () => (
   <aside className="govuk-grid-column-one-third reporting-contents" aria-labelledby="contents-heading">
     <h2 className="govuk-heading-m" id="contents-heading">Contents</h2>
     <nav aria-label="Report sections">
-      <ul>{REPORT_SECTION_LINKS.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}</ul>
+      <ul className="reporting-contents__list">
+        {REPORT_SECTION_LINKS.map(([id, label]) => (
+          <li className="reporting-contents__item" key={id}>
+            <a className="reporting-contents__link" href={`#${id}`}>{label}</a>
+          </li>
+        ))}
+      </ul>
     </nav>
   </aside>
 );

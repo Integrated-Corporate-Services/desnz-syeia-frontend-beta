@@ -43,6 +43,9 @@ const ReportingDashboard: React.FC = () => {
           startDate={dashboard.startDate}
           endDate={dashboard.endDate}
           loading={dashboard.loading}
+          availableDateRange={dashboard.availableDateRange}
+          availabilityLoaded={dashboard.availabilityLoaded}
+          isPresetAvailable={dashboard.isPresetAvailable}
           onPresetChange={dashboard.updatePreset}
           onStartDateChange={dashboard.updateStartDate}
           onEndDateChange={dashboard.updateEndDate}
@@ -50,10 +53,14 @@ const ReportingDashboard: React.FC = () => {
         />
 
         {dashboard.error && (
-          <div className="govuk-error-summary" role="alert">
-            <h2 className="govuk-error-summary__title">There is a problem</h2>
-            <div className="govuk-error-summary__body"><p>{dashboard.error}</p></div>
-          </div>
+          dashboard.error === REPORTING_MESSAGES.SNAPSHOTS_UNAVAILABLE ? (
+            <p className="govuk-inset-text" role="status">{dashboard.error}</p>
+          ) : (
+            <div className="govuk-error-summary" role="alert">
+              <h2 className="govuk-error-summary__title">There is a problem</h2>
+              <div className="govuk-error-summary__body"><p>{dashboard.error}</p></div>
+            </div>
+          )
         )}
 
         {dashboard.report && !dashboard.loading && !hasReportData && (

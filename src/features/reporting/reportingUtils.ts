@@ -5,17 +5,53 @@ export const formatCurrency = new Intl.NumberFormat("en-GB", { style: "currency"
 
 const toIsoDate = (date: Date) => date.toISOString().slice(0, 10);
 
-export const getPresetDates = (preset: Exclude<DateRangePreset, "custom">) => {
+export const getPresetDates = (preset: Exclude<DateRangePreset, "custom" | "available-data">) => {
   const today = new Date();
   const startDate = new Date(today);
   const endDate = new Date(today);
-  if (preset === "yesterday") { startDate.setDate(startDate.getDate() - 1); endDate.setDate(endDate.getDate() - 1); }
-  if (preset === "previous-7-days") startDate.setDate(startDate.getDate() - 6);
-  if (preset === "previous-30-days") startDate.setDate(startDate.getDate() - 29);
+  if (preset !== "today") endDate.setDate(endDate.getDate() - 1);
+  if (preset === "yesterday") startDate.setTime(endDate.getTime());
+  if (preset === "previous-7-days") startDate.setDate(endDate.getDate() - 6);
+  if (preset === "previous-30-days") startDate.setDate(endDate.getDate() - 29);
   if (preset === "last-month") { startDate.setMonth(startDate.getMonth() - 1, 1); endDate.setDate(0); }
-  if (preset === "last-12-months") startDate.setFullYear(startDate.getFullYear() - 1, startDate.getMonth(), startDate.getDate() + 1);
+  if (preset === "last-12-months") startDate.setFullYear(endDate.getFullYear() - 1, endDate.getMonth(), endDate.getDate() + 1);
   return { startDate: toIsoDate(startDate), endDate: toIsoDate(endDate) };
 };
+
+export const isDateRangeAvailable = (startDate: string, endDate: string, availableDates: string[]) => {
+  const completedDates = new Set(availableDates);
+  const currentDate = new Date(`${startDate}T00:00:00Z`);
+  const finalDate = new Date(`${endDate}T00:00:00Z`);
+  while (currentDate <= finalDate) {
+    if (!completedDates.has(toIsoDate(currentDate))) return false;
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+  }
+  return true;
+};
+
+export const getLatestAvailableDateRange = (availableDates: string[]) => {
+  if (availableDates.length === 0) return null;
+
+  const completedDates = new Set(availableDates);
+  const endDate = [...completedDates].sort().at(-1)!;
+  const currentDate = new Date(`${endDate}T00:00:00Z`);
+
+  while (true) {
+    const previousDate = new Date(currentDate);
+    previousDate.setUTCDate(previousDate.getUTCDate() - 1);
+    if (!completedDates.has(toIsoDate(previousDate))) break;
+    currentDate.setUTCDate(currentDate.getUTCDate() - 1);
+  }
+
+  return { startDate: toIsoDate(currentDate), endDate };
+};
+
+export const formatReportDate = (date: string) => new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+}).format(new Date(`${date}T00:00:00Z`));
 
 export const metricValue = (metrics: MetricValues, key: string) => metrics.get(key) || 0;
 export const metricTotal = (metrics: MetricValues, ...keys: string[]) => keys.reduce((total, key) => total + metricValue(metrics, key), 0);
