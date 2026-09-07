@@ -236,8 +236,6 @@ const SupportingInfo: React.FC = () => {
       esqcr_2002_compliance_confirmed: regulations,
       has_additional_supporting_documents: supportingDocs === "yes",
       applicant_supporting_comments: comments,
-      uploaded_files: [...uploadedFiles, ...newlyUploadedFiles],
-      application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
     };
     
     try {
@@ -639,4 +637,3 @@ const SupportingInfo: React.FC = () => {
 };
 
 export default SupportingInfo;
-

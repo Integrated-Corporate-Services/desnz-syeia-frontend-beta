@@ -138,10 +138,6 @@ const EvidenceOfNegotiations: React.FC = () => {
       return;
     }
 
-    // Capture newly uploaded files (if any)
-    let newlyUploadedFiles: UploadedFile[] = [];
-    let newlyUploadedDocuments: ApplicationDocument[] = [];
-
     if (fileUploadRef.current) {
       const uploadResult = await fileUploadRef.current.triggerUpload();
       if (uploadResult.scanErrors.length > 0) {
@@ -153,8 +149,6 @@ const EvidenceOfNegotiations: React.FC = () => {
         window.scrollTo(0, 0);
         return;
       }
-      newlyUploadedFiles = uploadResult.uploadedFiles;
-      newlyUploadedDocuments = uploadResult.applicationDocuments;
     }
 
     if (!validateComments(comments, true)) {
@@ -172,21 +166,13 @@ const EvidenceOfNegotiations: React.FC = () => {
     setIsSaving(true);
 
     try {
-      // Merge existing files with newly uploaded files
-      const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
-      const allDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
-
       // Use PATCH to update existing record
       // If record doesn't exist (404), will fallback to POST which requires has_negotiations
-      // IMPORTANT: Send uploaded files and documents so backend can save them to database
       const result = await patchNegotiationsData(appId, {
         has_negotiations: true, // Required for POST fallback - user reached this page via "Yes" answer
         negotiations_comments: comments,
         // Clear field from opposite flow
         no_negotiations_reason: '',
-        // Send ALL file metadata to backend (existing + newly uploaded)
-        uploaded_files: allUploadedFiles,
-        application_documents: allDocuments,
       });
 
       if (!result) {

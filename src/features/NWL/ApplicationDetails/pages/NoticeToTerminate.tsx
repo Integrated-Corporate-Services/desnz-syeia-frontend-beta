@@ -209,8 +209,6 @@ const NoticeToTerminate: React.FC = () => {
         type_of_use: 'existing_lines',
         notice_to_terminate_date: formattedDate,
         notice_to_terminate_document_ids: documentIds,
-        notice_to_terminate_uploaded_files: allUploadedFiles,
-        notice_to_terminate_application_documents: allDocuments,
       }, APPLICATION_DETAILS_PAGE_IDS.NOTICE_TO_TERMINATE);
 
       navigateToTerminationPeriodExpired();

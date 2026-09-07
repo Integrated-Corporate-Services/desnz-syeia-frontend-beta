@@ -76,12 +76,15 @@ const UploadSiteInformation: React.FC = () => {
           return;
         }
 
-        if (newUploadedFiles.length > 0) {
-          await updateLandDetails({
-            uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
-          });
-        }
+        await updateLandDetails({
+          uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
+          applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs],
+        });
+      } else {
+        await updateLandDetails({
+          uploadedFiles: landDetails.uploadedFiles || [],
+          applicationDocuments: landDetails.applicationDocuments || [],
+        });
       }
 
       goToEquipmentVisibility();

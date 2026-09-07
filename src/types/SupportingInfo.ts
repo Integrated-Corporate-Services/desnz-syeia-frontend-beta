@@ -24,9 +24,8 @@ export interface SupportingInfoResponse {
 export interface SupportingInfoRequest {
   application_id: string;
   wayleaves_obtained: boolean;
+  wayleaves_not_obtained_reason?: string;
   esqcr_2002_compliance_confirmed: boolean;
   has_additional_supporting_documents: boolean;
   applicant_supporting_comments?: string;
-  uploaded_files?: UploadedFile[];
-  application_documents?: ApplicationDocument[];
-}
+  }

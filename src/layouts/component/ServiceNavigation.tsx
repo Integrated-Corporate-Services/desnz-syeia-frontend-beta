@@ -45,6 +45,7 @@ const ServiceNavigation = () => {
     const isOnOrganisationPages =
         location.pathname.includes("/admin/") ||
         location.pathname.includes("/user-management");
+    const isOnReportingPage = location.pathname === "/admin/reporting";
 
     if (!user || hideNavPaths.includes(location.pathname)) return null;
 
@@ -86,15 +87,26 @@ const ServiceNavigation = () => {
                             {isAdmin && (
                                 <li
                                     className={`rcc-service-nav__item${
-                                        isOnOrganisationPages ? " rcc-service-nav__item--active" : ""
+                                        isOnOrganisationPages && !isOnReportingPage ? " rcc-service-nav__item--active" : ""
                                     }`}
                                 >
                                     <Link
                                         className="rcc-service-nav__link"
                                         to="/admin/user-management"
-                                        aria-current={isOnOrganisationPages ? "page" : undefined}
+                                        aria-current={isOnOrganisationPages && !isOnReportingPage ? "page" : undefined}
                                     >
                                         Organisation
+                                    </Link>
+                                </li>
+                            )}
+                            {[ROLES.DESNZ_ADMIN, ROLES.TECH_ADMIN].includes((user as AuthUser)?.role as string) && (
+                                <li className={`rcc-service-nav__item${isOnReportingPage ? " rcc-service-nav__item--active" : ""}`}>
+                                    <Link
+                                        className="rcc-service-nav__link"
+                                        to="/admin/reporting"
+                                        aria-current={isOnReportingPage ? "page" : undefined}
+                                    >
+                                        Reporting
                                     </Link>
                                 </li>
                             )}

@@ -7,6 +7,7 @@ import {
   LABELS,
   FORM_LABELS,
   TITLE_OPTIONS,
+  VALIDATION_LIMITS,
 } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
@@ -79,7 +80,7 @@ const LandownerDetails: React.FC = () => {
     setSaveError("");
 
     // Client-side validation (includes optional field format validation)
-    if (!validatePersonDetails(fullName, email, phone)) {
+    if (!validatePersonDetails(fullName, email, phone, organisation)) {
       window.scrollTo(0, 0);
       return;
     }
@@ -183,7 +184,7 @@ const LandownerDetails: React.FC = () => {
               <div className={`govuk-form-group ${(formErrors.organisation || clientErrors.organisation) ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="organisation">{FORM_LABELS.ORGANISATION}</label>
                 {(formErrors.organisation || clientErrors.organisation) && <p id="organisation-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {formErrors.organisation || clientErrors.organisation}</p>}
-                <input className={`govuk-input ${(formErrors.organisation || clientErrors.organisation) ? "govuk-input--error" : ""}`} id="organisation" name="organisation" type="text" value={organisation} onChange={(e) => {
+                <input className={`govuk-input ${(formErrors.organisation || clientErrors.organisation) ? "govuk-input--error" : ""}`} id="organisation" name="organisation" type="text" value={organisation} maxLength={VALIDATION_LIMITS.ORGANISATION_MAX_LENGTH} onChange={(e) => {
                   setOrganisation(e.target.value);
                   handleClearFieldError('organisation');
                 }} aria-describedby={(formErrors.organisation || clientErrors.organisation) ? "organisation-error" : undefined} />
