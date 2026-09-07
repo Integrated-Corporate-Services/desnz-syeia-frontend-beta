@@ -117,12 +117,18 @@ export const formatUserRoleLabel = (role?: string): string => {
   switch (role) {
     case DESNZ_ADMIN:
       return 'DESNZ Admin';
+    case DESNZ_CASEWORKER:
+      return 'DESNZ Caseworker';
     case APPLICANT_TEAM_COORDINATOR:
       return 'DNO Team Coordinator';
     case TECH_ADMIN:
       return 'Tech Admin';
+    case BUSINESS_ADMIN:
+      return 'Business Admin';
     case APPLICANT_AGENT:
       return 'Applicant agent';
+    case APPLICANT_FINANCE:
+      return 'Applicant finance';
     case APPLICANT_USER:
       return 'Applicant';
     case APPLICANT:
@@ -131,6 +137,10 @@ export const formatUserRoleLabel = (role?: string): string => {
       return 'Network operator';
     case CONTACT:
       return 'Contact';
+    case CONSULTANT:
+      return 'Consultant';
+    case REVIEWER:
+      return 'Reviewer';
     default:
       return role;
   }
