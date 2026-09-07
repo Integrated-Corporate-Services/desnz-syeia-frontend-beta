@@ -51,7 +51,7 @@ export async function fetchPaymentProofDocuments(applicationId: string): Promise
   });
 
   if (!response.ok) {
-    return { uploadedFiles: [], applicationDocuments: [] };
+    throw new Error(`Failed to fetch payment proof documents (HTTP ${response.status})`);
   }
 
   const result = await response.json();

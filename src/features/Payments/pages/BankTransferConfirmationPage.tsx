@@ -10,6 +10,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { createLogger } from '../../../utils/logger';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import {
   isValidTransactionNumber,
   PAYMENT_ERROR_MESSAGES,
@@ -28,8 +29,8 @@ const BankTransferConfirmationPage: React.FC = () => {
   const [error, setError] = useState('');
   const [fileValidationErrors, setFileValidationErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
-  const [applicationDocuments, setApplicationDocuments] = useState<any[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
   const [resolvedInvoiceNumber, setResolvedInvoiceNumber] = useState<string | null>(null);
   const [resolvedTotalAmount, setResolvedTotalAmount] = useState<number | null>(null);
 
@@ -115,7 +116,7 @@ const BankTransferConfirmationPage: React.FC = () => {
     loadInvoiceAndAmountIfNeeded();
   }, [applicationId, invoiceNumber, totalAmount, resolvedInvoiceNumber, resolvedTotalAmount]);
 
-   useEffect(() => {
+  useEffect(() => {
     if (!applicationId) {
       return;
     }
@@ -135,13 +136,13 @@ const BankTransferConfirmationPage: React.FC = () => {
         // while this fetch was still in flight.
         if (existingUploadedFiles.length > 0) {
           setUploadedFiles(prev => {
-            const existingIds = new Set(prev.map((f: any) => f.id));
+            const existingIds = new Set(prev.map(f => f.id));
             return [...prev, ...existingUploadedFiles.filter(f => !existingIds.has(f.id))];
           });
         }
         if (existingApplicationDocuments.length > 0) {
           setApplicationDocuments(prev => {
-            const existingIds = new Set(prev.map((d: any) => d.documentId));
+            const existingIds = new Set(prev.map(d => d.documentId));
             return [...prev, ...existingApplicationDocuments.filter(d => !existingIds.has(d.documentId))];
           });
         }
