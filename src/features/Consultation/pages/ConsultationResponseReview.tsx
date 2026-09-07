@@ -92,9 +92,11 @@ const ConsultationResponse3: React.FC = () => {
         try {
             // Fetch existing data to preserve all fields
             const existingData = await getConsultationResponse(consultationId!, applicationId);
-            
+
+            const { uploaded_files, application_documents, ...existingDataWithoutFiles } = existingData;
+
             const payload: Partial<ConsultationResponse> = {
-                ...existingData,
+                ...existingDataWithoutFiles,
                 response_comments: comments,
                 last_updated_by: userId,
                 has_all_documents_uploaded: declarationAccepted,

@@ -109,9 +109,11 @@ const ConsultationResponse: React.FC = () => {
         try {
             // Fetch existing data to preserve all fields
             const existingData = await getConsultationResponse(consultationId!, applicationId);
-            
+
+            const { uploaded_files, application_documents, ...existingDataWithoutFiles } = existingData;
+
             const payload: Partial<ConsultationResponse> = {
-                ...existingData,
+                ...existingDataWithoutFiles,
                 response_full_name: contactName,
                 response_email_address: email,
                 has_objection: hasObjection === 'yes',
