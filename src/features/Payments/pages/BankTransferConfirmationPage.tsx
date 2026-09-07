@@ -14,7 +14,7 @@ import {
   isValidTransactionNumber,
   PAYMENT_ERROR_MESSAGES,
 } from '../../../constants/payment';
-import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
+import { fetchFeeTotal, fetchInvoiceNumber, fetchPaymentProofDocuments } from '../services/paymentDetailsService';
 
 const logger = createLogger('BankTransferConfirmationPage');
 
@@ -115,7 +115,47 @@ const BankTransferConfirmationPage: React.FC = () => {
     loadInvoiceAndAmountIfNeeded();
   }, [applicationId, invoiceNumber, totalAmount, resolvedInvoiceNumber, resolvedTotalAmount]);
 
-  // No on-mount create/upsert call â€” payment will be created/submitted when user clicks Submit.
+   useEffect(() => {
+    if (!applicationId) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadExistingProofOfPaymentFiles = async () => {
+      try {
+        const { uploadedFiles: existingUploadedFiles, applicationDocuments: existingApplicationDocuments } =
+          await fetchPaymentProofDocuments(applicationId);
+
+        if (!isMounted) {
+          return;
+        }
+
+        // Merge (rather than overwrite) in case a file was uploaded via onUploaded
+        // while this fetch was still in flight.
+        if (existingUploadedFiles.length > 0) {
+          setUploadedFiles(prev => {
+            const existingIds = new Set(prev.map((f: any) => f.id));
+            return [...prev, ...existingUploadedFiles.filter(f => !existingIds.has(f.id))];
+          });
+        }
+        if (existingApplicationDocuments.length > 0) {
+          setApplicationDocuments(prev => {
+            const existingIds = new Set(prev.map((d: any) => d.documentId));
+            return [...prev, ...existingApplicationDocuments.filter(d => !existingIds.has(d.documentId))];
+          });
+        }
+      } catch (err) {
+        logger.error('Failed to load existing proof-of-payment documents', err);
+      }
+    };
+
+    loadExistingProofOfPaymentFiles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [applicationId]);
 
   const handleSubmit = async () => {
     if (fileUploadRef.current?.isBusy()) {
