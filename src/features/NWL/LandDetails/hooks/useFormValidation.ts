@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { LAND_DETAILS_VALIDATION, UK_POSTCODE_REGEX } from '../constants';
+import { LAND_DETAILS_VALIDATION, UK_POSTCODE_REGEX, VALIDATION_LIMITS } from '../constants';
 
 type ValidationErrors = { [key: string]: string };
 
@@ -21,16 +21,30 @@ export const useFormValidation = () => {
   const validateSiteAddress = useCallback((
     addressLine1: string,
     town: string,
-    postcode: string
+    postcode: string,
+    addressLine2: string = '',
+    county: string = ''
   ): boolean => {
     const newErrors: ValidationErrors = {};
 
     if (!addressLine1.trim()) {
       newErrors.addressLine1 = LAND_DETAILS_VALIDATION.ADDRESS_LINE1_REQUIRED;
+    } else if (addressLine1.length > VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH) {
+      newErrors.addressLine1 = LAND_DETAILS_VALIDATION.ADDRESS_LINE1_TOO_LONG;
+    }
+
+    if (addressLine2.length > VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH) {
+      newErrors.addressLine2 = LAND_DETAILS_VALIDATION.ADDRESS_LINE2_TOO_LONG;
     }
 
     if (!town.trim()) {
       newErrors.town = LAND_DETAILS_VALIDATION.TOWN_REQUIRED;
+    } else if (town.length > VALIDATION_LIMITS.TOWN_MAX_LENGTH) {
+      newErrors.town = LAND_DETAILS_VALIDATION.TOWN_TOO_LONG;
+    }
+
+    if (county.length > VALIDATION_LIMITS.COUNTY_MAX_LENGTH) {
+      newErrors.county = LAND_DETAILS_VALIDATION.COUNTY_TOO_LONG;
     }
 
     if (!postcode.trim()) {
