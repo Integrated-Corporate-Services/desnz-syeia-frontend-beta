@@ -4,29 +4,29 @@ import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
 import { ROLES } from '../../../constants/roles';
+import { formatUserRoleLabel } from '../../../utils/roleUtils';
 import userService from '../../../services/userService';
 import PageTitle from '../../../components/PageTitle';
 
 interface RoleOption {
   value: string;
-  label: string;
   description: string;
 }
 
 const ROLE_OPTIONS: RoleOption[] = [
   {
     value: ROLES.APPLICANT_USER,
-    label: 'Applicant',
     description:
       "Can create and edit their own applications, and view the team's submitted applications.",
   },
   {
     value: ROLES.APPLICANT_TEAM_COORDINATOR,
-    label: 'Team coordinator',
     description:
-      'A person who create and edit their own applications, and can manage team members and view all applications submitted by the team.',
+      'A person who creates and edits their own applications, and can manage team members and view all applications submitted by the team.',
   },
 ];
+
+const FIRST_ROLE_FIELD_ID = `user-role-${ROLE_OPTIONS[0].value}`;
 
 const ChangeUserRolePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -35,17 +35,11 @@ const ChangeUserRolePage: React.FC = () => {
 
   const user = users.find(u => u.id === userId);
 
-  const [selectedRole, setSelectedRole] = useState<string | undefined>(user?.role);
+  // undefined until the user picks an option, falling back to the user's current role
+  const [selectedRole, setSelectedRole] = useState<string | undefined>(undefined);
+  const effectiveRole = selectedRole ?? user?.role;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Keep the selected role in sync once the user data has loaded
-  React.useEffect(() => {
-    if (user && selectedRole === undefined) {
-      setSelectedRole(user.role);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
 
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -53,7 +47,7 @@ const ChangeUserRolePage: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
-    if (!selectedRole) {
+    if (!effectiveRole) {
       setError('Select a role');
       return;
     }
@@ -61,7 +55,7 @@ const ChangeUserRolePage: React.FC = () => {
     setError(null);
     setSaving(true);
     try {
-      const response = await userService.updateUserRole(userId as string, selectedRole);
+      const response = await userService.updateUserRole(userId as string, effectiveRole);
       if (response.success) {
         navigate(`/admin/manage-user/${userId}`);
       } else {
@@ -109,7 +103,7 @@ const ChangeUserRolePage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
-              <ErrorSummary errors={[{ fieldId: 'user-role', message: error }]} />
+              <ErrorSummary errors={[{ fieldId: FIRST_ROLE_FIELD_ID, message: error }]} />
             )}
 
             <div className="govuk-form-group">
@@ -133,14 +127,14 @@ const ChangeUserRolePage: React.FC = () => {
                         name="user-role"
                         type="radio"
                         value={option.value}
-                        checked={selectedRole === option.value}
+                        checked={effectiveRole === option.value}
                         onChange={() => setSelectedRole(option.value)}
                       />
                       <label
                         className="govuk-label govuk-radios__label"
                         htmlFor={`user-role-${option.value}`}
                       >
-                        {option.label}
+                        {formatUserRoleLabel(option.value)}
                       </label>
                       <div
                         id={`user-role-${option.value}-hint`}

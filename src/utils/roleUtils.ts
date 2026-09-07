@@ -111,7 +111,7 @@ export const hasElevatedPermissions = (role?: UserRole): boolean => {
          role === REVIEWER;
 };
 
-export const formatUserRoleLabel = (role?: string): string => {
+export const formatUserRoleLabel = (role?: UserRole): string => {
   if (!role) return 'Applicant';
 
   switch (role) {
