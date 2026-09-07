@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
+import { formatUserRoleLabel } from '../../../utils/roleUtils';
 import PageTitle from '../../../components/PageTitle';
 
 const ManageUserPage: React.FC = () => {
@@ -25,13 +26,7 @@ const ManageUserPage: React.FC = () => {
     });
   };
 
-  const formatRole = (role: string) => {
-    if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
-    if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
-    if (role === ROLES.TECH_ADMIN) return 'Tech Admin';
-    if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
-    return 'Applicant';
-  };
+  const formatRole = formatUserRoleLabel;
 
   if (loading) {
     return (
