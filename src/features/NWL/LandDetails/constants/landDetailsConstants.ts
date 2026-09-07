@@ -70,9 +70,20 @@ export const LAND_DETAILS_LABELS = {
   },
 };
 
+export const VALIDATION_LIMITS = {
+  ADDRESS_LINE1_MAX_LENGTH: 150,
+  ADDRESS_LINE2_MAX_LENGTH: 150,
+  TOWN_MAX_LENGTH: 100,
+  COUNTY_MAX_LENGTH: 100,
+};
+
 export const LAND_DETAILS_VALIDATION = {
   ADDRESS_LINE1_REQUIRED: 'Enter address line 1',
+  ADDRESS_LINE1_TOO_LONG: `Address line 1 must be ${VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH} characters or less`,
+  ADDRESS_LINE2_TOO_LONG: `Address line 2 must be ${VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH} characters or less`,
   TOWN_REQUIRED: 'Enter town or city',
+  TOWN_TOO_LONG: `Town or city must be ${VALIDATION_LIMITS.TOWN_MAX_LENGTH} characters or less`,
+  COUNTY_TOO_LONG: `County must be ${VALIDATION_LIMITS.COUNTY_MAX_LENGTH} characters or less`,
   POSTCODE_REQUIRED: 'Enter postcode',
   POSTCODE_INVALID: 'Enter a valid UK postcode',
   COUNTRY_REQUIRED: 'Select which country the land is in',
