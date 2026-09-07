@@ -24,6 +24,14 @@ export const useManageUsersNavigation = () => {
     navigate(`/admin/manage-user/${userId}`);
   };
 
+  const navigateToChangeRole = (userId: string) => {
+    navigate(`/admin/manage-user/${userId}/change-role`);
+  };
+
+  const navigateToManageUser = (userId: string) => {
+    navigate(`/admin/manage-user/${userId}`);
+  };
+
   const navigateToReviewRequest = (accessRequestId: string) => {
     navigate(`/admin/review-request/${accessRequestId}`);
   };
@@ -33,6 +41,8 @@ export const useManageUsersNavigation = () => {
     navigateToAddUser,
     navigateToAccessRevoked,
     navigateToRevokeUser,
+    navigateToChangeRole,
+    navigateToManageUser,
     navigateToReviewRequest
   };
 };
