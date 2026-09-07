@@ -47,7 +47,9 @@ const ChangeUserRolePage: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
-    if (!effectiveRole) {
+    const allowedRoles = new Set(ROLE_OPTIONS.map(o => o.value));
+
+    if (!userId || !effectiveRole || !allowedRoles.has(effectiveRole)) {
       setError('Select a role');
       return;
     }
@@ -55,7 +57,7 @@ const ChangeUserRolePage: React.FC = () => {
     setError(null);
     setSaving(true);
     try {
-      const response = await userService.updateUserRole(userId as string, effectiveRole);
+      const response = await userService.updateUserRole(userId, effectiveRole);
       if (response.success) {
         navigate(`/admin/manage-user/${userId}`);
       } else {
