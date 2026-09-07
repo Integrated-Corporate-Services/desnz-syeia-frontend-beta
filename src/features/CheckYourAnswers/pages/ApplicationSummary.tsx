@@ -578,6 +578,17 @@ const ApplicationSummary: React.FC = () => {
               </div>
             </div>
 
+            {applicationMetadata?.status?.toUpperCase() === 'FURTHER_INFORMATION_REQUESTED' && (
+              <p className="govuk-body">
+                <Link
+                  className="govuk-button"
+                  to={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+                >
+                  Provide information
+                </Link>
+              </p>
+            )}
+
             {/* ===== Payment Details Section ===== */}
             {paymentDetails && (
               <div className="govuk-summary-card">

@@ -30,14 +30,14 @@ export function clearPresignedUrlCache(filename?: string) {
   }
 }
 
-export async function getPresignedUrls(files: { filename: string; contentType: string }[], applicationId?: string) {
+export async function getPresignedUrls(files: { filename: string; contentType: string }[], applicationId?: string, endpoint = '/api/upload/presigned-url') {
   logger.debug('[s3ApiService.ts][getPresignedUrls] STARTs');
   const body: any = { files };
   if (applicationId) {
     body.applicationId = applicationId;
   }
   
-  const res = await fetch(buildBackendUrl('/api/upload/presigned-url'), {
+  const res = await fetch(buildBackendUrl(endpoint), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ export async function confirmUpload(params: {
   addedBy: string;
   subCategory?: string;
   consultationId?: string;
-}): Promise<{
+}, endpoint = '/api/upload/confirm'): Promise<{
   documentId: string;
   fileId: string;
   fileName: string;
@@ -119,7 +119,7 @@ export async function confirmUpload(params: {
   etag?: string;
 }> {
   logger.debug('[s3ApiService.ts][confirmUpload] STARTs');
-  const res = await fetch(buildBackendUrl('/api/upload/confirm'), {
+  const res = await fetch(buildBackendUrl(endpoint), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
