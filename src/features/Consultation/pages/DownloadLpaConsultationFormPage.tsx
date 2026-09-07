@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
@@ -42,6 +42,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
   } | null>(null);
   const [loadingMetadata, setLoadingMetadata] = useState(true);
   const [downloadError, setDownloadError] = useState('');
+  const downloadErrorSummaryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchConsultationDetails = async () => {
@@ -135,9 +136,15 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
     } catch (error) {
       log.error('Error downloading form:', error);
       setDownloadError('The consultation form could not be downloaded. Try again.');
-      window.scrollTo(0, 0);
     }
   };
+
+  useEffect(() => {
+    if (downloadError) {
+      downloadErrorSummaryRef.current?.focus();
+      window.scrollTo(0, 0);
+    }
+  }, [downloadError]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -214,7 +221,9 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
         {/* Download error */}
         {downloadError && (
           <div
+            ref={downloadErrorSummaryRef}
             className="govuk-error-summary govuk-!-width-two-thirds"
+            data-module="govuk-error-summary"
             role="alert"
             aria-labelledby="download-error-summary-title"
             tabIndex={-1}
@@ -223,7 +232,11 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
               There is a problem
             </h2>
             <div className="govuk-error-summary__body">
-              <p>{downloadError}</p>
+              <ul className="govuk-list govuk-error-summary__list">
+                <li>
+                  <span>{downloadError}</span>
+                </li>
+              </ul>
             </div>
           </div>
         )}

@@ -90,7 +90,7 @@ const ConsultationResponse3: React.FC = () => {
         }
 
         try {
-            // Fetch existing data to preserve all fields
+            // Fetch existing data to preserve all fields except file/document lists (handled separately)
             const existingData = await getConsultationResponse(consultationId!, applicationId);
 
             const { uploaded_files, application_documents, ...existingDataWithoutFiles } = existingData;
