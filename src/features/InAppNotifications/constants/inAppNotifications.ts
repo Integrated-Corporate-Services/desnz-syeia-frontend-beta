@@ -1,0 +1,1 @@
+export const NOTIFICATION_POLL_INTERVAL_MS = 60_000;

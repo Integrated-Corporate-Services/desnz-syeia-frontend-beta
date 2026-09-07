@@ -1,0 +1,94 @@
+.in-app-notifications {
+  position: relative;
+}
+
+.in-app-notifications__button {
+  position: relative;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  padding: 0;
+  color: #ffffff;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.in-app-notifications__button:hover,
+.in-app-notifications__button:focus-visible {
+  background: #003078;
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+}
+
+.in-app-notifications__button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.in-app-notifications__count {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  color: #0b0c0c;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+  background: #ffdd00;
+  border-radius: 50%;
+}
+
+.in-app-notifications__panel {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 4px);
+  right: 0;
+  width: min(360px, calc(100vw - 32px));
+  padding: 16px;
+  color: #0b0c0c;
+  background: #ffffff;
+  border: 1px solid #505a5f;
+  box-shadow: 0 4px 8px rgb(11 12 12 / 25%);
+}
+
+.in-app-notifications__list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.in-app-notifications__item {
+  display: grid;
+  width: 100%;
+  gap: 4px;
+  padding: 12px 8px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: #ffffff;
+  border: 0;
+  border-top: 1px solid #b1b4b6;
+  cursor: pointer;
+}
+
+.in-app-notifications__item--unread {
+  font-weight: 700;
+  border-left: 4px solid #1d70b8;
+}
+
+.in-app-notifications__item:hover,
+.in-app-notifications__item:focus-visible {
+  background: #f3f2f1;
+  outline: 3px solid #ffdd00;
+  outline-offset: -3px;
+}

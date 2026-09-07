@@ -1,0 +1,1 @@
+export { default as InAppNotificationsBell } from './components/InAppNotificationsBell';
