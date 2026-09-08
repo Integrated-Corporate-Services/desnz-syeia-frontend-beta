@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { ROLES } from "../../constants/roles";
 import { useAuthUserContext } from "../../context/AuthUserContext";
@@ -14,11 +15,15 @@ import {
 import { ReportingContents, ReportingFilters } from "./components/ReportingControls";
 import { REPORTING_MESSAGES } from "./constants";
 import { useReportingDashboard } from "./useReportingDashboard";
+import { createReportingJob } from '../../services/adminReportingService';
 import "./ReportingDashboard.css";
 
 const ReportingDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
   const dashboard = useReportingDashboard();
+  const [jobMessage, setJobMessage] = useState<string | null>(null);
+  const [startingJob, setStartingJob] = useState(false);
+  const isTechAdminRole = (user as AuthUser | undefined)?.role === ROLES.TECH_ADMIN;
   const isTechAdmin = [ROLES.DESNZ_ADMIN, ROLES.TECH_ADMIN].includes(
     (user as AuthUser | undefined)?.role as string
   );
@@ -33,6 +38,23 @@ const ReportingDashboard: React.FC = () => {
       (dashboard.report.organisations.length > 0 ||
         dashboard.report.metrics.some((metric) => metric.value > 0))
   );
+
+  const generateReport = async () => {
+    setStartingJob(true);
+    setJobMessage(null);
+    try {
+      const job = await createReportingJob(dashboard.startDate, dashboard.endDate);
+      setJobMessage(`Report generation is ${job.status.toLowerCase()} for ${job.startDate} to ${job.endDate}.`);
+    } catch (error) {
+      setJobMessage(
+        axios.isAxiosError(error) && error.response?.status === 409
+          ? String(error.response.data?.error || 'Report generation is already complete or in progress for this date range.')
+          : 'Report generation could not be started. Try again shortly.'
+      );
+    } finally {
+      setStartingJob(false);
+    }
+  };
 
   return (
     <div className="govuk-grid-row reporting-dashboard">
@@ -51,6 +73,15 @@ const ReportingDashboard: React.FC = () => {
           onEndDateChange={dashboard.updateEndDate}
           onSubmit={() => void dashboard.loadReport()}
         />
+
+        {isTechAdminRole && (
+          <div className="reporting-job-control">
+            <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void generateReport()} disabled={startingJob || !dashboard.startDate || !dashboard.endDate || dashboard.endDate < dashboard.startDate}>
+              {startingJob ? 'Starting report generation' : 'Generate report data'}
+            </button>
+            {jobMessage && <p className="govuk-hint" role="status">{jobMessage}</p>}
+          </div>
+        )}
 
         {dashboard.error && (
           dashboard.error === REPORTING_MESSAGES.SNAPSHOTS_UNAVAILABLE ? (

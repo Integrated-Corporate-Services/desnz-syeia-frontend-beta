@@ -27,6 +27,14 @@
   margin: 20px 0 0;
 }
 
+.reporting-job-control {
+  margin: -20px 0 40px;
+}
+
+.reporting-job-control .govuk-button {
+  margin-bottom: 8px;
+}
+
 .reporting-content {
   min-width: 0;
 }

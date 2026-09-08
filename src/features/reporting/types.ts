@@ -23,6 +23,16 @@ export interface AdminReport {
   organisations: OrganisationReportRow[];
 }
 
+export interface ReportingJob {
+  reportingJobId: string;
+  startDate: string;
+  endDate: string;
+  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+  ecsTaskArn: string | null;
+  failureReason: string | null;
+  createdAt: string;
+}
+
 export interface ReportingAvailability {
   availableDates: string[];
 }
