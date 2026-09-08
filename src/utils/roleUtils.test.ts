@@ -18,6 +18,8 @@ describe('formatUserRoleLabel', () => {
     expect(formatUserRoleLabel(ROLES.DESNZ_ADMIN)).toBe('DESNZ Admin');
     expect(formatUserRoleLabel(ROLES.TECH_ADMIN)).toBe('Tech Admin');
     expect(formatUserRoleLabel(ROLES.APPLICANT_AGENT)).toBe('Applicant agent');
+    expect(formatUserRoleLabel(ROLES.NETWORK_OPERATOR)).toBe('Network operator');
+    expect(formatUserRoleLabel(ROLES.CONTACT)).toBe('Contact');
     expect(formatUserRoleLabel(ROLES.APPLICANT)).toBe('Applicant');
   });
 
