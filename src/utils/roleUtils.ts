@@ -134,6 +134,7 @@ export const formatUserRoleLabel = (role?: UserRole): string => {
     case 'APPLICANT':
     case APPLICANT:
       return 'Applicant';
+    case NETWORK_OPERATOR:
       return 'Network operator';
     case CONTACT:
       return 'Contact';
