@@ -28,6 +28,10 @@
   margin-bottom: 0;
 }
 
+.operational-tasks__search .govuk-button {
+  margin-bottom: 0;
+}
+
 .operational-tasks__recovery {
   border-color: #d4351c;
 }

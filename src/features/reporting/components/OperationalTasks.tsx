@@ -1,5 +1,5 @@
 import React from "react";
-import { DOWNLOAD_RECOVERY_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
+import { DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
 import { useApplicationStatusLookup } from "../hooks/useApplicationStatusLookup";
 
 const formatCurrency = (amountInPence: number | null): string => {
@@ -112,8 +112,12 @@ const OperationalTasks: React.FC = () => {
               <table className="govuk-table operational-tasks__summary">
                 <tbody className="govuk-table__body">
                   <tr className="govuk-table__row">
-                    <th className="govuk-table__header" scope="row">Reference</th>
-                    <td className="govuk-table__cell">{result.desnzRef || result.applicationId}</td>
+                    <th className="govuk-table__header" scope="row">DESNZ Reference</th>
+                    <td className="govuk-table__cell">{result.desnzRef || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Application ID</th>
+                    <td className="govuk-table__cell">{result.applicationId}</td>
                   </tr>
                   <tr className="govuk-table__row">
                     <th className="govuk-table__header" scope="row">Started</th>
@@ -124,6 +128,38 @@ const OperationalTasks: React.FC = () => {
                     <td className="govuk-table__cell">
                       <strong className={statusTagClass(result.applicationStatus)}>{result.applicationStatus}</strong>
                     </td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Org name</th>
+                    <td className="govuk-table__cell">{result.organisationName || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">User ID</th>
+                    <td className="govuk-table__cell">{result.userId || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Person ID</th>
+                    <td className="govuk-table__cell">{result.personId || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Redacted email</th>
+                    <td className="govuk-table__cell">{result.redactedEmail || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Created at</th>
+                    <td className="govuk-table__cell">{formatStartedAt(result.startedAt)}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Submitted at</th>
+                    <td className="govuk-table__cell">{result.submittedAt ? formatStartedAt(result.submittedAt) : "Not submitted"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Invoice ID</th>
+                    <td className="govuk-table__cell">{result.invoiceNumber || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Number of docs uploaded</th>
+                    <td className="govuk-table__cell">{result.documentCount}</td>
                   </tr>
                 </tbody>
               </table>
@@ -152,6 +188,12 @@ const OperationalTasks: React.FC = () => {
                       <th className="govuk-table__header" scope="row">Provider</th>
                       <td className="govuk-table__cell">{result.payment.provider || "Not available"}</td>
                     </tr>
+                    <tr className="govuk-table__row">
+                      <th className="govuk-table__header" scope="row">Date of payment</th>
+                      <td className="govuk-table__cell">
+                        {result.payment.paymentDate ? formatStartedAt(result.payment.paymentDate) : "Not available"}
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               ) : (
@@ -165,7 +207,7 @@ const OperationalTasks: React.FC = () => {
           <div className="operational-tasks__actions">
             <h3 className="govuk-heading-m">Download recovery</h3>
             <p className="operational-tasks__actions-note">Rebuilds a derived file. Does not change the application.</p>
-            {result.applicationStatus === DOWNLOAD_RECOVERY_APPLICATION_STATUS ? (
+            {result.applicationStatus !== DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS ? (
               <>
                 {checkingDocumentExport && <p className="govuk-body">Checking for an existing download bundle…</p>}
                 {!checkingDocumentExport && documentExport && (
@@ -207,7 +249,7 @@ const OperationalTasks: React.FC = () => {
               </>
             ) : (
               <p className="govuk-hint">
-                Not available. This application must be in {DOWNLOAD_RECOVERY_APPLICATION_STATUS} status.
+                Not available. This application must not be in {DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS} status.
               </p>
             )}
           </div>
