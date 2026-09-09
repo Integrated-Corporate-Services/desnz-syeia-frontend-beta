@@ -87,7 +87,7 @@ class UserService {
     userId: string,
     role: string,
     organisationId?: string
-  ): Promise<ServiceResponse<User>> {
+  ): Promise<ServiceResponse<void>> {
     try {
       const requestBody: { role: string; organisationId?: string } = { role };
       if (organisationId) {
