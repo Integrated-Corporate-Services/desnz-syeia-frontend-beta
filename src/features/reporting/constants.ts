@@ -35,3 +35,16 @@ export const REPORTING_MESSAGES = {
   NO_DATA_AVAILABLE: "No data is available for the selected date range.",
   INVALID_DATE_RANGE: "End date must be on or after the start date.",
 } as const;
+
+export const OPERATIONAL_TASKS_MESSAGES = {
+  REFERENCE_LABEL: "Reference",
+  REFERENCE_HINT: "Please enter Application Id or DESNZ Reference",
+  REFERENCE_REQUIRED: "Enter an application ID or DESNZ reference.",
+  NOT_FOUND: "No application was found for that reference.",
+  LOAD_FAILED: "The application could not be found. Try again shortly.",
+  VERIFY_FAILED: "The payment could not be verified. Try again shortly.",
+  VERIFY_SUCCESS: "Payment verification completed.",
+} as const;
+
+export const VERIFIABLE_APPLICATION_STATUS = "DRAFT";
+export const VERIFIABLE_PAYMENT_STATUS = "created";
