@@ -27,6 +27,23 @@ export interface ReportingAvailability {
   availableDates: string[];
 }
 
+export interface ApplicationPaymentSummary {
+  paymentId: string | null;
+  status: string | null;
+  amount: number | null;
+  reference: string | null;
+  provider: string | null;
+}
+
+export interface ApplicationStatusLookup {
+  applicationId: string;
+  desnzRef: string | null;
+  applicationStatus: string;
+  startedAt: string;
+  payment: ApplicationPaymentSummary | null;
+  canVerifyPayment: boolean;
+}
+
 export type DateRangePreset =
   | "today"
   | "yesterday"
