@@ -9,9 +9,6 @@ export async function reconcileSubmission(applicationId: string): Promise<Reconc
   return response.data;
 }
 
-// Checks whether a completed download bundle already exists for the application,
-// so the UI can offer a direct download instead of building a duplicate one.
-// Returns null when none exists yet (backend responds 404).
 export async function getDocumentExport(applicationId: string): Promise<DocumentExportRecord | null> {
   try {
     const response = await axios.get<DocumentExportRecord>(

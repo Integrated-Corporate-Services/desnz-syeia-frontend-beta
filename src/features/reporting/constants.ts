@@ -50,7 +50,4 @@ export const OPERATIONAL_TASKS_MESSAGES = {
 
 export const VERIFIABLE_APPLICATION_STATUS = "DRAFT";
 export const VERIFIABLE_PAYMENT_STATUS = "created";
-
-// Must match the status the backend considers a fully submitted application - download
-// recovery only makes sense once the application has actually reached this state.
 export const DOWNLOAD_RECOVERY_APPLICATION_STATUS = "SUBMITTED";
