@@ -48,7 +48,7 @@ const UserManagementDashboard: React.FC = () => {
                 : "Manage access requests and users for your organisation"}
             </p>
 
-            {activeTab === "organisations" && (
+            {isDesnzAdmin && activeTab === "organisations" && (
               <form
                 className="govuk-!-margin-top-6 govuk-!-margin-bottom-6"
                 role="search"
@@ -58,7 +58,7 @@ const UserManagementDashboard: React.FC = () => {
                 }}
               >
                 <h2 className="govuk-heading-s govuk-!-margin-bottom-3">
-                  Search for a user
+                  Search for an organisation
                 </h2>
                 <div className="govuk-form-group govuk-!-margin-bottom-3">
                   <label className="govuk-visually-hidden" htmlFor="organisation-search">

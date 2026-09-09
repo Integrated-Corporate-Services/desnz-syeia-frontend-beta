@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ChangeOrganisationNamePage from './ChangeOrganisationNamePage';
@@ -71,6 +71,15 @@ describe('ChangeOrganisationNamePage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
 
     expect(await screen.findAllByText(message)).toHaveLength(2);
+    expect(screen.getByRole('alert')).toHaveAccessibleName('There is a problem');
+    expect(within(screen.getByRole('alert')).getByRole('link', { name: message })).toHaveAttribute(
+      'href',
+      '#organisationName'
+    );
+    expect(screen.getByLabelText('Enter the name of the organisation')).toHaveAttribute(
+      'aria-describedby',
+      'organisationName-error'
+    );
     expect(organisationService.updateOrganisationName).not.toHaveBeenCalled();
   });
 

@@ -78,11 +78,15 @@ const ChangeOrganisationAddressPage: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Enter address manually</h1>
             {(errorEntries.length > 0 || loadError) && (
-              <div className="govuk-error-summary" role="alert" tabIndex={-1} ref={errorSummaryRef}>
-                <h2 className="govuk-error-summary__title">There is a problem</h2>
+              <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} ref={errorSummaryRef}>
+                <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
                 <div className="govuk-error-summary__body"><ul className="govuk-list govuk-error-summary__list">
-                  {loadError && <li><a href="#submit-error">{loadError}</a></li>}
-                  {errorEntries.map(([field, message]) => <li key={field}><a href={`#${field}`}>{message}</a></li>)}
+                  {loadError && <li>{loadError}</li>}
+                  {errorEntries.map(([field, message]) => (
+                    <li key={field}>
+                      {field === 'submit' ? message : <a href={`#${field}`}>{message}</a>}
+                    </li>
+                  ))}
                 </ul></div>
               </div>
             )}
@@ -99,7 +103,7 @@ const ChangeOrganisationAddressPage: React.FC = () => {
                     <div key={field} className={`govuk-form-group${errors[field as keyof AddressErrors] ? ' govuk-form-group--error' : ''}`}>
                       <label className="govuk-label govuk-label--m" htmlFor={field}>{label}</label>
                       {errors[field as keyof AddressErrors] && <p id={`${field}-error`} className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors[field as keyof AddressErrors]}</p>}
-                      <input className={`govuk-input${errors[field as keyof AddressErrors] ? ' govuk-input--error' : ''}`} id={field} autoComplete={autoComplete} value={form[field]} onChange={(event) => updateField(field, event.target.value)} />
+                      <input aria-describedby={errors[field as keyof AddressErrors] ? `${field}-error` : undefined} className={`govuk-input${errors[field as keyof AddressErrors] ? ' govuk-input--error' : ''}`} id={field} autoComplete={autoComplete} value={form[field]} onChange={(event) => updateField(field, event.target.value)} />
                     </div>
                   ))}
                   <div className="govuk-form-group">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ChangeOrganisationAddressPage from './ChangeOrganisationAddressPage';
@@ -79,6 +79,12 @@ describe('ChangeOrganisationAddressPage', () => {
     ).toHaveLength(2);
     expect(screen.getAllByText('Enter a town or city')).toHaveLength(2);
     expect(screen.getAllByText('Enter a full UK postcode')).toHaveLength(2);
+    expect(screen.getByRole('alert')).toHaveAccessibleName('There is a problem');
+    expect(within(screen.getByRole('alert')).getByRole('link', { name: 'Enter a town or city' })).toHaveAttribute(
+      'href',
+      '#townCity'
+    );
+    expect(screen.getByLabelText('Town or city')).toHaveAttribute('aria-describedby', 'townCity-error');
     expect(organisationService.updateOrganisationAddress).not.toHaveBeenCalled();
   });
 

@@ -62,10 +62,14 @@ const ChangeOrganisationNamePage: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Organisation name</h1>
             {errorMessage && (
-              <div className="govuk-error-summary" role="alert" tabIndex={-1} ref={errorSummaryRef}>
-                <h2 className="govuk-error-summary__title">There is a problem</h2>
+              <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} ref={errorSummaryRef}>
+                <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
                 <div className="govuk-error-summary__body">
-                  <a href={fieldError ? '#organisationName' : '#submit-error'}>{errorMessage}</a>
+                  <ul className="govuk-list govuk-error-summary__list">
+                    <li>
+                      {fieldError ? <a href="#organisationName">{fieldError}</a> : errorMessage}
+                    </li>
+                  </ul>
                 </div>
               </div>
             )}
@@ -75,7 +79,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
                   <div className={`govuk-form-group${fieldError ? ' govuk-form-group--error' : ''}`}>
                     <label className="govuk-label" htmlFor="organisationName">Enter the name of the organisation</label>
                     {fieldError && <p id="organisationName-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {fieldError}</p>}
-                    <input className={`govuk-input govuk-input--width-20${fieldError ? ' govuk-input--error' : ''}`} id="organisationName" value={organisationName} onChange={(event) => setOrganisationName(event.target.value)} />
+                    <input aria-describedby={fieldError ? 'organisationName-error' : undefined} className={`govuk-input govuk-input--width-20${fieldError ? ' govuk-input--error' : ''}`} id="organisationName" value={organisationName} onChange={(event) => setOrganisationName(event.target.value)} />
                   </div>
                   <button className="govuk-button" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save and continue'}</button>
                 </form>
