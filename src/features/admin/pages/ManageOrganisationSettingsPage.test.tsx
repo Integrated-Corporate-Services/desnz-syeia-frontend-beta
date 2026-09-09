@@ -49,6 +49,9 @@ describe('ManageOrganisationSettingsPage', () => {
       'href',
       '/admin/organisations/organisation-123/change-name'
     );
+    expect(within(nameRow as HTMLElement).getByRole('link', { name: 'Change organisation name' })).toHaveClass(
+      'govuk-link--no-visited-state'
+    );
 
     const addressRow = screen.getByText('Organisation address').closest('.govuk-summary-list__row');
     expect(addressRow).toHaveTextContent(
@@ -75,5 +78,9 @@ describe('ManageOrganisationSettingsPage', () => {
       'href',
       '/admin/user-management'
     );
+    expect(screen.getByRole('link', { name: 'Return to dashboard' })).toHaveClass(
+      'govuk-link--no-visited-state'
+    );
+    expect(document.querySelector('.organisation-details__summary-list')).toBeInTheDocument();
   });
 });

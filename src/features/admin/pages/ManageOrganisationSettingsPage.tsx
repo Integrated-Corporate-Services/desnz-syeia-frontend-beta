@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
+import './ManageOrganisationSettingsPage.css';
 
 const ManageOrganisationSettingsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -67,7 +68,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
 
             <h2 className="govuk-heading-m govuk-!-margin-top-6">Organisation details</h2>
 
-            <dl className="govuk-summary-list">
+            <dl className="govuk-summary-list organisation-details__summary-list">
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">
                   Organisation name
@@ -76,7 +77,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                   {organisation.organisation_name}
                 </dd>
                 <dd className="govuk-summary-list__actions">
-                  <Link className="govuk-link" to={`/admin/organisations/${organisationId}/change-name`}>
+                  <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/change-name`}>
                     Change<span className="govuk-visually-hidden"> organisation name</span>
                   </Link>
                 </dd>
@@ -100,7 +101,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                   )}
                 </dd>
                 <dd className="govuk-summary-list__actions">
-                  <Link className="govuk-link" to={`/admin/organisations/${organisationId}/change-address`}>
+                  <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/change-address`}>
                     Change<span className="govuk-visually-hidden"> organisation address</span>
                   </Link>
                 </dd>
@@ -126,7 +127,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
               </div>
             </dl>
 
-            <Link to="/admin/user-management" className="govuk-link">
+            <Link to="/admin/user-management" className="govuk-link govuk-link--no-visited-state">
               Return to dashboard
             </Link>
           </div>

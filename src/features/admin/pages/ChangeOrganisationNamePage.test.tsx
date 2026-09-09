@@ -46,10 +46,18 @@ describe('ChangeOrganisationNamePage', () => {
   it('pre-populates the current name and links back to manage organisation', () => {
     renderPage();
 
-    expect(screen.getByLabelText('Organisation name')).toHaveValue('SSE Networks');
+    expect(screen.getByRole('heading', { name: 'Organisation name' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Enter the name of the organisation')).toHaveValue('SSE Networks');
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute(
       'href',
       '/admin/organisation/organisation-123/settings'
+    );
+    expect(screen.getByRole('link', { name: 'Return to dashboard' })).toHaveAttribute(
+      'href',
+      '/admin/user-management'
+    );
+    expect(screen.getByRole('link', { name: 'Return to dashboard' })).toHaveClass(
+      'govuk-link--no-visited-state'
     );
   });
 
@@ -58,7 +66,7 @@ describe('ChangeOrganisationNamePage', () => {
     ['a'.repeat(256), 'Organisation name must be 255 characters or fewer'],
   ])('shows client-side validation and does not submit invalid input', async (value, message) => {
     renderPage();
-    fireEvent.change(screen.getByLabelText('Organisation name'), { target: { value } });
+    fireEvent.change(screen.getByLabelText('Enter the name of the organisation'), { target: { value } });
 
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
 
@@ -72,7 +80,7 @@ describe('ChangeOrganisationNamePage', () => {
       validationErrors: { organisationName: 'An organisation with this name already exists' },
     });
     renderPage();
-    fireEvent.change(screen.getByLabelText('Organisation name'), {
+    fireEvent.change(screen.getByLabelText('Enter the name of the organisation'), {
       target: { value: 'Existing Network' },
     });
 
@@ -86,7 +94,7 @@ describe('ChangeOrganisationNamePage', () => {
   it('submits a trimmed name and returns to manage organisation on success', async () => {
     vi.mocked(organisationService.updateOrganisationName).mockResolvedValue({ success: true });
     renderPage();
-    fireEvent.change(screen.getByLabelText('Organisation name'), {
+    fireEvent.change(screen.getByLabelText('Enter the name of the organisation'), {
       target: { value: '  National Grid  ' },
     });
 

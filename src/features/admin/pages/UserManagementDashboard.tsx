@@ -45,7 +45,7 @@ const UserManagementDashboard: React.FC = () => {
             <p className="govuk-body-m">
               {isDesnzAdmin
                 ? "Manage access requests and users across all Distribution Network Operators."
-                : "Manage access requests and users for your organisation."}
+                : "Manage access requests and users for your organisation"}
             </p>
 
             {activeTab === "organisations" && (

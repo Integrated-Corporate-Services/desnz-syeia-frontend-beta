@@ -71,12 +71,12 @@ const ChangeOrganisationAddressPage: React.FC = () => {
   const errorEntries = Object.entries(errors);
   return (
     <>
-      <PageTitle title="Change organisation address" />
+      <PageTitle title="Enter address manually" />
       <div className="govuk-width-container">
         <Link className="govuk-back-link" to={`/admin/organisation/${organisationId}/settings`}>Back</Link>
         <main className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-l">Change organisation address</h1>
+            <h1 className="govuk-heading-l">Enter address manually</h1>
             {(errorEntries.length > 0 || loadError) && (
               <div className="govuk-error-summary" role="alert" tabIndex={-1} ref={errorSummaryRef}>
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -87,22 +87,33 @@ const ChangeOrganisationAddressPage: React.FC = () => {
               </div>
             )}
             {loading ? <p className="govuk-body">Loading...</p> : (
-              <form noValidate onSubmit={handleSubmit}>
-                {([
-                  ['line1', 'Address line 1', 'address-line1'],
-                  ['line2', 'Address line 2 (optional)', 'address-line2'],
-                  ['townCity', 'Town or city', 'address-level2'],
-                  ['county', 'County (optional)', 'address-level1'],
-                  ['postcode', 'Postcode', 'postal-code'],
-                ] as const).map(([field, label, autoComplete]) => (
-                  <div key={field} className={`govuk-form-group${errors[field as keyof AddressErrors] ? ' govuk-form-group--error' : ''}`}>
-                    <label className="govuk-label govuk-label--m" htmlFor={field}>{label}</label>
-                    {errors[field as keyof AddressErrors] && <p id={`${field}-error`} className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors[field as keyof AddressErrors]}</p>}
-                    <input className={`govuk-input${field === 'postcode' ? ' govuk-input--width-10' : ''}${errors[field as keyof AddressErrors] ? ' govuk-input--error' : ''}`} id={field} autoComplete={autoComplete} value={form[field]} onChange={(event) => updateField(field, event.target.value)} />
+              <>
+                <form noValidate onSubmit={handleSubmit}>
+                  {([
+                    ['line1', 'Address line 1', 'address-line1'],
+                    ['line2', 'Address line 2 (optional)', 'address-line2'],
+                    ['townCity', 'Town or city', 'address-level2'],
+                    ['county', 'County (optional)', 'address-level1'],
+                    ['postcode', 'Postcode', 'postal-code'],
+                  ] as const).map(([field, label, autoComplete]) => (
+                    <div key={field} className={`govuk-form-group${errors[field as keyof AddressErrors] ? ' govuk-form-group--error' : ''}`}>
+                      <label className="govuk-label govuk-label--m" htmlFor={field}>{label}</label>
+                      {errors[field as keyof AddressErrors] && <p id={`${field}-error`} className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors[field as keyof AddressErrors]}</p>}
+                      <input className={`govuk-input${errors[field as keyof AddressErrors] ? ' govuk-input--error' : ''}`} id={field} autoComplete={autoComplete} value={form[field]} onChange={(event) => updateField(field, event.target.value)} />
+                    </div>
+                  ))}
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-label--m" htmlFor="country">Country</label>
+                    <select className="govuk-select" id="country" name="country" defaultValue="United Kingdom">
+                      <option value="United Kingdom">United Kingdom</option>
+                    </select>
                   </div>
-                ))}
-                <button className="govuk-button" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save and continue'}</button>
-              </form>
+                  <button className="govuk-button" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Use this address'}</button>
+                </form>
+                <Link to="/admin/user-management" className="govuk-link govuk-link--no-visited-state">
+                  Return to dashboard
+                </Link>
+              </>
             )}
           </div>
         </main>

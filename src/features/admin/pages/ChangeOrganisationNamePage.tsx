@@ -60,7 +60,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
         <Link className="govuk-back-link" to={backPath}>Back</Link>
         <main className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-l">Change organisation name</h1>
+            <h1 className="govuk-heading-l">Organisation name</h1>
             {errorMessage && (
               <div className="govuk-error-summary" role="alert" tabIndex={-1} ref={errorSummaryRef}>
                 <h2 className="govuk-error-summary__title">There is a problem</h2>
@@ -70,14 +70,19 @@ const ChangeOrganisationNamePage: React.FC = () => {
               </div>
             )}
             {loading ? <p className="govuk-body">Loading...</p> : (
-              <form noValidate onSubmit={handleSubmit}>
-                <div className={`govuk-form-group${fieldError ? ' govuk-form-group--error' : ''}`}>
-                  <label className="govuk-label govuk-label--m" htmlFor="organisationName">Organisation name</label>
-                  {fieldError && <p id="organisationName-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {fieldError}</p>}
-                  <input className={`govuk-input${fieldError ? ' govuk-input--error' : ''}`} id="organisationName" value={organisationName} onChange={(event) => setOrganisationName(event.target.value)} />
-                </div>
-                <button className="govuk-button" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save and continue'}</button>
-              </form>
+              <>
+                <form noValidate onSubmit={handleSubmit}>
+                  <div className={`govuk-form-group${fieldError ? ' govuk-form-group--error' : ''}`}>
+                    <label className="govuk-label" htmlFor="organisationName">Enter the name of the organisation</label>
+                    {fieldError && <p id="organisationName-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {fieldError}</p>}
+                    <input className={`govuk-input govuk-input--width-20${fieldError ? ' govuk-input--error' : ''}`} id="organisationName" value={organisationName} onChange={(event) => setOrganisationName(event.target.value)} />
+                  </div>
+                  <button className="govuk-button" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save and continue'}</button>
+                </form>
+                <Link to="/admin/user-management" className="govuk-link govuk-link--no-visited-state">
+                  Return to dashboard
+                </Link>
+              </>
             )}
           </div>
         </main>

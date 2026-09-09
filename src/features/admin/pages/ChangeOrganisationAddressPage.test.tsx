@@ -53,11 +53,17 @@ describe('ChangeOrganisationAddressPage', () => {
   it('pre-populates every existing address field', () => {
     renderPage();
 
+    expect(screen.getByRole('heading', { name: 'Enter address manually' })).toBeInTheDocument();
     expect(screen.getByLabelText('Address line 1')).toHaveValue('1 Washington Street');
     expect(screen.getByLabelText('Address line 2 (optional)')).toHaveValue('Riverside Park');
     expect(screen.getByLabelText('Town or city')).toHaveValue('Worcester');
     expect(screen.getByLabelText('County (optional)')).toHaveValue('Worcestershire');
     expect(screen.getByLabelText('Postcode')).toHaveValue('WR1 1NL');
+    expect(screen.getByLabelText('Country')).toHaveValue('United Kingdom');
+    expect(screen.getByRole('link', { name: 'Return to dashboard' })).toHaveAttribute(
+      'href',
+      '/admin/user-management'
+    );
   });
 
   it('shows all client-side validation errors without submitting', async () => {
@@ -66,7 +72,7 @@ describe('ChangeOrganisationAddressPage', () => {
     fireEvent.change(screen.getByLabelText('Town or city'), { target: { value: '' } });
     fireEvent.change(screen.getByLabelText('Postcode'), { target: { value: 'invalid' } });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Use this address' }));
 
     expect(
       await screen.findAllByText('Enter address line 1, typically the building and street')
@@ -83,7 +89,7 @@ describe('ChangeOrganisationAddressPage', () => {
     });
     renderPage();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Use this address' }));
 
     expect(await screen.findAllByText('Enter a full UK postcode')).toHaveLength(2);
   });
@@ -103,7 +109,7 @@ describe('ChangeOrganisationAddressPage', () => {
     });
     fireEvent.change(screen.getByLabelText('Postcode'), { target: { value: ' sw1a 1aa ' } });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Use this address' }));
 
     await waitFor(() => {
       expect(organisationService.updateOrganisationAddress).toHaveBeenCalledWith(
