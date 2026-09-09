@@ -96,13 +96,13 @@ export const useApplicationStatusLookup = () => {
     }
   };
 
-  const buildDownloadBundle = async () => {
+  const buildDownloadBundle = async (forceRebuild: boolean = false) => {
     if (!result?.applicationId) return;
 
     setBuildingDocumentExport(true);
     setDocumentExportError(null);
     try {
-      await buildDocumentExport(result.applicationId);
+      await buildDocumentExport(result.applicationId, forceRebuild);
       setDocumentExport(await getDocumentExport(result.applicationId));
     } catch (requestError) {
       setDocumentExportError(

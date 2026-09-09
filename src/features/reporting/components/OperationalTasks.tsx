@@ -226,7 +226,7 @@ const OperationalTasks: React.FC = () => {
                       className="govuk-button govuk-button--secondary"
                       type="button"
                       disabled={buildingDocumentExport}
-                      onClick={() => void buildDownloadBundle()}
+                      onClick={() => void buildDownloadBundle(true)}
                     >
                       {buildingDocumentExport ? "Rebuilding" : "Rebuild bundle"}
                     </button>
