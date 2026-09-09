@@ -1,5 +1,5 @@
 import React from "react";
-import { VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
+import { OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
 import { useApplicationStatusLookup } from "../hooks/useApplicationStatusLookup";
 
 const formatCurrency = (amountInPence: number | null): string => {
@@ -16,6 +16,17 @@ const formatStartedAt = (isoDateTime: string): string => new Intl.DateTimeFormat
   timeZone: "Europe/London",
 }).format(new Date(isoDateTime));
 
+// Maps a status value to a GOV.UK tag colour, mirroring the tag palette used across
+// the reference operational-tasks design (green = good/final, yellow = attention
+// needed, grey = neutral/in progress).
+const statusTagClass = (status: string | null | undefined): string => {
+  const normalised = (status || "").toUpperCase();
+  if (["SUCCESS", "SUBMITTED", "COMPLETED"].includes(normalised)) return "govuk-tag govuk-tag--green";
+  if (["DRAFT", "CREATED"].includes(normalised)) return "govuk-tag govuk-tag--yellow";
+  if (["FAILED", "CANCELLED"].includes(normalised)) return "govuk-tag govuk-tag--red";
+  return "govuk-tag govuk-tag--grey";
+};
+
 const OperationalTasks: React.FC = () => {
   const {
     reference,
@@ -27,7 +38,7 @@ const OperationalTasks: React.FC = () => {
     verifyMessage,
     verifyError,
     search,
-    verifyApplicationPayment,
+    reconcileSubmission,
   } = useApplicationStatusLookup();
 
   return (
@@ -52,15 +63,17 @@ const OperationalTasks: React.FC = () => {
       >
         <div className="govuk-form-group">
           <label className="govuk-label govuk-label--m" htmlFor="application-reference">
-            Application reference
+            {OPERATIONAL_TASKS_MESSAGES.REFERENCE_LABEL}
           </label>
-          <div className="govuk-hint">
-            For example, EN-123456 or an application ID. Records you open are logged against your account.
+          <div className="govuk-hint" id="application-reference-hint">
+            {OPERATIONAL_TASKS_MESSAGES.REFERENCE_HINT}
           </div>
           <input
             className="govuk-input govuk-input--width-20"
             id="application-reference"
             type="text"
+            aria-describedby="application-reference-hint"
+            autoComplete="off"
             value={reference}
             onChange={(event) => setReference(event.target.value)}
           />
@@ -84,78 +97,85 @@ const OperationalTasks: React.FC = () => {
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-one-half">
               <h2 className="govuk-heading-l">Application</h2>
-              <dl className="govuk-summary-list">
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Reference</dt>
-                  <dd className="govuk-summary-list__value">{result.desnzRef || result.applicationId}</dd>
-                </div>
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Started</dt>
-                  <dd className="govuk-summary-list__value">{formatStartedAt(result.startedAt)}</dd>
-                </div>
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Application status</dt>
-                  <dd className="govuk-summary-list__value">
-                    <strong className="govuk-tag">{result.applicationStatus}</strong>
-                  </dd>
-                </div>
-              </dl>
+              <table className="govuk-table operational-tasks__summary">
+                <tbody className="govuk-table__body">
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Reference</th>
+                    <td className="govuk-table__cell">{result.desnzRef || result.applicationId}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Started</th>
+                    <td className="govuk-table__cell">{formatStartedAt(result.startedAt)}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Application status</th>
+                    <td className="govuk-table__cell">
+                      <strong className={statusTagClass(result.applicationStatus)}>{result.applicationStatus}</strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             <div className="govuk-grid-column-one-half">
               <h2 className="govuk-heading-l">Payment</h2>
               {result.payment ? (
-                <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Amount</dt>
-                    <dd className="govuk-summary-list__value">{formatCurrency(result.payment.amount)}</dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Status</dt>
-                    <dd className="govuk-summary-list__value">
-                      <strong className="govuk-tag">{result.payment.status}</strong>
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Payment reference</dt>
-                    <dd className="govuk-summary-list__value">{result.payment.paymentId || "Not available"}</dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">Provider</dt>
-                    <dd className="govuk-summary-list__value">{result.payment.provider || "Not available"}</dd>
-                  </div>
-                </dl>
+                <table className="govuk-table operational-tasks__summary">
+                  <tbody className="govuk-table__body">
+                    <tr className="govuk-table__row">
+                      <th className="govuk-table__header" scope="row">Amount</th>
+                      <td className="govuk-table__cell">{formatCurrency(result.payment.amount)}</td>
+                    </tr>
+                    <tr className="govuk-table__row">
+                      <th className="govuk-table__header" scope="row">Status</th>
+                      <td className="govuk-table__cell">
+                        <strong className={statusTagClass(result.payment.status)}>{result.payment.status}</strong>
+                      </td>
+                    </tr>
+                    <tr className="govuk-table__row">
+                      <th className="govuk-table__header" scope="row">Reference</th>
+                      <td className="govuk-table__cell">{result.payment.paymentId || "Not available"}</td>
+                    </tr>
+                    <tr className="govuk-table__row">
+                      <th className="govuk-table__header" scope="row">Provider</th>
+                      <td className="govuk-table__cell">{result.payment.provider || "Not available"}</td>
+                    </tr>
+                  </tbody>
+                </table>
               ) : (
                 <p className="govuk-body">No payment has been recorded for this application.</p>
               )}
             </div>
           </div>
 
-          {result.canVerifyPayment && (
-            <div className="govuk-inset-text operational-tasks__recovery">
-              <h2 className="govuk-heading-m">Submission recovery</h2>
-              <p className="govuk-body">
+          <h2 className="govuk-heading-l">Available operations</h2>
+
+          {result.canVerifyPayment ? (
+            <div className="operational-tasks__actions operational-tasks__actions--elevated">
+              <h3 className="govuk-heading-m">Submission recovery</h3>
+              <p className="operational-tasks__actions-note">
                 Advances a live application. Needs the <strong>Support (elevated)</strong> role.
               </p>
               <button
                 className="govuk-button govuk-button--warning"
                 type="button"
                 disabled={verifying}
-                onClick={() => void verifyApplicationPayment()}
+                onClick={() => void reconcileSubmission()}
               >
-                {verifying ? "Verifying" : "Reconcile and retry submission"}
+                {verifying ? "Working" : "Reconcile and retry submission"}
               </button>
-              <p className="govuk-body-s">Recorded against your account. Safe to run more than once.</p>
+              <p className="govuk-hint">Recorded against your account with the reason you give. Safe to run more than once.</p>
               {verifyMessage && <p className="govuk-body" role="status">{verifyMessage}</p>}
               {verifyError && <p className="govuk-error-message">{verifyError}</p>}
             </div>
-          )}
-
-          {!result.canVerifyPayment && (
-            <p className="govuk-hint">
-              Submission recovery is only available when the application status is {VERIFIABLE_APPLICATION_STATUS} and
-              the payment status is {VERIFIABLE_PAYMENT_STATUS}.
-            </p>
+          ) : (
+            <div className="operational-tasks__actions">
+              <h3 className="govuk-heading-m">Submission recovery</h3>
+              <p className="govuk-hint">
+                Not available. This application must be in {VERIFIABLE_APPLICATION_STATUS} status with a payment in
+                the {VERIFIABLE_PAYMENT_STATUS} status.
+              </p>
+            </div>
           )}
         </div>
       )}

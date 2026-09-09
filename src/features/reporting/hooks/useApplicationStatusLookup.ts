@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { getApplicationStatusByReference } from "../../../services/adminReportingService";
-import { verifyApplicationPayment } from "../services/operationalTasksService";
+import { reconcileSubmission } from "../services/operationalTasksService";
 import { OPERATIONAL_TASKS_MESSAGES } from "../constants";
 import type { ApplicationStatusLookup } from "../types";
 
@@ -41,18 +41,26 @@ export const useApplicationStatusLookup = () => {
     }
   };
 
-  const verifyApplicationPaymentAction = async () => {
-    if (!result?.payment?.paymentId) return;
+  const reconcileApplicationSubmission = async () => {
+    if (!result?.applicationId) return;
 
     setVerifying(true);
     setVerifyMessage(null);
     setVerifyError(null);
     try {
-      await verifyApplicationPayment(result.applicationId, result.payment.paymentId);
-      setVerifyMessage(OPERATIONAL_TASKS_MESSAGES.VERIFY_SUCCESS);
+      const reconciliation = await reconcileSubmission(result.applicationId);
+      if (reconciliation.submitted) {
+        setVerifyMessage(reconciliation.message);
+      } else {
+        setVerifyError(reconciliation.message);
+      }
       setResult(await getApplicationStatusByReference(reference.trim()));
-    } catch {
-      setVerifyError(OPERATIONAL_TASKS_MESSAGES.VERIFY_FAILED);
+    } catch (requestError) {
+      setVerifyError(
+        axios.isAxiosError(requestError) && requestError.response?.data?.error
+          ? requestError.response.data.error
+          : OPERATIONAL_TASKS_MESSAGES.VERIFY_FAILED
+      );
     } finally {
       setVerifying(false);
     }
@@ -68,6 +76,6 @@ export const useApplicationStatusLookup = () => {
     verifyMessage,
     verifyError,
     search,
-    verifyApplicationPayment: verifyApplicationPaymentAction,
+    reconcileSubmission: reconcileApplicationSubmission,
   };
 };

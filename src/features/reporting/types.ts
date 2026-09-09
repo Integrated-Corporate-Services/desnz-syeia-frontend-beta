@@ -44,6 +44,15 @@ export interface ApplicationStatusLookup {
   canVerifyPayment: boolean;
 }
 
+export interface ReconciliationResult {
+  applicationId: string;
+  applicationStatus: string;
+  paymentId: string | null;
+  paymentStatus: string | null;
+  submitted: boolean;
+  message: string;
+}
+
 export type DateRangePreset =
   | "today"
   | "yesterday"

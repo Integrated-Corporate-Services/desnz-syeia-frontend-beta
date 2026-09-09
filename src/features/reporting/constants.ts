@@ -37,14 +37,14 @@ export const REPORTING_MESSAGES = {
 } as const;
 
 export const OPERATIONAL_TASKS_MESSAGES = {
-  REFERENCE_REQUIRED: "Enter an application reference.",
+  REFERENCE_LABEL: "Reference",
+  REFERENCE_HINT: "Please enter Application Id or DESNZ Reference",
+  REFERENCE_REQUIRED: "Enter an application ID or DESNZ reference.",
   NOT_FOUND: "No application was found for that reference.",
   LOAD_FAILED: "The application could not be found. Try again shortly.",
   VERIFY_FAILED: "The payment could not be verified. Try again shortly.",
   VERIFY_SUCCESS: "Payment verification completed.",
 } as const;
 
-// Must match VERIFIABLE_APPLICATION_STATUS / VERIFIABLE_PAYMENT_STATUS in the backend
-// reporting module - these describe when submission recovery can safely be triggered.
 export const VERIFIABLE_APPLICATION_STATUS = "DRAFT";
 export const VERIFIABLE_PAYMENT_STATUS = "created";
