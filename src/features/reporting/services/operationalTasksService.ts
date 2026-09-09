@@ -23,9 +23,9 @@ export async function getDocumentExport(applicationId: string): Promise<Document
   }
 }
 
-export async function buildDocumentExport(applicationId: string): Promise<CreatedDocumentExport> {
+export async function buildDocumentExport(applicationId: string, forceRebuild: boolean = false): Promise<CreatedDocumentExport> {
   const response = await axios.post<CreatedDocumentExport>(
-    getApiUrl(`/admin/applications/${applicationId}/document-export`)
+    getApiUrl(`/admin/applications/${applicationId}/document-export${forceRebuild ? "?force=true" : ""}`)
   );
   return response.data;
 }
