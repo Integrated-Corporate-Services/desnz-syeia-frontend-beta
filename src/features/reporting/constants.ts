@@ -44,7 +44,13 @@ export const OPERATIONAL_TASKS_MESSAGES = {
   LOAD_FAILED: "The application could not be found. Try again shortly.",
   VERIFY_FAILED: "The payment could not be verified. Try again shortly.",
   VERIFY_SUCCESS: "Payment verification completed.",
+  DOWNLOAD_BUILD_FAILED: "The download bundle could not be built. Try again shortly.",
+  DOWNLOAD_CHECK_FAILED: "The download bundle status could not be checked. Try again shortly.",
 } as const;
 
 export const VERIFIABLE_APPLICATION_STATUS = "DRAFT";
 export const VERIFIABLE_PAYMENT_STATUS = "created";
+
+// Must match the status the backend considers a fully submitted application - download
+// recovery only makes sense once the application has actually reached this state.
+export const DOWNLOAD_RECOVERY_APPLICATION_STATUS = "SUBMITTED";

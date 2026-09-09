@@ -53,6 +53,24 @@ export interface ReconciliationResult {
   message: string;
 }
 
+export interface DocumentExportRecord {
+  exportId: string;
+  applicationId: string;
+  archiveS3Key: string;
+  archiveFilename: string;
+  archiveSizeBytes: number;
+  completedAt: string;
+  downloadUrl: string;
+  urlExpiresIn: number;
+}
+
+export interface CreatedDocumentExport {
+  exportId: string;
+  status: "COMPLETED";
+  archiveFilename: string;
+  archiveSizeBytes: number;
+}
+
 export type DateRangePreset =
   | "today"
   | "yesterday"
