@@ -1,5 +1,5 @@
 import React from "react";
-import { OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
+import { DOWNLOAD_RECOVERY_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
 import { useApplicationStatusLookup } from "../hooks/useApplicationStatusLookup";
 
 const formatCurrency = (amountInPence: number | null): string => {
@@ -15,6 +15,13 @@ const formatStartedAt = (isoDateTime: string): string => new Intl.DateTimeFormat
   minute: "2-digit",
   timeZone: "Europe/London",
 }).format(new Date(isoDateTime));
+
+const formatFileSize = (sizeInBytes: number): string => {
+  if (sizeInBytes < 1024) return `${sizeInBytes} bytes`;
+  const sizeInMb = sizeInBytes / (1024 * 1024);
+  if (sizeInMb >= 1) return `${sizeInMb.toFixed(1)} MB`;
+  return `${(sizeInBytes / 1024).toFixed(1)} KB`;
+};
 
 // Maps a status value to a GOV.UK tag colour, mirroring the tag palette used across
 // the reference operational-tasks design (green = good/final, yellow = attention
@@ -37,8 +44,13 @@ const OperationalTasks: React.FC = () => {
     verifying,
     verifyMessage,
     verifyError,
+    documentExport,
+    checkingDocumentExport,
+    buildingDocumentExport,
+    documentExportError,
     search,
     reconcileSubmission,
+    buildDownloadBundle,
   } = useApplicationStatusLookup();
 
   return (
@@ -149,6 +161,56 @@ const OperationalTasks: React.FC = () => {
           </div>
 
           <h2 className="govuk-heading-l">Available operations</h2>
+
+          <div className="operational-tasks__actions">
+            <h3 className="govuk-heading-m">Download recovery</h3>
+            <p className="operational-tasks__actions-note">Rebuilds a derived file. Does not change the application.</p>
+            {result.applicationStatus === DOWNLOAD_RECOVERY_APPLICATION_STATUS ? (
+              <>
+                {checkingDocumentExport && <p className="govuk-body">Checking for an existing download bundle…</p>}
+                {!checkingDocumentExport && documentExport && (
+                  <>
+                    <p className="govuk-body">
+                      Bundle built on {formatStartedAt(documentExport.completedAt)}, {formatFileSize(documentExport.archiveSizeBytes)}.
+                    </p>
+                    <a
+                      className="govuk-button"
+                      href={documentExport.downloadUrl}
+                      data-module="govuk-button"
+                    >
+                      Download bundle
+                    </a>
+                    <button
+                      className="govuk-button govuk-button--secondary"
+                      type="button"
+                      disabled={buildingDocumentExport}
+                      onClick={() => void buildDownloadBundle()}
+                    >
+                      {buildingDocumentExport ? "Rebuilding" : "Rebuild bundle"}
+                    </button>
+                  </>
+                )}
+                {!checkingDocumentExport && !documentExport && (
+                  <>
+                    <p className="govuk-body">No download bundle exists for this application.</p>
+                    <button
+                      className="govuk-button"
+                      type="button"
+                      disabled={buildingDocumentExport}
+                      onClick={() => void buildDownloadBundle()}
+                    >
+                      {buildingDocumentExport ? "Building" : "Build download bundle"}
+                    </button>
+                  </>
+                )}
+                {documentExportError && <p className="govuk-error-message">{documentExportError}</p>}
+              </>
+            ) : (
+              <p className="govuk-hint">
+                Not available. This application must be in {DOWNLOAD_RECOVERY_APPLICATION_STATUS} status.
+              </p>
+            )}
+          </div>
 
           {result.canVerifyPayment ? (
             <div className="operational-tasks__actions operational-tasks__actions--elevated">
