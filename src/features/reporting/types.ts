@@ -27,6 +27,58 @@ export interface ReportingAvailability {
   availableDates: string[];
 }
 
+export interface ApplicationPaymentSummary {
+  paymentId: string | null;
+  status: string | null;
+  amount: number | null;
+  reference: string | null;
+  provider: string | null;
+  paymentDate: string | null;
+}
+
+export interface ApplicationStatusLookup {
+  applicationId: string;
+  desnzRef: string | null;
+  applicationStatus: string;
+  startedAt: string;
+  submittedAt: string | null;
+  userId: string | null;
+  personId: string | null;
+  redactedEmail: string | null;
+  organisationName: string | null;
+  invoiceNumber: string | null;
+  documentCount: number;
+  payment: ApplicationPaymentSummary | null;
+  canVerifyPayment: boolean;
+}
+
+export interface ReconciliationResult {
+  applicationId: string;
+  applicationStatus: string;
+  paymentId: string | null;
+  paymentStatus: string | null;
+  submitted: boolean;
+  message: string;
+}
+
+export interface DocumentExportRecord {
+  exportId: string;
+  applicationId: string;
+  archiveS3Key: string;
+  archiveFilename: string;
+  archiveSizeBytes: number;
+  completedAt: string;
+  downloadUrl: string;
+  urlExpiresIn: number;
+}
+
+export interface CreatedDocumentExport {
+  exportId: string;
+  status: "COMPLETED";
+  archiveFilename: string;
+  archiveSizeBytes: number;
+}
+
 export type DateRangePreset =
   | "today"
   | "yesterday"
