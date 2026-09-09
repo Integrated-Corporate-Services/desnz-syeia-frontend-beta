@@ -19,6 +19,7 @@ export const useApplicationStatusLookup = () => {
   const [documentExportError, setDocumentExportError] = useState<string | null>(null);
 
   const refreshDocumentExport = async (applicationId: string, applicationStatus: string) => {
+    setDocumentExportError(null);
     if (applicationStatus !== DOWNLOAD_RECOVERY_APPLICATION_STATUS) {
       setDocumentExport(null);
       return;
