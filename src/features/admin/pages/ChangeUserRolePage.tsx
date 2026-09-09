@@ -129,8 +129,12 @@ const ChangeUserRolePage: React.FC = () => {
                         name="user-role"
                         type="radio"
                         value={option.value}
+                        aria-describedby={`user-role-${option.value}-hint`}
                         checked={effectiveRole === option.value}
-                        onChange={() => setSelectedRole(option.value)}
+                        onChange={() => {
+                          setError(null);
+                          setSelectedRole(option.value);
+                        }}
                       />
                       <label
                         className="govuk-label govuk-radios__label"
