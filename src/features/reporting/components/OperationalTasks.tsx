@@ -125,6 +125,38 @@ const OperationalTasks: React.FC = () => {
                       <strong className={statusTagClass(result.applicationStatus)}>{result.applicationStatus}</strong>
                     </td>
                   </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Org name</th>
+                    <td className="govuk-table__cell">{result.organisationName || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">User ID</th>
+                    <td className="govuk-table__cell">{result.userId || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Person ID</th>
+                    <td className="govuk-table__cell">{result.personId || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Redacted email</th>
+                    <td className="govuk-table__cell">{result.redactedEmail || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Created at</th>
+                    <td className="govuk-table__cell">{formatStartedAt(result.startedAt)}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Submitted at</th>
+                    <td className="govuk-table__cell">{result.submittedAt ? formatStartedAt(result.submittedAt) : "Not submitted"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Invoice ID</th>
+                    <td className="govuk-table__cell">{result.invoiceNumber || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Number of docs uploaded</th>
+                    <td className="govuk-table__cell">{result.documentCount}</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -151,6 +183,12 @@ const OperationalTasks: React.FC = () => {
                     <tr className="govuk-table__row">
                       <th className="govuk-table__header" scope="row">Provider</th>
                       <td className="govuk-table__cell">{result.payment.provider || "Not available"}</td>
+                    </tr>
+                    <tr className="govuk-table__row">
+                      <th className="govuk-table__header" scope="row">Date of payment</th>
+                      <td className="govuk-table__cell">
+                        {result.payment.paymentDate ? formatStartedAt(result.payment.paymentDate) : "Not available"}
+                      </td>
                     </tr>
                   </tbody>
                 </table>

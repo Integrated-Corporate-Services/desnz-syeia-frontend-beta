@@ -33,6 +33,7 @@ export interface ApplicationPaymentSummary {
   amount: number | null;
   reference: string | null;
   provider: string | null;
+  paymentDate: string | null;
 }
 
 export interface ApplicationStatusLookup {
@@ -40,6 +41,13 @@ export interface ApplicationStatusLookup {
   desnzRef: string | null;
   applicationStatus: string;
   startedAt: string;
+  submittedAt: string | null;
+  userId: string | null;
+  personId: string | null;
+  redactedEmail: string | null;
+  organisationName: string | null;
+  invoiceNumber: string | null;
+  documentCount: number;
   payment: ApplicationPaymentSummary | null;
   canVerifyPayment: boolean;
 }
