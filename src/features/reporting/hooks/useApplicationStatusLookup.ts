@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { getApplicationStatusByReference } from "../../../services/adminReportingService";
 import { buildDocumentExport, getDocumentExport, reconcileSubmission } from "../services/operationalTasksService";
-import { DOWNLOAD_RECOVERY_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES } from "../constants";
+import { DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES } from "../constants";
 import type { ApplicationStatusLookup, DocumentExportRecord } from "../types";
 
 export const useApplicationStatusLookup = () => {
@@ -20,7 +20,7 @@ export const useApplicationStatusLookup = () => {
 
   const refreshDocumentExport = async (applicationId: string, applicationStatus: string) => {
     setDocumentExportError(null);
-    if (applicationStatus !== DOWNLOAD_RECOVERY_APPLICATION_STATUS) {
+    if (applicationStatus === DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS) {
       setDocumentExport(null);
       return;
     }

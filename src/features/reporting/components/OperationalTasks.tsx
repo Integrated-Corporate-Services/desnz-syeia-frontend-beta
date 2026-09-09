@@ -1,5 +1,5 @@
 import React from "react";
-import { DOWNLOAD_RECOVERY_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
+import { DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
 import { useApplicationStatusLookup } from "../hooks/useApplicationStatusLookup";
 
 const formatCurrency = (amountInPence: number | null): string => {
@@ -112,8 +112,12 @@ const OperationalTasks: React.FC = () => {
               <table className="govuk-table operational-tasks__summary">
                 <tbody className="govuk-table__body">
                   <tr className="govuk-table__row">
-                    <th className="govuk-table__header" scope="row">Reference</th>
-                    <td className="govuk-table__cell">{result.desnzRef || result.applicationId}</td>
+                    <th className="govuk-table__header" scope="row">DESNZ Reference</th>
+                    <td className="govuk-table__cell">{result.desnzRef || "Not available"}</td>
+                  </tr>
+                  <tr className="govuk-table__row">
+                    <th className="govuk-table__header" scope="row">Application ID</th>
+                    <td className="govuk-table__cell">{result.applicationId}</td>
                   </tr>
                   <tr className="govuk-table__row">
                     <th className="govuk-table__header" scope="row">Started</th>
@@ -203,7 +207,7 @@ const OperationalTasks: React.FC = () => {
           <div className="operational-tasks__actions">
             <h3 className="govuk-heading-m">Download recovery</h3>
             <p className="operational-tasks__actions-note">Rebuilds a derived file. Does not change the application.</p>
-            {result.applicationStatus === DOWNLOAD_RECOVERY_APPLICATION_STATUS ? (
+            {result.applicationStatus !== DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS ? (
               <>
                 {checkingDocumentExport && <p className="govuk-body">Checking for an existing download bundle…</p>}
                 {!checkingDocumentExport && documentExport && (
@@ -245,7 +249,7 @@ const OperationalTasks: React.FC = () => {
               </>
             ) : (
               <p className="govuk-hint">
-                Not available. This application must be in {DOWNLOAD_RECOVERY_APPLICATION_STATUS} status.
+                Not available. This application must not be in {DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS} status.
               </p>
             )}
           </div>
