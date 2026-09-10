@@ -123,8 +123,8 @@ export const CHECK_YOUR_ANSWERS_CONSTANTS = {
         IS_REGISTERED: 'Registered with Land Registry?',
         REGISTRY_REF: 'Land Registry reference',
         REGISTRY_DOC: 'Land Registry document',
-        UNKNOWN_REASON: 'Why the land is not registered',
-        UNREGISTERED_DOCUMENTS: 'Unregistered land documents',
+        UNKNOWN_REASON: 'Why the land is not registered?',
+        UNREGISTERED_DOCUMENTS: 'Documents related to the unregistered land',
     },
 
     OS_GRID_REFERENCE_FIELDS: {
