@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
+import { useNWLProgress } from "../../hooks/useNWLProgress";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
@@ -21,6 +22,7 @@ const UploadWrittenWayleave: React.FC = () => {
   const appId = useGetApplicationId();
   const { navigateToNoticeToTerminate, navigateToTaskList } = useApplicationNavigation(appId || "");
   const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
+  const { updateProgress } = useNWLProgress(appId || undefined);
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
@@ -253,6 +255,7 @@ const UploadWrittenWayleave: React.FC = () => {
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                     setError("");
                     setFileValidationErrors([]);
+                    updateProgress('Grounds for application', 'Not completed').catch(() => {});
                   }}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);

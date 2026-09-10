@@ -5,6 +5,7 @@ import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants
 import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
+import { useNWLProgress } from "../../hooks/useNWLProgress";
 import {
   validateDate,
   validateDateNotInFuture,
@@ -30,6 +31,7 @@ const WayleaveOffer: React.FC = () => {
   const appId = useGetApplicationId();
   const { applicationDetails, updateFields, isLoading } = useApplicationDetailsData(appId);
   const { navigateToTaskList, navigateToStandardTerm } = useApplicationNavigation(appId || "");
+  const { updateProgress } = useNWLProgress(appId || undefined);
 
   const [day, setDay] = useState<string>("");
   const [month, setMonth] = useState<string>("");
@@ -443,6 +445,7 @@ const WayleaveOffer: React.FC = () => {
                       setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                       setErrors([]);
                       setFileValidationErrors([]);
+                      updateProgress('Grounds for application', 'Not completed').catch(() => {});
                     }}
                     onUploaded={(newUploadedFiles, newDocuments) => {
                       setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);

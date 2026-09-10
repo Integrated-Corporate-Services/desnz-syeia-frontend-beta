@@ -50,6 +50,26 @@ export const LandRegistrySummaryCard: React.FC<Props> = ({ data, applicationId, 
         } else {
             rows.push(createSummaryRow(CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC, CONSTANTS.DEFAULTS.EMPTY));
         }
+    } else {
+        rows.push(
+            createSummaryRow(
+                CONSTANTS.LAND_REGISTRY_FIELDS.UNKNOWN_REASON,
+                data.land_ownership_unknown_reason || CONSTANTS.DEFAULTS.EMPTY
+            )
+        );
+
+        if (data.unregistered_land_documents && data.unregistered_land_documents.length > 0) {
+            const docsHtml = data.unregistered_land_documents.map(buildDocumentLinkHtml).join('<br>');
+            rows.push({
+                key: { text: CONSTANTS.LAND_REGISTRY_FIELDS.UNREGISTERED_DOCUMENTS },
+                value: {
+                    text: '',
+                    html: docsHtml,
+                },
+            });
+        } else {
+            rows.push(createSummaryRow(CONSTANTS.LAND_REGISTRY_FIELDS.UNREGISTERED_DOCUMENTS, CONSTANTS.DEFAULTS.EMPTY));
+        }
     }
 
     return (
