@@ -50,7 +50,7 @@ export const LandRegistrySummaryCard: React.FC<Props> = ({ data, applicationId, 
         } else {
             rows.push(createSummaryRow(CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC, CONSTANTS.DEFAULTS.EMPTY));
         }
-    } else {
+    } else if (data.is_registered === false) {
         rows.push(
             createSummaryRow(
                 CONSTANTS.LAND_REGISTRY_FIELDS.UNKNOWN_REASON,
