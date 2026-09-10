@@ -4,6 +4,7 @@ import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
 import { formatUserRoleLabel } from '../../../utils/roleUtils';
+import { isManageUserRoleChangeEnabled } from '../../../config/appConfig';
 import PageTitle from '../../../components/PageTitle';
 
 const ManageUserPage: React.FC = () => {
@@ -90,7 +91,7 @@ const ManageUserPage: React.FC = () => {
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Role</dt>
                 <dd className="govuk-summary-list__value">{formatRole(user.role)}</dd>
-                {(user.role === ROLES.APPLICANT_USER || user.role === ROLES.APPLICANT_TEAM_COORDINATOR) && (
+                {isManageUserRoleChangeEnabled() && (user.role === ROLES.APPLICANT_USER || user.role === ROLES.APPLICANT_TEAM_COORDINATOR) && (
                   <dd className="govuk-summary-list__actions">
                     <Link className="govuk-link" to={`/admin/manage-user/${userId}/change-role`}>
                       Change<span className="govuk-visually-hidden"> role</span>

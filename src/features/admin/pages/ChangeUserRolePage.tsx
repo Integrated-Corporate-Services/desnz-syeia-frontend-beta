@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
 import { ROLES } from '../../../constants/roles';
 import { formatUserRoleLabel } from '../../../utils/roleUtils';
+import { isManageUserRoleChangeEnabled } from '../../../config/appConfig';
 import userService from '../../../services/userService';
 import PageTitle from '../../../components/PageTitle';
 
@@ -32,6 +33,10 @@ const ChangeUserRolePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { users, loading } = useManageUsers();
+
+  if (!isManageUserRoleChangeEnabled()) {
+    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
+  }
 
   const user = users.find(u => u.id === userId);
 
