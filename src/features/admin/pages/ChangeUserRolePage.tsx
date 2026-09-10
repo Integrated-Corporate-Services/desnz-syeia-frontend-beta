@@ -33,11 +33,6 @@ const ChangeUserRolePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { users, loading } = useManageUsers();
-
-  if (!isManageUserRoleChangeEnabled()) {
-    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
-  }
-
   const user = users.find(u => u.id === userId);
 
   // undefined until the user picks an option, falling back to the user's current role
@@ -45,6 +40,10 @@ const ChangeUserRolePage: React.FC = () => {
   const effectiveRole = selectedRole ?? user?.role;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!isManageUserRoleChangeEnabled()) {
+    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
+  }
 
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
