@@ -886,11 +886,34 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
 
+      {isScanning && (
+        <div className="govuk-!-margin-bottom-2" role="status" aria-live="polite">
+          <span className="gds-upload-spinner" aria-hidden="true"></span>{' '}
+          Uploading and virus scanning your file, please wait&hellip;
+        </div>
+      )}
+
       <div
-        className="gds-upload-dropzone"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
+        className={`gds-upload-dropzone${isScanning ? ' gds-upload-dropzone--disabled' : ''}`}
+        aria-disabled={isScanning}
+        onDrop={(e) => {
+          if (isScanning) {
+            e.preventDefault();
+            return;
+          }
+          handleDrop(e);
+        }}
+        onDragOver={(e) => {
+          if (isScanning) {
+            e.preventDefault();
+            return;
+          }
+          handleDragOver(e);
+        }}
         onClick={() => {
+          if (isScanning) {
+            return;
+          }
           if (onValidationErrorsRef.current) {
             onValidationErrorsRef.current([]);
           }
@@ -908,11 +931,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
+          disabled={isScanning}
         />
         <div className="gds-upload-dropzone-content">
           <span>No file chosen</span>
-          <button type="button" className="gds-upload-choose">
-            Choose file
+          <button type="button" className="gds-upload-choose" disabled={isScanning}>
+            {isScanning ? 'Uploading…' : 'Choose file'}
           </button>
           <span>or drop file</span>
         </div>
