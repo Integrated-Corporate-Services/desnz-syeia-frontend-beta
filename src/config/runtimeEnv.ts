@@ -64,7 +64,7 @@ if (typeof window !== 'undefined' && !window._env_) {
     VITE_AWS_REGION: 'eu-west-2',
     VITE_SRI_MODE: 'report',
     VITE_TRUSTED_ORIGIN: '',
-    VITE_ENABLE_MANAGE_USER_ROLE_CHANGE: 'true',
+    VITE_ENABLE_MANAGE_USER_ROLE_CHANGE: 'false',
     MODE: 'development'
   };
 }

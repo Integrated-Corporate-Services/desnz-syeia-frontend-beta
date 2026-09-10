@@ -99,6 +99,11 @@ const ChangeUserRolePage: React.FC = () => {
     );
   }
 
+  const canChangeRole = ROLE_OPTIONS.some(option => option.value === user.role);
+  if (!canChangeRole) {
+    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
+  }
+
   return (
     <>
       <PageTitle title="Which role applies to this user?" />

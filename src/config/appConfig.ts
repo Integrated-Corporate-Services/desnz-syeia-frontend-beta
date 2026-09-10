@@ -91,7 +91,7 @@ class ConfigService {
           },
         },
         manageUserRoleChange: {
-          enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_MANAGE_USER_ROLE_CHANGE', 'true')),
+          enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_MANAGE_USER_ROLE_CHANGE', 'false')),
         },
       },
       session: {

@@ -33,7 +33,7 @@ VITE_RUM_REGION_ESCAPED=$(escape_json "${VITE_RUM_REGION:-eu-west-2}")
 VITE_AWS_REGION_ESCAPED=$(escape_json "${VITE_AWS_REGION:-eu-west-2}")
 VITE_SRI_MODE_ESCAPED=$(escape_json "${VITE_SRI_MODE:-report}")
 VITE_TRUSTED_ORIGIN_ESCAPED=$(escape_json "${VITE_TRUSTED_ORIGIN:-}")
-VITE_ENABLE_MANAGE_USER_ROLE_CHANGE_ESCAPED=$(escape_json "${VITE_ENABLE_MANAGE_USER_ROLE_CHANGE:-true}")
+VITE_ENABLE_MANAGE_USER_ROLE_CHANGE_ESCAPED=$(escape_json "${VITE_ENABLE_MANAGE_USER_ROLE_CHANGE:-false}")
 MODE_ESCAPED=$(escape_json "${MODE:-production}")
 
 # Generate the inline script content
