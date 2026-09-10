@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
-import { useNWLProgress } from "../../hooks/useNWLProgress";
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import FileUpload, { FileUploadHandle } from "../../../../components/FileUpload";
 import { UploadedFile, ApplicationDocument } from "../../../../types/fileUpload";
@@ -29,7 +28,6 @@ const NoticeToTerminate: React.FC = () => {
   const appId = useGetApplicationId();
   const { navigateToTerminationPeriodExpired, navigateToTaskList } = useApplicationNavigation(appId || "");
   const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
-  const { updateProgress } = useNWLProgress(appId || undefined);
 
   const [day, setDay] = useState<string>("");
   const [month, setMonth] = useState<string>("");
@@ -424,7 +422,6 @@ const NoticeToTerminate: React.FC = () => {
                     setApplicationDocuments(prev => prev.filter(doc => doc.fileId !== fileId));
                     setErrors([]);
                     setFileValidationErrors([]);
-                    updateProgress('Grounds for application', 'Not completed').catch(() => {});
                   }}
                   onUploaded={(newUploadedFiles, newDocuments) => {
                     setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
