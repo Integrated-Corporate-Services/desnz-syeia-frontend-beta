@@ -3,6 +3,7 @@ import '../../../styles/TabNavigation.css';
 
 interface TabNavigationProps {
   activeTab: 'organisations' | 'active-users' | 'pending-requests';
+  organisationsEnabled: boolean;
   pendingCount: number;
   onTabChange: (tab: 'organisations' | 'active-users' | 'pending-requests') => void;
   style?: React.CSSProperties;
@@ -10,6 +11,7 @@ interface TabNavigationProps {
 
 export const TabNavigation: React.FC<TabNavigationProps> = ({ 
   activeTab, 
+  organisationsEnabled,
   pendingCount, 
   onTabChange,
   style 
@@ -17,15 +19,17 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   return (
     <div className="govuk-tabs govuk-!-margin-top-0" data-module="govuk-tabs" style={style}>
       <ul className="govuk-tabs__list">
-        <li className={`govuk-tabs__list-item ${activeTab === 'organisations' ? 'govuk-tabs__list-item--selected' : ''}`}>
-          <a 
-            className="govuk-tabs__tab" 
-            href="#organisations" 
-            onClick={(e) => { e.preventDefault(); onTabChange('organisations'); }}
-          >
-            Organisations
-          </a>
-        </li>
+        {organisationsEnabled && (
+          <li className={`govuk-tabs__list-item ${activeTab === 'organisations' ? 'govuk-tabs__list-item--selected' : ''}`}>
+            <a
+              className="govuk-tabs__tab"
+              href="#organisations"
+              onClick={(e) => { e.preventDefault(); onTabChange('organisations'); }}
+            >
+              Organisations
+            </a>
+          </li>
+        )}
         <li className={`govuk-tabs__list-item ${activeTab === 'active-users' ? 'govuk-tabs__list-item--selected' : ''}`}>
           <a 
             className="govuk-tabs__tab" 

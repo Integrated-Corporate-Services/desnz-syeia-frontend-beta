@@ -97,6 +97,7 @@ import UserManagementDashboard from '../features/admin/pages/UserManagementDashb
 import ReportingDashboard from '../features/reporting/ReportingDashboard';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
+import { configService } from '../config/appConfig';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
@@ -372,42 +373,46 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    {
-        path: '/admin/organisation/:organisationId/settings',
-        component: ManageOrganisationSettingsPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/admin/organisations/:organisationId/change-name',
-        component: ChangeOrganisationNamePage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/admin/organisations/:organisationId/change-address',
-        component: ChangeOrganisationAddressPage,
-        auth: true,
-        layout: true,
-    },
-    // {
-    //     path: '/admin/organisations/:organisationId/team-coordinators',
-    //     component: TeamCoordinatorsPage,
-    //     auth: true,
-    //     layout: true,
-    // },
-    // {
-    //     path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
-    //     component: ManageTeamCoordinatorPage,
-    //     auth: true,
-    //     layout: true,
-    // },
-    // {
-    //     path: '/admin/organisations/:organisationId/approved-domains',
-    //     component: ApprovedEmailDomainsPage,
-    //     auth: true,
-    //     layout: true,
-    // },
+    ...(configService.getFeatureFlags().dnoTeamCoordinatorsOrganisationsEnabled
+        ? [
+            {
+                path: '/admin/organisation/:organisationId/settings',
+                component: ManageOrganisationSettingsPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/change-name',
+                component: ChangeOrganisationNamePage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/change-address',
+                component: ChangeOrganisationAddressPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/team-coordinators',
+                component: TeamCoordinatorsPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
+                component: ManageTeamCoordinatorPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/approved-domains',
+                component: ApprovedEmailDomainsPage,
+                auth: true,
+                layout: true,
+            },
+        ]
+        : []),
     {
         path: '/request-access',
         component: AccessRequestIntroPage,

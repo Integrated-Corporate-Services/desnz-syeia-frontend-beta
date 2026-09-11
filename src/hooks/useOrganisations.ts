@@ -5,12 +5,17 @@ import { createLogger } from '../utils/logger';
 
 const logger = createLogger('useOrganisations');
 
-export const useOrganisations = () => {
+export const useOrganisations = (enabled = true) => {
   const [organisations, setOrganisations] = useState<Organisation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     const fetchOrganisations = async () => {
       try {
         setLoading(true);
@@ -30,7 +35,7 @@ export const useOrganisations = () => {
     };
 
     fetchOrganisations();
-  }, []);
+  }, [enabled]);
 
   return {
     organisations,

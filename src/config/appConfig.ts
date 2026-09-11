@@ -27,6 +27,7 @@ interface AppConfig {
         measurementId: string;
       };
     };
+    dnoTeamCoordinatorsOrganisationsEnabled: boolean;
   };
   session: {
     timeoutSeconds: number;
@@ -87,6 +88,9 @@ class ConfigService {
             measurementId: getRuntimeEnv('VITE_GA4_MEASUREMENT_ID'),
           },
         },
+        dnoTeamCoordinatorsOrganisationsEnabled: parseEnvBoolean(
+          getRuntimeEnv('VITE_DNO_TEAM_COORDINATORS_ORGANISATIONS_ENABLED')
+        ),
       },
       session: {
         timeoutSeconds: parseEnvInt(getRuntimeEnv('VITE_SESSION_TIMEOUT_SECONDS'), 1800),

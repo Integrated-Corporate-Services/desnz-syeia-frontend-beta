@@ -10,6 +10,7 @@ import PageTitle from "../../../components/PageTitle";
 const UserManagementDashboard: React.FC = () => {
   const {
     isDesnzAdmin,
+    dnoTeamCoordinatorsOrganisationsEnabled,
     activeTab,
     // showFilters,
     currentPage,
@@ -48,7 +49,7 @@ const UserManagementDashboard: React.FC = () => {
                 : "Manage access requests and users for your organisation"}
             </p>
 
-            {activeTab === "organisations" && (
+            {dnoTeamCoordinatorsOrganisationsEnabled && activeTab === "organisations" && (
               <form
                 className="govuk-!-margin-top-6 govuk-!-margin-bottom-6"
                 role="search"
@@ -82,12 +83,13 @@ const UserManagementDashboard: React.FC = () => {
 
             <TabNavigation
               activeTab={activeTab}
+              organisationsEnabled={dnoTeamCoordinatorsOrganisationsEnabled}
               pendingCount={pendingRequests.length}
               onTabChange={handleTabChange}
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
-            {activeTab === "organisations" && (
+            {dnoTeamCoordinatorsOrganisationsEnabled && activeTab === "organisations" && (
               <OrganisationsTab
                 organisations={organisations}
                 loading={organisationsLoading}

@@ -7,6 +7,10 @@ import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { ROLES } from "../constants/roles";
 import { filterOrganisationsByName } from "../utils/filterOrganisationsByName";
+import { configService } from "../config/appConfig";
+
+const dnoTeamCoordinatorsOrganisationsEnabled =
+  configService.getFeatureFlags().dnoTeamCoordinatorsOrganisationsEnabled;
 
 export const useUserManagementDashboard = () => {
   const { user } = useAuthUserContext();
@@ -15,7 +19,7 @@ export const useUserManagementDashboard = () => {
 
   const [activeTab, setActiveTab] = useState<
     "organisations" | "active-users" | "pending-requests"
-  >("organisations");
+  >(dnoTeamCoordinatorsOrganisationsEnabled ? "organisations" : "active-users");
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [organisationSearchInput, setOrganisationSearchInput] = useState("");
@@ -44,7 +48,7 @@ export const useUserManagementDashboard = () => {
     organisations,
     loading: organisationsLoading,
     error: organisationsError,
-  } = useOrganisations();
+  } = useOrganisations(dnoTeamCoordinatorsOrganisationsEnabled);
 
   const filteredOrganisations = filterOrganisationsByName(
     organisations,
@@ -116,6 +120,7 @@ export const useUserManagementDashboard = () => {
   return {
     // User context
     isDesnzAdmin,
+    dnoTeamCoordinatorsOrganisationsEnabled,
     userRole,
 
     // Tab state
