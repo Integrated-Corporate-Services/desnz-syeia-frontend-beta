@@ -895,7 +895,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         >
           <span className="gds-upload-spinner" aria-hidden="true"></span>
           <strong className="govuk-body govuk-!-font-weight-bold govuk-!-margin-0">
-            Uploading and checking your file for viruses. This may take a few minutes.
+            Uploading your files and checking them for viruses. This can take a few moments.
           </strong>
         </div>
       )}
