@@ -65,7 +65,7 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
             TITLE: 'Summary',
             DESNZ_REF: 'DESNZ reference',
             CASE_TYPE: 'Case type',
-            STATUS: 'Status',
+            STATUS: 'Application status',
             WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
         },
         CASE_TYPE_LABEL: 'Necessary Wayleave (NWL)',
