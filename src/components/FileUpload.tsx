@@ -887,9 +887,16 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       </p>
 
       {isScanning && (
-        <div className="govuk-!-margin-bottom-2" role="status" aria-live="polite">
-          <span className="gds-upload-spinner" aria-hidden="true"></span>{' '}
-          Uploading and virus scanning your file, please wait&hellip;
+        <div
+          className="gds-upload-status govuk-!-margin-bottom-4"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <span className="gds-upload-spinner" aria-hidden="true"></span>
+          <strong className="govuk-body govuk-!-font-weight-bold govuk-!-margin-0">
+            Uploading and checking your file for viruses. This may take a few minutes.
+          </strong>
         </div>
       )}
 
