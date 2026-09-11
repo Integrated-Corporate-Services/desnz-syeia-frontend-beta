@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { Organisation } from '../../../services/organisationService';
 
@@ -14,48 +14,18 @@ export const OrganisationsTab: React.FC<OrganisationsTabProps> = ({
   loading,
   error
 }) => {
-  const navigate = useNavigate();
-
-  const handleExportCSV = () => {
-    const csvData = organisations.map(org => ({
-      'Organisation name': org.organisation_name,
-      'Team coordinators': org.team_coordinators?.join('; ') || '',
-      'Approved domains': org.approved_domains?.join('; ') || ''
-    }));
-
-    const headers = Object.keys(csvData[0]).join(',');
-    const rows = csvData.map(row => Object.values(row).map(val => `"${val}"`).join(','));
-    const csv = [headers, ...rows].join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `organisations-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  };
+  const formatAddress = (organisation: Organisation) => [
+    organisation.address_line1,
+    organisation.address_line2,
+    organisation.town_city,
+    organisation.county,
+    organisation.postcode,
+  ].filter((part): part is string => Boolean(part)).join(', ');
 
   return (
     <div className="govuk-tabs__panel" id="organisations">
       <h2 className="govuk-heading-m">Organisations</h2>
-      
-      <div className="govuk-grid-row govuk-!-margin-bottom-4">
-        <div className="govuk-grid-column-one-half">
-          <p className="govuk-body">{organisations.length} results</p>
-        </div>
-        <div className="govuk-grid-column-one-half" style={{ textAlign: 'right' }}>
-          <button
-            type="button"
-            className="govuk-button"
-            onClick={handleExportCSV}
-          >
-            Download all (CSV)
-          </button>
-        </div>
-      </div>
+      <p className="govuk-body">{organisations.length} {organisations.length === 1 ? 'result' : 'results'}</p>
 
       {error && (
         <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
@@ -76,8 +46,8 @@ export const OrganisationsTab: React.FC<OrganisationsTabProps> = ({
             <tr className="govuk-table__row">
               <th scope="col" className="govuk-table__header">Organisation name</th>
               <th scope="col" className="govuk-table__header">Team coordinators</th>
-              <th scope="col" className="govuk-table__header">Approved emails domains</th>
-              <th scope="col" className="govuk-table__header">Action</th>
+              <th scope="col" className="govuk-table__header">Organisation address</th>
+              <th scope="col" className="govuk-table__header">Action(s)</th>
             </tr>
           </thead>
           <tbody className="govuk-table__body">
@@ -92,32 +62,20 @@ export const OrganisationsTab: React.FC<OrganisationsTabProps> = ({
                 <tr key={org.organisation_id} className="govuk-table__row">
                   <td className="govuk-table__cell"><strong>{org.organisation_name}</strong></td>
                   <td className="govuk-table__cell">
-                    {org.team_coordinators && org.team_coordinators.length > 0 ? (
-                      <ul className="govuk-list" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                        {org.team_coordinators.map((coordinator, index) => (
-                          <li key={index}>{coordinator}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      'N/A'
-                    )}
-                  </td>
-                  <td className="govuk-table__cell">
-                    {org.approved_domains && org.approved_domains.length > 0
-                      ? org.approved_domains.join(', ')
+                    {org.team_coordinators?.length
+                      ? org.team_coordinators.join(', ')
                       : 'N/A'}
                   </td>
                   <td className="govuk-table__cell">
-                    <a
+                    {formatAddress(org) || 'N/A'}
+                  </td>
+                  <td className="govuk-table__cell">
+                    <Link
                       className="govuk-link"
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate(`/admin/organisation/${org.organisation_id}/settings`);
-                      }}
+                      to={`/admin/organisation/${org.organisation_id}/settings`}
                     >
                       Manage
-                    </a>
+                    </Link>
                   </td>
                 </tr>
               ))

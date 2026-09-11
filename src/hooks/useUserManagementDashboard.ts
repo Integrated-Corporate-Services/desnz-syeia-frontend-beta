@@ -6,6 +6,11 @@ import { useOrganisations } from "./useOrganisations";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { ROLES } from "../constants/roles";
+import { filterOrganisationsByName } from "../utils/filterOrganisationsByName";
+import { configService } from "../config/appConfig";
+
+const dnoTeamCoordinatorsOrganisationsEnabled =
+  configService.getFeatureFlags().dnoTeamCoordinatorsOrganisationsEnabled;
 
 export const useUserManagementDashboard = () => {
   const { user } = useAuthUserContext();
@@ -14,9 +19,11 @@ export const useUserManagementDashboard = () => {
 
   const [activeTab, setActiveTab] = useState<
     "organisations" | "active-users" | "pending-requests"
-  >("pending-requests");
+  >(dnoTeamCoordinatorsOrganisationsEnabled ? "organisations" : "active-users");
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [organisationSearchInput, setOrganisationSearchInput] = useState("");
+  const [organisationSearchTerm, setOrganisationSearchTerm] = useState("");
   const itemsPerPage = 10;
 
   const {
@@ -41,7 +48,12 @@ export const useUserManagementDashboard = () => {
     organisations,
     loading: organisationsLoading,
     error: organisationsError,
-  } = useOrganisations();
+  } = useOrganisations(dnoTeamCoordinatorsOrganisationsEnabled);
+
+  const filteredOrganisations = filterOrganisationsByName(
+    organisations,
+    organisationSearchTerm
+  );
 
   const activeUsers = filteredUsers.filter((u) => u.status === "ACTIVE");
   const totalResults =
@@ -50,7 +62,7 @@ export const useUserManagementDashboard = () => {
       : activeTab === "pending-requests"
       ? pendingRequests.length
       : activeTab === "organisations"
-      ? organisations.length
+      ? filteredOrganisations.length
       : 0;
   const pendingCount = getStatValue("pendingRequests");
 
@@ -96,6 +108,11 @@ export const useUserManagementDashboard = () => {
     setCurrentPage(page);
   };
 
+  const handleOrganisationSearch = () => {
+    setOrganisationSearchTerm(organisationSearchInput);
+    setCurrentPage(1);
+  };
+
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
@@ -103,6 +120,7 @@ export const useUserManagementDashboard = () => {
   return {
     // User context
     isDesnzAdmin,
+    dnoTeamCoordinatorsOrganisationsEnabled,
     userRole,
 
     // Tab state
@@ -132,9 +150,12 @@ export const useUserManagementDashboard = () => {
     requestsError,
 
     // Organisations data
-    organisations,
+    organisations: filteredOrganisations,
     organisationsLoading,
     organisationsError,
+    organisationSearchInput,
+    setOrganisationSearchInput,
+    handleOrganisationSearch,
 
     // Navigation
     navigateToReviewRequest,
