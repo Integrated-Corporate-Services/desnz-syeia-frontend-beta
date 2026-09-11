@@ -40,7 +40,7 @@ export const LandownerDetailsSummaryCard: React.FC<Props> = ({ data, application
         rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.TITLE, data.landowner_title || CONSTANTS.DEFAULTS.EMPTY));
         rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.NAME, data.landowner_name || CONSTANTS.DEFAULTS.EMPTY));
         rows.push(createSummaryRow(CONSTANTS.LANDOWNER_FIELDS.ORGANISATION, data.landowner_organisation || CONSTANTS.DEFAULTS.EMPTY));
-        const addressParts = [data.landowner_address_line1, data.landowner_address_line2, data.town_city, data.landowner_postcode].filter((part) => part && part !== '-');
+        const addressParts = [data.landowner_address_line1, data.landowner_address_line2, data.landowner_town, data.landowner_county, data.landowner_postcode].filter((part) => part && part !== '-');
         const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
         rows.push({
             key: { text: CONSTANTS.LANDOWNER_FIELDS.ADDRESS },
