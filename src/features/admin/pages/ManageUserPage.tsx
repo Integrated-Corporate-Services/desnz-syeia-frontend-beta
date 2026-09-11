@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
+import { formatUserRoleLabel } from '../../../utils/roleUtils';
+import { isManageUserRoleChangeEnabled } from '../../../config/appConfig';
 import PageTitle from '../../../components/PageTitle';
 
 const ManageUserPage: React.FC = () => {
@@ -25,13 +27,7 @@ const ManageUserPage: React.FC = () => {
     });
   };
 
-  const formatRole = (role: string) => {
-    if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
-    if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
-    if (role === ROLES.TECH_ADMIN) return 'Tech Admin';
-    if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
-    return 'Applicant';
-  };
+  const formatRole = formatUserRoleLabel;
 
   if (loading) {
     return (
@@ -95,11 +91,13 @@ const ManageUserPage: React.FC = () => {
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Role</dt>
                 <dd className="govuk-summary-list__value">{formatRole(user.role)}</dd>
-                {/* <dd className="govuk-summary-list__actions">
-                  <a className="govuk-link" href="#">
-                    Change<span className="govuk-visually-hidden"> role</span>
-                  </a>
-                </dd> */}
+                {isManageUserRoleChangeEnabled() && (user.role === ROLES.APPLICANT_USER || user.role === ROLES.APPLICANT_TEAM_COORDINATOR) && (
+                  <dd className="govuk-summary-list__actions">
+                    <Link className="govuk-link" to={`/admin/manage-user/${userId}/change-role`}>
+                      Change<span className="govuk-visually-hidden"> role</span>
+                    </Link>
+                  </dd>
+                )}
               </div>
               {user.role === ROLES.APPLICANT_AGENT && (
                 <div className="govuk-summary-list__row">
