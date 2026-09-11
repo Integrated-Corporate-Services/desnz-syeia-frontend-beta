@@ -43,7 +43,7 @@ export const OccupierDetailsSummaryCard: React.FC<Props> = ({ data, applicationI
     rows.push(createSummaryRow(CONSTANTS.OCCUPIER_FIELDS.ORGANISATION, data.objector_organisation || CONSTANTS.DEFAULTS.EMPTY));
 
     // Address
-    const addressParts = [data.objector_address_line1, data.objector_address_line2, data.town_city, data.objector_postcode].filter((part) => part && part !== '-');
+    const addressParts = [data.objector_address_line1, data.objector_address_line2, data.objector_town, data.objector_county, data.objector_postcode].filter((part) => part && part !== '-');
     const addressHtml = addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY;
     rows.push({
         key: { text: CONSTANTS.OCCUPIER_FIELDS.ADDRESS },
