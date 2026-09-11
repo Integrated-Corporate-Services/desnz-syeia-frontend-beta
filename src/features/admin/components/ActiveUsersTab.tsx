@@ -1,7 +1,7 @@
 import React from "react";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import PaginationComponent from "./PaginationComponent";
-import { formatUserRoleLabel } from "../../../utils/roleUtils";
+import { ROLES } from "../../../constants/roles";
 import "../../../styles/DashboardMobile.css";
 
 interface User {
@@ -14,7 +14,13 @@ interface User {
   lastLogin: string | null;
 }
 
-const formatRole = formatUserRoleLabel;
+const formatRole = (role: string) => {
+  if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
+  if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
+  if (role === ROLES.TECH_ADMIN) return 'Tech Admin';
+  if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
+  return 'Applicant';
+};
 
 const formatDate = (dateString: string | null) => {
   if (!dateString) return 'Never';

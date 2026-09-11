@@ -93,7 +93,6 @@ import AccessRevokedPage from '../features/admin/pages/AccessRevokedPage';
 import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
 import UserAccessRevokedPage from '../features/auth/pages/UserAccessRevokedPage';
 import ManageUserPage from '../features/admin/pages/ManageUserPage';
-import ChangeUserRolePage from '../features/admin/pages/ChangeUserRolePage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ReportingDashboard from '../features/reporting/ReportingDashboard';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
@@ -946,12 +945,6 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/admin/manage-user/:userId',
         component: ManageUserPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/admin/manage-user/:userId/change-role',
-        component: ChangeUserRolePage,
         auth: true,
         layout: true,
     },

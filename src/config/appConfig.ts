@@ -27,9 +27,6 @@ interface AppConfig {
         measurementId: string;
       };
     };
-    manageUserRoleChange: {
-      enabled: boolean;
-    };
   };
   session: {
     timeoutSeconds: number;
@@ -89,9 +86,6 @@ class ConfigService {
             enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_GA4')),
             measurementId: getRuntimeEnv('VITE_GA4_MEASUREMENT_ID'),
           },
-        },
-        manageUserRoleChange: {
-          enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_MANAGE_USER_ROLE_CHANGE', 'false')),
         },
       },
       session: {
@@ -204,4 +198,3 @@ export const buildBackendUrl = (path: string) => configService.buildBackendUrl(p
 export const getApiUrl = (path: string) => configService.getApiUrl(path);
 export const isProduction = () => configService.isProduction();
 export const isDevelopment = () => configService.isDevelopment();
-export const isManageUserRoleChangeEnabled = () => configService.getFeatureFlags().manageUserRoleChange.enabled;
