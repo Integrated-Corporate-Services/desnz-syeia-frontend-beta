@@ -111,41 +111,6 @@ export const hasElevatedPermissions = (role?: UserRole): boolean => {
          role === REVIEWER;
 };
 
-export const formatUserRoleLabel = (role?: UserRole): string => {
-  if (!role) return 'Applicant';
-
-  switch (role) {
-    case DESNZ_ADMIN:
-      return 'DESNZ Admin';
-    case DESNZ_CASEWORKER:
-      return 'DESNZ Caseworker';
-    case APPLICANT_TEAM_COORDINATOR:
-      return 'DNO Team Coordinator';
-    case TECH_ADMIN:
-      return 'Tech Admin';
-    case BUSINESS_ADMIN:
-      return 'Business Admin';
-    case APPLICANT_AGENT:
-      return 'Applicant agent';
-    case APPLICANT_FINANCE:
-      return 'Applicant finance';
-    case APPLICANT_USER:
-      return 'Applicant';
-    case 'APPLICANT':
-    case APPLICANT:
-      return 'Applicant';
-    case NETWORK_OPERATOR:
-      return 'Network operator';
-    case CONTACT:
-      return 'Contact';
-    case CONSULTANT:
-      return 'Consultant';
-    case REVIEWER:
-      return 'Reviewer';
-    default:
-      return role;
-  }
-};
 
 export default {
   APPLICANT,
@@ -163,5 +128,4 @@ export default {
   TECH_ADMIN,
   ADMIN_ROLES,
   SUPERUSER,
-  formatUserRoleLabel,
 };

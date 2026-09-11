@@ -81,54 +81,6 @@ class UserService {
   }
 
   /**
-   * Update a user's role ("Which role applies to this user?" page)
-   */
-  async updateUserRole(
-    userId: string,
-    role: string,
-    organisationId?: string
-  ): Promise<ServiceResponse<void>> {
-    try {
-      const requestBody: { role: string; organisationId?: string } = { role };
-      if (organisationId) {
-        requestBody.organisationId = organisationId;
-      }
-      const response = await fetch(buildBackendUrl(`/api/users/${userId}/role`), {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          ...getCsrfHeaders()
-        },
-        credentials: "include",
-        body: JSON.stringify(requestBody)
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        logger.error("Failed to update user role:", {
-          error: errorData.error,
-          status: response.status,
-        });
-        return {
-          success: false,
-          message: errorData.error || "Failed to update user role",
-        };
-      }
-      return {
-        success: true,
-        message: "User role updated successfully",
-      };
-    } catch (error: any) {
-      logger.error("Failed to update user role:", {
-        error: error.message,
-      });
-      return {
-        success: false,
-        message: "Failed to update user role",
-      };
-    }
-  }
-
-  /**
    * Suspend/revoke user access
    */
   async suspendUser(

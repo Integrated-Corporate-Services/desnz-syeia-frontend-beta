@@ -1,9 +1,8 @@
 import { configService } from '../config/appConfig';
+import { getRuntimeEnv } from '../config/runtimeEnv';
 
 export const getApiBaseUrl = (): string => {
-  // configService is dev-aware: returns '' in local dev so requests stay same-origin
-  // (proxied by Vite) instead of hitting VITE_API_URL directly and violating CSP connect-src.
-  return configService.getApiBaseUrl();
+  return getRuntimeEnv('VITE_API_URL') || configService.getApiBaseUrl() || '';
 };
 
 export const buildBackendUrl = (path: string): string => {
