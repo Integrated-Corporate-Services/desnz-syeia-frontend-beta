@@ -34,8 +34,11 @@ export const useApplicationStatusLookup = () => {
     }
   };
 
-  const search = async () => {
-    const trimmedReference = reference.trim();
+  // overrideReference lets a caller (e.g. clicking a row in the submitted-applications
+  // summary) trigger a search for a specific reference immediately, without waiting on
+  // a setReference() state update to land first.
+  const search = async (overrideReference?: string) => {
+    const trimmedReference = (overrideReference ?? reference).trim();
     setVerifyMessage(null);
     setVerifyError(null);
     setDocumentExport(null);
@@ -45,6 +48,10 @@ export const useApplicationStatusLookup = () => {
       setResult(null);
       setError(OPERATIONAL_TASKS_MESSAGES.REFERENCE_REQUIRED);
       return;
+    }
+
+    if (overrideReference !== undefined) {
+      setReference(overrideReference);
     }
 
     setLoading(true);

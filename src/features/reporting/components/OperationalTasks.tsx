@@ -1,20 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
 import { useApplicationStatusLookup } from "../hooks/useApplicationStatusLookup";
+import { formatDateTime as formatStartedAt } from "../reportingUtils";
+import SubmittedApplicationsSummary from "./SubmittedApplicationsSummary";
+
+type OperationalTasksTab = "summary" | "lookup";
 
 const formatCurrency = (amountInPence: number | null): string => {
   if (amountInPence === null || amountInPence === undefined) return "Not available";
   return `£${(amountInPence / 100).toFixed(2)}`;
 };
-
-const formatStartedAt = (isoDateTime: string): string => new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-  timeZone: "Europe/London",
-}).format(new Date(isoDateTime));
 
 const formatFileSize = (sizeInBytes: number): string => {
   if (sizeInBytes < 1024) return `${sizeInBytes} bytes`;
@@ -35,6 +30,7 @@ const statusTagClass = (status: string | null | undefined): string => {
 };
 
 const OperationalTasks: React.FC = () => {
+  const [activeSubTab, setActiveSubTab] = useState<OperationalTasksTab>("summary");
   const {
     reference,
     setReference,
@@ -53,6 +49,11 @@ const OperationalTasks: React.FC = () => {
     buildDownloadBundle,
   } = useApplicationStatusLookup();
 
+  const viewApplication = (applicationReference: string) => {
+    setActiveSubTab("lookup");
+    void search(applicationReference);
+  };
+
   return (
     <div className="operational-tasks">
       <h1 className="govuk-heading-xl">Operational tasks</h1>
@@ -60,12 +61,31 @@ const OperationalTasks: React.FC = () => {
 
       <div className="govuk-tabs" data-module="govuk-tabs">
         <ul className="govuk-tabs__list">
-          <li className="govuk-tabs__list-item govuk-tabs__list-item--selected">
-            <span className="govuk-tabs__tab">One application</span>
+          <li className={`govuk-tabs__list-item${activeSubTab === "summary" ? " govuk-tabs__list-item--selected" : ""}`}>
+            <button
+              type="button"
+              className="govuk-tabs__tab reporting-dashboard__tab-button"
+              onClick={() => setActiveSubTab("summary")}
+            >
+              Submitted applications
+            </button>
+          </li>
+          <li className={`govuk-tabs__list-item${activeSubTab === "lookup" ? " govuk-tabs__list-item--selected" : ""}`}>
+            <button
+              type="button"
+              className="govuk-tabs__tab reporting-dashboard__tab-button"
+              onClick={() => setActiveSubTab("lookup")}
+            >
+              One application
+            </button>
           </li>
         </ul>
       </div>
 
+      {activeSubTab === "summary" && <SubmittedApplicationsSummary onViewApplication={viewApplication} />}
+
+      {activeSubTab === "lookup" && (
+        <>
       <form
         className="operational-tasks__search"
         onSubmit={(event) => {
@@ -282,6 +302,8 @@ const OperationalTasks: React.FC = () => {
             </div>
           )}
         </div>
+      )}
+        </>
       )}
     </div>
   );

@@ -61,6 +61,22 @@ export interface ReconciliationResult {
   message: string;
 }
 
+export interface SubmittedApplicationRow {
+  applicationId: string;
+  desnzRef: string | null;
+  applicationType: string;
+  applicationStatus: string;
+  submittedAt: string;
+  organisationName: string | null;
+}
+
+export interface SubmittedApplicationsSummary {
+  total: number;
+  page: number;
+  pageSize: number;
+  applications: SubmittedApplicationRow[];
+}
+
 export interface DocumentExportRecord {
   exportId: string;
   applicationId: string;

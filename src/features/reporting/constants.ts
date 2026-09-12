@@ -51,3 +51,10 @@ export const OPERATIONAL_TASKS_MESSAGES = {
 export const VERIFIABLE_APPLICATION_STATUS = "DRAFT";
 export const VERIFIABLE_PAYMENT_STATUS = "created";
 export const DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS = "DRAFT";
+
+export const SUBMITTED_APPLICATIONS_PAGE_SIZE = 20;
+
+export const SUBMITTED_APPLICATIONS_MESSAGES = {
+  LOAD_FAILED: "The list of submitted applications could not be loaded. Try again shortly.",
+  NO_APPLICATIONS: "No applications have been submitted yet.",
+} as const;
