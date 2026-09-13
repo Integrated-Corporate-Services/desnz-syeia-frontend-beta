@@ -1,4 +1,5 @@
 import React from "react";
+import { StatusBadge } from "../../../components/shared/StatusBadge";
 import { formatDateTime, formatNumber } from "../reportingUtils";
 import { SUBMITTED_APPLICATIONS_MESSAGES } from "../constants";
 import { useSubmittedApplicationsSummary } from "../hooks/useSubmittedApplicationsSummary";
@@ -8,32 +9,112 @@ interface SubmittedApplicationsSummaryProps {
 }
 
 const SubmittedApplicationsSummary: React.FC<SubmittedApplicationsSummaryProps> = ({ onViewApplication }) => {
-  const { summary, loading, error, page, totalPages, goToPage } = useSubmittedApplicationsSummary();
+  const {
+    summary,
+    loading,
+    error,
+    page,
+    totalPages,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    isDateFilterApplied,
+    applyDateFilter,
+    clearDateFilter,
+    goToPage,
+  } = useSubmittedApplicationsSummary();
+
+  const dateFilter = (
+    <form
+      className="reporting-filter-panel"
+      onSubmit={(event) => {
+        event.preventDefault();
+        applyDateFilter();
+      }}
+    >
+      <fieldset className="govuk-fieldset">
+        <legend className="govuk-visually-hidden">Filter submitted applications by date</legend>
+        <div className="reporting-filter-row">
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="submitted-applications-start-date">Submitted from</label>
+            <input
+              className="govuk-input reporting-date-input"
+              id="submitted-applications-start-date"
+              type="date"
+              value={startDate}
+              max={endDate || undefined}
+              onChange={(event) => setStartDate(event.target.value)}
+            />
+          </div>
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="submitted-applications-end-date">Submitted to</label>
+            <input
+              className="govuk-input reporting-date-input"
+              id="submitted-applications-end-date"
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(event) => setEndDate(event.target.value)}
+            />
+          </div>
+          <button className="govuk-button reporting-filter-button" type="submit" disabled={loading}>
+            {loading ? "Loading" : "Apply filter"}
+          </button>
+          {isDateFilterApplied && (
+            <button
+              className="govuk-button govuk-button--secondary reporting-filter-button"
+              type="button"
+              disabled={loading}
+              onClick={clearDateFilter}
+            >
+              Clear filter
+            </button>
+          )}
+        </div>
+      </fieldset>
+    </form>
+  );
 
   if (loading && !summary) {
-    return <p className="govuk-body">Loading submitted applications…</p>;
+    return (
+      <div className="submitted-applications-summary">
+        {dateFilter}
+        <p className="govuk-body">Loading submitted applications…</p>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="govuk-error-summary" role="alert">
-        <h2 className="govuk-error-summary__title">There is a problem</h2>
-        <div className="govuk-error-summary__body">
-          <p>{error}</p>
+      <div className="submitted-applications-summary">
+        {dateFilter}
+        <div className="govuk-error-summary" role="alert">
+          <h2 className="govuk-error-summary__title">There is a problem</h2>
+          <div className="govuk-error-summary__body">
+            <p>{error}</p>
+          </div>
         </div>
       </div>
     );
   }
 
   if (!summary || summary.total === 0) {
-    return <p className="govuk-inset-text">{SUBMITTED_APPLICATIONS_MESSAGES.NO_APPLICATIONS}</p>;
+    return (
+      <div className="submitted-applications-summary">
+        {dateFilter}
+        <p className="govuk-inset-text">{SUBMITTED_APPLICATIONS_MESSAGES.NO_APPLICATIONS}</p>
+      </div>
+    );
   }
 
   return (
     <div className="submitted-applications-summary">
+      {dateFilter}
+
       <div className="govuk-panel govuk-panel--confirmation submitted-applications-summary__panel">
         <div className="govuk-panel__title">{formatNumber.format(summary.total)}</div>
-        <div className="govuk-panel__body">applications submitted</div>
+        <div className="govuk-panel__body">applications submitted{isDateFilterApplied ? " in this date range" : ""}</div>
       </div>
 
       <table className="govuk-table">
@@ -55,7 +136,9 @@ const SubmittedApplicationsSummary: React.FC<SubmittedApplicationsSummaryProps> 
             <tr className="govuk-table__row" key={application.applicationId}>
               <td className="govuk-table__cell">{application.desnzRef || "Not available"}</td>
               <td className="govuk-table__cell">{application.applicationType}</td>
-              <td className="govuk-table__cell">{application.applicationStatus}</td>
+              <td className="govuk-table__cell">
+                <StatusBadge status={application.applicationStatus} />
+              </td>
               <td className="govuk-table__cell">{formatDateTime(application.submittedAt)}</td>
               <td className="govuk-table__cell">{application.organisationName || "Not available"}</td>
               <td className="govuk-table__cell">

@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES, VERIFIABLE_APPLICATION_STATUS, VERIFIABLE_PAYMENT_STATUS } from "../constants";
+import {
+  APPLICATION_SUMMARY_PDF_APPLICATION_TYPE,
+  APPLICATION_SUMMARY_PDF_EXCLUDED_STATUS,
+  DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS,
+  OPERATIONAL_TASKS_MESSAGES,
+  VERIFIABLE_APPLICATION_STATUS,
+  VERIFIABLE_PAYMENT_STATUS,
+} from "../constants";
 import { useApplicationStatusLookup } from "../hooks/useApplicationStatusLookup";
 import { formatDateTime as formatStartedAt } from "../reportingUtils";
 import SubmittedApplicationsSummary from "./SubmittedApplicationsSummary";
@@ -47,6 +54,10 @@ const OperationalTasks: React.FC = () => {
     search,
     reconcileSubmission,
     buildDownloadBundle,
+    generatingApplicationSummary,
+    applicationSummaryMessage,
+    applicationSummaryError,
+    generateApplicationSummary,
   } = useApplicationStatusLookup();
 
   const viewApplication = (applicationReference: string) => {
@@ -301,6 +312,30 @@ const OperationalTasks: React.FC = () => {
               </p>
             </div>
           )}
+
+          {result.applicationType === APPLICATION_SUMMARY_PDF_APPLICATION_TYPE &&
+            result.applicationStatus !== APPLICATION_SUMMARY_PDF_EXCLUDED_STATUS &&
+            result.applicationSummaryPdf &&
+            !result.applicationSummaryPdf.generated && (
+              <div className="operational-tasks__actions">
+                <h3 className="govuk-heading-m">Application summary recovery</h3>
+                <p className="operational-tasks__actions-note">
+                  Generates the NWL application summary PDF and adds it to this application's documents, so it will be
+                  included in the download bundle above.
+                </p>
+                <button
+                  className="govuk-button"
+                  type="button"
+                  disabled={generatingApplicationSummary}
+                  onClick={() => void generateApplicationSummary()}
+                >
+                  {generatingApplicationSummary ? "Generating" : "Generate application summary PDF"}
+                </button>
+                <p className="govuk-hint">No application summary PDF exists for this application yet. Safe to run more than once.</p>
+                {applicationSummaryMessage && <p className="govuk-body" role="status">{applicationSummaryMessage}</p>}
+                {applicationSummaryError && <p className="govuk-error-message">{applicationSummaryError}</p>}
+              </div>
+            )}
         </div>
       )}
         </>

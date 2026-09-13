@@ -1,8 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
 import { getApplicationStatusByReference } from "../../../services/adminReportingService";
-import { buildDocumentExport, getDocumentExport, reconcileSubmission } from "../services/operationalTasksService";
-import { DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS, OPERATIONAL_TASKS_MESSAGES } from "../constants";
+import {
+  buildDocumentExport,
+  generateApplicationSummaryPdf,
+  getDocumentExport,
+  reconcileSubmission,
+} from "../services/operationalTasksService";
+import {
+  APPLICATION_SUMMARY_PDF_MESSAGES,
+  DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS,
+  OPERATIONAL_TASKS_MESSAGES,
+} from "../constants";
 import type { ApplicationStatusLookup, DocumentExportRecord } from "../types";
 
 export const useApplicationStatusLookup = () => {
@@ -17,6 +26,9 @@ export const useApplicationStatusLookup = () => {
   const [checkingDocumentExport, setCheckingDocumentExport] = useState(false);
   const [buildingDocumentExport, setBuildingDocumentExport] = useState(false);
   const [documentExportError, setDocumentExportError] = useState<string | null>(null);
+  const [generatingApplicationSummary, setGeneratingApplicationSummary] = useState(false);
+  const [applicationSummaryMessage, setApplicationSummaryMessage] = useState<string | null>(null);
+  const [applicationSummaryError, setApplicationSummaryError] = useState<string | null>(null);
 
   const refreshDocumentExport = async (applicationId: string, applicationStatus: string) => {
     setDocumentExportError(null);
@@ -43,6 +55,8 @@ export const useApplicationStatusLookup = () => {
     setVerifyError(null);
     setDocumentExport(null);
     setDocumentExportError(null);
+    setApplicationSummaryMessage(null);
+    setApplicationSummaryError(null);
 
     if (!trimmedReference) {
       setResult(null);
@@ -103,6 +117,28 @@ export const useApplicationStatusLookup = () => {
     }
   };
 
+  const generateApplicationSummary = async () => {
+    if (!result?.applicationId) return;
+
+    setGeneratingApplicationSummary(true);
+    setApplicationSummaryMessage(null);
+    setApplicationSummaryError(null);
+    try {
+      await generateApplicationSummaryPdf(result.applicationId);
+      setApplicationSummaryMessage(APPLICATION_SUMMARY_PDF_MESSAGES.SUCCESS);
+      const refreshedResult = await getApplicationStatusByReference(reference.trim());
+      setResult(refreshedResult);
+    } catch (requestError) {
+      setApplicationSummaryError(
+        axios.isAxiosError(requestError) && requestError.response?.data?.error
+          ? requestError.response.data.error
+          : APPLICATION_SUMMARY_PDF_MESSAGES.FAILED
+      );
+    } finally {
+      setGeneratingApplicationSummary(false);
+    }
+  };
+
   const buildDownloadBundle = async (forceRebuild: boolean = false) => {
     if (!result?.applicationId) return;
 
@@ -138,5 +174,9 @@ export const useApplicationStatusLookup = () => {
     search,
     reconcileSubmission: reconcileApplicationSubmission,
     buildDownloadBundle,
+    generatingApplicationSummary,
+    applicationSummaryMessage,
+    applicationSummaryError,
+    generateApplicationSummary,
   };
 };

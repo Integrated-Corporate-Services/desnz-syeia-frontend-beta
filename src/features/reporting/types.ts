@@ -36,9 +36,14 @@ export interface ApplicationPaymentSummary {
   paymentDate: string | null;
 }
 
+export interface ApplicationSummaryPdfStatus {
+  generated: boolean;
+}
+
 export interface ApplicationStatusLookup {
   applicationId: string;
   desnzRef: string | null;
+  applicationType: string;
   applicationStatus: string;
   startedAt: string;
   submittedAt: string | null;
@@ -50,6 +55,8 @@ export interface ApplicationStatusLookup {
   documentCount: number;
   payment: ApplicationPaymentSummary | null;
   canVerifyPayment: boolean;
+  // Only meaningful for NWL applications - null for every other application type.
+  applicationSummaryPdf: ApplicationSummaryPdfStatus | null;
 }
 
 export interface ReconciliationResult {

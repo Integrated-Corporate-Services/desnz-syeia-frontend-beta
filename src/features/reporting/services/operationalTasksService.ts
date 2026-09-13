@@ -1,10 +1,17 @@
 import axios from "axios";
 import { getApiUrl } from "../../../utils/apiConfig";
-import type { CreatedDocumentExport, DocumentExportRecord, ReconciliationResult } from "../types";
+import type { ApplicationSummaryPdfStatus, CreatedDocumentExport, DocumentExportRecord, ReconciliationResult } from "../types";
 
 export async function reconcileSubmission(applicationId: string): Promise<ReconciliationResult> {
   const response = await axios.post<ReconciliationResult>(
     getApiUrl(`/admin/reports/applications/${applicationId}/reconcile-submission`)
+  );
+  return response.data;
+}
+
+export async function generateApplicationSummaryPdf(applicationId: string): Promise<ApplicationSummaryPdfStatus> {
+  const response = await axios.post<ApplicationSummaryPdfStatus>(
+    getApiUrl(`/admin/reports/applications/${applicationId}/generate-application-summary`)
   );
   return response.data;
 }

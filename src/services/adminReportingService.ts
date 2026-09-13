@@ -33,10 +33,12 @@ export async function getApplicationStatusByReference(reference: string): Promis
 
 export async function getSubmittedApplicationsSummary(
   page: number = 1,
-  pageSize: number = 20
+  pageSize: number = 20,
+  startDate?: string,
+  endDate?: string
 ): Promise<SubmittedApplicationsSummary> {
   const response = await axios.get<SubmittedApplicationsSummary>(getApiUrl("/admin/reports/submitted-applications"), {
-    params: { page, pageSize },
+    params: { page, pageSize, startDate: startDate || undefined, endDate: endDate || undefined },
   });
 
   return response.data;
