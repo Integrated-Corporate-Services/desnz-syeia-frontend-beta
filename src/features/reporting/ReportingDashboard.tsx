@@ -23,7 +23,7 @@ const ReportingDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
   const dashboard = useReportingDashboard();
   const [activeTab, setActiveTab] = useState<DashboardTab>("reports");
-  const isTechAdmin = [ROLES.DESNZ_ADMIN, ROLES.TECH_ADMIN].includes(
+  const isTechAdmin = [ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes(
     (user as AuthUser | undefined)?.role as string
   );
 

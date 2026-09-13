@@ -10,7 +10,7 @@ import { ROLES } from "../constants/roles";
 export const useUserManagementDashboard = () => {
   const { user } = useAuthUserContext();
   const userRole = (user as AuthUser)?.role || "";
-  const isDesnzAdmin = userRole === ROLES.DESNZ_ADMIN;
+  const isSuperUser = userRole === ROLES.SUPERUSER;
 
   const [activeTab, setActiveTab] = useState<
     "organisations" | "active-users" | "pending-requests"
@@ -102,7 +102,7 @@ export const useUserManagementDashboard = () => {
 
   return {
     // User context
-    isDesnzAdmin,
+    isSuperUser,
     userRole,
 
     // Tab state
