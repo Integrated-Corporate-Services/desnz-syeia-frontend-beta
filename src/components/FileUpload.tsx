@@ -115,10 +115,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 }, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
-  const userId =
-    (user as AuthUser)?.user_id ||
-    (user as AuthUser)?.person_id ||
-    "";
+  const userId = (user as AuthUser)?.user_id || "";
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload

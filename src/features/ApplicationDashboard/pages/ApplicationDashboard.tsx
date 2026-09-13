@@ -29,7 +29,7 @@ import "../../../styles/ApplicationDashboard.css";
 
 const ApplicationDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
-  const created_by = (user as AuthUser)?.user_id || (user as AuthUser)?.person_id || "";
+  const created_by = (user as AuthUser)?.user_id || "";
   const { applications, fetchApplications, setApplication } = useApplication();
   const navigate = useNavigate();
 

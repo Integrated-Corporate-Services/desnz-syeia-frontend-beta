@@ -99,7 +99,7 @@ const ServiceNavigation = () => {
                                     </Link>
                                 </li>
                             )}
-                            {[ROLES.DESNZ_ADMIN, ROLES.TECH_ADMIN].includes((user as AuthUser)?.role as string) && (
+                            {[ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes((user as AuthUser)?.role as string) && (
                                 <li className={`rcc-service-nav__item${isOnReportingPage ? " rcc-service-nav__item--active" : ""}`}>
                                     <Link
                                         className="rcc-service-nav__link"
