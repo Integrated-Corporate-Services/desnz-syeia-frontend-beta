@@ -207,6 +207,30 @@
   margin-bottom: 0;
 }
 
+.submitted-applications-summary__panel {
+  margin-bottom: 30px;
+}
+
+.submitted-applications-summary__view-link {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.submitted-applications-summary__page-button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.submitted-applications-summary__page-count {
+  margin: 0;
+}
+
 @media (max-width: 40.0525em) {
   .reporting-filter-row {
     align-items: stretch;

@@ -51,3 +51,20 @@ export const OPERATIONAL_TASKS_MESSAGES = {
 export const VERIFIABLE_APPLICATION_STATUS = "DRAFT";
 export const VERIFIABLE_PAYMENT_STATUS = "created";
 export const DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS = "DRAFT";
+
+// The application summary PDF is an NWL-only artefact, and can only be generated
+// once an application has left DRAFT.
+export const APPLICATION_SUMMARY_PDF_APPLICATION_TYPE = "NWL";
+export const APPLICATION_SUMMARY_PDF_EXCLUDED_STATUS = "DRAFT";
+
+export const APPLICATION_SUMMARY_PDF_MESSAGES = {
+  SUCCESS: "The application summary PDF has been generated.",
+  FAILED: "The application summary PDF could not be generated. Try again shortly.",
+} as const;
+
+export const SUBMITTED_APPLICATIONS_PAGE_SIZE = 20;
+
+export const SUBMITTED_APPLICATIONS_MESSAGES = {
+  LOAD_FAILED: "The list of submitted applications could not be loaded. Try again shortly.",
+  NO_APPLICATIONS: "No applications have been submitted yet.",
+} as const;
