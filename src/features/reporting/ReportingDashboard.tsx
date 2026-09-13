@@ -68,7 +68,7 @@ const ReportingDashboard: React.FC = () => {
 
         {activeTab === "reports" && (
           <>
-            <h1 className="govuk-heading-xl">Reporting dashboard</h1>
+            <h1 className="govuk-heading-xl reporting-dashboard__heading">Reporting dashboard</h1>
             <ReportingFilters
               preset={dashboard.preset}
               startDate={dashboard.startDate}
