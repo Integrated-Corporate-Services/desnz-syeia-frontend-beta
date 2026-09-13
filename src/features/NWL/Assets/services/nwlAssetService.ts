@@ -263,31 +263,22 @@ export const nwlAssetService = {
   },
 
   /**
-   * Save application plan documents (file metadata)
-   * This saves the uploaded files metadata to the database
+   * Save application plan data after files have been uploaded separately.
    */
   saveApplicationPlanDocuments: async (
-    applicationId: string,
-    uploadedFiles: UploadedFile[],
-    applicationDocuments: ApplicationDocument[]
+    applicationId: string
   ): Promise<void> => {
     try {
-      logger.debug('[saveApplicationPlanDocuments] Saving documents', {
+      logger.debug('[saveApplicationPlanDocuments] Saving application plan data', {
         applicationId,
-        uploadedFilesCount: uploadedFiles.length,
-        documentsCount: applicationDocuments.length,
       });
 
-      // Create empty assets to trigger file processing
-      // The backend will only process files, not create actual assets
       await axios.post(`${API_BASE}/assets`, {
         application_id: applicationId,
-        assets: [], // Empty array - no assets to create yet
-        uploaded_files: uploadedFiles,
-        application_documents: applicationDocuments,
+        assets: [],
       });
 
-      logger.info('[saveApplicationPlanDocuments] Documents saved successfully');
+      logger.info('[saveApplicationPlanDocuments] Application plan data saved successfully');
     } catch (error) {
       logger.error('[saveApplicationPlanDocuments] Error saving documents', {
         error: error instanceof Error ? error.message : 'Unknown error',

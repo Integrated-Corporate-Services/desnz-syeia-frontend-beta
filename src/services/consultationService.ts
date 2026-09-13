@@ -5,7 +5,6 @@ import { getCsrfHeaders } from '../utils/csrf';
 
 // Save 'Consultation Not Required' status
 export async function saveNotRequiredStatus(consultationId: string, consultationDetails: any): Promise<any> {
-    // consultationDetails should include all details, uploadedFiles, applicationDocuments, and updated reason
     const response = await axios.post(`/api/consultations/${consultationId}/savenotrequiredstatus`, { consultationDetails });
     return response.data;
 }

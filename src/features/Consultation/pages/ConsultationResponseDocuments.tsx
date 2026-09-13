@@ -226,29 +226,22 @@ const ConsultationResponse2: React.FC = () => {
                 return;
             }
 
+            if (!consultationId || !applicationId) {
+                throw new Error('Missing consultation or application reference. Please reload the page and try again.');
+            }
+
             let receivedAt;
             if (consultationType !== ConsultationType.PUBLIC && responseDate.year && responseDate.month && responseDate.day) {
                 receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
             }
-            
-            const existingData = await getConsultationResponse(consultationId!, applicationId);
-            
+
             const payload: Partial<ConsultationResponse> = {
-                ...existingData,
+                consultation_id: consultationId,
+                response_id: responseId || undefined,
                 received_at: receivedAt,
-                uploaded_files: [...uploadedFileObjs, ...newlyUploadedFiles],
-                application_documents: [...applicationDocuments, ...newlyUploadedDocuments],
                 last_updated_by: userId,
                 isSave: true
             };
-            
-            // Only include IDs if they have valid values
-            if (consultationId) {
-                payload.consultation_id = consultationId;
-            }
-            if (responseId) {
-                payload.response_id = responseId;
-            }
 
             await saveConsultationResponse(payload, applicationId);
             navigate(`${S37_BASE_URL}/${applicationId}/consultation/${consultationId}/response3`);

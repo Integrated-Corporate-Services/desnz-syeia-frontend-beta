@@ -121,20 +121,16 @@ const UnregisteredLandDetails: React.FC = () => {
           return;
         }
 
-        if (newUploadedFiles.length > 0) {
-          await updateLandDetails({
-            unregistered_land_explanation: explanation,
-            uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
-            applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs]
-          });
-        } else {
-          await updateLandDetails({
-            unregistered_land_explanation: explanation,
-          });
-        }
+        await updateLandDetails({
+          unregistered_land_explanation: explanation,
+          uploadedFiles: [...(landDetails.uploadedFiles || []), ...newUploadedFiles],
+          applicationDocuments: [...(landDetails.applicationDocuments || []), ...newDocs],
+        });
       } else {
         await updateLandDetails({
           unregistered_land_explanation: explanation,
+          uploadedFiles: landDetails.uploadedFiles || [],
+          applicationDocuments: landDetails.applicationDocuments || [],
         });
       }
 

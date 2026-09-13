@@ -320,7 +320,6 @@ const ProjectOverview = () => {
 						}
 
 						let newlyUploadedFiles: UploadedFile[] = [];
-						let newlyUploadedDocuments: ApplicationDocument[] = [];
 
 						if (fileUploadRef.current) {
 							try {
@@ -332,7 +331,6 @@ const ProjectOverview = () => {
 									return;
 								}
 								newlyUploadedFiles = result.uploadedFiles;
-								newlyUploadedDocuments = result.applicationDocuments;
 							} catch {
 								setErrors(['Failed to upload files. Please try again.']);
 								setIsSubmitting(false);
@@ -571,10 +569,15 @@ const ProjectOverview = () => {
 						// If applicationFormId is empty string, set to null for backend
 						// Always ensure applicationId is set (from store or URL param)
 						const applicationIdForSave = applicationId;
+						const {
+							uploadedFiles: _existingUploadedFiles,
+							applicationDocuments: _existingApplicationDocuments,
+							...formStateWithoutFileCollections
+						} = formState;
 						// If areWorkStartDatesKnown is 'false', clear the month/year fields
 						const shouldClearDates = formState.areWorkStartDatesKnown === "false";
-						const payload = {
-							...formState,
+						const projectOverviewPayload = {
+							...formStateWithoutFileCollections,
 							applicationId: applicationIdForSave,
 							createdBy: userId || '',
 							applicationFormId: formState.applicationFormId === '' ? undefined : formState.applicationFormId,
@@ -582,19 +585,6 @@ const ProjectOverview = () => {
 							earliestWorkStartDateYear: shouldClearDates ? '' : (formState.earliestWorkStartDateYear || ''),
 							latestWorkStartDateMonth: shouldClearDates ? '' : (formState.latestWorkStartDateMonth ? monthNameToNum(formState.latestWorkStartDateMonth) : ''),
 							latestWorkStartDateYear: shouldClearDates ? '' : (formState.latestWorkStartDateYear || ''),
-							// Include both existing uploaded files and newly uploaded files from this submission
-							uploadedFiles: [...(formState.uploadedFiles || []), ...newlyUploadedFiles].map(f => ({
-								id: f.id,
-								storageProvider: f.storageProvider,
-								s3Key: f.s3Key,
-								bucketName: f.bucketName,
-								virtualFolder: f.virtualFolder,
-								filename: f.filename,
-								fileContentType: f.fileContentType,
-								fileSizeBytes: f.fileSizeBytes,
-								uploadedAtTimestamp: f.uploadedAtTimestamp
-
-							})),
 							// Always send relatedCpoDetails as string (not object), clear if hasRelatedCpo is false
 							relatedCpoDetails: formState.hasRelatedCpo === "false" ? '' : (
 								typeof formState.relatedCpoDetails === 'object' && formState.relatedCpoDetails !== null
@@ -603,21 +593,9 @@ const ProjectOverview = () => {
 							),
 							// Send relatedApplicationsDetails as string, clear if hasRelatedApplications is false
 							relatedApplicationsDetails: formState.hasRelatedApplications === "false" ? '' : (formState.relatedApplicationsDetails || ''),
-							// Include both existing application documents and newly uploaded documents from this submission
-							applicationDocuments: [...(formState.applicationDocuments || []), ...newlyUploadedDocuments].map(d => ({
-								documentId: d.documentId || '',
-								applicationId: d.applicationId || '',
-								fileId: d.fileId || '',
-								category: d.category || '',
-								title: d.title || '',
-								virtualFolder: d.virtualFolder || '',
-								addedBy: d.addedBy || '',
-								addedAt: d.addedAt || '',
-								description: d.description || ''
-							})),
 						};
 
-						saveProject(payload)
+						saveProject(projectOverviewPayload)
 							.then((response: { project?: { application_id: string }; application_overview?: { application_id: string } }) => {
 								const redirectId =
 									response?.project?.application_id ||

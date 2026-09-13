@@ -214,19 +214,16 @@ const NoticeToRemove: React.FC = () => {
     }
 
     try {
-      const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
       const allDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
       const documentIds = allDocuments.map(doc => doc.documentId);
       const formattedDate = formatDateForAPI(day, month, year);
-      
+
       // This page is only for existing_lines flow
       // Pass page name constant for page-specific validation
       await updateFields({
         type_of_use: 'existing_lines',
         notice_to_remove_date: formattedDate,
         notice_to_remove_document_ids: documentIds,
-        notice_to_remove_uploaded_files: allUploadedFiles,
-        notice_to_remove_application_documents: allDocuments,
       }, APPLICATION_DETAILS_PAGE_IDS.NOTICE_TO_REMOVE);
 
       navigateToNoticeToRemoveClear();

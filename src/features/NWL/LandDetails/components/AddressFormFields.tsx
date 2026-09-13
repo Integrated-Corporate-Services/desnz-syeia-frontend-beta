@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAND_DETAILS_LABELS } from '../constants';
+import { LAND_DETAILS_LABELS, VALIDATION_LIMITS } from '../constants';
 
 type AddressFormFieldsProps = {
   addressLine1: string;
@@ -39,22 +39,30 @@ const AddressFormFields: React.FC<AddressFormFieldsProps> = ({
           name="addressLine1"
           type="text"
           value={addressLine1}
+          maxLength={VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH}
           onChange={(e) => onChange('addressLine1', e.target.value)}
           aria-describedby={errors.addressLine1 ? 'address-line-1-error' : undefined}
         />
       </div>
 
-      <div className="govuk-form-group">
+      <div className={`govuk-form-group${errors.addressLine2 ? ' govuk-form-group--error' : ''}`}>
         <label className="govuk-label" htmlFor="address-line-2">
           {labels.ADDRESS_LINE2}
         </label>
+        {errors.addressLine2 && (
+          <p id="address-line-2-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span> {errors.addressLine2}
+          </p>
+        )}
         <input
-          className="govuk-input"
+          className={`govuk-input${errors.addressLine2 ? ' govuk-input--error' : ''}`}
           id="address-line-2"
           name="addressLine2"
           type="text"
           value={addressLine2}
+          maxLength={VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH}
           onChange={(e) => onChange('addressLine2', e.target.value)}
+          aria-describedby={errors.addressLine2 ? 'address-line-2-error' : undefined}
         />
       </div>
 
@@ -73,22 +81,30 @@ const AddressFormFields: React.FC<AddressFormFieldsProps> = ({
           name="town"
           type="text"
           value={town}
+          maxLength={VALIDATION_LIMITS.TOWN_MAX_LENGTH}
           onChange={(e) => onChange('town', e.target.value)}
           aria-describedby={errors.town ? 'town-error' : undefined}
         />
       </div>
 
-      <div className="govuk-form-group">
+      <div className={`govuk-form-group${errors.county ? ' govuk-form-group--error' : ''}`}>
         <label className="govuk-label" htmlFor="county">
           {labels.COUNTY}
         </label>
+        {errors.county && (
+          <p id="county-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span> {errors.county}
+          </p>
+        )}
         <input
-          className="govuk-input"
+          className={`govuk-input${errors.county ? ' govuk-input--error' : ''}`}
           id="county"
           name="county"
           type="text"
           value={county}
+          maxLength={VALIDATION_LIMITS.COUNTY_MAX_LENGTH}
           onChange={(e) => onChange('county', e.target.value)}
+          aria-describedby={errors.county ? 'county-error' : undefined}
         />
       </div>
 

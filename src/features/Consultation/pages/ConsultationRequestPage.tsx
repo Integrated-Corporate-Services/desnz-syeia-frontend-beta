@@ -213,8 +213,6 @@ const ConsultationRequestPage: React.FC = () => {
         applicationId: applicationId || '',
         consultationId: consultationId || '',
         sentDate: sentDate,
-        uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
-        applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments],
         createdBy: user?.user_id || '',
         lastUpdatedBy: user?.user_id || '',
         status: ConsultationStatus.REQUEST_SENT,

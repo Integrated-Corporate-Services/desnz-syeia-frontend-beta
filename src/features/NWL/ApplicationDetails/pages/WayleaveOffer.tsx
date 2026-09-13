@@ -229,8 +229,6 @@ const WayleaveOffer: React.FC = () => {
         type_of_use: 'new_lines',
         wayleave_offer_date: formattedDate,
         wayleave_offer_document_ids: documentIds,
-        wayleave_offer_uploaded_files: allUploadedFiles,
-        wayleave_offer_application_documents: allDocuments,
       }, APPLICATION_DETAILS_PAGE_IDS.WAYLEAVE_OFFER);
 
       navigateToStandardTerm();

@@ -53,7 +53,9 @@ const SiteAddress: React.FC = () => {
     const isValid = validateSiteAddress(
       formData.addressLine1,
       formData.town,
-      formData.postcode
+      formData.postcode,
+      formData.addressLine2,
+      formData.county
     );
 
     if (!isValid) {
@@ -91,7 +93,9 @@ const SiteAddress: React.FC = () => {
 
   const errorFields = {
     addressLine1: 'address-line-1',
+    addressLine2: 'address-line-2',
     town: 'town',
+    county: 'county',
     postcode: 'postcode',
   };
 

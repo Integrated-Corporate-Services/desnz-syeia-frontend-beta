@@ -94,6 +94,7 @@ import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
 import UserAccessRevokedPage from '../features/auth/pages/UserAccessRevokedPage';
 import ManageUserPage from '../features/admin/pages/ManageUserPage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
+import ReportingDashboard from '../features/reporting/ReportingDashboard';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
@@ -147,6 +148,12 @@ import { FeedbackPage } from '../modules/feedback';
 // import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
 
 export const ROUTE_CONFIG: RouteConfig[] = [
+    {
+        path: '/admin/reporting',
+        component: ReportingDashboard,
+        auth: true,
+        layout: true,
+    },
     // UAT Invite System Routes
     {
         path: '/access-denied',

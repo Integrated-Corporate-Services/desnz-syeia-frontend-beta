@@ -37,9 +37,44 @@ export interface BackendLandDetailsResponse {
   land_registry_application_documents?: any[];
   site_information_application_documents?: any[];
   unregistered_land_application_documents?: any[];
+  land_registry_uploaded_files?: any[];
+  site_information_uploaded_files?: any[];
+  unregistered_land_uploaded_files?: any[];
   created_at: string;
   updated_at: string;
 }
+
+const toSnakeCaseDocument = (doc: any, applicationId?: string) => ({
+  document_id: doc.document_id || doc.documentId,
+  application_id: doc.application_id || doc.applicationId || applicationId,
+  file_id: doc.file_id || doc.fileId,
+  category: doc.category || '',
+  sub_category: (doc.sub_category || doc.subCategory || '').toString(),
+  title: doc.title || doc.filename || '',
+  virtual_folder: doc.virtual_folder || doc.virtualFolder || '',
+  added_by: doc.added_by || doc.addedBy || '',
+  added_at: doc.added_at || doc.addedAt || new Date().toISOString(),
+  description: doc.description || '',
+});
+
+const subcategoryOf = (doc: any) =>
+  (doc.sub_category || doc.subCategory || doc.subcategory || '').toString().toUpperCase();
+
+const applyApplicationDocuments = (backendData: any, frontendData: Partial<LandDetails>) => {
+  const applicationDocuments = (frontendData as any).applicationDocuments as any[] | undefined;
+  if (!Array.isArray(applicationDocuments)) {
+    return;
+  }
+
+  const snakeDocs = applicationDocuments.map((doc) => toSnakeCaseDocument(doc));
+  const landRegistryDocs = snakeDocs.filter((d) => subcategoryOf(d) === LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY);
+  const siteInfoDocs = snakeDocs.filter((d) => subcategoryOf(d) === LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION);
+  const unregisteredDocs = snakeDocs.filter((d) => subcategoryOf(d) === LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND);
+
+  backendData.land_registry_document_ids = landRegistryDocs.map((d) => d.document_id).filter(Boolean);
+  backendData.site_information_document_ids = siteInfoDocs.map((d) => d.document_id).filter(Boolean);
+  backendData.unregistered_land_document_ids = unregisteredDocs.map((d) => d.document_id).filter(Boolean);
+};
 
 /**
  * Map backend response to frontend form structure
@@ -87,6 +122,9 @@ export const mapBackendToFrontend = (backendData: BackendLandDetailsResponse): L
   processCategory(backendData.land_registry_documents || [], LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY);
   processCategory(backendData.unregistered_land_documents || [], LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND);
   processCategory(backendData.site_information_documents || [], LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION);
+  processCategory(backendData.land_registry_uploaded_files || [], LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY);
+  processCategory(backendData.unregistered_land_uploaded_files || [], LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND);
+  processCategory(backendData.site_information_uploaded_files || [], LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION);
   
   const alternativeFormatDocuments = [
     ...(backendData.land_registry_application_documents || []),
@@ -227,6 +265,7 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
       backendData.is_equipment_visible_from_public_road = frontendData.equipment_visible_from_public_road;
     }
 
+    applyApplicationDocuments(backendData, frontendData);
   } else {
     // For PATCH (update), use flat structure with correct field names
     
@@ -286,38 +325,8 @@ export const mapFrontendToBackend = (frontendData: Partial<LandDetails>, isCreat
     if (frontendData.equipment_visible_from_public_road !== undefined) {
       backendData.is_equipment_visible_from_public_road = frontendData.equipment_visible_from_public_road;
     }
-    // Map uploadedFiles and applicationDocuments into category-specific backend fields
-    const uploadedFiles = (frontendData as any).uploadedFiles as any[] | undefined;
-    const applicationDocuments = (frontendData as any).applicationDocuments as any[] | undefined;
-    if (Array.isArray(applicationDocuments) && applicationDocuments.length > 0) {
-      const landRegistryDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toString().toUpperCase() === LAND_DETAILS_SUBCATEGORIES.LAND_REGISTRY);
-      const siteInfoDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toString().toUpperCase() === LAND_DETAILS_SUBCATEGORIES.SITE_INFORMATION);
-      const unregisteredDocs = applicationDocuments.filter(d => (d.subCategory || d.sub_category || '').toString().toUpperCase() === LAND_DETAILS_SUBCATEGORIES.UNREGISTERED_LAND);
 
-      if (landRegistryDocs.length > 0) {
-        backendData.land_registry_application_documents = landRegistryDocs;
-        if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
-          backendData.land_registry_uploaded_files = uploadedFiles.filter(f => landRegistryDocs.some(d => (d.fileId || d.file_id) === f.id));
-        }
-      }
-
-      if (siteInfoDocs.length > 0) {
-        backendData.site_information_application_documents = siteInfoDocs;
-        if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
-          backendData.site_information_uploaded_files = uploadedFiles.filter(f => siteInfoDocs.some(d => (d.fileId || d.file_id) === f.id));
-        }
-      }
-
-      if (unregisteredDocs.length > 0) {
-        backendData.unregistered_land_application_documents = unregisteredDocs;
-        if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
-          backendData.unregistered_land_uploaded_files = uploadedFiles.filter(f => unregisteredDocs.some(d => (d.fileId || d.file_id) === f.id));
-        }
-      }
-    } else if (Array.isArray(uploadedFiles) && uploadedFiles.length > 0) {
-      // Fallback: if only uploadedFiles provided (no documents), assume they belong to land registry
-      backendData.land_registry_uploaded_files = uploadedFiles;
-    }
+    applyApplicationDocuments(backendData, frontendData);
   }
 
   return backendData;

@@ -230,8 +230,6 @@ const PublicNoticesEvidence: React.FC = () => {
         consultationId: consultationId || '',
         sentDate: firstDate,
         secondDate: secondDate,
-        uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
-        applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments],
         createdBy: user?.user_id || '',
         lastUpdatedBy: user?.user_id || '',
         status: ConsultationStatus.REQUEST_SENT,

@@ -77,7 +77,6 @@ const ImportantInformationDetails: React.FC = () => {
     }
 
     // Upload pending files first and get the results directly
-    let newlyUploadedFiles: UploadedFile[] = [];
     let newlyUploadedDocuments: ApplicationDocument[] = [];
 
     if (fileUploadRef.current) {
@@ -87,7 +86,6 @@ const ImportantInformationDetails: React.FC = () => {
         window.scrollTo(0, 0);
         return;
       }
-      newlyUploadedFiles = uploadResult.uploadedFiles;
       newlyUploadedDocuments = uploadResult.applicationDocuments;
     }
 
@@ -103,8 +101,6 @@ const ImportantInformationDetails: React.FC = () => {
     setIsSaving(true);
 
     try {
-      // Combine existing and newly uploaded files/documents
-      const allUploadedFiles = [...uploadedFiles, ...newlyUploadedFiles];
       const allApplicationDocuments = [...applicationDocuments, ...newlyUploadedDocuments];
       
       // Get document IDs from all uploaded documents
@@ -117,8 +113,6 @@ const ImportantInformationDetails: React.FC = () => {
         has_other_information: true,
         other_information_details: details,
         additional_document_ids: documentIds.length > 0 ? documentIds : undefined,
-        uploaded_files: allUploadedFiles,
-        application_documents: allApplicationDocuments,
       });
 
       // Update progress for Supporting information section (backend subsection name)

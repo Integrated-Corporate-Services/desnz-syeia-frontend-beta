@@ -7,6 +7,7 @@ import {
   LABELS,
   FORM_ERRORS,
   FORM_LABELS,
+  VALIDATION_LIMITS,
 } from "../constants/objectorDetailsConstants";
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
@@ -48,10 +49,22 @@ const ObjectorAddress: React.FC = () => {
 
     if (!addressLine1.trim()) {
       newErrors.addressLine1 = FORM_ERRORS.MISSING_ADDRESS_LINE1;
+    } else if (addressLine1.length > VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH) {
+      newErrors.addressLine1 = FORM_ERRORS.ADDRESS_LINE1_TOO_LONG;
+    }
+
+    if (addressLine2.length > VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH) {
+      newErrors.addressLine2 = FORM_ERRORS.ADDRESS_LINE2_TOO_LONG;
     }
 
     if (!town.trim()) {
       newErrors.town = FORM_ERRORS.MISSING_TOWN;
+    } else if (town.length > VALIDATION_LIMITS.TOWN_MAX_LENGTH) {
+      newErrors.town = FORM_ERRORS.TOWN_TOO_LONG;
+    }
+
+    if (county.length > VALIDATION_LIMITS.COUNTY_MAX_LENGTH) {
+      newErrors.county = FORM_ERRORS.COUNTY_TOO_LONG;
     }
 
     if (!postcode.trim()) {
@@ -251,6 +264,7 @@ const ObjectorAddress: React.FC = () => {
                   name="addressLine1"
                   type="text"
                   value={addressLine1}
+                  maxLength={VALIDATION_LIMITS.ADDRESS_LINE1_MAX_LENGTH}
                   onChange={(e) => {
                     setAddressLine1(e.target.value);
                     handleClearFieldError('addressLine1');
@@ -284,6 +298,7 @@ const ObjectorAddress: React.FC = () => {
                   name="addressLine2"
                   type="text"
                   value={addressLine2}
+                  maxLength={VALIDATION_LIMITS.ADDRESS_LINE2_MAX_LENGTH}
                   onChange={(e) => {
                     setAddressLine2(e.target.value);
                     handleClearFieldError('addressLine2');
@@ -317,6 +332,7 @@ const ObjectorAddress: React.FC = () => {
                   name="town"
                   type="text"
                   value={town}
+                  maxLength={VALIDATION_LIMITS.TOWN_MAX_LENGTH}
                   onChange={(e) => {
                     setTown(e.target.value);
                     handleClearFieldError('town');
@@ -348,6 +364,7 @@ const ObjectorAddress: React.FC = () => {
                   name="county"
                   type="text"
                   value={county}
+                  maxLength={VALIDATION_LIMITS.COUNTY_MAX_LENGTH}
                   onChange={(e) => {
                     setCounty(e.target.value);
                     handleClearFieldError('county');

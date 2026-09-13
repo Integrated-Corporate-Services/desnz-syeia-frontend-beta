@@ -164,11 +164,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 		setErrors({});
 			
 			const updatedDetails = {
-				...notRequiredStatus.details,
+				id: consultationId,
 				status: ConsultationStatus.NOT_REQUIRED,
 				notRequiredReason: reason,
-				uploadedFiles: [...uploadedFileObjs, ...newlyUploadedFiles],
-				applicationDocuments: [...applicationDocuments, ...newlyUploadedDocuments]
+				lastUpdatedBy: notRequiredStatus.details.lastUpdatedBy,
 			};
 			try {
 				await saveNotRequiredStatus(consultationId, updatedDetails);

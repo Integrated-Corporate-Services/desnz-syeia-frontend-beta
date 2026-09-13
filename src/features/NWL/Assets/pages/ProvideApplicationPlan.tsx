@@ -75,10 +75,6 @@ const ProvideApplicationPlan: React.FC = () => {
       return;
     }
 
-    // Track newly uploaded files
-    let newUploadedFiles: UploadedFile[] = [];
-    let newApplicationDocuments: ApplicationDocument[] = [];
-
     if (fileUploadRef.current) {
       try {
         logger.debug('[handleSubmit] Uploading pending files', {
@@ -95,9 +91,6 @@ const ProvideApplicationPlan: React.FC = () => {
           return;
         }
         if (result && result.uploadedFiles.length > 0) {
-          newUploadedFiles = result.uploadedFiles;
-          newApplicationDocuments = result.applicationDocuments;
-          
           logger.info('[handleSubmit] Files uploaded to S3 successfully', {
             uploadedCount: result.uploadedFiles.length,
           });
@@ -111,12 +104,8 @@ const ProvideApplicationPlan: React.FC = () => {
       }
     }
 
-    // Combine existing and newly uploaded files
-    const allUploadedFiles = [...uploadedFiles, ...newUploadedFiles];
-    const allApplicationDocuments = [...applicationDocuments, ...newApplicationDocuments];
-
     // Validate that files exist
-    if (allUploadedFiles.length === 0) {
+    if (uploadedFiles.length === 0 && pendingFiles.length === 0) {
       logger.warn('[handleSubmit] No files to save');
       setError(FORM_ERRORS.MISSING_FILE);
       setShowErrorSummary(true);
@@ -124,23 +113,15 @@ const ProvideApplicationPlan: React.FC = () => {
       return;
     }
 
-    // Save file metadata to database
     try {
-      logger.debug('[handleSubmit] Saving file metadata to database', {
+      logger.debug('[handleSubmit] Saving application plan data', {
         applicationId,
-        uploadedFilesCount: allUploadedFiles.length,
-        documentsCount: allApplicationDocuments.length,
       });
 
-      await nwlAssetService.saveApplicationPlanDocuments(
-        applicationId!,
-        allUploadedFiles,
-        allApplicationDocuments
-      );
+      await nwlAssetService.saveApplicationPlanDocuments(applicationId!);
 
-      logger.info('[handleSubmit] File metadata saved to database successfully', {
+      logger.info('[handleSubmit] Application plan data saved successfully', {
         applicationId,
-        documentCount: allUploadedFiles.length,
       });
 
       // Clear errors
