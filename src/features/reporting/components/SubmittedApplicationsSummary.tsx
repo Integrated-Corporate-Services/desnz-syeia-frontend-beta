@@ -37,7 +37,7 @@ const SubmittedApplicationsSummary: React.FC<SubmittedApplicationsSummaryProps> 
         <legend className="govuk-visually-hidden">Filter submitted applications by date</legend>
         <div className="reporting-filter-row">
           <div className="govuk-form-group">
-            <label className="govuk-label" htmlFor="submitted-applications-start-date">Submitted from</label>
+            <label className="govuk-label" htmlFor="submitted-applications-start-date">Start date</label>
             <input
               className="govuk-input reporting-date-input"
               id="submitted-applications-start-date"
@@ -48,7 +48,7 @@ const SubmittedApplicationsSummary: React.FC<SubmittedApplicationsSummaryProps> 
             />
           </div>
           <div className="govuk-form-group">
-            <label className="govuk-label" htmlFor="submitted-applications-end-date">Submitted to</label>
+            <label className="govuk-label" htmlFor="submitted-applications-end-date">End date</label>
             <input
               className="govuk-input reporting-date-input"
               id="submitted-applications-end-date"

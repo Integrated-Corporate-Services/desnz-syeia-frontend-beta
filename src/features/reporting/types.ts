@@ -38,6 +38,7 @@ export interface ApplicationPaymentSummary {
 
 export interface ApplicationSummaryPdfStatus {
   generated: boolean;
+  generatedAt: string | null;
 }
 
 export interface ApplicationStatusLookup {

@@ -67,8 +67,7 @@ const OperationalTasks: React.FC = () => {
 
   return (
     <div className="operational-tasks">
-      <h1 className="govuk-heading-xl">Operational tasks</h1>
-      <p className="govuk-body">Recover stalled submissions and rebuild missing application downloads.</p>
+      <h1 className="govuk-heading-xl reporting-dashboard__heading">Operational tasks dashboard</h1>
 
       <div className="govuk-tabs" data-module="govuk-tabs">
         <ul className="govuk-tabs__list">
@@ -105,9 +104,6 @@ const OperationalTasks: React.FC = () => {
         }}
       >
         <div className="govuk-form-group">
-          <label className="govuk-label govuk-label--m" htmlFor="application-reference">
-            {OPERATIONAL_TASKS_MESSAGES.REFERENCE_LABEL}
-          </label>
           <div className="govuk-hint" id="application-reference-hint">
             {OPERATIONAL_TASKS_MESSAGES.REFERENCE_HINT}
           </div>
@@ -315,23 +311,38 @@ const OperationalTasks: React.FC = () => {
 
           {result.applicationType === APPLICATION_SUMMARY_PDF_APPLICATION_TYPE &&
             result.applicationStatus !== APPLICATION_SUMMARY_PDF_EXCLUDED_STATUS &&
-            result.applicationSummaryPdf &&
-            !result.applicationSummaryPdf.generated && (
+            result.applicationSummaryPdf && (
               <div className="operational-tasks__actions">
                 <h3 className="govuk-heading-m">Application summary recovery</h3>
-                <p className="operational-tasks__actions-note">
-                  Generates the NWL application summary PDF and adds it to this application's documents, so it will be
-                  included in the download bundle above.
-                </p>
-                <button
-                  className="govuk-button"
-                  type="button"
-                  disabled={generatingApplicationSummary}
-                  onClick={() => void generateApplicationSummary()}
-                >
-                  {generatingApplicationSummary ? "Generating" : "Generate application summary PDF"}
-                </button>
-                <p className="govuk-hint">No application summary PDF exists for this application yet. Safe to run more than once.</p>
+                {result.applicationSummaryPdf.generated ? (
+                  <>
+                    <p className="govuk-body">
+                      {result.applicationSummaryPdf.generatedAt
+                        ? `Application summary PDF generated on ${formatStartedAt(result.applicationSummaryPdf.generatedAt)}.`
+                        : "Application summary PDF has already been generated for this application."}
+                    </p>
+                    <button
+                      className="govuk-button govuk-button--secondary"
+                      type="button"
+                      disabled={generatingApplicationSummary}
+                      onClick={() => void generateApplicationSummary()}
+                    >
+                      {generatingApplicationSummary ? "Generating" : "Regenerate application summary PDF"}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="govuk-hint">No application summary PDF exists for this application yet. Safe to run more than once.</p>
+                    <button
+                      className="govuk-button"
+                      type="button"
+                      disabled={generatingApplicationSummary}
+                      onClick={() => void generateApplicationSummary()}
+                    >
+                      {generatingApplicationSummary ? "Generating" : "Generate application summary PDF"}
+                    </button>
+                  </>
+                )}
                 {applicationSummaryMessage && <p className="govuk-body" role="status">{applicationSummaryMessage}</p>}
                 {applicationSummaryError && <p className="govuk-error-message">{applicationSummaryError}</p>}
               </div>
