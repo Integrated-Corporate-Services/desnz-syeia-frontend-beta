@@ -53,6 +53,15 @@ export const formatReportDate = (date: string) => new Intl.DateTimeFormat("en-GB
   timeZone: "UTC",
 }).format(new Date(`${date}T00:00:00Z`));
 
+export const formatDateTime = (isoDateTime: string): string => new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: "Europe/London",
+}).format(new Date(isoDateTime));
+
 export const metricValue = (metrics: MetricValues, key: string) => metrics.get(key) || 0;
 export const metricTotal = (metrics: MetricValues, ...keys: string[]) => keys.reduce((total, key) => total + metricValue(metrics, key), 0);
 
