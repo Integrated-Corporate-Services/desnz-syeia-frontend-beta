@@ -37,9 +37,19 @@ const ChangeUserRolePage: React.FC = () => {
 
   // undefined until the user picks an option, falling back to the user's current role
   const [selectedRole, setSelectedRole] = useState<string | undefined>(undefined);
-  const effectiveRole = selectedRole ?? user?.role;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectionUserId, setSelectionUserId] = useState(userId);
+
+  // The route stays mounted when only :userId changes, so drop the previous user's draft
+  // selection rather than saving it against the new user.
+  if (selectionUserId !== userId) {
+    setSelectionUserId(userId);
+    setSelectedRole(undefined);
+    setError(null);
+  }
+
+  const effectiveRole = selectedRole ?? user?.role;
 
   if (!isManageUserRoleChangeEnabled()) {
     return <Navigate to={`/admin/manage-user/${userId}`} replace />;
