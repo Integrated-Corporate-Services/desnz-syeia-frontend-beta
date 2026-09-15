@@ -119,7 +119,6 @@ export const useUserManagementDashboard = () => {
 
   return {
     // User context
-    isDesnzAdmin,
     dnoTeamCoordinatorsOrganisationsEnabled,
     isSuperUser,
     userRole,

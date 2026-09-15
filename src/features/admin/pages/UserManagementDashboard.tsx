@@ -9,7 +9,7 @@ import PageTitle from "../../../components/PageTitle";
 
 const UserManagementDashboard: React.FC = () => {
   const {
-    isDesnzAdmin,
+    isSuperUser,
     dnoTeamCoordinatorsOrganisationsEnabled,
     activeTab,
     // showFilters,
@@ -44,7 +44,7 @@ const UserManagementDashboard: React.FC = () => {
           <div className="govuk-grid-column-full">
             <h1 className="govuk-heading-l">User Management Dashboard</h1>
             <p className="govuk-body-m">
-              {isDesnzAdmin
+              {isSuperUser
                 ? "Manage access requests and users across all Distribution Network Operators."
                 : "Manage access requests and users for your organisation"}
             </p>
