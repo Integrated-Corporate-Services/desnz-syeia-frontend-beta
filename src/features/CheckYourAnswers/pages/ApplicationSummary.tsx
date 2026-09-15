@@ -49,6 +49,7 @@ import {
   PAYMENT_METHOD,
 } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
+import { FirSummaryCard } from '../../FIR/FirSummaryCard';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -533,6 +534,12 @@ const ApplicationSummary: React.FC = () => {
               {PAGE_LABELS.TITLE}
             </h1>
 
+            {/* ===== Further Information Request Card (Displayed when FIR is open) ===== */}
+            <FirSummaryCard
+              applicationId={applicationId}
+              basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+            />
+
             {/* ===== Summary Section ===== */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -577,17 +584,6 @@ const ApplicationSummary: React.FC = () => {
                 </dl>
               </div>
             </div>
-
-            {applicationMetadata?.status?.toUpperCase() === 'FURTHER_INFORMATION_REQUESTED' && (
-              <p className="govuk-body">
-                <Link
-                  className="govuk-button"
-                  to={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
-                >
-                  Provide information
-                </Link>
-              </p>
-            )}
 
             {/* ===== Payment Details Section ===== */}
             {paymentDetails && (
