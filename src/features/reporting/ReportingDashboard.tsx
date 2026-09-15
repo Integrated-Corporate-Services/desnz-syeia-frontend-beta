@@ -23,7 +23,7 @@ const ReportingDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
   const dashboard = useReportingDashboard();
   const [activeTab, setActiveTab] = useState<DashboardTab>("reports");
-  const isTechAdmin = [ROLES.DESNZ_ADMIN, ROLES.TECH_ADMIN].includes(
+  const isTechAdmin = [ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes(
     (user as AuthUser | undefined)?.role as string
   );
 
@@ -68,7 +68,7 @@ const ReportingDashboard: React.FC = () => {
 
         {activeTab === "reports" && (
           <>
-            <h1 className="govuk-heading-xl">Reporting dashboard</h1>
+            <h1 className="govuk-heading-xl reporting-dashboard__heading">Reporting dashboard</h1>
             <ReportingFilters
               preset={dashboard.preset}
               startDate={dashboard.startDate}

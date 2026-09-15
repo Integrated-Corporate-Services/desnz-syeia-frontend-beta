@@ -32,6 +32,7 @@ interface RuntimeEnv {
   VITE_AWS_REGION: string;
   VITE_SRI_MODE: string;
   VITE_TRUSTED_ORIGIN: string;
+  VITE_ENABLE_MANAGE_USER_ROLE_CHANGE: string;
   MODE: string;
 }
 
@@ -65,6 +66,7 @@ if (typeof window !== 'undefined' && !window._env_) {
     VITE_AWS_REGION: 'eu-west-2',
     VITE_SRI_MODE: 'report',
     VITE_TRUSTED_ORIGIN: '',
+    VITE_ENABLE_MANAGE_USER_ROLE_CHANGE: import.meta.env.VITE_ENABLE_MANAGE_USER_ROLE_CHANGE || 'false',
     MODE: 'development'
   };
 }

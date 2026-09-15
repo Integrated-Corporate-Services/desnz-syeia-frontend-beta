@@ -15,7 +15,7 @@ const dnoTeamCoordinatorsOrganisationsEnabled =
 export const useUserManagementDashboard = () => {
   const { user } = useAuthUserContext();
   const userRole = (user as AuthUser)?.role || "";
-  const isDesnzAdmin = userRole === ROLES.DESNZ_ADMIN;
+  const isSuperUser = userRole === ROLES.SUPERUSER;
 
   const [activeTab, setActiveTab] = useState<
     "organisations" | "active-users" | "pending-requests"
@@ -121,6 +121,7 @@ export const useUserManagementDashboard = () => {
     // User context
     isDesnzAdmin,
     dnoTeamCoordinatorsOrganisationsEnabled,
+    isSuperUser,
     userRole,
 
     // Tab state

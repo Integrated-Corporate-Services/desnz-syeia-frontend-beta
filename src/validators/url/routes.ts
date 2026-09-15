@@ -42,6 +42,7 @@ export const ALLOWED_ROUTES = [
   '/admin/access-revoked',
   '/admin/revoke-user/:userId',
   '/admin/manage-user/:userId',
+  '/admin/manage-user/:userId/change-role',
   '/admin/organisation/:organisationId/settings',
   '/admin/organisations/:organisationId/change-name',
   '/admin/organisations/:organisationId/change-address',
