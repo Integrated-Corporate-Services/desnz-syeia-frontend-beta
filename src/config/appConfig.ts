@@ -95,7 +95,7 @@ class ConfigService {
           },
         },
         dnoTeamCoordinatorsOrganisationsEnabled: parseEnvBoolean(
-          getRuntimeEnv('DNO_TEAM_COORDINATORS_ORGANISATIONS_ENABLED')
+          getRuntimeEnv('VITE_DNO_TEAM_COORDINATORS_ORGANISATIONS_ENABLED', 'false')
         ),
         manageUserRoleChange: {
           enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_MANAGE_USER_ROLE_CHANGE', 'false')),
