@@ -27,6 +27,7 @@ interface AppConfig {
         measurementId: string;
       };
     };
+    dnoTeamCoordinatorsOrganisationsEnabled: boolean;
     manageUserRoleChange: {
       enabled: boolean;
     };
@@ -93,6 +94,9 @@ class ConfigService {
             measurementId: getRuntimeEnv('VITE_GA4_MEASUREMENT_ID'),
           },
         },
+        dnoTeamCoordinatorsOrganisationsEnabled: parseEnvBoolean(
+          getRuntimeEnv('VITE_DNO_TEAM_COORDINATORS_ORGANISATIONS_ENABLED', 'false')
+        ),
         manageUserRoleChange: {
           enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_MANAGE_USER_ROLE_CHANGE', 'false')),
         },

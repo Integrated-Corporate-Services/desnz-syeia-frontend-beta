@@ -44,6 +44,8 @@ export const ALLOWED_ROUTES = [
   '/admin/manage-user/:userId',
   '/admin/manage-user/:userId/change-role',
   '/admin/organisation/:organisationId/settings',
+  '/admin/organisations/:organisationId/change-name',
+  '/admin/organisations/:organisationId/change-address',
   '/admin/organisations/:organisationId/team-coordinators',
   '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
   '/admin/organisations/:organisationId/approved-domains',
