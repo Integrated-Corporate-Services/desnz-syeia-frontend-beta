@@ -9,11 +9,13 @@ export const useFirRequest = (applicationId?: string, requestId?: string) => {
   const [loading, setLoading] = useState(Boolean(applicationId && requestId));
 
   useEffect(() => {
+    setRequest(null);
+    setError('');
+    setLoading(Boolean(applicationId && requestId));
     if (!applicationId || !requestId) {
       setLoading(false);
       return;
     }
-
     let active = true;
     void getFurtherInformationRequest(applicationId, requestId)
       .then((result) => { if (active) setRequest(result); })
