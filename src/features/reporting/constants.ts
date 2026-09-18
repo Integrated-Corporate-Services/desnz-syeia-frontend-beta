@@ -17,6 +17,7 @@ export const REPORT_SECTION_LINKS = [
   ["access-requests", "Access requests"],
   ["payments", "Payments"],
   ["feedback", "Feedback"],
+  ["registrations", "Registrations"],
   ["organisation-breakdown", "Organisation breakdown"],
 ] as const;
 

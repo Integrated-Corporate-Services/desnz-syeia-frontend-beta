@@ -9,6 +9,7 @@ import {
   FeedbackReport,
   OrganisationBreakdown,
   PaymentsReport,
+  RegistrationsReport,
   ReportingSummary,
 } from "./components/ReportingSections";
 import { ReportingContents, ReportingFilters } from "./components/ReportingControls";
@@ -108,11 +109,14 @@ const ReportingDashboard: React.FC = () => {
                     metrics={metrics}
                     startDate={dashboard.report.startDate}
                     endDate={dashboard.report.endDate}
+                    generatedAt={dashboard.report.generatedAt}
+                    live={dashboard.report.source === "live"}
                   />
                   <ApplicationsReport metrics={metrics} />
-                  <AccessRequestsReport metrics={metrics} />
+                  <AccessRequestsReport metrics={metrics} organisations={dashboard.report.organisations} />
                   <PaymentsReport metrics={metrics} />
                   <FeedbackReport metrics={metrics} />
+                  <RegistrationsReport metrics={metrics} />
                   <OrganisationBreakdown
                     organisations={dashboard.visibleOrganisations}
                     filter={dashboard.organisationFilter}
