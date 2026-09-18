@@ -24,6 +24,7 @@ const ServiceNavigation = () => {
         "/cookies",
         "/access-revoked",
         "/signed-out",
+        "/service-unavailable",
     ];
 
     // Check if user is in registration/access request flow
