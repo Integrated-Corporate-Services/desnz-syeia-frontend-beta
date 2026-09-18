@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getFurtherInformationRequests } from './fir.service';
 import type { FurtherInformationRequest } from './fir.types';
+import { createLogger } from '../../utils/logger';
+
+const logger = createLogger('FirSummaryCard');
 
 interface FirSummaryCardProps {
   applicationId: string;
@@ -21,8 +24,21 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
   useEffect(() => {
     let active = true;
     void getFurtherInformationRequests(applicationId)
-      .then((result) => { if (active) setRequests(result); })
-      .catch(() => { if (active) setRequests([]); });
+      .then((result) => {
+        if (!active) return;
+        setRequests(result);
+        if (!result.some((item) => item.status === 'OPEN')) {
+          logger.debug('No open further information request to display', {
+            applicationId,
+            requestCount: result.length,
+            statuses: result.map((item) => item.status),
+          });
+        }
+      })
+      .catch((reason: Error) => {
+        if (active) setRequests([]);
+        logger.error('Failed to load further information requests', { applicationId, error: reason.message });
+      });
     return () => { active = false; };
   }, [applicationId]);
 
