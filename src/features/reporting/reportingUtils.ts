@@ -72,8 +72,8 @@ const escapeCsvValue = (value: string | number) => {
 };
 
 export const downloadOrganisationCsv = (rows: OrganisationReportRow[], startDate: string, endDate: string) => {
-  const headings = ["Organisation", "S37 drafts", "S37 submitted", "NWL drafts", "NWL submitted", "Access requests", "Pending requests"];
-  const values = rows.map((row) => [row.organisationName, row.s37Draft, row.s37Submitted, row.nwlDraft, row.nwlSubmitted, row.accessRequests, row.pendingRequests]);
+  const headings = ["Organisation", "S37 drafts", "S37 submitted", "NWL drafts", "NWL submitted", "Access requests", "Pending requests", "Applicant requests", "Agent requests", "Applicant pending", "Agent pending"];
+  const values = rows.map((row) => [row.organisationName, row.s37Draft, row.s37Submitted, row.nwlDraft, row.nwlSubmitted, row.accessRequests, row.pendingRequests, row.applicantRequests, row.agentRequests, row.applicantPendingRequests, row.agentPendingRequests]);
   const csv = [headings, ...values].map((row) => row.map(escapeCsvValue).join(",")).join("\n");
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const link = document.createElement("a");

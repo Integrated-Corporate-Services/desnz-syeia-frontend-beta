@@ -12,6 +12,10 @@ export interface OrganisationReportRow {
   nwlSubmitted: number;
   accessRequests: number;
   pendingRequests: number;
+  applicantRequests: number;
+  agentRequests: number;
+  applicantPendingRequests: number;
+  agentPendingRequests: number;
 }
 
 export interface AdminReport {
@@ -19,6 +23,7 @@ export interface AdminReport {
   endDate: string;
   timezone: string;
   generatedAt: string;
+  source?: "live" | "snapshot";
   metrics: ReportMetric[];
   organisations: OrganisationReportRow[];
 }

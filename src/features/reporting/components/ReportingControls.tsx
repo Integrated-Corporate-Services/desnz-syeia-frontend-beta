@@ -58,7 +58,7 @@ export const ReportingFilters: React.FC<ReportingFiltersProps> = ({
       </div>
       {availabilityLoaded && availableDateRange && (
         <p className="govuk-hint reporting-availability" id="reporting-availability">
-          Completed reporting data is available from {formatReportDate(availableDateRange.startDate)} to {formatReportDate(availableDateRange.endDate)}.
+          Reporting data is available from {formatReportDate(availableDateRange.startDate)} to {formatReportDate(availableDateRange.endDate)}.
         </p>
       )}
     </fieldset>
