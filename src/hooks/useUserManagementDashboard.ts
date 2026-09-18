@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useManageUsers } from "./useManageUsers";
 import { useManageUsersNavigation } from "./useManageUsersNavigation";
 import { useDashboard } from "./useDashboard";
@@ -12,13 +13,20 @@ const dnoTeamCoordinatorsOrganisationsEnabled =
   configService.getFeatureFlags().dnoTeamCoordinatorsOrganisationsEnabled;
 
 export const useUserManagementDashboard = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuthUserContext();
   const userRole = (user as AuthUser)?.role || "";
   const isSuperUser = userRole === ROLES.SUPERUSER;
 
   const [activeTab, setActiveTab] = useState<
     "organisations" | "active-users" | "pending-requests"
-  >(dnoTeamCoordinatorsOrganisationsEnabled ? "organisations" : "active-users");
+  >(() => {
+    const requestedTab = searchParams.get("tab");
+    if (requestedTab === "active-users" || requestedTab === "pending-requests") {
+      return requestedTab;
+    }
+    return dnoTeamCoordinatorsOrganisationsEnabled ? "organisations" : "active-users";
+  });
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -93,6 +101,7 @@ export const useUserManagementDashboard = () => {
     tab: "organisations" | "active-users" | "pending-requests"
   ) => {
     setActiveTab(tab);
+    setSearchParams({ tab });
     setCurrentPage(1);
   };
 

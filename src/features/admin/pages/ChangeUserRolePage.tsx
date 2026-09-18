@@ -11,6 +11,7 @@ import PageTitle from '../../../components/PageTitle';
 
 interface RoleOption {
   value: string;
+  label?: string;
   description: string;
 }
 
@@ -22,8 +23,9 @@ const ROLE_OPTIONS: RoleOption[] = [
   },
   {
     value: ROLES.APPLICANT_TEAM_COORDINATOR,
+    label: 'Team coordinator',
     description:
-      'A person who creates and edits their own applications, and can manage team members and view all applications submitted by the team.',
+      'A Person who create and edit their own applications, and can manage team members and view all applications submitted by the team.',
   },
 ];
 
@@ -159,7 +161,7 @@ const ChangeUserRolePage: React.FC = () => {
                         className="govuk-label govuk-radios__label"
                         htmlFor={`user-role-${option.value}`}
                       >
-                        {formatUserRoleLabel(option.value)}
+                        {option.label ?? formatUserRoleLabel(option.value)}
                       </label>
                       <div
                         id={`user-role-${option.value}-hint`}
