@@ -27,6 +27,7 @@ import {
 } from '../../CheckYourAnswers/components';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CYA_CONSTANTS } from '../../CheckYourAnswers/constants';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../ApplicationSummary/constants';
+import { FirSummaryCard } from '../../../FIR/FirSummaryCard';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -121,6 +122,13 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 status={data.status}
                 withdrawalRequest={withdrawalRequest}
             />
+
+            {normalizedStatus === 'FURTHER_INFORMATION_REQUESTED' && (
+                <FirSummaryCard
+                    applicationId={applicationId}
+                    basePath={`${NWL_BASE_URL}/${applicationId}/further-information-requests`}
+                />
+            )}
 
             <ReviewPaymentDetailsCard 
                 payment={data.payment}

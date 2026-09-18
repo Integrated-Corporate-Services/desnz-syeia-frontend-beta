@@ -49,6 +49,7 @@ import {
   PAYMENT_METHOD,
 } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
+import { FirSummaryCard } from '../../FIR/FirSummaryCard';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -164,6 +165,10 @@ const ApplicationSummary: React.FC = () => {
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const invoiceStatus = useInvoiceStatus(applicationId);
+  const isFurtherInformationRequested = applicationMetadata?.status
+    ?.trim()
+    .replace(/[\s-]+/g, '_')
+    .toUpperCase() === 'FURTHER_INFORMATION_REQUESTED';
 
   // Withdrawal request state
   const [withdrawalRequest, setWithdrawalRequest] = useState<{
@@ -532,6 +537,14 @@ const ApplicationSummary: React.FC = () => {
             <h1 className="govuk-heading-xl">
               {PAGE_LABELS.TITLE}
             </h1>
+
+            {/* ===== Further Information Request Card (Displayed when FIR is open) ===== */}
+            {isFurtherInformationRequested && (
+              <FirSummaryCard
+                applicationId={applicationId}
+                basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+              />
+            )}
 
             {/* ===== Summary Section ===== */}
             <div className="govuk-summary-card">
