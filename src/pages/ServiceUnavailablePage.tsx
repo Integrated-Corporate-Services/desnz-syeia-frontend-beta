@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PageTitle from '../components/PageTitle';
 
 /**
@@ -23,9 +24,9 @@ const ServiceUnavailablePage: React.FC = () => {
           </p>
 
           <p className="govuk-body">
-            <a className="govuk-link" href="/">
+            <Link className="govuk-link" to="/">
               Go to the homepage
-            </a>
+            </Link>
           </p>
         </div>
       </div>
