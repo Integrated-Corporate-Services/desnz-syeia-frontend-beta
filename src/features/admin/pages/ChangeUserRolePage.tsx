@@ -25,7 +25,7 @@ const ROLE_OPTIONS: RoleOption[] = [
     value: ROLES.APPLICANT_TEAM_COORDINATOR,
     label: 'Team coordinator',
     description:
-      'A person who creates and edits their own applications, and can manage team members and view all applications submitted by the team.',
+      'A person who create and edit their own applications, and can manage team members and view all applications submitted by the team.',
   },
 ];
 
