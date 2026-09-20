@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
+import { useNWLProgress } from "../../hooks/useNWLProgress";
 import {
   BREADCRUMBS,
   LABELS,
@@ -21,6 +22,7 @@ const TerminationPeriodExpired: React.FC = () => {
     navigateToTaskList 
   } = useApplicationNavigation(appId || "");
   const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
+  const { updateProgress } = useNWLProgress(appId || undefined);
 
   const [hasExpired, setHasExpired] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -54,6 +56,8 @@ const TerminationPeriodExpired: React.FC = () => {
       if (hasExpired === "yes") {
         navigateToNoticeToRemove();
       } else if (hasExpired === "no") {
+        // Application cannot continue, so mark progress as not completed
+        await updateProgress('Grounds for application', 'Not completed');
         navigateToCannotContinueApplication();
       }
     } catch (err: unknown) {
