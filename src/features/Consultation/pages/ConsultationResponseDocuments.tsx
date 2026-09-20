@@ -235,7 +235,12 @@ const ConsultationResponse2: React.FC = () => {
                 receivedAt = `${responseDate.year}-${responseDate.month.padStart(2, '0')}-${responseDate.day.padStart(2, '0')}`;
             }
 
+            // Fetch existing data to preserve all fields except file/document lists (handled separately)
+            const existingData = await getConsultationResponse(consultationId, applicationId);
+            const { uploaded_files, application_documents, ...existingDataWithoutFiles } = existingData;
+
             const payload: Partial<ConsultationResponse> = {
+                ...existingDataWithoutFiles,
                 consultation_id: consultationId,
                 response_id: responseId || undefined,
                 received_at: receivedAt,
