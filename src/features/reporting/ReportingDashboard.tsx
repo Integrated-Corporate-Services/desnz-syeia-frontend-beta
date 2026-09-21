@@ -24,11 +24,13 @@ const ReportingDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
   const dashboard = useReportingDashboard();
   const [activeTab, setActiveTab] = useState<DashboardTab>("reports");
-  const isTechAdmin = [ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes(
-    (user as AuthUser | undefined)?.role as string
-  );
+  const role = (user as AuthUser | undefined)?.role as string;
+  const canViewReporting = [ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes(role);
+  const canViewOperationalTasks = role === ROLES.TECH_ADMIN;
 
-  if (!isTechAdmin) return <Navigate to="/application-dashboard" replace />;
+  if (!canViewReporting) return <Navigate to="/application-dashboard" replace />;
+
+  const selectedTab = canViewOperationalTasks ? activeTab : "reports";
 
   const metrics = new Map(
     dashboard.report?.metrics.map((metric) => [metric.key, metric.value]) || []
@@ -42,32 +44,34 @@ const ReportingDashboard: React.FC = () => {
   return (
     <div className="govuk-grid-row reporting-dashboard">
       <div className="govuk-grid-column-full">
-        <nav className="govuk-tabs reporting-dashboard__nav" aria-label="Reporting sections">
-          <ul className="govuk-tabs__list">
-            <li className={`govuk-tabs__list-item${activeTab === "reports" ? " govuk-tabs__list-item--selected" : ""}`}>
-              <button
-                type="button"
-                className="govuk-tabs__tab reporting-dashboard__tab-button"
-                onClick={() => setActiveTab("reports")}
-              >
-                Reports
-              </button>
-            </li>
-            <li className={`govuk-tabs__list-item${activeTab === "operational-tasks" ? " govuk-tabs__list-item--selected" : ""}`}>
-              <button
-                type="button"
-                className="govuk-tabs__tab reporting-dashboard__tab-button"
-                onClick={() => setActiveTab("operational-tasks")}
-              >
-                Operational tasks
-              </button>
-            </li>
-          </ul>
-        </nav>
+        {canViewOperationalTasks && (
+          <nav className="govuk-tabs reporting-dashboard__nav" aria-label="Reporting sections">
+            <ul className="govuk-tabs__list">
+              <li className={`govuk-tabs__list-item${selectedTab === "reports" ? " govuk-tabs__list-item--selected" : ""}`}>
+                <button
+                  type="button"
+                  className="govuk-tabs__tab reporting-dashboard__tab-button"
+                  onClick={() => setActiveTab("reports")}
+                >
+                  Reports
+                </button>
+              </li>
+              <li className={`govuk-tabs__list-item${selectedTab === "operational-tasks" ? " govuk-tabs__list-item--selected" : ""}`}>
+                <button
+                  type="button"
+                  className="govuk-tabs__tab reporting-dashboard__tab-button"
+                  onClick={() => setActiveTab("operational-tasks")}
+                >
+                  Operational tasks
+                </button>
+              </li>
+            </ul>
+          </nav>
+        )}
 
-        {activeTab === "operational-tasks" && <OperationalTasks />}
+        {selectedTab === "operational-tasks" && <OperationalTasks />}
 
-        {activeTab === "reports" && (
+        {selectedTab === "reports" && (
           <>
             <h1 className="govuk-heading-xl reporting-dashboard__heading">Reporting dashboard</h1>
             <ReportingFilters
