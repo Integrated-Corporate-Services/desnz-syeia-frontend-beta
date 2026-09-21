@@ -51,7 +51,7 @@ const ManageUserPage: React.FC = () => {
               <p className="govuk-body">The user you are trying to manage could not be found.</p>
             </div>
           </div>
-          <Link to="/admin/user-management" className="govuk-link">
+          <Link to="/admin/user-management?tab=active-users" className="govuk-link">
             Return to user management
           </Link>
               </div>
@@ -63,7 +63,7 @@ const ManageUserPage: React.FC = () => {
     <>
       <PageTitle title="Manage user" />
             <div className="govuk-width-container">
-              <Link to="/admin/user-management" className="govuk-back-link">
+              <Link to="/admin/user-management?tab=active-users" className="govuk-back-link">
           Back
         </Link>
 
@@ -132,7 +132,7 @@ const ManageUserPage: React.FC = () => {
               </p>
               <p className="govuk-body">
                 <Link 
-                  to="/admin/user-management"
+                  to="/admin/user-management?tab=active-users"
                   className="govuk-link"
                 >
                   Return to dashboard
