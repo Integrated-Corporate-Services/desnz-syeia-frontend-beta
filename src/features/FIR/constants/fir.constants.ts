@@ -1,7 +1,7 @@
 export const FIR_CATEGORY_LABELS: Record<string, string> = {
   FIR_PLAN_INFORMATION: 'Plan information',
   FIR_ENVIRONMENTAL_AND_ARCHAEOLOGICAL: 'Environmental and archaeological',
-  FIR_SUPPORTING_DOCUMENTS: 'Supporting documents',
+  FIR_SUPPORTING_DOCUMENTS: 'Project documents',
   FIR_NWL_NOTICE_TO_REMOVE: 'Notice to Remove',
   FIR_NWL_EXPIRED_WAYLEAVE: 'Expired wayleave',
   FIR_NWL_TERMINATED_WAYLEAVE: 'Terminated wayleave',

@@ -30,6 +30,7 @@ export const FirUploadDecisionPage: React.FC = () => {
       <form onSubmit={submit} noValidate>
         <fieldset className="govuk-fieldset">
           <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
+            {request && <span className="govuk-caption-l">{request.desnzRef}</span>}
             <h1 className="govuk-fieldset__heading">Are you uploading documents as part of this request?</h1>
           </legend>
           <p className="govuk-hint">If you do not upload any documents, you will be able to provide the requested information as text on the next page.</p>

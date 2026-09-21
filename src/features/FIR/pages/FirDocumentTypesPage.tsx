@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FirErrorSummary, FirRequestDetails } from '../components';
-import { FIR_CATEGORY_GROUPS, FIR_CATEGORY_LABELS, FIR_MESSAGES } from '../constants/fir.constants';
+import { NWL_FIR_CATEGORY_GROUPS, S37_FIR_CATEGORY_GROUPS, FIR_CATEGORY_LABELS, FIR_MESSAGES } from '../constants/fir.constants';
 import { useFirRequest, useFirRoute, useFirSelectedCategories } from '../hooks';
 
 export const FirDocumentTypesPage: React.FC = () => {
-  const { applicationId, requestId, requestPath } = useFirRoute();
+  const { applicationId, requestId, requestPath, location } = useFirRoute();
   const { request, error, setError } = useFirRequest(applicationId, requestId);
   const navigate = useNavigate();
   const { selectedCategories: selected, saveSelectedCategories } = useFirSelectedCategories(applicationId, requestId);
 
   if (!applicationId || !requestId) return null;
 
-  const categoryGroups = FIR_CATEGORY_GROUPS
-    .map((group) => ({
-      ...group,
-      categories: group.categories.filter((category) => request?.requestedDocumentCategories.includes(category)),
-    }))
-    .filter((group) => group.categories.length > 0);
+  const isNwl = location.pathname.startsWith('/nwl/');
+
+  // S37 always offers all its document types; NWL is narrowed to what the case officer requested
+  const categoryGroups = isNwl
+    ? NWL_FIR_CATEGORY_GROUPS
+        .map((group) => ({
+          ...group,
+          categories: group.categories.filter((category) => request?.requestedDocumentCategories.includes(category)),
+        }))
+        .filter((group) => group.categories.length > 0)
+    : S37_FIR_CATEGORY_GROUPS;
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -37,6 +42,7 @@ export const FirDocumentTypesPage: React.FC = () => {
         <form onSubmit={submit} noValidate>
           <fieldset className="govuk-fieldset">
             <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
+              {request && <span className="govuk-caption-l">{request.desnzRef}</span>}
               <h1 className="govuk-fieldset__heading">Select the type of documents you will provide</h1>
             </legend>
             <p className="govuk-hint">You can select more than one type of document.</p>

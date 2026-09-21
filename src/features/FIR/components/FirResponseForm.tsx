@@ -68,6 +68,7 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
   return (
     <div className="govuk-width-container">
       <Link className="govuk-back-link" to={backPath}>Back</Link>
+      {request && <span className="govuk-caption-l">{request.desnzRef}</span>}
       <h1 className="govuk-heading-l">Provide the information requested</h1>
       <FirErrorSummary error={error} />
       {request && (

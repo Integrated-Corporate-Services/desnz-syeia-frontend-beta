@@ -15,6 +15,7 @@ export interface FurtherInformationRequest {
   deadlineAt: string;
   status: FirStatus;
   requestedDocumentCategories: string[];
+  desnzRef: string;
   response?: {
     furtherInformationResponseId: string;
     responseText: string | null;
