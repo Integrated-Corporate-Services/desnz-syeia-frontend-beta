@@ -31,10 +31,6 @@ export const S37ApplicationSummaryContent: React.FC<S37ApplicationSummaryContent
     const navigate = useNavigate();
     const invoiceStatus = useInvoiceStatus(applicationId);
     const payment = data.payment;
-    const normalizedStatus = data.status
-        ?.trim()
-        .replace(/[\s-]+/g, '_')
-        .toUpperCase() ?? '';
 
     const summaryRows: SummaryRow[] = [
         { key: { text: 'DESNZ reference' }, value: { text: data.desnzRef || '-' } },
@@ -80,12 +76,13 @@ export const S37ApplicationSummaryContent: React.FC<S37ApplicationSummaryContent
         <>
             <h1 className="govuk-heading-l">Application summary</h1>
 
-            {normalizedStatus === 'FURTHER_INFORMATION_REQUESTED' && (
-                <FirSummaryCard
-                    applicationId={applicationId}
-                    basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
-                />
-            )}
+            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
+                so it must not be gated on the *current* status (a completed FIR should still
+                be reachable via "View all information requests" after status moves on). */}
+            <FirSummaryCard
+                applicationId={applicationId}
+                basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+            />
 
             <SummaryCard title="Summary" rows={summaryRows} />
 

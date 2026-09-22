@@ -123,12 +123,13 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 withdrawalRequest={withdrawalRequest}
             />
 
-            {normalizedStatus === 'FURTHER_INFORMATION_REQUESTED' && (
-                <FirSummaryCard
-                    applicationId={applicationId}
-                    basePath={`${NWL_BASE_URL}/${applicationId}/further-information-requests`}
-                />
-            )}
+            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
+                so it must not be gated on the *current* status (a completed FIR should still
+                be reachable via "View all information requests" after status moves on). */}
+            <FirSummaryCard
+                applicationId={applicationId}
+                basePath={`${NWL_BASE_URL}/${applicationId}/further-information-requests`}
+            />
 
             <ReviewPaymentDetailsCard 
                 payment={data.payment}

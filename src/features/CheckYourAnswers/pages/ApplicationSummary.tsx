@@ -165,10 +165,6 @@ const ApplicationSummary: React.FC = () => {
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const invoiceStatus = useInvoiceStatus(applicationId);
-  const isFurtherInformationRequested = applicationMetadata?.status
-    ?.trim()
-    .replace(/[\s-]+/g, '_')
-    .toUpperCase() === 'FURTHER_INFORMATION_REQUESTED';
 
   // Withdrawal request state
   const [withdrawalRequest, setWithdrawalRequest] = useState<{
@@ -538,13 +534,13 @@ const ApplicationSummary: React.FC = () => {
               {PAGE_LABELS.TITLE}
             </h1>
 
-            {/* ===== Further Information Request Card (Displayed when FIR is open) ===== */}
-            {isFurtherInformationRequested && (
-              <FirSummaryCard
-                applicationId={applicationId}
-                basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
-              />
-            )}
+            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
+                so it must not be gated on the *current* status (a completed FIR should still
+                be reachable via "View all information requests" after status moves on). */}
+            <FirSummaryCard
+              applicationId={applicationId}
+              basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+            />
 
             {/* ===== Summary Section ===== */}
             <div className="govuk-summary-card">
