@@ -43,7 +43,17 @@ export const ApplicationsReport = ({ metrics }: { metrics: MetricValues }) => {
 };
 
 export const AccessRequestsReport = ({ metrics, organisations }: { metrics: MetricValues; organisations: OrganisationReportRow[] }) => {
-  const byRoleOrgs = organisations.filter((row) => row.applicantRequests > 0 || row.agentRequests > 0 || row.applicantPendingRequests > 0 || row.agentPendingRequests > 0);
+  // Older/snapshot report payloads may not carry these role-split fields - default to 0
+  // before filtering/rendering so a missing field can't produce "undefined"/NaN in the table.
+  const byRoleOrgs = organisations
+    .map((row) => ({
+      ...row,
+      applicantRequests: row.applicantRequests ?? 0,
+      agentRequests: row.agentRequests ?? 0,
+      applicantPendingRequests: row.applicantPendingRequests ?? 0,
+      agentPendingRequests: row.agentPendingRequests ?? 0,
+    }))
+    .filter((row) => row.applicantRequests > 0 || row.agentRequests > 0 || row.applicantPendingRequests > 0 || row.agentPendingRequests > 0);
   return <section className="reporting-section" id="access-requests" aria-labelledby="access-heading">
     <h2 className="govuk-heading-l" id="access-heading">Access requests</h2>
     <dl className="govuk-summary-list">{[["Received", "access_requests"], ["Accepted", "accepted_requests"], ["Rejected", "rejected_requests"], ["Pending", "pending_requests"], ["Logged-in users", "logged_in_users"]].map(([label, key]) => <div className="govuk-summary-list__row" key={key}><dt className="govuk-summary-list__key">{label}</dt><dd className="govuk-summary-list__value">{formatNumber.format(metricValue(metrics, key))}</dd></div>)}</dl>
