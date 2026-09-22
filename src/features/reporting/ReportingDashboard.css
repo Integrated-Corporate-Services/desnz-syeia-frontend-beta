@@ -279,3 +279,21 @@
     margin-bottom: 20px;
   }
 }
+
+/* Organisation breakdown has seven columns inside the two-thirds column. At the default 19px it
+   was 48px wider than its container at every desktop width, so the last column ("Pending") sat
+   behind a sideways scrollbar. A slightly smaller font and tighter cell padding make it fit from
+   about 1100px up; narrower windows still get the accessible scroll region. Scoped to this table. */
+#organisation-breakdown .reporting-table-wrapper .govuk-table {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+#organisation-breakdown .reporting-table-wrapper .govuk-table__header,
+#organisation-breakdown .reporting-table-wrapper .govuk-table__cell {
+  padding: 10px 10px 10px 0;
+}
+
+#organisation-breakdown .reporting-table-wrapper .govuk-table__header:first-child {
+  min-width: 9rem;
+}

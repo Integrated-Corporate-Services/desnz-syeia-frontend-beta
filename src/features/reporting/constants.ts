@@ -23,6 +23,7 @@ export const REPORT_SECTION_LINKS = [
 
 export const APPLICATION_STATUS_ROWS: Array<[string, StatusColour, string, string]> = [
   ["Draft", "grey", "s37_draft", "nwl_draft"],
+  ["Processing payment", "grey", "s37_processing_payment", "nwl_processing_payment"],
   ["Submitted", "grey", "s37_status_submitted", "nwl_status_submitted"],
   ["Under review", "blue", "s37_under_review", "nwl_under_review"],
   ["Further information requested", "yellow", "s37_further_information_requested", "nwl_further_information_requested"],
