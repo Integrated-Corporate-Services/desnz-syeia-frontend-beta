@@ -59,7 +59,7 @@ const RequestCard: React.FC<{
             <div className="govuk-summary-list__row" key={document.documentId}>
               <dt className="govuk-summary-list__key">{FIR_CATEGORY_LABELS[document.documentCategory] || document.documentCategory}</dt>
               <dd className="govuk-summary-list__value">
-                <button className="govuk-link" type="button" onClick={() => downloadDocument(document.documentId)}>{document.filename}</button>
+                <a href="#" className="govuk-link" onClick={(event) => { event.preventDefault(); downloadDocument(document.documentId); }}>{document.filename}</a>
               </dd>
             </div>
           ))}
@@ -111,7 +111,6 @@ export const FurtherInformationRequestsPage: React.FC = () => {
           key={request.furtherInformationRequestId}
           request={request}
           title={`Further information request ${openRequests.length - index}`}
-          action={<Link className="govuk-button" to={`${requestPath}/${request.furtherInformationRequestId}/respond`}>Provide information</Link>}
         />
       ))}
       {completedRequests.length > 0 && <>
