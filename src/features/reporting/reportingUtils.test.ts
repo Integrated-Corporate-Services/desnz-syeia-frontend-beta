@@ -13,7 +13,9 @@ describe("getPresetDates", () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    nodeProcess.env.TZ = originalTz;
+    // Assigning undefined to an env var stores the string "undefined", so delete it when it was unset.
+    if (originalTz === undefined) delete nodeProcess.env.TZ;
+    else nodeProcess.env.TZ = originalTz;
   });
 
   it('resolves "today" to the local calendar day, not the UTC one, just after local midnight in BST', () => {

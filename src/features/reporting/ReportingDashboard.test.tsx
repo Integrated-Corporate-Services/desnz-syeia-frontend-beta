@@ -104,6 +104,20 @@ describe('ReportingDashboard', () => {
     expect(within(chart).getByText('Archived').parentElement).toHaveTextContent('Archived3');
   });
 
+  it('shows a status row for every application state, so the status table adds up to Applications started', () => {
+    showReport(liveReport({
+      total_applications: 6, s37_draft: 1, s37_in_progress: 2, nwl_representation_stage: 3,
+    }, [organisation('SP Manweb')]));
+
+    const table = screen.getByRole('region', { name: /^Application status table/ });
+    const cells = (status: string) =>
+      within(within(table).getByText(status).closest('tr') as HTMLElement).getAllByRole('cell').map((cell) => cell.textContent);
+    expect(cells('In progress')).toEqual(['2', '0', '2']);
+    expect(cells('Representation stage')).toEqual(['0', '3', '3']);
+    const totals = within(table).getAllByRole('row').slice(1).map((row) => Number(within(row).getAllByRole('cell')[2].textContent));
+    expect(totals.reduce((sum, value) => sum + value, 0)).toBe(6);
+  });
+
   it('does not show the "Reporting data is available from ... to ..." line under the date filters', () => {
     showReport(liveReport({}, [organisation('SP Manweb')]), {
       availabilityLoaded: true,
