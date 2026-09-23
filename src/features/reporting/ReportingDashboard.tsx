@@ -116,16 +116,17 @@ const ReportingDashboard: React.FC = () => {
                     generatedAt={dashboard.report.generatedAt}
                     live={dashboard.report.source === "live"}
                   />
-                  <ApplicationsReport metrics={metrics} />
+                  <ApplicationsReport metrics={metrics} live={dashboard.report.source === "live"} />
                   <AccessRequestsReport metrics={metrics} organisations={dashboard.report.organisations} />
                   <PaymentsReport metrics={metrics} />
                   <FeedbackReport metrics={metrics} />
-                  <RegistrationsReport metrics={metrics} />
+                  <RegistrationsReport metrics={metrics} live={dashboard.report.source === "live"} />
                   <OrganisationBreakdown
                     organisations={dashboard.visibleOrganisations}
                     filter={dashboard.organisationFilter}
                     onFilterChange={dashboard.setOrganisationFilter}
                     onDownload={dashboard.downloadCsv}
+                    live={dashboard.report.source === "live"}
                   />
                 </div>
               </div>

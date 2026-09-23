@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { getPresetDates } from "./reportingUtils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { downloadOrganisationCsv, getPresetDates } from "./reportingUtils";
+import type { OrganisationReportRow } from "./types";
 
 // This project's tsconfig deliberately has no Node types (it's a browser app), so `process`
 // isn't a declared global - go through globalThis instead of referencing the bare identifier,
@@ -48,5 +49,56 @@ describe("getPresetDates", () => {
     const { startDate, endDate } = getPresetDates("today");
     expect(startDate).toBe("2026-01-05");
     expect(endDate).toBe("2026-01-05");
+  });
+});
+
+// jsdom's Blob has no .text()/.arrayBuffer() - read it back via FileReader instead, which
+// jsdom does implement against its own Blob objects.
+const readBlobAsText = (blob: Blob) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+
+describe("downloadOrganisationCsv", () => {
+  let capturedBlob: Blob | undefined;
+
+  beforeEach(() => {
+    capturedBlob = undefined;
+    vi.spyOn(URL, "createObjectURL").mockImplementation((blob: unknown) => {
+      capturedBlob = blob as Blob;
+      return "blob:mock";
+    });
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("writes one column per heading, defaulting missing role-split fields (older/snapshot rows) to 0", async () => {
+    const row: OrganisationReportRow = {
+      organisationName: "National Grid Electricity Distribution",
+      s37Draft: 1,
+      s37Submitted: 2,
+      nwlDraft: 10,
+      nwlSubmitted: 3,
+      accessRequests: 4,
+      pendingRequests: 1,
+      applicantRequests: 4,
+      // agentRequests / applicantPendingRequests / agentPendingRequests deliberately omitted.
+    };
+
+    downloadOrganisationCsv([row], "2026-09-11", "2026-09-11");
+
+    expect(capturedBlob).toBeDefined();
+    const [headingLine, dataLine] = (await readBlobAsText(capturedBlob!)).split("\n");
+    expect(headingLine).toBe(
+      '"Organisation","S37 drafts","S37 submitted","NWL drafts","NWL submitted","Access requests","Pending requests","Applicant requests","Agent requests","Applicant pending","Agent pending"'
+    );
+    expect(dataLine).toBe('"National Grid Electricity Distribution","1","2","10","3","4","1","4","0","0","0"');
   });
 });
