@@ -80,7 +80,7 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
               title={`Upload ${FIR_CATEGORY_LABELS[category] || category}`}
               applicationId={applicationId}
               category={category}
-              prefix={`${applicationId}/fir/${requestId}/${category}`}
+              prefix={`${applicationId}/FURTHER_INFORMATION_REQUESTED/${requestId}/${category}`}
               uploadEndpoints={firUploadEndpoints(applicationId, requestId)}
               onUploaded={(_files: UploadedFile[], newDocuments) => {
                 setDocuments((current) => [...current, ...newDocuments]);
