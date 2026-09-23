@@ -15,6 +15,8 @@ export const REPORT_SECTION_LINKS = [
   ["summary", "Summary"],
   ["applications", "Applications"],
   ["access-requests", "Access requests"],
+  ["access-requests-by-role", "Access requests by role"],
+  ["access-requests-by-role-and-organisation", "Access requests by role and organisation"],
   ["payments", "Payments"],
   ["feedback", "Feedback"],
   ["registrations", "Registrations"],
@@ -29,6 +31,8 @@ export const APPLICATION_STATUS_ROWS: Array<[string, StatusColour, string, strin
   ["Further information requested", "yellow", "s37_further_information_requested", "nwl_further_information_requested"],
   ["In abeyance", "grey", "s37_in_abeyance", "nwl_in_abeyance"],
   ["Decision issued", "green", "s37_decision_issued", "nwl_decision_issued"],
+  // Archived, withdrawn or invalid: the application dashboard's Archived tab.
+  ["Archived", "grey", "s37_archived", "nwl_archived"],
 ];
 
 export const REPORTING_MESSAGES = {

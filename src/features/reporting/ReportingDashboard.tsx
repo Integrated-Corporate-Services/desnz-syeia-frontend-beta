@@ -27,6 +27,7 @@ const ReportingDashboard: React.FC = () => {
   const role = (user as AuthUser | undefined)?.role as string;
   const canViewReporting = [ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes(role);
   const canViewOperationalTasks = role === ROLES.TECH_ADMIN;
+  const canDownloadCsv = role === ROLES.TECH_ADMIN;
 
   if (!canViewReporting) return <Navigate to="/application-dashboard" replace />;
 
@@ -35,9 +36,12 @@ const ReportingDashboard: React.FC = () => {
   const metrics = new Map(
     dashboard.report?.metrics.map((metric) => [metric.key, metric.value]) || []
   );
+  // Live reports always show every section (a range with no activity shows zeros, with every
+  // organisation listed); snapshot reports show the "no data" message when there is nothing to show.
   const hasReportData = Boolean(
     dashboard.report &&
-      (dashboard.report.organisations.length > 0 ||
+      (dashboard.report.source === "live" ||
+        dashboard.report.organisations.length > 0 ||
         dashboard.report.metrics.some((metric) => metric.value > 0))
   );
 
@@ -125,7 +129,7 @@ const ReportingDashboard: React.FC = () => {
                     organisations={dashboard.visibleOrganisations}
                     filter={dashboard.organisationFilter}
                     onFilterChange={dashboard.setOrganisationFilter}
-                    onDownload={dashboard.downloadCsv}
+                    onDownload={canDownloadCsv ? dashboard.downloadCsv : undefined}
                     live={dashboard.report.source === "live"}
                   />
                 </div>
