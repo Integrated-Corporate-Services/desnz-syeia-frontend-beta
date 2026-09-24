@@ -12,6 +12,13 @@ export interface OrganisationReportRow {
   nwlSubmitted: number;
   accessRequests: number;
   pendingRequests: number;
+  // Optional: older/snapshot report payloads captured before these role-split fields
+  // existed won't have them. Every read site must default to 0 - see AccessRequestsReport
+  // and downloadOrganisationCsv in reportingUtils.ts.
+  applicantRequests?: number;
+  agentRequests?: number;
+  applicantPendingRequests?: number;
+  agentPendingRequests?: number;
 }
 
 export interface AdminReport {
@@ -19,6 +26,7 @@ export interface AdminReport {
   endDate: string;
   timezone: string;
   generatedAt: string;
+  source?: "live" | "snapshot";
   metrics: ReportMetric[];
   organisations: OrganisationReportRow[];
 }
