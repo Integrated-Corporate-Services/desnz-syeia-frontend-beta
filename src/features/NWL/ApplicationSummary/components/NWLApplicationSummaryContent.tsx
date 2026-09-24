@@ -89,7 +89,15 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     return (
         <>
             {withdrawalRequest?.request_status === 'Requested' && (
-                <WithdrawalNotificationBanner />
+                <WithdrawalNotificationBanner
+                    message={CONSTANTS.REVIEW_LAYOUT.WITHDRAWAL.NOTIFICATION_BANNER}
+                />
+            )}
+
+            {withdrawalRequest?.request_status === 'Rejected' && (
+                <WithdrawalNotificationBanner
+                    message={CONSTANTS.REVIEW_LAYOUT.WITHDRAWAL.REJECTED_NOTIFICATION_BANNER}
+                />
             )}
 
             <h1 className="govuk-heading-l">{CONSTANTS.REVIEW_LAYOUT.HEADING}</h1>
