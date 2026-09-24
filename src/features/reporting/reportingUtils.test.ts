@@ -66,9 +66,18 @@ const readBlobAsText = (blob: Blob) =>
 
 describe("downloadOrganisationCsv", () => {
   let capturedBlob: Blob | undefined;
+  // jsdom does not provide these; vi.spyOn throws unless the methods exist first.
+  const hadCreateObjectURL = typeof URL.createObjectURL === "function";
+  const hadRevokeObjectURL = typeof URL.revokeObjectURL === "function";
 
   beforeEach(() => {
     capturedBlob = undefined;
+    if (!hadCreateObjectURL) {
+      Object.defineProperty(URL, "createObjectURL", { configurable: true, writable: true, value: () => "" });
+    }
+    if (!hadRevokeObjectURL) {
+      Object.defineProperty(URL, "revokeObjectURL", { configurable: true, writable: true, value: () => undefined });
+    }
     vi.spyOn(URL, "createObjectURL").mockImplementation((blob: unknown) => {
       capturedBlob = blob as Blob;
       return "blob:mock";
@@ -79,6 +88,8 @@ describe("downloadOrganisationCsv", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    if (!hadCreateObjectURL) delete (URL as { createObjectURL?: unknown }).createObjectURL;
+    if (!hadRevokeObjectURL) delete (URL as { revokeObjectURL?: unknown }).revokeObjectURL;
   });
 
   it("writes one column per heading, defaulting missing role-split fields (older/snapshot rows) to 0", async () => {
