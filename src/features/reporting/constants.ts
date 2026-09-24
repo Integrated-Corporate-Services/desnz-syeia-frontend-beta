@@ -15,6 +15,8 @@ export const REPORT_SECTION_LINKS = [
   ["summary", "Summary"],
   ["applications", "Applications"],
   ["access-requests", "Access requests"],
+  ["access-requests-by-role", "Access requests by role"],
+  ["access-requests-by-role-and-organisation", "Access requests by role and organisation"],
   ["payments", "Payments"],
   ["feedback", "Feedback"],
   ["registrations", "Registrations"],
