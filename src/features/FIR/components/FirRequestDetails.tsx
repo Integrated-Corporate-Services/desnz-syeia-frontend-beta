@@ -13,7 +13,7 @@ const formatDeadline = (date: string) => new Intl.DateTimeFormat('en-GB', {
   month: 'long',
   year: 'numeric',
   timeZone: 'UTC',
-}).format(new Date(`${date}T00:00:00Z`));
+}).format(new Date(date));
 
 const statusLabel = (status: FurtherInformationRequest['status']) =>
   status === 'OPEN' ? 'Not completed' : status === 'RESPONDED' ? 'Completed' : status.replaceAll('_', ' ');
