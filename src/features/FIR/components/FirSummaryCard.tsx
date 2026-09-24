@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getFurtherInformationRequests } from './fir.service';
-import type { FurtherInformationRequest } from './fir.types';
-import { createLogger } from '../../utils/logger';
+import { getFurtherInformationRequests } from '../services';
+import type { FurtherInformationRequest } from '../types';
+import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('FirSummaryCard');
 

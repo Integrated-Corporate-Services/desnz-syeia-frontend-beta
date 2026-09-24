@@ -1,5 +1,5 @@
 export { FurtherInformationRequestsPage } from './FurtherInformationRequestsPage';
-export { FurtherInformationSubmittedPage } from '../FIRPages';
+export { FurtherInformationSubmittedPage } from './FurtherInformationSubmittedPage';
 
 export { FirDocumentResponsePage } from './FirDocumentResponsePage';
 export { FirDocumentTypesPage } from './FirDocumentTypesPage';

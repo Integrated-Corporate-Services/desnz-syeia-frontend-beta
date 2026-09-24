@@ -27,7 +27,7 @@ import {
 } from '../../CheckYourAnswers/components';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CYA_CONSTANTS } from '../../CheckYourAnswers/constants';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../ApplicationSummary/constants';
-import { FirSummaryCard } from '../../../FIR/FirSummaryCard';
+import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;

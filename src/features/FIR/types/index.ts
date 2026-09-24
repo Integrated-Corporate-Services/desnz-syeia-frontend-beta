@@ -1,1 +1,1 @@
-export type { FirDocument, FirStatus, FurtherInformationRequest } from '../fir.types';
+export type { FirDocument, FirStatus, FurtherInformationRequest } from './fir.types';

@@ -1,6 +1,6 @@
-import { buildBackendUrl } from '../../utils/apiConfig';
-import { getCsrfHeaders } from '../../utils/csrf';
-import type { FurtherInformationRequest } from './fir.types';
+import { buildBackendUrl } from '../../../utils/apiConfig';
+import { getCsrfHeaders } from '../../../utils/csrf';
+import type { FurtherInformationRequest } from '../types';
 
 const endpoint = (applicationId: string) => `/api/applications/${applicationId}/further-information-requests`;
 

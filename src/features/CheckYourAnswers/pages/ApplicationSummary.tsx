@@ -49,7 +49,7 @@ import {
   PAYMENT_METHOD,
 } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
-import { FirSummaryCard } from '../../FIR/FirSummaryCard';
+import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);

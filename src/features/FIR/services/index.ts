@@ -3,4 +3,4 @@ export {
   getFurtherInformationRequest,
   getFurtherInformationRequests,
   submitFurtherInformationResponse,
-} from '../fir.service';
+} from './fir.service';

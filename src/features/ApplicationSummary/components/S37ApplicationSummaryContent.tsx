@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
 import { useInvoiceStatus, buildInvoiceDownloadUrl } from '../../../hooks';
-import { FirSummaryCard } from '../../FIR/FirSummaryCard';
+import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
 import { SummaryCard } from '../../NWL/CheckYourAnswers/components';
 import { SummaryRow } from '../../NWL/CheckYourAnswers/types';
 import { ApplicationReviewSummaryData } from '../types/reviewSummary';
