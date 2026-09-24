@@ -11,6 +11,15 @@ interface ServiceResponse<T> {
   success: boolean;
   data?: T;
   message?: string;
+  validationErrors?: Record<string, string>;
+}
+
+export interface OrganisationAddressPayload {
+  line1: string;
+  line2: string;
+  townCity: string;
+  county: string;
+  postcode: string;
 }
 
 class OrganisationService {
@@ -84,6 +93,50 @@ class OrganisationService {
       return {
         success: false,
         message: error.response?.data?.error || "Failed to fetch organisation",
+      };
+    }
+  }
+
+  async updateOrganisationName(
+    id: string,
+    organisationName: string
+  ): Promise<ServiceResponse<Organisation>> {
+    try {
+      const response = await axios.put(`/api/admin/organisations/${id}/name`, {
+        organisationName,
+      });
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      logger.error('Failed to update organisation name:', {
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      return {
+        success: false,
+        message: error.response?.data?.error || 'Failed to update organisation name',
+        validationErrors: error.response?.data?.validationErrors,
+      };
+    }
+  }
+
+  async updateOrganisationAddress(
+    id: string,
+    address: OrganisationAddressPayload
+  ): Promise<ServiceResponse<Organisation>> {
+    try {
+      const response = await axios.put(`/api/admin/organisations/${id}/address`, address);
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      logger.error('Failed to update organisation address:', {
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      return {
+        success: false,
+        message: error.response?.data?.error || 'Failed to update organisation address',
+        validationErrors: error.response?.data?.validationErrors,
       };
     }
   }

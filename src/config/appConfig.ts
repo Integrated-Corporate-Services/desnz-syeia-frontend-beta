@@ -1,4 +1,4 @@
-import { getRuntimeEnv, getMode, parseEnvBoolean, parseEnvInt, isDevelopmentMode } from './runtimeEnv';
+import { getRuntimeEnv, getMode, parseEnvBoolean, parseEnvInt } from './runtimeEnv';
 
 type Environment = 'development' | 'staging' | 'production';
 
@@ -26,6 +26,10 @@ interface AppConfig {
         enabled: boolean;
         measurementId: string;
       };
+    };
+    dnoTeamCoordinatorsOrganisationsEnabled: boolean;
+    manageUserRoleChange: {
+      enabled: boolean;
     };
   };
   session: {
@@ -60,9 +64,12 @@ class ConfigService {
 
   private loadConfiguration(): AppConfig {
     const env = getMode();
-    const isDevelopment = isDevelopmentMode();
 
-    const baseUrl = isDevelopment ? '' : this.sanitizeUrl(getRuntimeEnv('VITE_API_URL'));
+    // Same-origin (Vite proxy) only when served by the local dev server. Deployed builds -
+    // including MODE=development - must use VITE_API_URL, otherwise /auth/login resolves
+    // against the SPA origin and renders the page-not-found route.
+    const isLocalDevServer = import.meta.env.DEV === true;
+    const baseUrl = isLocalDevServer ? '' : this.sanitizeUrl(getRuntimeEnv('VITE_API_URL'));
 
     return {
       environment: env,
@@ -86,6 +93,12 @@ class ConfigService {
             enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_GA4')),
             measurementId: getRuntimeEnv('VITE_GA4_MEASUREMENT_ID'),
           },
+        },
+        dnoTeamCoordinatorsOrganisationsEnabled: parseEnvBoolean(
+          getRuntimeEnv('VITE_DNO_TEAM_COORDINATORS_ORGANISATIONS_ENABLED', 'false')
+        ),
+        manageUserRoleChange: {
+          enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_MANAGE_USER_ROLE_CHANGE', 'false')),
         },
       },
       session: {
@@ -198,3 +211,4 @@ export const buildBackendUrl = (path: string) => configService.buildBackendUrl(p
 export const getApiUrl = (path: string) => configService.getApiUrl(path);
 export const isProduction = () => configService.isProduction();
 export const isDevelopment = () => configService.isDevelopment();
+export const isManageUserRoleChangeEnabled = () => configService.getFeatureFlags().manageUserRoleChange.enabled;

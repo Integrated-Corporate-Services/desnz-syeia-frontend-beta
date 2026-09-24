@@ -12,6 +12,13 @@ export interface OrganisationReportRow {
   nwlSubmitted: number;
   accessRequests: number;
   pendingRequests: number;
+  // Optional: older/snapshot report payloads captured before these role-split fields
+  // existed won't have them. Every read site must default to 0 - see AccessRequestsReport
+  // and downloadOrganisationCsv in reportingUtils.ts.
+  applicantRequests?: number;
+  agentRequests?: number;
+  applicantPendingRequests?: number;
+  agentPendingRequests?: number;
 }
 
 export interface AdminReport {
@@ -19,12 +26,89 @@ export interface AdminReport {
   endDate: string;
   timezone: string;
   generatedAt: string;
+  source?: "live" | "snapshot";
   metrics: ReportMetric[];
   organisations: OrganisationReportRow[];
 }
 
 export interface ReportingAvailability {
   availableDates: string[];
+}
+
+export interface ApplicationPaymentSummary {
+  paymentId: string | null;
+  status: string | null;
+  amount: number | null;
+  reference: string | null;
+  provider: string | null;
+  paymentDate: string | null;
+}
+
+export interface ApplicationSummaryPdfStatus {
+  generated: boolean;
+  generatedAt: string | null;
+}
+
+export interface ApplicationStatusLookup {
+  applicationId: string;
+  desnzRef: string | null;
+  applicationType: string;
+  applicationStatus: string;
+  startedAt: string;
+  submittedAt: string | null;
+  userId: string | null;
+  personId: string | null;
+  redactedEmail: string | null;
+  organisationName: string | null;
+  invoiceNumber: string | null;
+  documentCount: number;
+  payment: ApplicationPaymentSummary | null;
+  canVerifyPayment: boolean;
+  // Only meaningful for NWL applications - null for every other application type.
+  applicationSummaryPdf: ApplicationSummaryPdfStatus | null;
+}
+
+export interface ReconciliationResult {
+  applicationId: string;
+  applicationStatus: string;
+  paymentId: string | null;
+  paymentStatus: string | null;
+  submitted: boolean;
+  message: string;
+}
+
+export interface SubmittedApplicationRow {
+  applicationId: string;
+  desnzRef: string | null;
+  applicationType: string;
+  applicationStatus: string;
+  submittedAt: string;
+  organisationName: string | null;
+}
+
+export interface SubmittedApplicationsSummary {
+  total: number;
+  page: number;
+  pageSize: number;
+  applications: SubmittedApplicationRow[];
+}
+
+export interface DocumentExportRecord {
+  exportId: string;
+  applicationId: string;
+  archiveS3Key: string;
+  archiveFilename: string;
+  archiveSizeBytes: number;
+  completedAt: string;
+  downloadUrl: string;
+  urlExpiresIn: number;
+}
+
+export interface CreatedDocumentExport {
+  exportId: string;
+  status: "COMPLETED";
+  archiveFilename: string;
+  archiveSizeBytes: number;
 }
 
 export type DateRangePreset =

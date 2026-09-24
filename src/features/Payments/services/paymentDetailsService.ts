@@ -1,4 +1,5 @@
 import { buildBackendUrl } from '../../../utils/apiConfig';
+import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 
 export async function fetchInvoiceNumber(applicationId: string): Promise<string | null> {
   const response = await fetch(buildBackendUrl(`/api/invoice/${applicationId}/status`), {
@@ -36,4 +37,26 @@ export async function fetchFeeTotal(applicationId: string): Promise<number | nul
   }
 
   return null;
+}
+
+
+export async function fetchPaymentProofDocuments(applicationId: string): Promise<{
+  uploadedFiles: UploadedFile[];
+  applicationDocuments: ApplicationDocument[];
+}> {
+  const response = await fetch(buildBackendUrl(`/api/application/${applicationId}/payment-proof-documents`), {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch payment proof documents (HTTP ${response.status})`);
+  }
+
+  const result = await response.json();
+  return {
+    uploadedFiles: Array.isArray(result.uploadedFiles) ? result.uploadedFiles : [],
+    applicationDocuments: Array.isArray(result.applicationDocuments) ? result.applicationDocuments : [],
+  };
 }

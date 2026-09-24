@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useManageUsers } from "./useManageUsers";
 import { useManageUsersNavigation } from "./useManageUsersNavigation";
 import { useDashboard } from "./useDashboard";
@@ -6,15 +7,26 @@ import { useOrganisations } from "./useOrganisations";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
 import { ROLES } from "../constants/roles";
+import { configService } from "../config/appConfig";
+
+const dnoTeamCoordinatorsOrganisationsEnabled =
+  configService.getFeatureFlags().dnoTeamCoordinatorsOrganisationsEnabled;
 
 export const useUserManagementDashboard = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuthUserContext();
   const userRole = (user as AuthUser)?.role || "";
-  const isDesnzAdmin = userRole === ROLES.DESNZ_ADMIN;
+  const isSuperUser = userRole === ROLES.SUPERUSER;
 
   const [activeTab, setActiveTab] = useState<
     "organisations" | "active-users" | "pending-requests"
-  >("pending-requests");
+  >(() => {
+    const requestedTab = searchParams.get("tab");
+    if (requestedTab === "active-users" || requestedTab === "pending-requests") {
+      return requestedTab;
+    }
+    return dnoTeamCoordinatorsOrganisationsEnabled ? "organisations" : "active-users";
+  });
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -41,7 +53,7 @@ export const useUserManagementDashboard = () => {
     organisations,
     loading: organisationsLoading,
     error: organisationsError,
-  } = useOrganisations();
+  } = useOrganisations(dnoTeamCoordinatorsOrganisationsEnabled);
 
   const activeUsers = filteredUsers.filter((u) => u.status === "ACTIVE");
   const totalResults =
@@ -89,6 +101,7 @@ export const useUserManagementDashboard = () => {
     tab: "organisations" | "active-users" | "pending-requests"
   ) => {
     setActiveTab(tab);
+    setSearchParams({ tab });
     setCurrentPage(1);
   };
 
@@ -102,7 +115,8 @@ export const useUserManagementDashboard = () => {
 
   return {
     // User context
-    isDesnzAdmin,
+    dnoTeamCoordinatorsOrganisationsEnabled,
+    isSuperUser,
     userRole,
 
     // Tab state

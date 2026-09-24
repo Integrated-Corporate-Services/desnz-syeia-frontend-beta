@@ -24,6 +24,7 @@ const ServiceNavigation = () => {
         "/cookies",
         "/access-revoked",
         "/signed-out",
+        "/service-unavailable",
     ];
 
     // Check if user is in registration/access request flow
@@ -51,10 +52,10 @@ const ServiceNavigation = () => {
 
     if (location.pathname === "/feedback" && (user as AuthUser)?.role === "pending") return null;
 
-    // Check if user has admin role (DTC, Tech Admin, or DESNZ Admin)
+    // Check if user has admin role (DTC, Tech Admin, or Superuser)
     const isAdmin =
         user &&
-        ((user as AuthUser)?.role === ROLES.DESNZ_ADMIN ||
+        ((user as AuthUser)?.role === ROLES.SUPERUSER ||
             (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
             (user as AuthUser)?.role === ROLES.TECH_ADMIN);
 
@@ -99,7 +100,7 @@ const ServiceNavigation = () => {
                                     </Link>
                                 </li>
                             )}
-                            {[ROLES.DESNZ_ADMIN, ROLES.TECH_ADMIN].includes((user as AuthUser)?.role as string) && (
+                            {[ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes((user as AuthUser)?.role as string) && (
                                 <li className={`rcc-service-nav__item${isOnReportingPage ? " rcc-service-nav__item--active" : ""}`}>
                                     <Link
                                         className="rcc-service-nav__link"

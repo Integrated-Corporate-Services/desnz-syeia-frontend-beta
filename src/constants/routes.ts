@@ -93,6 +93,7 @@ import AccessRevokedPage from '../features/admin/pages/AccessRevokedPage';
 import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
 import UserAccessRevokedPage from '../features/auth/pages/UserAccessRevokedPage';
 import ManageUserPage from '../features/admin/pages/ManageUserPage';
+import ChangeUserRolePage from '../features/admin/pages/ChangeUserRolePage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ReportingDashboard from '../features/reporting/ReportingDashboard';
 import {
@@ -104,6 +105,9 @@ import {
     FurtherInformationSubmittedPage,
 } from '../features/FIR/pages';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
+import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
+import { configService } from '../config/appConfig';
+import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
@@ -144,6 +148,7 @@ import EvidenceResponseNotReceivedPage from '../features/Consultation/pages/Evid
 import RemoveConsultation from '../features/Consultation/pages/RemoveConsultation';
 import PublicNoticesEvidence from '../features/Consultation/pages/PublicNoticesEvidence';
 import SignedOutPage from '../pages/SignedOutPage';
+import ServiceUnavailablePage from '../pages/ServiceUnavailablePage';
 import DownloadLpaConsultationFormPage from '../features/Consultation/pages/DownloadLpaConsultationFormPage';
 import ClosedPage from '../pages/ClosedPage';
 import StartRedirect from '../components/StartRedirect';
@@ -293,6 +298,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/signed-out',
         component: SignedOutPage,
+        auth: false,
+        layout: true,
+    },
+    {
+        path: '/service-unavailable',
+        component: ServiceUnavailablePage,
         auth: false,
         layout: true,
     },
@@ -462,30 +473,46 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    // {
-    //     path: '/admin/organisation/:organisationId/settings',
-    //     component: ManageOrganisationSettingsPage,
-    //     auth: true,
-    //     layout: true,
-    // },
-    // {
-    //     path: '/admin/organisations/:organisationId/team-coordinators',
-    //     component: TeamCoordinatorsPage,
-    //     auth: true,
-    //     layout: true,
-    // },
-    // {
-    //     path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
-    //     component: ManageTeamCoordinatorPage,
-    //     auth: true,
-    //     layout: true,
-    // },
-    // {
-    //     path: '/admin/organisations/:organisationId/approved-domains',
-    //     component: ApprovedEmailDomainsPage,
-    //     auth: true,
-    //     layout: true,
-    // },
+    ...(configService.getFeatureFlags().dnoTeamCoordinatorsOrganisationsEnabled
+        ? [
+            {
+                path: '/admin/organisation/:organisationId/settings',
+                component: ManageOrganisationSettingsPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/change-name',
+                component: ChangeOrganisationNamePage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/change-address',
+                component: ChangeOrganisationAddressPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/team-coordinators',
+                component: TeamCoordinatorsPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
+                component: ManageTeamCoordinatorPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: '/admin/organisations/:organisationId/approved-domains',
+                component: ApprovedEmailDomainsPage,
+                auth: true,
+                layout: true,
+            },
+        ]
+        : []),
     {
         path: '/request-access',
         component: AccessRequestIntroPage,
@@ -1037,6 +1064,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/admin/manage-user/:userId',
         component: ManageUserPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/admin/manage-user/:userId/change-role',
+        component: ChangeUserRolePage,
         auth: true,
         layout: true,
     },

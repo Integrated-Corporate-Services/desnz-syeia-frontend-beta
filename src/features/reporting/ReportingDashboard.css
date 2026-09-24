@@ -1,8 +1,69 @@
+/* Layout only: typography, links and colours come from GOV.UK Frontend classes in the markup.
+   Spacing follows the GOV.UK spacing scale (5, 10, 15, 20, 25, 30, 40, 50, 60px). */
 .reporting-filter-panel {
   border-bottom: 1px solid #b1b4b6;
   border-top: 1px solid #b1b4b6;
   margin: 0 0 40px;
-  padding: 24px 0 36px;
+  padding: 20px 0 30px;
+}
+
+.reporting-dashboard__nav {
+  margin-bottom: 30px;
+}
+
+.reporting-dashboard__heading {
+  margin-top: 30px;
+}
+
+.reporting-dashboard__tab-button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.operational-tasks__search {
+  align-items: flex-end;
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.operational-tasks__search .govuk-form-group {
+  margin-bottom: 0;
+}
+
+.operational-tasks__search .govuk-button {
+  margin-bottom: 0;
+}
+
+.operational-tasks__recovery {
+  border-color: #d4351c;
+}
+
+.operational-tasks__summary {
+  margin-bottom: 30px;
+}
+
+.operational-tasks__summary .govuk-table__header {
+  width: 40%;
+}
+
+.operational-tasks__actions {
+  background-color: #f3f2f1;
+  border-left: 5px solid #b1b4b6;
+  margin-bottom: 20px;
+  padding: 15px 20px;
+}
+
+.operational-tasks__actions--elevated {
+  border-left-color: #d4351c;
+}
+
+.operational-tasks__actions-note {
+  color: #505a5f;
+  margin-bottom: 15px;
 }
 
 .reporting-filter-row {
@@ -23,24 +84,16 @@
   margin: 0 0 2px;
 }
 
-.reporting-availability {
-  margin: 20px 0 0;
-}
-
 .reporting-content {
   min-width: 0;
 }
 
 .reporting-contents {
-  font-family: Arial, sans-serif;
   margin-bottom: 30px;
 }
 
 .reporting-contents__list {
   border-left: 4px solid #b1b4b6;
-  list-style: none;
-  margin: 0;
-  padding: 0;
 }
 
 .reporting-contents__item {
@@ -48,52 +101,30 @@
 }
 
 .reporting-contents__link {
-  color: #1d70b8;
   display: block;
-  font-family: Arial, sans-serif;
-  font-size: 19px;
-  line-height: 1.31579;
-  padding: 8px 0 8px 14px;
-  text-decoration: underline;
-}
-
-.reporting-contents__link:focus {
-  background: #ffdd00;
-  color: #0b0c0c;
-  outline: 3px solid #0b0c0c;
+  padding: 5px 0 5px 15px;
 }
 
 .reporting-section {
   border-top: 1px solid #b1b4b6;
-  margin-top: 45px;
+  margin-top: 40px;
   padding-top: 30px;
-}
-
-.reporting-period {
-  font-weight: 700;
 }
 
 .reporting-summary-grid {
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0;
+  margin: 0 0 20px;
 }
 
-.reporting-summary-grid > div {
+.reporting-summary-grid__item {
   border-top: 5px solid #1d70b8;
-  padding-top: 12px;
+  padding-top: 10px;
 }
 
-.reporting-summary-grid dt {
-  margin-bottom: 8px;
-}
-
-.reporting-summary-grid dd {
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 1.1;
-  margin: 0;
+.reporting-summary-grid__item dd {
+  margin-left: 0;
 }
 
 .reporting-table-wrapper {
@@ -124,7 +155,7 @@
   display: grid;
   gap: 10px;
   grid-template-columns: 210px minmax(80px, 1fr) 40px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .reporting-category-track {
@@ -137,7 +168,7 @@
   height: 100%;
 }
 
-.reporting-category-row strong {
+.reporting-category-value {
   text-align: right;
 }
 
@@ -150,6 +181,30 @@
 
 .reporting-organisation-heading .govuk-button {
   margin-bottom: 0;
+}
+
+.submitted-applications-summary__panel {
+  margin-bottom: 30px;
+}
+
+.submitted-applications-summary__view-link {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.submitted-applications-summary__page-button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.submitted-applications-summary__page-count {
+  margin: 0;
 }
 
 @media (max-width: 40.0525em) {
@@ -184,7 +239,7 @@
     height: 16px;
   }
 
-  .reporting-category-row strong {
+  .reporting-category-value {
     text-align: left;
   }
 
@@ -195,4 +250,40 @@
   .reporting-organisation-heading .govuk-button {
     margin-bottom: 20px;
   }
+}
+
+/* DashboardMobile.css changes the GOV.UK grid for every page: up to 768px it removes the padding
+   of .govuk-grid-column-full, and up to 640px it narrows .govuk-width-container margins to 5px.
+   Here that pushed the content 10px past both screen edges (clipped) on phones. These two rules
+   restore the standard GOV.UK gutters on this page only: 15px on phones, 30px on tablets. */
+@media (max-width: 768px) {
+  .reporting-dashboard > .govuk-grid-column-full {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+@media (max-width: 640px) {
+  .reporting-dashboard.govuk-grid-row {
+    margin-left: -5px;
+    margin-right: -5px;
+  }
+}
+
+/* Organisation breakdown has seven columns inside the two-thirds column. At the default 19px it
+   was 48px wider than its container at every desktop width, so the last column ("Pending") sat
+   behind a sideways scrollbar. A slightly smaller font and tighter cell padding make it fit from
+   about 1100px up; narrower windows still get the accessible scroll region. Scoped to this table. */
+#organisation-breakdown .reporting-table-wrapper .govuk-table {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+#organisation-breakdown .reporting-table-wrapper .govuk-table__header,
+#organisation-breakdown .reporting-table-wrapper .govuk-table__cell {
+  padding: 10px 10px 10px 0;
+}
+
+#organisation-breakdown .reporting-table-wrapper .govuk-table__header:first-child {
+  min-width: 9rem;
 }

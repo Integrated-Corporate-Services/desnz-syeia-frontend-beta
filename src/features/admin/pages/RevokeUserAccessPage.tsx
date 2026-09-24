@@ -4,6 +4,7 @@ import { useManageUsers } from '../../../hooks/useManageUsers';
 import { useManageUsersNavigation } from '../../../hooks/useManageUsersNavigation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
+import { formatUserRoleLabel } from '../../../utils/roleUtils';
 import PageTitle from '../../../components/PageTitle';
 
 const RevokeUserAccessPage: React.FC = () => {
@@ -51,13 +52,7 @@ const RevokeUserAccessPage: React.FC = () => {
     });
   };
 
-  const formatRole = (role: string) => {
-    if (role === ROLES.DESNZ_ADMIN) return 'DESNZ Admin';
-    if (role === ROLES.APPLICANT_TEAM_COORDINATOR) return 'Team coordinator';
-    if (role === ROLES.TECH_ADMIN) return 'Tech Admin';
-    if (role === ROLES.APPLICANT_AGENT) return 'Applicant agent';
-    return 'Applicant';
-  };
+  const formatRole = formatUserRoleLabel;
 
   if (!user) {
     return (

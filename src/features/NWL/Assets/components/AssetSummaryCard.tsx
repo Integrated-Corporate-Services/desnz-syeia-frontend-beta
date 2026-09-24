@@ -76,50 +76,48 @@ export const AssetSummaryCard: React.FC<AssetSummaryCardProps> = ({
       </div>
       
       <div className="govuk-summary-card__content">
-        <table className="govuk-table">
-          <tbody className="govuk-table__body">
-            <tr className="govuk-table__row">
-              <th scope="row" className="govuk-table__header">
-                {LABELS.LINE_VOLTAGE}
-              </th>
-              <td className="govuk-table__cell">{formatVoltage(asset.lineVoltage)}</td>
-            </tr>
-            
-            <tr className="govuk-table__row">
-              <th scope="row" className="govuk-table__header">
-                Line types
-              </th>
-              <td className="govuk-table__cell">
-                {lineTypes.length > 0 ? (
-                  <ul className="govuk-list">
-                    {lineTypes.map((lt, idx) => (
-                      <li key={idx}>{lt.label}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  '-'
-                )}
-              </td>
-            </tr>
-            
-            {lineTypes.length > 0 && lineTypes.some(lt => lt.description) && (
-              <tr className="govuk-table__row">
-                <th scope="row" className="govuk-table__header">
-                  {LABELS.COMMENTS}
-                </th>
-                <td className="govuk-table__cell">
+        <dl className="govuk-summary-list">
+          <div className="govuk-summary-list__row">
+            <dt className="govuk-summary-list__key">
+              {LABELS.LINE_VOLTAGE}
+            </dt>
+            <dd className="govuk-summary-list__value">{formatVoltage(asset.lineVoltage)}</dd>
+          </div>
+
+          <div className="govuk-summary-list__row">
+            <dt className="govuk-summary-list__key">
+              Line types
+            </dt>
+            <dd className="govuk-summary-list__value">
+              {lineTypes.length > 0 ? (
+                <ul className="govuk-list">
                   {lineTypes.map((lt, idx) => (
-                    lt.description && (
-                      <div key={idx} style={{ marginBottom: '10px' }}>
-                        <strong>{lt.label}:</strong> {lt.description}
-                      </div>
-                    )
+                    <li key={idx}>{lt.label}</li>
                   ))}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                </ul>
+              ) : (
+                '-'
+              )}
+            </dd>
+          </div>
+
+          {lineTypes.length > 0 && lineTypes.some(lt => lt.description) && (
+            <div className="govuk-summary-list__row">
+              <dt className="govuk-summary-list__key">
+                {LABELS.COMMENTS}
+              </dt>
+              <dd className="govuk-summary-list__value">
+                {lineTypes.map((lt, idx) => (
+                  lt.description && (
+                    <div key={idx} style={{ marginBottom: '10px' }}>
+                      <strong>{lt.label}:</strong> {lt.description}
+                    </div>
+                  )
+                ))}
+              </dd>
+            </div>
+          )}
+        </dl>
       </div>
     </div>
   );

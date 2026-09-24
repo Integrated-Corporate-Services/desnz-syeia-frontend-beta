@@ -16,7 +16,6 @@ import { UploadedFile, ApplicationDocument } from "../types/fileUpload";
 import { waitForScanResults } from "../utils/fileScanPolling";
 import { useAuthUserContext } from "../context/AuthUserContext";
 import type { AuthUser } from "../types/auth";
-import { DEMO_USER_ID } from "../constants/demo";
 
 const logger = createLogger('FileUpload');
 
@@ -118,10 +117,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 }, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
-  const userId =
-    (user as AuthUser)?.user_id ||
-    (user as AuthUser)?.person_id ||
-    DEMO_USER_ID;
+  const userId = (user as AuthUser)?.user_id || "";
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
@@ -888,11 +884,41 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
 
+      {isScanning && (
+        <div
+          className="gds-upload-status govuk-!-margin-bottom-4"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <span className="gds-upload-spinner" aria-hidden="true"></span>
+          <strong className="govuk-body govuk-!-font-weight-bold govuk-!-margin-0">
+            Uploading your files and checking them for viruses. This can take a few moments.
+          </strong>
+        </div>
+      )}
+
       <div
-        className="gds-upload-dropzone"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
+        className={`gds-upload-dropzone${isScanning ? ' gds-upload-dropzone--disabled' : ''}`}
+        aria-disabled={isScanning}
+        onDrop={(e) => {
+          if (isScanning) {
+            e.preventDefault();
+            return;
+          }
+          handleDrop(e);
+        }}
+        onDragOver={(e) => {
+          if (isScanning) {
+            e.preventDefault();
+            return;
+          }
+          handleDragOver(e);
+        }}
         onClick={() => {
+          if (isScanning) {
+            return;
+          }
           if (onValidationErrorsRef.current) {
             onValidationErrorsRef.current([]);
           }
@@ -910,11 +936,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
+          disabled={isScanning}
         />
         <div className="gds-upload-dropzone-content">
           <span>No file chosen</span>
-          <button type="button" className="gds-upload-choose">
-            Choose file
+          <button type="button" className="gds-upload-choose" disabled={isScanning}>
+            {isScanning ? 'Uploading…' : 'Choose file'}
           </button>
           <span>or drop file</span>
         </div>

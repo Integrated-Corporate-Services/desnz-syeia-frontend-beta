@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
@@ -41,6 +41,8 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
     exists: boolean;
   } | null>(null);
   const [loadingMetadata, setLoadingMetadata] = useState(true);
+  const [downloadError, setDownloadError] = useState('');
+  const downloadErrorSummaryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchConsultationDetails = async () => {
@@ -111,6 +113,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
   }, [applicationId, consultationId]);
 
   const handleDownloadForm = async () => {
+    setDownloadError('');
     try {
       if (!applicationId || !consultationId) {
         log.error('Missing applicationId or consultationId');
@@ -119,7 +122,7 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
 
       log.debug('Downloading consultation form...');
       const blob = await downloadConsultationForm(applicationId, consultationId);
-      
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -128,13 +131,20 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
       log.debug('Download completed successfully');
     } catch (error) {
       log.error('Error downloading form:', error);
-      alert('Failed to download consultation form. Please try again.');
+      setDownloadError('The consultation form could not be downloaded. Try again.');
     }
   };
+
+  useEffect(() => {
+    if (downloadError) {
+      downloadErrorSummaryRef.current?.focus();
+      window.scrollTo(0, 0);
+    }
+  }, [downloadError]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -207,6 +217,29 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
             </li>
           </ol>
         </nav>
+
+        {/* Download error */}
+        {downloadError && (
+          <div
+            ref={downloadErrorSummaryRef}
+            className="govuk-error-summary govuk-!-width-two-thirds"
+            data-module="govuk-error-summary"
+            role="alert"
+            aria-labelledby="download-error-summary-title"
+            tabIndex={-1}
+          >
+            <h2 className="govuk-error-summary__title" id="download-error-summary-title">
+              There is a problem
+            </h2>
+            <div className="govuk-error-summary__body">
+              <ul className="govuk-list govuk-error-summary__list">
+                <li>
+                  <span>{downloadError}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
 
         {/* Error Summary */}
         {submitted && Object.values(errors).some(Boolean) && (

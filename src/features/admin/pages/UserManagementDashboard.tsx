@@ -9,6 +9,8 @@ import PageTitle from "../../../components/PageTitle";
 
 const UserManagementDashboard: React.FC = () => {
   const {
+    isSuperUser,
+    dnoTeamCoordinatorsOrganisationsEnabled,
     activeTab,
     // showFilters,
     currentPage,
@@ -39,25 +41,26 @@ const UserManagementDashboard: React.FC = () => {
           <div className="govuk-grid-column-full">
             <h1 className="govuk-heading-l">User Management Dashboard</h1>
             <p className="govuk-body-m">
-              Manage access request and users across all Distribution Network
-              Operators.
+              {isSuperUser
+                ? "Manage access requests and users across all Distribution Network Operators."
+                : "Manage access requests and users for your organisation"}
             </p>
 
             <TabNavigation
               activeTab={activeTab}
+              organisationsEnabled={dnoTeamCoordinatorsOrganisationsEnabled}
               pendingCount={pendingRequests.length}
               onTabChange={handleTabChange}
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
-            
-            {/* {activeTab === "organisations" && (
+            {dnoTeamCoordinatorsOrganisationsEnabled && activeTab === "organisations" && (
               <OrganisationsTab
                 organisations={organisations}
                 loading={organisationsLoading}
                 error={organisationsError}
               />
-            )} */}
+            )}
 
             {activeTab === "active-users" && (
               <ActiveUsersTab
