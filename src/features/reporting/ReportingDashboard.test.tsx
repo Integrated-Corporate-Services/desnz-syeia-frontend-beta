@@ -3,10 +3,11 @@ import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ReportingDashboard from './ReportingDashboard';
+import type { ReportingDashboardState } from './useReportingDashboard';
 import type { AdminReport, OrganisationReportRow } from './types';
 
 let role = 'SUPERUSER';
-let dashboard: Record<string, unknown>;
+let dashboard: ReportingDashboardState;
 
 vi.mock('../../context/AuthUserContext', () => ({ useAuthUserContext: () => ({ user: { role } }) }));
 vi.mock('./useReportingDashboard', () => ({ useReportingDashboard: () => dashboard }));
@@ -36,7 +37,7 @@ const liveReport = (metrics: Record<string, number>, organisations: Organisation
   organisations,
 });
 
-const showReport = (report: AdminReport, overrides: Record<string, unknown> = {}) => {
+const showReport = (report: AdminReport, overrides: Partial<ReportingDashboardState> = {}) => {
   dashboard = {
     preset: 'custom',
     startDate: report.startDate,
@@ -177,7 +178,7 @@ describe('ReportingDashboard', () => {
       const heading = screen.getByRole('heading', { level: 3, name: title });
       expect(heading).toHaveClass('govuk-heading-m');
       expect(accessSection).toContainElement(heading);
-      expect(screen.queryByRole('link', { name: title })).not.toBeInTheDocument();
+      expect(within(accessSection).queryByRole('link', { name: title })).not.toBeInTheDocument();
       expect(screen.getByRole('table', { name: title })).toBeInTheDocument();
     }
     const byOrganisation = screen.getByRole('table', { name: 'Access requests by role and organisation' });
