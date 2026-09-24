@@ -96,6 +96,14 @@ import ManageUserPage from '../features/admin/pages/ManageUserPage';
 import ChangeUserRolePage from '../features/admin/pages/ChangeUserRolePage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ReportingDashboard from '../features/reporting/ReportingDashboard';
+import {
+    FirDocumentResponsePage,
+    FirDocumentTypesPage,
+    FirTextResponsePage,
+    FirUploadDecisionPage,
+    FurtherInformationRequestsPage,
+    FurtherInformationSubmittedPage,
+} from '../features/FIR/pages';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
@@ -153,6 +161,90 @@ import { FeedbackPage } from '../modules/feedback';
 // import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
 
 export const ROUTE_CONFIG: RouteConfig[] = [
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests`,
+        component: FurtherInformationRequestsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/respond`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/upload-decision`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/document-types`,
+        component: FirDocumentTypesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-information`,
+        component: FirTextResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-documents`,
+        component: FirDocumentResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/submitted`,
+        component: FurtherInformationSubmittedPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests`,
+        component: FurtherInformationRequestsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/respond`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/upload-decision`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/document-types`,
+        component: FirDocumentTypesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-information`,
+        component: FirTextResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-documents`,
+        component: FirDocumentResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/submitted`,
+        component: FurtherInformationSubmittedPage,
+        auth: true,
+        layout: true,
+    },
     {
         path: '/admin/reporting',
         component: ReportingDashboard,

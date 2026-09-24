@@ -49,6 +49,7 @@ import {
   PAYMENT_METHOD,
 } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
+import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -534,6 +535,14 @@ const ApplicationSummary: React.FC = () => {
             <h1 className="govuk-heading-xl">
               {PAGE_LABELS.TITLE}
             </h1>
+
+            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
+                so it must not be gated on the *current* status (a completed FIR should still
+                be reachable via "View all information requests" after status moves on). */}
+            <FirSummaryCard
+              applicationId={applicationId}
+              basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+            />
 
             {/* ===== Summary Section ===== */}
             <div className="govuk-summary-card">

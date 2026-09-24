@@ -81,6 +81,7 @@ export interface FileUploadProps {
   ) => void;
   uploadImmediately?: boolean; // New prop to control upload timing
   onPendingFilesChange?: (files: File[]) => void; // New prop to notify parent of pending files
+  uploadEndpoints?: { presignedUrl: string; confirm: string };
 }
 
 export interface FileUploadHandle {
@@ -112,6 +113,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   onUploaded,
   uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
   onPendingFilesChange,
+  uploadEndpoints,
 }, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
@@ -383,7 +385,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         contentType: getMimeType(f),
       }));
 
-      const data = await getPresignedUrls(fileMetas, applicationId);
+      const data = await getPresignedUrls(fileMetas, applicationId, uploadEndpoints?.presignedUrl);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
         logger.error('[FileUpload.tsx][uploadFiles] Presigned URL response count mismatch', {
@@ -451,7 +453,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             addedBy: userId,
             subCategory: subCategory,
             consultationId: consultationId
-          });
+          }, uploadEndpoints?.confirm);
 
           logger.info('Upload confirmed by server', {
             documentId: confirmResponse.documentId,
