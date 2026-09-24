@@ -105,9 +105,13 @@ export const useReportingDashboard = () => {
     availableDates,
     availabilityLoaded,
     availableDateRange: getLatestAvailableDateRange(availableDates),
-    isPresetAvailable: (candidatePreset: DateRangePreset) => candidatePreset === "custom" || candidatePreset === "available-data" || (() => {
+    // availableDates is completed snapshot days. Live "today" is usually absent from that
+    // list, so it must stay selectable after availability loads (the dashboard opens on it).
+    isPresetAvailable: (candidatePreset: DateRangePreset) => candidatePreset === "custom" || candidatePreset === "available-data" || candidatePreset === "today" || (() => {
       const dates = getPresetDates(candidatePreset);
       return isDateRangeAvailable(dates.startDate, dates.endDate, availableDates);
     })(),
   };
 };
+
+export type ReportingDashboardState = ReturnType<typeof useReportingDashboard>;

@@ -3,10 +3,11 @@ import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ReportingDashboard from './ReportingDashboard';
+import type { ReportingDashboardState } from './useReportingDashboard';
 import type { AdminReport, OrganisationReportRow } from './types';
 
 let role = 'SUPERUSER';
-let dashboard: Record<string, unknown>;
+let dashboard: ReportingDashboardState;
 
 vi.mock('../../context/AuthUserContext', () => ({ useAuthUserContext: () => ({ user: { role } }) }));
 vi.mock('./useReportingDashboard', () => ({ useReportingDashboard: () => dashboard }));
@@ -36,7 +37,7 @@ const liveReport = (metrics: Record<string, number>, organisations: Organisation
   organisations,
 });
 
-const showReport = (report: AdminReport, overrides: Record<string, unknown> = {}) => {
+const showReport = (report: AdminReport, overrides: Partial<ReportingDashboardState> = {}) => {
   dashboard = {
     preset: 'custom',
     startDate: report.startDate,
@@ -118,6 +119,46 @@ describe('ReportingDashboard', () => {
     expect(totals.reduce((sum, value) => sum + value, 0)).toBe(6);
   });
 
+  it('labels the Applications section figures "Started" and "Submitted"', () => {
+    showReport(liveReport({ total_applications: 22, total_submitted: 2 }, [organisation('SP Manweb')]));
+
+    const section = screen.getByRole('heading', { level: 2, name: 'Applications' }).closest('section') as HTMLElement;
+    const figures = within(section).getAllByRole('term').map((term) => [term.textContent, term.nextElementSibling?.textContent]);
+    expect(figures).toEqual([['Started', '22'], ['Submitted', '2']]);
+  });
+
+  it('uses the same heading size as the Organisation page and shows no "Live figures" line in the Summary', () => {
+    showReport(liveReport({ access_requests: 1 }, [organisation('SP Manweb', { accessRequests: 1 })]));
+
+    const heading = screen.getByRole('heading', { level: 1, name: 'Reporting dashboard' });
+    expect(heading).toHaveClass('govuk-heading-l');
+    expect(heading).not.toHaveClass('govuk-heading-xl');
+    expect(screen.queryByText(/^Live figures from the application database/)).not.toBeInTheDocument();
+  });
+
+  it('does not show the explanatory hint lines on the live report', () => {
+    showReport(liveReport({ total_applications: 1, s37_draft: 1, s37_created: 1 }, [organisation('SP Manweb', { s37Draft: 1 })]));
+
+    for (const hint of [
+      'Applications started or submitted in the selected period.',
+      'In draft: created in this period and still in draft today. Submitted: submitted in this period. Total: the two added together.',
+      'The chart and status table below show applications started in the selected period, by their status today.',
+      'Registrations requested in the selected period, by their status today.',
+      'Drafts: applications started in the selected period and still in draft.',
+    ]) {
+      expect(screen.queryByText(hint)).not.toBeInTheDocument();
+    }
+  });
+
+  it('shows the Registrations Total column last, after Applicant and Agent', () => {
+    showReport(liveReport({ registrations_approved: 5, registrations_approved_applicant: 4, registrations_approved_agent: 1 }, [organisation('SP Manweb')]));
+
+    const table = screen.getByRole('region', { name: /^Registrations by status table/ });
+    expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual(['Status', 'Applicant', 'Agent', 'Total']);
+    const approved = within(table).getByText('Approved').closest('tr') as HTMLElement;
+    expect(within(approved).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(['4', '1', '5']);
+  });
+
   it('does not show the "Reporting data is available from ... to ..." line under the date filters', () => {
     showReport(liveReport({}, [organisation('SP Manweb')]), {
       availabilityLoaded: true,
@@ -128,20 +169,16 @@ describe('ReportingDashboard', () => {
     expect(screen.queryByText(/Reporting data is available from/)).not.toBeInTheDocument();
   });
 
-  it('gives each access request table its own section, heading and Contents link, and groups the organisation columns by role', () => {
+  it('shows the access request tables under h3 headings inside Access requests, with no Contents links of their own, and groups the organisation columns by role', () => {
     showReport(liveReport({ applicant_requests: 2, agent_requests: 1 }, [organisation('SP Manweb', { applicantRequests: 2, agentRequests: 1 })]));
 
     expect(screen.queryByRole('heading', { name: /^By role/ })).not.toBeInTheDocument();
-    const accessHeading = screen.getByRole('heading', { level: 2, name: 'Access requests' });
-    for (const [id, title] of [
-      ['access-requests-by-role', 'Access requests by role'],
-      ['access-requests-by-role-and-organisation', 'Access requests by role and organisation'],
-    ]) {
-      // Same heading level and size as "Access requests".
-      const heading = screen.getByRole('heading', { level: 2, name: title });
-      expect(heading).toHaveClass(accessHeading.className);
-      expect(heading.closest('section')).toHaveAttribute('id', id);
-      expect(screen.getByRole('link', { name: title })).toHaveAttribute('href', `#${id}`);
+    const accessSection = screen.getByRole('heading', { level: 2, name: 'Access requests' }).closest('section') as HTMLElement;
+    for (const title of ['Access requests by role', 'Access requests by role and organisation']) {
+      const heading = screen.getByRole('heading', { level: 3, name: title });
+      expect(heading).toHaveClass('govuk-heading-m');
+      expect(accessSection).toContainElement(heading);
+      expect(within(accessSection).queryByRole('link', { name: title })).not.toBeInTheDocument();
       expect(screen.getByRole('table', { name: title })).toBeInTheDocument();
     }
     const byOrganisation = screen.getByRole('table', { name: 'Access requests by role and organisation' });

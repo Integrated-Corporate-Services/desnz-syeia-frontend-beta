@@ -77,7 +77,7 @@ const ReportingDashboard: React.FC = () => {
 
         {selectedTab === "reports" && (
           <>
-            <h1 className="govuk-heading-xl reporting-dashboard__heading">Reporting dashboard</h1>
+            <h1 className="govuk-heading-l">Reporting dashboard</h1>
             <ReportingFilters
               preset={dashboard.preset}
               startDate={dashboard.startDate}
@@ -117,8 +117,6 @@ const ReportingDashboard: React.FC = () => {
                     metrics={metrics}
                     startDate={dashboard.report.startDate}
                     endDate={dashboard.report.endDate}
-                    generatedAt={dashboard.report.generatedAt}
-                    live={dashboard.report.source === "live"}
                   />
                   <ApplicationsReport metrics={metrics} live={dashboard.report.source === "live"} />
                   <AccessRequestsReport metrics={metrics} organisations={dashboard.report.organisations} />
@@ -130,7 +128,6 @@ const ReportingDashboard: React.FC = () => {
                     filter={dashboard.organisationFilter}
                     onFilterChange={dashboard.setOrganisationFilter}
                     onDownload={canDownloadCsv ? dashboard.downloadCsv : undefined}
-                    live={dashboard.report.source === "live"}
                   />
                 </div>
               </div>
