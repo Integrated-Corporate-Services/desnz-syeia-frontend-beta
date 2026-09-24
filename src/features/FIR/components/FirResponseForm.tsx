@@ -18,6 +18,8 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
   const navigate = useNavigate();
   const { selectedCategories, clearSelectedCategories } = useFirSelectedCategories(applicationId, requestId);
   const uploadRefs = useRef<Record<string, FileUploadHandle | null>>({});
+  // Captures errors from FileUpload's catch path, which resolves triggerUpload with empty scanErrors
+  const uploadErrorsRef = useRef<Record<string, string[]>>({});
   const [comment, setComment] = useState('');
   const [documents, setDocuments] = useState<ApplicationDocument[]>([]);
 
@@ -26,13 +28,15 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
+    uploadErrorsRef.current = {};
 
     const uploadResults = acceptsDocuments
       ? await Promise.all(selectedCategories.map((category) => uploadRefs.current[category]?.triggerUpload()))
       : [];
     const scanError = uploadResults.flatMap((result) => result?.scanErrors || [])[0];
-    if (scanError) {
-      setError(scanError);
+    const validationError = Object.values(uploadErrorsRef.current).flat().find(Boolean);
+    if (scanError || validationError) {
+      setError(scanError || validationError || FIR_MESSAGES.RESPONSE_FAILED);
       return;
     }
 
@@ -84,6 +88,9 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
               uploadEndpoints={firUploadEndpoints(applicationId, requestId)}
               onUploaded={(_files: UploadedFile[], newDocuments) => {
                 setDocuments((current) => [...current, ...newDocuments]);
+              }}
+              onValidationErrors={(errors) => {
+                uploadErrorsRef.current[category] = errors;
               }}
             />
           ))}
