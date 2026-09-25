@@ -140,7 +140,7 @@ const PublicNoticesEvidence: React.FC = () => {
     const firstDateValidation = validateDateComponents(
       { day: firstDateDay, month: firstDateMonth, year: firstDateYear },
       'the first public notice was published',
-      { required: true, allowFutureDate: true }
+      { required: true, allowFutureDate: true, requiredMessage: 'Enter the first date the public notice was published' }
     );
     if (!firstDateValidation.isValid) {
       newErrors.firstDate = firstDateValidation.error!;
@@ -149,7 +149,7 @@ const PublicNoticesEvidence: React.FC = () => {
     const secondDateValidation = validateDateComponents(
       { day: secondDateDay, month: secondDateMonth, year: secondDateYear },
       'the second public notice was published',
-      { required: true, allowFutureDate: true }
+      { required: true, allowFutureDate: true, requiredMessage: 'Enter the second date the public notice was published' }
     );
     if (!secondDateValidation.isValid) {
       newErrors.secondDate = secondDateValidation.error!;
