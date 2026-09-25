@@ -2,6 +2,7 @@ export * from './SummaryCard';
 export * from './SummaryList';
 export * from './PaymentConfirmationPanel';
 export * from './ApplicationSummaryBreadcrumbs';
+export * from './ApplicationReassignment';
 export * from './ApplicationInfoSummaryCard';
 export * from './WithdrawButton';
 export * from './TaskListSummaryBreadcrumbs';
