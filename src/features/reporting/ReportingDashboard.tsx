@@ -9,6 +9,7 @@ import {
   FeedbackReport,
   OrganisationBreakdown,
   PaymentsReport,
+  RegistrationsReport,
   ReportingSummary,
 } from "./components/ReportingSections";
 import { ReportingContents, ReportingFilters } from "./components/ReportingControls";
@@ -23,52 +24,60 @@ const ReportingDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
   const dashboard = useReportingDashboard();
   const [activeTab, setActiveTab] = useState<DashboardTab>("reports");
-  const isTechAdmin = [ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes(
-    (user as AuthUser | undefined)?.role as string
-  );
+  const role = (user as AuthUser | undefined)?.role as string;
+  const canViewReporting = [ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes(role);
+  const canViewOperationalTasks = role === ROLES.TECH_ADMIN;
+  const canDownloadCsv = role === ROLES.TECH_ADMIN;
 
-  if (!isTechAdmin) return <Navigate to="/application-dashboard" replace />;
+  if (!canViewReporting) return <Navigate to="/application-dashboard" replace />;
+
+  const selectedTab = canViewOperationalTasks ? activeTab : "reports";
 
   const metrics = new Map(
     dashboard.report?.metrics.map((metric) => [metric.key, metric.value]) || []
   );
+  // Live reports always show every section (a range with no activity shows zeros, with every
+  // organisation listed); snapshot reports show the "no data" message when there is nothing to show.
   const hasReportData = Boolean(
     dashboard.report &&
-      (dashboard.report.organisations.length > 0 ||
+      (dashboard.report.source === "live" ||
+        dashboard.report.organisations.length > 0 ||
         dashboard.report.metrics.some((metric) => metric.value > 0))
   );
 
   return (
     <div className="govuk-grid-row reporting-dashboard">
       <div className="govuk-grid-column-full">
-        <nav className="govuk-tabs reporting-dashboard__nav" aria-label="Reporting sections">
-          <ul className="govuk-tabs__list">
-            <li className={`govuk-tabs__list-item${activeTab === "reports" ? " govuk-tabs__list-item--selected" : ""}`}>
-              <button
-                type="button"
-                className="govuk-tabs__tab reporting-dashboard__tab-button"
-                onClick={() => setActiveTab("reports")}
-              >
-                Reports
-              </button>
-            </li>
-            <li className={`govuk-tabs__list-item${activeTab === "operational-tasks" ? " govuk-tabs__list-item--selected" : ""}`}>
-              <button
-                type="button"
-                className="govuk-tabs__tab reporting-dashboard__tab-button"
-                onClick={() => setActiveTab("operational-tasks")}
-              >
-                Operational tasks
-              </button>
-            </li>
-          </ul>
-        </nav>
+        {canViewOperationalTasks && (
+          <nav className="govuk-tabs reporting-dashboard__nav" aria-label="Reporting sections">
+            <ul className="govuk-tabs__list">
+              <li className={`govuk-tabs__list-item${selectedTab === "reports" ? " govuk-tabs__list-item--selected" : ""}`}>
+                <button
+                  type="button"
+                  className="govuk-tabs__tab reporting-dashboard__tab-button"
+                  onClick={() => setActiveTab("reports")}
+                >
+                  Reports
+                </button>
+              </li>
+              <li className={`govuk-tabs__list-item${selectedTab === "operational-tasks" ? " govuk-tabs__list-item--selected" : ""}`}>
+                <button
+                  type="button"
+                  className="govuk-tabs__tab reporting-dashboard__tab-button"
+                  onClick={() => setActiveTab("operational-tasks")}
+                >
+                  Operational tasks
+                </button>
+              </li>
+            </ul>
+          </nav>
+        )}
 
-        {activeTab === "operational-tasks" && <OperationalTasks />}
+        {selectedTab === "operational-tasks" && <OperationalTasks />}
 
-        {activeTab === "reports" && (
+        {selectedTab === "reports" && (
           <>
-            <h1 className="govuk-heading-xl reporting-dashboard__heading">Reporting dashboard</h1>
+            <h1 className="govuk-heading-l">Reporting dashboard</h1>
             <ReportingFilters
               preset={dashboard.preset}
               startDate={dashboard.startDate}
@@ -109,15 +118,16 @@ const ReportingDashboard: React.FC = () => {
                     startDate={dashboard.report.startDate}
                     endDate={dashboard.report.endDate}
                   />
-                  <ApplicationsReport metrics={metrics} />
-                  <AccessRequestsReport metrics={metrics} />
+                  <ApplicationsReport metrics={metrics} live={dashboard.report.source === "live"} />
+                  <AccessRequestsReport metrics={metrics} organisations={dashboard.report.organisations} />
                   <PaymentsReport metrics={metrics} />
                   <FeedbackReport metrics={metrics} />
+                  <RegistrationsReport metrics={metrics} live={dashboard.report.source === "live"} />
                   <OrganisationBreakdown
                     organisations={dashboard.visibleOrganisations}
                     filter={dashboard.organisationFilter}
                     onFilterChange={dashboard.setOrganisationFilter}
-                    onDownload={dashboard.downloadCsv}
+                    onDownload={canDownloadCsv ? dashboard.downloadCsv : undefined}
                   />
                 </div>
               </div>

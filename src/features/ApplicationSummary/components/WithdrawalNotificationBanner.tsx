@@ -1,7 +1,13 @@
 import React from 'react';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
 
-export const WithdrawalNotificationBanner: React.FC = () => {
+interface WithdrawalNotificationBannerProps {
+    message?: string;
+}
+
+export const WithdrawalNotificationBanner: React.FC<WithdrawalNotificationBannerProps> = ({
+    message = CONSTANTS.REVIEW_LAYOUT.WITHDRAWAL.NOTIFICATION_BANNER,
+}) => {
     return (
         <div
             className="govuk-notification-banner"
@@ -20,7 +26,7 @@ export const WithdrawalNotificationBanner: React.FC = () => {
             </div>
             <div className="govuk-notification-banner__content">
                 <p className="govuk-notification-banner__heading">
-                    {CONSTANTS.REVIEW_LAYOUT.WITHDRAWAL.NOTIFICATION_BANNER}
+                    {message}
                 </p>
             </div>
         </div>
