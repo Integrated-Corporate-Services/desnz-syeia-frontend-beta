@@ -17,16 +17,22 @@ export const REPORT_SECTION_LINKS = [
   ["access-requests", "Access requests"],
   ["payments", "Payments"],
   ["feedback", "Feedback"],
+  ["registrations", "Registrations"],
   ["organisation-breakdown", "Organisation breakdown"],
 ] as const;
 
 export const APPLICATION_STATUS_ROWS: Array<[string, StatusColour, string, string]> = [
   ["Draft", "grey", "s37_draft", "nwl_draft"],
+  ["Processing payment", "grey", "s37_processing_payment", "nwl_processing_payment"],
   ["Submitted", "grey", "s37_status_submitted", "nwl_status_submitted"],
   ["Under review", "blue", "s37_under_review", "nwl_under_review"],
+  ["In progress", "blue", "s37_in_progress", "nwl_in_progress"],
   ["Further information requested", "yellow", "s37_further_information_requested", "nwl_further_information_requested"],
+  ["Representation stage", "blue", "s37_representation_stage", "nwl_representation_stage"],
   ["In abeyance", "grey", "s37_in_abeyance", "nwl_in_abeyance"],
   ["Decision issued", "green", "s37_decision_issued", "nwl_decision_issued"],
+  // Archived, withdrawn or invalid: the application dashboard's Archived tab.
+  ["Archived", "grey", "s37_archived", "nwl_archived"],
 ];
 
 export const REPORTING_MESSAGES = {
