@@ -61,3 +61,9 @@ export const FIR_MESSAGES = {
   RESPONSE_REQUIRED: 'Provide information or upload a document.',
   RESPONSE_FAILED: 'The information could not be submitted. Try again shortly.',
 } as const;
+
+// NWL and TL applications share the same application team mailbox
+export const FIR_CONTACT_EMAIL = {
+  S37: 's37consents@energysecurity.gov.uk',
+  NWL: 'necessarywayleaves@energysecurity.gov.uk',
+} as const;
