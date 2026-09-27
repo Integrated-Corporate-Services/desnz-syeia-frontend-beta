@@ -22,8 +22,17 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
   const uploadErrorsRef = useRef<Record<string, string[]>>({});
   const [comment, setComment] = useState('');
   const [documents, setDocuments] = useState<ApplicationDocument[]>([]);
+  const [uploadedFilesByCategory, setUploadedFilesByCategory] = useState<Record<string, UploadedFile[]>>({});
 
   if (!applicationId || !requestId) return null;
+
+  const handleDeleteFile = (category: string, fileId: string) => {
+    setUploadedFilesByCategory((current) => ({
+      ...current,
+      [category]: (current[category] || []).filter((file) => file.id !== fileId),
+    }));
+    setDocuments((current) => current.filter((document) => document.fileId !== fileId));
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -78,21 +87,38 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
       {request && (
         <form onSubmit={submit} noValidate>
           {acceptsDocuments && selectedCategories.map((category) => (
-            <FileUpload
-              key={category}
-              ref={(instance) => { uploadRefs.current[category] = instance; }}
-              title={`Upload ${FIR_CATEGORY_LABELS[category] || category}`}
-              applicationId={applicationId}
-              category={category}
-              prefix={`${applicationId}/FURTHER_INFORMATION_REQUESTED/${requestId}/${category}`}
-              uploadEndpoints={firUploadEndpoints(applicationId, requestId)}
-              onUploaded={(_files: UploadedFile[], newDocuments) => {
-                setDocuments((current) => [...current, ...newDocuments]);
-              }}
-              onValidationErrors={(errors) => {
-                uploadErrorsRef.current[category] = errors;
-              }}
-            />
+            <div className="govuk-!-margin-bottom-6" key={category}>
+              <h2 className="govuk-heading-m govuk-!-margin-bottom-2">Upload {FIR_CATEGORY_LABELS[category] || category}</h2>
+              <details className="govuk-details" data-module="govuk-details" open={(uploadedFilesByCategory[category]?.length ?? 0) > 0}>
+                <summary className="govuk-details__summary">
+                  <span className="govuk-details__summary-text">View or add documents</span>
+                </summary>
+                <div className="govuk-details__text">
+                  <FileUpload
+                    ref={(instance) => { uploadRefs.current[category] = instance; }}
+                    title="Upload documents"
+                    applicationId={applicationId}
+                    category={category}
+                    prefix={`${applicationId}/FURTHER_INFORMATION_REQUESTED/${requestId}/${category}`}
+                    uploadEndpoints={firUploadEndpoints(applicationId, requestId)}
+                    uploadImmediately
+                    uploadedFiles={uploadedFilesByCategory[category] || []}
+                    applicationDocuments={documents}
+                    onUploaded={(newFiles, newDocuments) => {
+                      setUploadedFilesByCategory((current) => ({
+                        ...current,
+                        [category]: [...(current[category] || []), ...newFiles],
+                      }));
+                      setDocuments((current) => [...current, ...newDocuments]);
+                    }}
+                    onDeleteFile={(fileId) => handleDeleteFile(category, fileId)}
+                    onValidationErrors={(errors) => {
+                      uploadErrorsRef.current[category] = errors;
+                    }}
+                  />
+                </div>
+              </details>
+            </div>
           ))}
           <div className="govuk-form-group">
             <label className="govuk-label govuk-label--s" htmlFor="additional-information">
@@ -105,8 +131,11 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
               maxLength={4000}
               value={comment}
               onChange={(event) => setComment(event.target.value)}
+              aria-describedby="additional-information-hint"
             />
-            <div className="govuk-hint">You can enter up to 4,000 characters.</div>
+            <div id="additional-information-hint" className="govuk-hint" aria-live="polite">
+              You can enter up to {(4000 - comment.length).toLocaleString()} characters.
+            </div>
           </div>
           <button className="govuk-button" type="submit">Submit</button>
         </form>
