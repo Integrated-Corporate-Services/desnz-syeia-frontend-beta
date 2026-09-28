@@ -60,7 +60,6 @@ const ChangeOrganisationNamePage: React.FC = () => {
         <Link className="govuk-back-link" to={backPath}>Back</Link>
         <main className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-l">Organisation name</h1>
             {errorMessage && (
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} ref={errorSummaryRef}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
@@ -73,6 +72,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
                 </div>
               </div>
             )}
+            <h1 className="govuk-heading-l">Organisation name</h1>
             {loading ? <p className="govuk-body">Loading...</p> : (
               <>
                 <form noValidate onSubmit={handleSubmit}>

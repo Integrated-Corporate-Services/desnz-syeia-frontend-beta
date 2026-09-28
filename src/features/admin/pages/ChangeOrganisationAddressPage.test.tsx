@@ -77,10 +77,10 @@ describe('ChangeOrganisationAddressPage', () => {
     expect(
       await screen.findAllByText('Enter address line 1, typically the building and street')
     ).toHaveLength(2);
-    expect(screen.getAllByText('Enter a town or city')).toHaveLength(2);
+    expect(screen.getAllByText('Enter town or city')).toHaveLength(2);
     expect(screen.getAllByText('Enter postcode')).toHaveLength(2);
     expect(screen.getByRole('alert')).toHaveAccessibleName('There is a problem');
-    expect(within(screen.getByRole('alert')).getByRole('link', { name: 'Enter a town or city' })).toHaveAttribute(
+    expect(within(screen.getByRole('alert')).getByRole('link', { name: 'Enter town or city' })).toHaveAttribute(
       'href',
       '#townCity'
     );
