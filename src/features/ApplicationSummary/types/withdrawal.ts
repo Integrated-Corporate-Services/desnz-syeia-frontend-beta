@@ -4,4 +4,5 @@ export interface WithdrawalRequest {
     voluntary_agreement?: boolean;
     withdrawal_reason?: string | null;
     requested_at?: string;
+    banner_acknowledged_at?: string | null;
 }
