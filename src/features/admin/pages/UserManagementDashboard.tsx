@@ -42,8 +42,8 @@ const UserManagementDashboard: React.FC = () => {
             <h1 className="govuk-heading-l">User Management Dashboard</h1>
             <p className="govuk-body-m">
               {isSuperUser
-                ? "Manage access requests and users across all Distribution Network Operators."
-                : "Manage access requests and users for your organisation"}
+                ? "Manage access request and users across all Distribution Network Operators."
+                : "Manage access request and users for your organisation"}
             </p>
 
             <TabNavigation
