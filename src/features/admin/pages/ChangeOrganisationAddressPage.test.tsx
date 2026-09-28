@@ -78,7 +78,7 @@ describe('ChangeOrganisationAddressPage', () => {
       await screen.findAllByText('Enter address line 1, typically the building and street')
     ).toHaveLength(2);
     expect(screen.getAllByText('Enter a town or city')).toHaveLength(2);
-    expect(screen.getAllByText('Enter a full UK postcode')).toHaveLength(2);
+    expect(screen.getAllByText('Enter postcode')).toHaveLength(2);
     expect(screen.getByRole('alert')).toHaveAccessibleName('There is a problem');
     expect(within(screen.getByRole('alert')).getByRole('link', { name: 'Enter a town or city' })).toHaveAttribute(
       'href',
@@ -91,13 +91,13 @@ describe('ChangeOrganisationAddressPage', () => {
   it('shows field validation errors returned by the API', async () => {
     vi.mocked(organisationService.updateOrganisationAddress).mockResolvedValue({
       success: false,
-      validationErrors: { postcode: 'Enter a full UK postcode' },
+      validationErrors: { postcode: 'Enter postcode' },
     });
     renderPage();
 
     fireEvent.click(screen.getByRole('button', { name: 'Use this address' }));
 
-    expect(await screen.findAllByText('Enter a full UK postcode')).toHaveLength(2);
+    expect(await screen.findAllByText('Enter postcode')).toHaveLength(2);
   });
 
   it('submits normalised values and returns to manage organisation on success', async () => {
