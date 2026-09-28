@@ -4,8 +4,19 @@ import PageTitle from '../../../components/PageTitle';
 import { useOrganisation } from '../../../hooks';
 import organisationService from '../../../services/organisationService';
 
-type AddressErrors = Partial<Record<'line1' | 'townCity' | 'postcode' | 'submit', string>>;
+type AddressErrors = Partial<Record<'line1' | 'line2' | 'townCity' | 'county' | 'postcode' | 'submit', string>>;
 const UK_POSTCODE_REGEX = /^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$/i;
+// keep in sync with backend limits in organisationsController.ts
+const ADDRESS_LINE_MAX_LENGTH = 255;
+const ADDRESS_TOWN_COUNTY_MAX_LENGTH = 100;
+const ADDRESS_POSTCODE_MAX_LENGTH = 10;
+const FIELD_MAX_LENGTHS: Record<'line1' | 'line2' | 'townCity' | 'county' | 'postcode', number> = {
+  line1: ADDRESS_LINE_MAX_LENGTH,
+  line2: ADDRESS_LINE_MAX_LENGTH,
+  townCity: ADDRESS_TOWN_COUNTY_MAX_LENGTH,
+  county: ADDRESS_TOWN_COUNTY_MAX_LENGTH,
+  postcode: ADDRESS_POSTCODE_MAX_LENGTH,
+};
 
 const ChangeOrganisationAddressPage: React.FC = () => {
   const { organisationId = '' } = useParams<{ organisationId: string }>();
@@ -40,7 +51,11 @@ const ChangeOrganisationAddressPage: React.FC = () => {
     event.preventDefault();
     const nextErrors: AddressErrors = {};
     if (!form.line1.trim()) nextErrors.line1 = 'Enter address line 1, typically the building and street';
+    else if (form.line1.trim().length > FIELD_MAX_LENGTHS.line1) nextErrors.line1 = `Address line 1 must be ${FIELD_MAX_LENGTHS.line1} characters or fewer`;
+    if (form.line2.trim().length > FIELD_MAX_LENGTHS.line2) nextErrors.line2 = `Address line 2 must be ${FIELD_MAX_LENGTHS.line2} characters or fewer`;
     if (!form.townCity.trim()) nextErrors.townCity = 'Enter a town or city';
+    else if (form.townCity.trim().length > FIELD_MAX_LENGTHS.townCity) nextErrors.townCity = `Town or city must be ${FIELD_MAX_LENGTHS.townCity} characters or fewer`;
+    if (form.county.trim().length > FIELD_MAX_LENGTHS.county) nextErrors.county = `County must be ${FIELD_MAX_LENGTHS.county} characters or fewer`;
     if (!UK_POSTCODE_REGEX.test(form.postcode.trim())) nextErrors.postcode = 'Enter a full UK postcode';
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
@@ -103,7 +118,7 @@ const ChangeOrganisationAddressPage: React.FC = () => {
                     <div key={field} className={`govuk-form-group${errors[field as keyof AddressErrors] ? ' govuk-form-group--error' : ''}`}>
                       <label className="govuk-label govuk-label--m" htmlFor={field}>{label}</label>
                       {errors[field as keyof AddressErrors] && <p id={`${field}-error`} className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {errors[field as keyof AddressErrors]}</p>}
-                      <input aria-describedby={errors[field as keyof AddressErrors] ? `${field}-error` : undefined} className={`govuk-input${errors[field as keyof AddressErrors] ? ' govuk-input--error' : ''}`} id={field} autoComplete={autoComplete} value={form[field]} onChange={(event) => updateField(field, event.target.value)} />
+                      <input aria-describedby={errors[field as keyof AddressErrors] ? `${field}-error` : undefined} className={`govuk-input${errors[field as keyof AddressErrors] ? ' govuk-input--error' : ''}`} id={field} autoComplete={autoComplete} maxLength={FIELD_MAX_LENGTHS[field]} value={form[field]} onChange={(event) => updateField(field, event.target.value)} />
                     </div>
                   ))}
                   <div className="govuk-form-group">

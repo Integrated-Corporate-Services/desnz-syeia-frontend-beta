@@ -96,25 +96,25 @@ export interface DateValidationResult {
  * Validate a date from day, month, year components
  * @param dateComponents - Object containing day, month, year strings
  * @param dateDescription - Full phrase describing the date for error messages, e.g. "the consultation request was sent"
- * @param options - Validation options
+ * @param options - Validation options. `requiredMessage` overrides the default "Enter the date X" wording used when all fields are empty.
  * @returns Validation result with error message if invalid
  */
 export const validateDateComponents = (
   dateComponents: DateComponents,
   dateDescription: string,
-  options: { required?: boolean; allowFutureDate?: boolean } = { required: true }
+  options: { required?: boolean; allowFutureDate?: boolean; requiredMessage?: string } = { required: true }
 ): DateValidationResult => {
   const day = dateComponents.day.trim();
   const month = dateComponents.month.trim();
   const year = dateComponents.year.trim();
-  const { required = true, allowFutureDate = false } = options;
+  const { required = true, allowFutureDate = false, requiredMessage } = options;
 
   // Check if all fields are empty
   if (!day && !month && !year) {
     if (required) {
       return {
         isValid: false,
-        error: `Enter the date ${dateDescription}`
+        error: requiredMessage || `Enter the date ${dateDescription}`
       };
     }
     return { isValid: true };

@@ -11,6 +11,24 @@
  */
 
 /* ==========================================================================
+   ORGANISATIONS TABLE - ADDRESS COLUMN OVERFLOW GUARD
+   Caps the address column width so legacy long values wrap instead of
+   pushing the Action(s) column off-layout (limits are now also enforced
+   at input/API level, see ChangeOrganisationAddressPage/organisationsController)
+   ========================================================================== */
+.organisations-table .govuk-table__cell:nth-child(3),
+.organisations-table .govuk-table__header:nth-child(3) {
+  max-width: 320px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.organisations-table .govuk-table__cell:last-child,
+.organisations-table .govuk-table__header:last-child {
+  white-space: nowrap;
+}
+
+/* ==========================================================================
    MOBILE APPLICATION CARDS
    Converts table rows to stacked cards on mobile devices
    ========================================================================== */
