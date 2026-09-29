@@ -6,6 +6,41 @@ import { createLogger } from "../utils/logger";
 const logger = createLogger('application-api');
 
 export const applicationApiService = {
+  getEligibleAssignees: async (applicationId: string) => {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/eligible-assignees`), {
+      credentials: "include",
+      headers: { "X-Correlation-ID": generateCorrelationId() },
+    });
+    if (!response.ok) throw new Error("Unable to load eligible assignees");
+    return response.json();
+  },
+
+  reassignApplication: async (applicationId: string, newAssigneeId: string, justification: string) => {
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/assignment`), {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", "X-Correlation-ID": generateCorrelationId(), ...csrfHeaders },
+      body: JSON.stringify({ new_assignee_id: newAssigneeId, justification }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Unable to reassign application");
+    return data;
+  },
+
+  getAssignmentHistory: async (applicationId: string) => {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/assignment-history`), {
+      credentials: "include",
+      headers: { "X-Correlation-ID": generateCorrelationId() },
+    });
+    if (!response.ok) throw new Error("Unable to load assignment history");
+    return response.json();
+  },
+
   // Fetch applications for a user
   fetchApplicationsByUser: async (
     created_by: string,

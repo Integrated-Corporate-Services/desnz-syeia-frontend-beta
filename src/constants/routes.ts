@@ -96,6 +96,7 @@ import ManageUserPage from '../features/admin/pages/ManageUserPage';
 import ChangeUserRolePage from '../features/admin/pages/ChangeUserRolePage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ReportingDashboard from '../features/reporting/ReportingDashboard';
+import { NotificationsPage, NOTIFICATIONS_PATH } from '../features/InAppNotifications';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
@@ -156,6 +157,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/admin/reporting',
         component: ReportingDashboard,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: NOTIFICATIONS_PATH,
+        component: NotificationsPage,
         auth: true,
         layout: true,
     },

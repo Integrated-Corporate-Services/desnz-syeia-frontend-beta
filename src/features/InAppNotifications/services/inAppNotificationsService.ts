@@ -18,9 +18,8 @@ export async function getUnreadNotificationCount(): Promise<number | null> {
   return response?.count ?? null;
 }
 
-export async function getInAppNotifications(): Promise<InAppNotificationsResponse['notifications'] | null> {
-  const response = await request<InAppNotificationsResponse>('/in-app-notifications');
-  return response?.notifications ?? null;
+export async function getInAppNotifications(page: number, limit: number): Promise<InAppNotificationsResponse | null> {
+  return request<InAppNotificationsResponse>(`/in-app-notifications?page=${page}&limit=${limit}`);
 }
 
 export async function markInAppNotificationRead(notificationId: string): Promise<boolean> {

@@ -3,8 +3,6 @@ import React from 'react';
 import { useAuthUserContext } from '../../context/AuthUserContext';
 import { logout } from '../../services/authService';
 import type { AuthUser } from '../../types/auth';
-import { InAppNotificationsBell } from '../../features/InAppNotifications';
-import { ROLES } from '../../constants/roles';
 import '../../styles/Header.css';
 
 const Header = () => {
@@ -52,7 +50,6 @@ const Header = () => {
                 {user && (
                     <div className="app-top-header__auth">
                         <div className="app-header-auth" aria-label="User menu">
-                                {(user as AuthUser).role === ROLES.TECH_ADMIN && <InAppNotificationsBell />}
                                 <span className="app-header-auth__identity">
                                     <span className="app-header-auth__user">{fullName || 'User'}</span>
                                     <span className="app-header-auth__profile-icon" aria-hidden="true">
