@@ -9,19 +9,16 @@ import {
     TaskListSummaryBreadcrumbs,
     ApplicationSummaryBreadcrumbs,
     ApplicationSummaryContent,
-    ApplicationReassignment,
+    ApplicationReassignmentLinks,
+    ReassignmentSuccessBanner,
 } from '../components';
 import PageTitle from '../../../components/PageTitle';
-import { useAuthUserContext } from '../../../context/AuthUserContext';
-import { getUserRole } from '../../../utils/roleUtils';
 
 export const ApplicationSummaryPage: React.FC = () => {
     const { applicationId } = useParams<{ applicationId: string }>();
     const location = useLocation();
     const isNWL = location.pathname.includes('/nwl/');
     const { withdrawalRequest } = useWithdrawalRequest(applicationId);
-    const { user } = useAuthUserContext();
-    const canReassign = ['SUPERUSER', 'APPLICANT_TEAM_COORDINATOR'].includes(getUserRole(user as any) || '');
     
     useDocumentDownload(applicationId);
 
@@ -124,12 +121,13 @@ export const ApplicationSummaryPage: React.FC = () => {
 
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
+                        <ReassignmentSuccessBanner />
                         <ApplicationSummaryContent
                             data={data}
                             applicationId={applicationId!}
                             withdrawalRequest={withdrawalRequest}
                         />
-                        <ApplicationReassignment applicationId={applicationId!} status={data.status} canReassign={canReassign} />
+                        <ApplicationReassignmentLinks applicationId={applicationId!} status={data.status} />
                     </div>
                 </div>
                     </div>

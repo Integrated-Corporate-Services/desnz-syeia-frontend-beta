@@ -10,6 +10,7 @@ const L = CONSTANTS.REVIEW_LAYOUT;
 interface ReviewApplicationInfoCardProps {
     desnzRef: string | null;
     status: string | null;
+    assigneeName?: string | null;
     withdrawalRequest?: WithdrawalRequest | null;
 }
 
@@ -22,6 +23,7 @@ const getWithdrawalStatusTagClass = (requestStatus: string): string => {
 export const ReviewApplicationInfoCard: React.FC<ReviewApplicationInfoCardProps> = ({
     desnzRef,
     status,
+    assigneeName,
     withdrawalRequest,
 }) => {
     const statusLabel = status ? getApplicationStatusLabel(status) : L.DEFAULTS.NOT_AVAILABLE;
@@ -34,6 +36,7 @@ export const ReviewApplicationInfoCard: React.FC<ReviewApplicationInfoCardProps>
             key: { text: L.SUMMARY_CARD.DESNZ_REF },
             value: { text: desnzRef || L.DEFAULTS.NOT_AVAILABLE },
         },
+        ...(assigneeName ? [{ key: { text: 'Assigned to' }, value: { text: assigneeName } }] : []),
         {
             key: { text: L.SUMMARY_CARD.CASE_TYPE },
             value: { text: L.CASE_TYPE_LABEL },
