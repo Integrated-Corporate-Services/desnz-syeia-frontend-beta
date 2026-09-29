@@ -53,6 +53,7 @@ import BankTransferSuccessPage from '../Payments/pages/BankTransferSuccessPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
 import PaymentFailurePage from '../Payments/pages/PaymentFailurePage';
 import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
+import { ReassignmentPage, ReassignmentHistoryPage } from '../ApplicationSummary/components/ApplicationReassignment';
 // Shared withdraw pages (multi-type: reads application type from API/URL; NWL paths below)
 import WithdrawApplicationPage from '../CheckYourAnswers/pages/WithdrawApplicationPage';
 import WithdrawalConfirmationPage from '../CheckYourAnswers/pages/WithdrawalConfirmationPage';
@@ -430,6 +431,18 @@ export const nwlApplicationSummaryRoutes = [
     {
         path: `${NWL_BASE_URL}/:applicationId/application-summary`,
         component: ApplicationSummaryPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/reassign`,
+        component: ReassignmentPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/reassignment-history`,
+        component: ReassignmentHistoryPage,
         auth: true,
         layout: true,
     },

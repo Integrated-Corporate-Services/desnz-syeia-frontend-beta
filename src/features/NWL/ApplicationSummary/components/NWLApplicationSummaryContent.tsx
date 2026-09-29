@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { ApplicationReviewSummaryData } from '../../../ApplicationSummary/types/reviewSummary';
@@ -28,6 +28,7 @@ import {
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CYA_CONSTANTS } from '../../CheckYourAnswers/constants';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../ApplicationSummary/constants';
 import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
+import { applicationApiService } from '../../../../services/applicationApiService';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -41,6 +42,10 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     withdrawalRequest,
 }) => {
     const navigate = useNavigate();
+    const [assigneeName, setAssigneeName] = useState<string | null>(null);
+    useEffect(() => {
+        applicationApiService.getAssignmentHistory(applicationId).then((details) => setAssigneeName(details.current_assignee_name)).catch(() => setAssigneeName(null));
+    }, [applicationId]);
     const {
         isDownloading,
         isDownloadingPackage,
@@ -128,6 +133,7 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
             <ReviewApplicationInfoCard
                 desnzRef={data.desnzRef}
                 status={data.status}
+                assigneeName={assigneeName}
                 withdrawalRequest={withdrawalRequest}
             />
 
