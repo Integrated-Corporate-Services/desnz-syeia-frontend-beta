@@ -30,6 +30,7 @@ import { CHECK_YOUR_ANSWERS_CONSTANTS as CYA_CONSTANTS } from '../../CheckYourAn
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../ApplicationSummary/constants';
 import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
 import { isFirFeatureDisabled } from '../../../../utils/disabledFormTypes';
+import { applicationApiService } from '../../../../services/applicationApiService';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;

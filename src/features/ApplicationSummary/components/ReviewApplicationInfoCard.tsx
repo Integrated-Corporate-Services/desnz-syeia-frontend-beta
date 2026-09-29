@@ -36,6 +36,7 @@ export const ReviewApplicationInfoCard: React.FC<ReviewApplicationInfoCardProps>
             key: { text: L.SUMMARY_CARD.DESNZ_REF },
             value: { text: desnzRef || L.DEFAULTS.NOT_AVAILABLE },
         },
+        ...(assigneeName ? [{ key: { text: 'Assigned to' }, value: { text: assigneeName } }] : []),
         {
             key: { text: 'Assigned to' },
             value: { text: assigneeName || 'Not assigned' },
