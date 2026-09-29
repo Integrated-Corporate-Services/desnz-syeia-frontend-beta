@@ -73,8 +73,8 @@ import ConsultationWithdrawnPage from '../features/Consultation/pages/Consultati
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
-import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
-import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
+// import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
+// import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
 import AccessRequestIntroPage from '../features/SignIn/AccessRequestIntroPage';
 import ContactDetailsPage from '../features/SignIn/ContactDetailsPage';
@@ -356,18 +356,18 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: false,
         layout: true,
     },
-    {
-        path: '/s37-guidance',
-        component: Section37GuidancePage,
-        auth: false,
-        layout: true,
-    },
-    {
-        path: '/nwl-guidance',
-        component: NWLGuidancePage,
-        auth: false,
-        layout: true,
-    },
+    // {
+    //     path: '/s37-guidance',
+    //     component: Section37GuidancePage,
+    //     auth: false,
+    //     layout: true,
+    // },
+    // {
+    //     path: '/nwl-guidance',
+    //     component: NWLGuidancePage,
+    //     auth: false,
+    //     layout: true,
+    // },
 
     {
         path: '/otp-verify',
