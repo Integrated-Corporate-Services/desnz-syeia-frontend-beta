@@ -111,6 +111,7 @@ export const FurtherInformationRequestsPage: React.FC = () => {
           key={request.furtherInformationRequestId}
           request={request}
           title={`Further information request ${openRequests.length - index}`}
+          action={<Link className="govuk-button" to={`${requestPath}/${request.furtherInformationRequestId}/respond`}>Provide information</Link>}
         />
       ))}
       {completedRequests.length > 0 && <>
